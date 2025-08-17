@@ -99,7 +99,29 @@ jobs:
           # SSH into EC2 and deploy
           ssh -i ~/.ssh/id_rsa -p "$PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$USER@$HOST" << 'EOF'
             set -e
-            cd ~/client-panel-dev || { mkdir -p ~/client-panel-dev; cd ~/client-panel-dev; }
+            
+            # Create directory if it doesn't exist
+            mkdir -p ~/client-panel-dev
+            cd ~/client-panel-dev
+
+            # Install Node.js if not present
+            if ! command -v node >/dev/null 2>&1; then
+              curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+            fi
+
+            # Install Yarn if not present
+            if ! command -v yarn >/dev/null 2>&1; then
+              curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+              echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+              sudo apt update
+              sudo apt install yarn -y
+            fi
+
+            # Install PM2 if not present
+            if ! command -v pm2 >/dev/null 2>&1; then
+              sudo npm install -g pm2
+            fi
 
             # Stop and remove old app
             pm2 delete client-dev || true
