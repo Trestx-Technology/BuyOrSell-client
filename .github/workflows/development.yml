@@ -1,0 +1,101 @@
+name: Development Deployment
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run linting
+      run: npm run lint
+      
+    - name: Run type checking
+      run: npm run build
+      
+    - name: Run tests (if configured)
+      run: npm test --if-present
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: development-build
+        path: .next/
+        retention-days: 3
+
+  deploy-dev:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: development-build
+        path: .next/
+        
+    - name: Deploy to development environment
+      run: |
+        echo "Deploying to development environment..."
+        # Add your development deployment commands here
+        # Examples:
+        # - Deploy to staging server
+        # - Deploy to development Vercel preview
+        # - Deploy to development AWS environment
+        
+    - name: Notify deployment success
+      run: |
+        echo "Development deployment completed successfully!"
+        # Add notification logic here (Slack, Discord, etc.)
+
+  preview:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: development-build
+        path: .next/
+        
+    - name: Create preview deployment
+      run: |
+        echo "Creating preview deployment for PR #${{ github.event.number }}"
+        # Add preview deployment logic here
+        # This could be a Vercel preview, Netlify preview, etc.
+        
+    - name: Comment PR with preview URL
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '🚀 Preview deployment created! Check the deployment status above.'
+          })
