@@ -13,10 +13,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: "yarn"
@@ -26,35 +26,8 @@ jobs:
 
       - name: Build Next.js app
         env:
-          # Commented out environment variables - uncomment as needed
-          # # Backend URLs
-          # NEXT_PUBLIC_BACKEND_URL: ${{ vars.NEXT_PUBLIC_BACKEND_URL }}
-
-          # # Mapbox
-          # NEXT_PUBLIC_MAPBOX_TOKEN: ${{ vars.NEXT_PUBLIC_MAPBOX_TOKEN }}
-
-          # # Firebase (existing names)
-          # NEXT_PUBLIC_API_KEY: ${{ vars.NEXT_PUBLIC_API_KEY }}
-          # NEXT_PUBLIC_DATABASE_URL: ${{ vars.NEXT_PUBLIC_FIREBASE_DATABASE_URL }}
-          # NEXT_PUBLIC_AUTH_DOMAIN: ${{ vars.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
-          # NEXT_PUBLIC_PROJECT_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
-          # NEXT_PUBLIC_STORAGE_BUCKET: ${{ vars.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
-          # NEXT_PUBLIC_MESSAGING_SENDER_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
-          # NEXT_PUBLIC_APP_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_APP_ID }}
-          # NEXT_PUBLIC_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
-          # NEXT_PUBLIC_FIREBASE_VAPID_KEY: ${{ vars.NEXT_PUBLIC_FIREBASE_VAPID_KEY }}
-          # FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
-
-          # # Google OAuth
-          # GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          # GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-
-          # # Stripe
-          # NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
-          # STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-
           # Build flags
-          NODE_ENV: development
+          NODE_ENV: production
           NEXT_TELEMETRY_DISABLED: "1"
         run: yarn build
 
@@ -68,11 +41,11 @@ jobs:
           cp -r public deploy-package/
           cp package.json deploy-package/
           cp yarn.lock deploy-package/
-          cp ecosystem.config.cjs deploy-package/ 2>/dev/null || true
+          cp ecosystem.config.js deploy-package/ 2>/dev/null || true
           cp next.config.js deploy-package/ 2>/dev/null || true
           cp next.config.ts deploy-package/ 2>/dev/null || true
 
-          # Create compressed archive excluding maps and any cache directories just in case
+          # Create compressed archive excluding maps and any cache directories
           tar -czf release.tgz \
             --exclude=".next/cache" \
             --exclude="**/*.map" \
@@ -82,7 +55,6 @@ jobs:
         run: |
           BYTES=$(stat -c%s "release.tgz" 2>/dev/null || stat -f%z "release.tgz")
           echo "release.tgz size: $BYTES bytes"
-          # 1 GB = 1073741824 bytes
           if [ "$BYTES" -ge 1073741824 ]; then
             echo "Error: release.tgz exceeds 1 GB limit" >&2
             exit 1
@@ -93,65 +65,30 @@ jobs:
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
 
-          # Prefer base64-encoded key if provided; otherwise, interpret escaped newlines in plain secret
           if [ -n "${{ secrets.EC2_SSH_KEY_BASE64 }}" ]; then
             echo "${{ secrets.EC2_SSH_KEY_BASE64 }}" | base64 -d > ~/.ssh/id_rsa
           else
             KEY="${{ secrets.EC2_SSH_KEY }}"
-            # Interpret \n sequences as real newlines and strip CR characters
             printf "%b" "$KEY" | tr -d '\r' > ~/.ssh/id_rsa
           fi
           chmod 600 ~/.ssh/id_rsa
 
-          # Determine SSH parameters with sensible defaults
           HOST="${{ secrets.EC2_DEVELOPMENT_HOST }}"
-          USER="${{ secrets.EC2_SSH_USER }}"
-          if [ -z "$USER" ]; then USER="${{ vars.EC2_SSH_USER }}"; fi
+          USER="${{ secrets.EC2_USER }}"
+          if [ -z "$USER" ]; then USER="${{ vars.EC2_USER }}"; fi
           if [ -z "$USER" ]; then USER="ubuntu"; fi
           PORT="${{ secrets.EC2_SSH_PORT }}"
           if [ -z "$PORT" ]; then PORT="22"; fi
 
-          # Add host to known_hosts to avoid MITM prompt
           if [ -n "$HOST" ]; then
             ssh-keyscan -p "$PORT" -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null || echo "ssh-keyscan failed (non-fatal), continuing..."
-          else
-            echo "Warning: EC2_DEVELOPMENT_HOST is empty; skipping ssh-keyscan and relying on StrictHostKeyChecking=no in SSH commands."
           fi
-
-          # Quick sanity check: validate the private key parses (non-fatal)
-          ssh-keygen -lf ~/.ssh/id_rsa -y >/dev/null 2>&1 || echo "Warning: Unable to parse SSH private key. Check EC2_SSH_KEY/EC2_SSH_KEY_BASE64 secret."
-
-      - name: "Preflight: Diagnose SSH connectivity"
-        run: |
-          HOST="${{ secrets.EC2_DEVELOPMENT_HOST }}"
-          USER="${{ secrets.EC2_SSH_USER }}"
-          if [ -z "$USER" ]; then USER="${{ vars.EC2_SSH_USER }}"; fi
-          if [ -z "$USER" ]; then USER="ubuntu"; fi
-          PORT="${{ secrets.EC2_SSH_PORT }}"
-          if [ -z "$PORT" ]; then PORT="22"; fi
-
-          if [ -z "$HOST" ]; then
-            echo "Error: EC2_DEVELOPMENT_HOST is not set. Configure it in Environment secrets/vars." >&2
-            exit 1
-          fi
-
-          echo "Preflight SSH: attempting $USER@$HOST on port $PORT"
-          set -o pipefail
-          if ! ssh -i ~/.ssh/id_rsa -p "$PORT" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "$USER@$HOST" 'exit' 2>&1 | tail -n +1; then
-            echo "Preflight failed. Troubleshooting tips:" >&2
-            echo "- Verify the private key in GitHub Secrets matches the public key in ~/.ssh/authorized_keys on the instance." >&2
-            echo "- Ensure the correct SSH username. Ubuntu=ubuntu, Amazon Linux=ec2-user, Debian/others may differ." >&2
-            echo "- Security Group allows inbound TCP $PORT from GitHub Actions runners (or your IP if self-hosted)." >&2
-            echo "- If the key is passphrase-protected, use an unencrypted key for CI." >&2
-            exit 1
-          fi
-          echo "Preflight SSH succeeded."
 
       - name: Deploy to EC2
         run: |
           HOST="${{ secrets.EC2_DEVELOPMENT_HOST }}"
-          USER="${{ secrets.EC2_SSH_USER }}"
-          if [ -z "$USER" ]; then USER="${{ vars.EC2_SSH_USER }}"; fi
+          USER="${{ secrets.EC2_USER }}"
+          if [ -z "$USER" ]; then USER="${{ vars.EC2_USER }}"; fi
           if [ -z "$USER" ]; then USER="ubuntu"; fi
           PORT="${{ secrets.EC2_SSH_PORT }}"
           if [ -z "$PORT" ]; then PORT="22"; fi
@@ -164,93 +101,21 @@ jobs:
             set -e
             cd ~/client-panel-dev || { mkdir -p ~/client-panel-dev; cd ~/client-panel-dev; }
 
-            # Disk diagnostics and cleanup to prevent ENOSPC during installation
-            echo "Disk usage before cleanup:"; df -h || true
-            # Remove previous node_modules and caches to free space
-            rm -rf node_modules || true
-            rm -rf ~/.cache/yarn || true
-            rm -rf ~/.npm || true
-            # Clean package manager caches (best-effort)
-            if command -v apt-get >/dev/null 2>&1; then
-              sudo apt-get clean || true
-              sudo rm -rf /var/lib/apt/lists/* || true
-            fi
-            if command -v yum >/dev/null 2>&1; then sudo yum clean all -y || true; fi
-            if command -v dnf >/dev/null 2>&1; then sudo dnf clean all -y || true; fi
-            # Vacuum system logs to last 3 days (best-effort)
-            sudo journalctl --vacuum-time=3d >/dev/null 2>&1 || true
-            # Flush PM2 logs to reduce log size
-            pm2 flush >/dev/null 2>&1 || true
-            # Optional: prune Docker if available
-            if command -v docker >/dev/null 2>&1; then sudo docker system prune -af >/dev/null 2>&1 || true; fi
-            echo "Disk usage after cleanup:"; df -h || true
-
-            # Ensure Node.js/npm, Yarn, and PM2 are installed (idempotent)
-            if ! command -v npm >/dev/null 2>&1; then
-              echo "npm not found. Attempting to install Node.js and npm..."
-              if command -v apt-get >/dev/null 2>&1; then
-                sudo apt-get update -y
-                sudo apt-get install -y nodejs npm
-              elif command -v yum >/dev/null 2>&1; then
-                sudo yum install -y nodejs npm || {
-                  # Fallback for Amazon Linux where npm may be separate or nodejs version is older
-                  sudo yum install -y nodejs; sudo yum install -y npm || true;
-                }
-              elif command -v dnf >/dev/null 2>&1; then
-                sudo dnf install -y nodejs npm
-              elif command -v apk >/dev/null 2>&1; then
-                sudo apk add --no-cache nodejs npm
-              else
-                echo "Unsupported package manager. Please install Node.js and npm manually." >&2
-              fi
-            fi
-
-            # Ensure Yarn is available
-            if ! command -v yarn >/dev/null 2>&1; then
-              echo "Yarn not found. Attempting to enable via corepack or install via npm..."
-              if command -v corepack >/dev/null 2>&1; then
-                sudo corepack enable || corepack enable || true
-                # Try to activate Yarn v1 (classic) to match most Next.js setups using yarn.lock
-                sudo corepack prepare yarn@1 --activate || corepack prepare yarn@1 --activate || true
-              fi
-              if ! command -v yarn >/dev/null 2>&1; then
-                sudo npm install -g yarn@1 || npm install -g yarn@1 || true
-              fi
-            fi
-
-            # Ensure PM2 is available
-            if ! command -v pm2 >/dev/null 2>&1; then
-              echo "PM2 not found. Installing globally via npm..."
-              sudo npm install -g pm2 || npm install -g pm2
-            fi
-
             # Stop and remove old app
             pm2 delete client-dev || true
 
-            # Remove previous deployment completely
+            # Remove previous deployment
             rm -rf ~/client-panel-dev/*
 
             # Extract new deployment
             tar -xzf /tmp/release.tgz -C ~/client-panel-dev
 
-            # Prepare caches to use ephemeral /tmp and install production deps (skip optional to reduce size)
-            export YARN_CACHE_FOLDER=/tmp/.yarn-cache
-            npm config set cache /tmp/.npm-cache --global >/dev/null 2>&1 || true
-            export TMPDIR=/tmp
-            echo "Disk usage before yarn install:"; df -h || true
-            yarn install --production --frozen-lockfile --ignore-optional || yarn install --production --ignore-optional || yarn install --production
-            # Clean caches to free space on instance (does not affect node_modules)
-            yarn cache clean || true
-            rm -rf /tmp/.yarn-cache /tmp/.npm-cache || true
-            echo "node_modules size:"; du -sh node_modules 2>/dev/null || true
-            echo "Disk usage after yarn install:"; df -h || true
+            # Install dependencies
+            yarn install --production --frozen-lockfile
 
             # Start app under PM2
             pm2 start yarn --name "client-dev" -- start
             pm2 save
-
-            # Ensure PM2 starts on system boot (best-effort)
-            pm2 startup | tail -n 1 | bash || true
 
             # Clean up
             rm -f /tmp/release.tgz
