@@ -75,7 +75,7 @@ jobs:
 
           HOST="${{ secrets.EC2_DEVELOPMENT_HOST }}"
           USER="${{ secrets.EC2_USER }}"
-          if [ -z "$USER" ]; then USER="${{ vars.EC2_USER }}"; fi
+          if [ -z "$USER" ]; then USER="${{ secrets.EC2_USER }}"; fi
           if [ -z "$USER" ]; then USER="ubuntu"; fi
           PORT="${{ secrets.EC2_SSH_PORT }}"
           if [ -z "$PORT" ]; then PORT="22"; fi
@@ -88,7 +88,7 @@ jobs:
         run: |
           HOST="${{ secrets.EC2_DEVELOPMENT_HOST }}"
           USER="${{ secrets.EC2_USER }}"
-          if [ -z "$USER" ]; then USER="${{ vars.EC2_USER }}"; fi
+          if [ -z "$USER" ]; then USER="${{ secrets.EC2_USER }}"; fi
           if [ -z "$USER" ]; then USER="ubuntu"; fi
           PORT="${{ secrets.EC2_SSH_PORT }}"
           if [ -z "$PORT" ]; then PORT="22"; fi

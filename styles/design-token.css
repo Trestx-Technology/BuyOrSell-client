@@ -1,0 +1,187 @@
+:root {
+      --radius: 0.625rem;
+      --background: oklch(1 0 0);
+      --foreground: oklch(0.145 0 0);
+      --card: oklch(1 0 0);
+      --card-foreground: oklch(0.145 0 0);
+      --popover: oklch(1 0 0);
+      --popover-foreground: oklch(0.145 0 0);
+      --primary: oklch(0.205 0 0);
+      --primary-foreground: oklch(0.985 0 0);
+      --secondary: oklch(0.97 0 0);
+      --secondary-foreground: oklch(0.205 0 0);
+      --muted: oklch(0.97 0 0);
+      --muted-foreground: oklch(0.556 0 0);
+      --accent: oklch(0.97 0 0);
+      --accent-foreground: oklch(0.205 0 0);
+      --destructive: oklch(0.577 0.245 27.325);
+      --border: oklch(0.922 0 0);
+      --input: oklch(0.922 0 0);
+      --ring: oklch(0.708 0 0);
+      --chart-1: oklch(0.646 0.222 41.116);
+      --chart-2: oklch(0.6 0.118 184.704);
+      --chart-3: oklch(0.398 0.07 227.392);
+      --chart-4: oklch(0.828 0.189 84.429);
+      --chart-5: oklch(0.769 0.188 70.08);
+      --sidebar: oklch(0.985 0 0);
+      --sidebar-foreground: oklch(0.145 0 0);
+      --sidebar-primary: oklch(0.205 0 0);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.97 0 0);
+      --sidebar-accent-foreground: oklch(0.205 0 0);
+      --sidebar-border: oklch(0.922 0 0);
+      --sidebar-ring: oklch(0.708 0 0);
+
+
+      /* New Figma Color Palette */
+      --color-purple: #8B31E1;
+      --color-teal: #36E8B8;
+      --color-dark-blue: #1D2939;
+      --color-grey-blue: #667085;
+      --color-white: #FFFFFF;
+      --color-black: #000000;
+
+      /* Semantic Color System */
+      /* Warning Colors */
+      --color-warning-100: #FFB319;
+      --color-warning-60: #FFD280;
+      --color-warning-10: #FFF4E0;
+
+      /* Error Colors */
+      --color-error-100: #FF4E64;
+      --color-error-60: #FF8A9A;
+      --color-error-10: #FFE8EC;
+
+      /* Success Colors */
+      --color-success-100: #2E7D32;
+      --color-success-60: #66BB6A;
+      --color-success-10: #E8F5E8;
+
+      /* Cancel Colors */
+      --color-cancel-100: #BE1653;
+      --color-cancel-60: #D45A7A;
+      --color-cancel-10: #F7E8ED;
+
+      /* Active Colors */
+      --color-active-100: #5C33CF;
+      --color-active-60: #8B5CF6;
+      --color-active-10: #EDE9FE;
+
+      /* Typography Scale */
+      --font-size-3xs: 0.5625rem;
+      /* 9px */
+      --font-size-2xs: 0.625rem;
+      /* 10px */
+      --font-size-xs: 0.75rem;
+      /* 12px */
+      --font-size-sm: 0.875rem;
+      /* 14px */
+      --font-size-md: 1rem;
+      /* 16px */
+      --font-size-lg: 1.125rem;
+      /* 18px */
+      --font-size-xl: 1.25rem;
+      /* 20px */
+      --font-size-2xl: 1.5rem;
+      /* 24px */
+      --font-size-3xl: 1.875rem;
+      /* 30px */
+      --font-size-4xl: 2.25rem;
+      /* 36px */
+      --font-size-5xl: 3rem;
+      /* 48px */
+      --font-size-6xl: 3.75rem;
+      /* 60px */
+      --font-size-7xl: 4.5rem;
+      /* 72px */
+      --font-size-8xl: 6rem;
+      /* 96px */
+      --font-size-9xl: 8rem;
+      /* 128px */
+
+      /* Font Weights */
+      --font-weight-thin: 100;
+      --font-weight-extralight: 200;
+      --font-weight-light: 300;
+      --font-weight-normal: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --font-weight-extrabold: 800;
+      --font-weight-black: 900;
+
+      /* Line Heights */
+      --line-height-none: 1;
+      --line-height-tight: 1.25;
+      --line-height-snug: 1.375;
+      --line-height-normal: 1.5;
+      --line-height-relaxed: 1.625;
+      --line-height-loose: 2;
+
+      /* Letter Spacing */
+      --letter-spacing-tighter: -0.05em;
+      --letter-spacing-tight: -0.025em;
+      --letter-spacing-normal: 0em;
+      --letter-spacing-wide: 0.025em;
+      --letter-spacing-wider: 0.05em;
+      --letter-spacing-widest: 0.1em;
+
+      /* Custom Spacing System */
+      --spacing-4: 0.25rem;
+      /* 4px */
+      --spacing-8: 0.5rem;
+      /* 8px - 1min */
+      --spacing-12: 0.75rem;
+      /* 12px */
+      --spacing-16: 1rem;
+      /* 16px */
+      --spacing-20: 1.25rem;
+      /* 20px */
+      --spacing-24: 1.5rem;
+      /* 24px */
+      --spacing-32: 2rem;
+      /* 32px */
+      --spacing-40: 2.5rem;
+      /* 40px */
+      --spacing-48: 3rem;
+      /* 48px */
+      --spacing-60: 3.75rem;
+      /* 60px */
+
+
+}
+
+
+.dark {
+      --background: oklch(0.145 0 0);
+      --foreground: oklch(0.985 0 0);
+      --card: oklch(0.205 0 0);
+      --card-foreground: oklch(0.985 0 0);
+      --popover: oklch(0.205 0 0);
+      --popover-foreground: oklch(0.985 0 0);
+      --primary: oklch(0.922 0 0);
+      --primary-foreground: oklch(0.205 0 0);
+      --secondary: oklch(0.269 0 0);
+      --secondary-foreground: oklch(0.985 0 0);
+      --muted: oklch(0.269 0 0);
+      --muted-foreground: oklch(0.708 0 0);
+      --accent: oklch(0.269 0 0);
+      --accent-foreground: oklch(0.985 0 0);
+      --destructive: oklch(0.704 0.191 22.216);
+      --border: oklch(1 0 0 / 10%);
+      --input: oklch(1 0 0 / 15%);
+      --ring: oklch(0.556 0 0);
+      --chart-1: oklch(0.488 0.243 264.376);
+      --chart-2: oklch(0.696 0.17 162.48);
+      --chart-3: oklch(0.769 0.188 70.08);
+      --chart-4: oklch(0.627 0.265 303.9);
+      --chart-5: oklch(0.645 0.246 16.439);
+      --sidebar: oklch(0.205 0 0);
+      --sidebar-foreground: oklch(0.985 0 0);
+      --sidebar-primary: oklch(0.488 0.243 264.376);
+      --sidebar-primary-foreground: oklch(0.985 0 0);
+      --sidebar-accent: oklch(0.269 0 0);
+      --sidebar-accent-foreground: oklch(0.985 0 0);
+      --sidebar-border: oklch(1 0 0 / 10%);
+      --sidebar-ring: oklch(0.556 0 0);
+}

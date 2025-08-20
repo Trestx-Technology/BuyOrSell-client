@@ -1,0 +1,241 @@
+@import "tailwindcss";
+@import "./design-token.css";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+      --color-background: var(--background);
+      --color-foreground: var(--foreground);
+      --font-sans: var(--font-inter);
+      --font-inter: var(--font-inter);
+      --font-poppins: var(--font-poppins);
+      --color-sidebar-ring: var(--sidebar-ring);
+      --color-sidebar-border: var(--sidebar-border);
+      --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+      --color-sidebar-accent: var(--sidebar-accent);
+      --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+      --color-sidebar-primary: var(--sidebar-primary);
+      --color-sidebar-foreground: var(--sidebar-foreground);
+      --color-sidebar: var(--sidebar);
+      --color-chart-5: var(--chart-5);
+      --color-chart-4: var(--chart-4);
+      --color-chart-3: var(--chart-3);
+      --color-chart-2: var(--chart-2);
+      --color-chart-1: var(--chart-1);
+      --color-ring: var(--ring);
+      --color-input: var(--input);
+      --color-border: var(--border);
+      --color-destructive: var(--destructive);
+      --color-accent-foreground: var(--accent-foreground);
+      --color-accent: #f0f0f0;
+      --color-muted-foreground: var(--muted-foreground);
+      --color-muted: var(--muted);
+      --color-secondary-foreground: var(--secondary-foreground);
+      --color-secondary: var(--secondary);
+      --color-primary-foreground: var(--primary-foreground);
+      --color-primary: var(--primary);
+      --color-popover-foreground: var(--popover-foreground);
+      --color-popover: var(--popover);
+      --color-card-foreground: var(--card-foreground);
+      --color-card: var(--card);
+      --radius-sm: calc(var(--radius) - 4px);
+      --radius-md: calc(var(--radius) - 2px);
+      --radius-lg: var(--radius);
+      --radius-xl: calc(var(--radius) + 4px);
+
+      /* Main Figma Colors */
+      --color-purple: var(--color-purple);
+      --color-teal: var(--color-teal);
+      --color-dark-blue: var(--color-dark-blue);
+      --color-grey-blue: var(--color-grey-blue);
+      --color-white: var(--color-white);
+      --color-black: var(--color-black);
+
+      /* Semantic Color System */
+      --color-warning-100: var(--color-warning-100);
+      --color-warning-60: var(--color-warning-60);
+      --color-warning-10: var(--color-warning-10);
+
+      --color-error-100: var(--color-error-100);
+      --color-error-60: var(--color-error-60);
+      --color-error-10: var(--color-error-10);
+
+      --color-success-100: var(--color-success-100);
+      --color-success-60: var(--color-success-60);
+      --color-success-10: var(--color-success-10);
+
+      --color-cancel-100: var(--color-cancel-100);
+      --color-cancel-60: var(--color-cancel-60);
+      --color-cancel-10: var(--color-cancel-10);
+
+      --color-active-100: var(--color-active-100);
+      --color-active-60: var(--color-active-60);
+      --color-active-10: var(--color-active-10);
+
+      /* Typography System */
+      --font-size-3xs: var(--font-size-3xs);
+      --font-size-2xs: var(--font-size-2xs);
+      --font-size-xs: var(--font-size-xs);
+      --font-size-sm: var(--font-size-sm);
+      --font-size-md: var(--font-size-md);
+      --font-size-lg: var(--font-size-lg);
+      --font-size-xl: var(--font-size-xl);
+      --font-size-2xl: var(--font-size-2xl);
+      --font-size-3xl: var(--font-size-3xl);
+      --font-size-4xl: var(--font-size-4xl);
+      --font-size-5xl: var(--font-size-5xl);
+      --font-size-6xl: var(--font-size-6xl);
+      --font-size-7xl: var(--font-size-7xl);
+      --font-size-8xl: var(--font-size-8xl);
+      --font-size-9xl: var(--font-size-9xl);
+
+      --font-weight-thin: var(--font-weight-thin);
+      --font-weight-extralight: var(--font-weight-extralight);
+      --font-weight-light: var(--font-weight-light);
+      --font-weight-normal: var(--font-weight-normal);
+      --font-weight-medium: var(--font-weight-medium);
+      --font-weight-semibold: var(--font-weight-semibold);
+      --font-weight-bold: var(--font-weight-bold);
+      --font-weight-extrabold: var(--font-weight-extrabold);
+      --font-weight-black: var(--font-weight-black);
+
+      --line-height-none: var(--line-height-none);
+      --line-height-tight: var(--line-height-tight);
+      --line-height-snug: var(--line-height-snug);
+      --line-height-normal: var(--line-height-normal);
+      --line-height-relaxed: var(--line-height-relaxed);
+      --line-height-loose: var(--line-height-loose);
+
+      --letter-spacing-tighter: var(--letter-spacing-tighter);
+      --letter-spacing-tight: var(--letter-spacing-tight);
+      --letter-spacing-normal: var(--letter-spacing-normal);
+      --letter-spacing-wide: var(--letter-spacing-wide);
+      --letter-spacing-wider: var(--letter-spacing-wider);
+      --letter-spacing-widest: var(--letter-spacing-widest);
+}
+
+@layer base {
+      * {
+            @apply border-border outline-ring/50;
+      }
+
+      body {
+            @apply bg-background text-foreground;
+      }
+}
+
+/* Custom Spacing Utilities - Use these when you want your custom spacing */
+@layer utilities {
+      .spacing-4 {
+            gap: var(--spacing-4);
+      }
+
+      .spacing-8 {
+            gap: var(--spacing-8);
+      }
+
+      .spacing-12 {
+            gap: var(--spacing-12);
+      }
+
+      .spacing-16 {
+            gap: var(--spacing-16);
+      }
+
+      .spacing-20 {
+            gap: var(--spacing-20);
+      }
+
+      .spacing-24 {
+            gap: var(--spacing-24);
+      }
+
+      .spacing-32 {
+            gap: var(--spacing-32);
+      }
+
+      .spacing-40 {
+            gap: var(--spacing-40);
+      }
+
+      .spacing-48 {
+            gap: var(--spacing-48);
+      }
+
+      .spacing-60 {
+            gap: var(--spacing-60);
+      }
+
+      .p-custom-4 {
+            padding: var(--spacing-4);
+      }
+
+      .p-custom-8 {
+            padding: var(--spacing-8);
+      }
+
+      .p-custom-16 {
+            padding: var(--spacing-16);
+      }
+
+      .p-custom-20 {
+            padding: var(--spacing-20);
+      }
+
+      .p-custom-24 {
+            padding: var(--spacing-24);
+      }
+
+      .p-custom-32 {
+            padding: var(--spacing-32);
+      }
+
+      .p-custom-40 {
+            padding: var(--spacing-40);
+      }
+
+      .p-custom-48 {
+            padding: var(--spacing-48);
+      }
+
+      .p-custom-60 {
+            padding: var(--spacing-60);
+      }
+
+      .m-custom-4 {
+            margin: var(--spacing-4);
+      }
+
+      .m-custom-8 {
+            margin: var(--spacing-8);
+      }
+
+      .m-custom-16 {
+            margin: var(--spacing-16);
+      }
+
+      .m-custom-20 {
+            margin: var(--spacing-20);
+      }
+
+      .m-custom-24 {
+            margin: var(--spacing-24);
+      }
+
+      .m-custom-32 {
+            margin: var(--spacing-32);
+      }
+
+      .m-custom-40 {
+            margin: var(--spacing-40);
+      }
+
+      .m-custom-48 {
+            margin: var(--spacing-48);
+      }
+
+      .m-custom-60 {
+            margin: var(--spacing-60);
+      }
+}
