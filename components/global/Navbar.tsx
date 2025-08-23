@@ -1,0 +1,144 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { ChevronDown, Search, Menu, Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import white_AI_logo from "@/public/icons/ai-bg-white.svg";
+import purple_AI_logo from "@/public/icons/ai-purple-bg.svg";
+import hamburger_menu from "@/public/icons/hamburger.svg";
+
+// Import the actual logo
+import logo from "@/public/assets/logo.svg";
+
+import { locationQueries } from "@/api-queries/location";
+import { useQuery } from "@tanstack/react-query";
+import { getEmirates } from "@/app/api/location";
+import { Input } from "../ui/input";
+
+const Navbar = () => {
+  const [city, setCity] = useState("");
+
+  const { data: emirates } = useQuery({
+    queryKey: [locationQueries.emirates.key],
+    queryFn: getEmirates,
+  });
+
+  return (
+    <nav className="flex max-w-[1080px] gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between">
+      {/* Logo and Brand Name */}
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          iconPosition="center"
+          className="bg-[#F2F4F7] rounded-full size-8 border-[#E7E7E7] hover:bg-transparent"
+          icon={<Image src={hamburger_menu} alt="Hamburger Menu" />}
+        />
+        <Link href="/" className="flex items-center">
+          <Image src={logo} alt="BuyOrSell Logo" width={156} height={49} />
+        </Link>
+      </div>
+
+      {/* Center Section - Location and Search */}
+      <div className="flex items-center gap-2 md:flex-1">
+        {/* Location Selector */}
+        <Button
+          variant="ghost"
+          size="icon"
+          icon={<Bell className="size-5 mx-1" />}
+          iconPosition="center"
+        />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              icon={<ChevronDown className="-ml-3" />}
+              iconPosition="right"
+              className="py-2 text-xs text-secondary-40 hover:text-purple transition-colors whitespace-nowrap border-0 px-0 shadow-none data-[state=open]:text-purple focus:outline-none focus:ring-0 hover:bg-transparent"
+            >
+              {city || "UAE"}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-fit text-xs" align="start">
+            <DropdownMenuItem onClick={() => setCity("")}>
+              All Cities (UAE)
+            </DropdownMenuItem>
+            {emirates?.data?.map((cityName) => (
+              <DropdownMenuItem
+                key={cityName}
+                onClick={() => setCity(cityName)}
+              >
+                {cityName}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Search Bar */}
+        <div className="relative hidden md:flex items-center bg-[#F2F4F7] border border-gray-300 rounded-lg h-10 flex-1">
+          {/* All Categories Dropdown on the Left */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                icon={<ChevronDown className="-ml-3" />}
+                iconPosition="right"
+                className="px-2 text-xs text-gray-600 hover:text-purple transition-colors h-5 border-r border-[#929292] rounded-none hover:bg-transparent data-[state=open]:text-purple lg:flex hidden"
+              >
+                All Categories
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48 z-[60]" align="start">
+              <DropdownMenuItem>Electronics</DropdownMenuItem>
+              <DropdownMenuItem>Vehicles</DropdownMenuItem>
+              <DropdownMenuItem>Property</DropdownMenuItem>
+              <DropdownMenuItem>Fashion</DropdownMenuItem>
+              <DropdownMenuItem>Home & Garden</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Search Input */}
+          <Input
+            leftIcon={<Search className="size-5 text-gray-400 -ml-2" />}
+            rightIcon={<Image src={white_AI_logo} alt="AI Logo" />}
+            type="text"
+            inputSize="sm"
+            placeholder="Search any product.."
+            className="pl-8 flex-1 block w-full bg-transparent text-xs placeholder-gray-500 focus:outline-none focus:ring-0 border-0"
+          />
+        </div>
+      </div>
+
+      {/* Right Section - Action Buttons */}
+      <div className="hidden md:flex items-center gap-5 ml-2">
+        {/* Log In / Sign Up Button */}
+        <Link href="/login" className="text-xs font-medium text-purple">
+          Log In / Sign Up
+        </Link>
+
+        {/* Place Ad Button */}
+
+        <Button
+          variant="filled"
+          size="icon-sm"
+          iconPosition="right"
+          icon={<Image src={purple_AI_logo} alt="AI Logo" />}
+          className="px-4 text-xs font-medium text-white h-10"
+        >
+          <span className="hidden lg:block">Place Ad Free with</span>
+          <span className="block lg:hidden">Place Ad</span>
+        </Button>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;

@@ -65,7 +65,8 @@ export const buttonVariants = cva(
       iconPosition: {
         none: "",
         left: "flex-row",
-        right: "flex-row-reverse",
+        right: "flex-row",
+        center: "flex-row justify-center", // Changed from flex-col to flex-row
       },
     },
     defaultVariants: {
@@ -86,7 +87,7 @@ export interface ButtonProps
   isLoading?: boolean; // Harsh: Optional loading state
   loading?: boolean; // Alias for isLoading for compatibility
   width?: "default" | "long" | "full";
-  iconPosition?: "none" | "left" | "right";
+  iconPosition?: "none" | "left" | "right" | "center";
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -175,7 +176,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               <span className="flex-shrink-0">{icon}</span>
             )}
 
-            {(label || children) && (
+            {(label || children) && iconPosition !== "center" && (
               <span
                 className={cn(
                   // For long buttons with icons, ensure proper centering
@@ -183,11 +184,25 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                     icon &&
                     iconPosition !== "none" &&
                     "text-center",
-                  icon && iconPosition !== "none" && "flex-1",
+                  // Only apply flex-1 when icon is on the left, not on the right
+                  icon && iconPosition === "left" && "flex-1",
+                  // Remove flex-1 for right-positioned icons to prevent pushing icon to edge
                   icon && iconPosition === "right" && "mr-2",
                   icon && iconPosition === "left" && "ml-2"
                 )}
               >
+                {label ?? children}
+              </span>
+            )}
+
+            {icon && iconPosition === "center" && (
+              <span className="flex-shrink-0">{icon}</span>
+            )}
+
+            {icon && iconPosition === "center" && (label || children) && (
+              <span className="ml-2">
+                {" "}
+                {/* Changed from text-xs and removed mb-1 */}
                 {label ?? children}
               </span>
             )}

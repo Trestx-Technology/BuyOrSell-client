@@ -1,0 +1,150 @@
+"use client";
+import { Typography } from "@/components/typography";
+import { Button } from "@/components/ui/button";
+import { FcGoogle } from "react-icons/fc";
+import React, { useState } from "react";
+import { FaApple } from "react-icons/fa";
+import Link from "next/link";
+import { GoogleLoginButton } from "../_components/google";
+import { toast } from "sonner";
+import { ChevronLeft, EyeIcon, EyeOffIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useRouter } from "nextjs-toploader/app";
+
+import mail from "@/public/icons/mail.svg";
+import key from "@/public/icons/key.svg";
+import Image from "next/image";
+
+const Login = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: "",
+  });
+  return (
+    <section className="w-full mx-auto lg:w-1/2 max-w-[530px] h-full flex flex-col justify-start lg:justify-center relative">
+      <Link
+        href={"/methods"}
+        className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
+      >
+        <ChevronLeft className="size-5" /> Back
+      </Link>
+      <Typography
+        variant="h1"
+        className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
+      >
+        Log In
+      </Typography>
+      <div className="space-y-2">
+        <Input
+          leftIcon={<Image src={mail} alt="mail" className="size-5" />}
+          placeholder="Email"
+          inputSize="lg"
+          className="w-full text-sm pl-12"
+          value={loginData.email}
+          onChange={(e) =>
+            setLoginData({ ...loginData, email: e.target.value })
+          }
+        />
+        <Input
+          leftIcon={<Image src={key} alt="key" />}
+          placeholder="Password"
+          type={showPassword ? "text" : "password"}
+          onRightIconClick={() => setShowPassword(!showPassword)}
+          rightIcon={
+            !showPassword ? (
+              <EyeIcon
+                className={`w-4 h-4 ${showPassword ? "text-purple" : "text-gray-500"}`}
+              />
+            ) : (
+              <EyeOffIcon
+                className={`w-4 h-4 ${showPassword ? "text-purple" : "text-gray-500"}`}
+              />
+            )
+          }
+          inputSize="lg"
+          className="w-full text-sm pl-12"
+          value={loginData.password}
+          onChange={(e) =>
+            setLoginData({ ...loginData, password: e.target.value })
+          }
+        />
+      </div>
+      <Link
+        href={"/forgot-password"}
+        className="text-sm text-purple text-right font-medium cursor-pointer hover:underline py-6 w-fit ml-auto"
+      >
+        Forgot Password?
+      </Link>
+      <Button
+        className="w-full text-sm"
+        size={"lg"}
+        variant={"filled"}
+        onClick={() => router.push("/")}
+        disabled={!loginData.email || !loginData.password}
+      >
+        Log In
+      </Button>
+      <Typography variant="h3" className="text-center text-sm py-6">
+        Or continue with
+      </Typography>
+      <div className="space-y-2 text-sm sm:text-md font-medium">
+        <GoogleLoginButton
+          oneTapAutoSelect={false}
+          // disabled={isPending || isSocialPending}
+          onSuccess={(data) => {
+            const payload = {
+              countryCode: "+971",
+              deviceKey: "1234567890",
+              email: data.email,
+              firstName: data.firstName,
+              lastName: data.lastName || data.firstName,
+              socialType: "google",
+              verifyEmail: true,
+            };
+            // HandleSocialLogin(payload);
+          }}
+          onError={(error) => toast.error(error)}
+          className="w-[400px]"
+          enableOneTap={false}
+          render={({ onClick, disabled, isLoading }) => (
+            <Button
+              disabled={disabled}
+              onClick={onClick}
+              isLoading={isLoading}
+              variant={"ghost"}
+              size={"lg"}
+              className="w-full bg-white border-[#8B31E18A] border text-dark-blue t text-sm"
+              iconPosition={"center"}
+              icon={<FcGoogle />}
+            >
+              Continue with Google
+            </Button>
+          )}
+        />
+
+        <Button
+          variant={"ghost"}
+          className="w-full bg-white border-[#8B31E18A] border text-dark-blue text-center text-sm"
+          size={"lg"}
+          iconPosition={"center"}
+          icon={<FaApple />}
+        >
+          Continue with Apple
+        </Button>
+      </div>
+      <Typography
+        variant="h3"
+        className="text-center text-sm mx-auto  absolute left-1/2 -translate-x-1/2  bottom-20 lg:bottom-16 w-fit"
+      >
+        Don&apos;t have an account?{" "}
+        <Link href="/signup" className="text-purple m-custom-8 hover:underline">
+          Sign up
+        </Link>
+      </Typography>
+    </section>
+  );
+};
+
+export default Login;

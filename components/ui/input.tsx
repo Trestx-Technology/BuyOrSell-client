@@ -47,6 +47,8 @@ export interface InputProps
   error?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  onLeftIconClick?: () => void;
+  onRightIconClick?: () => void;
   isRequired?: boolean;
   inputSize?: "sm" | "default" | "lg";
 }
@@ -64,6 +66,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       error,
       leftIcon,
       rightIcon,
+      onLeftIconClick,
+      onRightIconClick,
       isRequired,
       ...props
     },
@@ -87,9 +91,17 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
         <div className="relative">
           {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-grey-blue pointer-events-none">
+            <button
+              type="button"
+              onClick={onLeftIconClick}
+              className={cn(
+                "absolute left-3 top-1/2 -translate-y-1/2 text-grey-blue hover:text-purple transition-colors cursor-pointer p-1 rounded",
+                onLeftIconClick ? "hover:bg-purple/10" : "pointer-events-none"
+              )}
+              disabled={!onLeftIconClick}
+            >
               {leftIcon}
-            </div>
+            </button>
           )}
 
           <input
@@ -117,9 +129,17 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           />
 
           {rightIcon && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-grey-blue pointer-events-none">
+            <button
+              type="button"
+              onClick={onRightIconClick}
+              className={cn(
+                "absolute right-3 top-1/2 -translate-y-1/2 text-grey-blue hover:text-purple transition-colors cursor-pointer p-1 rounded",
+                onRightIconClick ? "hover:bg-purple/10" : "pointer-events-none"
+              )}
+              disabled={!onRightIconClick}
+            >
               {rightIcon}
-            </div>
+            </button>
           )}
         </div>
 

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "@/styles/globals.css";
+import { Toaster } from "sonner";
+import NextTopLoader from "nextjs-toploader";
+import QueryProvider from "@/services/query-client";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -26,8 +29,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${poppins.variable} antialiased`}>
-        {children}
+      <body className={`${inter.className} ${poppins.variable} antialiased`}>
+        <NextTopLoader color="#8B31E1" showSpinner={false} />
+        <Toaster position="top-center" richColors duration={2000} />
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
