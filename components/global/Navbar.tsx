@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, Search, Menu, Bell } from "lucide-react";
+import { ChevronDown, Search, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,6 +22,8 @@ import { locationQueries } from "@/api-queries/location";
 import { useQuery } from "@tanstack/react-query";
 import { getEmirates } from "@/app/api/location";
 import { Input } from "../ui/input";
+import SideMenu from "./SideMenu";
+import AiSearch from "./ai-search";
 
 const Navbar = () => {
   const [city, setCity] = useState("");
@@ -35,12 +37,23 @@ const Navbar = () => {
     <nav className="flex max-w-[1080px] gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between">
       {/* Logo and Brand Name */}
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          iconPosition="center"
-          className="bg-[#F2F4F7] rounded-full size-8 border-[#E7E7E7] hover:bg-transparent"
-          icon={<Image src={hamburger_menu} alt="Hamburger Menu" />}
+        <SideMenu
+          //     user={{
+          //       name: "John Doe",
+          //       email: "john.doe@example.com",
+          //       avatar: "https://via.placeholder.com/150",
+          //       isVerified: true,
+          //     }}
+          trigger={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              iconPosition="center"
+              className="bg-[#F2F4F7] rounded-full size-8 border-[#E7E7E7] hover:bg-transparent md:hidden"
+              icon={<Image src={hamburger_menu} alt="Hamburger Menu" />}
+            />
+          }
+          isLoggedIn={false}
         />
         <Link href="/" className="flex items-center">
           <Image src={logo} alt="BuyOrSell Logo" width={156} height={49} />
@@ -55,6 +68,7 @@ const Navbar = () => {
           size="icon"
           icon={<Bell className="size-5 mx-1" />}
           iconPosition="center"
+          className="md:hidden"
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -82,38 +96,8 @@ const Navbar = () => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Search Bar */}
-        <div className="relative hidden md:flex items-center bg-[#F2F4F7] border border-gray-300 rounded-lg h-10 flex-1">
-          {/* All Categories Dropdown on the Left */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                icon={<ChevronDown className="-ml-3" />}
-                iconPosition="right"
-                className="px-2 text-xs text-gray-600 hover:text-purple transition-colors h-5 border-r border-[#929292] rounded-none hover:bg-transparent data-[state=open]:text-purple lg:flex hidden"
-              >
-                All Categories
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48 z-[60]" align="start">
-              <DropdownMenuItem>Electronics</DropdownMenuItem>
-              <DropdownMenuItem>Vehicles</DropdownMenuItem>
-              <DropdownMenuItem>Property</DropdownMenuItem>
-              <DropdownMenuItem>Fashion</DropdownMenuItem>
-              <DropdownMenuItem>Home & Garden</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Search Input */}
-          <Input
-            leftIcon={<Search className="size-5 text-gray-400 -ml-2" />}
-            rightIcon={<Image src={white_AI_logo} alt="AI Logo" />}
-            type="text"
-            inputSize="sm"
-            placeholder="Search any product.."
-            className="pl-8 flex-1 block w-full bg-transparent text-xs placeholder-gray-500 focus:outline-none focus:ring-0 border-0"
-          />
+        <div className="hidden md:flex flex-1">
+          <AiSearch />
         </div>
       </div>
 

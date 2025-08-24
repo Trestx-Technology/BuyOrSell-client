@@ -183,8 +183,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                   width === "long" &&
                     icon &&
                     iconPosition !== "none" &&
-                    "text-center",
-                  // Only apply flex-1 when icon is on the left, not on the right
+                    "text-center",                  // Only apply flex-1 when icon is on the left, not on the right
                   icon && iconPosition === "left" && "flex-1",
                   // Remove flex-1 for right-positioned icons to prevent pushing icon to edge
                   icon && iconPosition === "right" && "mr-2",
