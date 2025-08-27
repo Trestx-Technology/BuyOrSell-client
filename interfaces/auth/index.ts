@@ -1,4 +1,12 @@
-import { User } from "../user";
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  verifyEmail: boolean;
+  countryCode: string;
+  deviceKey?: string | null;
+}
 
 export interface loginResponse {
   statusCode: number;

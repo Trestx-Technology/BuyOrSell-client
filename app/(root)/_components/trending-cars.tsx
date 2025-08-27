@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { ListingCard } from "@/components/global/listing-card";
 import TabbedCarousel, { TabItem } from "@/components/global/tabbed-carousel";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import Image, { StaticImageData } from "next/image";
+import { StaticImageData } from "next/image";
 import car1 from "@/public/cars/car1.jpg";
 import car2 from "@/public/cars/car2.jpg";
 import car3 from "@/public/cars/car3.jpg";

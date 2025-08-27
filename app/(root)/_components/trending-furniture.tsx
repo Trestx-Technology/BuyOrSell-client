@@ -1,12 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Typography } from "@/components/typography";
 import { ListingCard } from "@/components/global/listing-card";
 import TabbedCarousel, { TabItem } from "@/components/global/tabbed-carousel";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import Image, { StaticImageData } from "next/image";
+import { StaticImageData } from "next/image";
 import furniture1 from "@/public/furniture/furniture1.jpg";
 import furniture2 from "@/public/furniture/furniture2.jpg";
 import furniture3 from "@/public/furniture/furniture3.jpg";

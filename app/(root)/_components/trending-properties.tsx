@@ -1,12 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Typography } from "@/components/typography";
 import { ListingCard } from "@/components/global/listing-card";
 import TabbedCarousel, { TabItem } from "@/components/global/tabbed-carousel";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import Image, { StaticImageData } from "next/image";
+import { StaticImageData } from "next/image";
 import property1 from "@/public/real-estate/property1.jpg";
 import property2 from "@/public/real-estate/property2.jpg";
 import property3 from "@/public/real-estate/property3.jpg";
