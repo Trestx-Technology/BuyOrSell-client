@@ -15,6 +15,7 @@ export interface ListingItem {
   year: string;
   timeAgo: Date;
   isFavorite?: boolean;
+  endTime?: Date; // For countdown timer
 }
 
 export const sampleListings: ListingItem[] = [
@@ -32,6 +33,7 @@ export const sampleListings: ListingItem[] = [
     year: "2023",
     timeAgo: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
     isFavorite: false,
+    endTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
   },
   {
     id: "2",
@@ -47,6 +49,7 @@ export const sampleListings: ListingItem[] = [
     year: "2022",
     timeAgo: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
     isFavorite: true,
+    endTime: new Date(Date.now() + 12 * 60 * 60 * 1000), // 12 hours from now
   },
   {
     id: "3",
@@ -60,6 +63,7 @@ export const sampleListings: ListingItem[] = [
     year: "2023",
     timeAgo: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
     isFavorite: false,
+    endTime: new Date(Date.now() + 6 * 60 * 60 * 1000), // 6 hours from now
   },
   {
     id: "4",
@@ -75,6 +79,7 @@ export const sampleListings: ListingItem[] = [
     year: "2022",
     timeAgo: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
     isFavorite: false,
+    endTime: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours from now
   },
   {
     id: "5",
@@ -88,6 +93,7 @@ export const sampleListings: ListingItem[] = [
     year: "2023",
     timeAgo: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
     isFavorite: true,
+    endTime: new Date(Date.now() + 36 * 60 * 60 * 1000), // 36 hours from now
   },
   {
     id: "6",
@@ -103,5 +109,54 @@ export const sampleListings: ListingItem[] = [
     year: "2022",
     timeAgo: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
     isFavorite: false,
+    endTime: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72 hours from now
+  },
+  {
+    id: "7",
+    image: banners[2].image,
+    title: "Toyota Camry 2022",
+    location: "Sheikh Zayed Road, Dubai",
+    currentPrice: "75,500",
+    originalPrice: "82,000",
+    discount: "8%",
+    transmission: "Automatic",
+    fuelType: "Petrol",
+    mileage: "31,200 KM",
+    year: "2022",
+    timeAgo: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
+    isFavorite: false,
+    endTime: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72 hours from now
+  },
+  {
+    id: "8",
+    image: banners[2].image,
+    title: "Toyota Camry 2022",
+    location: "Sheikh Zayed Road, Dubai",
+    currentPrice: "75,500",
+    originalPrice: "82,000",
+    discount: "8%",
+    transmission: "Automatic",
+    fuelType: "Petrol",
+    mileage: "31,200 KM",
+    year: "2022",
+    timeAgo: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
+    isFavorite: false,
+    endTime: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72 hours from now
+  },
+  {
+    id: "9",
+    image: banners[2].image,
+    title: "Toyota Camry 2022",
+    location: "Sheikh Zayed Road, Dubai",
+    currentPrice: "75,500",
+    originalPrice: "82,000",
+    discount: "8%",
+    transmission: "Automatic",
+    fuelType: "Petrol",
+    mileage: "31,200 KM",
+    year: "2022",
+    timeAgo: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
+    isFavorite: false,
+    endTime: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72 hours from now
   },
 ];

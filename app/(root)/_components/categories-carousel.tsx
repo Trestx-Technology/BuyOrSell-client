@@ -148,7 +148,7 @@ const CategoriesCarousel = () => {
   // Loading skeleton component
   const LoadingSkeleton = () => (
     <div className="flex gap-3">
-      {Array.from({ length: 8 }).map((_, index) => (
+      {Array.from({ length: 7 }).map((_, index) => (
         <div
           key={index}
           className="flex flex-col items-center gap-3 min-w-[calc(100%/4)] sm:min-w-[calc(100%/5)] md:min-w-[calc(100%/6)] lg:min-w-[calc(100%/7)] xl:min-w-[calc(100%/8)]"
@@ -191,7 +191,7 @@ const CategoriesCarousel = () => {
                 <motion.div
                   key={category.id}
                   variants={itemVariants}
-                  className="flex flex-col items-center gap-3 min-w-[calc(100%/4)] sm:min-w-[calc(100%/5)] md:min-w-[calc(100%/6)] lg:min-w-[calc(100%/7)] xl:min-w-[calc(100%/8)] cursor-pointer group relative"
+                  className="flex flex-col items-center gap-3 min-w-[calc(100%/4)] sm:min-w-[calc(100%/5)] md:min-w-[calc(100%/6)] lg:min-w-[calc(100%/7)] xl:min-w-[calc(100%/7)] cursor-pointer group relative"
                   whileHover={{
                     scale: 1.05,
                     transition: { duration: 0.2 },

@@ -1,13 +1,32 @@
 import CategoryNav from "@/app/(root)/_components/CategoryNav";
 import { HomeCarousel } from "./_components/home-carousel";
-import { banners } from "@/constants/banners";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import CategoriesCarousel from "./_components/categories-carousel";
 import PopularCategories from "./_components/popular-categories";
 import RecentViews from "./_components/recent-views";
+import HostDeals from "./_components/host-deals";
+import TrendingCars from "./_components/trending-cars";
+import TrendingProperties from "./_components/trending-properties";
+import TrendingFurniture from "./_components/trending-furniture";
+import TrendingProducts from "./_components/trending-products";
+import PopularJobs from "./_components/popular-jobs";
+import PopularClassifieds from "./_components/popular-classifieds";
+import BusinessIndustries from "./_components/business-industries";
+import { MidBannerCarousel } from "./_components/mid-banner-carousel";
+import banner1 from "@/public/banners/estate.png";
 
 export default function Home() {
+  const banners = [
+    {
+      id: 1,
+      image: banner1,
+      callToAction: "Estate",
+    },
+    {
+      id: 2,
+      image: banner1,
+      callToAction: "Estate",
+    },
+  ];
   return (
     <main className="min-h-screen">
       <CategoryNav />
@@ -15,7 +34,7 @@ export default function Home() {
       {/* Promotional Banners and Sponsored Banner */}
       <div className="max-w-[1280px] mx-auto">
         {/* Promotional Banners with Sponsored Banner */}
-        <HomeCarousel banners={banners} />
+        <HomeCarousel />
       </div>
 
       {/* Category Carousel */}
@@ -24,6 +43,29 @@ export default function Home() {
 
       {/* Recent Views */}
       <RecentViews />
+      <HostDeals />
+      <TrendingCars />
+      <TrendingProperties />
+
+      <MidBannerCarousel
+        className="max-w-[1180px] mx-auto"
+        banners={banners}
+        autoPlay={true}
+        autoPlayInterval={5000}
+      />
+      {/* New Components */}
+      <TrendingFurniture />
+      <TrendingProducts />
+      <PopularJobs />
+
+      <MidBannerCarousel
+        className="max-w-[1180px] mx-auto"
+        banners={banners}
+        autoPlay={true}
+        autoPlayInterval={5000}
+      />
+      <PopularClassifieds />
+      <BusinessIndustries />
     </main>
   );
 }
