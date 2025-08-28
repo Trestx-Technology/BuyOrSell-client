@@ -1,14 +1,15 @@
 module.exports = {
   apps: [
     {
-      name: "buy-or-sell-client",
+      name: "client-dev",
       script: "yarn",
       args: "start",
-      instances: "max",
-      exec_mode: "cluster",
+      cwd: "/home/ubuntu/client-panel-dev",
+      instances: 1,
+      exec_mode: "fork",
       env: {
         NODE_ENV: "development",
-        PORT: 3000,
+        PORT: 3001,
       },
       env_production: {
         NODE_ENV: "production",

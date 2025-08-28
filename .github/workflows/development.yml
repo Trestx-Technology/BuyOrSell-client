@@ -135,8 +135,14 @@ jobs:
             # Install dependencies
             yarn install --production --frozen-lockfile
 
+            # Ensure the app is built (should already be built from CI)
+            if [ ! -d ".next" ]; then
+              echo "Error: .next directory not found. Build the app first."
+              exit 1
+            fi
+
             # Start app under PM2
-            pm2 start yarn --name "client-dev" -- start
+            pm2 start ecosystem.config.js --env development
             pm2 save
 
             # Clean up
