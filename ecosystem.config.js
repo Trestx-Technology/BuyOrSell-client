@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "client-dev",
-      script: "yarn",
+      script: "node_modules/.bin/next",
       args: "start",
       cwd: "/home/ubuntu/client-panel-dev",
       instances: 1,

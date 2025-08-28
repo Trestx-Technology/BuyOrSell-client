@@ -141,9 +141,22 @@ jobs:
               exit 1
             fi
 
+            # Verify Next.js binary exists
+            if [ ! -f "node_modules/.bin/next" ]; then
+              echo "Error: Next.js binary not found. Dependencies may not be installed correctly."
+              exit 1
+            fi
+
+            # Stop and remove old app if exists
+            pm2 delete client-dev || true
+
             # Start app under PM2
             pm2 start ecosystem.config.js --env development
             pm2 save
+
+            # Show PM2 status for debugging
+            pm2 list
+            pm2 logs client-dev --lines 10
 
             # Clean up
             rm -f /tmp/release.tgz
