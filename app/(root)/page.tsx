@@ -12,19 +12,22 @@ import PopularJobs from "./_components/popular-jobs";
 import PopularClassifieds from "./_components/popular-classifieds";
 import BusinessIndustries from "./_components/business-industries";
 import { MidBannerCarousel } from "./_components/mid-banner-carousel";
-import banner1 from "@/public/banners/estate.png";
+import { Footer } from "@/components/global/footer";
+import FloatingChatCTA from "@/components/global/flowting-ai-cta";
 
 export default function Home() {
   const banners = [
     {
       id: 1,
-      image: banner1,
-      callToAction: "Estate",
+      image:
+        "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/estate-banner.png",
+      callToAction: "Premium Properties",
     },
     {
       id: 2,
-      image: banner1,
-      callToAction: "Estate",
+      image:
+        "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/estate-banner.png",
+      callToAction: "Luxury Real Estate",
     },
   ];
   return (
@@ -36,36 +39,41 @@ export default function Home() {
         {/* Promotional Banners with Sponsored Banner */}
         <HomeCarousel />
       </div>
+      <div className="max-w-[1280px] mx-auto relative">
+        {/* Category Carousel */}
+        <CategoriesCarousel />
+        <PopularCategories />
 
-      {/* Category Carousel */}
-      <CategoriesCarousel />
-      <PopularCategories />
+        {/* Recent Views */}
+        <RecentViews />
+        <HostDeals />
+        <TrendingCars />
+        <TrendingProperties />
 
-      {/* Recent Views */}
-      <RecentViews />
-      <HostDeals />
-      <TrendingCars />
-      <TrendingProperties />
+        <MidBannerCarousel
+          className="max-w-[1150px] mx-auto"
+          banners={banners}
+          autoPlay={true}
+          autoPlayInterval={5000}
+        />
+        {/* New Components */}
+        <TrendingFurniture />
+        <TrendingProducts />
+        <PopularJobs />
 
-      <MidBannerCarousel
-        className="max-w-[1180px] mx-auto"
-        banners={banners}
-        autoPlay={true}
-        autoPlayInterval={5000}
-      />
-      {/* New Components */}
-      <TrendingFurniture />
-      <TrendingProducts />
-      <PopularJobs />
+        <MidBannerCarousel
+          className="max-w-[1180px] mx-auto"
+          banners={banners}
+          autoPlay={true}
+          autoPlayInterval={5000}
+        />
+        <PopularClassifieds />
+        <BusinessIndustries />
 
-      <MidBannerCarousel
-        className="max-w-[1180px] mx-auto"
-        banners={banners}
-        autoPlay={true}
-        autoPlayInterval={5000}
-      />
-      <PopularClassifieds />
-      <BusinessIndustries />
+        {/* Footer */}
+        <FloatingChatCTA />
+      </div>
+      <Footer />
     </main>
   );
 }

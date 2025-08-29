@@ -319,7 +319,7 @@ export function ListingCard({
                 return (
                   <div key={key} className="flex items-center gap-1">
                     <Icon className="w-3 h-3 text-grey-500" />
-                    <span className="text-xs text-grey-500">
+                    <span className="text-xs text-grey-500 truncate">
                       {formatSpecValue(key, value)}
                     </span>
                   </div>

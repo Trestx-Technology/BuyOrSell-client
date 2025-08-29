@@ -1,5 +1,4 @@
 import React from "react";
-import AuthBanner from "@/public/assets/auth-banner.jpg";
 import logo from "@/public/assets/logo.svg";
 import Image from "next/image";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -15,7 +14,7 @@ const AuthRootLayout = ({ children }: { children: React.ReactNode }) => {
           {children}
           <div className="w-full sm:w-1/2 lg:block max-w-[530px] max-h-[603px] hidden h-full sm:h-auto">
             <Image
-              src={AuthBanner}
+              src="https://images.unsplash.com/photo-1496247749665-49cf5b1022e9?q=80&w=1173&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt="Auth Banner"
               className="w-full h-full object-cover"
             />

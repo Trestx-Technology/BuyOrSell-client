@@ -3,18 +3,11 @@
 import { useState } from "react";
 import { ListingCard } from "@/components/global/listing-card";
 import TabbedCarousel, { TabItem } from "@/components/global/tabbed-carousel";
-import { StaticImageData } from "next/image";
-import furniture1 from "@/public/furniture/furniture1.jpg";
-import furniture2 from "@/public/furniture/furniture2.jpg";
-import furniture3 from "@/public/furniture/furniture3.jpg";
-import furniture4 from "@/public/furniture/furniture4.jpg";
-import furniture5 from "@/public/furniture/furniture5.jpg";
-import furniture6 from "@/public/furniture/furniture6.jpg";
 
 // Types for furniture items
 interface FurnitureItem {
   id: string;
-  image: string | StaticImageData;
+  image: string;
   title: string;
   location: string;
   currentPrice: string;
@@ -39,12 +32,13 @@ interface TrendingFurnitureProps {
   className?: string;
 }
 
-// Sample furniture data
+// Sample furniture data with Unsplash images
 const sampleFurniture: FurnitureItem[] = [
   {
     id: "f1",
     title: "Modern Leather Sofa Set",
-    image: furniture1,
+    image:
+      "https://plus.unsplash.com/premium_photo-1670076513880-f58e3c377903?q=80&w=1018&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Downtown",
     currentPrice: "1,200",
     originalPrice: "1,800",
@@ -66,7 +60,8 @@ const sampleFurniture: FurnitureItem[] = [
   {
     id: "f2",
     title: "Vintage Dining Table",
-    image: furniture2,
+    image:
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Midtown",
     currentPrice: "450",
     originalPrice: "650",
@@ -88,7 +83,8 @@ const sampleFurniture: FurnitureItem[] = [
   {
     id: "f3",
     title: "Ergonomic Office Chair",
-    image: furniture3,
+    image:
+      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=958&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Business District",
     currentPrice: "280",
     originalPrice: "400",
@@ -110,7 +106,8 @@ const sampleFurniture: FurnitureItem[] = [
   {
     id: "f4",
     title: "Queen Size Bed Frame",
-    image: furniture4,
+    image:
+      "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Residential Area",
     currentPrice: "320",
     originalPrice: "480",
@@ -132,7 +129,8 @@ const sampleFurniture: FurnitureItem[] = [
   {
     id: "f5",
     title: "Bookshelf Unit",
-    image: furniture5,
+    image:
+      "https://plus.unsplash.com/premium_photo-1683121150169-4b0f6c92a3ac?q=80&w=1109&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "University Area",
     currentPrice: "180",
     originalPrice: "250",
@@ -154,7 +152,8 @@ const sampleFurniture: FurnitureItem[] = [
   {
     id: "f6",
     title: "Coffee Table Set",
-    image: furniture6,
+    image:
+      "https://plus.unsplash.com/premium_photo-1673548917423-073963e7afc9?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Suburban",
     currentPrice: "220",
     originalPrice: "320",
@@ -201,7 +200,7 @@ export default function TrendingFurniture({
     {
       value: "living-room",
       label: "Living Room",
-      data: furniture.slice(0, 4),
+      data: furniture.slice(0, 6),
       renderCard: (property) => (
         <ListingCard
           {...property}

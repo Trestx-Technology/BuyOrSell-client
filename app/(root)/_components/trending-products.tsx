@@ -3,18 +3,11 @@
 import { useState } from "react";
 import { ListingCard } from "@/components/global/listing-card";
 import TabbedCarousel, { TabItem } from "@/components/global/tabbed-carousel";
-import { StaticImageData } from "next/image";
-import product1 from "@/public/product/product1.jpg";
-import product2 from "@/public/product/product2.jpg";
-import product3 from "@/public/product/product3.jpg";
-import product4 from "@/public/product/product4.jpg";
-import product5 from "@/public/product/product5.jpg";
-import product6 from "@/public/product/product6.jpg";
 
 // Types for product items
 interface ProductItem {
   id: string;
-  image: string | StaticImageData;
+  image: string;
   title: string;
   location: string;
   currentPrice: string;
@@ -39,12 +32,13 @@ interface TrendingProductsProps {
   className?: string;
 }
 
-// Sample product data
+// Sample product data with Unsplash images
 const sampleProducts: ProductItem[] = [
   {
     id: "p1",
     title: "Wireless Bluetooth Headphones",
-    image: product1,
+    image:
+      "https://images.unsplash.com/photo-1607853202273-797f1c22a38e?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Tech District",
     currentPrice: "89",
     originalPrice: "129",
@@ -66,7 +60,8 @@ const sampleProducts: ProductItem[] = [
   {
     id: "p2",
     title: "Smart Fitness Watch",
-    image: product2,
+    image:
+      "https://images.unsplash.com/photo-1651954376743-c47e75c74186?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Fitness Center",
     currentPrice: "199",
     originalPrice: "299",
@@ -88,7 +83,8 @@ const sampleProducts: ProductItem[] = [
   {
     id: "p3",
     title: "Portable Power Bank",
-    image: product3,
+    image:
+      "https://images.unsplash.com/photo-1560369457-fb1181a7ac4c?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Mall Area",
     currentPrice: "45",
     originalPrice: "65",
@@ -110,7 +106,8 @@ const sampleProducts: ProductItem[] = [
   {
     id: "p4",
     title: "Gaming Mouse",
-    image: product4,
+    image:
+      "https://images.unsplash.com/photo-1555864326-5cf22ef123cf?q=80&w=1167&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Gaming Zone",
     currentPrice: "75",
     originalPrice: "99",
@@ -132,7 +129,8 @@ const sampleProducts: ProductItem[] = [
   {
     id: "p5",
     title: "USB-C Hub",
-    image: product5,
+    image:
+      "https://images.unsplash.com/photo-1595429035839-c99c298ffdde?q=80&w=764&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Office Complex",
     currentPrice: "35",
     originalPrice: "55",
@@ -154,7 +152,8 @@ const sampleProducts: ProductItem[] = [
   {
     id: "p6",
     title: "Wireless Charger",
-    image: product6,
+    image:
+      "https://images.unsplash.com/photo-1607853202273-797f1c22a38e?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Electronics Store",
     currentPrice: "28",
     originalPrice: "42",
@@ -201,7 +200,7 @@ export default function TrendingProducts({
     {
       value: "electronics",
       label: "Electronics",
-      data: products.slice(0, 4),
+      data: products.slice(0, 6),
       renderCard: (property) => (
         <ListingCard
           {...property}

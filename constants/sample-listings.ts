@@ -21,7 +21,8 @@ export interface ListingItem {
 export const sampleListings: ListingItem[] = [
   {
     id: "1",
-    image: banners[0].image,
+    image:
+      "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     title: "BMW 5 Series 2023",
     location: "Business Bay, Dubai",
     currentPrice: "105,452",
@@ -37,7 +38,8 @@ export const sampleListings: ListingItem[] = [
   },
   {
     id: "2",
-    image: banners[1].image,
+    image:
+      "https://images.unsplash.com/photo-1615141850218-9163d187fbda?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     title: "Mercedes C-Class 2022",
     location: "Marina, Dubai",
     currentPrice: "95,000",
@@ -53,7 +55,8 @@ export const sampleListings: ListingItem[] = [
   },
   {
     id: "3",
-    image: banners[2].image,
+    image:
+      "https://images.unsplash.com/photo-1540066019607-e5f69323a8dc?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     title: "Audi A4 2023",
     location: "Downtown, Dubai",
     currentPrice: "88,500",

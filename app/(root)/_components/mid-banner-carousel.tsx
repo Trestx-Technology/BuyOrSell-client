@@ -46,7 +46,7 @@ export function MidBannerCarousel({
   dotClassName = "",
   activeDotClassName = "",
   imageClassName = "",
-  maxWidth = "max-w-[1280px]",
+  maxWidth = "max-w-[1180px]",
   height = "h-[150px] md:h-[300px]",
   onSlideChange,
 }: MidBannerCarouselProps) {
@@ -132,7 +132,11 @@ export function MidBannerCarousel({
 
   return (
     <div
-      className={`${maxWidth} mx-auto flex flex-col items-center justify-center p-4 md:p-0 relative overflow-visible ${containerClassName}`}
+      className={cn(
+        "mx-auto flex flex-col items-center justify-center p-4 md:p-0 relative overflow-visible",
+        maxWidth,
+        containerClassName
+      )}
     >
       {/* Main Carousel */}
       <div
@@ -191,7 +195,7 @@ export function MidBannerCarousel({
         )}
       </div>
 
-      <div className="flex items-center justify-center bg-black w-full max-w-[1180px] mx-auto py-3 mb-3 rounded-b-lg">
+      <div className="flex items-center justify-center bg-black w-full max-w-[1150px] mx-auto py-3 mb-3 rounded-b-lg">
         {showDots && (
           <div className="flex space-x-2 w-full justify-center items-center">
             {banners?.map((_, index) => (

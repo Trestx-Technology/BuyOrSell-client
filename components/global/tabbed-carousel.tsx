@@ -123,7 +123,7 @@ export default function TabbedCarousel<
           variants={itemVariants}
           className="mb-4 flex items-center justify-between"
         >
-          <div className="flex items-center gap-3 overflow-x-auto">
+          <div className="flex items-center gap-3 overflow-x-auto ">
             {tabs.map((tab) => (
               <button
                 key={tab.value}
@@ -144,7 +144,7 @@ export default function TabbedCarousel<
               <Button
                 variant="filled"
                 onClick={onViewAll}
-                className="transition-colors px-5 py-2 h-8 text-xs font-medium"
+                className="md:block hidden transition-colors px-5 py-2 h-8 text-xs font-medium"
               >
                 {viewAllText}
               </Button>

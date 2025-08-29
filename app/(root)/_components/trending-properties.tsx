@@ -3,18 +3,11 @@
 import { useState } from "react";
 import { ListingCard } from "@/components/global/listing-card";
 import TabbedCarousel, { TabItem } from "@/components/global/tabbed-carousel";
-import { StaticImageData } from "next/image";
-import property1 from "@/public/real-estate/property1.jpg";
-import property2 from "@/public/real-estate/property2.jpg";
-import property3 from "@/public/real-estate/property3.jpg";
-import property4 from "@/public/real-estate/property4.jpg";
-import property5 from "@/public/real-estate/property5.jpg";
-import property6 from "@/public/real-estate/property6.jpg";
 
 // Types for the property listings
 interface PropertyItem {
   id: string;
-  image: string | StaticImageData;
+  image: string;
   title: string;
   location: string;
   currentPrice: string;
@@ -38,12 +31,13 @@ interface TrendingPropertiesProps {
   className?: string;
 }
 
-// Sample property data
+// Sample property data with Unsplash images
 const sampleProperties: PropertyItem[] = [
   {
     id: "0",
     title: "Modern Villa in Palm Jumeirah",
-    image: property1,
+    image:
+      "https://plus.unsplash.com/premium_photo-1689609950112-d66095626efb?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Palm Jumeirah, Dubai",
     currentPrice: "2,450,000",
     originalPrice: "2,800,000",
@@ -64,7 +58,8 @@ const sampleProperties: PropertyItem[] = [
   {
     id: "1",
     title: "Luxury Apartment Downtown",
-    image: property2,
+    image:
+      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Downtown Dubai",
     currentPrice: "1,850,000",
     originalPrice: "2,100,000",
@@ -85,7 +80,8 @@ const sampleProperties: PropertyItem[] = [
   {
     id: "2",
     title: "Beachfront Penthouse",
-    image: property3,
+    image:
+      "https://images.unsplash.com/photo-1592595896551-12b371d546d5?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "JBR, Dubai",
     currentPrice: "3,200,000",
     originalPrice: "3,600,000",
@@ -106,7 +102,8 @@ const sampleProperties: PropertyItem[] = [
   {
     id: "3",
     title: "Garden Villa Emirates Hills",
-    image: property4,
+    image:
+      "https://images.unsplash.com/photo-1560184897-ae75f418493e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Emirates Hills, Dubai",
     currentPrice: "4,100,000",
     originalPrice: "4,500,000",
@@ -127,7 +124,8 @@ const sampleProperties: PropertyItem[] = [
   {
     id: "4",
     title: "Modern Townhouse",
-    image: property5,
+    image:
+      "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Dubai Hills Estate",
     currentPrice: "1,950,000",
     originalPrice: "2,200,000",
@@ -148,7 +146,8 @@ const sampleProperties: PropertyItem[] = [
   {
     id: "5",
     title: "Luxury Apartment Marina",
-    image: property6,
+    image:
+      "https://images.unsplash.com/photo-1565953522043-baea26b83b7e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Dubai Marina",
     currentPrice: "2,300,000",
     originalPrice: "2,600,000",

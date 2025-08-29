@@ -6,8 +6,6 @@ import { Typography } from "@/components/typography";
 import { ListingCard } from "@/components/global/listing-card";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import laptop from "@/public/banners/laptop.jpg";
-import sponsored from "@/public/banners/sponsor.jpg";
 import Image, { StaticImageData } from "next/image";
 import { motion } from "framer-motion";
 
@@ -91,7 +89,8 @@ const sampleDeals: DealItem[] = [
   {
     id: "1",
     title: "MacBook Pro M2 2022",
-    image: laptop,
+    image:
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Ras Al Khaimah",
     currentPrice: "95,000",
     originalPrice: "95,000",
@@ -112,7 +111,8 @@ const sampleDeals: DealItem[] = [
   {
     id: "2",
     title: "MacBook Pro M2 2022",
-    image: laptop,
+    image:
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Ras Al Khaimah",
     currentPrice: "95,000",
     originalPrice: "95,000",
@@ -133,7 +133,8 @@ const sampleDeals: DealItem[] = [
   {
     id: "3",
     title: "MacBook Pro M2 2022",
-    image: laptop,
+    image:
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Ras Al Khaimah",
     currentPrice: "95,000",
     originalPrice: "95,000",
@@ -154,7 +155,8 @@ const sampleDeals: DealItem[] = [
   {
     id: "4",
     title: "MacBook Pro M2 2022",
-    image: laptop,
+    image:
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     location: "Ras Al Khaimah",
     currentPrice: "95,000",
     originalPrice: "95,000",
@@ -288,8 +290,10 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
                 {/* Sponsored Banner */}
                 <div className="relative w-[352px] h-[290px]     bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                   <Image
-                    src={sponsored}
+                    src="https://images.unsplash.com/photo-1629581678313-36cf745a9af9?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                     alt="Sponsored Deal"
+                    width={352}
+                    height={290}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-2.5 left-2.5 bg-white/80 rounded px-2.5 py-1">
@@ -339,8 +343,10 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
                 {/* Sponsored Banner */}
                 <div className="relative w-[352px] h-[290px] bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                   <Image
-                    src={sponsored}
+                    src="https://images.unsplash.com/photo-1629581678313-36cf745a9af9?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                     alt="Sponsored Deal"
+                    width={352}
+                    height={290}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-2.5 left-2.5 bg-white/80 rounded px-2.5 py-1">
@@ -398,8 +404,10 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
                 {/* Sponsored Banner */}
                 <div className="relative w-[352px] h-[290px] bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                   <Image
-                    src={sponsored}
+                    src="https://images.unsplash.com/photo-1629581678313-36cf745a9af9?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                     alt="Sponsored Deal"
+                    width={352}
+                    height={290}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-2.5 left-2.5 bg-white/80 rounded px-2.5 py-1">

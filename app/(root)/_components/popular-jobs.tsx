@@ -3,19 +3,11 @@
 import { useState } from "react";
 import { ListingCard } from "@/components/global/listing-card";
 import TabbedCarousel, { TabItem } from "@/components/global/tabbed-carousel";
-import {
-  Briefcase,
-  Building2,
-  Code,
-  Palette,
-  Calculator,
-  Microscope,
-} from "lucide-react";
 
 // Types for job items
 interface JobItem {
   id: string;
-  image: React.ReactNode;
+  image: string;
   title: string;
   location: string;
   currentPrice: string;
@@ -40,21 +32,22 @@ interface PopularJobsProps {
   className?: string;
 }
 
-// Sample job data
+// Sample job data with Unsplash images
 const sampleJobs: JobItem[] = [
   {
     id: "j1",
-    title: "Senior Frontend Developer",
-    image: <Code className="w-full h-full text-blue-600" />,
-    location: "Tech Hub",
-    currentPrice: "85,000",
-    originalPrice: "120,000",
+    title: "Senior Software Engineer",
+    image:
+      "https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    location: "Dubai Tech Hub",
+    currentPrice: "25,000",
+    originalPrice: "35,000",
     discount: "29%",
-    company: "TechCorp Inc.",
+    company: "TechCorp Dubai",
     type: "Full-time",
     experience: "5+ years",
-    skills: "React, TypeScript",
-    year: "2023",
+    skills: "React, TypeScript, Node.js",
+    year: "2024",
     timeAgo: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
     endTime: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours from now
     isFavorite: false,
@@ -67,16 +60,17 @@ const sampleJobs: JobItem[] = [
   {
     id: "j2",
     title: "UX/UI Designer",
-    image: <Palette className="w-full h-full text-purple-600" />,
-    location: "Design District",
-    currentPrice: "65,000",
-    originalPrice: "90,000",
+    image:
+      "https://plus.unsplash.com/premium_photo-1673830185552-45cd9d2fba48?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    location: "Dubai Design District",
+    currentPrice: "18,000",
+    originalPrice: "25,000",
     discount: "28%",
-    company: "Creative Studio",
+    company: "Creative Studio Dubai",
     type: "Full-time",
     experience: "3+ years",
-    skills: "Figma, Adobe Suite",
-    year: "2023",
+    skills: "Figma, Adobe Suite, Prototyping",
+    year: "2024",
     timeAgo: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
     endTime: new Date(Date.now() + 36 * 60 * 60 * 1000),
     isFavorite: false,
@@ -89,40 +83,19 @@ const sampleJobs: JobItem[] = [
   {
     id: "j3",
     title: "Financial Analyst",
-    image: <Calculator className="w-full h-full text-green-600" />,
-    location: "Financial District",
-    currentPrice: "70,000",
-    originalPrice: "95,000",
-    discount: "26%",
-    company: "Finance Corp",
+    image:
+      "https://images.unsplash.com/photo-1528953030358-b0c7de371f1f?q=80&w=651&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    location: "Dubai Financial District",
+    currentPrice: "22,000",
+    originalPrice: "30,000",
+    discount: "27%",
+    company: "Dubai Finance Corp",
     type: "Full-time",
     experience: "4+ years",
-    skills: "Excel, SQL, CFA",
-    year: "2023",
+    skills: "Excel, SQL, CFA, Financial Modeling",
+    year: "2024",
     timeAgo: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
     endTime: new Date(Date.now() + 72 * 60 * 60 * 1000),
-    isFavorite: false,
-    discountText: "26% OFF",
-    discountBadgeBg: "bg-green-500",
-    discountBadgeTextColor: "text-white",
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
-  },
-  {
-    id: "j4",
-    title: "Data Scientist",
-    image: <Microscope className="w-full h-full text-indigo-600" />,
-    location: "Research Park",
-    currentPrice: "95,000",
-    originalPrice: "130,000",
-    discount: "27%",
-    company: "DataTech Solutions",
-    type: "Full-time",
-    experience: "6+ years",
-    skills: "Python, ML, Statistics",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
-    endTime: new Date(Date.now() + 60 * 60 * 60 * 1000),
     isFavorite: false,
     discountText: "27% OFF",
     discountBadgeBg: "bg-green-500",
@@ -131,22 +104,46 @@ const sampleJobs: JobItem[] = [
     timerTextColor: "text-white",
   },
   {
-    id: "j5",
+    id: "j4",
     title: "Marketing Manager",
-    image: <Building2 className="w-full h-full text-orange-600" />,
-    location: "Business Center",
-    currentPrice: "60,000",
-    originalPrice: "80,000",
-    discount: "25%",
-    company: "Marketing Pro",
+    image:
+      "https://images.unsplash.com/photo-1597058557804-95ac4ee36e66?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    location: "Dubai Media City",
+    currentPrice: "20,000",
+    originalPrice: "28,000",
+    discount: "29%",
+    company: "Dubai Marketing Solutions",
     type: "Full-time",
-    experience: "5+ years",
-    skills: "Digital Marketing, Analytics",
-    year: "2023",
+    experience: "6+ years",
+    skills: "Digital Marketing, Analytics, Strategy",
+    year: "2024",
+    timeAgo: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
+    endTime: new Date(Date.now() + 60 * 60 * 60 * 1000),
+    isFavorite: false,
+    discountText: "29% OFF",
+    discountBadgeBg: "bg-green-500",
+    discountBadgeTextColor: "text-white",
+    timerBg: "bg-[#4A4A4A]",
+    timerTextColor: "text-white",
+  },
+  {
+    id: "j5",
+    title: "Project Manager",
+    image:
+      "https://plus.unsplash.com/premium_photo-1671808063645-390742d75983?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    location: "Dubai Business Bay",
+    currentPrice: "28,000",
+    originalPrice: "38,000",
+    discount: "26%",
+    company: "Dubai Project Solutions",
+    type: "Full-time",
+    experience: "7+ years",
+    skills: "PMP, Agile, Stakeholder Management",
+    year: "2024",
     timeAgo: new Date(Date.now() - 10 * 60 * 60 * 1000), // 10 hours ago
     endTime: new Date(Date.now() + 84 * 60 * 60 * 1000),
     isFavorite: false,
-    discountText: "25% OFF",
+    discountText: "26% OFF",
     discountBadgeBg: "bg-green-500",
     discountBadgeTextColor: "text-white",
     timerBg: "bg-[#4A4A4A]",
@@ -154,21 +151,22 @@ const sampleJobs: JobItem[] = [
   },
   {
     id: "j6",
-    title: "Project Manager",
-    image: <Briefcase className="w-full h-full text-gray-600" />,
-    location: "Corporate Plaza",
-    currentPrice: "75,000",
-    originalPrice: "100,000",
-    discount: "25%",
-    company: "Project Solutions",
+    title: "Software Engineer",
+    image:
+      "https://plus.unsplash.com/premium_photo-1678565869434-c81195861939?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    location: "Dubai Business Bay",
+    currentPrice: "28,000",
+    originalPrice: "38,000",
+    discount: "26%",
+    company: "Dubai Project Solutions",
     type: "Full-time",
     experience: "7+ years",
-    skills: "PMP, Agile, Leadership",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
-    endTime: new Date(Date.now() + 96 * 60 * 60 * 1000),
+    skills: "PMP, Agile, Stakeholder Management",
+    year: "2024",
+    timeAgo: new Date(Date.now() - 10 * 60 * 60 * 1000), // 10 hours ago
+    endTime: new Date(Date.now() + 84 * 60 * 60 * 1000),
     isFavorite: false,
-    discountText: "25% OFF",
+    discountText: "26% OFF",
     discountBadgeBg: "bg-green-500",
     discountBadgeTextColor: "text-white",
     timerBg: "bg-[#4A4A4A]",
@@ -200,7 +198,7 @@ export default function PopularJobs({ className = "" }: PopularJobsProps) {
     {
       value: "tech",
       label: "Technology",
-      data: jobs.slice(0, 4),
+      data: jobs.slice(0, 6),
       renderCard: (property) => (
         <ListingCard
           {...property}
