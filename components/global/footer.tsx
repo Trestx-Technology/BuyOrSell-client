@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Typography } from "@/components/typography";
 import { cn } from "@/lib/utils";
+import QRCode from "react-qr-code";
 import {
   Instagram,
   Facebook,
@@ -13,6 +14,7 @@ import {
   ArrowUp,
 } from "lucide-react";
 import Image from "next/image";
+import { Button } from "../ui/button";
 
 interface FooterProps {
   className?: string;
@@ -51,7 +53,7 @@ export function Footer({ className }: FooterProps) {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
       >
-        <div className="max-w-[1280px] mx-auto px-[100px] py-4">
+        <div className="max-w-[1280px] mx-auto px-5 lg:px-[100px] py-4">
           <button
             onClick={scrollToTop}
             className="flex items-center justify-center w-full py-4 text-white hover:text-gray-200 transition-all duration-200 hover:scale-105 cursor-pointer group"
@@ -65,7 +67,7 @@ export function Footer({ className }: FooterProps) {
       </motion.div>
       {/* Main Footer Content */}
       <motion.div
-        className="max-w-[1280px] mx-auto px-[100px] py-12"
+        className="max-w-[1280px] mx-auto px-5 lg:px-[100px] py-12"
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
@@ -73,7 +75,7 @@ export function Footer({ className }: FooterProps) {
       >
         {/* Logo Section */}
         <motion.div
-          className="mb-8 bg-white rounded-lg p-4 w-fit"
+          className="mb-8 bg-white rounded-lg p-4 w-fit mx-auto md:mx-0"
           variants={itemVariants}
         >
           <Image
@@ -86,9 +88,12 @@ export function Footer({ className }: FooterProps) {
         </motion.div>
 
         {/* Footer Links Grid */}
-        <div className="grid grid-cols-6 gap-8 mb-8">
+        <div className="w-full md:grid md:grid-cols-4 lg:flex items-start justify-between mb-8">
           {/* Company Section */}
-          <motion.div className="space-y-6" variants={itemVariants}>
+          <motion.div
+            className="space-y-6 hidden md:block"
+            variants={itemVariants}
+          >
             <Typography variant="h6" className="font-medium text-sm">
               Company
             </Typography>
@@ -121,7 +126,10 @@ export function Footer({ className }: FooterProps) {
           </motion.div>
 
           {/* UAE Section */}
-          <motion.div className="space-y-6" variants={itemVariants}>
+          <motion.div
+            className="space-y-6 hidden md:block"
+            variants={itemVariants}
+          >
             <Typography variant="h6" className="font-medium text-sm">
               UAE
             </Typography>
@@ -178,7 +186,10 @@ export function Footer({ className }: FooterProps) {
           </motion.div>
 
           {/* Categories Section */}
-          <motion.div className="space-y-6" variants={itemVariants}>
+          <motion.div
+            className="space-y-6 hidden md:block"
+            variants={itemVariants}
+          >
             <Typography variant="h6" className="font-medium text-sm">
               Categories
             </Typography>
@@ -235,38 +246,98 @@ export function Footer({ className }: FooterProps) {
           </motion.div>
 
           {/* Download App Section */}
-          <motion.div className="space-y-6" variants={itemVariants}>
+          <motion.div
+            className="space-y-6 flex flex-col justify-center items-center w-full md:w-auto md:items-start"
+            variants={itemVariants}
+          >
             <Typography variant="h6" className="font-medium text-sm">
               Download App
             </Typography>
             <div className="space-y-4">
-              <Typography variant="body" className="text-sm opacity-70">
+              <Typography
+                variant="body"
+                className="text-sm opacity-70 hidden md:block"
+              >
                 New User Only
               </Typography>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col md:flex-row items-center gap-2">
                 {/* QR Code */}
-                <div className="w-20 h-20 bg-black rounded border-2 border-white flex items-center justify-center">
-                  <div className="w-16 h-16 bg-gray-300 rounded"></div>
+                <div className="size-20 bg-black rounded border-2 border-white flex items-center justify-center">
+                  <QRCode
+                    value={"https://buyorsell.com"}
+                    size={180}
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                    aria-label="Scan QR code to download the app"
+                  />
                 </div>
                 {/* App Store Buttons */}
-                <div className="space-y-1">
-                  <div className="w-[110px] h-10 bg-black rounded border border-white flex items-center justify-center">
-                    <Typography variant="body" className="text-white text-xs">
-                      Google Play
-                    </Typography>
-                  </div>
-                  <div className="w-[110px] h-10 bg-black rounded border border-white flex items-center justify-center">
-                    <Typography variant="body" className="text-white text-xs">
+                <div className="space-y-1 w-full flex md:flex-col gap-3 md:gap-0">
+                  {/* Google Play Button */}
+                  <Button
+                    icon={
+                      <Image
+                        src="https://firebasestorage.googleapis.com/v0/b/dealdome-12a90.firebasestorage.app/o/icons%2FGroup.svg?alt=media&token=08d8b0d5-e352-4d63-9ead-4824478c6065"
+                        alt="google play"
+                        width={25}
+                        height={25}
+                        className="size-[20px] sm:size-[25px]"
+                      />
+                    }
+                    iconPosition="left"
+                    onClick={() =>
+                      window.open(
+                        "https://play.google.com/store/apps/details?id=com.yourpackage",
+                        "_blank"
+                      )
+                    }
+                    className="bg-black px-3 md:px-6 font-medium text-white hover:bg-black/70 h-12 text-left capitalize"
+                  >
+                    <span className="flex flex-col gap-0 justify-start relative songMyung pt-2 text-sm sm:text-md">
+                      <span className="text-[8px] sm:text-[10px] tracking-wider absolute top-[-5px] font-inter">
+                        GET IT ON
+                      </span>
+                      Google play
+                    </span>
+                  </Button>
+
+                  {/* App Store Button */}
+                  <Button
+                    icon={
+                      <Image
+                        src="https://firebasestorage.googleapis.com/v0/b/dealdome-12a90.firebasestorage.app/o/icons%2FGroup%20(1).svg?alt=media&token=697b0ca8-67bf-44d9-bc5d-ee12e36822a7"
+                        alt="google play"
+                        width={25}
+                        height={25}
+                        className="size-[20px] sm:size-[25px]"
+                      />
+                    }
+                    iconPosition="left"
+                    onClick={() =>
+                      window.open(
+                        `https://apps.apple.com/app/idXXXXXXXXX`,
+                        "_blank"
+                      )
+                    }
+                    className="bg-black px-3  font-medium text-white hover:bg-black/70 h-12 text-left capitalize"
+                  >
+                    <span className="flex flex-col gap-0 justify-start relative songMyung pt-2 text-sm sm:text-md">
+                      <span className="text-[8px] sm:text-[10px] tracking-wider absolute top-[-5px] font-inter">
+                        Available on the
+                      </span>
                       App Store
-                    </Typography>
-                  </div>
+                    </span>
+                  </Button>
                 </div>
               </div>
             </div>
           </motion.div>
 
           {/* Subscribe Section */}
-          <motion.div className="space-y-6" variants={itemVariants}>
+          <motion.div
+            className="space-y-6 hidden md:block"
+            variants={itemVariants}
+          >
             <Typography variant="h6" className="font-medium text-sm">
               Subscribe
             </Typography>
@@ -305,7 +376,10 @@ export function Footer({ className }: FooterProps) {
           </motion.div>
 
           {/* Language Section */}
-          <motion.div className="space-y-6" variants={itemVariants}>
+          <motion.div
+            className="space-y-6 hidden md:block"
+            variants={itemVariants}
+          >
             <Typography variant="h6" className="font-medium text-sm">
               Language
             </Typography>
@@ -327,15 +401,15 @@ export function Footer({ className }: FooterProps) {
         </div>
 
         {/* Divider */}
-        <div className="w-full h-px bg-white mb-8"></div>
+        <div className="w-full h-px bg-white mb-8 hidden md:block"></div>
 
         {/* Bottom Section */}
         <motion.div
-          className="flex justify-between items-center"
+          className="flex justify-center md:justify-between flex-wrap gap-5 items-center"
           variants={itemVariants}
         >
           {/* Left Side - Legal Links */}
-          <div className="flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-6 ">
             <Typography
               variant="body"
               className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
@@ -365,21 +439,6 @@ export function Footer({ className }: FooterProps) {
               <Facebook className="w-6 h-6 text-[#8B31E1]" />
             </div>
 
-            {/* TikTok */}
-            <div className="w-[38px] h-[38px] bg-white rounded-full border border-white flex items-center justify-center hover:bg-gray-100 cursor-pointer transition-all duration-200 hover:scale-110">
-              <div className="w-6 h-6 bg-[#8B31E1] rounded-sm"></div>
-            </div>
-
-            {/* Snapchat */}
-            <div className="w-[38px] h-[38px] bg-white rounded-full border border-white flex items-center justify-center hover:bg-gray-100 cursor-pointer transition-all duration-200 hover:scale-110">
-              <div className="w-6 h-6 bg-[#8B31E1] rounded-sm"></div>
-            </div>
-
-            {/* Google Plus */}
-            <div className="w-[38px] h-[38px] bg-white rounded-full border border-white flex items-center justify-center hover:bg-gray-100 cursor-pointer transition-all duration-200 hover:scale-110">
-              <div className="w-6 h-6 bg-[#8B31E1] rounded-sm"></div>
-            </div>
-
             {/* YouTube */}
             <div className="w-[38px] h-[38px] bg-white rounded-full border border-white flex items-center justify-center hover:bg-gray-100 cursor-pointer transition-all duration-200 hover:scale-110">
               <Youtube className="w-6 h-6 text-[#8B31E1]" />
@@ -390,17 +449,13 @@ export function Footer({ className }: FooterProps) {
               <Twitter className="w-4 h-4 text-[#8B31E1]" />
             </div>
 
-            {/* Threads */}
-            <div className="w-[38px] h-[38px] bg-white rounded-full border border-white flex items-center justify-center hover:bg-gray-100 cursor-pointer transition-all duration-200 hover:scale-110">
-              <div className="w-6 h-6 bg-[#8B31E1] rounded-sm"></div>
-            </div>
-
             {/* LinkedIn */}
             <div className="w-[38px] h-[38px] bg-white rounded-full border border-white flex items-center justify-center hover:bg-gray-100 cursor-pointer transition-all duration-200 hover:scale-110">
               <Linkedin className="w-6 h-6 text-[#8B31E1]" />
             </div>
           </div>
         </motion.div>
+        <div className="w-full h-px bg-white mt-8 md:hidden"></div>
       </motion.div>
 
       {/* Back to Top Button */}

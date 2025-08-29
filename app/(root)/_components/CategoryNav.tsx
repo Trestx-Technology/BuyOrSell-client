@@ -32,25 +32,31 @@ import {
 } from "@/constants/navigationData";
 import Image from "next/image";
 import AiSearch from "../../../components/global/ai-search";
+import { SearchAnimated } from "@/components/global/ai-search-bar";
 
-// Framer Motion animation variants
+// Framer Motion animation variants - using improved patterns from AI search bar
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
+      staggerChildren: 0.08,
+      delayChildren: 0.3, // Increased delay for smoother transition after loading
     },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 15, scale: 0.95 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.4 },
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 22,
+    },
   },
 };
 
@@ -65,19 +71,25 @@ const dropdownVariants = {
     y: 0,
     scale: 1,
     transition: {
-      duration: 0.3,
-      staggerChildren: 0.05,
+      type: "tween" as const,
+      duration: 0.35,
+      staggerChildren: 0.08,
       delayChildren: 0.1,
     },
   },
 };
 
 const subcategoryVariants = {
-  hidden: { opacity: 0, x: -10 },
+  hidden: { opacity: 0, x: -10, scale: 0.95 },
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.3 },
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 280,
+      damping: 20,
+    },
   },
 };
 
@@ -87,6 +99,7 @@ interface CategoryButtonProps {
   label: string;
   isActive: boolean;
   onMouseEnter: (categoryType: string) => void;
+  onMouseLeave: () => void;
 }
 
 interface CategoryDropdownProps {
@@ -108,6 +121,7 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
   label,
   isActive,
   onMouseEnter,
+  onMouseLeave,
 }) => (
   <Button
     variant="ghost"
@@ -117,6 +131,7 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
       isActive && "bg-white text-purple"
     )}
     onMouseEnter={() => onMouseEnter(categoryType)}
+    onMouseLeave={onMouseLeave}
   >
     {label}
   </Button>
@@ -187,6 +202,10 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
           animate="visible"
           exit="hidden"
           onMouseLeave={onMouseLeave}
+          onMouseEnter={() => {
+            // Keep dropdown open when hovering over it
+            // This prevents premature closing when moving from button to dropdown
+          }}
         >
           <motion.div className="flex mx-auto bg-white rounded-xl rounded-tl-none w-full rounded-tr-none shadow-lg border border-gray-200 overflow-hidden max-h-[500px]">
             {/* Main Categories Panel */}
@@ -255,7 +274,7 @@ const CategoryNav: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 800); // Show loader for 800ms to simulate data loading
+    }, 1200); // Show loader for 1.2s to simulate data loading and prevent laggy feel
 
     return () => clearTimeout(timer);
   }, []);
@@ -286,6 +305,7 @@ const CategoryNav: React.FC = () => {
   };
 
   const handleMouseLeave = () => {
+    // Reset all dropdown states when leaving the entire category area
     setActiveCategory(null);
     setActiveCategoryType(null);
   };
@@ -294,6 +314,18 @@ const CategoryNav: React.FC = () => {
     setActiveCategoryType(categoryType);
     // Don't auto-select the first subcategory - let user choose
     setActiveCategory(null);
+  };
+
+  // Reset dropdown when moving away from category button
+  const handleCategoryButtonLeave = () => {
+    // Small delay to allow moving to dropdown
+    setTimeout(() => {
+      // Only reset if we're not hovering over the dropdown
+      if (!activeCategoryType) {
+        setActiveCategory(null);
+        setActiveCategoryType(null);
+      }
+    }, 150);
   };
 
   const getCurrentCategoryData = () => {
@@ -331,9 +363,18 @@ const CategoryNav: React.FC = () => {
   );
 
   return (
-    <div className="relative md:bg-purple">
+    <motion.div
+      className="relative md:bg-purple"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: isLoading ? 0 : 1 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
       <div className="max-w-[1080px] mx-auto px-4 xl:px-0">
-        <nav className="flex items-center justify-between py-1 w-full">
+        <nav
+          className="flex items-center justify-between py-1 w-full"
+          onMouseLeave={handleMouseLeave}
+        >
           {/* Categories Section - Horizontal Scrollable on small screens */}
           {isLoading ? (
             <CategoryLoader />
@@ -342,7 +383,8 @@ const CategoryNav: React.FC = () => {
               className="hidden w-full md:flex flex-1 items-center justify-between"
               variants={containerVariants}
               initial="hidden"
-              animate="visible"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
             >
               {visibleCategoriesList.map(({ type, label }, index) => (
                 <motion.div
@@ -355,6 +397,7 @@ const CategoryNav: React.FC = () => {
                     label={label}
                     isActive={activeCategoryType === type}
                     onMouseEnter={handleCategoryTypeHover}
+                    onMouseLeave={handleCategoryButtonLeave}
                   />
 
                   <CategoryDropdown
@@ -370,7 +413,8 @@ const CategoryNav: React.FC = () => {
           )}
 
           <div className="flex md:hidden flex-1">
-            <AiSearch />
+            <SearchAnimated />
+            {/* <SearchAnimated /> */}
           </div>
 
           {/* Right Side Icons and Map View Button */}
@@ -387,7 +431,16 @@ const CategoryNav: React.FC = () => {
             </div>
           ) : (
             <div className=" w-fit min-[1080px]:w-full min-[1080px]:flex items-center justify-between lg:gap-5 ml-2">
-              <div className="animate-fade-in-up animate-delay-500">
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  type: "spring" as const,
+                  stiffness: 300,
+                  damping: 22,
+                  delay: 0.1,
+                }}
+              >
                 <Link href="/" className="min-w-6 min-[1080px]:block hidden">
                   <Image
                     src={mystery}
@@ -397,8 +450,17 @@ const CategoryNav: React.FC = () => {
                     height={24}
                   />
                 </Link>
-              </div>
-              <div className="animate-fade-in-up animate-delay-550">
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  type: "spring" as const,
+                  stiffness: 300,
+                  damping: 22,
+                  delay: 0.15,
+                }}
+              >
                 <Link href="/" className="min-w-6 min-[1080px]:block hidden">
                   <Image
                     src={help}
@@ -408,8 +470,17 @@ const CategoryNav: React.FC = () => {
                     height={24}
                   />
                 </Link>
-              </div>
-              <div className="animate-fade-in-up animate-delay-600">
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  type: "spring" as const,
+                  stiffness: 300,
+                  damping: 22,
+                  delay: 0.2,
+                }}
+              >
                 <Link href="/" className="min-w-6 min-[1080px]:block hidden">
                   <Image
                     src={unread_chat}
@@ -419,18 +490,45 @@ const CategoryNav: React.FC = () => {
                     height={24}
                   />
                 </Link>
-              </div>
-              <div className="animate-fade-in-up animate-delay-650">
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  type: "spring" as const,
+                  stiffness: 300,
+                  damping: 22,
+                  delay: 0.25,
+                }}
+              >
                 <Link href="/" className="min-w-6 min-[1080px]:block hidden">
                   <Heart className="size-6 hover:scale-110 transition-all duration-300 text-white" />
                 </Link>
-              </div>
-              <div className="animate-fade-in-up animate-delay-700">
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  type: "spring" as const,
+                  stiffness: 300,
+                  damping: 22,
+                  delay: 0.3,
+                }}
+              >
                 <Link href="/" className="min-w-6 min-[1080px]:block hidden">
                   <Bell className="size-6 hover:scale-110 transition-all duration-300 text-white" />
                 </Link>
-              </div>
-              <div className="animate-fade-in-up animate-delay-750">
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  type: "spring" as const,
+                  stiffness: 300,
+                  damping: 22,
+                  delay: 0.35,
+                }}
+              >
                 <Button
                   icon={<MapPin className="w-4 h-4 -mr-3" />}
                   iconPosition="center"
@@ -440,12 +538,12 @@ const CategoryNav: React.FC = () => {
                 >
                   Map View
                 </Button>
-              </div>
+              </motion.div>
             </div>
           )}
         </nav>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

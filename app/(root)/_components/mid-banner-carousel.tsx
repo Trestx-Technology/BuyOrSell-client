@@ -5,6 +5,7 @@ import Image, { StaticImageData } from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 export interface MidBannerItem {
   id: number | string;
@@ -53,6 +54,51 @@ export function MidBannerCarousel({
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(true);
 
+  // Framer Motion animation variants - blue fade-in pattern
+  const containerVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 22,
+        duration: 0.8,
+      },
+    },
+  };
+
+  const carouselVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 280,
+        damping: 20,
+        delay: 0.2,
+        duration: 0.6,
+      },
+    },
+  };
+
+  const dotsVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 22,
+        delay: 0.4,
+        duration: 0.5,
+      },
+    },
+  };
+
   const previousSlide = React.useCallback(() => {
     setCurrentSlide((curr) =>
       curr === 0 ? (banners?.length || 1) - 1 : curr - 1
@@ -95,11 +141,19 @@ export function MidBannerCarousel({
 
   // Loading skeleton
   const LoadingSkeleton = () => (
-    <div
-      className={`${maxWidth} mx-auto flex items-center justify-center p-4 md:p-0 ${containerClassName}`}
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
+      className={`${maxWidth} mx-auto flex flex-col items-center justify-center p-4 md:p-0 ${containerClassName}`}
     >
       {/* Main carousel skeleton */}
-      <div
+      <motion.div
+        variants={carouselVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
         className={`relative z-10 ${height} w-full max-w-[880px] overflow-hidden`}
       >
         <div className="h-full w-full bg-gray-200 animate-pulse rounded-xl md:rounded-none"></div>
@@ -118,12 +172,31 @@ export function MidBannerCarousel({
         {/* Skeleton arrows */}
         {showNavigation && (
           <>
-            <div className="absolute left-[7%] bottom-1/4 bg-gray-200 rounded-full size-[32px]"></div>
-            <div className="absolute right-[7%] bottom-1/4 bg-gray-200 rounded-full size-[32px]"></div>
+            <div className="absolute left-[7%] bottom-1/2 bg-gray-200 rounded-full size-8 animate-pulse"></div>
+            <div className="absolute right-[7%] bottom-1/2 bg-gray-200 rounded-full size-8 animate-pulse"></div>
           </>
         )}
-      </div>
-    </div>
+      </motion.div>
+
+      {/* Bottom dots skeleton */}
+      <motion.div
+        variants={dotsVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        className="flex items-center justify-center bg-gray-200 w-full max-w-[1150px] mx-auto py-3 mb-3 rounded-b-lg animate-pulse"
+      >
+        {showDots && (
+          <div className="flex space-x-2 w-full justify-center items-center">
+            {Array.from({ length: Math.min(banners?.length || 3, 3) }).map(
+              (_, index) => (
+                <div key={index} className="h-2 w-2 rounded-full bg-gray-300" />
+              )
+            )}
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
   );
 
   if (isLoading) {
@@ -131,7 +204,11 @@ export function MidBannerCarousel({
   }
 
   return (
-    <div
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
       className={cn(
         "mx-auto flex flex-col items-center justify-center p-4 md:p-0 relative overflow-visible",
         maxWidth,
@@ -139,7 +216,11 @@ export function MidBannerCarousel({
       )}
     >
       {/* Main Carousel */}
-      <div
+      <motion.div
+        variants={carouselVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
         className={`relative z-10 ${height} w-full max-w-[880px] overflow-hidden ${className}`}
       >
         <div
@@ -193,9 +274,15 @@ export function MidBannerCarousel({
             />
           </>
         )}
-      </div>
+      </motion.div>
 
-      <div className="flex items-center justify-center bg-black w-full max-w-[1150px] mx-auto py-3 mb-3 rounded-b-lg">
+      <motion.div
+        variants={dotsVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        className="flex items-center justify-center bg-black w-full max-w-[1150px] mx-auto py-3 mb-3 rounded-b-lg"
+      >
         {showDots && (
           <div className="flex space-x-2 w-full justify-center items-center">
             {banners?.map((_, index) => (
@@ -211,7 +298,7 @@ export function MidBannerCarousel({
             ))}
           </div>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

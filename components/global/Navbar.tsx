@@ -23,6 +23,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getEmirates } from "@/app/api/location";
 import SideMenu from "./SideMenu";
 import AiSearch from "./ai-search";
+import { SearchAnimated } from "./ai-search-bar";
+import { AnimatedThemeToggler } from "../magicui/animated-theme-toggler";
 
 const Navbar = () => {
   const [city, setCity] = useState("");
@@ -34,7 +36,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="flex max-w-[1080px] gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between overflow-hidden">
+      <nav className="flex max-w-[1080px] gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between overflow-visible">
         {/* Logo and Brand Name */}
         <div className="flex items-center gap-2">
           <div>
@@ -65,7 +67,7 @@ const Navbar = () => {
         </div>
 
         {/* Center Section - Location and Search */}
-        <div className="flex items-center gap-2 md:flex-1">
+        <div className="flex items-start gap-2 md:flex-1">
           {/* Location Selector */}
           <Button
             variant="ghost"
@@ -103,7 +105,8 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex flex-1">
-            <AiSearch />
+            {/* <AiSearch /> */}
+            <SearchAnimated />
           </div>
         </div>
 
@@ -127,6 +130,7 @@ const Navbar = () => {
             <span className="block lg:hidden">Place Ad</span>
           </Button>
         </div>
+        {/* <AnimatedThemeToggler /> */}
       </nav>
     </>
   );

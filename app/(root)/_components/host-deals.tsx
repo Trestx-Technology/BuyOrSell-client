@@ -9,50 +9,59 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image, { StaticImageData } from "next/image";
 import { motion } from "framer-motion";
 
-// Animation variants
-const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: "easeOut" as const,
-    },
-  },
-};
-
-const staggerContainer = {
+// Framer Motion animation variants - using improved patterns from AI search bar
+const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2,
-      delayChildren: 0.1,
+      staggerChildren: 0.08,
+      delayChildren: 0.2,
     },
   },
 };
 
-const fadeIn = {
-  hidden: { opacity: 0, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-      ease: "easeOut" as const,
-    },
-  },
-};
-
-const cardStagger = {
-  hidden: { opacity: 0, y: 20 },
+const headerVariants = {
+  hidden: { opacity: 0, y: 25, scale: 0.98 },
   visible: {
     opacity: 1,
     y: 0,
+    scale: 1,
     transition: {
-      duration: 0.5,
-      ease: "easeOut" as const,
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 22,
+      delay: 0.1,
+    },
+  },
+};
+
+const tabsVariants = {
+  hidden: { opacity: 0, y: 15, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 22,
+      delay: 0.3,
+    },
+  },
+};
+
+const contentVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 22,
+      delay: 0.5,
     },
   },
 };
@@ -189,16 +198,19 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
 
   return (
     <motion.section
+      variants={containerVariants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.3 }}
-      variants={staggerContainer}
+      viewport={{ once: true, margin: "-100px" }}
       className={`bg-[#B7FBE9] max-w-[1180px] mx-auto py-5 ${className}`}
     >
       <div className="w-full mx-auto px-5">
         {/* Header with Timer */}
         <motion.div
-          variants={fadeInUp}
+          variants={headerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
           className="flex items-center justify-between mb-4"
         >
           <div className="flex items-center gap-4">
@@ -224,7 +236,13 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
         </motion.div>
 
         {/* Category Tabs */}
-        <motion.div variants={fadeInUp} className="mb-4">
+        <motion.div
+          variants={tabsVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="mb-4"
+        >
           <Tabs defaultValue="electronics" className="w-full">
             <TabsList className="flex items-center justify-start w-full bg-transparent gap-3">
               <TabsTrigger
@@ -249,18 +267,28 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
 
             {/* Electronics Tab */}
             <TabsContent value="electronics" className="mt-4">
-              <div className="flex gap-4 items-center">
+              <motion.div
+                variants={contentVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                className="flex gap-4 items-center"
+              >
                 {/* Deals Carousel */}
-                <div className="flex-1">
+                <div className="flex-1 overflow-hidden">
                   <CardsCarousel title="" showNavigation={true}>
                     {deals.map((deal, index) => (
                       <motion.div
                         key={deal.id}
-                        variants={fadeIn}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.1 }}
+                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                        viewport={{ once: true, margin: "-100px" }}
+                        transition={{
+                          type: "spring" as const,
+                          stiffness: 300,
+                          damping: 22,
+                          delay: 0.6 + index * 0.08, // Staggered delay for each deal
+                        }}
                         className="flex-[0_0_auto] max-w-[170px] w-full"
                       >
                         <ListingCard
@@ -288,7 +316,7 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
                 </div>
 
                 {/* Sponsored Banner */}
-                <div className="relative w-[352px] h-[290px]     bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                <div className="hidden lg:block relative max-w-[352px] w-full h-[290px]     bg-gray-200 rounded-lg overflow-hidden">
                   <Image
                     src="https://images.unsplash.com/photo-1629581678313-36cf745a9af9?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                     alt="Sponsored Deal"
@@ -305,22 +333,32 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
                     </Typography>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </TabsContent>
 
             {/* Property Tab */}
             <TabsContent value="property" className="mt-4">
-              <div className="flex gap-4">
+              <motion.div
+                variants={contentVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                className="flex gap-4"
+              >
                 {/* Deals Carousel */}
                 <div className="flex-1">
                   <CardsCarousel title="" showNavigation={true}>
                     {deals.slice(0, 3).map((deal, index) => (
                       <motion.div
-                        variants={fadeIn}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.1 }}
+                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                        viewport={{ once: true, margin: "-100px" }}
+                        transition={{
+                          type: "spring" as const,
+                          stiffness: 300,
+                          damping: 22,
+                          delay: 0.6 + index * 0.08, // Staggered delay for each deal
+                        }}
                         key={deal.id}
                         className="flex-[0_0_auto] max-w-[170px] w-full"
                       >
@@ -358,22 +396,32 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
                     </Typography>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </TabsContent>
 
             {/* Car Tab */}
             <TabsContent value="car" className="mt-4">
-              <div className="flex gap-4">
+              <motion.div
+                variants={contentVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+                className="flex gap-4"
+              >
                 {/* Deals Carousel */}
                 <div className="flex-1">
                   <CardsCarousel title="" showNavigation={true}>
                     {deals.slice(0, 2).map((deal, index) => (
                       <motion.div
-                        variants={fadeIn}
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.3 }}
+                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                        viewport={{ once: true, margin: "-100px" }}
+                        transition={{
+                          type: "spring" as const,
+                          stiffness: 300,
+                          damping: 22,
+                          delay: 0.6 + index * 0.08, // Staggered delay for each deal
+                        }}
                         key={deal.id}
                         className="flex-[0_0_auto] max-w-[170px] w-full"
                       >
@@ -419,7 +467,7 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
                     </Typography>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </TabsContent>
           </Tabs>
         </motion.div>

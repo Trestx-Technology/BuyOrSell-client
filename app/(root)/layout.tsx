@@ -1,3 +1,4 @@
+import { Footer } from "@/components/global/footer";
 import Navbar from "@/components/global/Navbar";
 import React from "react";
 
@@ -6,6 +7,7 @@ const HomeLayout = ({ children }: { children: React.ReactNode }) => {
     <main className="w-full mx-auto">
       <Navbar />
       {children}
+      <Footer />
     </main>
   );
 };

@@ -1,32 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { sampleListings, ListingItem } from "@/constants/sample-listings";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import { ListingCard } from "@/components/global/listing-card";
 
 export default function RecentViews() {
   const [listings, setListings] = useState<ListingItem[]>(sampleListings);
-  const [shouldAnimate, setShouldAnimate] = useState(false);
-
-  // Intersection Observer for animation
-  const setRef = useCallback((node: HTMLDivElement | null) => {
-    if (node) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setShouldAnimate(true);
-          }
-        },
-        {
-          threshold: 0.01,
-          rootMargin: "0px",
-        }
-      );
-      observer.observe(node);
-    }
-  }, []);
 
   const handleFavoriteToggle = (id: string | number) => {
     setListings((prev) =>
@@ -59,10 +40,10 @@ export default function RecentViews() {
 
   return (
     <motion.section
-      ref={setRef}
       variants={containerVariants}
       initial="hidden"
-      animate={shouldAnimate ? "visible" : "hidden"}
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
       className="py-8 max-w-[1180px] mx-auto px-4 xl:px-0"
     >
       <CardsCarousel title="Recently Viewed">

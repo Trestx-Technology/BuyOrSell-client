@@ -185,7 +185,8 @@ const CategoriesCarousel = () => {
               className="flex"
               variants={containerVariants}
               initial="hidden"
-              animate="visible"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
             >
               {categoryData.map((category, index) => (
                 <motion.div

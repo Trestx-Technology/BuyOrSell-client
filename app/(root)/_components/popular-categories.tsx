@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useMediaQuery } from "usehooks-ts";
+import { motion } from "framer-motion";
 
 // Import category icons from the popular-categories folder
 import furnitureIcon from "@/public/popular-categories/furniture.svg";
@@ -35,21 +36,30 @@ interface CategoryCard {
   href: string;
 }
 
-// CSS animation classes for staggering effects
-const getStaggerClass = (index: number) => {
-  const delays = [
-    "animate-delay-0",
-    "animate-delay-100",
-    "animate-delay-200",
-    "animate-delay-300",
-    "animate-delay-400",
-    "animate-delay-500",
-    "animate-delay-600",
-    "animate-delay-700",
-    "animate-delay-800",
-    "animate-delay-900",
-  ];
-  return `animate-fade-in-up ${delays[index] || delays[0]}`;
+// Framer Motion animation variants - using improved patterns from AI search bar
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 22,
+    },
+  },
 };
 
 // Skeleton component for loading state
@@ -195,11 +205,20 @@ const PopularCategories = () => {
   const displayCategories = getDisplayCategories();
 
   return (
-    <section className="w-full max-w-[1180px] mx-auto px-4 xl:px-0 mt-16 sm:mt-0 sm:pt-11">
+    <motion.section
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-100px" }}
+      className="w-full max-w-[1180px] mx-auto px-4 xl:px-0 mt-16 sm:mt-0 sm:pt-11"
+    >
       {/* Section Title */}
-      <h2 className="text-[18px] font-medium text-[#1D2939] mb-3 font-poppins">
+      <motion.h2
+        variants={itemVariants}
+        className="text-[18px] font-medium text-[#1D2939] mb-3 font-poppins"
+      >
         Popular Categories
-      </h2>
+      </motion.h2>
 
       {/* Categories Grid */}
       <div
@@ -213,11 +232,25 @@ const PopularCategories = () => {
             Array.from({ length: 10 }).map((_, index) => (
               <CategorySkeleton key={index} index={index} />
             ))
-          : // Show actual data with CSS animations - Performance optimized
+          : // Show actual data with Framer Motion animations
             displayCategories.map((category, index) => (
-              <div
+              <motion.div
                 key={category.id}
-                className={`transform-gpu transition-all duration-500 ease-out hover:scale-105 hover:-translate-y-1 ${getStaggerClass(index)}`}
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{
+                  type: "spring" as const,
+                  stiffness: 300,
+                  damping: 22,
+                  delay: 0.3 + index * 0.06, // Staggered delay for each category
+                }}
+                whileHover={{
+                  scale: 1.05,
+                  y: -4,
+                  transition: { duration: 0.2 },
+                }}
+                className="transform-gpu transition-all duration-300 ease-out"
                 style={{
                   willChange: "transform, opacity",
                   contain: "layout style paint",
@@ -263,30 +296,42 @@ const PopularCategories = () => {
                     <ArrowRight className="w-4 h-4" />
                   </Typography>
                 </Link>
-              </div>
+              </motion.div>
             ))}
       </div>
 
       {/* Toggle Button - Only show on mobile or when there are more categories to show */}
       {(isMobile || data.length > 9) && (
-        <Button
-          icon={
-            showAllCategories ? (
-              <ChevronDown className="w-4 h-4 rotate-180" />
-            ) : (
-              <ChevronDown className="w-4 h-4" />
-            )
-          }
-          iconPosition="right"
-          size={"lg"}
-          variant="filled"
-          className="flex sm:hidden w-full text-sm mt-2"
-          onClick={handleToggleCategories}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{
+            type: "spring" as const,
+            stiffness: 300,
+            damping: 22,
+            delay: 0.8, // Delay after categories animate
+          }}
         >
-          {showAllCategories ? "Show Less" : "View All"}
-        </Button>
+          <Button
+            icon={
+              showAllCategories ? (
+                <ChevronDown className="w-4 h-4 rotate-180" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )
+            }
+            iconPosition="right"
+            size={"lg"}
+            variant="filled"
+            className="flex sm:hidden w-full text-sm mt-2"
+            onClick={handleToggleCategories}
+          >
+            {showAllCategories ? "Show Less" : "View All"}
+          </Button>
+        </motion.div>
       )}
-    </section>
+    </motion.section>
   );
 };
 
