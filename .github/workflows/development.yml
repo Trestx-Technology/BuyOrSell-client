@@ -154,9 +154,7 @@ jobs:
             pm2 start ecosystem.config.js --env development
             pm2 save
 
-            # Show PM2 status for debugging
-            pm2 list
-            pm2 logs client-dev --lines 10
+           
 
             # Clean up
             rm -f /tmp/release.tgz
