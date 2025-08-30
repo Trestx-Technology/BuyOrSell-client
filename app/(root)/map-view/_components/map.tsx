@@ -154,7 +154,7 @@ export default function Map({
     });
 
     setGoogleMarkers(newMarkers);
-  }, [map, markers, onMarkerClick, googleMarkers]);
+  }, [map, markers, onMarkerClick]);
 
   // Map controls
   const handleZoomIn = () => {

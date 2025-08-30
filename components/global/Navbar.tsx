@@ -137,8 +137,8 @@ const Navbar = () => {
                   "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/ai-purple-bg.svg"
                 }
                 alt="AI Logo"
-                width={32}
-                height={32}
+                width={24}
+                height={24}
               />
             }
             className="px-4 text-xs font-medium text-white h-10"
