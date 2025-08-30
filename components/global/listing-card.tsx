@@ -171,7 +171,6 @@ export function ListingCard({
   originalPrice,
   discount,
   specs = {},
-  category = "other",
   timeAgo,
   isFavorite = false,
   onFavoriteToggle,

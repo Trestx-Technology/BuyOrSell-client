@@ -1,7 +1,12 @@
 import React from "react";
-import logo from "@/public/assets/logo.svg";
 import Image from "next/image";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Authentication - BuyOrSell",
+  description: "Authentication forms built using the components.",
+};
 
 const AuthRootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -12,6 +17,8 @@ const AuthRootLayout = ({ children }: { children: React.ReactNode }) => {
             src={
               "https://dev-buyorsell.s3.me-central-1.amazonaws.com/assets/logo.svg"
             }
+            width={156}
+            height={49}
             alt="logo"
           />
         </div>
@@ -19,8 +26,10 @@ const AuthRootLayout = ({ children }: { children: React.ReactNode }) => {
           {children}
           <div className="w-full sm:w-1/2 lg:block max-w-[530px] max-h-[603px] hidden h-full sm:h-auto">
             <Image
-              src="https://images.unsplash.com/photo-1496247749665-49cf5b1022e9?q=80&w=1173&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/assets/auth-banner.jpg"
               alt="Auth Banner"
+              width={530}
+              height={603}
               className="w-full h-full object-cover"
             />
           </div>

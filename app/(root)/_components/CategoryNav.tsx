@@ -13,9 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Typography } from "../../../components/typography";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import mystery from "@/public/icons/mystery.svg";
-import help from "@/public/icons/help.svg";
-import unread_chat from "@/public/icons/unread_chat.svg";
 import { useMediaQuery, useWindowSize } from "usehooks-ts";
 import { motion, AnimatePresence } from "framer-motion";
 

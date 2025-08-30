@@ -162,7 +162,7 @@ export default function FloatingChatCTA() {
       oscillator.type = "sine";
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.3);
-    } catch (error) {
+    } catch {
       console.log("Audio notification not supported or blocked by browser");
     }
   }, []);

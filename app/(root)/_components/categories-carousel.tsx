@@ -6,16 +6,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useEmblaCarousel from "embla-carousel-react";
 import { motion } from "framer-motion";
-
-// Import all category icons
-import furnitureIcon from "@/public/category-icons/furniture.svg";
-import appliancesIcon from "@/public/category-icons/appliances.svg";
-import businessIcon from "@/public/category-icons/business.svg";
-import communityIcon from "@/public/category-icons/community.svg";
-import electronicsIcon from "@/public/category-icons/electronics.svg";
-import saleIcon from "@/public/category-icons/sale.svg";
-import rentIcon from "@/public/category-icons/rent.svg";
-import motorsIcon from "@/public/category-icons/motors.svg";
 import Link from "next/link";
 
 const categoryData = [

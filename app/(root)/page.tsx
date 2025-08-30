@@ -12,7 +12,6 @@ import PopularJobs from "./_components/popular-jobs";
 import PopularClassifieds from "./_components/popular-classifieds";
 import BusinessIndustries from "./_components/business-industries";
 import { MidBannerCarousel } from "./_components/mid-banner-carousel";
-import { Footer } from "@/components/global/footer";
 import FloatingChatCTA from "@/components/global/flowting-ai-cta";
 
 export default function Home() {

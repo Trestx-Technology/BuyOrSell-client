@@ -11,8 +11,6 @@ import { ChevronLeft, EyeIcon, EyeOffIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "nextjs-toploader/app";
 
-import mail from "@/public/icons/mail.svg";
-import key from "@/public/icons/key.svg";
 import Image from "next/image";
 
 const Login = () => {
@@ -38,7 +36,17 @@ const Login = () => {
       </Typography>
       <div className="space-y-2">
         <Input
-          leftIcon={<Image src={mail} alt="mail" className="size-5" />}
+          leftIcon={
+            <Image
+              width={24}
+              height={24}
+              src={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/mail.svg"
+              }
+              alt="mail"
+              className="size-5"
+            />
+          }
           placeholder="Email"
           inputSize="lg"
           className="w-full text-sm pl-12"
@@ -48,7 +56,16 @@ const Login = () => {
           }
         />
         <Input
-          leftIcon={<Image src={key} alt="key" />}
+          leftIcon={
+            <Image
+              width={24}
+              height={24}
+              src={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/key.svg"
+              }
+              alt="key"
+            />
+          }
           placeholder="Password"
           type={showPassword ? "text" : "password"}
           onRightIconClick={() => setShowPassword(!showPassword)}

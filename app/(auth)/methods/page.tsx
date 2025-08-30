@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import React from "react";
 import { FaApple } from "react-icons/fa";
-import gmail from "@/public/icons/gmail.svg";
 import Image from "next/image";
 import Link from "next/link";
 import { GoogleLoginButton } from "../_components/google";
@@ -26,17 +25,16 @@ const Login = () => {
         <GoogleLoginButton
           oneTapAutoSelect={false}
           // disabled={isPending || isSocialPending}
-          onSuccess={(data) => {
-            const payload = {
-              countryCode: "+971",
-              deviceKey: "1234567890",
-              email: data.email,
-              firstName: data.firstName,
-              lastName: data.lastName || data.firstName,
-              socialType: "google",
-              verifyEmail: true,
-            };
-            // HandleSocialLogin(payload);
+          onSuccess={() => {
+            // HandleSocialLogin({
+            //   countryCode: "+971",
+            //   deviceKey: "1234567890",
+            //   email: data.email,
+            //   firstName: data.firstName,
+            //   lastName: data.lastName || data.firstName,
+            //   socialType: "google",
+            //   verifyEmail: true,
+            // });
           }}
           onError={(error) => toast.error(error)}
           className="w-[400px]"
@@ -63,7 +61,16 @@ const Login = () => {
           className="w-full bg-white border-[#8B31E18A] border text-dark-blue"
           iconPosition="center"
           onClick={() => router.push("/login")}
-          icon={<Image src={gmail} alt="gmail" />}
+          icon={
+            <Image
+              width={24}
+              height={24}
+              src={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/gmail.svg"
+              }
+              alt="gmail"
+            />
+          }
         >
           Continue with Email and Password
         </Button>

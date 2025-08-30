@@ -6,18 +6,6 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useMediaQuery } from "usehooks-ts";
 import { motion } from "framer-motion";
-
-// Import category icons from the popular-categories folder
-import furnitureIcon from "@/public/popular-categories/furniture.svg";
-import appliancesIcon from "@/public/popular-categories/appliances.svg";
-import businessIcon from "@/public/popular-categories/business.svg";
-import communityIcon from "@/public/popular-categories/community.svg";
-import electronicsIcon from "@/public/popular-categories/electronics.svg";
-import saleIcon from "@/public/popular-categories/sale.svg";
-import rentIcon from "@/public/popular-categories/rent.svg";
-import motorsIcon from "@/public/popular-categories/motors.svg";
-import classifiedsIcon from "@/public/popular-categories/classifieds.svg";
-import jobsIcon from "@/public/popular-categories/jobs.svg";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

@@ -24,8 +24,6 @@ import {
 } from "@/components/ui/select";
 import { useRouter } from "nextjs-toploader/app";
 
-import mail from "@/public/icons/mail.svg";
-import key from "@/public/icons/key.svg";
 import Image from "next/image";
 
 // Country codes data
@@ -165,7 +163,17 @@ const Signup = () => {
         )}
 
         <Input
-          leftIcon={<Image src={mail} alt="mail" className="size-5" />}
+          leftIcon={
+            <Image
+              width={24}
+              height={24}
+              src={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/mail.svg"
+              }
+              alt="mail"
+              className="size-5"
+            />
+          }
           placeholder="Enter Email"
           inputSize="lg"
           className="w-full text-sm pl-12"
@@ -215,7 +223,17 @@ const Signup = () => {
         )}
 
         <Input
-          leftIcon={<Image src={key} alt="key" className="size-5" />}
+          leftIcon={
+            <Image
+              width={24}
+              height={24}
+              src={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/key.svg"
+              }
+              alt="key"
+              className="size-5"
+            />
+          }
           placeholder="Enter password"
           type={showPassword ? "text" : "password"}
           onRightIconClick={() => setShowPassword(!showPassword)}
