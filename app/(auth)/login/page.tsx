@@ -103,6 +103,7 @@ const Login = () => {
               socialType: "google",
               verifyEmail: true,
             };
+            console.log("payload: ", payload);
             // HandleSocialLogin(payload);
           }}
           onError={(error) => toast.error(error)}

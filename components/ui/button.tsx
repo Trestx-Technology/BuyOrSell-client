@@ -3,7 +3,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "../../lib/utils";
-import { Loader, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 cursor-pointer",
@@ -183,7 +183,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                   width === "long" &&
                     icon &&
                     iconPosition !== "none" &&
-                    "text-center",                  // Only apply flex-1 when icon is on the left, not on the right
+                    "text-center", // Only apply flex-1 when icon is on the left, not on the right
                   icon && iconPosition === "left" && "flex-1",
                   // Remove flex-1 for right-positioned icons to prevent pushing icon to edge
                   icon && iconPosition === "right" && "mr-2",

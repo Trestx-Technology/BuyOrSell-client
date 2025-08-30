@@ -42,7 +42,6 @@ export default function TabbedCarousel<
   className = "",
   showViewAll = true,
   showNavigation = true,
-  sponsoredBanner,
 }: TabbedCarouselProps<T>) {
   const firstTab = defaultTab || tabs[0]?.value;
   const [activeTab, setActiveTab] = useState(firstTab);

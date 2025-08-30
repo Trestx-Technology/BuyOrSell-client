@@ -143,7 +143,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
 }) => (
   <div className="w-full lg:w-[400px] flex-1 bg-purple/10 overflow-y-auto">
     <div className="flex flex-col w-full">
-      {subcategories.map((subcategory, index) => (
+      {subcategories.map((subcategory) => (
         <motion.div
           key={subcategory.id}
           variants={subcategoryVariants}
@@ -167,7 +167,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
           </div>
           {subcategory.children && (
             <div className="space-y-2 grid grid-cols-1 md:grid-cols-2 gap-2 px-5 py-2.5">
-              {subcategory.children.map((child, childIndex) => (
+              {subcategory.children.map((child) => (
                 <motion.div key={child.id} variants={itemVariants}>
                   <Link
                     href={`/category/${subcategory.id}/${child.id}`}
@@ -215,7 +215,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                   (category) =>
                     category.children && category.children.length > 0
                 )
-                .map((category, index) => (
+                .map((category) => (
                   <motion.div
                     key={category.id}
                     variants={itemVariants}
@@ -386,7 +386,7 @@ const CategoryNav: React.FC = () => {
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
             >
-              {visibleCategoriesList.map(({ type, label }, index) => (
+              {visibleCategoriesList.map(({ type, label }) => (
                 <motion.div
                   key={type}
                   variants={itemVariants}

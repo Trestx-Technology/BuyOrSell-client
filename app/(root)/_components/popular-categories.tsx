@@ -2,12 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import {
-  ArrowDown,
-  ArrowRight,
-  ChevronDown,
-  ChevronDownCircle,
-} from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useMediaQuery } from "usehooks-ts";
 import { motion } from "framer-motion";
@@ -63,7 +58,7 @@ const itemVariants = {
 };
 
 // Skeleton component for loading state
-const CategorySkeleton = ({ index }: { index: number }) => (
+const CategorySkeleton = () => (
   <div className="bg-white w-full border border-[#F5EBFF] rounded-lg overflow-hidden">
     <div className="px-5 py-3">
       {/* Icon and Name Section */}
@@ -230,7 +225,7 @@ const PopularCategories = () => {
         {isLoading
           ? // Show skeleton loading state
             Array.from({ length: 10 }).map((_, index) => (
-              <CategorySkeleton key={index} index={index} />
+              <CategorySkeleton key={index} />
             ))
           : // Show actual data with Framer Motion animations
             displayCategories.map((category, index) => (

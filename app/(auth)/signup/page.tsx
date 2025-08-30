@@ -23,9 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "nextjs-toploader/app";
-import { useMediaQuery } from "usehooks-ts";
 
-import person from "@/public/icons/person.svg";
 import mail from "@/public/icons/mail.svg";
 import key from "@/public/icons/key.svg";
 import Image from "next/image";
@@ -49,7 +47,6 @@ const Signup = () => {
   const [selectedCountryCode, setSelectedCountryCode] = useState("+971");
 
   const router = useRouter();
-  const isMobile = useMediaQuery("(max-width: 1020px)");
 
   const [signupData, setSignupData] = useState({
     fullName: "",
@@ -282,6 +279,7 @@ const Signup = () => {
               socialType: "google",
               verifyEmail: true,
             };
+            console.log("payload: ", payload);
             // HandleSocialSignup(payload);
           }}
           onError={(error) => toast.error(error)}

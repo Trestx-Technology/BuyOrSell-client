@@ -11,7 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import white_AI_logo from "@/public/icons/ai-bg-white.svg";
 import purple_AI_logo from "@/public/icons/ai-purple-bg.svg";
 import hamburger_menu from "@/public/icons/hamburger.svg";
 
@@ -22,9 +21,7 @@ import { locationQueries } from "@/api-queries/location";
 import { useQuery } from "@tanstack/react-query";
 import { getEmirates } from "@/app/api/location";
 import SideMenu from "./SideMenu";
-import AiSearch from "./ai-search";
 import { SearchAnimated } from "./ai-search-bar";
-import { AnimatedThemeToggler } from "../magicui/animated-theme-toggler";
 
 const Navbar = () => {
   const [city, setCity] = useState("");
@@ -130,7 +127,6 @@ const Navbar = () => {
             <span className="block lg:hidden">Place Ad</span>
           </Button>
         </div>
-        {/* <AnimatedThemeToggler /> */}
       </nav>
     </>
   );

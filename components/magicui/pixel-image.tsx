@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 type Grid = {
@@ -96,7 +97,7 @@ export const PixelImage = ({
           key={index}
           className={cn(
             "absolute inset-0 transition-all ease-out",
-            isVisible ? "opacity-100" : "opacity-0",
+            isVisible ? "opacity-100" : "opacity-0"
           )}
           style={{
             clipPath: piece.clipPath,
@@ -104,12 +105,12 @@ export const PixelImage = ({
             transitionDuration: `${pixelFadeInDuration}ms`,
           }}
         >
-          <img
+          <Image
             src={src}
             alt={`Pixel image piece ${index + 1}`}
             className={cn(
               "z-1 object-cover rounded-[2.5rem]",
-              grayscaleAnimation && (showColor ? "grayscale-0" : "grayscale"),
+              grayscaleAnimation && (showColor ? "grayscale-0" : "grayscale")
             )}
             style={{
               transition: grayscaleAnimation

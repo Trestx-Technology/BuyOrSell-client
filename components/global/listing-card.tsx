@@ -62,7 +62,7 @@ export interface ListingCardProps {
 }
 
 // Helper function to get icon for spec key
-function getSpecIcon(key: string, category?: string) {
+function getSpecIcon(key: string) {
   const iconMap: {
     [key: string]: React.ComponentType<{ className?: string }>;
   } = {
@@ -173,7 +173,6 @@ export function ListingCard({
   discount,
   specs = {},
   category = "other",
-  year,
   timeAgo,
   isFavorite = false,
   onFavoriteToggle,
@@ -297,7 +296,7 @@ export function ListingCard({
         {specsArray.length > 0 && (
           <div className="flex items-center gap-2 px-2.5">
             {specsArray.slice(0, 2).map(([key, value]) => {
-              const Icon = getSpecIcon(key, category);
+              const Icon = getSpecIcon(key);
               return (
                 <div key={key} className="flex items-center gap-1">
                   <Icon className="w-3 h-3 text-grey-500" />
@@ -315,7 +314,7 @@ export function ListingCard({
           <div className="space-y-1 px-2.5">
             <div className="flex items-center gap-2">
               {specsArray.slice(2, 4).map(([key, value]) => {
-                const Icon = getSpecIcon(key, category);
+                const Icon = getSpecIcon(key);
                 return (
                   <div key={key} className="flex items-center gap-1">
                     <Icon className="w-3 h-3 text-grey-500" />

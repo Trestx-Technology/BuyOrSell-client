@@ -3,7 +3,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { ArrowLeft, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { ListingCard } from "@/components/global/listing-card";
 import { ListingItem } from "@/constants/sample-listings";
 import { useRouter } from "nextjs-toploader/app";
@@ -109,7 +109,7 @@ export default function ProductsGrid({
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {products.map((product, index) => (
+        {products.map((product) => (
           <motion.div
             key={product.id}
             variants={itemVariants}
