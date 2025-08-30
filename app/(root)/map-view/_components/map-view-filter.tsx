@@ -19,6 +19,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export interface MapViewFilterProps {
   className?: string;
@@ -122,20 +124,38 @@ export default function MapViewFilter({
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
       className={cn(
-        "flex items-center justify-center gap-2.5 px-4 py-2  bg-white  border-gray-200",
+        "flex items-center justify-between max-w-[1080px] mx-auto gap-2.5 xl:px-0 px-5 py-2  bg-white  border-gray-200 overflow-x-auto",
         className
       )}
     >
+      {/* Location Input */}
+      <motion.div variants={itemVariants}>
+        <Input
+          type="text"
+          placeholder="Enter Location"
+          value={filters.location}
+          onChange={(e) => handleFilterChange("location", e.target.value)}
+          className="w-32 h-10 bg-[#F2F4F7] border-[#E7E7E7] text-[#475467] placeholder:text-[#929292] text-xs"
+          rightIcon={<MapPin className="w-5 h-5 text-[#929292]" />}
+        />
+      </motion.div>
+
       {/* Buy Filter */}
       <motion.div variants={itemVariants}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2.5 px-3 py-2.5 h-10 bg-[#F2F4F7] border border-[#E7E7E7] rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 transition-colors">
-              <span className="text-xs font-normal text-[#475467] font-inter">
-                {filters.buyType}
-              </span>
-              <ChevronDown className="w-4 h-4 text-[#475467]" />
-            </button>
+            <Button
+              variant={!filters.buyType ? "outline" : "secondary"}
+              className={cn(
+                "flex items-center gap-2.5 px-3 h-10 rounded-lg cursor-pointer transition-colors text-xs border-gray-300",
+                !filters.buyType && "text-gray-500"
+              )}
+              icon={<ChevronDown className="size-5 -ml-2" />}
+              iconPosition="right"
+              size="small"
+            >
+              {filters.buyType}
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-32">
             {buyTypeOptions.map((option) => (
@@ -151,72 +171,52 @@ export default function MapViewFilter({
         </DropdownMenu>
       </motion.div>
 
-      {/* Location Input */}
-      <motion.div variants={itemVariants}>
-        <Input
-          type="text"
-          placeholder="Enter Location"
-          value={filters.location}
-          onChange={(e) => handleFilterChange("location", e.target.value)}
-          className="w-32 h-10 bg-[#F2F4F7] border-[#E7E7E7] text-[#475467] placeholder:text-[#929292] text-xs"
-          rightIcon={<MapPin className="w-5 h-5 text-[#929292]" />}
-        />
-      </motion.div>
-
       {/* Property Type Filter */}
       <motion.div variants={itemVariants}>
-        <div className="flex items-center gap-2 px-1 py-2.5 h-10 bg-[#F2F4F7] border border-[#E7E7E7] rounded-lg shadow-sm">
-          {/* Location Option */}
-          <div
-            className={cn(
-              "px-2 py-0 h-8 rounded-lg cursor-pointer transition-colors",
-              activePropertyType === "Location"
-                ? "bg-[#E8D7F9] text-[#8B31E1]"
-                : "bg-[#8B31E1] text-white"
-            )}
-            onClick={() => handlePropertyTypeChange("Location")}
-          >
-            <span className="text-xs font-normal font-inter">Location</span>
-          </div>
-
-          {/* Ready Option */}
-          <div
-            className={cn(
-              "px-2 py-0 h-8 rounded-lg cursor-pointer transition-colors",
-              activePropertyType === "Ready"
-                ? "bg-[#E8D7F9] text-[#8B31E1]"
-                : "bg-[#8B31E1] text-white"
-            )}
-            onClick={() => handlePropertyTypeChange("Ready")}
-          >
-            <span className="text-xs font-normal font-inter">Ready</span>
-          </div>
-
-          {/* Off-Plan Option */}
-          <div
-            className={cn(
-              "px-2 py-0 h-8 rounded-lg cursor-pointer transition-colors",
-              activePropertyType === "Off-Plan"
-                ? "bg-[#E8D7F9] text-[#8B31E1]"
-                : "bg-[#8B31E1] text-white"
-            )}
-            onClick={() => handlePropertyTypeChange("Off-Plan")}
-          >
-            <span className="text-xs font-normal font-inter">Off-Plan</span>
-          </div>
-        </div>
+        <Tabs
+          value={activePropertyType}
+          onValueChange={handlePropertyTypeChange}
+          className="w-full"
+        >
+          <TabsList className="flex gap-2 w-full  h-10 border border-[#E7E7E7] rounded-lg p-1">
+            <TabsTrigger
+              value="Location"
+              className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter"
+            >
+              Location
+            </TabsTrigger>
+            <TabsTrigger
+              value="Ready"
+              className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter"
+            >
+              Ready
+            </TabsTrigger>
+            <TabsTrigger
+              value="Off-Plan"
+              className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter"
+            >
+              Off-Plan
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </motion.div>
 
       {/* Residential Filter */}
       <motion.div variants={itemVariants}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2.5 px-3 py-2.5 h-10 bg-[#F2F4F7] border border-[#E7E7E7] rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 transition-colors">
-              <span className="text-xs font-normal text-[#475467] font-inter">
-                {filters.residential}
-              </span>
-              <Home className="w-[22px] h-[22px] text-[#475467]" />
-            </button>
+            <Button
+              variant={!filters.residential ? "outline" : "secondary"}
+              className={cn(
+                "flex items-center gap-2.5 px-3 h-10 rounded-lg cursor-pointer transition-colors text-xs border-gray-300",
+                !filters.residential && "text-gray-500"
+              )}
+              icon={<ChevronDown className="size-5 -ml-2" />}
+              iconPosition="right"
+              size="small"
+            >
+              {filters.residential}
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-32">
             {residentialOptions.map((option) => (
@@ -236,12 +236,18 @@ export default function MapViewFilter({
       <motion.div variants={itemVariants}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2.5 px-3 py-2.5 h-10 bg-[#F2F4F7] border border-[#E7E7E7] rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 transition-colors">
-              <span className="text-xs font-normal text-[#475467] font-inter">
-                {filters.bedsBaths || "Beds & Baths"}
-              </span>
-              <Bed className="w-[22px] h-[22px] text-[#475467]" />
-            </button>
+            <Button
+              variant={!filters.bedsBaths ? "outline" : "secondary"}
+              className={cn(
+                "flex items-center gap-2.5 px-3 h-10 rounded-lg cursor-pointer transition-colors text-xs border-gray-300",
+                !filters.bedsBaths && "text-gray-500"
+              )}
+              icon={<ChevronDown className="size-5 -ml-2" />}
+              iconPosition="right"
+              size="small"
+            >
+              {filters.bedsBaths || "Beds & Baths"}
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-32">
             {bedsBathsOptions.map((option) => (
@@ -261,12 +267,18 @@ export default function MapViewFilter({
       <motion.div variants={itemVariants}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2.5 px-3 py-2.5 h-10 bg-[#F2F4F7] border border-[#E7E7E7] rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 transition-colors">
-              <span className="text-xs font-normal text-[#475467] font-inter">
-                {filters.price || "Price (AED)"}
-              </span>
-              <DollarSign className="w-[22px] h-[22px] text-[#475467]" />
-            </button>
+            <Button
+              variant={!filters.price ? "outline" : "secondary"}
+              className={cn(
+                "flex items-center gap-2.5 px-3 h-10 rounded-lg cursor-pointer transition-colors text-xs border-gray-300",
+                !filters.price && "text-gray-500"
+              )}
+              icon={<ChevronDown className="size-5 -ml-2" />}
+              iconPosition="right"
+              size="small"
+            >
+              {filters.price || "Price (AED)"}
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40">
             {priceOptions.map((option) => (
@@ -286,12 +298,18 @@ export default function MapViewFilter({
       <motion.div variants={itemVariants}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2.5 px-3 py-2.5 h-10 bg-[#F2F4F7] border border-[#E7E7E7] rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 transition-colors">
-              <span className="text-xs font-normal text-[#475467] font-inter">
-                {filters.area || "Area (sqft)"}
-              </span>
-              <Ruler className="w-[22px] h-[22px] text-[#475467]" />
-            </button>
+            <Button
+              variant={!filters.area ? "outline" : "secondary"}
+              className={cn(
+                "flex items-center gap-2.5 px-3 h-10 rounded-lg cursor-pointer transition-colors text-xs border-gray-300",
+                !filters.area && "text-gray-500"
+              )}
+              icon={<ChevronDown className="size-5 -ml-2" />}
+              iconPosition="right"
+              size="small"
+            >
+              {filters.area || "Area (sqft)"}
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40">
             {areaOptions.map((option) => (
@@ -309,15 +327,19 @@ export default function MapViewFilter({
 
       {/* Map Toggle Button */}
       <motion.div variants={itemVariants}>
-        <button
+        <Button
+          variant={filters.showMap ? "outline" : "secondary"}
           onClick={() => handleFilterChange("showMap", !filters.showMap)}
-          className="flex items-center gap-1 px-3 py-2.5 h-10 bg-[#E8D7F9] rounded-lg shadow-sm cursor-pointer hover:bg-purple-100 transition-colors"
+          className={cn(
+            "flex items-center gap-1 px-3 h-10 rounded-lg cursor-pointer transition-colors border-gray-300 text-xs",
+            filters.showMap && "text-gray-500"
+          )}
+          icon={<MapPin className="size-5 -mr-2" />}
+          iconPosition="left"
+          size="small"
         >
-          <Map className="w-6 h-6 text-[#8B31E1]" />
-          <span className="text-xs font-normal text-[#8B31E1] font-inter">
-            Map
-          </span>
-        </button>
+          Map
+        </Button>
       </motion.div>
     </motion.div>
   );

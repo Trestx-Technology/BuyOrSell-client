@@ -15,6 +15,7 @@ export interface ProductsGridProps {
   showReturnButton?: boolean;
   onProductClick?: (product: ListingItem) => void;
   onFavoriteToggle?: (productId: string) => void;
+  gridClassName?: string;
 }
 
 export default function ProductsGrid({
@@ -24,6 +25,7 @@ export default function ProductsGrid({
   showReturnButton = true,
   onProductClick,
   onFavoriteToggle,
+  gridClassName,
 }: ProductsGridProps) {
   // Animation variants for staggered reveal
   const containerVariants = {
@@ -68,10 +70,7 @@ export default function ProductsGrid({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className={cn(
-        "w-full max-w-sm mx-auto py-4 h-full overflow-y-auto",
-        className
-      )}
+      className={cn("w-full mx-auto py-4 h-full overflow-y-auto", className)}
     >
       {/* Header Section */}
       <div className="mb-2">
@@ -108,7 +107,7 @@ export default function ProductsGrid({
       </div>
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-3", gridClassName)}>
         {products.map((product) => (
           <motion.div
             key={product.id}

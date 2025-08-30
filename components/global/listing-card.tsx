@@ -61,7 +61,7 @@ export interface ListingCardProps {
 }
 
 // Helper function to get icon for spec key
-function getSpecIcon(key: string) {
+export function getSpecIcon(key: string) {
   const iconMap: {
     [key: string]: React.ComponentType<{ className?: string }>;
   } = {
@@ -93,7 +93,7 @@ function getSpecIcon(key: string) {
 }
 
 // Helper function to format spec value
-function formatSpecValue(key: string, value: string) {
+export function formatSpecValue(key: string, value: string) {
   if (key === "area" && value.includes("sq ft")) {
     return value;
   }

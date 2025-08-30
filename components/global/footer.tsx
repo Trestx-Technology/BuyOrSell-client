@@ -247,7 +247,7 @@ export function Footer({ className }: FooterProps) {
 
           {/* Download App Section */}
           <motion.div
-            className="space-y-6 flex flex-col justify-center items-center w-full md:w-auto md:items-start"
+            className="space-y-6 flex flex-col justify-center items-center w-full md:w-auto lg:items-start"
             variants={itemVariants}
           >
             <Typography variant="h6" className="font-medium text-sm">
@@ -256,11 +256,11 @@ export function Footer({ className }: FooterProps) {
             <div className="space-y-4">
               <Typography
                 variant="body"
-                className="text-sm opacity-70 hidden md:block"
+                className="text-sm opacity-70 hidden lg:block"
               >
                 New User Only
               </Typography>
-              <div className="flex flex-col md:flex-row items-center gap-2">
+              <div className="flex flex-col lg:flex-row items-center gap-2">
                 {/* QR Code */}
                 <div className="size-20 bg-black rounded border-2 border-white flex items-center justify-center">
                   <QRCode

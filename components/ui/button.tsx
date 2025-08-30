@@ -15,7 +15,7 @@ export const buttonVariants = cva(
         outline:
           "bg-white hover:bg-purple/10 border border-purple text-purple active:bg-purple/20",
         secondary:
-          "bg-transparent text-purple border border-purple hover:bg-purple/10 active:bg-purple/20",
+          "bg-purple/10 text-purple border-0 border-purple hover:bg-purple/20 active:bg-purple/20",
         warning:
           "bg-warning-100 text-white hover:bg-warning-60 active:bg-warning-100",
         warningOutlined:

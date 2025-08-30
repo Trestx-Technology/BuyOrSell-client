@@ -1,14 +1,24 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import MapViewFilter from "./_components/map-view-filter";
+import MapViewFilter, { MapViewFilters } from "./_components/map-view-filter";
 import ProductsGrid from "./_components/products-grid";
 import Map from "./_components/map";
 import { sampleListings } from "@/constants/sample-listings";
+import { cn } from "@/lib/utils";
+import { HorizontalCarouselSlider } from "@/components/global/horizontal-carousel-slider";
 
 const MapView = () => {
-  const [showMap] = useState(true);
-
+  const [filters, setFilters] = useState<MapViewFilters>({
+    buyType: "Buy",
+    location: "",
+    propertyType: "Location",
+    residential: "Residential",
+    bedsBaths: "",
+    price: "",
+    area: "",
+    showMap: true,
+  });
   const mapMarkers = useMemo(() => {
     return sampleListings.map((listing) => ({
       id: listing.id,
@@ -33,25 +43,37 @@ const MapView = () => {
     // Here you could add a new marker or perform other actions
   };
 
+  const handleFilterChange = (filters: MapViewFilters) => {
+    setFilters(filters);
+  };
+
   return (
-    <section className="w-full">
+    <section className="w-full relative mb-2">
       {/* Filter Section */}
       <div className="w-full border mb-2">
-        <MapViewFilter />
+        <MapViewFilter onFilterChange={handleFilterChange} />
       </div>
 
       {/* Main Content */}
-      <div className="flex items-start max-w-[1080px] justify-between mx-auto gap-4 h-[calc(100vh-130px)]">
+      <div className="flex items-start max-w-[1080px] justify-between mx-auto gap-4 h-[calc(100vh-130px)] xl:px-0 px-5">
         {/* Products Grid */}
 
         <ProductsGrid
           products={sampleListings}
           title="Properties for sale in UAE"
           showReturnButton={true}
+          className={cn(
+            "w-full",
+            filters.showMap && "max-w-sm hidden md:block"
+          )}
+          gridClassName={cn(
+            "grid-cols-1 md:grid-cols-2",
+            !filters.showMap && "md:grid-cols-5"
+          )}
         />
 
         {/* Map Section */}
-        {showMap && (
+        {filters.showMap && (
           <div className="w-full sticky top-4 h-full">
             <Map
               markers={mapMarkers}
@@ -64,6 +86,18 @@ const MapView = () => {
           </div>
         )}
       </div>
+
+      {/* Horizontal Carousel Slider at Bottom */}
+      <HorizontalCarouselSlider
+        items={sampleListings.slice(0, 10)} // Show first 10 items
+        showNavigation={false}
+        autoScroll={false}
+        autoScrollInterval={4000}
+        cardWidth={280}
+        gap={16}
+        showScrollbar={true}
+        className="md:hidden "
+      />
     </section>
   );
 };
