@@ -105,7 +105,12 @@ const CategoriesCarousel = () => {
       opacity: 1,
       y: 0,
       scale: 1,
-      transition: { duration: 0.5 },
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 22,
+        duration: 0.5,
+      },
     },
   };
 
@@ -186,9 +191,9 @@ const CategoriesCarousel = () => {
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, margin: "-30px" }}
             >
-              {categoryData.map((category, index) => (
+              {categoryData.map((category) => (
                 <motion.div
                   key={category.id}
                   variants={itemVariants}

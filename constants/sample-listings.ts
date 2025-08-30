@@ -16,6 +16,20 @@ export interface ListingItem {
   timeAgo: Date;
   isFavorite?: boolean;
   endTime?: Date; // For countdown timer
+  // Additional properties for better categorization
+  category?:
+    | "car"
+    | "property"
+    | "electronics"
+    | "furniture"
+    | "appliances"
+    | "fashion"
+    | "jobs"
+    | "business"
+    | "other";
+  condition?: "new" | "used" | "refurbished";
+  brand?: string;
+  model?: string;
 }
 
 export const sampleListings: ListingItem[] = [
@@ -35,6 +49,10 @@ export const sampleListings: ListingItem[] = [
     timeAgo: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
     isFavorite: false,
     endTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
+    category: "car",
+    condition: "used",
+    brand: "BMW",
+    model: "5 Series",
   },
   {
     id: "2",
@@ -52,6 +70,10 @@ export const sampleListings: ListingItem[] = [
     timeAgo: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
     isFavorite: true,
     endTime: new Date(Date.now() + 12 * 60 * 60 * 1000), // 12 hours from now
+    category: "car",
+    condition: "used",
+    brand: "Mercedes",
+    model: "C-Class",
   },
   {
     id: "3",
@@ -67,6 +89,10 @@ export const sampleListings: ListingItem[] = [
     timeAgo: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
     isFavorite: false,
     endTime: new Date(Date.now() + 6 * 60 * 60 * 1000), // 6 hours from now
+    category: "car",
+    condition: "used",
+    brand: "Audi",
+    model: "A4",
   },
   {
     id: "4",
@@ -83,6 +109,10 @@ export const sampleListings: ListingItem[] = [
     timeAgo: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
     isFavorite: false,
     endTime: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours from now
+    category: "car",
+    condition: "used",
+    brand: "Lexus",
+    model: "ES",
   },
   {
     id: "5",
@@ -97,6 +127,10 @@ export const sampleListings: ListingItem[] = [
     timeAgo: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
     isFavorite: true,
     endTime: new Date(Date.now() + 36 * 60 * 60 * 1000), // 36 hours from now
+    category: "car",
+    condition: "used",
+    brand: "Volkswagen",
+    model: "Golf",
   },
   {
     id: "6",
@@ -113,53 +147,69 @@ export const sampleListings: ListingItem[] = [
     timeAgo: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
     isFavorite: false,
     endTime: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72 hours from now
+    category: "car",
+    condition: "used",
+    brand: "Toyota",
+    model: "Camry",
   },
   {
     id: "7",
     image: banners[2].image,
-    title: "Toyota Camry 2022",
-    location: "Sheikh Zayed Road, Dubai",
-    currentPrice: "75,500",
-    originalPrice: "82,000",
-    discount: "8%",
+    title: "Honda Civic 2023",
+    location: "Al Barsha, Dubai",
+    currentPrice: "68,000",
+    originalPrice: "75,000",
+    discount: "9%",
     transmission: "Automatic",
     fuelType: "Petrol",
-    mileage: "31,200 KM",
-    year: "2022",
-    timeAgo: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
+    mileage: "15,800 KM",
+    year: "2023",
+    timeAgo: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000), // 8 days ago
     isFavorite: false,
-    endTime: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72 hours from now
+    endTime: new Date(Date.now() + 60 * 60 * 60 * 1000), // 60 hours from now
+    category: "car",
+    condition: "used",
+    brand: "Honda",
+    model: "Civic",
   },
   {
     id: "8",
     image: banners[2].image,
-    title: "Toyota Camry 2022",
-    location: "Sheikh Zayed Road, Dubai",
-    currentPrice: "75,500",
-    originalPrice: "82,000",
+    title: "Nissan Altima 2022",
+    location: "Dubai Silicon Oasis",
+    currentPrice: "72,000",
+    originalPrice: "78,000",
     discount: "8%",
     transmission: "Automatic",
     fuelType: "Petrol",
-    mileage: "31,200 KM",
+    mileage: "25,400 KM",
     year: "2022",
-    timeAgo: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
+    timeAgo: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
     isFavorite: false,
-    endTime: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72 hours from now
+    endTime: new Date(Date.now() + 84 * 60 * 60 * 1000), // 84 hours from now
+    category: "car",
+    condition: "used",
+    brand: "Nissan",
+    model: "Altima",
   },
   {
     id: "9",
     image: banners[2].image,
-    title: "Toyota Camry 2022",
-    location: "Sheikh Zayed Road, Dubai",
-    currentPrice: "75,500",
-    originalPrice: "82,000",
-    discount: "8%",
+    title: "Hyundai Sonata 2023",
+    location: "Dubai Investment Park",
+    currentPrice: "58,500",
+    originalPrice: "65,000",
+    discount: "10%",
     transmission: "Automatic",
     fuelType: "Petrol",
-    mileage: "31,200 KM",
-    year: "2022",
-    timeAgo: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
+    mileage: "18,900 KM",
+    year: "2023",
+    timeAgo: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000), // 12 days ago
     isFavorite: false,
-    endTime: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72 hours from now
+    endTime: new Date(Date.now() + 96 * 60 * 60 * 1000), // 96 hours from now
+    category: "car",
+    condition: "used",
+    brand: "Hyundai",
+    model: "Sonata",
   },
 ];

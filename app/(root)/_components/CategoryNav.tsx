@@ -31,8 +31,8 @@ import {
   NavItem,
 } from "@/constants/navigationData";
 import Image from "next/image";
-import AiSearch from "../../../components/global/ai-search";
 import { SearchAnimated } from "@/components/global/ai-search-bar";
+import { useRouter } from "nextjs-toploader/app";
 
 // Framer Motion animation variants - using improved patterns from AI search bar
 const containerVariants = {
@@ -269,7 +269,7 @@ const CategoryNav: React.FC = () => {
   // Use the useWindowSize hook to get current window width
   const { width: windowWidth } = useWindowSize();
   const isMobile = useMediaQuery("(max-width: 768px)");
-
+  const router = useRouter();
   // Simulate loading state for category data
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -535,6 +535,7 @@ const CategoryNav: React.FC = () => {
                   className=" hover:bg-white hover:text-purple py-5 md:py-4"
                   variant={isMobile ? "filled" : "outline"}
                   size={"sm"}
+                  onClick={() => router.push("/map-view")}
                 >
                   Map View
                 </Button>
