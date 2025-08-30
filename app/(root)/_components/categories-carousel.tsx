@@ -22,49 +22,49 @@ const categoryData = [
   {
     id: 1,
     name: "Motors",
-    icon: motorsIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/motors.svg",
     description: "Vehicles & Auto Parts",
   },
   {
     id: 2,
     name: "Property for Rent",
-    icon: rentIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/rent.svg",
     description: "Rental Properties",
   },
   {
     id: 3,
     name: "Property for Sale",
-    icon: saleIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/sale.svg",
     description: "Properties for Sale",
   },
   {
     id: 4,
     name: "Electronics",
-    icon: electronicsIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/electronics.svg",
     description: "Gadgets & Technology",
   },
   {
     id: 5,
     name: "Community",
-    icon: communityIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/community.svg",
     description: "Community & Events",
   },
   {
     id: 6,
     name: "Business & Industrial",
-    icon: businessIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/business.svg",
     description: "Business Services & Equipment",
   },
   {
     id: 7,
     name: "Home Appliances",
-    icon: appliancesIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/appliances.svg",
     description: "Home & Kitchen Appliances",
   },
   {
     id: 8,
     name: "Furniture",
-    icon: furnitureIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/furniture.svg",
     description: "Home & Office Furniture",
   },
 ];
@@ -191,7 +191,11 @@ const CategoriesCarousel = () => {
               variants={containerVariants}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-30px" }}
+              viewport={{
+                once: true,
+                margin: "-30px",
+                amount: 0.1,
+              }}
             >
               {categoryData.map((category) => (
                 <motion.div

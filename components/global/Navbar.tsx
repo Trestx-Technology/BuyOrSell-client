@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, Search, Bell } from "lucide-react";
+import { ChevronDown, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,11 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import purple_AI_logo from "@/public/icons/ai-purple-bg.svg";
-import hamburger_menu from "@/public/icons/hamburger.svg";
-
-// Import the actual logo
-import logo from "@/public/assets/logo.svg";
 
 import { locationQueries } from "@/api-queries/location";
 import { useQuery } from "@tanstack/react-query";
@@ -50,7 +45,16 @@ const Navbar = () => {
                   size="icon-sm"
                   iconPosition="center"
                   className="bg-[#F2F4F7] rounded-full size-8 border-[#E7E7E7] hover:bg-transparent md:hidden"
-                  icon={<Image src={hamburger_menu} alt="Hamburger Menu" />}
+                  icon={
+                    <Image
+                      src={
+                        "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/hamburger.svg"
+                      }
+                      width={18}
+                      height={18}
+                      alt="Hamburger Menu"
+                    />
+                  }
                 />
               }
               isLoggedIn={false}
@@ -58,7 +62,14 @@ const Navbar = () => {
           </div>
           <div>
             <Link href="/" className="flex items-center">
-              <Image src={logo} alt="BuyOrSell Logo" width={156} height={49} />
+              <Image
+                src={
+                  "https://dev-buyorsell.s3.me-central-1.amazonaws.com/assets/logo.svg"
+                }
+                alt="BuyOrSell Logo"
+                width={156}
+                height={49}
+              />
             </Link>
           </div>
         </div>
@@ -120,7 +131,16 @@ const Navbar = () => {
             variant="filled"
             size="icon-sm"
             iconPosition="right"
-            icon={<Image src={purple_AI_logo} alt="AI Logo" />}
+            icon={
+              <Image
+                src={
+                  "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/ai-purple-bg.svg"
+                }
+                alt="AI Logo"
+                width={32}
+                height={32}
+              />
+            }
             className="px-4 text-xs font-medium text-white h-10"
           >
             <span className="hidden lg:block">Place Ad Free with</span>

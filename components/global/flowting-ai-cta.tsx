@@ -3,7 +3,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
-import white_AI_logo from "@/public/icons/ai-bg-white.svg";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -19,6 +18,7 @@ export default function FloatingChatCTA() {
   ]);
   const [input, setInput] = React.useState("");
   const logRef = React.useRef<HTMLDivElement | null>(null);
+  const audioContextRef = React.useRef<AudioContext | null>(null);
 
   // Framer Motion animation variants - smooth zoom-in pattern
   const askMeVariants = {
@@ -111,11 +111,71 @@ export default function FloatingChatCTA() {
         {
           role: "assistant",
           content:
-            "Thanks! I’m a demo chat. Connect me to your backend or AI SDK when you’re ready.",
+            "Thanks! I'm a demo chat. Connect me to your backend or AI SDK when you're ready.",
         },
       ]);
     }, 600);
   }
+
+  // Audio notification function
+  const playNotificationSound = React.useCallback(() => {
+    try {
+      // Create audio context if it doesn't exist
+      if (!audioContextRef.current) {
+        const AudioContextClass =
+          window.AudioContext ||
+          (
+            window as typeof window & {
+              webkitAudioContext: typeof AudioContext;
+            }
+          ).webkitAudioContext;
+        audioContextRef.current = new AudioContextClass();
+      }
+
+      const audioContext = audioContextRef.current;
+
+      // Create oscillator for the notification tone
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      // Connect nodes
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      // Configure the notification tone (pleasant chime sound)
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime); // Base frequency
+      oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1); // Rise
+      oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.2); // Fall
+
+      // Configure gain for smooth fade in/out
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(
+        0.3,
+        audioContext.currentTime + 0.05
+      );
+      gainNode.gain.exponentialRampToValueAtTime(
+        0.01,
+        audioContext.currentTime + 0.3
+      );
+
+      // Set oscillator type and start
+      oscillator.type = "sine";
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+    } catch (error) {
+      console.log("Audio notification not supported or blocked by browser");
+    }
+  }, []);
+
+  // Play notification sound when component mounts
+  React.useEffect(() => {
+    // Small delay to ensure smooth user experience
+    const timer = setTimeout(() => {
+      playNotificationSound();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [playNotificationSound]);
 
   return (
     <div className="sticky bottom-6 right-10 z-50">
@@ -246,9 +306,13 @@ export default function FloatingChatCTA() {
           )}
         >
           <Image
-            src={white_AI_logo}
+            src={
+              "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/ai-bg-white.svg"
+            }
             alt="AI Logo"
             className="object-cover size-full"
+            width={32}
+            height={32}
           />
           <span className="sr-only">AI chat</span>
         </motion.button>

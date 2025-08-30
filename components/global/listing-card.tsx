@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { cn, formatRelativeTime } from "@/lib/utils";
-import AED from "@/public/icons/AED.svg";
 import { useState, useEffect } from "react";
 import { Badge } from "../ui/badge";
 
@@ -262,7 +261,14 @@ export function ListingCard({
       <div className="pt-2 space-y-2">
         {/* Price Section */}
         <div className="flex items-center gap-1 px-2.5">
-          <Image src={AED} alt="AED" width={16} height={16} />
+          <Image
+            src={
+              "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/AED.svg"
+            }
+            alt="AED"
+            width={16}
+            height={16}
+          />
           <Typography
             variant="xs-black-inter"
             className="text-purple font-bold"

@@ -8,7 +8,12 @@ const AuthRootLayout = ({ children }: { children: React.ReactNode }) => {
     <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID!}>
       <div className="px-[12px] lg:px-[100px] min-h-[750px] h-screen w-screen max-w-[1280px] mx-auto flex flex-col">
         <div className=" pt-8">
-          <Image src={logo} alt="logo" />
+          <Image
+            src={
+              "https://dev-buyorsell.s3.me-central-1.amazonaws.com/assets/logo.svg"
+            }
+            alt="logo"
+          />
         </div>
         <main className="flex justify-center items-center relative gap-10 flex-1">
           {children}

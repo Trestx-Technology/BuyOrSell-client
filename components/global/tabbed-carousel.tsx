@@ -207,7 +207,7 @@ export default function TabbedCarousel<
                   key={tab.value}
                   initial={{ opacity: 0, y: 10, scale: 0.9 }}
                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-100px" }}
+                  viewport={{ once: true, margin: "-50px" }}
                   transition={{
                     type: "spring" as const,
                     stiffness: 300,
@@ -271,7 +271,7 @@ export default function TabbedCarousel<
                   key={item.id || index}
                   initial={{ opacity: 0, y: 20, scale: 0.95 }}
                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-100px" }}
+                  viewport={{ once: true, margin: "-50px" }}
                   transition={{
                     type: "spring" as const,
                     stiffness: 280,

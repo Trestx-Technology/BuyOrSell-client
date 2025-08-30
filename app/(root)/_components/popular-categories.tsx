@@ -83,7 +83,7 @@ const categoryData: CategoryCard[] = [
   {
     id: 1,
     name: "Motors",
-    icon: motorsIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/motors.svg",
     description: "Cars, Rental Cars, New Cars, Export Cars",
     activeAds: "15,241 Active Ads",
     href: "/categories/motors",
@@ -91,7 +91,7 @@ const categoryData: CategoryCard[] = [
   {
     id: 2,
     name: "Property for Rent",
-    icon: rentIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/rent.svg",
     description: "Residential, Commercial, Rooms For Rent",
     activeAds: "10,025 Active Ads",
     href: "/categories/property-rent",
@@ -99,7 +99,7 @@ const categoryData: CategoryCard[] = [
   {
     id: 3,
     name: "Property for Sale",
-    icon: saleIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/sale.svg",
     description: "Residential, Commercial, New Projects, Off-Plan",
     activeAds: "13,241 Active Ads",
     href: "/categories/property-sale",
@@ -107,7 +107,7 @@ const categoryData: CategoryCard[] = [
   {
     id: 4,
     name: "Electronics",
-    icon: electronicsIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/electronics.svg",
     description: "Mobile Phone & Tablet Accessories",
     activeAds: "20,111 Active Ads",
     href: "/categories/electronics",
@@ -115,7 +115,7 @@ const categoryData: CategoryCard[] = [
   {
     id: 5,
     name: "Community",
-    icon: communityIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/community.svg",
     description: "Freelancers, Home Maintenance",
     activeAds: "5,026 Active Ads",
     href: "/categories/community",
@@ -123,7 +123,7 @@ const categoryData: CategoryCard[] = [
   {
     id: 6,
     name: "Business & Industrial",
-    icon: businessIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/business.svg",
     description: "Businesses for Sale, Construction",
     activeAds: "16,056 Active Ads",
     href: "/categories/business",
@@ -131,7 +131,7 @@ const categoryData: CategoryCard[] = [
   {
     id: 7,
     name: "Home Appliances",
-    icon: appliancesIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/appliances.svg",
     description: "Large Appliances, Kitchen Appliances",
     activeAds: "11,998 Active Ads",
     href: "/categories/appliances",
@@ -139,7 +139,7 @@ const categoryData: CategoryCard[] = [
   {
     id: 8,
     name: "Furniture",
-    icon: furnitureIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/furniture.svg",
     description: "Furniture, Home Accessories, Garden",
     activeAds: "7,892 Active Ads",
     href: "/categories/furniture",
@@ -147,7 +147,7 @@ const categoryData: CategoryCard[] = [
   {
     id: 9,
     name: "Classifieds",
-    icon: classifiedsIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/classifieds.svg",
     description: "Electronics, Computer & Networking",
     activeAds: "6,480 Active Ads",
     href: "/categories/classifieds",
@@ -155,7 +155,7 @@ const categoryData: CategoryCard[] = [
   {
     id: 10,
     name: "Jobs",
-    icon: jobsIcon,
+    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/jobs.svg",
     description: "Accounting, Finance, Engineering, Sales",
     activeAds: "26,416 Active Ads",
     href: "/categories/jobs",

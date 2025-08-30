@@ -69,7 +69,7 @@ export function SearchAnimated() {
     <div
       ref={searchRef}
       className={cn(
-        "relative flex items-center  border border-gray-300 rounded-lg h-10 flex-1 z-100",
+        "relative flex items-center  border border-gray-300 rounded-lg h-10 flex-1 z-50",
         !isAI && "overflow-hidden"
       )}
     >
@@ -196,7 +196,7 @@ export function SearchAnimated() {
                       <motion.button
                         key={label}
                         type="button"
-                        className="rounded-full px-3 py-1.5 text-sm bg-white/10 text-white/90 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+                        className="rounded-full px-3 py-1.5 text-xs bg-white/10 text-white/90 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
                         style={{ borderColor: COLORS.teal }}
                         variants={{
                           hidden: { opacity: 0, scale: 0.9, y: 6 },

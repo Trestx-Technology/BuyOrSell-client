@@ -12,26 +12,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
-import logo from "@/public/assets/logo.svg";
 import { Typography } from "../typography";
-
-// Import your Figma icons
-import notificationBell from "@/public/icons/notification-bell.svg";
-import userLogin from "@/public/icons/user-login.svg";
-import explore from "@/public/icons/explore.svg";
-import search from "@/public/icons/search.svg";
-import myAds from "@/public/icons/my-ads.svg";
-import favorites from "@/public/icons/favorites.svg";
-import jobsDashboard from "@/public/icons/jobs-dashboard.svg";
-import offersPackages from "@/public/icons/offers-packages.svg";
-import settings from "@/public/icons/settings.svg";
-import helpCenter from "@/public/icons/help-center.svg";
-import privacyPolicy from "@/public/icons/privacy-policy.svg";
-import termsConditions from "@/public/icons/terms-conditions.svg";
-import contactUs from "@/public/icons/contact-us.svg";
-import starRate from "@/public/icons/star-rate.svg";
-import share from "@/public/icons/share.svg";
-import profile from "@/public/icons/profile.svg";
 
 interface SideMenuProps {
   trigger: React.ReactNode;
@@ -127,7 +108,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                 {/* Logo */}
                 <div className="flex items-center gap-2">
                   <Image
-                    src={logo}
+                    src={
+                      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/assets/logo.svg"
+                    }
                     alt="BuyOrSell Logo"
                     width={125}
                     height={36}
@@ -212,73 +195,135 @@ export const SideMenu: React.FC<SideMenuProps> = ({
 
             {!isLoggedIn ? (
               <MenuItem
-                icon={userLogin}
+                icon={
+                  "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/user-login.svg"
+                }
                 label="Log In / Sign Up"
                 href="/login"
                 showBorder={false}
               />
             ) : (
-              <MenuItem icon={profile} label="Profile" href="/profile" />
+              <MenuItem
+                icon={
+                  "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/profile.svg"
+                }
+                label="Profile"
+                href="/profile"
+              />
             )}
           </div>
 
           {/* Explore Section */}
           <div className="py-0">
             <SectionHeader title="Explore" />
-            <MenuItem icon={explore} label="Explore" href="/explore" />
+            <MenuItem
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/explore.svg"
+              }
+              label="Explore"
+              href="/explore"
+            />
           </div>
 
           {/* Activity Section */}
           <div className="py-2">
             <SectionHeader title="Activity" />
-            <MenuItem icon={search} label="My Searches" href="/searches" />
-
-            <MenuItem icon={myAds} label="My Ads" href="/my-ads" />
-
-            <MenuItem icon={favorites} label="Favourites" href="/favourites" />
+            <MenuItem
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/search.svg"
+              }
+              label="My Searches"
+              href="/searches"
+            />
 
             <MenuItem
-              icon={notificationBell}
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/my-ads.svg"
+              }
+              label="My Ads"
+              href="/my-ads"
+            />
+
+            <MenuItem
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/favorites.svg"
+              }
+              label="Favourites"
+              href="/favourites"
+            />
+
+            <MenuItem
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/notification-bell.svg"
+              }
               label="Notifications"
               href="/notifications"
             />
 
             <MenuItem
-              icon={jobsDashboard}
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/jobs-dashboard.svg"
+              }
               label="Jobs Dashboard"
               href="/jobs"
             />
 
             <MenuItem
-              icon={offersPackages}
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/offers-packages.svg"
+              }
               label="Offers & Packages"
               href="/offers"
             />
 
-            <MenuItem icon={settings} label="Settings" href="/settings" />
+            <MenuItem
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/settings.svg"
+              }
+              label="Settings"
+              href="/settings"
+            />
           </div>
 
           {/* Others Section */}
           <div className="py-2">
             <SectionHeader title="Others" />
-            <MenuItem icon={helpCenter} label="Help Center" href="/help" />
+            <MenuItem
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/help-center.svg"
+              }
+              label="Help Center"
+              href="/help"
+            />
 
             <MenuItem
-              icon={privacyPolicy}
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/privacy-policy.svg"
+              }
               label="Privacy Policy"
               href="/privacy"
             />
 
             <MenuItem
-              icon={termsConditions}
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/terms-conditions.svg"
+              }
               label="Terms & Conditions"
               href="/terms"
             />
 
-            <MenuItem icon={contactUs} label="Contact Us" href="/contact" />
+            <MenuItem
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/contact-us.svg"
+              }
+              label="Contact Us"
+              href="/contact"
+            />
 
             <MenuItem
-              icon={starRate}
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/star-rate.svg"
+              }
               label="Rate us"
               onClick={() => {
                 // Handle rating logic
@@ -287,7 +332,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({
             />
 
             <MenuItem
-              icon={share}
+              icon={
+                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/share.svg"
+              }
               label="Share with Friend"
               onClick={() => {
                 // Handle sharing logic

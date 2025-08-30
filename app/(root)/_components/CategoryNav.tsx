@@ -443,7 +443,9 @@ const CategoryNav: React.FC = () => {
               >
                 <Link href="/" className="min-w-6 min-[1080px]:block hidden">
                   <Image
-                    src={mystery}
+                    src={
+                      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/mystery.svg"
+                    }
                     alt="mystery"
                     className="size-6 hover:scale-110 transition-all duration-300"
                     width={24}
@@ -463,7 +465,9 @@ const CategoryNav: React.FC = () => {
               >
                 <Link href="/" className="min-w-6 min-[1080px]:block hidden">
                   <Image
-                    src={help}
+                    src={
+                      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/help.svg"
+                    }
                     alt="help"
                     className="size-6 hover:scale-110 transition-all duration-300"
                     width={24}
@@ -483,7 +487,9 @@ const CategoryNav: React.FC = () => {
               >
                 <Link href="/" className="min-w-6 min-[1080px]:block hidden">
                   <Image
-                    src={unread_chat}
+                    src={
+                      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/unread_chat.svg"
+                    }
                     alt="unread_chat"
                     className="size-6 hover:scale-110 transition-all duration-300"
                     width={24}
