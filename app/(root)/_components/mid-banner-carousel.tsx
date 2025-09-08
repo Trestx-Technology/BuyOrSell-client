@@ -210,7 +210,7 @@ export function MidBannerCarousel({
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
       className={cn(
-        "mx-auto flex flex-col items-center justify-center p-4 md:p-0 relative overflow-visible",
+        "mx-auto flex flex-col items-center justify-center p-4 md:p-0 relative overflow-visible bg-white",
         maxWidth,
         containerClassName
       )}
@@ -281,7 +281,7 @@ export function MidBannerCarousel({
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
-        className="flex items-center justify-center bg-black w-full max-w-[1150px] mx-auto py-3 mb-3 rounded-b-lg"
+        className="flex items-center justify-center bg-black w-full mx-auto py-3 rounded-b-lg"
       >
         {showDots && (
           <div className="flex space-x-2 w-full justify-center items-center">

@@ -161,7 +161,7 @@ export default function TabbedCarousel<
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className={`max-w-[1180px] mx-auto py-5 ${className}`}
+      className={`max-w-[1220px] bg-white mx-auto py-5 ${className}`}
     >
       <div className="w-full mx-auto px-4 xl:px-5">
         {/* Header with Title and View All Button */}
