@@ -13,6 +13,8 @@ import PopularClassifieds from "./_components/popular-classifieds";
 import BusinessIndustries from "./_components/business-industries";
 import { MidBannerCarousel } from "./_components/mid-banner-carousel";
 import FloatingChatCTA from "@/components/global/flowting-ai-cta";
+import Navbar from "@/components/global/Navbar";
+import { Footer } from "@/components/global/footer";
 
 export default function Home() {
   const banners = [
@@ -31,6 +33,7 @@ export default function Home() {
   ];
   return (
     <main className="min-h-screen">
+      <Navbar />
       <CategoryNav />
 
       {/* Promotional Banners and Sponsored Banner */}
@@ -77,6 +80,7 @@ export default function Home() {
 
         {/* Footer */}
         <FloatingChatCTA />
+        <Footer />
       </div>
     </main>
   );

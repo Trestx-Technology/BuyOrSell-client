@@ -17,10 +17,12 @@ import { useQuery } from "@tanstack/react-query";
 import { getEmirates } from "@/app/api/location";
 import SideMenu from "./SideMenu";
 import { SearchAnimated } from "./ai-search-bar";
+import PostAdDialog from "../../app/(root)/post-ad/_components/PostAdDialog";
+import { ICONS } from "@/constants/icons";
 
 const Navbar = () => {
   const [city, setCity] = useState("");
-
+  const [isPostAdDialogOpen, setIsPostAdDialogOpen] = useState(false);
   const { data: emirates } = useQuery({
     queryKey: [locationQueries.emirates.key],
     queryFn: getEmirates,
@@ -47,9 +49,7 @@ const Navbar = () => {
                   className="bg-[#F2F4F7] rounded-full size-8 border-[#E7E7E7] hover:bg-transparent md:hidden"
                   icon={
                     <Image
-                      src={
-                        "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/hamburger.svg"
-                      }
+                      src={ICONS.ui.hamburger}
                       width={18}
                       height={18}
                       alt="Hamburger Menu"
@@ -63,9 +63,7 @@ const Navbar = () => {
           <div>
             <Link href="/" className="flex items-center">
               <Image
-                src={
-                  "https://dev-buyorsell.s3.me-central-1.amazonaws.com/assets/logo.svg"
-                }
+                src={ICONS.logo.main}
                 alt="BuyOrSell Logo"
                 width={156}
                 height={49}
@@ -131,11 +129,10 @@ const Navbar = () => {
             variant="filled"
             size="icon-sm"
             iconPosition="right"
+            onClick={() => setIsPostAdDialogOpen(true)}
             icon={
               <Image
-                src={
-                  "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/ai-purple-bg.svg"
-                }
+                src={ICONS.ai.aiPurpleBg}
                 alt="AI Logo"
                 width={24}
                 height={24}
@@ -148,6 +145,12 @@ const Navbar = () => {
           </Button>
         </div>
       </nav>
+
+      {/* Post Ad Dialog */}
+      <PostAdDialog
+        isOpen={isPostAdDialogOpen}
+        onClose={() => setIsPostAdDialogOpen(false)}
+      />
     </>
   );
 };

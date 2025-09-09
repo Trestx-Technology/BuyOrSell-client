@@ -7,6 +7,8 @@ import Map from "./_components/map";
 import { sampleListings } from "@/constants/sample-listings";
 import { cn } from "@/lib/utils";
 import { HorizontalCarouselSlider } from "@/components/global/horizontal-carousel-slider";
+import Navbar from "@/components/global/Navbar";
+import { Footer } from "@/components/global/footer";
 
 const MapView = () => {
   const [filters, setFilters] = useState<MapViewFilters>({
@@ -49,6 +51,7 @@ const MapView = () => {
 
   return (
     <section className="w-full relative mb-2">
+      <Navbar />
       {/* Filter Section */}
       <div className="w-full border mb-2">
         <MapViewFilter onFilterChange={handleFilterChange} />
@@ -86,7 +89,7 @@ const MapView = () => {
           </div>
         )}
       </div>
-
+      <Footer />
       {/* Horizontal Carousel Slider at Bottom */}
       <HorizontalCarouselSlider
         items={sampleListings.slice(0, 10)} // Show first 10 items
