@@ -3,13 +3,14 @@
 import { useState } from "react";
 import Image from "next/image";
 import { X, Plus, Send, AlertCircle } from "lucide-react";
-import { useAdPosting } from "../_context/AdPostingContext";
+import { useAdPosting } from "../post-ad/_context/AdPostingContext";
 import Navbar from "@/components/global/Navbar";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { toast } from "sonner";
 
 const templates = [
   { id: "cars", label: "Cars" },
@@ -19,7 +20,6 @@ const templates = [
 ];
 
 export default function AIPromptPage() {
-  const { generateWithAI, formData } = useAdPosting();
   const [prompt, setPrompt] = useState("");
   const [images, setImages] = useState<string[]>([
     "/images/ai-prompt/car-image-1.png",
@@ -64,7 +64,7 @@ export default function AIPromptPage() {
 
     setIsGenerating(true);
     try {
-      await generateWithAI(prompt);
+      return toast.info("AI Ad posting in under Development...");
       // In a real app, this would navigate to the next step
       console.log("AI generation completed");
     } catch (error) {
@@ -91,7 +91,7 @@ export default function AIPromptPage() {
         {/* Progress Bar Section */}
 
         {/* Main Content */}
-        <div className="px-4 pb-8 w-full max-w-[528px]">
+        <div className="px-4 pb-8 w-full max-w-[628px]">
           {/* Title */}
           <div className="text-center mb-6">
             <h1 className="text-lg sm:text-2xl font-semibold text-[#1D2939] mb-2">

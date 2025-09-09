@@ -24,7 +24,7 @@ export default function PostAdDialog({ isOpen, onClose }: PostAdDialogProps) {
   const handleAICreate = () => {
     onClose();
     // Navigate to AI-powered ad creation
-    router.push("/post-ad?mode=ai");
+    router.push("/ai-ad-post");
   };
 
   const handleManualCreate = () => {
@@ -51,13 +51,13 @@ export default function PostAdDialog({ isOpen, onClose }: PostAdDialogProps) {
         {/* Content */}
         <div className="relative p-8 text-center">
           {/* Main Title */}
-          <h2 className="text-lg font-medium text-[#1D2939] mb-8">
+          <h2 className="text-sm sm:text-lg font-semibold text-[#1D2939] mb-8">
             Placing an Ad now become more easy
           </h2>
 
           {/* Ad Posting Illustration */}
           <div className="flex justify-center mb-8">
-            <div className="w-[150px] h-[150px] bg-gray-200 rounded-lg flex items-center justify-center">
+            <div className="w-[150px] h-[150px] bg-gray-100 rounded-lg flex items-center justify-center">
               <Image
                 src={
                   "https://dev-buyorsell.s3.me-central-1.amazonaws.com/assets/Ads+Posting.png"
@@ -84,7 +84,7 @@ export default function PostAdDialog({ isOpen, onClose }: PostAdDialogProps) {
                 />
               }
               iconPosition="right"
-              className="flex items-center gap-2 px-3 py-2.5 bg-[#8B31E1] text-white rounded-lg hover:bg-[#7B2AD1] transition-colors"
+              className="flex w-full items-center gap-2 px-3 py-2.5 bg-[#8B31E1] text-white rounded-lg hover:bg-[#7B2AD1] transition-colors"
             >
               Create ads with AI
             </Button>
@@ -96,7 +96,7 @@ export default function PostAdDialog({ isOpen, onClose }: PostAdDialogProps) {
             <Button
               onClick={handleManualCreate}
               variant="outline"
-              className="flex items-center gap-2 px-3 py-2.5 border-[#8B31E1] text-[#8B31E1] rounded-lg hover:bg-[#8B31E1] hover:text-white transition-colors"
+              className="flex items-center w-full gap-2 px-3 py-2.5 border-[#8B31E1] text-[#8B31E1] rounded-lg hover:bg-[#8B31E1] hover:text-white transition-colors"
             >
               Create ads manually
             </Button>

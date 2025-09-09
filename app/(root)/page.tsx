@@ -80,8 +80,8 @@ export default function Home() {
 
         {/* Footer */}
         <FloatingChatCTA />
-        <Footer />
       </div>
+      <Footer />
     </main>
   );
 }
