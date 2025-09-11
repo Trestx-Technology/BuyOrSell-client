@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useAdPosting } from "../_context/AdPostingContext";
+import { UI_ICONS } from "@/constants/icons";
 
 interface ProgressBarProps {
   currentStep?: number;
@@ -16,7 +17,7 @@ export default function ProgressBar({
   title = "Create Post for your ads",
   showIcons = true,
 }: ProgressBarProps) {
-  const {currentStep} = useAdPosting()
+  const { currentStep } = useAdPosting();
   const [robotPosition, setRobotPosition] = useState(0);
 
   const progressPercentage = (currentStep / totalSteps) * 100;
@@ -68,7 +69,7 @@ export default function ProgressBar({
             }}
           >
             <Image
-              src="/images/category-icons/walking-robot.png"
+              src={UI_ICONS.menWalking}
               alt="Progress Robot"
               width={40}
               height={40}
@@ -81,7 +82,7 @@ export default function ProgressBar({
         {showIcons && (
           <div className="absolute -top-[46px] -right-2 w-[50px] h-[50px]">
             <Image
-              src="/images/category-icons/finish-line.png"
+              src={UI_ICONS.finishLine}
               alt="Finish Line"
               width={50}
               height={50}

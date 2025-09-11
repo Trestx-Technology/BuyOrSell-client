@@ -23,6 +23,8 @@ export const UI_ICONS = {
   mystery: `${S3_BASE_URL}/icons/mystery.svg`,
   help: `${S3_BASE_URL}/icons/help.svg`,
   unreadChat: `${S3_BASE_URL}/icons/unread_chat.svg`,
+  menWalking: `${S3_BASE_URL}/icons/man-going-for-walk.svg`,
+  finishLine: `${S3_BASE_URL}/icons/finish-line.svg`,
 } as const;
 
 // ============================================================================

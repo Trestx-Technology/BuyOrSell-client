@@ -67,15 +67,15 @@ export default function Home() {
           <TrendingProducts className="sticky top-[200px] z-50" />
           <PopularJobs className="sticky top-[250px] z-60" />
 
+          <PopularClassifieds className="sticky top-[300px] z-70" />
+          <BusinessIndustries className="sticky top-[350px] z-80" />
           <MidBannerCarousel
             className="max-w-[1180px] mx-auto"
-            containerClassName="sticky top-[300px] z-70"
+            containerClassName="sticky top-[400px] z-90"
             banners={banners}
             autoPlay={true}
             autoPlayInterval={5000}
           />
-          <PopularClassifieds className="sticky top-[350px] z-80" />
-          <BusinessIndustries className="sticky top-[400px] z-90" />
         </div>
 
         {/* Footer */}

@@ -180,7 +180,7 @@ export default function TabbedCarousel<
             {/* Section Title */}
             <Typography
               variant="lg-black-inter"
-              className="text-lg font-medium text-dark-blue"
+              className="text-md sm:text-lg font-medium text-dark-blue"
             >
               {title}
             </Typography>

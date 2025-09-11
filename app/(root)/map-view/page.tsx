@@ -58,7 +58,7 @@ const MapView = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex items-start max-w-[1080px] justify-between mx-auto gap-4 h-[calc(100vh-130px)] xl:px-0 px-5">
+      <div className="flex items-start max-w-[1080px] justify-between mx-auto gap-4 h-[calc(100vh-130px)] xl:px-0 px-5 relative">
         {/* Products Grid */}
 
         <ProductsGrid
@@ -88,19 +88,19 @@ const MapView = () => {
             />
           </div>
         )}
+        <HorizontalCarouselSlider
+          items={sampleListings.slice(0, 10)} // Show first 10 items
+          showNavigation={false}
+          autoScroll={false}
+          autoScrollInterval={4000}
+          cardWidth={280}
+          gap={16}
+          showScrollbar={true}
+          className="md:hidden "
+        />
       </div>
       <Footer />
       {/* Horizontal Carousel Slider at Bottom */}
-      <HorizontalCarouselSlider
-        items={sampleListings.slice(0, 10)} // Show first 10 items
-        showNavigation={false}
-        autoScroll={false}
-        autoScrollInterval={4000}
-        cardWidth={280}
-        gap={16}
-        showScrollbar={true}
-        className="md:hidden "
-      />
     </section>
   );
 };

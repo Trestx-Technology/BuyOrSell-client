@@ -84,7 +84,7 @@ export function CardsCarousel({
       )}
 
       <div className="relative overflow-visible">
-        {showNavigation && totalSlides > slidesInView && (
+        {showNavigation && totalSlides && (
           <>
             <Button
               variant="outline"

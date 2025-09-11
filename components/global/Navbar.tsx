@@ -19,8 +19,9 @@ import SideMenu from "./SideMenu";
 import { SearchAnimated } from "./ai-search-bar";
 import PostAdDialog from "../../app/(root)/post-ad/_components/PostAdDialog";
 import { ICONS } from "@/constants/icons";
+import { cn } from "@/lib/utils";
 
-const Navbar = () => {
+const Navbar = ({ className }: { className?: string }) => {
   const [city, setCity] = useState("");
   const [isPostAdDialogOpen, setIsPostAdDialogOpen] = useState(false);
   const { data: emirates } = useQuery({
@@ -30,7 +31,12 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="flex max-w-[1080px] gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between overflow-visible">
+      <nav
+        className={cn(
+          "flex max-w-[1080px] gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between overflow-visible",
+          className
+        )}
+      >
         {/* Logo and Brand Name */}
         <div className="flex items-center gap-2">
           <div>

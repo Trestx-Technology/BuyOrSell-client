@@ -247,16 +247,16 @@ const PopularCategories = () => {
                   <div className="px-5 py-3">
                     {/* Icon and Name Section */}
                     <div className="flex flex-col items-center text-center mb-5">
-                      <div className="w-[50px] h-[50px] bg-[#FAFAFC] rounded-full flex items-center justify-center mb-1">
+                      <div className="size-[60px] bg-[#FAFAFC] rounded-full flex items-center justify-center mb-1">
                         <Image
                           src={category.icon}
                           alt={category.name}
                           width={40}
                           height={40}
-                          className="w-10 h-10 object-contain"
+                          className="size-12 object-contain"
                           priority={index < 5}
                           loading={index < 5 ? "eager" : "lazy"}
-                          style={{ imageRendering: "crisp-edges" }}
+                          // style={{ imageRendering: "crisp-edges" }}
                         />
                       </div>
                       <h3 className="text-xs font-medium text-black font-inter leading-tight">

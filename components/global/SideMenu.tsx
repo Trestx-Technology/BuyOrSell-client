@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { Typography } from "../typography";
+import { usePathname } from "next/navigation";
 
 interface SideMenuProps {
   trigger: React.ReactNode;
@@ -42,19 +43,23 @@ const MenuItem: React.FC<MenuItemProps> = ({
   hasArrow = true,
   showBorder = true,
 }) => {
+  const pathname = usePathname();
+  const isActive = href && pathname.includes(href);
   const content = (
     <div
-      className={`flex items-center justify-between w-full py-3 hover:bg-purple/10 group transition-colors ${
+      className={`flex items-center justify-between w-full py-3 pr-4 hover:bg-purple/10 group transition-colors ${
         showBorder ? "border-b border-[#E5E5E5]" : ""
-      }`}
+      } ${isActive ? "bg-purple text-white" : ""}`}
     >
       <div className="flex items-center gap-3 px-6">
-        <div className="w-6 h-6 flex-shrink-0">
-          <Image src={icon} alt={label} width={24} height={24} />
+        <div className=" size-7 flex-shrink-0">
+          <Image src={icon} alt={label} width={28} height={28} />
         </div>
         <Typography
           variant="xs-regular-inter"
-          className="text-xs font-medium text-[#475467] group-hover:text-purple"
+          className={`text-xs font-medium text-[#475467] group-hover:text-purple ${
+            isActive ? "text-white" : ""
+          }`}
         >
           {label}
         </Typography>

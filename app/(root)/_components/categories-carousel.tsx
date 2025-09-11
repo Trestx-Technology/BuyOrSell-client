@@ -201,13 +201,13 @@ const CategoriesCarousel = () => {
                     href={`/categories/${category.id}`}
                     className="flex flex-col items-center gap-3"
                   >
-                    <div className="rounded-full flex items-center justify-center size-[60px] bg-[#FAFAFC] border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-110 group-hover:border-purple-200 group-hover:bg-purple-50">
+                    <div className="rounded-full flex items-center justify-center size-[70px] bg-[#FAFAFC] border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-110 group-hover:border-purple-200 group-hover:bg-purple-50">
                       <Image
                         src={category.icon}
                         alt={category.name}
                         width={40}
                         height={40}
-                        className="size-10 transition-all duration-300 hover:scale-110"
+                        className="size-12 transition-all duration-300 hover:scale-110"
                       />
                     </div>
                     <span className="text-sm font-medium text-grey-blue text-center transition-all duration-300 group-hover:text-purple-600 group-hover:scale-105">

@@ -256,7 +256,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
   );
 };
 
-const CategoryNav: React.FC = () => {
+const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   const [activeCategory, setActiveCategory] = useState<NavItem | null>(null);
   const [activeCategoryType, setActiveCategoryType] = useState<string | null>(
     null
@@ -361,7 +361,7 @@ const CategoryNav: React.FC = () => {
 
   return (
     <motion.div
-      className="relative md:bg-purple"
+      className={cn("relative md:bg-purple", className)}
       initial={{ opacity: 0 }}
       whileInView={{ opacity: isLoading ? 0 : 1 }}
       viewport={{ once: true, margin: "-100px" }}

@@ -292,7 +292,7 @@ export function HorizontalCarouselSlider({
 
       {/* Drawer for Card Details */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DrawerContent className="max-h-[90vh] bg-white p-4">
+        <DrawerContent className="max-h-[90vh] h-fit bg-white p-4">
           {/* Home Indicator */}
 
           <div className="flex-1 overflow-y-auto mt-2">

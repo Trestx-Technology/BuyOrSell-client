@@ -3,60 +3,60 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Home, House } from "lucide-react";
-import ProgressBar from "../_components/ProgressBar";
 import { useAdPosting } from "../_context/AdPostingContext";
+import { CATEGORY_ICONS } from "@/constants/icons";
+import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 
 const categories = [
   {
     id: "motors",
     name: "Motors",
-    icon: "/images/category-icons/motors-icon.png",
+    icon: CATEGORY_ICONS.motors,
   },
   {
     id: "property-rent",
     name: "Property for Rent",
-    icon: "/images/category-icons/property-rent-icon.png",
+    icon: CATEGORY_ICONS.rent,
   },
   {
     id: "property-sale",
     name: "Property for Sale",
-    icon: "/images/category-icons/property-sale-icon.png",
+    icon: CATEGORY_ICONS.sale,
   },
   {
     id: "electronics",
     name: "Electronics",
-    icon: "/images/category-icons/electronics-icon.png",
+    icon: CATEGORY_ICONS.electronics,
   },
   {
     id: "community",
     name: "Community",
-    icon: "/images/category-icons/community-icon.png",
+    icon: CATEGORY_ICONS.community,
   },
   {
     id: "business",
     name: "Business",
-    icon: "/images/category-icons/business-icon.png",
+    icon: CATEGORY_ICONS.business,
   },
   {
     id: "home-appliances",
     name: "Home Appliances",
-    icon: "/images/category-icons/home-appliances-icon.png",
+    icon: CATEGORY_ICONS.electronics,
   },
   {
     id: "furniture",
     name: "Furniture",
-    icon: "/images/category-icons/furniture-icon.png",
+    icon: CATEGORY_ICONS.furniture,
   },
   {
     id: "classifieds",
     name: "Classifieds",
-    icon: "/images/category-icons/classifieds-icon.png",
+    icon: CATEGORY_ICONS.classifieds,
   },
   {
     id: "jobs",
     name: "Jobs",
-    icon: "/images/category-icons/jobs-icon.png",
+    icon: CATEGORY_ICONS.jobs,
   },
 ];
 
@@ -73,11 +73,29 @@ export default function SelectCategoryPage() {
     nextStep();
   };
 
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { label: "Post Ad", href: "/post-ad" },
+    { label: "Select Category", isActive: true },
+  ];
+
+  const handleBreadcrumbClick = (item: BreadcrumbItem) => {
+    if (item.href) {
+      router.push(item.href);
+    }
+  };
+
   return (
     <div className=" w-full max-w-[888px] flex-1 mx-auto bg-white">
+      {/* Breadcrumbs */}
+      <div className="mb-6">
+        <Breadcrumbs
+          items={breadcrumbItems}
+          onItemClick={handleBreadcrumbClick}
+        />
+      </div>
+
       {/* Main Container */}
       <div className="w-full mx-auto bg-white">
-
         {/* Main Content */}
         <div className="pb-8">
           {/* Categories Grid */}
