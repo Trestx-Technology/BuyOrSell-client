@@ -91,7 +91,7 @@ const AdsFilter = ({
       case "select":
         return (
           <FormField
-            className="text-sm"
+            className="text-sm w-full"
             label={filterConfig.label}
             required={false}
           >
@@ -99,7 +99,7 @@ const AdsFilter = ({
               value={value || ""}
               onValueChange={(newValue) => onFilterChange(key, newValue)}
             >
-              <SelectTrigger className="w-40 bg-gray-100 border-none text-black font-semibold hover:bg-gray-200 cursor-pointer">
+              <SelectTrigger className="w-full bg-gray-100 border-none text-black font-semibold hover:bg-gray-200 cursor-pointer">
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
               <SelectContent>
@@ -206,7 +206,7 @@ const AdsFilter = ({
   return (
     <Card
       className={cn(
-        "shadow-none sm:shadow-sm border bg-transparent border-none sm:border sm:border-[#F5EBFF] rounded-xl",
+        "mx-4 lg:mx-0 shadow-none bg-transparent sm:bg-white sm:shadow-sm border border-none sm:border sm:border-[#F5EBFF] rounded-xl",
         className
       )}
     >
@@ -250,9 +250,6 @@ const AdsFilter = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                 {config.map((filterConfig) => (
                   <div key={filterConfig.key} className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">
-                      {filterConfig.label}
-                    </label>
                     {renderFilterControl(filterConfig)}
                   </div>
                 ))}

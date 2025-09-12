@@ -17,9 +17,12 @@ import {
   Fuel,
   ImageIcon,
   CircleUser,
+  Phone,
+  MessageSquareText,
 } from "lucide-react";
 import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
+import { FaWhatsapp } from "react-icons/fa";
 
 export interface ListingCardProps {
   id: string;
@@ -116,161 +119,160 @@ const ListingCard: React.FC<ListingCardProps> = ({
   };
 
   return (
-    <Card
-      className={`overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group ${className}`}
+    <div
+      className={`w-full overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
     >
-      <CardContent className="p-0">
+      <div className="p-0">
         {/* Image Section */}
-        <div className="relative aspect-[4/3] overflow-hidden">
-          {/* Main Image */}
-          <div className="relative w-full h-full max-h-[177px] overflow-hidden">
-            {images.length > 0 ? (
-              <div className="relative w-full h-full overflow-hidden">
-                <div
-                  className="flex transition-transform duration-500 ease-in-out h-full"
-                  style={{
-                    transform: `translateX(-${currentImageIndex * 100}%)`,
-                  }}
-                >
-                  {images.map((image, index) => (
-                    <div
-                      key={index}
-                      className="w-full h-full flex-shrink-0 relative"
-                    >
-                      <Image
-                        src={image}
-                        alt={`${title} - Image ${index + 1}`}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                <div className="text-center text-gray-400">
-                  <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mb-2 mx-auto">
-                    <span className="text-2xl">🚗</span>
-                  </div>
-                  <span className="text-sm">No Image</span>
-                </div>
-              </div>
-            )}
-
-            {/* Premium Badge */}
-            {isPremium && (
-              <div className="absolute top-3 left-3">
-                <Image
-                  src={"/premium.svg"}
-                  alt="Premium"
-                  width={31}
-                  height={31}
-                />
-              </div>
-            )}
-
-            {/* Image Counter */}
-            <div className="absolute bottom-3 left-3">
-              <div className="bg-[#777777] rounded-lg px-2 py-1 flex items-center gap-1">
-                <ImageIcon size={18} className="text-white" />
-                <span className="text-xs text-white font-medium">
-                  {currentImageIndex + 1}/{images.length}
-                </span>
-              </div>
-            </div>
-
-            {/* Views Counter */}
-            <div className="absolute bottom-3 right-3">
-              <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
-                <Eye size={18} className="text-white" />
-                <span className="text-xs text-white font-medium">{views}</span>
-              </div>
-            </div>
-
-            {/* Navigation Arrows */}
-            {images.length > 1 && isHovered && (
-              <>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={isTransitioning}
-                  className={`absolute left-2 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity ${
-                    isTransitioning
-                      ? "opacity-50 cursor-not-allowed"
-                      : "opacity-100"
-                  }`}
-                  onClick={handlePreviousImage}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={isTransitioning}
-                  className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity ${
-                    isTransitioning
-                      ? "opacity-50 cursor-not-allowed"
-                      : "opacity-100"
-                  }`}
-                  onClick={handleNextImage}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </>
-            )}
-
-            {/* Image Dots Indicator */}
-            {images.length > 1 && (
-              <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1">
-                {images.map((_, index) => (
-                  <button
+        {/* Main Image */}
+        <div className="relative aspect-[3/3] sm:aspect-[4/3] bg-primary w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
+          {images.length > 0 ? (
+            <div className="relative w-full h-full overflow-hidden">
+              <div
+                className="flex transition-transform duration-500 ease-in-out h-full"
+                style={{
+                  transform: `translateX(-${currentImageIndex * 100}%)`,
+                }}
+              >
+                {images.map((image, index) => (
+                  <div
                     key={index}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (isTransitioning || index === currentImageIndex)
-                        return;
-                      setIsTransitioning(true);
-                      setCurrentImageIndex(index);
-                      setTimeout(() => {
-                        setIsTransitioning(false);
-                      }, 500);
-                    }}
-                    disabled={isTransitioning || index === currentImageIndex}
-                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 cursor-pointer hover:scale-125 ${
-                      index === currentImageIndex
-                        ? "bg-white scale-125"
-                        : "bg-white/50 hover:bg-white/75"
-                    } ${isTransitioning ? "cursor-not-allowed" : ""}`}
-                  />
+                    className="w-full h-full flex-shrink-0 relative"
+                  >
+                    <Image
+                      src={image}
+                      alt={`${title} - Image ${index + 1}`}
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
                 ))}
               </div>
-            )}
-
-            {/* Action Buttons */}
-            <div className="absolute top-3 right-3 flex gap-0">
-              <button
-                className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer"
-                onClick={handleShare}
-              >
-                <Share2 size={22} stroke="white" />
-              </button>
-              <button
-                className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer"
-                onClick={handleFavorite}
-              >
-                <Heart
-                  size={22}
-                  stroke="white"
-                  className={` ${
-                    isFavorite ? "fill-red-500 text-red-500" : "fill-white"
-                  }`}
-                />
-              </button>
             </div>
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <div className="text-center text-gray-400">
+                <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-2xl">🚗</span>
+                </div>
+                <span className="text-sm">No Image</span>
+              </div>
+            </div>
+          )}
+
+          {/* Premium Badge */}
+          {isPremium && (
+            <div className="absolute top-3 left-3">
+              <Image
+                src={"/premium.svg"}
+                alt="Premium"
+                width={31}
+                height={31}
+              />
+            </div>
+          )}
+
+          {/* Image Counter */}
+          <div className="absolute bottom-3 left-3 w-fit">
+            <div className="bg-[#777777] rounded-lg px-2 py-1 flex items-center gap-1 w-fit">
+              <ImageIcon className="size-3 sm:size-5 text-white" />
+              <span className="text-[10px] sm:text-xs text-white font-medium">
+                {currentImageIndex + 1}/{images.length}
+              </span>
+            </div>
+          </div>
+
+          {/* Views Counter */}
+          <div className="absolute bottom-3 right-3">
+            <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
+              <Eye className="size-3 sm:size-5 text-white" />
+              <span className="text-[10px] sm:text-xs text-white font-medium">
+                {views}
+              </span>
+            </div>
+          </div>
+
+          {/* Navigation Arrows */}
+          {images.length > 1 && isHovered && (
+            <div>
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={isTransitioning}
+                className={`absolute left-2 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity ${
+                  isTransitioning
+                    ? "opacity-50 cursor-not-allowed"
+                    : "opacity-100"
+                }`}
+                onClick={handlePreviousImage}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={isTransitioning}
+                className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity ${
+                  isTransitioning
+                    ? "opacity-50 cursor-not-allowed"
+                    : "opacity-100"
+                }`}
+                onClick={handleNextImage}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+
+          {/* Image Dots Indicator */}
+          {images.length > 1 && (
+            <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isTransitioning || index === currentImageIndex) return;
+                    setIsTransitioning(true);
+                    setCurrentImageIndex(index);
+                    setTimeout(() => {
+                      setIsTransitioning(false);
+                    }, 500);
+                  }}
+                  disabled={isTransitioning || index === currentImageIndex}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 cursor-pointer hover:scale-125 ${
+                    index === currentImageIndex
+                      ? "bg-white scale-125"
+                      : "bg-white/50 hover:bg-white/75"
+                  } ${isTransitioning ? "cursor-not-allowed" : ""}`}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="hidden absolute top-3 right-3 sm:flex gap-0">
+            <button
+              className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer"
+              onClick={handleShare}
+            >
+              <Share2 size={22} stroke="white" />
+            </button>
+            <button
+              className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer"
+              onClick={handleFavorite}
+            >
+              <Heart
+                size={22}
+                stroke="white"
+                className={` ${
+                  isFavorite ? "fill-red-500 text-red-500" : "fill-white"
+                }`}
+              />
+            </button>
           </div>
         </div>
 
@@ -318,7 +320,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           </div>
 
           {/* Dynamic Specs - First row (max 2 specs) */}
-          <div className="flex items-center gap-4 px-2.5">
+          <div className="hidden sm:flex items-center gap-4 px-2.5">
             {specifications.transmission && (
               <div className="w-full flex items-center gap-1">
                 <Zap className="w-4 h-4 text-[#667085]" />
@@ -344,7 +346,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           </div>
 
           {/* Dynamic Specs - Second row (max 2 specs) */}
-          <div className="space-y-1 px-2.5">
+          <div className="hidden sm:block space-y-1 px-2.5">
             <div className="flex items-center gap-2">
               {specifications.mileage && (
                 <div className="w-full flex items-center gap-1">
@@ -372,13 +374,13 @@ const ListingCard: React.FC<ListingCardProps> = ({
           </div>
 
           {/* Time ago */}
-          <div className="text-xs text-grey-blue font-regular px-2.5 border-t border-grey-blue/20 py-2.5 flex items-start justify-between">
-            <div className="flex items-center gap-2">
+          <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-start justify-between">
+            <div className="hidden sm:flex items-center gap-2">
               <CircleUser size={22} className="text-purple" />
               <div>
                 <Typography
                   variant="sm-black-inter"
-                  className="text-xs text-gray-500 font-medium flex items-center gap-1 whitespace-nowrap"
+                  className="text-xs text-gray-500 font-medium flex items-center gap-1 truncate"
                 >
                   Premium Motors
                   <Image
@@ -397,10 +399,25 @@ const ListingCard: React.FC<ListingCardProps> = ({
               </div>
             </div>
             {postedTime}
+            <div className="flex items-center gap-2 sm:hidden">
+              <Phone
+                size={18}
+                stroke="0"
+                className="fill-purple hover:scale-110 transition-all duration-300"
+              />
+              <MessageSquareText
+                size={18}
+                className="text-purple hover:scale-110 transition-all duration-300"
+              />
+              <FaWhatsapp
+                size={18}
+                className="text-purple hover:scale-110 transition-all duration-300"
+              />
+            </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

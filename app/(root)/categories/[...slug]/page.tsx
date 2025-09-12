@@ -7,14 +7,15 @@ import { Button } from "@/components/ui/button";
 import AdsFilter, {
   FilterConfig,
 } from "@/app/(root)/categories/_components/ads-filter";
-import ListingCard from "@/app/(root)/post-ad/_components/ListingCard";
+import ListingCard from "@/app/(root)/categories/_components/ListingCard";
+import CuratedCarsCollection from "@/app/(root)/categories/_components/CuratedCarsCollection";
+import AdCard from "@/app/(root)/categories/_components/AdCard";
 import { Typography } from "@/components/typography";
 import { Bell, ChevronLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import SortAndViewControls, {
   ViewMode,
 } from "@/app/(root)/post-ad/_components/SortAndViewControls";
-import { ICONS } from "@/constants/icons";
 
 // Mock data for demonstration
 const mockAds = [
@@ -102,6 +103,114 @@ const mockAds = [
   },
   {
     id: "4",
+    title: "2022 Mercedes C-Class",
+    price: 120000,
+    currency: "AED",
+    location: "Sharjah",
+    images: [
+      "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1615141850218-9163d187fbda?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "Automatic",
+      fuelType: "Petrol",
+      mileage: "15,000 KM",
+      year: 2022,
+    },
+    seller: {
+      name: "Luxury Cars UAE",
+      isVerified: true,
+      type: "Agent" as const,
+    },
+    postedTime: "1 day ago",
+    views: 789,
+    isPremium: false,
+    isFavorite: false,
+  },
+  {
+    id: "5",
+    title: "2020 Toyota Camry",
+    price: 85000,
+    originalPrice: 95000,
+    discount: 11,
+    currency: "AED",
+    location: "Dubai",
+    images: [
+      "https://images.unsplash.com/photo-1615141850218-9163d187fbda?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "Automatic",
+      fuelType: "Petrol",
+      mileage: "45,000 KM",
+      year: 2020,
+    },
+    seller: {
+      name: "Auto World",
+      isVerified: true,
+      type: "Agent" as const,
+    },
+    postedTime: "2 days ago",
+    views: 234,
+    isPremium: false,
+    isFavorite: false,
+  },
+  {
+    id: "6",
+    title: "2019 Honda Civic",
+    price: 75000,
+    currency: "AED",
+    location: "Abu Dhabi",
+    images: [
+      "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1615141850218-9163d187fbda?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "Manual",
+      fuelType: "Petrol",
+      mileage: "60,000 KM",
+      year: 2019,
+    },
+    seller: {
+      name: "John Smith",
+      isVerified: false,
+      type: "Owner" as const,
+    },
+    postedTime: "1 week ago",
+    views: 123,
+    isPremium: false,
+    isFavorite: false,
+  },
+  {
+    id: "7",
+    title: "2021 BMW X5",
+    price: 180000,
+    originalPrice: 200000,
+    discount: 10,
+    currency: "AED",
+    location: "Dubai",
+    images: [
+      "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1615141850218-9163d187fbda?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "Automatic",
+      fuelType: "Petrol",
+      mileage: "25,000 KM",
+      year: 2021,
+    },
+    seller: {
+      name: "Premium Motors",
+      isVerified: true,
+      type: "Agent" as const,
+    },
+    postedTime: "3 days ago",
+    views: 456,
+    isPremium: true,
+    isFavorite: false,
+  },
+  {
+    id: "8",
     title: "2022 Mercedes C-Class",
     price: 120000,
     currency: "AED",
@@ -325,17 +434,17 @@ export default function CategoryListingPage() {
           placeholder={"Search"}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 bg-gray-50 border-0 bg-gray-100"
+          className="pl-10 bg-gray-100 border-0"
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="hidden sm:block mb-6">
+      <div className="max-w-7xl mx-auto py-6">
+        <div className="hidden sm:block mb-6 px-4">
           <Breadcrumbs items={breadcrumbItems} />
         </div>
 
         {/* Page Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 px-4">
           <Typography variant="md-black-inter" className="font-semibold">
             {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)} for
             sale in Dubai ({sortedAds.length})
@@ -374,21 +483,47 @@ export default function CategoryListingPage() {
           showViewToggle={true}
           showFilterButton={false}
           size="fit"
-          className="flex justify-end mb-4 sm:hidden"
+          className="px-4 flex justify-end mb-4 sm:hidden"
         />
+
         {/* Ads Grid/List */}
-        <div
-          className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${view === "list" ? "grid-cols-1" : ""}`}
-        >
-          {sortedAds.map((ad) => (
-            <ListingCard
-              key={ad.id}
-              {...ad}
-              onFavorite={(id) => console.log("Favorited:", id)}
-              onShare={(id) => console.log("Shared:", id)}
-              onClick={(id) => console.log("Clicked:", id)}
-            />
-          ))}
+        <div className="space-y-6">
+          <div
+            className={`px-4 lg:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 ${view === "list" ? "grid-cols-1" : ""}`}
+          >
+            {sortedAds.slice(0, 8).map((ad, index) => (
+              <React.Fragment key={ad.id}>
+                <ListingCard
+                  {...ad}
+                  onFavorite={(id) => console.log("Favorited:", id)}
+                  onShare={(id) => console.log("Shared:", id)}
+                  onClick={(id) => console.log("Clicked:", id)}
+                  className="min-h-[284px]"
+                />
+              </React.Fragment>
+            ))}
+          </div>
+
+          {/* Curated Cars Collection */}
+          <CuratedCarsCollection />
+
+          <div
+            className={`px-4 lg:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 ${view === "list" ? "grid-cols-1" : ""}`}
+          >
+            {sortedAds.slice(0, 7).map((ad, index) => (
+              <React.Fragment key={ad.id}>
+                <ListingCard
+                  {...ad}
+                  onFavorite={(id) => console.log("Favorited:", id)}
+                  onShare={(id) => console.log("Shared:", id)}
+                  onClick={(id) => console.log("Clicked:", id)}
+                  className="min-h-[284px]"
+                />
+                {/* Insert Ad Card after 8th ad (bottom right of second row) */}
+                {index === 6 && <AdCard className="min-h-[284px]" />}
+              </React.Fragment>
+            ))}
+          </div>
         </div>
 
         {/* No Results */}
