@@ -218,6 +218,7 @@ export const sampleListings: ListingItem[] = [
 export const mockAds = [
   {
     id: "1",
+    sellerId: "seller-1",
     title: "2020 Toyota Camry",
     price: 85000,
     originalPrice: 95000,
@@ -235,7 +236,7 @@ export const mockAds = [
       year: 2020,
     },
     seller: {
-      name: "Auto World",
+      name: "Premium Motors",
       isVerified: true,
       type: "Agent" as const,
     },
@@ -246,6 +247,7 @@ export const mockAds = [
   },
   {
     id: "2",
+    sellerId: "seller-2",
     title: "2019 Honda Civic",
     price: 75000,
     currency: "AED",
@@ -272,6 +274,7 @@ export const mockAds = [
   },
   {
     id: "3",
+    sellerId: "seller-1",
     title: "2021 BMW X5",
     price: 180000,
     originalPrice: 200000,
@@ -300,6 +303,7 @@ export const mockAds = [
   },
   {
     id: "4",
+    sellerId: "seller-3",
     title: "2022 Mercedes C-Class",
     price: 120000,
     currency: "AED",
@@ -315,7 +319,7 @@ export const mockAds = [
       year: 2022,
     },
     seller: {
-      name: "Luxury Cars UAE",
+      name: "Elite Auto Gallery",
       isVerified: true,
       type: "Agent" as const,
     },
@@ -326,6 +330,7 @@ export const mockAds = [
   },
   {
     id: "5",
+    sellerId: "seller-1",
     title: "2020 Toyota Camry",
     price: 85000,
     originalPrice: 95000,
@@ -343,7 +348,7 @@ export const mockAds = [
       year: 2020,
     },
     seller: {
-      name: "Auto World",
+      name: "Premium Motors",
       isVerified: true,
       type: "Agent" as const,
     },
@@ -354,6 +359,7 @@ export const mockAds = [
   },
   {
     id: "6",
+    sellerId: "seller-2",
     title: "2019 Honda Civic",
     price: 75000,
     currency: "AED",
@@ -380,6 +386,7 @@ export const mockAds = [
   },
   {
     id: "7",
+    sellerId: "seller-1",
     title: "2021 BMW X5",
     price: 180000,
     originalPrice: 200000,
@@ -408,6 +415,7 @@ export const mockAds = [
   },
   {
     id: "8",
+    sellerId: "seller-3",
     title: "2022 Mercedes C-Class",
     price: 120000,
     currency: "AED",
@@ -423,7 +431,7 @@ export const mockAds = [
       year: 2022,
     },
     seller: {
-      name: "Luxury Cars UAE",
+      name: "Elite Auto Gallery",
       isVerified: true,
       type: "Agent" as const,
     },
