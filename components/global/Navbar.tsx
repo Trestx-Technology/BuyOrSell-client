@@ -30,7 +30,7 @@ const Navbar = ({ className }: { className?: string }) => {
   });
 
   return (
-    <>
+    <div className="w-full bg-white">
       <nav
         className={cn(
           "flex max-w-[1080px] gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between overflow-visible",
@@ -157,7 +157,7 @@ const Navbar = ({ className }: { className?: string }) => {
         isOpen={isPostAdDialogOpen}
         onClose={() => setIsPostAdDialogOpen(false)}
       />
-    </>
+    </div>
   );
 };
 

@@ -2,12 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useEmblaCarousel from "embla-carousel-react";
+import { cn } from "@/lib/utils";
 
 export interface CardsCarouselProps {
   children: React.ReactNode;
   title?: string;
   showNavigation?: boolean;
   className?: string;
+  titleClassName?: string;
   breakpoints?: {
     mobile?: number;
     tablet?: number;
@@ -20,6 +22,7 @@ export function CardsCarousel({
   children,
   title,
   showNavigation = true,
+  titleClassName = "",
   className = "",
   breakpoints = {
     mobile: 1,
@@ -78,9 +81,13 @@ export function CardsCarousel({
   }, [emblaApi, onSelect]);
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={cn("space-y-4", className)}>
       {title && (
-        <h2 className="text-lg font-medium text-dark-blue ">{title}</h2>
+        <h2
+          className={cn("text-lg font-medium text-dark-blue", titleClassName)}
+        >
+          {title}
+        </h2>
       )}
 
       <div className="relative overflow-visible">

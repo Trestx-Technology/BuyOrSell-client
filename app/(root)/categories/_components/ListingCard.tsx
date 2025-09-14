@@ -47,6 +47,8 @@ export interface ListingCardProps {
   onShare?: (id: string) => void;
   onClick?: (id: string) => void;
   className?: string;
+  showSeller?: boolean;
+  showSocials?: boolean;
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({
@@ -67,6 +69,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
   onShare,
   onClick,
   className,
+  showSeller,
+  showSocials,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -375,45 +379,49 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
           {/* Time ago */}
           <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-start justify-between">
-            <div className="hidden sm:flex items-center gap-2">
-              <CircleUser size={22} className="text-purple" />
-              <div>
-                <Typography
-                  variant="sm-black-inter"
-                  className="text-xs text-gray-500 font-medium flex items-center gap-1 truncate"
-                >
-                  Premium Motors
-                  <Image
-                    src={"/verified-seller.svg"}
-                    alt="Premium"
-                    width={16}
-                    height={16}
-                  />
-                </Typography>
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-grey-blue"
-                >
-                  By Agent
-                </Typography>
+            {showSeller && (
+              <div className="hidden sm:flex items-center gap-2">
+                <CircleUser size={22} className="text-purple" />
+                <div>
+                  <Typography
+                    variant="sm-black-inter"
+                    className="text-xs text-gray-500 font-medium flex items-center gap-1 truncate"
+                  >
+                    Premium Motors
+                    <Image
+                      src={"/verified-seller.svg"}
+                      alt="Premium"
+                      width={16}
+                      height={16}
+                    />
+                  </Typography>
+                  <Typography
+                    variant="body-small"
+                    className="text-xs text-grey-blue"
+                  >
+                    By Agent
+                  </Typography>
+                </div>
               </div>
-            </div>
+            )}
             {postedTime}
-            <div className="flex items-center gap-2 sm:hidden">
-              <Phone
-                size={18}
-                stroke="0"
-                className="fill-purple hover:scale-110 transition-all duration-300"
-              />
-              <MessageSquareText
-                size={18}
-                className="text-purple hover:scale-110 transition-all duration-300"
-              />
-              <FaWhatsapp
-                size={18}
-                className="text-purple hover:scale-110 transition-all duration-300"
-              />
-            </div>
+            {showSocials && (
+              <div className="flex items-center gap-2 sm:hidden">
+                <Phone
+                  size={18}
+                  stroke="0"
+                  className="fill-purple hover:scale-110 transition-all duration-300"
+                />
+                <MessageSquareText
+                  size={18}
+                  className="text-purple hover:scale-110 transition-all duration-300"
+                />
+                <FaWhatsapp
+                  size={18}
+                  className="text-purple hover:scale-110 transition-all duration-300"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
