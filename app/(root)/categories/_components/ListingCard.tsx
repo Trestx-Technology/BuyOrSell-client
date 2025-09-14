@@ -23,6 +23,7 @@ import {
 import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
 import { FaWhatsapp } from "react-icons/fa";
+import Link from "next/link";
 
 export interface ListingCardProps {
   id: string;
@@ -124,11 +125,12 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
   return (
     <div
-      className={`w-full overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group ${className}`}
+      className={`w-full overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
     >
+      <Link href={"/ad/123"} className="absolute inset-0 "></Link>
       <div className="p-0">
         {/* Image Section */}
         {/* Main Image */}

@@ -18,6 +18,7 @@ import { Typography } from "@/components/typography";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Badge } from "../ui/badge";
+import Link from "next/link";
 
 export interface ListingCardProps {
   id: string | number;
@@ -205,8 +206,10 @@ export function ListingCard({
 
   const CardContent = (
     <div
-      className={`bg-white border border-grey-blue/20 rounded-lg overflow-hidden hover:shadow-lg shadow-purple/10 min-h-[290px] transition-all duration-300 hover:scale-105 ${className}`}
+      className={`bg-white border border-grey-blue/20 rounded-lg overflow-hidden hover:shadow-lg shadow-purple/10 min-h-[290px] relative transition-all duration-300 hover:scale-105 ${className}`}
     >
+      <Link href={"/ad/123"} className="absolute inset-0"></Link>
+
       {/* Image */}
       <div className="relative w-full h-[118px] bg-gray-100">
         {typeof image === "string" ||

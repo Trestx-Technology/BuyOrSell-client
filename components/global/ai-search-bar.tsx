@@ -15,6 +15,7 @@ import {
 import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
 import { BorderBeam } from "../magicui/border-beam";
+import { useRouter } from "nextjs-toploader/app";
 
 // Color system (exactly 4 colors total):
 // 1) Primary brand: teal-400 (#2dd4bf)
@@ -40,10 +41,26 @@ const suggestions = [
 
 export function SearchAnimated() {
   const [isAI, setIsAI] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
   const searchRef = React.useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const handleTrigger = () => setIsAI(true);
   const handleReset = () => setIsAI(false);
+
+  const handleSearch = (query: string) => {
+    if (query.trim()) {
+      // Convert search query to URL-friendly format
+      const searchTerm = query.trim().toLowerCase().replace(/\s+/g, "-");
+      router.push(`/categories/${searchTerm}`);
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleSearch(searchQuery);
+    }
+  };
 
   // Close AI mode when clicking outside
   React.useEffect(() => {
@@ -124,6 +141,9 @@ export function SearchAnimated() {
                     type="text"
                     inputSize="sm"
                     placeholder="Search any product.."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     className="pl-8 flex-1 block w-full bg-transparent text-xs placeholder-gray-500 focus:outline-none focus:ring-0 border-0"
                   />
                 </motion.div>
@@ -155,6 +175,9 @@ export function SearchAnimated() {
                     type="text"
                     inputSize="sm"
                     placeholder="Type or select by suggestions"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     className="pl-8 flex-1 block w-full bg-transparent text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-0 border-0 h-full"
                   />
                 </motion.div>
@@ -207,9 +230,10 @@ export function SearchAnimated() {
                           stiffness: 300,
                           damping: 22,
                         }}
-                        onClick={() =>
-                          console.log("[v0] suggestion selected:", label)
-                        }
+                        onClick={() => {
+                          setSearchQuery(label);
+                          handleSearch(label);
+                        }}
                       >
                         {label}
                       </motion.button>

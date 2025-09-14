@@ -117,7 +117,6 @@ const Navbar = ({ className }: { className?: string }) => {
           </div>
 
           <div className="hidden md:flex flex-1">
-            {/* <AiSearch /> */}
             <SearchAnimated />
           </div>
         </div>

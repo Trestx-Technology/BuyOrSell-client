@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Typography } from "@/components/typography";
 import { Star, MapPin, Calendar, Car } from "lucide-react";
 import { ICONS } from "@/constants/icons";
+import Link from "next/link";
 
 interface SellerInfoProps {
   adId: string;
@@ -26,7 +27,8 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ adId }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm relative">
+      <Link href={"/seller/123"} className="absolute inset-0"></Link>
       <Typography
         variant="h3"
         className="text-lg font-semibold text-dark-blue mb-4"
