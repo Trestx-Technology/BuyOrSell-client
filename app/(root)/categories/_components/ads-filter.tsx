@@ -3,9 +3,6 @@
 
 import React, { useState } from "react";
 import {
-  Filter,
-  X,
-  ChevronDown,
   Search,
   SlidersHorizontal,
 } from "lucide-react";

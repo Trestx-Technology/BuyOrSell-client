@@ -16,9 +16,7 @@ interface ProductInfoCardMobileProps {
   adId: string;
 }
 
-const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({
-  adId,
-}) => {
+const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = () => {
   // Mock data - replace with actual API call
   const productData = {
     title: "BMW 5 Series",
@@ -35,18 +33,6 @@ const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({
       fuelType: "Petrol",
       transmission: "Automatic",
     },
-  };
-
-  const handleCall = () => {
-    console.log("Call seller");
-  };
-
-  const handleMessage = () => {
-    console.log("Send message");
-  };
-
-  const handleWhatsApp = () => {
-    console.log("WhatsApp seller");
   };
 
   const formatPrice = (amount: number) => {

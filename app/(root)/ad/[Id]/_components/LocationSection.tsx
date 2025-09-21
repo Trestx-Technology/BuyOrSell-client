@@ -16,7 +16,7 @@ const LocationSection: React.FC<LocationSectionProps> = () => {
   const [, setMarker] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [mapTimeout, setMapTimeout] = useState(false);
+  const [, setMapTimeout] = useState(false);
 
   // Mock data - replace with actual API call
   const locationData = {

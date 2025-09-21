@@ -91,7 +91,7 @@ export function GenericCarousel({
   };
 
   // Banner renderer
-  const renderBanner = (banner: BannerItem, index: number) => (
+  const renderBanner = (banner: BannerItem) => (
     <div
       key={banner.id}
       className={`${height} w-full flex bg-grey-100 flex-col shrink-0 relative`}
@@ -157,7 +157,7 @@ export function GenericCarousel({
           className="flex transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
         >
-          {banners.map((banner, index) => renderBanner(banner, index))}
+          {banners.map((banner, index) => renderBanner(banner))}
         </div>
 
         {/* Dot Indicators */}

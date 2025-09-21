@@ -4,7 +4,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
-import { ListingCard } from "@/components/global/listing-card";
+import ListingCard from "@/components/global/listing-card";
 import { ListingItem } from "@/constants/sample-listings";
 import { useRouter } from "nextjs-toploader/app";
 
@@ -107,7 +107,9 @@ export default function ProductsGrid({
       </div>
 
       {/* Products Grid */}
-      <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-3", gridClassName)}>
+      <div
+        className={cn("grid grid-cols-1 md:grid-cols-2 gap-3", gridClassName)}
+      >
         {products.map((product) => (
           <motion.div
             key={product.id}
@@ -117,28 +119,35 @@ export default function ProductsGrid({
           >
             <ListingCard
               id={product.id}
-              image={product.image}
+              images={[
+                typeof product.image === "string"
+                  ? product.image
+                  : product.image.src,
+              ]}
               title={product.title}
               location={product.location}
-              currentPrice={product.currentPrice}
-              originalPrice={product.originalPrice}
-              discount={product.discount}
-              specs={{
+              price={parseFloat(product.currentPrice.replace(/,/g, ""))}
+              originalPrice={
+                product.originalPrice
+                  ? parseFloat(product.originalPrice.replace(/,/g, ""))
+                  : undefined
+              }
+              discount={
+                product.discount
+                  ? typeof product.discount === "string"
+                    ? parseFloat(product.discount.replace("%", ""))
+                    : product.discount
+                  : undefined
+              }
+              specifications={{
                 transmission: product.transmission,
                 fuelType: product.fuelType,
                 mileage: product.mileage,
-                year: product.year,
+                year: parseInt(product.year),
               }}
-              category="car"
-              timeAgo={product.timeAgo}
+              postedTime={product.timeAgo.toString()}
               isFavorite={product.isFavorite}
-              onFavoriteToggle={handleFavoriteToggle}
-              showDiscountBadge={!!product.discount}
-              discountBadgeBg="bg-[#37E7B6]"
-              discountBadgeTextColor="text-white"
-              discountText={product.discount}
-              showTimer={!!product.endTime}
-              endTime={product.endTime}
+              onFavorite={handleFavoriteToggle}
             />
           </motion.div>
         ))}

@@ -9,7 +9,6 @@ import AdsFilter, {
 } from "@/app/(root)/categories/_components/ads-filter";
 import ListingCard from "@/app/(root)/categories/_components/ListingCard";
 import CuratedCarsCollection from "@/app/(root)/categories/_components/CuratedCarsCollection";
-import AdCard from "@/app/(root)/categories/_components/AdCard";
 import { Typography } from "@/components/typography";
 import { Bell, ChevronLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";

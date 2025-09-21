@@ -7,7 +7,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Camera,
-  ImageIcon,
   ImagePlusIcon,
   Heart,
   Share2,
@@ -18,7 +17,7 @@ interface ProductGalleryProps {
   adId: string;
 }
 
-const ProductGallery: React.FC<ProductGalleryProps> = ({ adId }) => {
+const ProductGallery: React.FC<ProductGalleryProps> = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Mock data - replace with actual API call

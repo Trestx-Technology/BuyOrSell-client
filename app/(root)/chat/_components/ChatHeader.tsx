@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Phone, MoreVertical, Menu, ChevronLeft } from "lucide-react";
+import {  MoreVertical, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
 
@@ -27,8 +27,6 @@ interface ChatHeaderProps {
 
 export function ChatHeader({
   currentChat,
-  onSearch,
-  onCall,
   onMoreOptions,
   onBackToSidebar,
   showBackButton = false,

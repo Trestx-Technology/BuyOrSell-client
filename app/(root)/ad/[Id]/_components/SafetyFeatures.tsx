@@ -8,7 +8,7 @@ interface SafetyFeaturesProps {
   adId: string;
 }
 
-const SafetyFeatures: React.FC<SafetyFeaturesProps> = ({ adId }) => {
+const SafetyFeatures: React.FC<SafetyFeaturesProps> = () => {
   // Mock data - replace with actual API call
   const safetyFeatures = [
     "ABS Brakes",

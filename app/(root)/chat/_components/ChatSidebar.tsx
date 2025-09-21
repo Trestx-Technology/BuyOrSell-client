@@ -1,8 +1,5 @@
 "use client";
 
-import { ArrowLeft, MoreVertical, X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Typography } from "@/components/typography";
 
@@ -29,7 +26,6 @@ export function ChatSidebar({
   chats,
   activeChat,
   onChatSelect,
-  onBack,
 }: ChatSidebarProps) {
   const handleChatSelect = (chatId: string) => {
     // Also call the onChatSelect callback for state management

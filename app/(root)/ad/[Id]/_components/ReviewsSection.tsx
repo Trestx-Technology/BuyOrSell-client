@@ -15,7 +15,7 @@ interface ReviewsSectionProps {
   adId: string;
 }
 
-const ReviewsSection: React.FC<ReviewsSectionProps> = ({ adId }) => {
+const ReviewsSection: React.FC<ReviewsSectionProps> = () => {
   const [sortBy, setSortBy] = useState("latest");
 
   // Mock data - replace with actual API call

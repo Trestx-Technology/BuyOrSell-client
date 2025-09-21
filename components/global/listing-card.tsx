@@ -17,6 +17,11 @@ import {
   Phone,
   MessageSquareText,
   Repeat,
+  Settings,
+  Palette,
+  Car,
+  Users,
+  CheckCircle,
 } from "lucide-react";
 import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
@@ -38,6 +43,10 @@ export interface ListingCardProps {
     fuelType?: string;
     mileage?: string;
     year?: number;
+    bedrooms?: number;
+    bathrooms?: number;
+    area?: string;
+    description?: string;
   };
   isExchange?: boolean;
   postedTime: string;
@@ -435,4 +444,33 @@ const ListingCard: React.FC<ListingCardProps> = ({
   );
 };
 
+// Utility functions for specifications
+export const getSpecIcon = (key: string) => {
+  const iconMap: {
+    [key: string]: React.ComponentType<{ className?: string }>;
+  } = {
+    year: Calendar,
+    mileage: Gauge,
+    fuelType: Fuel,
+    transmission: Zap,
+    engine: Settings,
+    power: Zap,
+    color: Palette,
+    doors: Car,
+    seats: Users,
+    condition: CheckCircle,
+  };
+  return iconMap[key] || Settings;
+};
+
+export const formatSpecValue = (key: string, value: string | number) => {
+  if (key === "year") return value;
+  if (key === "mileage") return `${value} km`;
+  if (key === "power") return `${value} HP`;
+  if (key === "doors") return `${value} doors`;
+  if (key === "seats") return `${value} seats`;
+  return value;
+};
+
 export default ListingCard;
+export { ListingCard };

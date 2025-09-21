@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
-import { mockAds } from "@/constants/sample-listings";
 
 interface Collection {
   id: string;
@@ -51,7 +50,7 @@ export function AddToCollectionDialog({
   };
 
   // Find the selected ad
-  const selectedAd = mockAds.find((ad) => ad.id.toString() === adId);
+  // const selectedAd = mockAds.find((ad) => ad.id.toString() === adId);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -97,12 +96,12 @@ export function AddToCollectionDialog({
                   </div>
                   <div>
                     <Typography
-                      variant="body-sm"
+                      variant="sm-regular"
                       className="font-semibold text-gray-900"
                     >
                       {collection.name}
                     </Typography>
-                    <Typography variant="body-xs" className="text-gray-500">
+                    <Typography variant="xs-regular" className="text-gray-500">
                       {collection.count} Favorites
                     </Typography>
                   </div>
@@ -132,7 +131,7 @@ export function AddToCollectionDialog({
               <Plus className="h-4 w-4 text-white" />
             </div>
             <Typography
-              variant="body-sm"
+              variant="sm-regular"
               className="font-medium text-purple-600"
             >
               Create new list

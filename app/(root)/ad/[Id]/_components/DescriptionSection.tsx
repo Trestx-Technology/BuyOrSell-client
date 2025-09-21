@@ -7,7 +7,7 @@ interface DescriptionSectionProps {
   adId: string;
 }
 
-const DescriptionSection: React.FC<DescriptionSectionProps> = ({ adId }) => {
+const DescriptionSection: React.FC<DescriptionSectionProps> = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Mock data - replace with actual API call

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, Menu, SlidersHorizontal, VaultIcon } from "lucide-react";
+import { LayoutGrid, Menu, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SortDropdown, { SortOption } from "./SortDropdown";
 

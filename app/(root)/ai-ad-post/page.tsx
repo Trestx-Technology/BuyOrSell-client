@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import { X, Plus, Send, AlertCircle } from "lucide-react";
-import { useAdPosting } from "../post-ad/_context/AdPostingContext";
 import Navbar from "@/components/global/Navbar";
 import {
   HoverCard,

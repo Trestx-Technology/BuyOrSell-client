@@ -22,6 +22,7 @@ interface SellerListingsProps {
 }
 
 export default function SellerListings({ sellerId }: SellerListingsProps) {
+  console.log("sellerId: ", sellerId);
   // Filter ads for this specific seller (in real app, this would come from API)
   const sellerAds = mockAds;
   const [view, setView] = useState<ViewMode>("grid");

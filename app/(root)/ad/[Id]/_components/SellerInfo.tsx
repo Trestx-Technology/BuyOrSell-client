@@ -3,15 +3,14 @@
 import React from "react";
 import Image from "next/image";
 import { Typography } from "@/components/typography";
-import { Star, MapPin, Calendar, Car } from "lucide-react";
-import { ICONS } from "@/constants/icons";
+import { Star } from "lucide-react";
 import Link from "next/link";
 
 interface SellerInfoProps {
   adId: string;
 }
 
-const SellerInfo: React.FC<SellerInfoProps> = ({ adId }) => {
+const SellerInfo: React.FC<SellerInfoProps> = () => {
   // Mock data - replace with actual API call
   const sellerData = {
     name: "Premium Auto Dealer",

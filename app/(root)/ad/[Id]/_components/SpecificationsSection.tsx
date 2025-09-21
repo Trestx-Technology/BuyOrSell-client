@@ -7,9 +7,7 @@ interface SpecificationsSectionProps {
   adId: string;
 }
 
-const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
-  adId,
-}) => {
+const SpecificationsSection: React.FC<SpecificationsSectionProps> = () => {
   // Mock data - replace with actual API call
   const specifications = {
     Engine: "2.0L Turbo",

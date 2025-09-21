@@ -4,18 +4,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, MapPin, Share2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-  DrawerClose,
-} from "@/components/ui/drawer";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import {
   formatSpecValue,
   getSpecIcon,
-  ListingCard,
   ListingCardProps,
 } from "@/components/global/listing-card";
 import { cn, formatRelativeTime } from "@/lib/utils";
@@ -52,11 +44,11 @@ export function HorizontalCarouselSlider({
   const autoScrollRef = useRef<NodeJS.Timeout | null>(null);
 
   // Calculate total width and max scroll
-  const totalWidth = items.length * (cardWidth + gap) - gap;
-  const maxScroll = Math.max(
-    0,
-    totalWidth - (scrollContainerRef.current?.clientWidth || 0)
-  );
+  // const totalWidth = items.length * (cardWidth + gap) - gap;
+  // const maxScroll = Math.max(
+  //   0,
+  //   totalWidth - (scrollContainerRef.current?.clientWidth || 0)
+  // );
 
   // Auto-scroll functionality
   useEffect(() => {
@@ -199,7 +191,7 @@ export function HorizontalCarouselSlider({
                 >
                   <div className="flex items-start gap-2 max-h-[300px] p-2">
                     <Image
-                      src={item.image as string}
+                      src={item.images[0]}
                       alt={item.title}
                       width={130}
                       height={130}
@@ -219,7 +211,7 @@ export function HorizontalCarouselSlider({
                           variant="xs-black-inter"
                           className="text-purple font-bold"
                         >
-                          {item.currentPrice}
+                          {item.price}
                         </Typography>
                         {item.originalPrice && (
                           <Typography
@@ -242,9 +234,10 @@ export function HorizontalCarouselSlider({
                         {item.title}
                       </h3>
                       <div className="flex items-center gap-2 px-2.5">
-                        {Object.entries(item.specs || {}).length > 0 && (
+                        {Object.entries(item.specifications || {}).length >
+                          0 && (
                           <div className="flex items-center gap-2 px-2.5">
-                            {Object.entries(item.specs || {})
+                            {Object.entries(item.specifications || {})
                               .slice(0, 2)
                               .map(([key, value]) => {
                                 const Icon = getSpecIcon(key);
@@ -273,12 +266,12 @@ export function HorizontalCarouselSlider({
                       </div>
 
                       {/* Time ago */}
-                      {item.timeAgo && (
+                      {item.postedTime && (
                         <Typography
                           variant="xs-black-inter"
                           className="text-grey-blue text-xs font-regular px-2.5 border-t border-grey-blue/20 py-2.5"
                         >
-                          {formatRelativeTime(item.timeAgo)}
+                          {formatRelativeTime(new Date(item.postedTime))}
                         </Typography>
                       )}
                     </div>
@@ -300,12 +293,9 @@ export function HorizontalCarouselSlider({
               <div className="space-y-0">
                 {/* Property Image Section */}
                 <div className="relative w-full h-56 bg-gray-100">
-                  {typeof selectedItem.image === "string" ||
-                  (typeof selectedItem.image === "object" &&
-                    selectedItem.image !== null &&
-                    "src" in selectedItem.image) ? (
+                  {selectedItem.images && selectedItem.images.length > 0 ? (
                     <Image
-                      src={selectedItem.image as string}
+                      src={selectedItem.images[0]}
                       alt={selectedItem.title}
                       width={1000}
                       height={1000}
@@ -313,7 +303,7 @@ export function HorizontalCarouselSlider({
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      {selectedItem.image}
+                      {selectedItem.images?.[0] || "No image available"}
                     </div>
                   )}
 
@@ -378,7 +368,8 @@ export function HorizontalCarouselSlider({
                         />
                       </svg>
                       <span className="text-xs text-gray-600">
-                        {selectedItem.specs?.bedrooms || "N/A"} Bedrooms
+                        {selectedItem.specifications?.bedrooms || "N/A"}{" "}
+                        Bedrooms
                       </span>
                     </div>
 
@@ -397,7 +388,8 @@ export function HorizontalCarouselSlider({
                         />
                       </svg>
                       <span className="text-xs text-gray-600">
-                        {selectedItem.specs?.bathrooms || "N/A"} Bathrooms
+                        {selectedItem.specifications?.bathrooms || "N/A"}{" "}
+                        Bathrooms
                       </span>
                     </div>
 
@@ -416,7 +408,7 @@ export function HorizontalCarouselSlider({
                         />
                       </svg>
                       <span className="text-xs text-gray-600">
-                        {selectedItem.specs?.area || "N/A"} sqft
+                        {selectedItem.specifications?.area || "N/A"} sqft
                       </span>
                     </div>
                   </div>
@@ -425,7 +417,7 @@ export function HorizontalCarouselSlider({
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-purple-600">
-                        AED {selectedItem.currentPrice}
+                        AED {selectedItem.price}
                       </span>
                       {selectedItem.originalPrice && (
                         <span className="text-xs text-gray-600 line-through">
@@ -451,7 +443,7 @@ export function HorizontalCarouselSlider({
                       Description
                     </h3>
                     <p className="text-xs text-gray-600 leading-relaxed">
-                      {selectedItem.specs?.description ||
+                      {selectedItem.specifications?.description ||
                         "This is a beautiful property with modern amenities and great location. Perfect for families looking for comfort and convenience in a prime area."}
                     </p>
                   </div>

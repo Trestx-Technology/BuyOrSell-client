@@ -1,12 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import DrawerWrapper from "../../../../components/global/drawer-wrapper";
-import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
-import { FolderPlus, MoreHorizontal, Search, Plus, Heart } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { CreateCollectionDialog } from "@/app/(root)/favorites/_components/CreateCollectionDialog";
+import {  Plus, Heart } from "lucide-react";
 import { mockAds } from "@/constants/sample-listings";
 import { Collection } from "./add-to-collection-dialog";
 import NewCollectionDrawer from "./new-collection-drawer";

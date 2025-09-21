@@ -12,9 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { locationQueries } from "@/api-queries/location";
-import { useQuery } from "@tanstack/react-query";
-import { getEmirates } from "@/app/api/location";
 import SideMenu from "./SideMenu";
 import { SearchAnimated } from "./ai-search-bar";
 import PostAdDialog from "../../app/(root)/post-ad/_components/PostAdDialog";

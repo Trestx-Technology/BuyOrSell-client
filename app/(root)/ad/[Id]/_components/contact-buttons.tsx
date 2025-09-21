@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";
 import React from "react";
-import { FaWhatsapp, FaMapMarkerAlt } from "react-icons/fa";
+import { FaWhatsapp } from "react-icons/fa";
 import { MdMessage } from "react-icons/md";
 
 const ContactButtons = () => {

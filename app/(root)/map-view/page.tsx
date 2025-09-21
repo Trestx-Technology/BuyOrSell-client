@@ -89,7 +89,32 @@ const MapView = () => {
           </div>
         )}
         <HorizontalCarouselSlider
-          items={sampleListings.slice(0, 10)} // Show first 10 items
+          items={sampleListings.slice(0, 10).map((item) => ({
+            id: item.id,
+            title: item.title,
+            price: parseFloat(item.currentPrice.replace(/,/g, "")),
+            originalPrice: item.originalPrice
+              ? parseFloat(item.originalPrice.replace(/,/g, ""))
+              : undefined,
+            discount: item.discount
+              ? typeof item.discount === "string"
+                ? parseFloat(item.discount.replace("%", ""))
+                : item.discount
+              : undefined,
+            location: item.location,
+            images: [
+              typeof item.image === "string" ? item.image : item.image.src,
+            ],
+            specifications: {
+              transmission: item.transmission,
+              fuelType: item.fuelType,
+              mileage: item.mileage,
+              year: parseInt(item.year),
+            },
+            postedTime: item.timeAgo.toString(),
+            isFavorite: item.isFavorite,
+            onFavorite: () => {},
+          }))} // Show first 10 items
           showNavigation={false}
           autoScroll={false}
           autoScrollInterval={4000}

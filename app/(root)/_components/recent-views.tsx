@@ -1,25 +1,23 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
 import {
-  sampleListings,
-  ListingItem,
+
   mockAds,
 } from "@/constants/sample-listings";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import ListingCard from "@/components/global/listing-card";
 
 export default function RecentViews() {
-  const [listings, setListings] = useState<ListingItem[]>(sampleListings);
+  // const [, setListings] = useState<ListingItem[]>(sampleListings);
 
-  const handleFavoriteToggle = (id: string) => {
-    setListings((prev) =>
-      prev.map((item: ListingItem) =>
-        item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
-      )
-    );
-  };
+  // const handleFavoriteToggle = (id: string) => {
+  //   setListings((prev) =>
+  //     prev.map((item: ListingItem) =>
+  //       item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
+  //     )
+  //   );
+  // };
 
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },

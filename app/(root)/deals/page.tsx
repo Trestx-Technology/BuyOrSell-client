@@ -37,15 +37,15 @@ export default function HotDealsPage() {
     mileage: "",
   });
 
-  const handleCollectionClick = (collectionId: string) => {
-    // Navigate to collection detail page or open collection
-    console.log("Clicked collection:", collectionId);
-  };
+  // const handleCollectionClick = (collectionId: string) => {
+  //   // Navigate to collection detail page or open collection
+  //   console.log("Clicked collection:", collectionId);
+  // };
 
-  const handleMoreOptions = (collectionId: string) => {
-    // Show more options menu
-    console.log("More options for collection:", collectionId);
-  };
+  // const handleMoreOptions = (collectionId: string) => {
+  //   // Show more options menu
+  //   console.log("More options for collection:", collectionId);
+  // };
 
   const filteredAds = mockAds.filter((ad) => {
     if (

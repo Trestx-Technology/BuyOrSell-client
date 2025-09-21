@@ -1,15 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
+
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, Sparkles, PenTool } from "lucide-react";
+import { X, } from "lucide-react";
 import Image from "next/image";
 import { ICONS } from "@/constants/icons";
 

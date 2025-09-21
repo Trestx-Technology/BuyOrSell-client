@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Smile } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { AIFeaturesPopover } from "./AIFeaturesPopover";
 import { AutosizeTextarea } from "@/components/global/autosize-textarea";
 
@@ -26,12 +25,11 @@ export function MessageInput({
   onAIMessageGenerated,
   itemTitle = "Item",
   itemPrice = "",
-  placeholder = "Message",
   maxRows = 5,
   minRows = 1,
 }: MessageInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [rows, setRows] = useState(minRows);
+  const [, setRows] = useState(minRows);
 
   // Auto-resize textarea based on content
   const adjustTextareaHeight = useCallback(() => {

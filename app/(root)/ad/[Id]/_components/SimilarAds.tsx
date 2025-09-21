@@ -1,19 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
-import { Typography } from "@/components/typography";
-import {
-  Star,
-  MapPin,
-  Calendar,
-  Gauge,
-  Fuel,
-  Zap,
-  Eye,
-  Share2,
-  Heart,
-} from "lucide-react";
 import { mockAds } from "@/constants/sample-listings";
 import ListingCard from "@/app/(root)/categories/_components/ListingCard";
 import { CardsCarousel } from "@/components/global/cards-carousel";
@@ -22,7 +9,7 @@ interface SimilarAdsProps {
   adId: string;
 }
 
-const SimilarAds: React.FC<SimilarAdsProps> = ({ adId }) => {
+const SimilarAds: React.FC<SimilarAdsProps> = () => {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
       <CardsCarousel

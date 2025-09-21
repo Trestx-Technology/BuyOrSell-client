@@ -6,14 +6,11 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerClose,
+
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, X } from "lucide-react";
-import { Typography } from "@/components/typography";
 import { cn } from "@/lib/utils";
 
 export interface DrawerWrapperProps {

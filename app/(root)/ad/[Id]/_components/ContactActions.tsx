@@ -9,7 +9,7 @@ interface ContactActionsProps {
   adId: string;
 }
 
-const ContactActions: React.FC<ContactActionsProps> = ({ adId }) => {
+const ContactActions: React.FC<ContactActionsProps> = () => {
   const handleCall = () => {
     // Implement call functionality
     console.log("Call seller");
