@@ -25,7 +25,8 @@ const SellerHeader: React.FC<SellerHeaderProps> = () => {
     memberSince: "2020",
     isVerified: true,
     isTopRated: true,
-    bannerImage: "/seller-banner.png",
+    bannerImage:
+      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/seller-banner.png",
   };
 
   const handleCall = () => {

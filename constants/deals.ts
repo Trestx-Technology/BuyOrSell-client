@@ -18,7 +18,8 @@ export const deals: DealItem[] = [
     originalPrice: 45000,
     discountedPrice: 38000,
     discount: 16,
-    image: "/deals.png",
+    image:
+      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/deals.png",
 
     description: "Excellent condition BMW 3 Series with low mileage",
     category: "Cars",
@@ -31,7 +32,8 @@ export const deals: DealItem[] = [
     originalPrice: 1200,
     discountedPrice: 950,
     discount: 21,
-    image: "/deals.png",
+    image:
+      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/deals.png",
 
     description: "Brand new iPhone 15 Pro Max with warranty",
     category: "Electronics",
@@ -44,7 +46,8 @@ export const deals: DealItem[] = [
     originalPrice: 2500,
     discountedPrice: 2100,
     discount: 16,
-    image: "/deals.png",
+    image:
+      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/deals.png",
 
     description: "High-performance gaming laptop for professionals",
     category: "Electronics",
@@ -57,7 +60,8 @@ export const deals: DealItem[] = [
     originalPrice: 800,
     discountedPrice: 600,
     discount: 25,
-    image: "/deals.png",
+    image:
+      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/deals.png",
     description: "Authentic luxury watches from top brands",
     category: "Fashion",
     location: "Dubai",

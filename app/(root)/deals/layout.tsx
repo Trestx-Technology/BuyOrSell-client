@@ -7,7 +7,8 @@ const DealsRootLayout = ({ children }: { children: React.ReactNode }) => {
     <main
       className="w-full relative bg-[#020617]"
       style={{
-        backgroundImage: "url('/hot-deals-bg.png')",
+        backgroundImage:
+          "url('https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/hot-deals-bg.png",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
