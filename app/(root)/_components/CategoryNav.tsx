@@ -12,6 +12,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Typography } from "../../../components/typography";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import Link from "next/link";
 import { useMediaQuery, useWindowSize } from "usehooks-ts";
 import { motion, AnimatePresence } from "framer-motion";
@@ -427,123 +433,182 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
               </div>
             </div>
           ) : (
-            <div className=" w-fit min-[1080px]:w-full min-[1080px]:flex items-center justify-between lg:gap-5 ml-2">
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  type: "spring" as const,
-                  stiffness: 300,
-                  damping: 22,
-                  delay: 0.1,
-                }}
-              >
-                <Link href="/" className="min-w-6 min-[1080px]:block hidden">
-                  <Image
-                    src={
-                      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/mystery.svg"
-                    }
-                    alt="mystery"
-                    className="size-6 hover:scale-110 transition-all duration-300"
-                    width={24}
-                    height={24}
-                  />
-                </Link>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  type: "spring" as const,
-                  stiffness: 300,
-                  damping: 22,
-                  delay: 0.15,
-                }}
-              >
-                <Link href="/" className="min-w-6 min-[1080px]:block hidden">
-                  <Image
-                    src={
-                      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/help.svg"
-                    }
-                    alt="help"
-                    className="size-6 hover:scale-110 transition-all duration-300"
-                    width={24}
-                    height={24}
-                  />
-                </Link>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  type: "spring" as const,
-                  stiffness: 300,
-                  damping: 22,
-                  delay: 0.2,
-                }}
-              >
-                <Link href="/" className="min-w-6 min-[1080px]:block hidden">
-                  <Image
-                    src={
-                      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/unread_chat.svg"
-                    }
-                    alt="unread_chat"
-                    className="size-6 hover:scale-110 transition-all duration-300"
-                    width={24}
-                    height={24}
-                  />
-                </Link>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  type: "spring" as const,
-                  stiffness: 300,
-                  damping: 22,
-                  delay: 0.25,
-                }}
-              >
-                <Link href="/" className="min-w-6 min-[1080px]:block hidden">
-                  <Heart className="size-6 hover:scale-110 transition-all duration-300 text-white" />
-                </Link>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  type: "spring" as const,
-                  stiffness: 300,
-                  damping: 22,
-                  delay: 0.3,
-                }}
-              >
-                <Link href="/" className="min-w-6 min-[1080px]:block hidden">
-                  <Bell className="size-6 hover:scale-110 transition-all duration-300 text-white" />
-                </Link>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  type: "spring" as const,
-                  stiffness: 300,
-                  damping: 22,
-                  delay: 0.35,
-                }}
-              >
-                <Button
-                  icon={<MapPin className="w-4 h-4 -mr-3" />}
-                  iconPosition="center"
-                  className=" hover:bg-white hover:text-purple py-5 md:py-4"
-                  variant={isMobile ? "filled" : "outline"}
-                  size={"sm"}
-                  onClick={() => router.push("/map-view")}
+            <TooltipProvider delayDuration={200}>
+              <div className=" w-fit min-[1080px]:w-full min-[1080px]:flex items-center justify-between lg:gap-5 ml-2">
+                <motion.div
+                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{
+                    type: "spring" as const,
+                    stiffness: 300,
+                    damping: 22,
+                    delay: 0.1,
+                  }}
                 >
-                  Map View
-                </Button>
-              </motion.div>
-            </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href="/"
+                        className="min-w-6 min-[1080px]:block hidden"
+                      >
+                        <Image
+                          src={
+                            "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/mystery.svg"
+                          }
+                          alt="mystery"
+                          className="size-6 hover:scale-110 transition-all duration-300"
+                          width={24}
+                          height={24}
+                        />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Mystery Search</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{
+                    type: "spring" as const,
+                    stiffness: 300,
+                    damping: 22,
+                    delay: 0.15,
+                  }}
+                >
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href="/"
+                        className="min-w-6 min-[1080px]:block hidden"
+                      >
+                        <Image
+                          src={
+                            "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/help.svg"
+                          }
+                          alt="help"
+                          className="size-6 hover:scale-110 transition-all duration-300"
+                          width={24}
+                          height={24}
+                        />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>My Ads</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{
+                    type: "spring" as const,
+                    stiffness: 300,
+                    damping: 22,
+                    delay: 0.2,
+                  }}
+                >
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href="/chat"
+                        className="min-w-6 min-[1080px]:block hidden"
+                      >
+                        <Image
+                          src={
+                            "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/unread_chat.svg"
+                          }
+                          alt="unread_chat"
+                          className="size-6 hover:scale-110 transition-all duration-300"
+                          width={24}
+                          height={24}
+                        />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Messages</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{
+                    type: "spring" as const,
+                    stiffness: 300,
+                    damping: 22,
+                    delay: 0.25,
+                  }}
+                >
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href="/favorites"
+                        className="min-w-6 min-[1080px]:block hidden"
+                      >
+                        <Heart className="size-6 hover:scale-110 transition-all duration-300 text-white" />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Favorites</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{
+                    type: "spring" as const,
+                    stiffness: 300,
+                    damping: 22,
+                    delay: 0.3,
+                  }}
+                >
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link
+                        href="/"
+                        className="min-w-6 min-[1080px]:block hidden"
+                      >
+                        <Bell className="size-6 hover:scale-110 transition-all duration-300 text-white" />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Notifications</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{
+                    type: "spring" as const,
+                    stiffness: 300,
+                    damping: 22,
+                    delay: 0.35,
+                  }}
+                >
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        icon={<MapPin className="w-4 h-4 -mr-3" />}
+                        iconPosition="center"
+                        className=" hover:bg-white hover:text-purple py-5 md:py-4"
+                        variant={isMobile ? "filled" : "outline"}
+                        size={"sm"}
+                        onClick={() => router.push("/map-view")}
+                      >
+                        Map View
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>View on Map</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </motion.div>
+              </div>
+            </TooltipProvider>
           )}
         </nav>
       </div>

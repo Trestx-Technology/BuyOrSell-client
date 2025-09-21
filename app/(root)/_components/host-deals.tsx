@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { Clock } from "lucide-react";
 import { Typography } from "@/components/typography";
-import { ListingCard } from "@/components/global/listing-card";
+import HotDealsListingCard from "@/components/global/hot-deals-listing-card";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 // Framer Motion animation variants - using improved patterns from AI search bar
@@ -66,27 +66,41 @@ const contentVariants = {
   },
 };
 
-// Types for the deals - using ListingCard interface
+// Types for the deals - using HotDealsListingCard interface
 interface DealItem {
   id: string;
-  image: string | StaticImageData;
   title: string;
+  price: number;
+  originalPrice?: number;
+  discount?: number;
+  currency?: string;
   location: string;
-  currentPrice: string;
-  originalPrice: string;
-  discount: string;
-  transmission: string;
-  fuelType: string;
-  mileage: string;
-  year: string;
-  timeAgo: Date;
+  images: string[];
+  specifications: {
+    transmission?: string;
+    fuelType?: string;
+    mileage?: string;
+    year?: number;
+  };
+  postedTime: string;
+  views?: number;
+  isPremium?: boolean;
   isFavorite?: boolean;
-  endTime: Date;
+  onFavorite?: (id: string) => void;
+  onShare?: (id: string) => void;
+  onClick?: (id: string) => void;
+  className?: string;
+  showSeller?: boolean;
+  showSocials?: boolean;
+  // Hot deals specific props
   discountText?: string;
   discountBadgeBg?: string;
   discountBadgeTextColor?: string;
+  showDiscountBadge?: boolean;
+  showTimer?: boolean;
   timerBg?: string;
   timerTextColor?: string;
+  endTime?: Date;
 }
 
 interface HostDealsProps {
@@ -98,90 +112,118 @@ const sampleDeals: DealItem[] = [
   {
     id: "1",
     title: "MacBook Pro M2 2022",
-    image:
-      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 95000,
+    originalPrice: 95000,
+    discount: 10,
     location: "Ras Al Khaimah",
-    currentPrice: "95,000",
-    originalPrice: "95,000",
-    discount: "10%",
-    transmission: " Apple M2",
-    fuelType: "RAM 16GB",
-    mileage: "16GB",
-    year: "2022",
-    timeAgo: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-    endTime: new Date(Date.now() + 15 * 60 * 60 * 1000), // 15 hours from now
+    images: [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "Apple M2",
+      fuelType: "RAM 16GB",
+      mileage: "16GB SSD",
+      year: 2022,
+    },
+    postedTime: "1 hour ago",
+    views: 45,
+    isPremium: true,
     isFavorite: false,
     discountText: "Top Discount of the Sale",
-    discountBadgeBg: "bg-white text-black",
+    discountBadgeBg: "bg-white",
     discountBadgeTextColor: "text-black",
+    showDiscountBadge: true,
+    showTimer: true,
     timerBg: "bg-[#4A4A4A]",
     timerTextColor: "text-white",
+    endTime: new Date(Date.now() + 15 * 60 * 60 * 1000), // 15 hours from now
   },
   {
     id: "2",
     title: "MacBook Pro M2 2022",
-    image:
-      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 95000,
+    originalPrice: 95000,
+    discount: 10,
     location: "Ras Al Khaimah",
-    currentPrice: "95,000",
-    originalPrice: "95,000",
-    discount: "10%",
-    transmission: " Apple M2",
-    fuelType: "RAM 16GB",
-    mileage: "16GB",
-    year: "2022",
-    timeAgo: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-    endTime: new Date(Date.now() + 15 * 60 * 60 * 1000), // 15 hours from now
+    images: [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "Apple M2",
+      fuelType: "RAM 16GB",
+      mileage: "16GB SSD",
+      year: 2022,
+    },
+    postedTime: "1 hour ago",
+    views: 67,
+    isPremium: true,
     isFavorite: false,
     discountText: "FLAT 12% OFF",
-    discountBadgeBg: "bg-white text-black",
+    discountBadgeBg: "bg-white",
     discountBadgeTextColor: "text-black",
+    showDiscountBadge: true,
+    showTimer: true,
     timerBg: "bg-[#4A4A4A]",
     timerTextColor: "text-white",
+    endTime: new Date(Date.now() + 15 * 60 * 60 * 1000), // 15 hours from now
   },
   {
     id: "3",
     title: "MacBook Pro M2 2022",
-    image:
-      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 95000,
+    originalPrice: 95000,
+    discount: 10,
     location: "Ras Al Khaimah",
-    currentPrice: "95,000",
-    originalPrice: "95,000",
-    discount: "10%",
-    transmission: " Apple M2",
-    fuelType: "RAM 16GB",
-    mileage: "16GB",
-    year: "2022",
-    timeAgo: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-    endTime: new Date(Date.now() + 15 * 60 * 60 * 1000), // 15 hours from now
+    images: [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "Apple M2",
+      fuelType: "RAM 16GB",
+      mileage: "16GB SSD",
+      year: 2022,
+    },
+    postedTime: "1 hour ago",
+    views: 89,
+    isPremium: true,
     isFavorite: false,
     discountText: "FLAT 12% OFF",
-    discountBadgeBg: "bg-white text-black",
+    discountBadgeBg: "bg-white",
     discountBadgeTextColor: "text-black",
+    showDiscountBadge: true,
+    showTimer: true,
     timerBg: "bg-[#4A4A4A]",
     timerTextColor: "text-white",
+    endTime: new Date(Date.now() + 15 * 60 * 60 * 1000), // 15 hours from now
   },
   {
     id: "4",
     title: "MacBook Pro M2 2022",
-    image:
-      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 95000,
+    originalPrice: 95000,
+    discount: 10,
     location: "Ras Al Khaimah",
-    currentPrice: "95,000",
-    originalPrice: "95,000",
-    discount: "10%",
-    transmission: " Apple M2",
-    fuelType: "RAM 16GB",
-    mileage: "16GB",
-    year: "2022",
-    timeAgo: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-    endTime: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour from now
+    images: [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "Apple M2",
+      fuelType: "RAM 16GB",
+      mileage: "16GB SSD",
+      year: 2022,
+    },
+    postedTime: "1 hour ago",
+    views: 112,
+    isPremium: true,
     isFavorite: false,
     discountText: "FLAT 12% OFF",
-    discountBadgeBg: "bg-[#FB9800] text-white",
+    discountBadgeBg: "bg-[#FB9800]",
     discountBadgeTextColor: "text-white",
+    showDiscountBadge: true,
+    showTimer: true,
     timerBg: "bg-[#FB4918]",
     timerTextColor: "text-white",
+    endTime: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour from now
   },
 ];
 
@@ -202,7 +244,11 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className={`bg-[#B7FBE9] max-w-[1180px] mx-auto py-5 ${className}`}
+      style={{
+        background:
+          "radial-gradient(circle, rgba(180, 207, 199, 1) 0%, rgba(132, 75, 143, 1) 100%)",
+      }}
+      className={`bg-[#B7FBE9] rounded-lg max-w-[1180px] mx-auto mb-10 py-5 ${className}`}
     >
       <div className="w-full mx-auto px-5">
         {/* Header with Timer */}
@@ -217,7 +263,7 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
             {/* Hot Deals Title */}
             <Typography
               variant="lg-black-inter"
-              className="text-lg font-medium text-dark-blue"
+              className="text-lg font-medium text-white"
             >
               Hot Deals
             </Typography>
@@ -247,7 +293,7 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
             <TabsList className="flex items-center justify-start w-full bg-transparent gap-3">
               <TabsTrigger
                 value="electronics"
-                className="data-[state=active]:bg-purple data-[state=active]:text-white data-[state=active]:shadow-sm w-fit"
+                className="data-[state=active]:bg-teal data-[state=active]:text-white data-[state=active]:shadow-sm w-fit"
               >
                 Electronics
               </TabsTrigger>
@@ -291,23 +337,9 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
                         }}
                         className="flex-[0_0_auto] max-w-[170px] w-full"
                       >
-                        <ListingCard
+                        <HotDealsListingCard
                           {...deal}
-                          // Map existing car fields to new specs system
-                          specs={{
-                            transmission: deal.transmission,
-                            fuelType: deal.fuelType,
-                            mileage: deal.mileage,
-                            year: deal.year,
-                          }}
-                          category="electronics"
-                          showDiscountBadge={true}
-                          discountBadgeBg={deal.discountBadgeBg}
-                          discountBadgeTextColor={deal.discountBadgeTextColor}
-                          showTimer={true}
-                          timerBg={deal.timerBg}
-                          timerTextColor={deal.timerTextColor}
-                          onFavoriteToggle={handleFavoriteToggle}
+                          onFavorite={handleFavoriteToggle}
                           className="w-full"
                         />
                       </motion.div>
@@ -362,15 +394,9 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
                         key={deal.id}
                         className="flex-[0_0_auto] max-w-[170px] w-full"
                       >
-                        <ListingCard
+                        <HotDealsListingCard
                           {...deal}
-                          showDiscountBadge={true}
-                          discountBadgeBg={deal.discountBadgeBg}
-                          discountBadgeTextColor={deal.discountBadgeTextColor}
-                          showTimer={true}
-                          timerBg={deal.timerBg}
-                          timerTextColor={deal.timerTextColor}
-                          onFavoriteToggle={handleFavoriteToggle}
+                          onFavorite={handleFavoriteToggle}
                           className="w-full"
                         />
                       </motion.div>
@@ -425,23 +451,9 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
                         key={deal.id}
                         className="flex-[0_0_auto] max-w-[170px] w-full"
                       >
-                        <ListingCard
+                        <HotDealsListingCard
                           {...deal}
-                          // Map existing car fields to new specs system
-                          specs={{
-                            transmission: deal.transmission,
-                            fuelType: deal.fuelType,
-                            mileage: deal.mileage,
-                            year: deal.year,
-                          }}
-                          category="car"
-                          showDiscountBadge={true}
-                          discountBadgeBg={deal.discountBadgeBg}
-                          discountBadgeTextColor={deal.discountBadgeTextColor}
-                          showTimer={true}
-                          timerBg={deal.timerBg}
-                          timerTextColor={deal.timerTextColor}
-                          onFavoriteToggle={handleFavoriteToggle}
+                          onFavorite={handleFavoriteToggle}
                           className="w-full"
                         />
                       </motion.div>

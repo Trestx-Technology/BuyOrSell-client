@@ -206,7 +206,7 @@ const PopularCategories = () => {
       {/* Categories Grid */}
       <div
         className={cn(
-          "grid grid-cols-3 min-[500px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 max-h-[800px]",
+          "grid grid-cols-3 md:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4",
           showAllCategories && "overflow-y-auto"
         )}
       >
@@ -241,7 +241,7 @@ const PopularCategories = () => {
               >
                 <Link
                   href={category.href}
-                  className="bg-white w-full min-[500px]:border border-[#F5EBFF] rounded-md shadow-purple/20 hover:shadow-purple/30 block relative hover:bg-purple/10 transition-all duration-300 group"
+                  className="bg-white w-full md:border border-[#F5EBFF] rounded-md shadow-purple/20 hover:shadow-purple/30 block relative hover:bg-purple/10 transition-all duration-300 group"
                 >
                   {/* Category Content */}
                   <div className="px-5 py-3">
@@ -265,7 +265,7 @@ const PopularCategories = () => {
                     </div>
 
                     {/* Description */}
-                    <p className="text-xs text-[#667085] text-center font-inter leading-tight line-clamp-2 min-[500px]:block hidden">
+                    <p className="text-xs text-[#667085] text-center font-inter leading-tight line-clamp-2 md:block hidden">
                       {category.description}
                     </p>
                   </div>
@@ -273,7 +273,7 @@ const PopularCategories = () => {
                   {/* Bottom Section with Active Ads and Arrow */}
                   <Typography
                     variant="xs-black-inter"
-                    className="hidden items-center text-xs justify-center gap-1 text-purple text-center hover:underline px-2.5 w-full border-t group-hover:border-purple/20 h-[56px] font-medium min-[500px]:flex"
+                    className="hidden items-center text-xs justify-center gap-1 text-purple text-center hover:underline px-2.5 w-full border-t group-hover:border-purple/20 h-[56px] font-medium md:flex"
                   >
                     {category.activeAds}
                     <ArrowRight className="w-4 h-4" />

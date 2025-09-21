@@ -272,9 +272,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
               onClick={handleFavorite}
             >
               <Heart
-                size={22}
-                stroke="white"
-                className={` ${
+                size={24}
+                className={` stroke-0 ${
                   isFavorite ? "fill-red-500 text-red-500" : "fill-white"
                 }`}
               />
@@ -352,31 +351,29 @@ const ListingCard: React.FC<ListingCardProps> = ({
           </div>
 
           {/* Dynamic Specs - Second row (max 2 specs) */}
-          <div className="hidden sm:block space-y-1 px-2.5">
-            <div className="flex items-center gap-2">
-              {specifications.mileage && (
-                <div className="w-full flex items-center gap-1">
-                  <Gauge className="w-4 h-4 text-[#667085]" />
-                  <Typography
-                    variant="body-small"
-                    className="text-xs text-[#667085] truncate"
-                  >
-                    {specifications.mileage}
-                  </Typography>
-                </div>
-              )}
-              {specifications.year && (
-                <div className="w-full flex items-center gap-1">
-                  <Calendar className="w-4 h-4 text-[#667085]" />
-                  <Typography
-                    variant="body-small"
-                    className="text-xs text-[#667085] truncate"
-                  >
-                    {specifications.year}
-                  </Typography>
-                </div>
-              )}
-            </div>
+          <div className="hidden sm:flex items-center gap-4 px-2.5">
+            {specifications.mileage && (
+              <div className="w-full flex items-center gap-1">
+                <Gauge className="w-4 h-4 text-[#667085]" />
+                <Typography
+                  variant="body-small"
+                  className="text-xs text-[#667085] truncate"
+                >
+                  {specifications.mileage}
+                </Typography>
+              </div>
+            )}
+            {specifications.year && (
+              <div className="w-full flex items-center gap-1">
+                <Calendar className="w-4 h-4 text-[#667085]" />
+                <Typography
+                  variant="body-small"
+                  className="text-xs text-[#667085] truncate"
+                >
+                  {specifications.year}
+                </Typography>
+              </div>
+            )}
           </div>
 
           {/* Time ago */}

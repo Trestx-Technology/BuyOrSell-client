@@ -9,7 +9,10 @@ import {
   Camera,
   ImageIcon,
   ImagePlusIcon,
+  Heart,
+  Share2,
 } from "lucide-react";
+import CollectionDrawer from "@/app/(root)/favorites/_components/collection-drawer";
 
 interface ProductGalleryProps {
   adId: string;
@@ -58,6 +61,27 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ adId }) => {
                 alt="Premium"
                 width={31}
                 height={31}
+              />
+            </div>
+
+            {/* Right side - Share and Save */}
+            <div className="sm:hidden flex items-center gap-2 z-10 sm:gap-4 absolute  top-3 right-3">
+              <button className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110">
+                <Share2 className="h-5 w-5" />
+                <span className="text-sm font-medium sm:block hidden">
+                  Share
+                </span>
+              </button>
+
+              <CollectionDrawer
+                trigger={
+                  <button className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110">
+                    <Heart className="h-5 w-5" />
+                    <span className="text-sm font-medium sm:block hidden">
+                      Save
+                    </span>
+                  </button>
+                }
               />
             </div>
 

@@ -12,6 +12,7 @@ interface FormFieldProps {
   htmlFor?: string;
   required?: boolean;
   error?: string;
+  labelClassName?: string;
 }
 
 export const FormField = ({
@@ -22,6 +23,7 @@ export const FormField = ({
   htmlFor,
   required,
   error,
+  labelClassName,
 }: FormFieldProps) => {
   return (
     <div
@@ -31,7 +33,10 @@ export const FormField = ({
         className
       )}
     >
-      <Label htmlFor={htmlFor} className="text-sm font-medium text-gray-700">
+      <Label
+        htmlFor={htmlFor}
+        className={cn("text-sm font-medium text-gray-700", labelClassName)}
+      >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </Label>

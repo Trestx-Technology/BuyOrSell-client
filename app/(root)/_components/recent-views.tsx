@@ -8,7 +8,7 @@ import {
   mockAds,
 } from "@/constants/sample-listings";
 import { CardsCarousel } from "@/components/global/cards-carousel";
-import ListingCard from "../categories/_components/ListingCard";
+import ListingCard from "@/components/global/listing-card";
 
 export default function RecentViews() {
   const [listings, setListings] = useState<ListingItem[]>(sampleListings);

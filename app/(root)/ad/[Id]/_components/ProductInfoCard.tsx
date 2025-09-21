@@ -13,12 +13,14 @@ import { BsFuelPumpFill } from "react-icons/bs";
 import { IoIosFlash } from "react-icons/io";
 import Image from "next/image";
 import { ICONS } from "@/constants/icons";
+import { useRouter } from "nextjs-toploader/app";
 
 interface ProductInfoCardProps {
   adId: string;
 }
 
 const ProductInfoCard: React.FC<ProductInfoCardProps> = () => {
+  const router = useRouter();
   // Mock data - replace with actual API call
   const productData = {
     title: "BMW 2-Series M235i",
@@ -42,6 +44,7 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = () => {
 
   const handleMessage = () => {
     console.log("Send message");
+    router.push(`/chat/123`);
   };
 
   const handleWhatsApp = () => {

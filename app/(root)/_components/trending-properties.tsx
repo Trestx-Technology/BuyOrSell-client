@@ -1,30 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { ListingCard } from "@/components/global/listing-card";
+import ListingCard from "@/components/global/listing-card";
 import TabbedCarousel, { TabItem } from "@/components/global/tabbed-carousel";
 
-// Types for the property listings
+// Types for the property listings - matching ListingCardProps
 interface PropertyItem {
   id: string;
-  image: string;
   title: string;
+  price: number;
+  originalPrice?: number;
+  discount?: number;
+  currency?: string;
   location: string;
-  currentPrice: string;
-  originalPrice: string;
-  discount: string;
-  bedrooms: string;
-  bathrooms: string;
-  area: string;
-  year: string;
-  timeAgo: Date;
+  images: string[];
+  specifications: {
+    transmission?: string;
+    fuelType?: string;
+    mileage?: string;
+    year?: number;
+  };
+  postedTime: string;
+  views?: number;
+  isPremium?: boolean;
   isFavorite?: boolean;
-  endTime: Date;
-  discountText?: string;
-  discountBadgeBg?: string;
-  discountBadgeTextColor?: string;
-  timerBg?: string;
-  timerTextColor?: string;
+  onFavorite?: (id: string) => void;
+  onShare?: (id: string) => void;
+  onClick?: (id: string) => void;
+  className?: string;
+  showSeller?: boolean;
+  showSocials?: boolean;
 }
 
 interface TrendingPropertiesProps {
@@ -36,134 +41,128 @@ const sampleProperties: PropertyItem[] = [
   {
     id: "0",
     title: "Modern Villa in Palm Jumeirah",
-    image:
-      "https://plus.unsplash.com/premium_photo-1689609950112-d66095626efb?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 2450000,
+    originalPrice: 2800000,
+    discount: 12,
     location: "Palm Jumeirah, Dubai",
-    currentPrice: "2,450,000",
-    originalPrice: "2,800,000",
-    discount: "12%",
-    bedrooms: "4",
-    bathrooms: "5",
-    area: "3,200 sq ft",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
-    endTime: new Date(Date.now() + 48 * 60 * 60 * 1000), // 48 hours from now
+    images: [
+      "https://plus.unsplash.com/premium_photo-1689609950112-d66095626efb?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "4 Bedrooms",
+      fuelType: "5 Bathrooms",
+      mileage: "3,200 sq ft",
+      year: 2023,
+    },
+    postedTime: "3 hours ago",
+    views: 45,
+    isPremium: true,
     isFavorite: false,
-    discountText: "12% OFF",
-    discountBadgeBg: "bg-[#37E7B6]",
-    discountBadgeTextColor: "text-white",
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
   },
   {
     id: "1",
     title: "Luxury Apartment Downtown",
-    image:
-      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 1850000,
+    originalPrice: 2100000,
+    discount: 12,
     location: "Downtown Dubai",
-    currentPrice: "1,850,000",
-    originalPrice: "2,100,000",
-    discount: "12%",
-    bedrooms: "3",
-    bathrooms: "3",
-    area: "2,100 sq ft",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 4 * 60 * 60 * 1000),
-    endTime: new Date(Date.now() + 36 * 60 * 60 * 1000),
+    images: [
+      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "3 Bedrooms",
+      fuelType: "3 Bathrooms",
+      mileage: "2,100 sq ft",
+      year: 2023,
+    },
+    postedTime: "4 hours ago",
+    views: 67,
+    isPremium: true,
     isFavorite: false,
-    discountText: "12% OFF",
-    discountBadgeBg: "bg-[#37E7B6]",
-    discountBadgeTextColor: "text-white",
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
   },
   {
     id: "2",
     title: "Beachfront Penthouse",
-    image:
-      "https://images.unsplash.com/photo-1592595896551-12b371d546d5?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 3200000,
+    originalPrice: 3600000,
+    discount: 11,
     location: "JBR, Dubai",
-    currentPrice: "3,200,000",
-    originalPrice: "3,600,000",
-    discount: "11%",
-    bedrooms: "4",
-    bathrooms: "4",
-    area: "3,800 sq ft",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 5 * 60 * 60 * 1000),
-    endTime: new Date(Date.now() + 72 * 60 * 60 * 1000),
+    images: [
+      "https://images.unsplash.com/photo-1592595896551-12b371d546d5?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "4 Bedrooms",
+      fuelType: "4 Bathrooms",
+      mileage: "3,800 sq ft",
+      year: 2023,
+    },
+    postedTime: "5 hours ago",
+    views: 89,
+    isPremium: true,
     isFavorite: false,
-    discountText: "11% OFF",
-    discountBadgeBg: "bg-[#37E7B6]",
-    discountBadgeTextColor: "text-white",
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
   },
   {
     id: "3",
     title: "Garden Villa Emirates Hills",
-    image:
-      "https://images.unsplash.com/photo-1560184897-ae75f418493e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 4100000,
+    originalPrice: 4500000,
+    discount: 9,
     location: "Emirates Hills, Dubai",
-    currentPrice: "4,100,000",
-    originalPrice: "4,500,000",
-    discount: "9%",
-    bedrooms: "5",
-    bathrooms: "6",
-    area: "4,500 sq ft",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 6 * 60 * 60 * 1000),
-    endTime: new Date(Date.now() + 60 * 60 * 60 * 1000),
+    images: [
+      "https://images.unsplash.com/photo-1560184897-ae75f418493e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "5 Bedrooms",
+      fuelType: "6 Bathrooms",
+      mileage: "4,500 sq ft",
+      year: 2023,
+    },
+    postedTime: "6 hours ago",
+    views: 112,
+    isPremium: true,
     isFavorite: false,
-    discountText: "9% OFF",
-    discountBadgeBg: "bg-[#37E7B6]",
-    discountBadgeTextColor: "text-white",
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
   },
   {
     id: "4",
     title: "Modern Townhouse",
-    image:
-      "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 1950000,
+    originalPrice: 2200000,
+    discount: 11,
     location: "Dubai Hills Estate",
-    currentPrice: "1,950,000",
-    originalPrice: "2,200,000",
-    discount: "11%",
-    bedrooms: "4",
-    bathrooms: "4",
-    area: "2,800 sq ft",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 7 * 60 * 60 * 1000),
-    endTime: new Date(Date.now() + 84 * 60 * 60 * 1000),
+    images: [
+      "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "4 Bedrooms",
+      fuelType: "4 Bathrooms",
+      mileage: "2,800 sq ft",
+      year: 2023,
+    },
+    postedTime: "7 hours ago",
+    views: 78,
+    isPremium: false,
     isFavorite: false,
-    discountText: "11% OFF",
-    discountBadgeBg: "bg-[#37E7B6]",
-    discountBadgeTextColor: "text-white",
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
   },
   {
     id: "5",
     title: "Luxury Apartment Marina",
-    image:
-      "https://images.unsplash.com/photo-1565953522043-baea26b83b7e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 2300000,
+    originalPrice: 2600000,
+    discount: 12,
     location: "Dubai Marina",
-    currentPrice: "2,300,000",
-    originalPrice: "2,600,000",
-    discount: "12%",
-    bedrooms: "3",
-    bathrooms: "3",
-    area: "2,400 sq ft",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 8 * 60 * 60 * 1000),
-    endTime: new Date(Date.now() + 96 * 60 * 60 * 1000),
+    images: [
+      "https://images.unsplash.com/photo-1565953522043-baea26b83b7e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    ],
+    specifications: {
+      transmission: "3 Bedrooms",
+      fuelType: "3 Bathrooms",
+      mileage: "2,400 sq ft",
+      year: 2023,
+    },
+    postedTime: "8 hours ago",
+    views: 134,
+    isPremium: true,
     isFavorite: false,
-    discountText: "12% OFF",
-    discountBadgeBg: "bg-[#37E7B6]",
-    discountBadgeTextColor: "text-white",
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
   },
 ];
 
@@ -200,20 +199,7 @@ export default function TrendingProperties({
       renderCard: (property) => (
         <ListingCard
           {...property}
-          specs={{
-            bedrooms: property.bedrooms + " BR",
-            bathrooms: property.bathrooms + " BA",
-            area: property.area,
-            year: property.year,
-          }}
-          category="property"
-          showDiscountBadge={false}
-          discountBadgeBg={property.discountBadgeBg}
-          discountBadgeTextColor={property.discountBadgeTextColor}
-          showTimer={false}
-          timerBg={property.timerBg}
-          timerTextColor={property.timerTextColor}
-          onFavoriteToggle={handleFavoriteToggle}
+          onFavorite={handleFavoriteToggle}
           className="w-full"
         />
       ),
@@ -225,20 +211,7 @@ export default function TrendingProperties({
       renderCard: (property) => (
         <ListingCard
           {...property}
-          specs={{
-            bedrooms: property.bedrooms + " BR",
-            bathrooms: property.bathrooms + " BA",
-            area: property.area,
-            year: property.year,
-          }}
-          category="property"
-          showDiscountBadge={false}
-          discountBadgeBg={property.discountBadgeBg}
-          discountBadgeTextColor={property.discountBadgeTextColor}
-          showTimer={false}
-          timerBg={property.timerBg}
-          timerTextColor={property.timerTextColor}
-          onFavoriteToggle={handleFavoriteToggle}
+          onFavorite={handleFavoriteToggle}
           className="w-full"
         />
       ),
@@ -250,20 +223,7 @@ export default function TrendingProperties({
       renderCard: (property) => (
         <ListingCard
           {...property}
-          specs={{
-            bedrooms: property.bedrooms + " BR",
-            bathrooms: property.bathrooms + " BA",
-            area: property.area,
-            year: property.year,
-          }}
-          category="property"
-          showDiscountBadge={false}
-          discountBadgeBg={property.discountBadgeBg}
-          discountBadgeTextColor={property.discountBadgeTextColor}
-          showTimer={false}
-          timerBg={property.timerBg}
-          timerTextColor={property.timerTextColor}
-          onFavoriteToggle={handleFavoriteToggle}
+          onFavorite={handleFavoriteToggle}
           className="w-full"
         />
       ),
@@ -275,20 +235,7 @@ export default function TrendingProperties({
       renderCard: (property) => (
         <ListingCard
           {...property}
-          specs={{
-            bedrooms: property.bedrooms + " BR",
-            bathrooms: property.bathrooms + " BA",
-            area: property.area,
-            year: property.year,
-          }}
-          category="property"
-          showDiscountBadge={false}
-          discountBadgeBg={property.discountBadgeBg}
-          discountBadgeTextColor={property.discountBadgeTextColor}
-          showTimer={false}
-          timerBg={property.timerBg}
-          timerTextColor={property.timerTextColor}
-          onFavoriteToggle={handleFavoriteToggle}
+          onFavorite={handleFavoriteToggle}
           className="w-full"
         />
       ),

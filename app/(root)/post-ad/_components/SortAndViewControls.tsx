@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, Menu, SlidersHorizontal } from "lucide-react";
+import { LayoutGrid, Menu, SlidersHorizontal, VaultIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SortDropdown, { SortOption } from "./SortDropdown";
 
@@ -25,6 +25,7 @@ export interface SortAndViewControlsProps {
   onFilterClick?: () => void;
   showFilterButton?: boolean;
   filterButtonText?: string;
+  variant?: "light" | "dark";
 
   // General props
   className?: string;
@@ -35,6 +36,7 @@ export interface SortAndViewControlsProps {
 const SortAndViewControls: React.FC<SortAndViewControlsProps> = ({
   sortOptions,
   sortValue,
+  variant = "light",
   onSortChange,
   sortPlaceholder = "Sort by",
   sortLabel = "Sort:",
@@ -67,6 +69,7 @@ const SortAndViewControls: React.FC<SortAndViewControlsProps> = ({
         label={sortLabel}
         disabled={disabled}
         size={size}
+        labelClassName={variant === "dark" ? "text-white" : "text-dark-blue"}
       />
 
       {/* View Mode Toggle */}
@@ -79,7 +82,8 @@ const SortAndViewControls: React.FC<SortAndViewControlsProps> = ({
             size="icon-sm"
             className={cn(
               "rounded-lg w-8",
-              viewMode !== "grid" && "border text-dark-blue"
+              viewMode !== "grid" && "border text-dark-blue",
+              variant === "dark" && "text-white"
             )}
             onClick={() => handleViewChange("grid")}
             disabled={disabled}
@@ -91,7 +95,8 @@ const SortAndViewControls: React.FC<SortAndViewControlsProps> = ({
             size="icon-sm"
             className={cn(
               "rounded-lg w-8",
-              viewMode !== "list" && "border text-dark-blue"
+              viewMode !== "list" && "border text-dark-blue",
+              variant === "dark" && "text-white"
             )}
             onClick={() => handleViewChange("list")}
             disabled={disabled}

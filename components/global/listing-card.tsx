@@ -1,367 +1,438 @@
-import Image, { StaticImageData } from "next/image";
+import React, { useState } from "react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
 import {
   Heart,
+  Share2,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
   MapPin,
+  Calendar,
+  Gauge,
   Zap,
   Fuel,
-  Gauge,
-  Calendar,
-  Clock,
-  Bed,
-  Bath,
-  Square,
-  Smartphone,
-  Sofa,
-  Building,
+  ImageIcon,
+  CircleUser,
+  Phone,
+  MessageSquareText,
+  Repeat,
 } from "lucide-react";
+import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
-import { cn, formatRelativeTime } from "@/lib/utils";
-import { useState, useEffect } from "react";
-import { Badge } from "../ui/badge";
+import { FaWhatsapp } from "react-icons/fa";
 import Link from "next/link";
+import { Badge } from "../ui/badge";
 
 export interface ListingCardProps {
-  id: string | number;
-  image: string | StaticImageData | React.ReactNode;
+  id: string;
   title: string;
+  price: number;
+  originalPrice?: number;
+  discount?: number;
+  currency?: string;
   location: string;
-  currentPrice: string;
-  originalPrice?: string;
-  discount?: string;
-  // Flexible specs - can be any combination
-  specs?: {
-    [key: string]: string;
+  images: string[];
+  specifications: {
+    transmission?: string;
+    fuelType?: string;
+    mileage?: string;
+    year?: number;
   };
-  // Category for determining which icons to show
-  category?:
-    | "car"
-    | "property"
-    | "electronics"
-    | "furniture"
-    | "appliances"
-    | "fashion"
-    | "jobs"
-    | "business"
-    | "other";
-  year?: string;
-  timeAgo: Date;
+  isExchange?: boolean;
+  postedTime: string;
+  views?: number;
+  isPremium?: boolean;
   isFavorite?: boolean;
-  onFavoriteToggle?: (id: string | number) => void;
+  onFavorite?: (id: string) => void;
+  onShare?: (id: string) => void;
+  onClick?: (id: string) => void;
   className?: string;
-  href?: string;
-  // Discount badge props
-  showDiscountBadge?: boolean;
-  discountBadgeBg?: string;
-  discountBadgeTextColor?: string;
-  discountText?: string;
-  // Timer props
-  showTimer?: boolean;
-  timerBg?: string;
-  timerTextColor?: string;
-  endTime?: Date;
+  showSeller?: boolean;
+  showSocials?: boolean;
 }
 
-// Helper function to get icon for spec key
-export function getSpecIcon(key: string) {
-  const iconMap: {
-    [key: string]: React.ComponentType<{ className?: string }>;
-  } = {
-    // Car specs
-    transmission: Zap,
-    fuelType: Fuel,
-    mileage: Gauge,
-
-    // Property specs
-    bedrooms: Bed,
-    bathrooms: Bath,
-    area: Square,
-
-    // Electronics specs
-    brand: Smartphone,
-    model: Smartphone,
-    condition: Smartphone,
-
-    // Furniture specs
-    material: Sofa,
-    style: Sofa,
-    dimensions: Square,
-
-    // General specs
-    year: Calendar,
-  };
-
-  return iconMap[key] || Building;
-}
-
-// Helper function to format spec value
-export function formatSpecValue(key: string, value: string) {
-  if (key === "area" && value.includes("sq ft")) {
-    return value;
-  }
-  if (key === "mileage" && value.includes("KM")) {
-    return value;
-  }
-  if (key === "year") {
-    return value;
-  }
-  return value;
-}
-
-// Timer component for countdown
-function CountdownTimer({
-  endTime,
-  bgColor = "bg-red-500",
-  textColor = "text-white",
-}: {
-  endTime: Date;
-  bgColor?: string;
-  textColor?: string;
-}) {
-  const [timeLeft, setTimeLeft] = useState({
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date().getTime();
-      const end = endTime.getTime();
-      const difference = end - now;
-
-      if (difference > 0) {
-        const hours = Math.floor(difference / (1000 * 60 * 60));
-        const minutes = Math.floor(
-          (difference % (1000 * 60 * 60)) / (1000 * 60)
-        );
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-        setTimeLeft({ hours, minutes, seconds });
-      } else {
-        setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [endTime]);
-
-  return (
-    <Badge
-      className={cn(
-        `absolute bottom-0 truncate right-0 px-2 py-1 rounded-none rounded-tl-md text-xs font-medium flex items-center gap-1`,
-        bgColor,
-        textColor
-      )}
-    >
-      <Clock className="w-3 h-3" />
-      <span>
-        {timeLeft.hours.toString().padStart(2, "0")}:
-        {timeLeft.minutes.toString().padStart(2, "0")}:
-        {timeLeft.seconds.toString().padStart(2, "0")}
-      </span>
-    </Badge>
-  );
-}
-
-export function ListingCard({
+const ListingCard: React.FC<ListingCardProps> = ({
   id,
-  image,
   title,
-  location,
-  currentPrice,
+  price,
   originalPrice,
   discount,
-  specs = {},
-  timeAgo,
+  currency = "AED",
+  location,
+  images,
+  specifications,
+  isExchange = false,
+  postedTime,
+  views = 0,
+  isPremium = false,
   isFavorite = false,
-  onFavoriteToggle,
-  className = "",
-  href,
-  // Discount badge props
-  showDiscountBadge = false,
-  discountBadgeBg = "bg-green-500",
-  discountBadgeTextColor = "text-white",
-  discountText,
-  // Timer props
-  showTimer = false,
-  timerBg = "bg-red-500",
-  timerTextColor = "text-white",
-  endTime,
-}: ListingCardProps) {
-  const handleFavoriteClick = (e: React.MouseEvent) => {
-    e.preventDefault();
+  onFavorite,
+  onShare,
+  onClick,
+  className,
+  showSeller,
+  showSocials,
+}) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const handlePreviousImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onFavoriteToggle?.(id);
+    if (isTransitioning) return;
+
+    setIsTransitioning(true);
+    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 500);
   };
 
-  // Determine if we should show discount badge
-  const shouldShowDiscountBadge =
-    showDiscountBadge && (discountText || discount);
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isTransitioning) return;
 
-  // Determine if we should show timer
-  const shouldShowTimer = showTimer && endTime;
+    setIsTransitioning(true);
+    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
 
-  // Convert specs object to array for rendering
-  const specsArray = Object.entries(specs);
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 500);
+  };
 
-  const CardContent = (
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onFavorite?.(id);
+  };
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onShare?.(id);
+  };
+
+  const handleCardClick = () => {
+    onClick?.(id);
+  };
+
+  const formatPrice = (amount: number) => {
+    return new Intl.NumberFormat("en-AE", {
+      style: "currency",
+      currency: currency,
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  return (
     <div
-      className={`bg-white border border-grey-blue/20 rounded-lg overflow-hidden hover:shadow-lg shadow-purple/10 min-h-[290px] relative transition-all duration-300 hover:scale-105 ${className}`}
+      className={`w-full overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
     >
-      <Link href={"/ad/123"} className="absolute inset-0"></Link>
-
-      {/* Image */}
-      <div className="relative w-full h-[118px] bg-gray-100">
-        {typeof image === "string" ||
-        (typeof image === "object" && image !== null && "src" in image) ? (
-          <Image
-            src={image as string | StaticImageData}
-            alt={title}
-            fill
-            className="object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            {image}
-          </div>
-        )}
-
-        {/* Timer - positioned at bottom-left */}
-        {shouldShowTimer && (
-          <CountdownTimer
-            endTime={endTime}
-            bgColor={timerBg}
-            textColor={timerTextColor}
-          />
-        )}
-
-        {/* Discount Badge - positioned at top-left */}
-        {shouldShowDiscountBadge && (
-          <Badge
-            className={cn(
-              `absolute truncate max-w-[95%] top-0 left-0 px-2 py-1 rounded-none rounded-br-md text-xs font-medium`,
-              discountBadgeBg,
-              discountBadgeTextColor
-            )}
-          >
-            {discountText || discount}
-          </Badge>
-        )}
-
-        {/* Heart icon - positioned at top-right */}
-        <button
-          onClick={handleFavoriteClick}
-          className={`absolute top-2.5 right-2.5 size-8 p-1 rounded-full flex items-center justify-center hover:scale-110 hover:bg-purple/20 transition-transform cursor-pointer`}
-        >
-          <Heart
-            className={`${isFavorite ? "fill-red-500 stroke-red-500" : "fill-white stroke-0"} transition-colors`}
-          />
-        </button>
-      </div>
-
-      {/* Content */}
-      <div className="pt-2 space-y-2">
-        {/* Price Section */}
-        <div className="flex items-center gap-1 px-2.5">
-          <Image
-            src={
-              "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/AED.svg"
-            }
-            alt="AED"
-            width={16}
-            height={16}
-          />
-          <Typography
-            variant="xs-black-inter"
-            className="text-purple font-bold"
-          >
-            {currentPrice}
-          </Typography>
-          {originalPrice && (
-            <Typography
-              variant="xs-black-inter"
-              className="text-grey-blue line-through text-sm"
-            >
-              {originalPrice}
-            </Typography>
-          )}
-          {discount && (
-            <Typography
-              variant="xs-black-inter"
-              className="text-grey-blue text-sm text-teal font-medium"
-            >
-              {discount}
-            </Typography>
-          )}
-        </div>
-
-        {/* Title */}
-        <h3 className="text-xs font-semibold text-dark-blue leading-tight px-2.5 line-clamp-1">
-          {title}
-        </h3>
-
-        {/* Dynamic Specs - First row (max 2 specs) */}
-        {specsArray.length > 0 && (
-          <div className="flex items-center gap-2 px-2.5">
-            {specsArray.slice(0, 2).map(([key, value]) => {
-              const Icon = getSpecIcon(key);
-              return (
-                <div key={key} className="flex items-center gap-1">
-                  <Icon className="w-3 h-3 text-grey-500" />
-                  <span className="text-xs text-grey-500 truncate">
-                    {formatSpecValue(key, value)}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Dynamic Specs - Second row (max 2 specs) */}
-        {specsArray.length > 2 && (
-          <div className="space-y-1 px-2.5">
-            <div className="flex items-center gap-2">
-              {specsArray.slice(2, 4).map(([key, value]) => {
-                const Icon = getSpecIcon(key);
-                return (
-                  <div key={key} className="flex items-center gap-1">
-                    <Icon className="w-3 h-3 text-grey-500" />
-                    <span className="text-xs text-grey-500 truncate">
-                      {formatSpecValue(key, value)}
-                    </span>
+      <Link href={"/ad/123"} className="absolute inset-0 "></Link>
+      <div className="p-0">
+        {/* Image Section */}
+        {/* Main Image */}
+        <div className="relative aspect-[3/3] sm:aspect-[4/3] bg-primary w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
+          {images.length > 0 ? (
+            <div className="relative w-full h-full overflow-hidden">
+              <div
+                className="flex transition-transform duration-500 ease-in-out h-full"
+                style={{
+                  transform: `translateX(-${currentImageIndex * 100}%)`,
+                }}
+              >
+                {images.map((image, index) => (
+                  <div
+                    key={index}
+                    className="w-full h-full flex-shrink-0 relative"
+                  >
+                    <Image
+                      src={image}
+                      alt={`${title} - Image ${index + 1}`}
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
                   </div>
-                );
-              })}
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <div className="text-center text-gray-400">
+                <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mb-2 mx-auto">
+                  <span className="text-2xl">🚗</span>
+                </div>
+                <span className="text-sm">No Image</span>
+              </div>
+            </div>
+          )}
+
+          {/* Premium Badge */}
+          {isPremium && (
+            <div className=" absolute top-3 left-3">
+              <Image
+                src={"/premium.svg"}
+                alt="Premium"
+                width={31}
+                height={31}
+              />
+            </div>
+          )}
+          {isExchange && (
+            <Badge className="absolute h-8 bg-[#FE9800] top-3 left-12">
+              <Repeat size={22} />
+              Exchange Available
+            </Badge>
+          )}
+
+          {/* Image Counter */}
+          <div className="absolute bottom-3 left-3 w-fit">
+            <div className="bg-[#777777] rounded-lg px-2 py-1 flex items-center gap-1 w-fit">
+              <ImageIcon className="size-3 sm:size-4 text-white" />
+              <span className="text-[10px] text-white font-medium">
+                {currentImageIndex + 1}/{images.length}
+              </span>
             </div>
           </div>
-        )}
 
-        {/* Location */}
-        <div className="flex items-center gap-1 px-2.5">
-          <MapPin className="w-3 h-3 text-grey-500" />
-          <span className="text-xs text-grey-500 truncate">{location}</span>
+          {/* Views Counter */}
+          <div className="absolute bottom-3 right-3">
+            <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
+              <Eye className="size-3 sm:size-4 text-white" />
+              <span className="text-[10px] text-white font-medium">
+                {views}
+              </span>
+            </div>
+          </div>
+
+          {/* Navigation Arrows */}
+          {images.length > 1 && isHovered && (
+            <div>
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={isTransitioning}
+                className={`absolute left-2 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity ${
+                  isTransitioning
+                    ? "opacity-50 cursor-not-allowed"
+                    : "opacity-100"
+                }`}
+                onClick={handlePreviousImage}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={isTransitioning}
+                className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity ${
+                  isTransitioning
+                    ? "opacity-50 cursor-not-allowed"
+                    : "opacity-100"
+                }`}
+                onClick={handleNextImage}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+
+          {/* Image Dots Indicator */}
+          {images.length > 1 && (
+            <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isTransitioning || index === currentImageIndex) return;
+                    setIsTransitioning(true);
+                    setCurrentImageIndex(index);
+                    setTimeout(() => {
+                      setIsTransitioning(false);
+                    }, 500);
+                  }}
+                  disabled={isTransitioning || index === currentImageIndex}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 cursor-pointer hover:scale-125 ${
+                    index === currentImageIndex
+                      ? "bg-white scale-125"
+                      : "bg-white/50 hover:bg-white/75"
+                  } ${isTransitioning ? "cursor-not-allowed" : ""}`}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="hidden absolute top-3 right-3 sm:flex gap-0">
+            <button
+              className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer"
+              onClick={handleShare}
+            >
+              <Share2 size={22} stroke="white" />
+            </button>
+            <button
+              className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer"
+              onClick={handleFavorite}
+            >
+              <Heart
+                size={24}
+                className={` stroke-0 ${
+                  isFavorite ? "fill-red-500 text-red-500" : "fill-white"
+                }`}
+              />
+            </button>
+          </div>
         </div>
 
-        {/* Time ago */}
-        {timeAgo && (
+        {/* Content Section */}
+        <div className="pt-2 space-y-3">
+          {/* Price Section */}
+          <div className="flex items-center gap-1 px-2.5">
+            <Image src={ICONS.currency.aed} alt="AED" width={16} height={16} />
+            <span className="text-md font-bold text-purple">
+              {formatPrice(price).replace("AED", "").trim()}
+            </span>
+            {originalPrice && (
+              <span className="text-md text-grey-blue line-through text-sm">
+                {formatPrice(originalPrice).replace("AED", "").trim()}
+              </span>
+            )}
+            {discount && (
+              <span className="text-md text-grey-blue text-sm text-teal font-semibold">
+                {discount}%
+              </span>
+            )}
+          </div>
+
+          {/* Title */}
           <Typography
-            variant="xs-black-inter"
-            className="text-grey-blue text-xs font-regular px-2.5 border-t border-grey-blue/20 py-2.5"
+            variant="h3"
+            className="text-sm font-semibold text-dark-blue leading-tight px-2.5 line-clamp-1"
           >
-            {formatRelativeTime(timeAgo)}
+            {title}
           </Typography>
-        )}
+
+          {/* Location */}
+          <div className="flex items-center gap-1 px-2.5">
+            <MapPin
+              size={22}
+              stroke="white"
+              className="-ml-1 fill-dark-blue text-[#667085]"
+            />
+            <Typography
+              variant="body-small"
+              className="text-xs text-[#667085] truncate"
+            >
+              {location}
+            </Typography>
+          </div>
+
+          {/* Dynamic Specs - First row (max 2 specs) */}
+          <div className="hidden sm:flex items-center gap-4 px-2.5">
+            {specifications.transmission && (
+              <div className="w-full flex items-center gap-1">
+                <Zap className="w-4 h-4 text-[#667085]" />
+                <Typography
+                  variant="body-small"
+                  className="text-xs text-[#667085] truncate"
+                >
+                  {specifications.transmission}
+                </Typography>
+              </div>
+            )}
+            {specifications.fuelType && (
+              <div className="w-full flex items-center gap-1">
+                <Fuel className="w-4 h-4 text-[#667085]" />
+                <Typography
+                  variant="body-small"
+                  className="text-xs text-[#667085] truncate"
+                >
+                  {specifications.fuelType}
+                </Typography>
+              </div>
+            )}
+          </div>
+
+          {/* Dynamic Specs - Second row (max 2 specs) */}
+          <div className="hidden sm:flex items-center gap-4 px-2.5">
+            {specifications.mileage && (
+              <div className="w-full flex items-center gap-1">
+                <Gauge className="w-4 h-4 text-[#667085]" />
+                <Typography
+                  variant="body-small"
+                  className="text-xs text-[#667085] truncate"
+                >
+                  {specifications.mileage}
+                </Typography>
+              </div>
+            )}
+            {specifications.year && (
+              <div className="w-full flex items-center gap-1">
+                <Calendar className="w-4 h-4 text-[#667085]" />
+                <Typography
+                  variant="body-small"
+                  className="text-xs text-[#667085] truncate"
+                >
+                  {specifications.year}
+                </Typography>
+              </div>
+            )}
+          </div>
+
+          {/* Time ago */}
+          <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-start justify-between">
+            {showSeller && (
+              <div className="hidden sm:flex items-center gap-2">
+                <CircleUser size={22} className="text-purple" />
+                <div>
+                  <Typography
+                    variant="sm-black-inter"
+                    className="text-xs text-gray-500 font-medium flex items-center gap-1 truncate"
+                  >
+                    Premium Motors
+                    <Image
+                      src={"/verified-seller.svg"}
+                      alt="Premium"
+                      width={16}
+                      height={16}
+                    />
+                  </Typography>
+                  <Typography
+                    variant="body-small"
+                    className="text-xs text-grey-blue"
+                  >
+                    By Agent
+                  </Typography>
+                </div>
+              </div>
+            )}
+            {postedTime}
+            {showSocials && (
+              <div className="flex items-center gap-2 sm:hidden">
+                <Phone
+                  size={18}
+                  stroke="0"
+                  className="fill-purple hover:scale-110 transition-all duration-300"
+                />
+                <MessageSquareText
+                  size={18}
+                  className="text-purple hover:scale-110 transition-all duration-300"
+                />
+                <FaWhatsapp
+                  size={18}
+                  className="text-purple hover:scale-110 transition-all duration-300"
+                />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
+};
 
-  if (href) {
-    return (
-      <a href={href} className="block">
-        {CardContent}
-      </a>
-    );
-  }
-
-  return CardContent;
-}
+export default ListingCard;

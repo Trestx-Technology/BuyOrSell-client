@@ -38,7 +38,7 @@ const ProductInfoTabs: React.FC<ProductInfoTabsProps> = ({
 
   return (
     <div
-      className={`w-full px-4 bg-white rounded-l-xl md:rounded-r-xl border border-gray-200 shadow-sm flex items-center overflow-x-auto justify-between scrollbar-hide ${className}`}
+      className={`w-full px-4 bg-white rounded-l-xl md:rounded-r-xl border border-gray-200 shadow-sm flex items-center overflow-x-auto gap-4 justify-between scrollbar-hide ${className}`}
     >
       {/* Tab Navigation */}
       {tabs.map((tab) => (

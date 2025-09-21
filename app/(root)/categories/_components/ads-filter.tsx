@@ -225,7 +225,7 @@ const AdsFilter = ({
         </div>
 
         {/* Filter Controls */}
-        <div className="min-w-full flex items-end gap-3 pb-4 sm:p-4 border-b sm:border-none whitespace-nowrap overflow-x-auto relative">
+        <div className="min-w-full flex items-end gap-3 pb-4 sm:p-4 border-b sm:border-none whitespace-nowrap overflow-x-auto scrollbar-hide relative">
           {config.map((filterConfig) => (
             <div key={filterConfig.key} className="w-40 shrink-0">
               {renderFilterControl(filterConfig)}

@@ -25,6 +25,7 @@ export interface SortDropdownProps {
   className?: string;
   disabled?: boolean;
   size?: "sm" | "md" | "lg" | "fit";
+  labelClassName?: string;
 }
 
 const SortDropdown: React.FC<SortDropdownProps> = ({
@@ -36,6 +37,7 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
   className,
   disabled = false,
   size = "md",
+  labelClassName,
 }) => {
   const handleValueChange = (newValue: string) => {
     onValueChange?.(newValue);
@@ -51,7 +53,11 @@ const SortDropdown: React.FC<SortDropdownProps> = ({
   return (
     <div className={cn("flex items-center gap-2", className)}>
       {label && (
-        <FormField label={label} className="flex items-end gap-2">
+        <FormField
+          label={label}
+          labelClassName={labelClassName}
+          className={cn("flex items-end gap-2")}
+        >
           <Select
             value={value}
             onValueChange={handleValueChange}

@@ -24,10 +24,10 @@ import { cn } from "@/lib/utils";
 const Navbar = ({ className }: { className?: string }) => {
   const [city, setCity] = useState("");
   const [isPostAdDialogOpen, setIsPostAdDialogOpen] = useState(false);
-  const { data: emirates } = useQuery({
-    queryKey: [locationQueries.emirates.key],
-    queryFn: getEmirates,
-  });
+  // const { data: emirates } = useQuery({
+  //   queryKey: [locationQueries.emirates.key],
+  //   queryFn: getEmirates,
+  // });
 
   return (
     <div className="w-full bg-white">
@@ -104,14 +104,17 @@ const Navbar = ({ className }: { className?: string }) => {
                 <DropdownMenuItem onClick={() => setCity("")}>
                   All Cities (UAE)
                 </DropdownMenuItem>
-                {emirates?.data?.map((cityName) => (
+                {/* {emirates?.data?.map((cityName) => (
                   <DropdownMenuItem
                     key={cityName}
                     onClick={() => setCity(cityName)}
                   >
                     {cityName}
                   </DropdownMenuItem>
-                ))}
+                ))} */}
+                <DropdownMenuItem key={"UAE"} onClick={() => setCity("UAE")}>
+                  UAE
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

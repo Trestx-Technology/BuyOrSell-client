@@ -15,6 +15,7 @@ import { MidBannerCarousel } from "./_components/mid-banner-carousel";
 import FloatingChatCTA from "@/components/global/flowting-ai-cta";
 import Navbar from "@/components/global/Navbar";
 import { Footer } from "@/components/global/footer";
+import ExchangeDeals from "./_components/exchange-deals";
 
 export default function Home() {
   const banners = [
@@ -49,19 +50,12 @@ export default function Home() {
         {/* Recent Views */}
         <RecentViews />
         <HostDeals />
+        <ExchangeDeals />
 
         {/* PhonePe-Style Stacking Animation Container */}
         <div className="max-w-[1280px] mx-auto relative">
           <TrendingCars className="sticky top-0 z-10" />
           <TrendingProperties className="sticky top-[50px] z-20" />
-
-          <MidBannerCarousel
-            className="max-w-[1180px] mx-auto"
-            containerClassName="sticky top-[100px] z-30"
-            banners={banners}
-            autoPlay={true}
-            autoPlayInterval={5000}
-          />
           {/* New Components */}
           <TrendingFurniture className="sticky top-[150px] z-40" />
           <TrendingProducts className="sticky top-[200px] z-50" />

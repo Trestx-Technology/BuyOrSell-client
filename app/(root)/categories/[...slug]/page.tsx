@@ -17,6 +17,9 @@ import SortAndViewControls, {
   ViewMode,
 } from "@/app/(root)/post-ad/_components/SortAndViewControls";
 import { mockAds } from "@/constants/sample-listings";
+import { cn } from "@/lib/utils";
+import HorizontalListingCard from "../_components/desktop-horizontal-list-card";
+import MobileHorizontalListViewCard from "../_components/MobileHorizontalListViewCard";
 
 // Sort options
 const sortOptions = [
@@ -270,17 +273,37 @@ export default function CategoryListingPage() {
         {/* Ads Grid/List */}
         <div className="space-y-6">
           <div
-            className={`px-4 lg:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 ${view === "list" ? "grid-cols-1" : ""}`}
+            className={cn(
+              `px-4 lg:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3`,
+              view === "list" && "flex flex-col"
+            )}
           >
             {sortedAds.slice(0, 8).map((ad) => (
               <React.Fragment key={ad.id}>
-                <ListingCard
-                  {...ad}
-                  onFavorite={(id) => console.log("Favorited:", id)}
-                  onShare={(id) => console.log("Shared:", id)}
-                  onClick={(id) => console.log("Clicked:", id)}
-                  className="min-h-[284px]"
-                />
+                {view === "grid" ? (
+                  <ListingCard
+                    {...ad}
+                    onFavorite={(id) => console.log("Favorited:", id)}
+                    onShare={(id) => console.log("Shared:", id)}
+                    onClick={(id) => console.log("Clicked:", id)}
+                    className="min-h-[284px]"
+                  />
+                ) : (
+                  <>
+                    <HorizontalListingCard
+                      {...ad}
+                      onFavorite={(id) => console.log("Favorited:", id)}
+                      onShare={(id) => console.log("Shared:", id)}
+                      onClick={(id) => console.log("Clicked:", id)}
+                      className="hidden sm:block"
+                    />
+                    <MobileHorizontalListViewCard
+                      {...ad}
+                      onClick={(id) => console.log("Clicked:", id)}
+                      className="block sm:hidden"
+                    />
+                  </>
+                )}
               </React.Fragment>
             ))}
           </div>
@@ -289,19 +312,37 @@ export default function CategoryListingPage() {
           <CuratedCarsCollection />
 
           <div
-            className={`px-4 lg:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 ${view === "list" ? "grid-cols-1" : ""}`}
+            className={cn(
+              `px-4 lg:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3`,
+              view === "list" && "flex flex-col"
+            )}
           >
-            {sortedAds.slice(0, 7).map((ad, index) => (
+            {sortedAds.slice(0, 7).map((ad) => (
               <React.Fragment key={ad.id}>
-                <ListingCard
-                  {...ad}
-                  onFavorite={(id) => console.log("Favorited:", id)}
-                  onShare={(id) => console.log("Shared:", id)}
-                  onClick={(id) => console.log("Clicked:", id)}
-                  className="min-h-[284px]"
-                />
-                {/* Insert Ad Card after 8th ad (bottom right of second row) */}
-                {index === 6 && <AdCard className="min-h-[284px]" />}
+                {view === "grid" ? (
+                  <ListingCard
+                    {...ad}
+                    onFavorite={(id) => console.log("Favorited:", id)}
+                    onShare={(id) => console.log("Shared:", id)}
+                    onClick={(id) => console.log("Clicked:", id)}
+                    className="min-h-[284px]"
+                  />
+                ) : (
+                  <>
+                    <HorizontalListingCard
+                      {...ad}
+                      onFavorite={(id) => console.log("Favorited:", id)}
+                      onShare={(id) => console.log("Shared:", id)}
+                      onClick={(id) => console.log("Clicked:", id)}
+                      className="hidden sm:block"
+                    />
+                    <MobileHorizontalListViewCard
+                      {...ad}
+                      onClick={(id) => console.log("Clicked:", id)}
+                      className="block sm:hidden"
+                    />
+                  </>
+                )}
               </React.Fragment>
             ))}
           </div>

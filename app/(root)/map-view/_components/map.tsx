@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { MapPin, Navigation, ZoomIn, ZoomOut } from "lucide-react";
+import { ICONS } from "@/constants/icons";
 
 export interface MapProps {
   className?: string;
@@ -114,17 +115,8 @@ export default function Map({
         map,
         title: markerData.title,
         icon: {
-          url:
-            "data:image/svg+xml;charset=UTF-8," +
-            encodeURIComponent(`
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="20" cy="20" r="20" fill="#8B31E1"/>
-              <circle cx="20" cy="20" r="16" fill="white"/>
-              <circle cx="20" cy="20" r="12" fill="#8B31E1"/>
-              <text x="20" y="24" text-anchor="middle" fill="white" font-size="12" font-weight="bold">$</text>
-            </svg>
-          `),
-          scaledSize: new window.google.maps.Size(40, 40),
+          url: ICONS.currency.aed,
+          scaledSize: new window.google.maps.Size(20, 20),
           anchor: new window.google.maps.Point(20, 20),
         },
       });

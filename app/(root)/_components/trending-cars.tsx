@@ -1,30 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { ListingCard } from "@/components/global/listing-card";
+import ListingCard from "@/components/global/listing-card";
 import TabbedCarousel, { TabItem } from "@/components/global/tabbed-carousel";
 
 // Types for the car listings
 interface CarItem {
   id: string;
-  image: string;
   title: string;
+  price: number;
+  originalPrice?: number;
+  discount?: number;
+  currency?: string;
   location: string;
-  currentPrice: string;
-  originalPrice: string;
-  discount: string;
-  transmission: string;
-  fuelType: string;
-  mileage: string;
-  year: string;
-  timeAgo: Date;
+  images: string[];
+  specifications: {
+    transmission?: string;
+    fuelType?: string;
+    mileage?: string;
+    year?: number;
+  };
+  postedTime: string;
+  views?: number;
+  isPremium?: boolean;
   isFavorite?: boolean;
-  endTime: Date;
-  discountText?: string;
-  discountBadgeBg?: string;
-  discountBadgeTextColor?: string;
-  timerBg?: string;
-  timerTextColor?: string;
+  onFavorite?: (id: string) => void;
+  onShare?: (id: string) => void;
+  onClick?: (id: string) => void;
+  className?: string;
+  showSeller?: boolean;
+  showSocials?: boolean;
 }
 
 interface TrendingCarsProps {
@@ -36,134 +41,128 @@ const sampleCars: CarItem[] = [
   {
     id: "0",
     title: "BMW 5 Series 2023",
-    image:
-      "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 105452,
+    originalPrice: 125000,
+    discount: 16,
     location: "Business Bay, Dubai",
-    currentPrice: "105,452",
-    originalPrice: "125,000",
-    discount: "12%",
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    mileage: "35,000 KM",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    endTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
-    isFavorite: false,
-    discountText: "12% OFF",
-    discountBadgeBg: "bg-[#37E7B6]",
-    discountBadgeTextColor: "text-white",
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
+    images: [
+      "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=1170&auto=format&fit=crop",
+    ],
+    specifications: {
+      transmission: "Automatic",
+      fuelType: "Petrol",
+      mileage: "35,000 KM",
+      year: 2023,
+    },
+    postedTime: "2 hours ago",
+    views: 245,
+    isPremium: true,
   },
   {
     id: "1",
     title: "Mercedes C-Class 2023",
-    image:
-      "https://images.unsplash.com/photo-1615141850218-9163d187fbda?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 95000,
+    originalPrice: 110000,
+    discount: 14,
     location: "Business Bay, Dubai",
-    currentPrice: "95,000",
-    originalPrice: "110,000",
-    discount: "14%",
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    mileage: "28,000 KM",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    endTime: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
-    isFavorite: false,
-    discountText: "14% OFF",
-    discountBadgeBg: "bg-[#37E7B6]",
-    discountBadgeTextColor: "text-white",
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
+    images: [
+      "https://images.unsplash.com/photo-1615141850218-9163d187fbda?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=1170&auto=format&fit=crop",
+    ],
+    specifications: {
+      transmission: "Automatic",
+      fuelType: "Petrol",
+      mileage: "28,000 KM",
+      year: 2023,
+    },
+    postedTime: "4 hours ago",
+    views: 189,
+    isPremium: false,
   },
   {
     id: "2",
     title: "Audi A6 2023",
-    image:
-      "https://images.unsplash.com/photo-1540066019607-e5f69323a8dc?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 115000,
+    originalPrice: 135000,
+    discount: 15,
     location: "Business Bay, Dubai",
-    currentPrice: "115,000",
-    originalPrice: "135,000",
-    discount: "15%",
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    mileage: "32,000 KM",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    endTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    isFavorite: false,
-    discountText: "15% OFF",
-    discountBadgeBg: "bg-[#37E7B6]",
-    discountBadgeTextColor: "text-white",
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
+    images: [
+      "https://images.unsplash.com/photo-1540066019607-e5f69323a8dc?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=1170&auto=format&fit=crop",
+    ],
+    specifications: {
+      transmission: "Automatic",
+      fuelType: "Petrol",
+      mileage: "32,000 KM",
+      year: 2023,
+    },
+    postedTime: "6 hours ago",
+    views: 156,
+    isPremium: true,
   },
   {
     id: "3",
     title: "BMW X5 2023",
-    image:
-      "https://images.unsplash.com/photo-1602033960063-5b06d6edfcd3?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 145000,
+    originalPrice: 165000,
+    discount: 12,
     location: "Business Bay, Dubai",
-    currentPrice: "145,000",
-    originalPrice: "165,000",
-    discount: "12%",
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    mileage: "25,000 KM",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    endTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    isFavorite: false,
-    discountText: "12% OFF",
-    discountBadgeBg: "bg-[#37E7B6]",
-    discountBadgeTextColor: "text-white",
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
+    images: [
+      "https://images.unsplash.com/photo-1602033960063-5b06d6edfcd3?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=1170&auto=format&fit=crop",
+    ],
+    specifications: {
+      transmission: "Automatic",
+      fuelType: "Petrol",
+      mileage: "25,000 KM",
+      year: 2023,
+    },
+    postedTime: "8 hours ago",
+    views: 134,
+    isPremium: false,
   },
   {
     id: "4",
     title: "Mercedes GLE 2023",
-    image:
-      "https://images.unsplash.com/photo-1574023196529-c31cab2cbba3?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 155000,
+    originalPrice: 175000,
+    discount: 11,
     location: "Business Bay, Dubai",
-    currentPrice: "155,000",
-    originalPrice: "175,000",
-    discount: "11%",
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    mileage: "22,000 KM",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    endTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    isFavorite: false,
-    discountText: "11% OFF",
-    discountBadgeBg: "bg-[#37E7B6]",
-    discountBadgeTextColor: "text-white",
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
+    images: [
+      "https://images.unsplash.com/photo-1574023196529-c31cab2cbba3?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=1170&auto=format&fit=crop",
+    ],
+    specifications: {
+      transmission: "Automatic",
+      fuelType: "Petrol",
+      mileage: "22,000 KM",
+      year: 2023,
+    },
+    postedTime: "10 hours ago",
+    views: 98,
+    isPremium: true,
   },
   {
     id: "5",
     title: "Audi Q7 2023",
-    image:
-      "https://images.unsplash.com/photo-1514316454349-750a7fd3da3a?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    price: 135000,
+    originalPrice: 155000,
+    discount: 13,
     location: "Business Bay, Dubai",
-    currentPrice: "135,000",
-    originalPrice: "155,000",
-    discount: "13%",
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    mileage: "30,000 KM",
-    year: "2023",
-    timeAgo: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    endTime: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    isFavorite: false,
-    discountText: "13% OFF",
-    discountBadgeBg: "bg-[#37E7B6]",
-    discountBadgeTextColor: "text-white",
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
+    images: [
+      "https://images.unsplash.com/photo-1514316454349-750a7fd3da3a?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=1170&auto=format&fit=crop",
+    ],
+    specifications: {
+      transmission: "Automatic",
+      fuelType: "Petrol",
+      mileage: "30,000 KM",
+      year: 2023,
+    },
+    postedTime: "12 hours ago",
+    views: 87,
+    isPremium: false,
   },
 ];
 
@@ -197,21 +196,11 @@ export default function TrendingCars({ className = "" }: TrendingCarsProps) {
       renderCard: (car) => (
         <ListingCard
           {...car}
-          specs={{
-            transmission: car.transmission,
-            fuelType: car.fuelType,
-            mileage: car.mileage,
-            year: car.year,
-          }}
-          category="car"
-          showDiscountBadge={false}
-          discountBadgeBg={car.discountBadgeBg}
-          discountBadgeTextColor={car.discountBadgeTextColor}
-          showTimer={false}
-          timerBg={car.timerBg}
-          timerTextColor={car.timerTextColor}
-          onFavoriteToggle={handleFavoriteToggle}
-          className="w-full"
+          onFavorite={handleFavoriteToggle}
+          onShare={() => console.log("Share car:", car.id)}
+          onClick={() => console.log("Click car:", car.id)}
+          showSeller={false}
+          showSocials={false}
         />
       ),
     },
@@ -222,21 +211,11 @@ export default function TrendingCars({ className = "" }: TrendingCarsProps) {
       renderCard: (car) => (
         <ListingCard
           {...car}
-          specs={{
-            transmission: car.transmission,
-            fuelType: car.fuelType,
-            mileage: car.mileage,
-            year: car.year,
-          }}
-          category="car"
-          showDiscountBadge={false}
-          discountBadgeBg={car.discountBadgeBg}
-          discountBadgeTextColor={car.discountBadgeTextColor}
-          showTimer={false}
-          timerBg={car.timerBg}
-          timerTextColor={car.timerTextColor}
-          onFavoriteToggle={handleFavoriteToggle}
-          className="w-full"
+          onFavorite={handleFavoriteToggle}
+          onShare={() => console.log("Share car:", car.id)}
+          onClick={() => console.log("Click car:", car.id)}
+          showSeller={false}
+          showSocials={false}
         />
       ),
     },
@@ -247,21 +226,11 @@ export default function TrendingCars({ className = "" }: TrendingCarsProps) {
       renderCard: (car) => (
         <ListingCard
           {...car}
-          specs={{
-            transmission: car.transmission,
-            fuelType: car.fuelType,
-            mileage: car.mileage,
-            year: car.year,
-          }}
-          category="car"
-          showDiscountBadge={false}
-          discountBadgeBg={car.discountBadgeBg}
-          discountBadgeTextColor={car.discountBadgeTextColor}
-          showTimer={false}
-          timerBg={car.timerBg}
-          timerTextColor={car.timerTextColor}
-          onFavoriteToggle={handleFavoriteToggle}
-          className="w-full"
+          onFavorite={handleFavoriteToggle}
+          onShare={() => console.log("Share car:", car.id)}
+          onClick={() => console.log("Click car:", car.id)}
+          showSeller={false}
+          showSocials={false}
         />
       ),
     },
@@ -272,21 +241,11 @@ export default function TrendingCars({ className = "" }: TrendingCarsProps) {
       renderCard: (car) => (
         <ListingCard
           {...car}
-          specs={{
-            transmission: car.transmission,
-            fuelType: car.fuelType,
-            mileage: car.mileage,
-            year: car.year,
-          }}
-          category="car"
-          showDiscountBadge={false}
-          discountBadgeBg={car.discountBadgeBg}
-          discountBadgeTextColor={car.discountBadgeTextColor}
-          showTimer={false}
-          timerBg={car.timerBg}
-          timerTextColor={car.timerTextColor}
-          onFavoriteToggle={handleFavoriteToggle}
-          className="w-full"
+          onFavorite={handleFavoriteToggle}
+          onShare={() => console.log("Share car:", car.id)}
+          onClick={() => console.log("Click car:", car.id)}
+          showSeller={false}
+          showSocials={false}
         />
       ),
     },
