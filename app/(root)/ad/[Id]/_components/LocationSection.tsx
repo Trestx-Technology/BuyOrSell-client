@@ -163,7 +163,7 @@ const LocationSection: React.FC<LocationSectionProps> = () => {
         `Failed to initialize map: ${err instanceof Error ? err.message : "Unknown error"}`
       );
     }
-  }, [isLoading]); // Only depend on isLoading, not on coordinates/address to prevent re-renders
+  }, []); // Only depend on isLoading, not on coordinates/address to prevent re-renders
 
   const handleViewInMap = () => {
     // Open Google Maps in new tab

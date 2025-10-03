@@ -8,6 +8,10 @@ import {
   Heart,
   Bell,
   MapPin,
+  Clock,
+  X,
+  Briefcase,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "../../../components/typography";
@@ -18,6 +22,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import Link from "next/link";
 import { useMediaQuery, useWindowSize } from "usehooks-ts";
 import { motion, AnimatePresence } from "framer-motion";
@@ -445,12 +454,9 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     delay: 0.1,
                   }}
                 >
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link
-                        href="/"
-                        className="min-w-6 min-[1080px]:block hidden"
-                      >
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="min-w-6 min-[1080px]:block hidden p-1 rounded transition-colors cursor-pointer">
                         <Image
                           src={
                             "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/mystery.svg"
@@ -460,12 +466,55 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                           width={24}
                           height={24}
                         />
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Mystery Search</p>
-                    </TooltipContent>
-                  </Tooltip>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 p-4" align="end">
+                      <div className="space-y-4">
+                        {/* Header */}
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-sm font-medium text-gray-900">
+                            My Searches
+                          </h3>
+                          <button className="text-xs text-purple-600 hover:text-purple-700 font-medium">
+                            Clear All
+                          </button>
+                        </div>
+
+                        {/* Search Items */}
+                        <div className="space-y-3">
+                          {Array.from({ length: 5 }).map((_, index) => {
+                            return (
+                              <div
+                                className="flex items-center justify-between p-3 bg-gray-100 rounded-lg"
+                                key={index}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Clock className="w-4 h-4 text-gray-400" />
+                                  <div>
+                                    <p className="text-sm font-medium text-gray-900">
+                                      iphone 16
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      156 result . 2 hours ago
+                                    </p>
+                                  </div>
+                                </div>
+                                <button className="p-1 hover:bg-gray-200 rounded">
+                                  <X className="w-3 h-3 text-gray-400" />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <div className="flex justify-center">
+                          <button className="text-xs text-purple-600 hover:text-purple-700 font-medium mx-auto">
+                            Clear All
+                          </button>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </motion.div>
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -565,19 +614,107 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     delay: 0.3,
                   }}
                 >
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link
-                        href="/"
-                        className="min-w-6 min-[1080px]:block hidden"
-                      >
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="min-w-6 min-[1080px]:block hidden p-1 rounded hover:bg-white/10 transition-colors">
                         <Bell className="size-6 hover:scale-110 transition-all duration-300 text-white" />
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Notifications</p>
-                    </TooltipContent>
-                  </Tooltip>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 p-4" align="end">
+                      <div className="space-y-4">
+                        {/* Header */}
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-sm font-medium text-gray-900">
+                            Notifications
+                          </h3>
+                          <button className="text-xs text-purple-600 hover:text-purple-700 font-medium">
+                            Mark All as Read
+                          </button>
+                        </div>
+
+                        {/* Notification Items */}
+                        <div className="space-y-3">
+                          {/* Notification Item 1 - Job Match */}
+                          <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                            <Briefcase className="w-5 h-5 text-purple mt-0.5" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="text-sm font-semibold text-gray-900">
+                                  New Job Match
+                                </p>
+                                <div className="w-2 h-2 bg-purple rounded-full"></div>
+                              </div>
+                              <p className="text-xs text-gray-600 leading-relaxed">
+                                Senior React Developer at Techcorp matches your
+                                profile
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                2 minutes ago
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Notification Item 2 - Message */}
+                          <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                            <MessageCircle className="w-5 h-5 text-purple mt-0.5" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="text-sm font-semibold text-gray-900">
+                                  New Message
+                                </p>
+                                <div className="w-2 h-2 bg-purple rounded-full"></div>
+                              </div>
+                              <p className="text-xs text-gray-600 leading-relaxed">
+                                Senior React Developer at Techcorp matches your
+                                profile
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                2 minutes ago
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Notification Item 3 - Read Message */}
+                          <div className="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg">
+                            <MessageCircle className="w-5 h-5 text-purple mt-0.5" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="text-sm font-semibold text-gray-900">
+                                  New Message
+                                </p>
+                              </div>
+                              <p className="text-xs text-gray-600 leading-relaxed">
+                                Senior React Developer at Techcorp matches your
+                                profile
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                2 minutes ago
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Notification Item 4 - Read Message */}
+                          <div className="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg">
+                            <MessageCircle className="w-5 h-5 text-purple mt-0.5" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="text-sm font-semibold text-gray-900">
+                                  New Message
+                                </p>
+                              </div>
+                              <p className="text-xs text-gray-600 leading-relaxed">
+                                Senior React Developer at Techcorp matches your
+                                profile
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                2 minutes ago
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </motion.div>
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
