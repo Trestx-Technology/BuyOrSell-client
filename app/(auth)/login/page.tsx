@@ -98,7 +98,7 @@ const Login = () => {
         className="w-full text-sm"
         size={"lg"}
         variant={"filled"}
-        onClick={() => router.push("/")}
+        onClick={() => router.push("/?login=true")}
         disabled={!loginData.email || !loginData.password}
       >
         Log In

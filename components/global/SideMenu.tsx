@@ -330,6 +330,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                 "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/star-rate.svg"
               }
               label="Rate us"
+              href="/rate-us"
               onClick={() => {
                 // Handle rating logic
                 console.log("Rate us clicked");

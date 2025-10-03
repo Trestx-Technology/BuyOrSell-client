@@ -1,9 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, Bell } from "lucide-react";
+import {
+  ChevronDown,
+  Bell,
+  User,
+  Briefcase,
+  Search,
+  Newspaper,
+  Heart,
+  Bell as BellIcon,
+  Tag,
+  Settings,
+  LogOut,
+  Image as ImageIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -17,10 +30,19 @@ import { SearchAnimated } from "./ai-search-bar";
 import PostAdDialog from "../../app/(root)/post-ad/_components/PostAdDialog";
 import { ICONS } from "@/constants/icons";
 import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useSearchParams } from "next/navigation";
 
-const Navbar = ({ className }: { className?: string }) => {
+// Internal component that uses useSearchParams
+const NavbarContent = ({ className }: { className?: string }) => {
   const [city, setCity] = useState("");
   const [isPostAdDialogOpen, setIsPostAdDialogOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const login = searchParams.get("login");
   // const { data: emirates } = useQuery({
   //   queryKey: [locationQueries.emirates.key],
   //   queryFn: getEmirates,
@@ -123,10 +145,153 @@ const Navbar = ({ className }: { className?: string }) => {
 
         {/* Right Section - Action Buttons */}
         <div className="hidden md:flex items-center gap-5 ml-2">
-          {/* Log In / Sign Up Button */}
-          <Link href="/login" className="text-xs font-medium text-purple">
-            Log In / Sign Up
-          </Link>
+          {/* User Menu */}
+          {login ? (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="flex items-center gap-2 rounded-full p-1 hover:bg-purple-100 transition-colors">
+                  <div className="size-[35px] rounded-full overflow-hidden">
+                    <Image
+                      src={"/images/ai-prompt/add-image.png"}
+                      alt="Profile"
+                      className="object-cover w-full h-full"
+                      width={35}
+                      height={35}
+                    />
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-gray-500" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-50 p-0" align="end">
+                <div className="space-y-1">
+                  <Link
+                    href="/user/profile"
+                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
+                  >
+                    <Image
+                      src={ICONS.navigation.profile}
+                      alt="Profile"
+                      width={24}
+                      height={24}
+                    />
+                    My Profile
+                  </Link>
+
+                  <Link
+                    href="/user/jobs"
+                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
+                  >
+                    <Image
+                      src={ICONS.navigation.jobsDashboard}
+                      alt="Jobs"
+                      width={24}
+                      height={24}
+                    />
+                    Jobs Dashboard
+                  </Link>
+
+                  <Link
+                    href="/user/searches"
+                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
+                  >
+                    <Image
+                      src={ICONS.navigation.search}
+                      alt="Searches"
+                      width={24}
+                      height={24}
+                    />
+                    My Searches
+                  </Link>
+
+                  <Link
+                    href="/user/ads"
+                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
+                  >
+                    <Image
+                      src={ICONS.navigation.myAds}
+                      alt="Ads"
+                      width={24}
+                      height={24}
+                    />
+                    My Ads
+                  </Link>
+
+                  <Link
+                    href="/favorites"
+                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
+                  >
+                    <Image
+                      src={ICONS.navigation.favorites}
+                      alt="Favorites"
+                      width={24}
+                      height={24}
+                    />
+                    Favourites
+                  </Link>
+
+                  <Link
+                    href="/user/notifications"
+                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
+                  >
+                    <Image
+                      src={ICONS.navigation.notificationBell}
+                      alt="Notifications"
+                      width={24}
+                      height={24}
+                    />
+                    Notifications
+                  </Link>
+
+                  <Link
+                    href="/user/offers"
+                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
+                  >
+                    <Image
+                      src={ICONS.navigation.offersPackages}
+                      alt="Offers"
+                      width={24}
+                      height={24}
+                    />
+                    Offers & Packages
+                  </Link>
+
+                  <Link
+                    href="/user/profile/settings"
+                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
+                  >
+                    <Image
+                      src={ICONS.navigation.settings}
+                      alt="Settings"
+                      width={24}
+                      height={24}
+                    />
+                    Settings
+                  </Link>
+
+                  <button
+                    onClick={() => {
+                      // Handle logout logic here
+                      console.log("Sign out clicked");
+                      // You can add logout functionality here
+                    }}
+                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition-colors text-gray-700 hover:text-purple w-full"
+                  >
+                    <Image
+                      src={ICONS.navigation.settings}
+                      alt="Logout"
+                      width={24}
+                      height={24}
+                    />
+                    Sign Out
+                  </button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          ) : (
+            <Link href="/login" className="text-xs font-medium text-purple">
+              Log In / Sign Up
+            </Link>
+          )}
 
           {/* Place Ad Button */}
 
@@ -157,6 +322,15 @@ const Navbar = ({ className }: { className?: string }) => {
         onClose={() => setIsPostAdDialogOpen(false)}
       />
     </div>
+  );
+};
+
+// Main Navbar component with Suspense wrapper
+const Navbar = ({ className }: { className?: string }) => {
+  return (
+    <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+      <NavbarContent className={className} />
+    </Suspense>
   );
 };
 
