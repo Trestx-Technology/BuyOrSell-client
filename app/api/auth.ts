@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { axiosInstance } from "@/services/axios-api-client";
-import { authQueries } from "@/api-queries/auth";
-import type { loginResponse, SocialLoginPayload } from "@/interfaces/auth";
+import { authQueries } from "@/api-queries/auth.query";
+import type { loginResponse, SocialLoginPayload } from "@/interfaces/auth.types";
 import { removeCookies } from "@/actions/cookies.action";
 import { LocalStorageService } from "@/services/local-storage";
 
@@ -37,15 +37,31 @@ export const Logout = async (): Promise<any> => {
   return response.data;
 };
 
-// Forgot Password
-export const ForgotPassword = async (email: string): Promise<any> => {
+//Send Reset Password Email
+export const SendResetPasswordEmail = async (email: string): Promise<any> => {
   const response = await axiosInstance.post(
-    authQueries.forgotPassword.endpoint,
+    authQueries.sendResetPasswordEmail.endpoint,
     {
       email,
     }
   );
-  return response.data;
+    return response.data;
+};
+
+// Reset Password (with token and new password)
+export const ResetPassword = async (
+  resetToken: string,
+  newPassword: string
+): Promise<{
+  message: string;
+  statusCode: number;
+  timeStamp: string;
+}> => {
+  const { data } = await axiosInstance.post(
+    authQueries.resetPassword.endpoint,
+    { resetToken, newPassword }
+  );
+  return data;
 };
 
 // Reset Password

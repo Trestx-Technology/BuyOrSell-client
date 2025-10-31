@@ -24,6 +24,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "dev-buyorsell.s3.me-central-1.amazonaws.com",
       },
+      {
+        protocol: "https",
+        hostname: "buyorsell-assets.s3.me-central-1.amazonaws.com",
+      },
     ],
   },
 };

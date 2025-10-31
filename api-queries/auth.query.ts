@@ -11,10 +11,12 @@ export const authQueries = {
     endpoint: "/auth/logout",
     key: "logout",
   },
-  forgotPassword: {
-    endpoint: "/auth/forgot-password",
-    key: "forgot-password",
+
+   sendResetPasswordEmail: {
+    endpoint: "/auth/request-password-reset",
+    key: "send-reset-password-email",
   },
+  
   resetPassword: {
     endpoint: "/auth/reset-password",
     key: "reset-password",

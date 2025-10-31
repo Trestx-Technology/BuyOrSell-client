@@ -7,57 +7,8 @@ import { Button } from "@/components/ui/button";
 import useEmblaCarousel from "embla-carousel-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-
-const categoryData = [
-  {
-    id: 1,
-    name: "Motors",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/motors.svg",
-    description: "Vehicles & Auto Parts",
-  },
-  {
-    id: 2,
-    name: "Property for Rent",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/rent.svg",
-    description: "Rental Properties",
-  },
-  {
-    id: 3,
-    name: "Property for Sale",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/sale.svg",
-    description: "Properties for Sale",
-  },
-  {
-    id: 4,
-    name: "Electronics",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/electronics.svg",
-    description: "Gadgets & Technology",
-  },
-  {
-    id: 5,
-    name: "Community",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/community.svg",
-    description: "Community & Events",
-  },
-  {
-    id: 6,
-    name: "Business & Industrial",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/business.svg",
-    description: "Business Services & Equipment",
-  },
-  {
-    id: 7,
-    name: "Home Appliances",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/appliances.svg",
-    description: "Home & Kitchen Appliances",
-  },
-  {
-    id: 8,
-    name: "Furniture",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/furniture.svg",
-    description: "Home & Office Furniture",
-  },
-];
+import { useGetMainCategories } from "@/hooks/useCategories";
+import { SubCategory } from "@/interfaces/categories.types";
 
 const CategoriesCarousel = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -73,9 +24,60 @@ const CategoriesCarousel = () => {
     },
   });
 
-  const [isLoading, setIsLoading] = React.useState(true);
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(false);
+
+  // Fetch categories using the hook
+  const {
+    data: categoriesData,
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = useGetMainCategories();
+
+  // Transform API data to match expected format with default icons
+  const categoryData = categoriesData?.map((category: SubCategory, index: number) => {
+    // Default icon mapping based on category name or index
+    const getDefaultIcon = (name: string, index: number) => {
+      const iconMap: Record<string, string> = {
+        motors: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/motors.svg",
+        property: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/sale.svg",
+        electronics: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/electronics.svg",
+        furniture: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/furniture.svg",
+        jobs: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/business.svg",
+        classifieds: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/classifieds.svg",
+        community: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/community.svg",
+      };
+
+      // Try to match by name (lowercase)
+      const normalizedName = name.toLowerCase();
+      for (const [key, icon] of Object.entries(iconMap)) {
+        if (normalizedName.includes(key)) {
+          return icon;
+        }
+      }
+
+      // Fallback to a default icon based on index
+      const defaultIcons = [
+        "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/motors.svg",
+        "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/sale.svg",
+        "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/electronics.svg",
+        "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/furniture.svg",
+        "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/business.svg",
+        "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/community.svg",
+        "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/appliances.svg",
+        "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/rent.svg",
+      ];
+
+      return defaultIcons[index % defaultIcons.length] || defaultIcons[0];
+    };
+
+    return {
+      id: index + 1,
+      name: category.name,
+      icon: category.icon || getDefaultIcon(category.name, index),
+      description: category.desc || `${category.name} category`,
+    };
+  }) || [];
 
   // Framer Motion animation variants
   const containerVariants = {
@@ -123,14 +125,6 @@ const CategoriesCarousel = () => {
     };
   }, [emblaApi]);
 
-  // Simulate loading state
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   const scrollPrev = React.useCallback(() => {
     if (emblaApi && canScrollPrev) emblaApi.scrollPrev();
@@ -159,7 +153,7 @@ const CategoriesCarousel = () => {
     <section className="hidden sm:block w-full max-w-[1180px] mx-auto mt-5 md:mt-0 ">
       <div className="relative">
         {/* Left Navigation Arrow - Only show when can scroll prev */}
-        {!isLoading && (
+        {!categoriesLoading && (
           <Button
             variant="filled"
             disabled={!canScrollPrev}
@@ -173,8 +167,20 @@ const CategoriesCarousel = () => {
 
         {/* Categories Container */}
         <div className="overflow-hidden py-5" ref={emblaRef}>
-          {isLoading ? (
+          {categoriesLoading ? (
             <LoadingSkeleton />
+          ) : categoriesError ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <p className="text-gray-500 mb-2">Failed to load categories</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="text-purple-600 hover:text-purple-700 text-sm underline"
+                >
+                  Try again
+                </button>
+              </div>
+            </div>
           ) : (
             <motion.div
               className="flex"
@@ -221,7 +227,7 @@ const CategoriesCarousel = () => {
         </div>
 
         {/* Right Navigation Arrow - Only show when can scroll next */}
-        {!isLoading && (
+        {!categoriesLoading && (
           <Button
             variant="filled"
             disabled={!canScrollNext}

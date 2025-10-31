@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -28,20 +28,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import Link from "next/link";
-import { useMediaQuery, useWindowSize } from "usehooks-ts";
+import { useMediaQuery } from "usehooks-ts";
 import { motion, AnimatePresence } from "framer-motion";
 
-import {
-  motorsData,
-  propertyData,
-  jobsData,
-  classifiedsData,
-  furnitureData,
-  electronicsData,
-  communityData,
-  othersData,
-  NavItem,
-} from "@/constants/navigationData";
+import { useGetMainCategories } from "@/hooks/useCategories";
+import { SubCategory } from "@/interfaces/categories.types";
 import Image from "next/image";
 import { SearchAnimated } from "@/components/global/ai-search-bar";
 import { useRouter } from "nextjs-toploader/app";
@@ -117,13 +108,14 @@ interface CategoryButtonProps {
 interface CategoryDropdownProps {
   isVisible: boolean;
   onMouseLeave: () => void;
-  categoryData: NavItem[];
-  activeCategory: NavItem | null;
-  onCategoryHover: (category: NavItem) => void;
+  categoryData: SubCategory[];
+  activeCategory: SubCategory | null;
+  onCategoryHover: (category: SubCategory) => void;
+  isOtherCategory?: boolean;
 }
 
 interface SubcategoryPanelProps {
-  subcategories: NavItem[];
+  subcategories: SubCategory[];
   activeCategoryId: string;
 }
 
@@ -157,7 +149,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
     <div className="flex flex-col w-full">
       {subcategories.map((subcategory) => (
         <motion.div
-          key={subcategory.id}
+          key={subcategory._id}
           variants={subcategoryVariants}
           className="transition-colors group"
         >
@@ -180,9 +172,9 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
           {subcategory.children && (
             <div className="space-y-2 grid grid-cols-1 md:grid-cols-2 gap-2 px-5 py-2.5">
               {subcategory.children.map((child) => (
-                <motion.div key={child.id} variants={itemVariants}>
+                <motion.div key={child._id} variants={itemVariants}>
                   <Link
-                    href={`/category/${subcategory.id}/${child.id}`}
+                    href={`/category/${subcategory._id}/${child._id}`}
                     className="text-sm text-grey-blue hover:text-purple hover:underline cursor-pointer transition-colors"
                   >
                     {child.name}
@@ -203,12 +195,13 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
   categoryData,
   activeCategory,
   onCategoryHover,
+  isOtherCategory = false,
 }) => {
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          className="absolute w-full px-4 lg:px-0 lg:w-fit lg:mt-1 top-full flex-1 z-[9999] left-1/2 -translate-x-1/2 lg:-translate-x-0 lg:left-0"
+          className="absolute w-full px-4 lg:px-0 lg:w-fit lg:mt-1 top-full flex-1 z-[9999] left-1/2 -translate-x-1/2 lg:-translate-x-0 lg:left-0 min-w-[230px]"
           variants={dropdownVariants}
           initial="hidden"
           animate="visible"
@@ -219,52 +212,84 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
             // This prevents premature closing when moving from button to dropdown
           }}
         >
-          <motion.div className="flex mx-auto bg-white rounded-xl rounded-tl-none w-full rounded-tr-none shadow-lg border border-gray-200 overflow-hidden max-h-[500px]">
-            {/* Main Categories Panel */}
-            <div className="w-60 border-r border-gray-300  overflow-y-auto">
-              {categoryData
-                .filter(
-                  (category) =>
-                    category.children && category.children.length > 0
-                )
-                .map((category) => (
-                  <motion.div
-                    key={category.id}
-                    variants={itemVariants}
-                    className={cn(
-                      "flex items-center text-xs justify-between p-3 hover:bg-purple/10 cursor-pointer transition-colors group",
-                      activeCategory?.id === category.id &&
-                        "bg-purple/10 text-purple"
-                    )}
-                    onMouseEnter={() => onCategoryHover(category)}
-                  >
-                    <Typography
-                      variant="xs-regular-inter"
+          {isOtherCategory ? (
+            /* Other Categories - Flat List */
+            <motion.div className="bg-white rounded-xl rounded-tl-none shadow-lg border border-gray-200 overflow-hidden max-h-[500px]">
+              <div className="w-full max-w-md overflow-y-auto">
+                <div className="p-4">
+                  <Typography variant="sm-bold" className="text-gray-900 mb-3">
+                    Other Categories
+                  </Typography>
+                  <div className="grid grid-cols-1 gap-2">
+                    {categoryData.map((category) => (
+                      <motion.div
+                        key={category._id}
+                        variants={itemVariants}
+                        className="flex items-center justify-between p-3 hover:bg-purple/10 rounded-lg cursor-pointer transition-colors group"
+                        onClick={() => onCategoryHover(category)}
+                      >
+                        <Typography
+                          variant="sm-regular"
+                          className="text-gray-700 group-hover:text-purple"
+                        >
+                          {category.name}
+                        </Typography>
+                        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-purple" />
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            /* Regular Category Dropdown with Two Panels */
+            <motion.div className="flex mx-auto bg-white rounded-xl rounded-tl-none w-full rounded-tr-none shadow-lg border border-gray-200 overflow-hidden max-h-[500px]">
+              {/* Main Categories Panel */}
+              <div className="w-60 border-r border-gray-300  overflow-y-auto">
+                {categoryData
+                  .filter(
+                    (category) =>
+                      category.children && category.children.length > 0
+                  )
+                  .map((category) => (
+                    <motion.div
+                      key={category._id}
+                      variants={itemVariants}
                       className={cn(
-                        "text-gray-600 group-hover:text-gray-900 text-xs",
-                        activeCategory?.id === category.id &&
-                          "text-purple font-semibold"
+                        "flex items-center text-xs justify-between p-3 hover:bg-purple/10 cursor-pointer transition-colors group",
+                        activeCategory?._id === category._id &&
+                          "bg-purple/10 text-purple"
                       )}
+                      onMouseEnter={() => onCategoryHover(category)}
                     >
-                      {category.name}
-                    </Typography>
-                    {activeCategory?.id === category.id ? (
-                      <ChevronLeft className="w-4 h-4" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4" />
-                    )}
-                  </motion.div>
-                ))}
-            </div>
+                      <Typography
+                        variant="xs-regular-inter"
+                        className={cn(
+                          "text-gray-600 group-hover:text-gray-900 text-xs",
+                          activeCategory?._id === category._id &&
+                            "text-purple font-semibold"
+                        )}
+                      >
+                        {category.name}
+                      </Typography>
+                      {activeCategory?._id === category._id ? (
+                        <ChevronLeft className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
+                      )}
+                    </motion.div>
+                  ))}
+              </div>
 
-            {/* Subcategories Panel */}
-            {activeCategory && activeCategory.children && (
-              <SubcategoryPanel
-                subcategories={activeCategory.children}
-                activeCategoryId={activeCategory.id}
-              />
-            )}
-          </motion.div>
+              {/* Subcategories Panel */}
+              {activeCategory && activeCategory.children && (
+                <SubcategoryPanel
+                  subcategories={activeCategory.children}
+                  activeCategoryId={activeCategory._id}
+                />
+              )}
+            </motion.div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
@@ -272,47 +297,43 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
 };
 
 const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
-  const [activeCategory, setActiveCategory] = useState<NavItem | null>(null);
+  const [activeCategory, setActiveCategory] = useState<SubCategory | null>(
+    null
+  );
   const [activeCategoryType, setActiveCategoryType] = useState<string | null>(
     null
   );
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Use the useWindowSize hook to get current window width
-  const { width: windowWidth } = useWindowSize();
+  // Mobile detection
   const isMobile = useMediaQuery("(max-width: 768px)");
   const router = useRouter();
-  // Simulate loading state for category data
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1200); // Show loader for 1.2s to simulate data loading and prevent laggy feel
 
-    return () => clearTimeout(timer);
-  }, []);
+  // Fetch categories using the custom hook
+  const {
+    data: categoriesData,
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = useGetMainCategories();
 
-  // Calculate visible categories - remove "Others" if less than 870px
-  const getVisibleCategoriesCount = () => {
-    if (!windowWidth || windowWidth >= 870) return 8;
-    return 7; // Remove "Others" category below 870px
-  };
+  // Always show 6 main categories
+  const VISIBLE_CATEGORIES_COUNT = 6;
 
-  const visibleCategories = getVisibleCategoriesCount();
+  // Transform API data to match expected structure
+  const transformedCategories: { type: string; label: string }[] =
+    categoriesData?.map((category: SubCategory) => ({
+      type: category._id,
+      label: category.name,
+    })) || [];
 
-  // Category data mapping
-  const categoryDataMap = {
-    motors: motorsData,
-    property: propertyData,
-    jobs: jobsData,
-    classifieds: classifiedsData,
-    furniture: furnitureData,
-    electronics: electronicsData,
-    community: communityData,
-    others: othersData,
-  };
+  // Split categories into visible and "other"
+  const visibleCategoriesList = transformedCategories.slice(
+    0,
+    VISIBLE_CATEGORIES_COUNT
+  );
+  const otherCategories = transformedCategories.slice(VISIBLE_CATEGORIES_COUNT);
 
   // Event handlers
-  const handleCategoryHover = (category: NavItem) => {
+  const handleCategoryHover = (category: SubCategory) => {
     setActiveCategory(category);
   };
 
@@ -340,34 +361,22 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
     }, 150);
   };
 
-  const getCurrentCategoryData = () => {
-    if (!activeCategoryType) return motorsData;
-    return (
-      categoryDataMap[activeCategoryType as keyof typeof categoryDataMap] ||
-      motorsData
+  const getCurrentCategoryData = (): SubCategory[] => {
+    if (!activeCategoryType || !categoriesData) return [];
+    if (activeCategoryType === "other") {
+      // For "Other" category, return all remaining categories
+      return categoriesData.slice(VISIBLE_CATEGORIES_COUNT);
+    }
+    return categoriesData.filter(
+      (category: SubCategory) => category._id === activeCategoryType
     );
   };
-
-  // Category configurations
-  const categories = [
-    { type: "motors", label: "Motors" },
-    { type: "property", label: "Property" },
-    { type: "jobs", label: "Jobs" },
-    { type: "classifieds", label: "Classifieds" },
-    { type: "furniture", label: "Furniture" },
-    { type: "electronics", label: "Electronics" },
-    { type: "community", label: "Community" },
-    { type: "others", label: "Others" },
-  ];
-
-  // Filter categories based on responsive hook
-  const visibleCategoriesList = categories.slice(0, visibleCategories);
 
   // Loader component
   const CategoryLoader = () => (
     <div className="hidden w-full md:flex flex-1 items-center justify-between">
-      {Array.from({ length: visibleCategories }).map((_, index) => (
-        <div key={index} className="animate-pulse">
+      {Array.from({ length: VISIBLE_CATEGORIES_COUNT + 1 }).map((_, index) => (
+        <div key={index} className="animate-pulse min-w-[100px]">
           <div className="h-9 w-16 bg-white/20 rounded-sm"></div>
         </div>
       ))}
@@ -378,7 +387,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
     <motion.div
       className={cn("relative md:bg-purple", className)}
       initial={{ opacity: 0 }}
-      whileInView={{ opacity: isLoading ? 0 : 1 }}
+      whileInView={{ opacity: categoriesLoading ? 0 : 1 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.5, delay: 0.2 }}
     >
@@ -388,7 +397,13 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
           onMouseLeave={handleMouseLeave}
         >
           {/* Categories Section - Horizontal Scrollable on small screens */}
-          {isLoading ? (
+          {categoriesError ? (
+            <div className="hidden md:flex flex-1 items-center justify-center">
+              <Typography variant="sm-regular" className="text-red-500">
+                Failed to load categories. Please try again.
+              </Typography>
+            </div>
+          ) : categoriesLoading ? (
             <CategoryLoader />
           ) : (
             <motion.div
@@ -421,6 +436,28 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                   />
                 </motion.div>
               ))}
+
+              {/* Other Categories Dropdown */}
+              {otherCategories.length > 0 && (
+                <motion.div variants={itemVariants} className="lg:relative">
+                  <CategoryButton
+                    categoryType="other"
+                    label="Other"
+                    isActive={activeCategoryType === "other"}
+                    onMouseEnter={handleCategoryTypeHover}
+                    onMouseLeave={handleCategoryButtonLeave}
+                  />
+
+                  <CategoryDropdown
+                    isVisible={activeCategoryType === "other"}
+                    onMouseLeave={handleMouseLeave}
+                    categoryData={getCurrentCategoryData()}
+                    activeCategory={activeCategory}
+                    onCategoryHover={handleCategoryHover}
+                    isOtherCategory={true}
+                  />
+                </motion.div>
+              )}
             </motion.div>
           )}
 
@@ -430,7 +467,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
           </div>
 
           {/* Right Side Icons and Map View Button */}
-          {isLoading ? (
+          {categoriesLoading ? (
             <div className="flex items-center justify-between gap-5 ml-2">
               {Array.from({ length: 5 }).map((_, index) => (
                 <div key={index} className="animate-pulse">
@@ -443,7 +480,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
             </div>
           ) : (
             <TooltipProvider delayDuration={200}>
-              <div className=" w-fit min-[1080px]:w-full min-[1080px]:flex items-center justify-between lg:gap-5 ml-2">
+              <div className="min-w-fit xl:min-w-[350px] min-[1080px]:w-full min-[1080px]:flex items-center justify-between lg:gap-5 ml-2">
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}

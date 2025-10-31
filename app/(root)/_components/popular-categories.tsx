@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
@@ -9,6 +9,8 @@ import { motion } from "framer-motion";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useGetMainCategories } from "@/hooks/useCategories";
+import { SubCategory } from "@/interfaces/categories.types";
 
 interface CategoryCard {
   id: number;
@@ -67,117 +69,105 @@ const CategorySkeleton = () => (
   </div>
 );
 
-const categoryData: CategoryCard[] = [
-  {
-    id: 1,
-    name: "Motors",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/motors.svg",
-    description: "Cars, Rental Cars, New Cars, Export Cars",
-    activeAds: "15,241 Active Ads",
-    href: "/categories/motors",
-  },
-  {
-    id: 2,
-    name: "Property for Rent",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/rent.svg",
-    description: "Residential, Commercial, Rooms For Rent",
-    activeAds: "10,025 Active Ads",
-    href: "/categories/property-rent",
-  },
-  {
-    id: 3,
-    name: "Property for Sale",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/sale.svg",
-    description: "Residential, Commercial, New Projects, Off-Plan",
-    activeAds: "13,241 Active Ads",
-    href: "/categories/property-sale",
-  },
-  {
-    id: 4,
-    name: "Electronics",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/electronics.svg",
-    description: "Mobile Phone & Tablet Accessories",
-    activeAds: "20,111 Active Ads",
-    href: "/categories/electronics",
-  },
-  {
-    id: 5,
-    name: "Community",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/community.svg",
-    description: "Freelancers, Home Maintenance",
-    activeAds: "5,026 Active Ads",
-    href: "/categories/community",
-  },
-  {
-    id: 6,
-    name: "Business & Industrial",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/business.svg",
-    description: "Businesses for Sale, Construction",
-    activeAds: "16,056 Active Ads",
-    href: "/categories/business",
-  },
-  {
-    id: 7,
-    name: "Home Appliances",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/appliances.svg",
-    description: "Large Appliances, Kitchen Appliances",
-    activeAds: "11,998 Active Ads",
-    href: "/categories/appliances",
-  },
-  {
-    id: 8,
-    name: "Furniture",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/furniture.svg",
-    description: "Furniture, Home Accessories, Garden",
-    activeAds: "7,892 Active Ads",
-    href: "/categories/furniture",
-  },
-  {
-    id: 9,
-    name: "Classifieds",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/classifieds.svg",
-    description: "Electronics, Computer & Networking",
-    activeAds: "6,480 Active Ads",
-    href: "/categories/classifieds",
-  },
-  {
-    id: 10,
-    name: "Jobs",
-    icon: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/jobs.svg",
-    description: "Accounting, Finance, Engineering, Sales",
-    activeAds: "26,416 Active Ads",
-    href: "/categories/jobs",
-  },
-];
 
 const PopularCategories = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState<CategoryCard[]>([]);
   const [showAllCategories, setShowAllCategories] = useState(false);
 
   // Mobile breakpoint at 500px
   const isMobile = useMediaQuery("(max-width: 500px)");
 
-  // Simulate API call
-  useEffect(() => {
-    const fetchData = async () => {
-      // Simulate loading delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+  // Fetch categories using the hook
+  const {
+    data: categoriesData,
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = useGetMainCategories();
+  console.log("categoriesData: ", categoriesData);
 
-      // Simulate API response
-      setData(categoryData);
-      setIsLoading(false);
+  // Transform API data to match CategoryCard interface
+  const categoryData: CategoryCard[] = categoriesData?.map((category: SubCategory, index: number) => {
+    // Generate random active ads count for demo purposes
+    const getRandomActiveAds = () => {
+      const min = 5000;
+      const max = 30000;
+      const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+      return randomNum.toLocaleString() + " Active Ads";
     };
 
-    fetchData();
-  }, []);
+    // Generate href based on category name
+    const generateHref = () => {
+      // Convert category name to URL-friendly format
+      const urlName = category.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      return `/categories/${urlName}`;
+    };
+
+    // Get description or use default
+    const getDescription = (name: string) => {
+      const descriptions: Record<string, string> = {
+        motors: "Cars, Rental Cars, New Cars, Export Cars",
+        property: "Residential, Commercial, New Projects",
+        electronics: "Mobile Phone & Tablet Accessories",
+        furniture: "Furniture, Home Accessories, Garden",
+        jobs: "Accounting, Finance, Engineering, Sales",
+        community: "Freelancers, Home Maintenance",
+        business: "Businesses for Sale, Construction",
+        appliances: "Large Appliances, Kitchen Appliances",
+        classifieds: "Electronics, Computer & Networking",
+      };
+
+      const normalizedName = name.toLowerCase();
+      for (const [key, desc] of Object.entries(descriptions)) {
+        if (normalizedName.includes(key)) {
+          return desc;
+        }
+      }
+
+      return `${name} category`;
+    };
+
+    // Get icon with fallback
+    const getIcon = (name: string, existingIcon?: string) => {
+      if (existingIcon) return existingIcon;
+
+      const iconMap: Record<string, string> = {
+        motors: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/motors.svg",
+        property: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/sale.svg",
+        electronics: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/electronics.svg",
+        furniture: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/furniture.svg",
+        jobs: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/jobs.svg",
+        community: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/community.svg",
+        business: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/business.svg",
+        appliances: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/appliances.svg",
+        classifieds: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/classifieds.svg",
+      };
+
+      const normalizedName = name.toLowerCase();
+      for (const [key, icon] of Object.entries(iconMap)) {
+        if (normalizedName.includes(key)) {
+          return icon;
+        }
+      }
+
+      // Default fallback icon
+      return "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/classifieds.svg";
+    };
+
+    return {
+      id: index + 1,
+      name: category.name,
+      icon: getIcon(category.name, category.icon),
+      description: getDescription(category.name),
+      activeAds: getRandomActiveAds(),
+      href: generateHref(),
+    };
+  }) || [];
 
   // Get categories to display based on mobile state and toggle
   const getDisplayCategories = () => {
     if (!isMobile || showAllCategories) {
-      return data;
+      return categoryData;
     }
-    return data.slice(0, 9);
+    return categoryData.slice(0, 9);
   };
 
   // Handle toggle button click
@@ -210,11 +200,24 @@ const PopularCategories = () => {
           showAllCategories && "overflow-y-auto"
         )}
       >
-        {isLoading
+        {categoriesLoading
           ? // Show skeleton loading state
             Array.from({ length: 10 }).map((_, index) => (
               <CategorySkeleton key={index} />
             ))
+          : categoriesError
+          ? // Show error state
+            <div className="col-span-full flex items-center justify-center py-8">
+              <div className="text-center">
+                <p className="text-gray-500 mb-2">Failed to load categories</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="text-purple-600 hover:text-purple-700 text-sm underline"
+                >
+                  Try again
+                </button>
+              </div>
+            </div>
           : // Show actual data with Framer Motion animations
             displayCategories.map((category, index) => (
               <motion.div
@@ -244,7 +247,7 @@ const PopularCategories = () => {
                   className="bg-white w-full md:border border-[#F5EBFF] rounded-md shadow-purple/20 hover:shadow-purple/30 block relative hover:bg-purple/10 transition-all duration-300 group"
                 >
                   {/* Category Content */}
-                  <div className="px-5 py-3">
+                  <div className="px-5 py-3 h-[160px]">
                     {/* Icon and Name Section */}
                     <div className="flex flex-col items-center text-center mb-5">
                       <div className="size-[60px] bg-[#FAFAFC] rounded-full flex items-center justify-center mb-1">
@@ -284,7 +287,7 @@ const PopularCategories = () => {
       </div>
 
       {/* Toggle Button - Only show on mobile or when there are more categories to show */}
-      {(isMobile || data.length > 9) && (
+      {(isMobile || categoryData.length > 9) && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -2,7 +2,7 @@
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { FaApple } from "react-icons/fa";
 import Link from "next/link";
 import { GoogleLoginButton } from "../_components/google";
@@ -10,16 +10,61 @@ import { toast } from "sonner";
 import { ChevronLeft, EyeIcon, EyeOffIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "nextjs-toploader/app";
+import { useSearchParams } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { Login as LoginAPI } from "@/app/api/auth";
+import type { loginResponse } from "@/interfaces/auth.types";
+import { useAuthStore } from "@/stores/authStore";
+import { AxiosError } from "axios";
 
 import Image from "next/image";
 
-const Login = () => {
+const LoginContent = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const setSession = useAuthStore((state) => state.setSession);
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
   });
+
+  const loginMutation = useMutation<loginResponse, Error, { email: string; password: string; deviceKey: string }>({
+    mutationFn: ({ email, password, deviceKey }) => LoginAPI(email, password, deviceKey),
+    onSuccess: async (data) => {
+      // Store session in Zustand store (handles localStorage and cookies)
+      await setSession(
+        data.data.accessToken,
+        data.data.refreshToken,
+        data.data.user as unknown as Parameters<typeof setSession>[2]
+      );
+      
+      toast.success("Login successful!");
+      
+      // Redirect to the original destination or home page
+      const redirectTo = searchParams.get("redirect") || "/";
+      router.push(redirectTo);
+    },
+    onError: (error) => {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      const errorMessage =
+        axiosError?.response?.data?.message || axiosError?.message || "Login failed. Please try again.";
+      toast.error(errorMessage);
+    },
+  });
+
+  const handleLogin = () => {
+    if (!loginData.email || !loginData.password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    loginMutation.mutate({
+      email: loginData.email,
+      password: loginData.password,
+      deviceKey: "1234567890", // TODO: Replace with actual device key generation
+    });
+  };
   return (
     <section className="w-full mx-auto lg:w-1/2 max-w-[530px] h-full flex flex-col justify-start lg:justify-center relative">
       <Link
@@ -98,8 +143,9 @@ const Login = () => {
         className="w-full text-sm"
         size={"lg"}
         variant={"filled"}
-        onClick={() => router.push("/?login=true")}
-        disabled={!loginData.email || !loginData.password}
+        onClick={handleLogin}
+        disabled={!loginData.email || !loginData.password || loginMutation.isPending}
+        isLoading={loginMutation.isPending}
       >
         Log In
       </Button>
@@ -162,6 +208,14 @@ const Login = () => {
         </Link>
       </Typography>
     </section>
+  );
+};
+
+const Login = () => {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 };
 

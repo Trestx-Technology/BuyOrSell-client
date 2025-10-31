@@ -39,7 +39,7 @@ export const CreateAxiosInstance = (baseURL: string): AxiosInstance => {
         config: InternalAxiosRequestConfig
       ): Promise<InternalAxiosRequestConfig> => {
         // Get access token from cookies on each request
-        const accessToken = LocalStorageService.get("access_token");
+        const accessToken = LocalStorageService.get("dealdome_access_token");
 
         if (accessToken && config.headers) {
           config.headers.Authorization = "Bearer " + accessToken;
@@ -64,16 +64,47 @@ export const CreateAxiosInstance = (baseURL: string): AxiosInstance => {
     },
     (error: AxiosError): Promise<never> => {
       const status = error.response?.status;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const message = (error.response?.data as any)?.message || error.message;
+      
+      // Helper function to extract error message from different error response structures
+      const getErrorMessage = (): string => {
+        if (!error.response?.data) {
+          return error.message || "Something went wrong.";
+        }
+
+        const errorData = error.response.data as Record<string, unknown>;
+        
+        // Try to extract message from various possible structures
+        if (typeof errorData === 'string') {
+          return errorData;
+        }
+        
+        if (typeof errorData.message === 'string') {
+          return errorData.message;
+        }
+        
+        if (typeof errorData.error === 'string') {
+          return errorData.error;
+        }
+        
+        if (errorData.error && typeof errorData.error === 'object') {
+          const errorObj = errorData.error as Record<string, unknown>;
+          if (typeof errorObj.message === 'string') {
+            return errorObj.message;
+          }
+        }
+        
+        // Fallback to axios error message or default
+        return error.message || "Something went wrong.";
+      };
+
+      const message = getErrorMessage();
 
       // Avoid showing error if you're on login route
       if (
         typeof window !== "undefined" &&
         window.location.pathname === "/login"
       ) {
-        toast.error(message || "Something went wrong.");
-
+        toast.error(message);
         return Promise.reject(error);
       }
 
@@ -83,11 +114,11 @@ export const CreateAxiosInstance = (baseURL: string): AxiosInstance => {
         toast.error("Session expired. Please log in again.");
         window.location.href = "/login";
       } else if (status === 403) {
-        toast.error("You do not have permission to perform this action.");
+        toast.error(message || "You do not have permission to perform this action.");
       } else if (status === 500) {
         toast.error("Internal Server Error. Please try again later.");
       } else {
-        toast.error(message || "Something went wrong.");
+        toast.error(message);
       }
 
       return Promise.reject(error);

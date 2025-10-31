@@ -4,73 +4,33 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAdPosting } from "../_context/AdPostingContext";
-import { CATEGORY_ICONS } from "@/constants/icons";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
-
-const categories = [
-  {
-    id: "motors",
-    name: "Motors",
-    icon: CATEGORY_ICONS.motors,
-  },
-  {
-    id: "property-rent",
-    name: "Property for Rent",
-    icon: CATEGORY_ICONS.rent,
-  },
-  {
-    id: "property-sale",
-    name: "Property for Sale",
-    icon: CATEGORY_ICONS.sale,
-  },
-  {
-    id: "electronics",
-    name: "Electronics",
-    icon: CATEGORY_ICONS.electronics,
-  },
-  {
-    id: "community",
-    name: "Community",
-    icon: CATEGORY_ICONS.community,
-  },
-  {
-    id: "business",
-    name: "Business",
-    icon: CATEGORY_ICONS.business,
-  },
-  {
-    id: "home-appliances",
-    name: "Home Appliances",
-    icon: CATEGORY_ICONS.electronics,
-  },
-  {
-    id: "furniture",
-    name: "Furniture",
-    icon: CATEGORY_ICONS.furniture,
-  },
-  {
-    id: "classifieds",
-    name: "Classifieds",
-    icon: CATEGORY_ICONS.classifieds,
-  },
-  {
-    id: "jobs",
-    name: "Jobs",
-    icon: CATEGORY_ICONS.jobs,
-  },
-];
+import { useGetMainCategories } from "@/hooks/useCategories";
 
 export default function SelectCategoryPage() {
   const router = useRouter();
-  const { updateFormData, nextStep } = useAdPosting();
+  const { addCategoryName } = useAdPosting();
+
+  // Fetch categories using the hook
+  const {
+    data: categoriesData,
+    isLoading: categoriesLoading,
+    error: categoriesError,
+  } = useGetMainCategories();
+
+  // Use API data directly
+  const categories = categoriesData || [];
 
   const handleCategorySelect = (categoryId: string) => {
-    updateFormData({
-      category: categoryId,
-      categoryPath: [categoryId],
-      subcategory: "",
-    });
-    nextStep();
+    // Find the selected category to get its name
+    const selectedCategory = categories.find(cat => cat._id === categoryId);
+
+    // Add category name to the categoryNames array
+    addCategoryName(selectedCategory?.name || categoryId);
+
+    // Navigate to the category name slug route
+    const categoryName = selectedCategory?.name?.toLowerCase().replace(/\s+/g, '-') || categoryId;
+    router.push(`/post-ad/${encodeURIComponent(categoryName)}`);
   };
 
   const breadcrumbItems: BreadcrumbItem[] = [
@@ -102,25 +62,52 @@ export default function SelectCategoryPage() {
           <div className="space-y-[13px]">
             {/* First Row */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-[13px]">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => handleCategorySelect(category.id)}
+              {categoriesLoading ? (
+                // Loading skeleton
+                Array.from({ length: 10 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="bg-[#F7F8FA] rounded-lg p-[10px_18px] w-full h-[140px] flex flex-col items-center justify-center gap-4 animate-pulse"
+                  >
+                    <div className="w-[70px] h-[70px] bg-gray-300 rounded"></div>
+                    <div className="h-4 w-16 bg-gray-300 rounded"></div>
+                  </div>
+                ))
+              ) : categoriesError ? (
+                // Error state
+                <div className="col-span-full flex items-center justify-center py-8">
+                  <div className="text-center">
+                    <p className="text-gray-500 mb-2">Failed to load categories</p>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="text-purple-600 hover:text-purple-700 text-sm underline"
+                    >
+                      Try again
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                // Categories
+                categories.map((category) => (
+                  <button
+                    key={category._id}
+                    onClick={() => handleCategorySelect(category._id)}
                   className="bg-[#F7F8FA] rounded-lg p-[10px_18px] w-full h-[140px] flex flex-col items-center justify-center gap-4 hover:bg-gray-100 hover:bg-purple/10 hover:scale-105 cursor-pointer transition-all duration-300"
                 >
-                  <div className="w-[70px] h-[70px] relative">
+                   {category.icon && <div className="w-[70px] h-[70px] relative">
                     <Image
                       src={category.icon}
                       alt={category.name}
                       fill
                       className="object-cover rounded"
                     />
-                  </div>
+                    </div>}
                   <span className="text-sm font-semibold text-black text-center max-w-[130px] truncate whitespace-nowrap leading-tight">
                     {category.name}
                   </span>
                 </button>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>

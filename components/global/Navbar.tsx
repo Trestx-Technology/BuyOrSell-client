@@ -6,16 +6,7 @@ import Image from "next/image";
 import {
   ChevronDown,
   Bell,
-  User,
-  Briefcase,
-  Search,
-  Newspaper,
-  Heart,
-  Bell as BellIcon,
-  Tag,
-  Settings,
   LogOut,
-  Image as ImageIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,18 +26,35 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/authStore";
+import { Logout as LogoutAPI } from "@/app/api/auth";
+import { toast } from "sonner";
 
 // Internal component that uses useSearchParams
 const NavbarContent = ({ className }: { className?: string }) => {
   const [city, setCity] = useState("");
   const [isPostAdDialogOpen, setIsPostAdDialogOpen] = useState(false);
-  const searchParams = useSearchParams();
-  const login = searchParams.get("login");
-  // const { data: emirates } = useQuery({
-  //   queryKey: [locationQueries.emirates.key],
-  //   queryFn: getEmirates,
-  // });
+  const router = useRouter();
+  const { isAuthenticated, session, clearSession } = useAuthStore();
+  const user = session.user;
+
+  const handleLogout = async () => {
+    try {
+      // Call API logout endpoint (clears server-side session, localStorage, and cookies)
+      await LogoutAPI();
+      
+      // Clear Zustand store state
+      await clearSession();
+      
+      toast.success("Logged out successfully");
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Even if API call fails, clear local session
+    }
+  };
 
   return (
     <div className="w-full bg-white">
@@ -60,12 +68,16 @@ const NavbarContent = ({ className }: { className?: string }) => {
         <div className="flex items-center gap-2">
           <div>
             <SideMenu
-              //     user={{
-              //       name: "John Doe",
-              //       email: "john.doe@example.com",
-              //       avatar: "https://via.placeholder.com/150",
-              //       isVerified: true,
-              //     }}
+              user={
+                user
+                  ? {
+                      name: `${user.firstName} ${user.lastName}`,
+                      email: user.email,
+                      avatar: "/images/ai-prompt/add-image.png",
+                      isVerified: user.emailVerified,
+                    }
+                  : undefined
+              }
               trigger={
                 <Button
                   variant="ghost"
@@ -82,7 +94,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                   }
                 />
               }
-              isLoggedIn={false}
+              isLoggedIn={isAuthenticated}
             />
           </div>
           <div>
@@ -146,18 +158,25 @@ const NavbarContent = ({ className }: { className?: string }) => {
         {/* Right Section - Action Buttons */}
         <div className="hidden md:flex items-center gap-5 ml-2">
           {/* User Menu */}
-          {login ? (
+          {isAuthenticated && user ? (
             <Popover>
               <PopoverTrigger asChild>
                 <button className="flex items-center gap-2 rounded-full p-1 hover:bg-purple-100 transition-colors">
-                  <div className="size-[35px] rounded-full overflow-hidden">
-                    <Image
-                      src={"/images/ai-prompt/add-image.png"}
-                      alt="Profile"
-                      className="object-cover w-full h-full"
-                      width={35}
-                      height={35}
-                    />
+                  <div className="size-[35px] rounded-full overflow-hidden bg-purple-100 flex items-center justify-center">
+                    {user.firstName && user.lastName ? (
+                      <span className="text-sm font-semibold text-purple">
+                        {user.firstName.charAt(0)}
+                        {user.lastName.charAt(0)}
+                      </span>
+                    ) : (
+                      <Image
+                        src={"/images/ai-prompt/add-image.png"}
+                        alt="Profile"
+                        className="object-cover w-full h-full"
+                        width={35}
+                        height={35}
+                      />
+                    )}
                   </div>
                   <ChevronDown className="w-4 h-4 text-gray-500" />
                 </button>
@@ -269,19 +288,10 @@ const NavbarContent = ({ className }: { className?: string }) => {
                   </Link>
 
                   <button
-                    onClick={() => {
-                      // Handle logout logic here
-                      console.log("Sign out clicked");
-                      // You can add logout functionality here
-                    }}
-                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition-colors text-gray-700 hover:text-purple w-full"
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition-colors text-gray-700 hover:text-red-700 w-full"
                   >
-                    <Image
-                      src={ICONS.navigation.settings}
-                      alt="Logout"
-                      width={24}
-                      height={24}
-                    />
+                    <LogOut className="w-6 h-6" />
                     Sign Out
                   </button>
                 </div>

@@ -1,5 +1,5 @@
-import { LocationApiResponse } from "@/interfaces/location";
-import { locationQueries } from "@/api-queries/location";
+import { LocationApiResponse } from "@/interfaces/location.types";
+import { locationQueries } from "@/api-queries/location.query";
 import { axiosInstance } from "@/services/axios-api-client";
 
 export const getEmirates = async (): Promise<LocationApiResponse> => {
