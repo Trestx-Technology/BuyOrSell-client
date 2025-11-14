@@ -122,20 +122,34 @@ export default function CategoryListingPage() {
   const [view, setView] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState("default");
   // Get category from URL params
-  const categorySlug = Array.isArray(params.slug)
-    ? params.slug.join("/")
-    : params.slug || "";
-  const categoryName =
-    categorySlug.split("/").pop()?.replace(/-/g, " ") || "Category";
+  const slugSegments = Array.isArray(params.slug)
+    ? params.slug
+    : params.slug
+    ? [params.slug]
+    : [];
 
-  // Generate breadcrumb items
+  const categoryName =
+    slugSegments.at(-1)?.replace(/-/g, " ") || "Category";
+
+  const formatLabel = (segment: string) =>
+    segment
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
   const breadcrumbItems: BreadcrumbItem[] = [
-    { label: "Home", href: "/" },
-    { label: "Categories", href: "/categories" },
-    {
-      label: categoryName.charAt(0).toUpperCase() + categoryName.slice(1),
-      isActive: true,
-    },
+    { id: "categories", label: "Categories", href: "/categories" },
+    ...slugSegments.map((segment, index) => {
+      const path = slugSegments.slice(0, index + 1).join("/");
+      const href = `/categories/${path}`;
+
+      return {
+        id: path || `segment-${index}`,
+        label: formatLabel(segment),
+        href,
+        isActive: index === slugSegments.length - 1,
+      };
+    }),
   ];
 
   const handleFilterChange = (key: string, value: string | string[]) => {
@@ -223,7 +237,10 @@ export default function CategoryListingPage() {
 
       <div className="max-w-7xl mx-auto py-6">
         <div className="hidden sm:block mb-6 px-4">
-          <Breadcrumbs items={breadcrumbItems} />
+          <Breadcrumbs
+            items={breadcrumbItems}
+            showSelectCategoryLink={false}
+          />
         </div>
 
         {/* Page Header */}
