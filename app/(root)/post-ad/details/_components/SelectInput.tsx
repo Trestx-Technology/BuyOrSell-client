@@ -1,7 +1,13 @@
 "use client";
 
 import { forwardRef } from "react";
-import { ChevronDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 interface SelectInputProps {
@@ -13,7 +19,7 @@ interface SelectInputProps {
   placeholder?: string;
 }
 
-export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(
+export const SelectInput = forwardRef<HTMLButtonElement, SelectInputProps>(
   (
     {
       className,
@@ -26,29 +32,50 @@ export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(
     ref
   ) => {
     return (
-      <div className="relative">
-        <select
+      <Select
+        value={value || undefined}
+        onValueChange={onChange}
+        disabled={disabled}
+      >
+        <SelectTrigger
           ref={ref}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
           className={cn(
-            "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors appearance-none cursor-pointer",
-            disabled && "bg-gray-100 cursor-not-allowed",
+              "w-full h-11 border-[#D8B1FF] bg-white text-[#8B31E1] font-medium text-xs",
+              "data-[placeholder]:text-[#8B31E1]",
+              "focus-visible:border-[#D8B1FF] focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20",
+              "hover:bg-white hover:border-[#D8B1FF]",
+              "rounded-lg px-3 py-4",
+              "[&_svg]:text-[#8B31E1]",
             className
           )}
         >
-          <option value="" disabled>
-            {placeholder}
-          </option>
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent
+          className={cn(
+            "bg-white border-[#D8B1FF] rounded-lg",
+            "shadow-[0px_9.71px_24px_0px_rgba(139,49,225,0.15)]",
+            "p-0 overflow-hidden"
+          )}
+        >
           {options.map((option) => (
-            <option key={option.value} value={option.value}>
+            <SelectItem
+              key={option.value}
+              value={option.value}
+              className={cn(
+                "h-10 px-3 py-0 text-xs leading-[2em]",
+                "text-[#1D2939] font-normal",
+                "data-[state=checked]:bg-purple data-[state=checked]:text-white data-[state=checked]:font-medium",
+                "hover:bg-purple/50 focus:text-purple focus:bg-purple/50",
+                "rounded-none first:rounded-t-lg last:rounded-b-lg",
+                "cursor-pointer"
+              )}
+            >
               {option.label}
-            </option>
+            </SelectItem>
           ))}
-        </select>
-        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-      </div>
+        </SelectContent>
+      </Select>
     );
   }
 );

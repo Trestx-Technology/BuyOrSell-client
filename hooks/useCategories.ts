@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  getCategories,
   getCategoriesTree,
   getCategoryTreeById,
   getCategoryFields,
@@ -10,21 +9,22 @@ import {
   deleteCategory,
   deleteCategoryFromTree,
   uploadExcel,
-  downloadExcelTemplate
+  downloadExcelTemplate,
+  getCategoriesWithFilter
 } from "@/app/api/categories";
 import { categoriesQueries } from "@/api-queries/categories.query";
-import { SubCategory, CategoriesApiResponse, CategoryTreeResponse } from "@/interfaces/categories.types";
+import { SubCategory, CategoriesApiResponse, CategoryApiResponse, CategoryTreeResponse } from "@/interfaces/categories.types";
 
 // Query Hooks
 
-export const useCategories = (params?: {
+export const useCategoriesWithFilters = (params?: {
   filter?: string;
   limit?: number;
   page?: number;
 }) => {
   return useQuery<CategoriesApiResponse, Error>({
     queryKey: [categoriesQueries.categories.key, params],
-    queryFn: () => getCategories(params),
+    queryFn: () => getCategoriesWithFilter(params),
   });
 };
 
@@ -63,9 +63,9 @@ export const useCategoryFields = () => {
     queryFn: getCategoryFields,
   });
 };
-
+  
 export const useCategoryById = (id: string) => {
-  return useQuery<CategoriesApiResponse, Error>({
+  return useQuery<CategoryApiResponse, Error>({
     queryKey: [categoriesQueries.categoryById.key, id],
     queryFn: () => getCategoryById(id),
     enabled: !!id,

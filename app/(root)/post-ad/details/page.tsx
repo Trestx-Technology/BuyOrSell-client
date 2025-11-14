@@ -3,7 +3,6 @@
 
 import { useState, useEffect } from "react";
 // import { useRouter } from "next/navigation";
-import { useAdPosting } from "../_context/AdPostingContext";
 import { ImageGallery, ImageItem } from "./_components/image-upload";
 import { FormField } from "./_components/FormField";
 import { TextInput } from "./_components/TextInput";
@@ -13,6 +12,7 @@ import { NumberInput } from "./_components/NumberInput";
 import { CheckboxInput } from "./_components/CheckboxInput";
 import { MapComponent } from "./_components/MapComponent";
 import { Button } from "@/components/ui/button";
+import { useAdPostingStore } from "@/stores/adPostingStore";
 
 // Mock form schema based on category - in real app, this would come from API
 const formSchemas = {
@@ -469,10 +469,8 @@ const formSchemas = {
 };
 
 export default function DynamicFormPage() {
-  const { nextStep, prevStep, selectCategory } = useAdPosting();
-
+  const { currentStep, activeCategory } = useAdPostingStore((state)=>state);
   // const router = useRouter();
-  const { formData } = useAdPosting();
   const [images, setImages] = useState<ImageItem[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [formValues, setFormValues] = useState<Record<string, any>>({});
@@ -483,17 +481,10 @@ export default function DynamicFormPage() {
   } | null>(null);
 
   const formSchema =
-    formSchemas[formData.category as keyof typeof formSchemas] ||
+    formSchemas[activeCategory as keyof typeof formSchemas] ||
     formSchemas.cars;
 
-  useEffect(() => {
-    // Initialize form values with existing data
-    setFormValues({
-      title: formData.title || "",
-      description: formData.description || "",
-      ...formData.features,
-    });
-  }, [formData]);
+ 
 
   const handleInputChange = (field: string, value: any) => {
     // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -761,16 +752,13 @@ export default function DynamicFormPage() {
         <div className="flex w-full justify-between max-w-[888px] mx-auto gap-3">
           <Button
             className="w-full"
-            onClick={() => prevStep()}
             variant={"outline"}
           >
             Back
           </Button>
           <Button
             className="w-full"
-            onClick={() => nextStep()}
             variant={"primary"}
-            disabled={!selectCategory}
           >
             Next
           </Button>

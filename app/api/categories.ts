@@ -1,9 +1,9 @@
 import { categoriesQueries } from "@/api-queries/categories.query";
-import { CategoriesApiResponse, CategoryTreeResponse } from "@/interfaces/categories.types";
+import { CategoriesApiResponse, CategoryApiResponse, CategoryTreeResponse } from "@/interfaces/categories.types";
 import { axiosInstance } from "@/services/axios-api-client";
 
 
-export const getCategories = async (params?: {
+export const getCategoriesWithFilter = async (params?: {
   filter?: string;
   limit?: number;
   page?: number;
@@ -40,7 +40,7 @@ export const getCategoryFields = async (): Promise<CategoriesApiResponse> => {
 
 export const getCategoryById = async (
   id: string
-): Promise<CategoriesApiResponse> => {
+): Promise<CategoryApiResponse> => {
   const response = await axiosInstance.get(
     categoriesQueries.categoryById.endpoint.replace(":id", id)
   );

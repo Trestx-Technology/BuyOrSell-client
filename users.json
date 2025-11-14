@@ -1,0 +1,1874 @@
+{
+  "v": 10,
+  "id": "cmhm3oz3m0jdth41k01heq8dt",
+  "name": "users",
+  "folders": [],
+  "requests": [
+    {
+      "v": "16",
+      "name": "Users_findAllUsers",
+      "method": "GET",
+      "endpoint": "/api/v1/users",
+      "params": [
+        {
+          "key": "filter",
+          "value": "",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "page",
+          "value": "",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "limit",
+          "value": "",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {
+        "The list of users.": {
+          "name": "The list of users.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_findAllUsers",
+            "method": "GET",
+            "endpoint": "/api/v1/users",
+            "headers": [],
+            "params": [
+              {
+                "key": "filter",
+                "value": "",
+                "active": true,
+                "description": ""
+              },
+              {
+                "key": "page",
+                "value": "",
+                "active": true,
+                "description": ""
+              },
+              {
+                "key": "limit",
+                "value": "",
+                "active": true,
+                "description": ""
+              }
+            ],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": []
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"_id\":{\"type\":\"string\",\"example\":\"64f161f1b263bc7499b1c632\",\"description\":\"The unique identifier for the user\"},\"name\":{\"type\":\"string\",\"example\":\"John Doe\",\"description\":\"The name of the user\"},\"email\":{\"type\":\"string\",\"example\":\"johndoe@gmail.com\",\"description\":\"The email of the user\"},\"phoneNo\":{\"type\":\"string\",\"example\":\"+1234567890\",\"description\":\"The phone number of the user\"},\"age\":{\"type\":\"number\",\"example\":25,\"description\":\"The age of the user, must be between 13-105\"},\"isVerified\":{\"type\":\"boolean\",\"example\":true,\"description\":\"User is verified\"},\"role\":{\"description\":\"The current status of the user\",\"allOf\":[{\"type\":\"object\",\"properties\":{}}]},\"isSeller\":{\"type\":\"boolean\",\"default\":false,\"example\":true,\"description\":\"User is a seller\"}},\"required\":[\"_id\",\"name\",\"email\",\"phoneNo\",\"role\",\"isSeller\"]}}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_d79da0e6-161a-44d0-a9ee-c30568ea487a"
+    },
+    {
+      "v": "16",
+      "name": "Users_createUser",
+      "method": "POST",
+      "endpoint": "/api/v1/users",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"name\": \"John Doe\",\n  \"firstName\": \"John\",\n  \"lastName\": \"John\",\n  \"phoneNo\": \"+1234567890\",\n  \"countryCode\": \"+91\",\n  \"email\": \"johndoe@gmail.com\",\n  \"age\": 25,\n  \"role\": \"64f162f4706cceaf7c1b3abc\",\n  \"password\": \"password123\",\n  \"isVerified\": true,\n  \"phoneVerified\": true,\n  \"emailVerified\": true,\n  \"isSeller\": true,\n  \"image\": \"image url\",\n  \"verifyEmail\": true,\n  \"dob\": \"1990-01-01\",\n  \"gender\": \"MALE\",\n  \"deviceKey\": \"1234567890\",\n  \"socialType\": \"google\",\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"user\",\n  \"firstLoggedIn\": true,\n  \"appleDeviceId\": \"1234\",\n  \"isEmarati\": true,\n  \"emaratiDetails\": \"\"\n}"
+      },
+      "requestVariables": [],
+      "responses": {
+        "Invalid input. Validation failed.": {
+          "name": "Invalid input. Validation failed.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_createUser",
+            "method": "POST",
+            "endpoint": "/api/v1/users",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"name\": \"John Doe\",\n  \"firstName\": \"John\",\n  \"lastName\": \"John\",\n  \"phoneNo\": \"+1234567890\",\n  \"countryCode\": \"+91\",\n  \"email\": \"johndoe@gmail.com\",\n  \"age\": 25,\n  \"role\": \"64f162f4706cceaf7c1b3abc\",\n  \"password\": \"password123\",\n  \"isVerified\": true,\n  \"phoneVerified\": true,\n  \"emailVerified\": true,\n  \"isSeller\": true,\n  \"image\": \"image url\",\n  \"verifyEmail\": true,\n  \"dob\": \"1990-01-01\",\n  \"gender\": \"MALE\",\n  \"deviceKey\": \"1234567890\",\n  \"socialType\": \"google\",\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"user\",\n  \"firstLoggedIn\": true,\n  \"appleDeviceId\": \"1234\",\n  \"isEmarati\": true,\n  \"emaratiDetails\": \"\"\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": []
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        },
+        "The user has been created successfully.": {
+          "name": "The user has been created successfully.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_createUser",
+            "method": "POST",
+            "endpoint": "/api/v1/users",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"name\": \"John Doe\",\n  \"firstName\": \"John\",\n  \"lastName\": \"John\",\n  \"phoneNo\": \"+1234567890\",\n  \"countryCode\": \"+91\",\n  \"email\": \"johndoe@gmail.com\",\n  \"age\": 25,\n  \"role\": \"64f162f4706cceaf7c1b3abc\",\n  \"password\": \"password123\",\n  \"isVerified\": true,\n  \"phoneVerified\": true,\n  \"emailVerified\": true,\n  \"isSeller\": true,\n  \"image\": \"image url\",\n  \"verifyEmail\": true,\n  \"dob\": \"1990-01-01\",\n  \"gender\": \"MALE\",\n  \"deviceKey\": \"1234567890\",\n  \"socialType\": \"google\",\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"user\",\n  \"firstLoggedIn\": true,\n  \"appleDeviceId\": \"1234\",\n  \"isEmarati\": true,\n  \"emaratiDetails\": \"\"\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": []
+          },
+          "status": "Created",
+          "code": 201,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"object\",\"properties\":{\"_id\":{\"type\":\"string\",\"example\":\"64f161f1b263bc7499b1c632\",\"description\":\"The unique identifier for the user\"},\"name\":{\"type\":\"string\",\"example\":\"John Doe\",\"description\":\"The name of the user\"},\"email\":{\"type\":\"string\",\"example\":\"johndoe@gmail.com\",\"description\":\"The email of the user\"},\"phoneNo\":{\"type\":\"string\",\"example\":\"+1234567890\",\"description\":\"The phone number of the user\"},\"age\":{\"type\":\"number\",\"example\":25,\"description\":\"The age of the user, must be between 13-105\"},\"isVerified\":{\"type\":\"boolean\",\"example\":true,\"description\":\"User is verified\"},\"role\":{\"description\":\"The current status of the user\",\"allOf\":[{\"type\":\"object\",\"properties\":{}}]},\"isSeller\":{\"type\":\"boolean\",\"default\":false,\"example\":true,\"description\":\"User is a seller\"}},\"required\":[\"_id\",\"name\",\"email\",\"phoneNo\",\"role\",\"isSeller\"]}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_264d4ec2-3ee0-403c-8cb3-548bcd58d911"
+    },
+    {
+      "v": "16",
+      "name": "Users_sendEmailOTP",
+      "method": "PUT",
+      "endpoint": "/api/v1/users/send-email-otp/<<email>>",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [
+        {
+          "key": "email",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "": {
+          "name": "",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_sendEmailOTP",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/send-email-otp/<<email>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "email",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"string\"}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_f641df6f-4ae7-4c9b-b91a-f4d1c467ba3a"
+    },
+    {
+      "v": "16",
+      "name": "Users_sendPhoneOTP",
+      "method": "PUT",
+      "endpoint": "/api/v1/users/send-phone-otp/<<phone>>",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [
+        {
+          "key": "phone",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "": {
+          "name": "",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_sendPhoneOTP",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/send-phone-otp/<<phone>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "phone",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"string\"}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_410ab776-4b41-45b3-a31f-24ae923aaa59"
+    },
+    {
+      "v": "16",
+      "name": "Users_sendLoginEmailOTP",
+      "method": "PUT",
+      "endpoint": "/api/v1/users/send-login-email-otp/<<email>>",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [
+        {
+          "key": "email",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "": {
+          "name": "",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_sendLoginEmailOTP",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/send-login-email-otp/<<email>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "email",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"string\"}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_61f85bd6-4ea7-41d4-90eb-3e98bb576b9e"
+    },
+    {
+      "v": "16",
+      "name": "Users_sendLoginPhoneOTP",
+      "method": "PUT",
+      "endpoint": "/api/v1/users/send-login-phone-otp/<<phone>>",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [
+        {
+          "key": "phone",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "": {
+          "name": "",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_sendLoginPhoneOTP",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/send-login-phone-otp/<<phone>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "phone",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"string\"}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_6728977b-8dac-45eb-940c-283b98407c8a"
+    },
+    {
+      "v": "16",
+      "name": "Users_verifyEmail",
+      "method": "GET",
+      "endpoint": "/api/v1/users/verify-email/<<email>>/<<code>>",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [
+        {
+          "key": "email",
+          "value": "",
+          "active": true
+        },
+        {
+          "key": "code",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "User not found": {
+          "name": "User not found",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_verifyEmail",
+            "method": "GET",
+            "endpoint": "/api/v1/users/verify-email/<<email>>/<<code>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "email",
+                "value": "",
+                "active": true
+              },
+              {
+                "key": "code",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "Not Found",
+          "code": 404,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        },
+        "Email verified successfully.": {
+          "name": "Email verified successfully.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_verifyEmail",
+            "method": "GET",
+            "endpoint": "/api/v1/users/verify-email/<<email>>/<<code>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "email",
+                "value": "",
+                "active": true
+              },
+              {
+                "key": "code",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        }
+      },
+      "_ref_id": "req_mhm3oydn_6b4aa907-6d62-42b7-9629-94409b067263"
+    },
+    {
+      "v": "16",
+      "name": "Users_verifySMS",
+      "method": "GET",
+      "endpoint": "/api/v1/users/verify-phone/<<phone>>/<<code>>",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [
+        {
+          "key": "phone",
+          "value": "",
+          "active": true
+        },
+        {
+          "key": "code",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "User not found": {
+          "name": "User not found",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_verifySMS",
+            "method": "GET",
+            "endpoint": "/api/v1/users/verify-phone/<<phone>>/<<code>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "phone",
+                "value": "",
+                "active": true
+              },
+              {
+                "key": "code",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "Not Found",
+          "code": 404,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        },
+        "Email verified successfully.": {
+          "name": "Email verified successfully.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_verifySMS",
+            "method": "GET",
+            "endpoint": "/api/v1/users/verify-phone/<<phone>>/<<code>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "phone",
+                "value": "",
+                "active": true
+              },
+              {
+                "key": "code",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        }
+      },
+      "_ref_id": "req_mhm3oydn_fbb6fecc-4ee1-4ed0-acae-bd1d54cf73a0"
+    },
+    {
+      "v": "16",
+      "name": "Users_getProfile",
+      "method": "GET",
+      "endpoint": "/api/v1/users/profile",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [],
+      "responses": {
+        "User not found": {
+          "name": "User not found",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_getProfile",
+            "method": "GET",
+            "endpoint": "/api/v1/users/profile",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": []
+          },
+          "status": "Not Found",
+          "code": 404,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        },
+        "The user profile.": {
+          "name": "The user profile.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_getProfile",
+            "method": "GET",
+            "endpoint": "/api/v1/users/profile",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": []
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"object\",\"properties\":{\"_id\":{\"type\":\"string\",\"example\":\"64f161f1b263bc7499b1c632\",\"description\":\"The unique identifier for the user\"},\"name\":{\"type\":\"string\",\"example\":\"John Doe\",\"description\":\"The name of the user\"},\"email\":{\"type\":\"string\",\"example\":\"johndoe@gmail.com\",\"description\":\"The email of the user\"},\"phoneNo\":{\"type\":\"string\",\"example\":\"+1234567890\",\"description\":\"The phone number of the user\"},\"age\":{\"type\":\"number\",\"example\":25,\"description\":\"The age of the user, must be between 13-105\"},\"isVerified\":{\"type\":\"boolean\",\"example\":true,\"description\":\"User is verified\"},\"role\":{\"description\":\"The current status of the user\",\"allOf\":[{\"type\":\"object\",\"properties\":{}}]},\"isSeller\":{\"type\":\"boolean\",\"default\":false,\"example\":true,\"description\":\"User is a seller\"}},\"required\":[\"_id\",\"name\",\"email\",\"phoneNo\",\"role\",\"isSeller\"]}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_d5741119-63ea-437a-ae0a-69ad38b8456b"
+    },
+    {
+      "v": "16",
+      "name": "Users_addUserType",
+      "method": "POST",
+      "endpoint": "/api/v1/users/<<id>>/user-type",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"SELLER\",\n  \"userTypeId\": \"64f162f4706cceaf7c1b3abc\",\n  \"userTypeKey\": \"RERA_AGENT\",\n  \"userTypeLabel\": \"RERA Agent\",\n  \"userTypeDetails\": {\n    \"licenseNo\": \"AB-1234\",\n    \"expiry\": \"2027-01-01\"\n  }\n}"
+      },
+      "requestVariables": [
+        {
+          "key": "id",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "": {
+          "name": "",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_addUserType",
+            "method": "POST",
+            "endpoint": "/api/v1/users/<<id>>/user-type",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"SELLER\",\n  \"userTypeId\": \"64f162f4706cceaf7c1b3abc\",\n  \"userTypeKey\": \"RERA_AGENT\",\n  \"userTypeLabel\": \"RERA Agent\",\n  \"userTypeDetails\": {\n    \"licenseNo\": \"AB-1234\",\n    \"expiry\": \"2027-01-01\"\n  }\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "Created",
+          "code": 201,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"object\"}}"
+        },
+        "Updated user.": {
+          "name": "Updated user.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_addUserType",
+            "method": "POST",
+            "endpoint": "/api/v1/users/<<id>>/user-type",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"SELLER\",\n  \"userTypeId\": \"64f162f4706cceaf7c1b3abc\",\n  \"userTypeKey\": \"RERA_AGENT\",\n  \"userTypeLabel\": \"RERA Agent\",\n  \"userTypeDetails\": {\n    \"licenseNo\": \"AB-1234\",\n    \"expiry\": \"2027-01-01\"\n  }\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"object\",\"properties\":{\"_id\":{\"type\":\"string\",\"example\":\"64f161f1b263bc7499b1c632\",\"description\":\"The unique identifier for the user\"},\"name\":{\"type\":\"string\",\"example\":\"John Doe\",\"description\":\"The name of the user\"},\"email\":{\"type\":\"string\",\"example\":\"johndoe@gmail.com\",\"description\":\"The email of the user\"},\"phoneNo\":{\"type\":\"string\",\"example\":\"+1234567890\",\"description\":\"The phone number of the user\"},\"age\":{\"type\":\"number\",\"example\":25,\"description\":\"The age of the user, must be between 13-105\"},\"isVerified\":{\"type\":\"boolean\",\"example\":true,\"description\":\"User is verified\"},\"role\":{\"description\":\"The current status of the user\",\"allOf\":[{\"type\":\"object\",\"properties\":{}}]},\"isSeller\":{\"type\":\"boolean\",\"default\":false,\"example\":true,\"description\":\"User is a seller\"}},\"required\":[\"_id\",\"name\",\"email\",\"phoneNo\",\"role\",\"isSeller\"]}}"
+        },
+        "User not found": {
+          "name": "User not found",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_addUserType",
+            "method": "POST",
+            "endpoint": "/api/v1/users/<<id>>/user-type",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"SELLER\",\n  \"userTypeId\": \"64f162f4706cceaf7c1b3abc\",\n  \"userTypeKey\": \"RERA_AGENT\",\n  \"userTypeLabel\": \"RERA Agent\",\n  \"userTypeDetails\": {\n    \"licenseNo\": \"AB-1234\",\n    \"expiry\": \"2027-01-01\"\n  }\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "Not Found",
+          "code": 404,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        }
+      },
+      "_ref_id": "req_mhm3oydn_3e299726-5a29-4051-8856-cc5c35bdb24d"
+    },
+    {
+      "v": "16",
+      "name": "Users_updateUserType",
+      "method": "PUT",
+      "endpoint": "/api/v1/users/<<id>>/user-type",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"SELLER\",\n  \"userTypeId\": \"64f162f4706cceaf7c1b3abc\",\n  \"userTypeKey\": \"RERA_AGENT\",\n  \"userTypeLabel\": \"RERA Agent\",\n  \"userTypeDetails\": {\n    \"licenseNo\": \"AB-1234\",\n    \"expiry\": \"2027-01-01\"\n  }\n}"
+      },
+      "requestVariables": [
+        {
+          "key": "id",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "Updated user.": {
+          "name": "Updated user.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_updateUserType",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/<<id>>/user-type",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"SELLER\",\n  \"userTypeId\": \"64f162f4706cceaf7c1b3abc\",\n  \"userTypeKey\": \"RERA_AGENT\",\n  \"userTypeLabel\": \"RERA Agent\",\n  \"userTypeDetails\": {\n    \"licenseNo\": \"AB-1234\",\n    \"expiry\": \"2027-01-01\"\n  }\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"object\",\"properties\":{\"_id\":{\"type\":\"string\",\"example\":\"64f161f1b263bc7499b1c632\",\"description\":\"The unique identifier for the user\"},\"name\":{\"type\":\"string\",\"example\":\"John Doe\",\"description\":\"The name of the user\"},\"email\":{\"type\":\"string\",\"example\":\"johndoe@gmail.com\",\"description\":\"The email of the user\"},\"phoneNo\":{\"type\":\"string\",\"example\":\"+1234567890\",\"description\":\"The phone number of the user\"},\"age\":{\"type\":\"number\",\"example\":25,\"description\":\"The age of the user, must be between 13-105\"},\"isVerified\":{\"type\":\"boolean\",\"example\":true,\"description\":\"User is verified\"},\"role\":{\"description\":\"The current status of the user\",\"allOf\":[{\"type\":\"object\",\"properties\":{}}]},\"isSeller\":{\"type\":\"boolean\",\"default\":false,\"example\":true,\"description\":\"User is a seller\"}},\"required\":[\"_id\",\"name\",\"email\",\"phoneNo\",\"role\",\"isSeller\"]}}"
+        },
+        "User not found": {
+          "name": "User not found",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_updateUserType",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/<<id>>/user-type",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"SELLER\",\n  \"userTypeId\": \"64f162f4706cceaf7c1b3abc\",\n  \"userTypeKey\": \"RERA_AGENT\",\n  \"userTypeLabel\": \"RERA Agent\",\n  \"userTypeDetails\": {\n    \"licenseNo\": \"AB-1234\",\n    \"expiry\": \"2027-01-01\"\n  }\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "Not Found",
+          "code": 404,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        }
+      },
+      "_ref_id": "req_mhm3oydn_a437a2e4-5bb8-4b3c-af58-e621f6f05fd5"
+    },
+    {
+      "v": "16",
+      "name": "Users_updateUserTypeDeprecated",
+      "method": "PUT",
+      "endpoint": "/api/v1/users/<<id>>/update-user-type",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"SELLER\",\n  \"userTypeId\": \"64f162f4706cceaf7c1b3abc\",\n  \"userTypeKey\": \"RERA_AGENT\",\n  \"userTypeLabel\": \"RERA Agent\",\n  \"userTypeDetails\": {\n    \"licenseNo\": \"AB-1234\",\n    \"expiry\": \"2027-01-01\"\n  }\n}"
+      },
+      "requestVariables": [
+        {
+          "key": "id",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "Updated user.": {
+          "name": "Updated user.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_updateUserTypeDeprecated",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/<<id>>/update-user-type",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"SELLER\",\n  \"userTypeId\": \"64f162f4706cceaf7c1b3abc\",\n  \"userTypeKey\": \"RERA_AGENT\",\n  \"userTypeLabel\": \"RERA Agent\",\n  \"userTypeDetails\": {\n    \"licenseNo\": \"AB-1234\",\n    \"expiry\": \"2027-01-01\"\n  }\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"object\",\"properties\":{\"_id\":{\"type\":\"string\",\"example\":\"64f161f1b263bc7499b1c632\",\"description\":\"The unique identifier for the user\"},\"name\":{\"type\":\"string\",\"example\":\"John Doe\",\"description\":\"The name of the user\"},\"email\":{\"type\":\"string\",\"example\":\"johndoe@gmail.com\",\"description\":\"The email of the user\"},\"phoneNo\":{\"type\":\"string\",\"example\":\"+1234567890\",\"description\":\"The phone number of the user\"},\"age\":{\"type\":\"number\",\"example\":25,\"description\":\"The age of the user, must be between 13-105\"},\"isVerified\":{\"type\":\"boolean\",\"example\":true,\"description\":\"User is verified\"},\"role\":{\"description\":\"The current status of the user\",\"allOf\":[{\"type\":\"object\",\"properties\":{}}]},\"isSeller\":{\"type\":\"boolean\",\"default\":false,\"example\":true,\"description\":\"User is a seller\"}},\"required\":[\"_id\",\"name\",\"email\",\"phoneNo\",\"role\",\"isSeller\"]}}"
+        },
+        "User not found": {
+          "name": "User not found",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_updateUserTypeDeprecated",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/<<id>>/update-user-type",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"SELLER\",\n  \"userTypeId\": \"64f162f4706cceaf7c1b3abc\",\n  \"userTypeKey\": \"RERA_AGENT\",\n  \"userTypeLabel\": \"RERA Agent\",\n  \"userTypeDetails\": {\n    \"licenseNo\": \"AB-1234\",\n    \"expiry\": \"2027-01-01\"\n  }\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "Not Found",
+          "code": 404,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        }
+      },
+      "_ref_id": "req_mhm3oydn_c0527913-47bd-4c30-9a02-9a034c1422a5"
+    },
+    {
+      "v": "16",
+      "name": "Users_getUserById",
+      "method": "GET",
+      "endpoint": "/api/v1/users/<<id>>",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [
+        {
+          "key": "id",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "User not found": {
+          "name": "User not found",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_getUserById",
+            "method": "GET",
+            "endpoint": "/api/v1/users/<<id>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "Not Found",
+          "code": 404,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        },
+        "The user was successfully retrieved.": {
+          "name": "The user was successfully retrieved.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_getUserById",
+            "method": "GET",
+            "endpoint": "/api/v1/users/<<id>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"object\",\"properties\":{\"_id\":{\"type\":\"string\",\"example\":\"64f161f1b263bc7499b1c632\",\"description\":\"The unique identifier for the user\"},\"name\":{\"type\":\"string\",\"example\":\"John Doe\",\"description\":\"The name of the user\"},\"email\":{\"type\":\"string\",\"example\":\"johndoe@gmail.com\",\"description\":\"The email of the user\"},\"phoneNo\":{\"type\":\"string\",\"example\":\"+1234567890\",\"description\":\"The phone number of the user\"},\"age\":{\"type\":\"number\",\"example\":25,\"description\":\"The age of the user, must be between 13-105\"},\"isVerified\":{\"type\":\"boolean\",\"example\":true,\"description\":\"User is verified\"},\"role\":{\"description\":\"The current status of the user\",\"allOf\":[{\"type\":\"object\",\"properties\":{}}]},\"isSeller\":{\"type\":\"boolean\",\"default\":false,\"example\":true,\"description\":\"User is a seller\"}},\"required\":[\"_id\",\"name\",\"email\",\"phoneNo\",\"role\",\"isSeller\"]}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_2ad2e1c5-02f3-41dd-875b-293a7b4aa9d3"
+    },
+    {
+      "v": "16",
+      "name": "Users_updateUser",
+      "method": "PUT",
+      "endpoint": "/api/v1/users/<<id>>",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"name\": \"John Doe\",\n  \"firstName\": \"John\",\n  \"lastName\": \"John\",\n  \"image\": \"image url\",\n  \"phoneNo\": \"+1234567890\",\n  \"email\": \"johndoe@gmail.com\",\n  \"age\": 25,\n  \"gender\": \"MALE\",\n  \"role\": \"64f162f4706cceaf7c1b3abc\",\n  \"isVerified\": true,\n  \"phoneVerified\": true,\n  \"emailVerified\": true,\n  \"isSeller\": true,\n  \"countryCode\": \"+91\",\n  \"deviceKey\": \"1234567890\",\n  \"status\": \"verified\",\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"user\",\n  \"firstLoggedIn\": true,\n  \"lastActiveAt\": \"1990-01-01\",\n  \"blockedBy\": \"1234567890\",\n  \"loggedIn\": true,\n  \"appleDeviceId\": \"1234\",\n  \"userTypeId\": \"string\",\n  \"userTypeKey\": \"RERA_AGENT\",\n  \"userTypeLabel\": \"RERA Agent\",\n  \"userTypeDetails\": {\n    \"licenseNo\": \"AB-1234\"\n  }\n}"
+      },
+      "requestVariables": [
+        {
+          "key": "id",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "User not found": {
+          "name": "User not found",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_updateUser",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/<<id>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"name\": \"John Doe\",\n  \"firstName\": \"John\",\n  \"lastName\": \"John\",\n  \"image\": \"image url\",\n  \"phoneNo\": \"+1234567890\",\n  \"email\": \"johndoe@gmail.com\",\n  \"age\": 25,\n  \"gender\": \"MALE\",\n  \"role\": \"64f162f4706cceaf7c1b3abc\",\n  \"isVerified\": true,\n  \"phoneVerified\": true,\n  \"emailVerified\": true,\n  \"isSeller\": true,\n  \"countryCode\": \"+91\",\n  \"deviceKey\": \"1234567890\",\n  \"status\": \"verified\",\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"user\",\n  \"firstLoggedIn\": true,\n  \"lastActiveAt\": \"1990-01-01\",\n  \"blockedBy\": \"1234567890\",\n  \"loggedIn\": true,\n  \"appleDeviceId\": \"1234\",\n  \"userTypeId\": \"string\",\n  \"userTypeKey\": \"RERA_AGENT\",\n  \"userTypeLabel\": \"RERA Agent\",\n  \"userTypeDetails\": {\n    \"licenseNo\": \"AB-1234\"\n  }\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "Not Found",
+          "code": 404,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        },
+        "The user has been updated.": {
+          "name": "The user has been updated.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_updateUser",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/<<id>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"name\": \"John Doe\",\n  \"firstName\": \"John\",\n  \"lastName\": \"John\",\n  \"image\": \"image url\",\n  \"phoneNo\": \"+1234567890\",\n  \"email\": \"johndoe@gmail.com\",\n  \"age\": 25,\n  \"gender\": \"MALE\",\n  \"role\": \"64f162f4706cceaf7c1b3abc\",\n  \"isVerified\": true,\n  \"phoneVerified\": true,\n  \"emailVerified\": true,\n  \"isSeller\": true,\n  \"countryCode\": \"+91\",\n  \"deviceKey\": \"1234567890\",\n  \"status\": \"verified\",\n  \"documents\": [\n    {\n      \"name\": \"passport\",\n      \"url\": \"https://www.google.com\",\n      \"value\": \"passport\"\n    }\n  ],\n  \"userType\": \"user\",\n  \"firstLoggedIn\": true,\n  \"lastActiveAt\": \"1990-01-01\",\n  \"blockedBy\": \"1234567890\",\n  \"loggedIn\": true,\n  \"appleDeviceId\": \"1234\",\n  \"userTypeId\": \"string\",\n  \"userTypeKey\": \"RERA_AGENT\",\n  \"userTypeLabel\": \"RERA Agent\",\n  \"userTypeDetails\": {\n    \"licenseNo\": \"AB-1234\"\n  }\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"object\",\"properties\":{\"_id\":{\"type\":\"string\",\"example\":\"64f161f1b263bc7499b1c632\",\"description\":\"The unique identifier for the user\"},\"name\":{\"type\":\"string\",\"example\":\"John Doe\",\"description\":\"The name of the user\"},\"email\":{\"type\":\"string\",\"example\":\"johndoe@gmail.com\",\"description\":\"The email of the user\"},\"phoneNo\":{\"type\":\"string\",\"example\":\"+1234567890\",\"description\":\"The phone number of the user\"},\"age\":{\"type\":\"number\",\"example\":25,\"description\":\"The age of the user, must be between 13-105\"},\"isVerified\":{\"type\":\"boolean\",\"example\":true,\"description\":\"User is verified\"},\"role\":{\"description\":\"The current status of the user\",\"allOf\":[{\"type\":\"object\",\"properties\":{}}]},\"isSeller\":{\"type\":\"boolean\",\"default\":false,\"example\":true,\"description\":\"User is a seller\"}},\"required\":[\"_id\",\"name\",\"email\",\"phoneNo\",\"role\",\"isSeller\"]}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_97e36e2b-4584-4401-824e-93bfaa21d57d"
+    },
+    {
+      "v": "16",
+      "name": "Users_deleteUser",
+      "method": "DELETE",
+      "endpoint": "/api/v1/users/<<id>>",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [
+        {
+          "key": "id",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "User not found": {
+          "name": "User not found",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_deleteUser",
+            "method": "DELETE",
+            "endpoint": "/api/v1/users/<<id>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "Not Found",
+          "code": 404,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        },
+        "The user has been deleted.": {
+          "name": "The user has been deleted.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_deleteUser",
+            "method": "DELETE",
+            "endpoint": "/api/v1/users/<<id>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "No Content",
+          "code": 204,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        }
+      },
+      "_ref_id": "req_mhm3oydn_f3558802-3ab0-440e-84e6-baf8ff15b9bf"
+    },
+    {
+      "v": "16",
+      "name": "Users_findAllUsersWithAdsCount",
+      "method": "GET",
+      "endpoint": "/api/v1/users/minAds/<<minCount>>",
+      "params": [
+        {
+          "key": "filter",
+          "value": "",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "page",
+          "value": "",
+          "active": true,
+          "description": ""
+        },
+        {
+          "key": "limit",
+          "value": "",
+          "active": true,
+          "description": ""
+        }
+      ],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [
+        {
+          "key": "minCount",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "The list of users.": {
+          "name": "The list of users.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_findAllUsersWithAdsCount",
+            "method": "GET",
+            "endpoint": "/api/v1/users/minAds/<<minCount>>",
+            "headers": [],
+            "params": [
+              {
+                "key": "filter",
+                "value": "",
+                "active": true,
+                "description": ""
+              },
+              {
+                "key": "page",
+                "value": "",
+                "active": true,
+                "description": ""
+              },
+              {
+                "key": "limit",
+                "value": "",
+                "active": true,
+                "description": ""
+              }
+            ],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "minCount",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"_id\":{\"type\":\"string\",\"example\":\"64f161f1b263bc7499b1c632\",\"description\":\"The unique identifier for the user\"},\"name\":{\"type\":\"string\",\"example\":\"John Doe\",\"description\":\"The name of the user\"},\"email\":{\"type\":\"string\",\"example\":\"johndoe@gmail.com\",\"description\":\"The email of the user\"},\"phoneNo\":{\"type\":\"string\",\"example\":\"+1234567890\",\"description\":\"The phone number of the user\"},\"age\":{\"type\":\"number\",\"example\":25,\"description\":\"The age of the user, must be between 13-105\"},\"isVerified\":{\"type\":\"boolean\",\"example\":true,\"description\":\"User is verified\"},\"role\":{\"description\":\"The current status of the user\",\"allOf\":[{\"type\":\"object\",\"properties\":{}}]},\"isSeller\":{\"type\":\"boolean\",\"default\":false,\"example\":true,\"description\":\"User is a seller\"}},\"required\":[\"_id\",\"name\",\"email\",\"phoneNo\",\"role\",\"isSeller\"]}}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_2002455e-982d-43b3-b31a-0816f98ead87"
+    },
+    {
+      "v": "16",
+      "name": "Users_updateMyEmarati",
+      "method": "PUT",
+      "endpoint": "/api/v1/users/me/emarati",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"status\": \"PENDING\",\n  \"details\": \"\"\n}"
+      },
+      "requestVariables": [],
+      "responses": {
+        "": {
+          "name": "",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_updateMyEmarati",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/me/emarati",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"status\": \"PENDING\",\n  \"details\": \"\"\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": []
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"object\"}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_bbc5392e-96f5-4665-8d32-0334e48d8ac4"
+    },
+    {
+      "v": "16",
+      "name": "Users_adminUpdateEmarati",
+      "method": "PUT",
+      "endpoint": "/api/v1/users/<<id>>/emarati",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"status\": \"VERIFIED\",\n  \"details\": \"\"\n}"
+      },
+      "requestVariables": [
+        {
+          "key": "id",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "User Emirati status updated successfully": {
+          "name": "User Emirati status updated successfully",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_adminUpdateEmarati",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/<<id>>/emarati",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"status\": \"VERIFIED\",\n  \"details\": \"\"\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"object\",\"properties\":{\"_id\":{\"type\":\"string\",\"example\":\"64f161f1b263bc7499b1c632\",\"description\":\"The unique identifier for the user\"},\"name\":{\"type\":\"string\",\"example\":\"John Doe\",\"description\":\"The name of the user\"},\"email\":{\"type\":\"string\",\"example\":\"johndoe@gmail.com\",\"description\":\"The email of the user\"},\"phoneNo\":{\"type\":\"string\",\"example\":\"+1234567890\",\"description\":\"The phone number of the user\"},\"age\":{\"type\":\"number\",\"example\":25,\"description\":\"The age of the user, must be between 13-105\"},\"isVerified\":{\"type\":\"boolean\",\"example\":true,\"description\":\"User is verified\"},\"role\":{\"description\":\"The current status of the user\",\"allOf\":[{\"type\":\"object\",\"properties\":{}}]},\"isSeller\":{\"type\":\"boolean\",\"default\":false,\"example\":true,\"description\":\"User is a seller\"}},\"required\":[\"_id\",\"name\",\"email\",\"phoneNo\",\"role\",\"isSeller\"]}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_9c4863f9-48cb-4714-b301-4f30d63a71ce"
+    },
+    {
+      "v": "16",
+      "name": "Users_blockUser",
+      "method": "POST",
+      "endpoint": "/api/v1/users/block/<<id>>",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"blockedBy\": \"string\",\n  \"blockedByName\": \"John Doe\",\n  \"blockedAt\": \"string\",\n  \"reason\": \"reason\",\n  \"blocking\": true\n}"
+      },
+      "requestVariables": [
+        {
+          "key": "id",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "": {
+          "name": "",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_blockUser",
+            "method": "POST",
+            "endpoint": "/api/v1/users/block/<<id>>",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"blockedBy\": \"string\",\n  \"blockedByName\": \"John Doe\",\n  \"blockedAt\": \"string\",\n  \"reason\": \"reason\",\n  \"blocking\": true\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "Created",
+          "code": 201,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"string\"}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_a7e03c49-72d4-4853-a461-cb2ee4accd2b"
+    },
+    {
+      "v": "16",
+      "name": "Users_assignRole",
+      "method": "PUT",
+      "endpoint": "/api/v1/users/<<id>>/role",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"roleId\": \"64f162f4706cceaf7c1b3abc\"\n}"
+      },
+      "requestVariables": [
+        {
+          "key": "id",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "User or Role not found": {
+          "name": "User or Role not found",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_assignRole",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/<<id>>/role",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"roleId\": \"64f162f4706cceaf7c1b3abc\"\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "Not Found",
+          "code": 404,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        },
+        "Role assigned successfully": {
+          "name": "Role assigned successfully",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_assignRole",
+            "method": "PUT",
+            "endpoint": "/api/v1/users/<<id>>/role",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"roleId\": \"64f162f4706cceaf7c1b3abc\"\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\"schema\":{\"type\":\"object\",\"properties\":{\"_id\":{\"type\":\"string\",\"example\":\"64f161f1b263bc7499b1c632\",\"description\":\"The unique identifier for the user\"},\"name\":{\"type\":\"string\",\"example\":\"John Doe\",\"description\":\"The name of the user\"},\"email\":{\"type\":\"string\",\"example\":\"johndoe@gmail.com\",\"description\":\"The email of the user\"},\"phoneNo\":{\"type\":\"string\",\"example\":\"+1234567890\",\"description\":\"The phone number of the user\"},\"age\":{\"type\":\"number\",\"example\":25,\"description\":\"The age of the user, must be between 13-105\"},\"isVerified\":{\"type\":\"boolean\",\"example\":true,\"description\":\"User is verified\"},\"role\":{\"description\":\"The current status of the user\",\"allOf\":[{\"type\":\"object\",\"properties\":{}}]},\"isSeller\":{\"type\":\"boolean\",\"default\":false,\"example\":true,\"description\":\"User is a seller\"}},\"required\":[\"_id\",\"name\",\"email\",\"phoneNo\",\"role\",\"isSeller\"]}}"
+        }
+      },
+      "_ref_id": "req_mhm3oydn_13405368-8cf3-4bb4-80c9-0d06c7e8189b"
+    },
+    {
+      "v": "16",
+      "name": "Users_getBlockHistory",
+      "method": "GET",
+      "endpoint": "/api/v1/users/user/<<id>>/block-history",
+      "params": [],
+      "headers": [],
+      "preRequestScript": "",
+      "testScript": "",
+      "auth": {
+        "authType": "none",
+        "authActive": true
+      },
+      "body": {
+        "contentType": null,
+        "body": null
+      },
+      "requestVariables": [
+        {
+          "key": "id",
+          "value": "",
+          "active": true
+        }
+      ],
+      "responses": {
+        "Forbidden.": {
+          "name": "Forbidden.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_getBlockHistory",
+            "method": "GET",
+            "endpoint": "/api/v1/users/user/<<id>>/block-history",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "Forbidden",
+          "code": 403,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        },
+        "User not found": {
+          "name": "User not found",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_getBlockHistory",
+            "method": "GET",
+            "endpoint": "/api/v1/users/user/<<id>>/block-history",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "Not Found",
+          "code": 404,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        },
+        "Block history retrieved successfully.": {
+          "name": "Block history retrieved successfully.",
+          "originalRequest": {
+            "v": "6",
+            "name": "Users_getBlockHistory",
+            "method": "GET",
+            "endpoint": "/api/v1/users/user/<<id>>/block-history",
+            "headers": [],
+            "params": [],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "requestVariables": [
+              {
+                "key": "id",
+                "value": "",
+                "active": true
+              }
+            ]
+          },
+          "status": "OK",
+          "code": 200,
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "body": "\"\""
+        }
+      },
+      "_ref_id": "req_mhm3oydn_6be5af14-73fd-4f0d-92e7-ebf2d62ae6b7"
+    }
+  ],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": [],
+  "variables": [],
+  "_ref_id": "coll_mhmbnujp_60a35a5d-741e-4350-8ced-6deee290a5ab"
+}

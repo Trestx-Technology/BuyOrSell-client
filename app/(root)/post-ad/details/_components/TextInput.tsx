@@ -31,11 +31,14 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
+        placeholder={placeholder || "Typing"}
         disabled={disabled}
         className={cn(
-          "w-full px-3 py-2 border border-gray-300 rounded-lg",
-          disabled && "bg-gray-100 cursor-not-allowed",
+          "w-full h-11 px-3 py-2.5 border border-[#F5EBFF] rounded-lg",
+          "text-xs font-medium text-[#8B31E1] placeholder:text-[#8B31E1]",
+          "bg-white focus-visible:border-[#F5EBFF] focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20",
+          "transition-all duration-200",
+          disabled && "bg-gray-100 cursor-not-allowed opacity-50",
           className
         )}
       />

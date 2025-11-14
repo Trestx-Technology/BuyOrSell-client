@@ -94,6 +94,13 @@ export interface CategoriesApiResponse {
   timestamp: string;
   data: SubCategory[]
 }
+
+export interface CategoryApiResponse {
+  statusCode: number;
+  timestamp: string;
+  data: SubCategory;
+}
+
 export interface CategoriesTreeApiResponse {
   statusCode: number;
   timestamp: string;

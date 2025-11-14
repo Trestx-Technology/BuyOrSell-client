@@ -23,6 +23,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "nextjs-toploader/app";
+import { useSignUp } from "@/hooks/useAuth";
+import { useSendPhoneOtp, useVerifyPhone } from "@/hooks/useUsers";
+import OTPVerificationDialog from "@/app/(root)/user/_components/otp-verification-dialog";
 
 import Image from "next/image";
 
@@ -43,8 +46,13 @@ const countryCodes = [
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedCountryCode, setSelectedCountryCode] = useState("+971");
+  const [showOtpDialog, setShowOtpDialog] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
   const router = useRouter();
+  const signUpMutation = useSignUp();
+  const sendPhoneOtpMutation = useSendPhoneOtp();
+  const verifyPhoneMutation = useVerifyPhone();
 
   const [signupData, setSignupData] = useState({
     fullName: "",
@@ -115,11 +123,69 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validateForm()) {
-      // Handle signup logic here
-      toast.success("Account created successfully!");
-      router.push("/");
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    // Send OTP first
+    const fullPhoneNumber = `${selectedCountryCode}${signupData.phoneNumber}`;
+    
+    try {
+      await sendPhoneOtpMutation.mutateAsync(fullPhoneNumber);
+      toast.success("OTP sent to your phone number");
+      setShowOtpDialog(true);
+    } catch (error: unknown) {
+      console.error("Send OTP error:", error);
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        "Failed to send OTP. Please try again.";
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleVerifyOtp = async (otp: string) => {
+    setIsVerifyingOtp(true);
+    const fullPhoneNumber = `${selectedCountryCode}${signupData.phoneNumber}`;
+
+    try {
+      // Verify OTP
+      await verifyPhoneMutation.mutateAsync({
+        phone: fullPhoneNumber,
+        code: otp,
+      });
+
+      toast.success("Phone number verified successfully!");
+
+      // Now proceed with signup
+      const nameParts = signupData.fullName.trim().split(/\s+/);
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || nameParts[0] || "";
+
+      const response = await signUpMutation.mutateAsync({
+        firstName: firstName,
+        lastName: lastName,
+        email: signupData.email,
+        password: signupData.password,
+        countryCode: selectedCountryCode,
+        deviceKey: "123456",
+      });
+
+      if (response.statusCode === 201 || response.statusCode === 200) {
+        toast.success(response.message || "Account created successfully!");
+        setShowOtpDialog(false);
+        router.push("/");
+      } else {
+        toast.error(response.message || "Failed to create account. Please try again.");
+      }
+    } catch (error: unknown) {
+      console.error("Verify OTP or Signup error:", error);
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        "Failed to verify OTP or create account. Please try again.";
+      toast.error(errorMessage);
+    } finally {
+      setIsVerifyingOtp(false);
     }
   };
 
@@ -209,6 +275,8 @@ const Signup = () => {
             <Input
               placeholder="Enter phone number"
               inputSize="lg"
+              inputMode="numeric"
+name="phoneNumber"
               className="w-full text-sm"
               value={signupData.phoneNumber}
               onChange={(e) =>
@@ -275,10 +343,26 @@ const Signup = () => {
         size="lg"
         variant="filled"
         onClick={handleSubmit}
-        disabled={!isFormValid()}
+        disabled={
+          !isFormValid() ||
+          signUpMutation.isPending ||
+          sendPhoneOtpMutation.isPending
+        }
+        isLoading={signUpMutation.isPending || sendPhoneOtpMutation.isPending}
       >
-        Create Account
+        {signUpMutation.isPending || sendPhoneOtpMutation.isPending
+          ? "Sending OTP..."
+          : "Create Account"}
       </Button>
+
+      {/* OTP Verification Dialog */}
+      <OTPVerificationDialog
+        isOpen={showOtpDialog}
+        onClose={() => setShowOtpDialog(false)}
+        phoneNumber={`${selectedCountryCode}${signupData.phoneNumber}`}
+        onVerify={handleVerifyOtp}
+        isLoading={isVerifyingOtp || verifyPhoneMutation.isPending || signUpMutation.isPending}
+      />
 
       <Typography variant="h3" className="text-center text-sm py-6">
         Or continue with

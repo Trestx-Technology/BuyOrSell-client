@@ -2,11 +2,10 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useAdPosting } from "../_context/AdPostingContext";
 import { UI_ICONS } from "@/constants/icons";
+import { useAdPostingStore } from "@/stores/adPostingStore";
 
 interface ProgressBarProps {
-  currentStep?: number;
   totalSteps: number;
   title?: string;
   showIcons?: boolean;
@@ -17,7 +16,7 @@ export default function ProgressBar({
   title = "Create Post for your ads",
   showIcons = true,
 }: ProgressBarProps) {
-  const { currentStep } = useAdPosting();
+  const { currentStep } = useAdPostingStore((state)=>state);
   const [robotPosition, setRobotPosition] = useState(0);
 
   const progressPercentage = (currentStep / totalSteps) * 100;
@@ -93,7 +92,7 @@ export default function ProgressBar({
 
       {/* Steps Text */}
       <p className="text-sm font-semibold text-center text-[#8B31E1] transition-all duration-500 ease-out">
-        Steps {currentStep}/{totalSteps}
+        {currentStep}/{totalSteps}
       </p>
     </div>
   );

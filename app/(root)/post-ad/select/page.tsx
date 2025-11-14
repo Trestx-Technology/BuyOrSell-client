@@ -1,15 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useAdPosting } from "../_context/AdPostingContext";
-import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { useGetMainCategories } from "@/hooks/useCategories";
+import { useAdPostingStore } from "@/stores/adPostingStore";
 
 export default function SelectCategoryPage() {
   const router = useRouter();
-  const { addCategoryName } = useAdPosting();
+  const { addToCategoryArray, setActiveCategory, setStep, categoryArray, clearCategoryArray } = useAdPostingStore((state)=>state);
 
   // Fetch categories using the hook
   const {
@@ -25,35 +24,32 @@ export default function SelectCategoryPage() {
     // Find the selected category to get its name
     const selectedCategory = categories.find(cat => cat._id === categoryId);
 
-    // Add category name to the categoryNames array
-    addCategoryName(selectedCategory?.name || categoryId);
+    if (selectedCategory) {
+      // Add to category array for breadcrumbs
+      addToCategoryArray({
+        id: selectedCategory._id,
+        name: selectedCategory.name,
+      });
 
-    // Navigate to the category name slug route
-    const categoryName = selectedCategory?.name?.toLowerCase().replace(/\s+/g, '-') || categoryId;
-    router.push(`/post-ad/${encodeURIComponent(categoryName)}`);
-  };
+      // Set as active category
+      setActiveCategory(selectedCategory._id);
 
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { label: "Post Ad", href: "/post-ad" },
-    { label: "Select Category", isActive: true },
-  ];
-
-  const handleBreadcrumbClick = (item: BreadcrumbItem) => {
-    if (item.href) {
-      router.push(item.href);
+      // Update step to 2 (traverse categories after selecting)
+      setStep(2);
     }
+
+    // Navigate to the category ID route
+    router.push(`/post-ad/${categoryId}`);
   };
+
+  useEffect(() => {
+    if(categoryArray.length > 0) {
+      clearCategoryArray()
+    }
+  }, [categoryArray, clearCategoryArray])
 
   return (
     <div className=" w-full max-w-[888px] flex-1 mx-auto bg-white">
-      {/* Breadcrumbs */}
-      <div className="mb-6">
-        <Breadcrumbs
-          items={breadcrumbItems}
-          onItemClick={handleBreadcrumbClick}
-        />
-      </div>
-
       {/* Main Container */}
       <div className="w-full mx-auto bg-white">
         {/* Main Content */}

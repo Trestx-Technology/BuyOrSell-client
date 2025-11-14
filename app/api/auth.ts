@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { axiosInstance } from "@/services/axios-api-client";
 import { authQueries } from "@/api-queries/auth.query";
-import type { loginResponse, SocialLoginPayload } from "@/interfaces/auth.types";
+import type { loginResponse, SocialLoginPayload, User } from "@/interfaces/auth.types";
 import { removeCookies } from "@/actions/cookies.action";
 import { LocalStorageService } from "@/services/local-storage";
 
@@ -20,12 +20,35 @@ export const Login = async (
 };
 
 // Signup
-export const SignUp = async (data: {
-  name: string;
+export interface SignUpPayload {
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
-}): Promise<any> => {
-  const response = await axiosInstance.post(authQueries.signUp.endpoint, data);
+  countryCode: string;
+  deviceKey?: string;
+}
+
+export interface SignUpResponse {
+  statusCode: number;
+  timestamp: string;
+  message?: string;
+  data?: {
+    user: User;
+    accessToken?: string;
+    refreshToken?: string;
+  };
+}
+
+export const SignUp = async (data: SignUpPayload): Promise<SignUpResponse> => {
+  const response = await axiosInstance.post(authQueries.signUp.endpoint, {
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    password: data.password,
+    countryCode: data.countryCode,
+    deviceKey: data.deviceKey || "web",
+  });
   return response.data;
 };
 
