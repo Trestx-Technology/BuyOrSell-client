@@ -292,7 +292,7 @@ export const useAdminUpdateEmarati = () => {
         queryKey: [...userQueries.getUserById(variables.id).Key],
       });
       queryClient.invalidateQueries({
-        queryKey: [userQueries.findAllUsers.key],
+        queryKey: userQueries.findAllUsers.Key,
       });
     },
   });
@@ -315,7 +315,7 @@ export const useBlockUser = () => {
         queryKey: [...userQueries.getBlockHistory(variables.id).Key],
       });
       queryClient.invalidateQueries({
-        queryKey: [userQueries.findAllUsers.key],
+        queryKey: userQueries.findAllUsers.Key,
       });
     },
   });
@@ -335,7 +335,7 @@ export const useAssignRole = () => {
         queryKey: [...userQueries.getUserById(variables.id).Key],
       });
       queryClient.invalidateQueries({
-        queryKey: [userQueries.findAllUsers.key],
+        queryKey: userQueries.findAllUsers.Key,
       });
     },
   });

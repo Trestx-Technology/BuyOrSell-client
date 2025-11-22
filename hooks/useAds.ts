@@ -198,9 +198,9 @@ export const useDeleteAd = () => {
     mutationFn: deleteAd,
     onSuccess: () => {
       // Invalidate and refetch ads
-      queryClient.invalidateQueries({ queryKey: [adQueries.ads.key] });
-      queryClient.invalidateQueries({ queryKey: [adQueries.myAds.key] });
-      queryClient.invalidateQueries({ queryKey: [adQueries.liveAds.key] });
+      queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
+      queryClient.invalidateQueries({ queryKey: adQueries.myAds.Key });
+      queryClient.invalidateQueries({ queryKey: adQueries.liveAds.Key });
     },
   });
 };

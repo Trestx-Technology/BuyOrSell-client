@@ -40,16 +40,20 @@ const NavbarContent = ({ className }: { className?: string }) => {
   const user = session.user;
 
   const handleLogout = async () => {
+    try {
       // Call API logout endpoint (clears server-side session, localStorage, and cookies)
       await LogoutAPI();
-      
-      // Clear Zustand store state
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Even if API call fails, clear local session
+    } finally {
+      // Always clear Zustand store state and redirect, even if API call failed
       await clearSession();
       
       toast.success("Logged out successfully");
       router.push("/");
       router.refresh();
-   
+    }
   };
 
   return (
