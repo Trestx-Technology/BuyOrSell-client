@@ -37,7 +37,16 @@ import Image from "next/image";
 import { SearchAnimated } from "@/components/global/ai-search-bar";
 import { useRouter } from "nextjs-toploader/app";
 
-// Framer Motion animation variants - using improved patterns from AI search bar
+// ============================================================================
+// ANIMATION VARIANTS
+// ============================================================================
+// Framer Motion animation variants for smooth transitions
+// Using improved patterns from AI search bar for consistency
+
+/**
+ * Container animation for the main category buttons
+ * Staggers children appearance for smooth sequential reveal
+ */
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -49,6 +58,10 @@ const containerVariants = {
   },
 };
 
+/**
+ * Individual item animation (category buttons, dropdown items)
+ * Spring animation for natural feel
+ */
 const itemVariants = {
   hidden: { opacity: 0, y: 15, scale: 0.95 },
   visible: {
@@ -63,6 +76,10 @@ const itemVariants = {
   },
 };
 
+/**
+ * Dropdown container animation
+ * Smooth fade and slide up effect
+ */
 const dropdownVariants = {
   hidden: {
     opacity: 0,
@@ -82,6 +99,10 @@ const dropdownVariants = {
   },
 };
 
+/**
+ * Subcategory panel animation
+ * Horizontal slide from left with scale effect
+ */
 const subcategoryVariants = {
   hidden: { opacity: 0, x: -10, scale: 0.95 },
   visible: {
@@ -96,30 +117,50 @@ const subcategoryVariants = {
   },
 };
 
-// Types
+// ============================================================================
+// TYPE DEFINITIONS
+// ============================================================================
+
+/**
+ * Props for the main category button component
+ */
 interface CategoryButtonProps {
-  categoryType: string;
-  label: string;
-  isActive: boolean;
-  onMouseEnter: (categoryType: string) => void;
-  onMouseLeave: () => void;
+  categoryType: string; // The category ID
+  label: string; // Display name
+  isActive: boolean; // Whether this category's dropdown is open
+  onMouseEnter: (categoryType: string) => void; // Handler for hover
+  onMouseLeave: () => void; // Handler for mouse leave
 }
 
+/**
+ * Props for the category dropdown component
+ */
 interface CategoryDropdownProps {
-  isVisible: boolean;
-  onMouseLeave: () => void;
-  categoryData: SubCategory[];
-  activeCategory: SubCategory | null;
-  onCategoryHover: (category: SubCategory) => void;
-  isOtherCategory?: boolean;
+  isVisible: boolean; // Controls dropdown visibility
+  onMouseLeave: () => void; // Handler when mouse leaves dropdown
+  categoryData: SubCategory[]; // Subcategories to display in left panel
+  activeCategory: SubCategory | null; // Currently hovered subcategory
+  onCategoryHover: (category: SubCategory | null) => void; // Handler for subcategory hover
+  isOtherCategory?: boolean; // Whether this is the "Other" category dropdown
 }
 
+/**
+ * Props for the subcategory panel (right panel showing children)
+ */
 interface SubcategoryPanelProps {
-  subcategories: SubCategory[];
-  activeCategoryId: string;
+  subcategories: SubCategory[]; // Subcategories to display
 }
 
-// Reusable Components
+// ============================================================================
+// REUSABLE COMPONENTS
+// ============================================================================
+
+/**
+ * CategoryButton Component
+ * 
+ * Renders a single category button in the main navigation bar.
+ * Changes appearance when active (dropdown is open).
+ */
 const CategoryButton: React.FC<CategoryButtonProps> = ({
   categoryType,
   label,
@@ -141,54 +182,97 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
   </Button>
 );
 
+/**
+ * SubcategoryPanel Component
+ * 
+ * Displays the right panel showing children of a hovered subcategory.
+ * Shows only up to level 2 (children of subcategories).
+ * 
+ * Structure:
+ * 1. Subcategory (section header with "View all" link)
+ * 2. Child categories (displayed in a flat 2-column grid)
+ * 
+ * Categories without children are rendered as clickable links.
+ * All children are displayed at the same level (no nesting beyond level 2).
+ */
 const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
   subcategories,
-  activeCategoryId,
 }) => (
   <div className="w-full lg:w-[400px] flex-1 bg-purple/10 overflow-y-auto">
     <div className="flex flex-col w-full">
-      {subcategories.map((subcategory) => (
-        <motion.div
-          key={subcategory._id}
-          variants={subcategoryVariants}
-          className="transition-colors group"
-        >
-          <div className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300">
-            <Typography variant="xs-bold" className="text-gray-600">
-              {subcategory.name}
-            </Typography>
-            <div className="ml-auto group-hover:block hidden">
+      {subcategories.map((subcategory) => {
+        const hasChildren = subcategory.children && subcategory.children.length > 0;
+        
+        return (
+          <motion.div
+            key={subcategory._id}
+            variants={subcategoryVariants}
+            className="transition-colors group"
+          >
+            {hasChildren ? (
+              <>
+                {/* Subcategory Header with "View all" link */}
+                <div className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300">
+                  <Typography variant="xs-bold" className="text-gray-600">
+                    {subcategory.name}
+                  </Typography>
+                  {/* "View all" link appears on hover */}
+                  <div className="ml-auto group-hover:block hidden">
+                    <Link
+                      href={`/categories/${subcategory._id}`}
+                      className="text-purple text-xs hover:text-purple/80 flex items-center gap-1"
+                    >
+                      <Typography variant="xs-regular-inter" className="text-xs">
+                        View all
+                      </Typography>
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </div>
+                
+                {/* Children Grid - 2 columns, flat display (only level 2, no grandchildren) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 px-5 py-2.5">
+                  {subcategory.children.map((child) => (
+                    <motion.div key={child._id} variants={itemVariants}>
+                      {/* Display child as a simple link - don't show grandchildren (level 3) */}
+                      <Link
+                        href={`/categories/${subcategory._id}/${child._id}`}
+                        className="text-sm text-grey-blue hover:text-purple hover:underline cursor-pointer transition-colors"
+                      >
+                        {child.name}
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              /* Subcategory without children - render as clickable link */
               <Link
-                href={`/category/${activeCategoryId}`}
-                className="text-purple text-xs hover:text-purple/80 flex items-center gap-1"
+                href={`/categories/${subcategory._id}`}
+                className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 hover:bg-purple/10 hover:text-purple transition-colors"
               >
-                <Typography variant="xs-regular-inter" className="text-xs">
-                  View all
+                <Typography variant="xs-bold">
+                  {subcategory.name}
                 </Typography>
-                <ArrowRight className="w-4 h-4" />
               </Link>
-            </div>
-          </div>
-          {subcategory.children && (
-            <div className="space-y-2 grid grid-cols-1 md:grid-cols-2 gap-2 px-5 py-2.5">
-              {subcategory.children.map((child) => (
-                <motion.div key={child._id} variants={itemVariants}>
-                  <Link
-                    href={`/category/${subcategory._id}/${child._id}`}
-                    className="text-sm text-grey-blue hover:text-purple hover:underline cursor-pointer transition-colors"
-                  >
-                    {child.name}
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      ))}
+            )}
+          </motion.div>
+        );
+      })}
     </div>
   </div>
 );
 
+/**
+ * CategoryDropdown Component
+ * 
+ * The main dropdown that appears when hovering over a category button.
+ * Contains two panels:
+ * - Left panel: Shows subcategories of the hovered main category
+ * - Right panel: Shows children of the hovered subcategory (via SubcategoryPanel)
+ * 
+ * Also handles the "Other Categories" special case with a flat list layout.
+ */
 const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
   isVisible,
   onMouseLeave,
@@ -213,79 +297,115 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
           }}
         >
           {isOtherCategory ? (
-            /* Other Categories - Flat List */
+            /* ============================================================
+               OTHER CATEGORIES - Flat List Layout
+               ============================================================ */
             <motion.div className="bg-white rounded-xl rounded-tl-none shadow-lg border border-gray-200 overflow-hidden max-h-[500px]">
               <div className="w-full max-w-md overflow-y-auto">
-                <div className="p-4">
-                  <Typography variant="sm-bold" className="text-gray-900 mb-3">
-                    Other Categories
-                  </Typography>
-                  <div className="grid grid-cols-1 gap-2">
+              
                     {categoryData.map((category) => (
                       <motion.div
                         key={category._id}
                         variants={itemVariants}
-                        className="flex items-center justify-between p-3 hover:bg-purple/10 rounded-lg cursor-pointer transition-colors group"
+                        className="flex items-center justify-between p-3 hover:bg-purple/10 cursor-pointer transition-colors group"
                         onClick={() => onCategoryHover(category)}
                       >
                         <Typography
-                          variant="sm-regular"
-                          className="text-gray-700 group-hover:text-purple"
+                          variant="xs-bold"
+                          className="text-gray-600 group-hover:text-purple"
                         >
                           {category.name}
                         </Typography>
-                        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-purple" />
                       </motion.div>
                     ))}
-                  </div>
-                </div>
               </div>
             </motion.div>
           ) : (
-            /* Regular Category Dropdown with Two Panels */
+            /* ============================================================
+               REGULAR CATEGORY DROPDOWN - Two Panel Layout
+               ============================================================ */
             <motion.div className="flex mx-auto bg-white rounded-xl rounded-tl-none w-full rounded-tr-none shadow-lg border border-gray-200 overflow-hidden max-h-[500px]">
-              {/* Main Categories Panel */}
-              <div className="w-60 border-r border-gray-300  overflow-y-auto">
-                {categoryData
-                  .filter(
-                    (category) =>
-                      category.children && category.children.length > 0
-                  )
-                  .map((category) => (
+              {/* ============================================================
+                  LEFT PANEL - Subcategories List
+                  ============================================================
+                  Shows subcategories of the hovered main category.
+                  - Categories with children: Hover to show children in right panel
+                  - Categories without children: Clickable link to category page
+              */}
+              <div className="w-60 border-r border-gray-300 overflow-y-auto">
+                {categoryData.map((category) => {
+                  const hasChildren = category.children && category.children.length > 0;
+                  const isActive = activeCategory?._id === category._id;
+                  
+                  // If category has no children, make it a clickable link
+                  if (!hasChildren) {
+                    return (
+                      <motion.div
+                        key={category._id}
+                        variants={itemVariants}
+                        onMouseEnter={() => onCategoryHover(null)}
+                      >
+                        <Link
+                          href={`/categories/${category._id}`}
+                          className={cn(
+                            "flex items-center text-xs justify-between p-3 hover:bg-purple/10 hover:text-purple cursor-pointer transition-colors group",
+                            isActive && "bg-purple/10 text-purple"
+                          )}
+                        >
+                          <Typography
+                            variant="xs-regular-inter"
+                            className={cn(
+                              "text-gray-600 group-hover:text-purple text-xs",
+                              isActive && "text-purple font-semibold"
+                            )}
+                          >
+                            {category.name}
+                          </Typography>
+                        </Link>
+                      </motion.div>
+                    );
+                  }
+                  
+                  // If category has children, use hover behavior to show them
+                  return (
                     <motion.div
                       key={category._id}
                       variants={itemVariants}
                       className={cn(
-                        "flex items-center text-xs justify-between p-3 hover:bg-purple/10 cursor-pointer transition-colors group",
-                        activeCategory?._id === category._id &&
-                          "bg-purple/10 text-purple"
+                        "flex items-center text-xs justify-between p-3 hover:bg-purple/10 hover:text-purple cursor-pointer transition-colors group",
+                        isActive && "bg-purple/10 text-purple"
                       )}
                       onMouseEnter={() => onCategoryHover(category)}
                     >
                       <Typography
                         variant="xs-regular-inter"
                         className={cn(
-                          "text-gray-600 group-hover:text-gray-900 text-xs",
-                          activeCategory?._id === category._id &&
-                            "text-purple font-semibold"
+                          "text-gray-600 group-hover:text-purple text-xs",
+                          isActive && "text-purple font-semibold"
                         )}
                       >
                         {category.name}
                       </Typography>
-                      {activeCategory?._id === category._id ? (
+                      {/* Chevron indicates if this subcategory is active */}
+                      {isActive ? (
                         <ChevronLeft className="w-4 h-4" />
                       ) : (
                         <ChevronRight className="w-4 h-4" />
                       )}
                     </motion.div>
-                  ))}
+                  );
+                })}
               </div>
 
-              {/* Subcategories Panel */}
-              {activeCategory && activeCategory.children && (
+              {/* ============================================================
+                  RIGHT PANEL - Children of Hovered Subcategory
+                  ============================================================
+                  Only shows when a subcategory with children is hovered.
+                  Displays the children in a structured layout with nested support.
+              */}
+              {activeCategory && activeCategory.children && activeCategory.children.length > 0 && (
                 <SubcategoryPanel
                   subcategories={activeCategory.children}
-                  activeCategoryId={activeCategory._id}
                 />
               )}
             </motion.div>
@@ -296,60 +416,125 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
   );
 };
 
-const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
-  const [activeCategory, setActiveCategory] = useState<SubCategory | null>(
-    null
-  );
-  const [activeCategoryType, setActiveCategoryType] = useState<string | null>(
-    null
-  );
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
 
-  // Mobile detection
+/**
+ * CategoryNav Component
+ * 
+ * Main category navigation component with hierarchical dropdown menus.
+ * 
+ * Features:
+ * - Shows 6 main categories + "Other" dropdown
+ * - Two-panel dropdown system (subcategories on left, children on right)
+ * - Supports 3 levels of hierarchy (category -> subcategory -> child -> grandchild)
+ * - Responsive design (mobile shows search, desktop shows full nav)
+ * - Smooth animations using Framer Motion
+ * - Clickable links for categories without children
+ * 
+ * State Management:
+ * - activeCategoryType: Which main category button is hovered (opens dropdown)
+ * - activeCategory: Which subcategory in left panel is hovered (shows right panel)
+ */
+const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
+  // ========================================================================
+  // STATE MANAGEMENT
+  // ========================================================================
+  
+  /**
+   * Tracks which subcategory in the left panel is currently hovered.
+   * When set, the right panel shows that subcategory's children.
+   */
+  const [activeCategory, setActiveCategory] = useState<SubCategory | null>(null);
+  
+  /**
+   * Tracks which main category button is currently hovered.
+   * When set, the dropdown opens showing that category's subcategories.
+   */
+  const [activeCategoryType, setActiveCategoryType] = useState<string | null>(null);
+
+  // ========================================================================
+  // HOOKS & DATA FETCHING
+  // ========================================================================
+  
+  // Mobile detection for responsive behavior
   const isMobile = useMediaQuery("(max-width: 768px)");
   const router = useRouter();
 
-  // Fetch categories using the custom hook
+  // Fetch main categories from API
   const {
     data: categoriesData,
     isLoading: categoriesLoading,
     error: categoriesError,
   } = useGetMainCategories();
 
-  // Always show 6 main categories
+  // ========================================================================
+  // CONSTANTS
+  // ========================================================================
+  
+  // Number of main categories to show before "Other" dropdown
   const VISIBLE_CATEGORIES_COUNT = 6;
 
-  // Transform API data to match expected structure
+  // ========================================================================
+  // DATA TRANSFORMATION
+  // ========================================================================
+  
+  /**
+   * Transform API data to match component's expected structure
+   * Maps category objects to { type: id, label: name } format
+   */
   const transformedCategories: { type: string; label: string }[] =
     categoriesData?.map((category: SubCategory) => ({
       type: category._id,
       label: category.name,
     })) || [];
 
-  // Split categories into visible and "other"
+  /**
+   * Split categories into visible (first 6) and "other" (remaining)
+   */
   const visibleCategoriesList = transformedCategories.slice(
     0,
     VISIBLE_CATEGORIES_COUNT
   );
   const otherCategories = transformedCategories.slice(VISIBLE_CATEGORIES_COUNT);
 
-  // Event handlers
-  const handleCategoryHover = (category: SubCategory) => {
+  // ========================================================================
+  // EVENT HANDLERS
+  // ========================================================================
+  
+  /**
+   * Handles hover over a subcategory in the left panel.
+   * Sets it as active to show its children in the right panel.
+   */
+  const handleCategoryHover = (category: SubCategory | null) => {
     setActiveCategory(category);
   };
 
+  /**
+   * Handles mouse leaving the entire category navigation area.
+   * Resets all dropdown states to close all dropdowns.
+   */
   const handleMouseLeave = () => {
-    // Reset all dropdown states when leaving the entire category area
     setActiveCategory(null);
     setActiveCategoryType(null);
   };
 
+  /**
+   * Handles hover over a main category button.
+   * Opens the dropdown and resets active subcategory (user must choose).
+   */
   const handleCategoryTypeHover = (categoryType: string) => {
     setActiveCategoryType(categoryType);
     // Don't auto-select the first subcategory - let user choose
     setActiveCategory(null);
   };
 
-  // Reset dropdown when moving away from category button
+  /**
+   * Handles mouse leaving a category button.
+   * Uses a small delay to allow smooth transition to dropdown.
+   * Only resets if not hovering over the dropdown itself.
+   */
   const handleCategoryButtonLeave = () => {
     // Small delay to allow moving to dropdown
     setTimeout(() => {
@@ -361,18 +546,44 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
     }, 150);
   };
 
+  // ========================================================================
+  // DATA GETTERS
+  // ========================================================================
+  
+  /**
+   * Gets the subcategories to display in the left panel.
+   * 
+   * Flow:
+   * 1. User hovers over main category (e.g., "Electronics")
+   * 2. This function returns that category's children (subcategories)
+   * 3. Subcategories are shown in the left panel
+   * 4. User hovers over a subcategory (e.g., "Mobile & Tablets")
+   * 5. Right panel shows that subcategory's children
+   * 
+   * @returns Array of subcategories for the currently hovered main category
+   */
   const getCurrentCategoryData = (): SubCategory[] => {
     if (!activeCategoryType || !categoriesData) return [];
+    
+    // Special case: "Other" category shows remaining categories
     if (activeCategoryType === "other") {
-      // For "Other" category, return all remaining categories
       return categoriesData.slice(VISIBLE_CATEGORIES_COUNT);
     }
-    return categoriesData.filter(
+    
+    // Find the main category and return its children (subcategories)
+    const mainCategory = categoriesData.find(
       (category: SubCategory) => category._id === activeCategoryType
     );
+    return mainCategory?.children || [];
   };
 
-  // Loader component
+  // ========================================================================
+  // LOADING COMPONENT
+  // ========================================================================
+  
+  /**
+   * Loading skeleton for category buttons
+   */
   const CategoryLoader = () => (
     <div className="hidden w-full md:flex flex-1 items-center justify-between">
       {Array.from({ length: VISIBLE_CATEGORIES_COUNT + 1 }).map((_, index) => (
@@ -383,6 +594,10 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
     </div>
   );
 
+  // ========================================================================
+  // RENDER
+  // ========================================================================
+  
   return (
     <motion.div
       className={cn("relative md:bg-purple", className)}
@@ -396,16 +611,24 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
           className="flex items-center justify-between py-1 w-full"
           onMouseLeave={handleMouseLeave}
         >
-          {/* Categories Section - Horizontal Scrollable on small screens */}
+          {/* ============================================================
+              CATEGORIES SECTION
+              ============================================================
+              Main category buttons with dropdown menus.
+              Hidden on mobile (shows search instead).
+          */}
           {categoriesError ? (
+            /* Error State */
             <div className="hidden md:flex flex-1 items-center justify-center">
               <Typography variant="sm-regular" className="text-red-500">
                 Failed to load categories. Please try again.
               </Typography>
             </div>
           ) : categoriesLoading ? (
+            /* Loading State */
             <CategoryLoader />
           ) : (
+            /* Categories List */
             <motion.div
               className="hidden w-full md:flex flex-1 items-center justify-between"
               variants={containerVariants}
@@ -413,6 +636,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
             >
+              {/* Main Category Buttons (first 6) */}
               {visibleCategoriesList.map(({ type, label }) => (
                 <motion.div
                   key={type}
@@ -437,7 +661,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                 </motion.div>
               ))}
 
-              {/* Other Categories Dropdown */}
+              {/* "Other" Categories Dropdown */}
               {otherCategories.length > 0 && (
                 <motion.div variants={itemVariants} className="lg:relative">
                   <CategoryButton
@@ -461,13 +685,23 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
             </motion.div>
           )}
 
+          {/* ============================================================
+              MOBILE SEARCH
+              ============================================================
+              Shows search bar on mobile instead of category buttons.
+          */}
           <div className="flex md:hidden flex-1">
             <SearchAnimated />
-            {/* <SearchAnimated /> */}
           </div>
 
-          {/* Right Side Icons and Map View Button */}
+          {/* ============================================================
+              RIGHT SIDE ICONS & ACTIONS
+              ============================================================
+              Action buttons: Search History, Help, Messages, Favorites,
+              Notifications, and Map View.
+          */}
           {categoriesLoading ? (
+            /* Loading skeleton for icons */
             <div className="flex items-center justify-between gap-5 ml-2">
               {Array.from({ length: 5 }).map((_, index) => (
                 <div key={index} className="animate-pulse">
@@ -481,6 +715,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
           ) : (
             <TooltipProvider delayDuration={200}>
               <div className="min-w-fit xl:min-w-[350px] min-[1080px]:w-full min-[1080px]:flex items-center justify-between lg:gap-5 ml-2">
+                {/* Search History Icon */}
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -553,6 +788,8 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     </PopoverContent>
                   </Popover>
                 </motion.div>
+                
+                {/* Help Icon */}
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -585,6 +822,8 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     </TooltipContent>
                   </Tooltip>
                 </motion.div>
+                
+                {/* Messages Icon */}
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -617,6 +856,8 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     </TooltipContent>
                   </Tooltip>
                 </motion.div>
+                
+                {/* Favorites Icon */}
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -641,6 +882,8 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     </TooltipContent>
                   </Tooltip>
                 </motion.div>
+                
+                {/* Notifications Icon */}
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -753,6 +996,8 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     </PopoverContent>
                   </Popover>
                 </motion.div>
+                
+                {/* Map View Button */}
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}

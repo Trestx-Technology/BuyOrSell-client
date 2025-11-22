@@ -16,9 +16,10 @@ import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
 import { BorderBeam } from "../magicui/border-beam";
 import { useRouter } from "nextjs-toploader/app";
+import { useGetMainCategories } from "@/hooks/useCategories";
 
 // Color system (exactly 4 colors total):
-// 1) Primary brand: teal-400 (#2dd4bf)
+// 1) purple brand: teal-400 (#2dd4bf)
 // 2) Neutral: white (#ffffff)
 // 3) Neutral: slate-900 (#0f172a)
 // 4) Accent: purple-500 (#8b5cf6)
@@ -44,7 +45,7 @@ export function SearchAnimated() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const searchRef = React.useRef<HTMLDivElement>(null);
   const router = useRouter();
-
+const [selectedCategory, setSelectedCategory] = React.useState("All Categories");
   const handleTrigger = () => setIsAI(true);
   const handleReset = () => setIsAI(false);
 
@@ -118,7 +119,7 @@ export function SearchAnimated() {
                   animate={{ opacity: 1, y: 1 }}
                   exit={{ opacity: 0, y: -6 }}
                 >
-                  <CategoryDropdown />
+                  <CategoryDropdown selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
                   <div
                     className="hidden lg:block h-6 w-px bg-black/10"
                     aria-hidden="true"
@@ -261,7 +262,8 @@ export function SearchAnimated() {
   );
 }
 
-export const CategoryDropdown = () => {
+export const CategoryDropdown = ({selectedCategory, setSelectedCategory}: {selectedCategory: string, setSelectedCategory: (category: string) => void}) => {
+  const { data: categoriesData, isLoading, error } = useGetMainCategories();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -271,15 +273,37 @@ export const CategoryDropdown = () => {
           iconPosition="right"
           className="px-2 text-xs text-gray-600 hover:text-purple transition-colors h-full  border-[#929292] rounded-none hover:bg-transparent data-[state=open]:text-purple lg:flex hidden"
         >
-          All Categories
+          {selectedCategory || "All Categories"}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-48 z-[60]" align="start">
-        <DropdownMenuItem>Electronics</DropdownMenuItem>
-        <DropdownMenuItem>Vehicles</DropdownMenuItem>
-        <DropdownMenuItem>Property</DropdownMenuItem>
-        <DropdownMenuItem>Fashion</DropdownMenuItem>
-        <DropdownMenuItem>Home & Garden</DropdownMenuItem>
+      <DropdownMenuContent
+        className="w-48 z-[60] max-h-[300px] overflow-y-auto"
+        align="start"
+      >
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_,i) => (
+            <DropdownMenuItem key={i}>
+              <div className="animate-pulse bg-gray-300 h-7 w-full rounded-sm"></div>
+            </DropdownMenuItem>
+          ))
+        ) : error ? (
+          <DropdownMenuItem>Error: {error.message}</DropdownMenuItem>
+        ) : (
+          categoriesData?.map((category) => (
+            <DropdownMenuItem
+              className={cn(
+                "cursor-pointer",
+                selectedCategory === category.name
+                  ? "bg-purple/20 text-purple"
+                  : ""
+              )}
+              key={category._id}
+              onClick={() => setSelectedCategory(category.name)}
+            >
+              {category.name}
+            </DropdownMenuItem>
+          ))
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

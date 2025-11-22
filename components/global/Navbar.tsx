@@ -40,7 +40,6 @@ const NavbarContent = ({ className }: { className?: string }) => {
   const user = session.user;
 
   const handleLogout = async () => {
-    try {
       // Call API logout endpoint (clears server-side session, localStorage, and cookies)
       await LogoutAPI();
       
@@ -50,10 +49,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
       toast.success("Logged out successfully");
       router.push("/");
       router.refresh();
-    } catch (error) {
-      console.error("Logout error:", error);
-      // Even if API call fails, clear local session
-    }
+   
   };
 
   return (
