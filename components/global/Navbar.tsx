@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/popover";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
-import { Logout as LogoutAPI } from "@/app/api/auth";
+import { logout as LogoutAPI } from '@/app/api/auth/auth.services';
 import { toast } from "sonner";
 
 // Internal component that uses useSearchParams

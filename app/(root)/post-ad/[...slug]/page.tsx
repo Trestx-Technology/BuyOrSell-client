@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useCategoryTreeById } from "@/hooks/useCategories";
 import { SubCategory } from "@/interfaces/categories.types";
-import { getCategoryById } from "@/app/api/categories";
+import { getCategoryById } from '@/app/api/categories/categories.services';
 import { useAdPostingStore } from "@/stores/adPostingStore";
 
 export default function CategoryTraversalPage() {

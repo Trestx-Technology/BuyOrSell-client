@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "nextjs-toploader/app";
 import { useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { Login as LoginAPI } from "@/app/api/auth";
+import { login as LoginAPI } from '@/app/api/auth/auth.services';
 import type { loginResponse } from "@/interfaces/auth.types";
 import { useAuthStore } from "@/stores/authStore";
 import { AxiosError } from "axios";

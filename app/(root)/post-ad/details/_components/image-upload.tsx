@@ -6,7 +6,7 @@ import Image from "next/image";
 import { X, Plus, Upload, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { uploadFile } from "@/app/api/media";
+import { uploadFile } from '@/app/api/media/media.services';
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 

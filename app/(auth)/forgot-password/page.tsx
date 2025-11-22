@@ -8,7 +8,7 @@ import { ChevronLeft, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "nextjs-toploader/app";
 import { useMutation } from "@tanstack/react-query";
-import { SendResetPasswordEmail as SendResetPasswordEmailAPI } from "@/app/api/auth";
+import { sendResetPasswordEmail as SendResetPasswordEmailAPI } from '@/app/api/auth/auth.services';
 import Image from "next/image";
 
 const ForgotPasswordContent = () => {

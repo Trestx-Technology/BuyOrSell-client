@@ -21,7 +21,7 @@ import {
   blockUser,
   assignRole,
   getBlockHistory,
-} from "@/app/api/user";
+} from '@/app/api/user/user.services';
 import {
   CreateUserPayload,
   UpdateUserPayload,
@@ -36,8 +36,8 @@ import {
   BlockUserPayload,
   AssignRolePayload,
   BlockHistoryResponse,
-} from "@/interfaces/user.types";
-import { userQueries } from "@/api-queries/user.query";
+} from '@/interfaces/user.types';
+import { userQueries } from '@/app/api/user/index';
 
 // ============================================================================
 // QUERY HOOKS
@@ -49,14 +49,14 @@ export const useFindAllUsers = (params?: {
   limit?: number;
 }) => {
   return useQuery<UsersListResponse, Error>({
-    queryKey: [userQueries.findAllUsers.key, params],
+    queryKey: [...userQueries.findAllUsers.Key, params],
     queryFn: () => findAllUsers(params),
   });
 };
 
 export const useGetUserById = (id: string) => {
   return useQuery<UserResponse, Error>({
-    queryKey: [userQueries.getUserById.key, id],
+    queryKey: [...userQueries.getUserById(id).Key],
     queryFn: () => getUserById(id),
     enabled: !!id,
   });
@@ -64,7 +64,7 @@ export const useGetUserById = (id: string) => {
 
 export const useGetProfile = () => {
   return useQuery<UserResponse, Error>({
-    queryKey: [userQueries.getProfile.key],
+    queryKey: userQueries.getProfile.Key,
     queryFn: () => getProfile(),
   });
 };
@@ -78,7 +78,7 @@ export const useFindAllUsersWithAdsCount = (
   }
 ) => {
   return useQuery<UsersListResponse, Error>({
-    queryKey: [userQueries.findAllUsersWithAdsCount.key, minCount, params],
+    queryKey: [...userQueries.findAllUsersWithAdsCount(minCount).Key, params],
     queryFn: () => findAllUsersWithAdsCount(minCount, params),
     enabled: !!minCount,
   });
@@ -86,7 +86,7 @@ export const useFindAllUsersWithAdsCount = (
 
 export const useGetBlockHistory = (id: string) => {
   return useQuery<BlockHistoryResponse, Error>({
-    queryKey: [userQueries.getBlockHistory.key, id],
+    queryKey: [...userQueries.getBlockHistory(id).Key],
     queryFn: () => getBlockHistory(id),
     enabled: !!id,
   });
@@ -102,7 +102,7 @@ export const useCreateUser = () => {
   return useMutation<UserResponse, Error, CreateUserPayload>({
     mutationFn: createUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [userQueries.findAllUsers.key] });
+      queryClient.invalidateQueries({ queryKey: userQueries.findAllUsers.Key });
     },
   });
 };
@@ -117,12 +117,12 @@ export const useUpdateUser = () => {
   >({
     mutationFn: ({ id, data }) => updateUser(id, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: [userQueries.findAllUsers.key] });
+      queryClient.invalidateQueries({ queryKey: userQueries.findAllUsers.Key });
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getUserById.key, variables.id],
+        queryKey: [...userQueries.getUserById(variables.id).Key],
       });
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getProfile.key],
+        queryKey: userQueries.getProfile.Key,
       });
     },
   });
@@ -138,7 +138,7 @@ export const useDeleteUser = () => {
   >({
     mutationFn: deleteUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [userQueries.findAllUsers.key] });
+      queryClient.invalidateQueries({ queryKey: userQueries.findAllUsers.Key });
     },
   });
 };
@@ -146,28 +146,28 @@ export const useDeleteUser = () => {
 export const useSendEmailOtp = () => {
   return useMutation<SendEmailOtpResponse, Error, string>({
     mutationFn: sendEmailOtp,
-    mutationKey: [userQueries.sendEmailOtp.key],
+    mutationKey: userQueries.sendEmailOtp('').Key,
   });
 };
 
 export const useSendPhoneOtp = () => {
   return useMutation<SendPhoneOtpResponse, Error, string>({
     mutationFn: sendPhoneOtp,
-    mutationKey: [userQueries.sendPhoneOtp.key],
+    mutationKey: userQueries.sendPhoneOtp('').Key,
   });
 };
 
 export const useSendLoginEmailOtp = () => {
   return useMutation<SendEmailOtpResponse, Error, string>({
     mutationFn: sendLoginEmailOtp,
-    mutationKey: [userQueries.sendLoginEmailOtp.key],
+    mutationKey: userQueries.sendLoginEmailOtp('').Key,
   });
 };
 
 export const useSendLoginPhoneOtp = () => {
   return useMutation<SendPhoneOtpResponse, Error, string>({
     mutationFn: sendLoginPhoneOtp,
-    mutationKey: [userQueries.sendLoginPhoneOtp.key],
+    mutationKey: userQueries.sendLoginPhoneOtp('').Key,
   });
 };
 
@@ -182,7 +182,7 @@ export const useVerifyEmail = () => {
     mutationFn: ({ email, code }) => verifyEmail(email, code),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getProfile.key],
+        queryKey: userQueries.getProfile.Key,
       });
     },
   });
@@ -199,7 +199,7 @@ export const useVerifyPhone = () => {
     mutationFn: ({ phone, code }) => verifyPhone(phone, code),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getProfile.key],
+        queryKey: userQueries.getProfile.Key,
       });
     },
   });
@@ -216,10 +216,10 @@ export const useAddUserType = () => {
     mutationFn: ({ id, data }) => addUserType(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getUserById.key, variables.id],
+        queryKey: [...userQueries.getUserById(variables.id).Key],
       });
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getProfile.key],
+        queryKey: userQueries.getProfile.Key,
       });
     },
   });
@@ -236,10 +236,10 @@ export const useUpdateUserType = () => {
     mutationFn: ({ id, data }) => updateUserType(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getUserById.key, variables.id],
+        queryKey: [...userQueries.getUserById(variables.id).Key],
       });
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getProfile.key],
+        queryKey: userQueries.getProfile.Key,
       });
     },
   });
@@ -256,10 +256,10 @@ export const useUpdateUserTypeDeprecated = () => {
     mutationFn: ({ id, data }) => updateUserTypeDeprecated(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getUserById.key, variables.id],
+        queryKey: [...userQueries.getUserById(variables.id).Key],
       });
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getProfile.key],
+        queryKey: userQueries.getProfile.Key,
       });
     },
   });
@@ -272,7 +272,7 @@ export const useUpdateMyEmarati = () => {
     mutationFn: updateMyEmarati,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getProfile.key],
+        queryKey: userQueries.getProfile.Key,
       });
     },
   });
@@ -289,7 +289,7 @@ export const useAdminUpdateEmarati = () => {
     mutationFn: ({ id, data }) => adminUpdateEmarati(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getUserById.key, variables.id],
+        queryKey: [...userQueries.getUserById(variables.id).Key],
       });
       queryClient.invalidateQueries({
         queryKey: [userQueries.findAllUsers.key],
@@ -309,10 +309,10 @@ export const useBlockUser = () => {
     mutationFn: ({ id, data }) => blockUser(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getUserById.key, variables.id],
+        queryKey: [...userQueries.getUserById(variables.id).Key],
       });
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getBlockHistory.key, variables.id],
+        queryKey: [...userQueries.getBlockHistory(variables.id).Key],
       });
       queryClient.invalidateQueries({
         queryKey: [userQueries.findAllUsers.key],
@@ -332,7 +332,7 @@ export const useAssignRole = () => {
     mutationFn: ({ id, data }) => assignRole(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [userQueries.getUserById.key, variables.id],
+        queryKey: [...userQueries.getUserById(variables.id).Key],
       });
       queryClient.invalidateQueries({
         queryKey: [userQueries.findAllUsers.key],

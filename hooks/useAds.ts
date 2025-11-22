@@ -13,7 +13,7 @@ import {
   getFeaturedAds,
   getMyAds,
   uploadAdImages,
-} from "@/app/api/ad";
+} from '@/app/api/ad/ad.services';
 import {
   PostAdPayload,
   PostAdResponse,
@@ -22,8 +22,8 @@ import {
   GetAdSearchResponseType,
   UploadAdImagesResponse,
   AdStatus,
-} from "@/interfaces/ad";
-import { adQueries } from "@/api-queries/ad.query";
+} from '@/interfaces/ad';
+import { adQueries } from '@/app/api/ad/index';
 
 // ============================================================================
 // QUERY HOOKS
@@ -44,7 +44,7 @@ export const useAds = (params?: {
   sortOrder?: "asc" | "desc";
 }) => {
   return useQuery<GetLiveAdsResponse, Error>({
-    queryKey: [adQueries.ads.key, params],
+    queryKey: [...adQueries.ads.Key, params],
     queryFn: () => getAds(params),
   });
 };
@@ -52,7 +52,7 @@ export const useAds = (params?: {
 // Get ad by ID
 export const useAdById = (id: string) => {
   return useQuery<GetAdsByIdResponse, Error>({
-    queryKey: [adQueries.adById.key, id],
+    queryKey: [...adQueries.adById(id).Key],
     queryFn: () => getAdById(id),
     enabled: !!id,
   });
@@ -68,7 +68,7 @@ export const useAdsByUser = (
   }
 ) => {
   return useQuery<GetLiveAdsResponse, Error>({
-    queryKey: [adQueries.adsByUser.key, userId, params],
+    queryKey: [...adQueries.adsByUser(userId).Key, params],
     queryFn: () => getAdsByUser(userId, params),
     enabled: !!userId,
   });
@@ -87,7 +87,7 @@ export const useAdsByCategory = (
   }
 ) => {
   return useQuery<GetLiveAdsResponse, Error>({
-    queryKey: [adQueries.adsByCategory.key, categoryId, params],
+    queryKey: [...adQueries.adsByCategory(categoryId).Key, params],
     queryFn: () => getAdsByCategory(categoryId, params),
     enabled: !!categoryId,
   });
@@ -104,9 +104,9 @@ export const useSearchAds = (params: {
   maxPrice?: number;
 }) => {
   return useQuery<GetAdSearchResponseType, Error>({
-    queryKey: [adQueries.searchAds.key, params],
+    queryKey: [...adQueries.searchAds.Key, params],
     queryFn: () => searchAds(params),
-    enabled: !!params.query && params.query.trim() !== "",
+    enabled: !!params.query && params.query.trim() !== '',
   });
 };
 
@@ -120,7 +120,7 @@ export const useLiveAds = (params?: {
   sortOrder?: "asc" | "desc";
 }) => {
   return useQuery<GetLiveAdsResponse, Error>({
-    queryKey: [adQueries.liveAds.key, params],
+    queryKey: [...adQueries.liveAds.Key, params],
     queryFn: () => getLiveAds(params),
   });
 };
@@ -132,7 +132,7 @@ export const useFeaturedAds = (params?: {
   category?: string;
 }) => {
   return useQuery<GetLiveAdsResponse, Error>({
-    queryKey: [adQueries.featuredAds.key, params],
+    queryKey: [...adQueries.featuredAds.Key, params],
     queryFn: () => getFeaturedAds(params),
   });
 };
@@ -144,7 +144,7 @@ export const useMyAds = (params?: {
   status?: "live" | "rejected" | "pending";
 }) => {
   return useQuery<GetLiveAdsResponse, Error>({
-    queryKey: [adQueries.myAds.key, params],
+    queryKey: [...adQueries.myAds.Key, params],
     queryFn: () => getMyAds(params),
   });
 };
@@ -161,9 +161,9 @@ export const useCreateAd = () => {
     mutationFn: createAd,
     onSuccess: () => {
       // Invalidate and refetch ads
-      queryClient.invalidateQueries({ queryKey: [adQueries.ads.key] });
-      queryClient.invalidateQueries({ queryKey: [adQueries.myAds.key] });
-      queryClient.invalidateQueries({ queryKey: [adQueries.liveAds.key] });
+      queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
+      queryClient.invalidateQueries({ queryKey: adQueries.myAds.Key });
+      queryClient.invalidateQueries({ queryKey: adQueries.liveAds.Key });
     },
   });
 };
@@ -180,10 +180,12 @@ export const useUpdateAd = () => {
     mutationFn: ({ id, payload }) => updateAd(id, payload),
     onSuccess: (_, variables) => {
       // Invalidate and refetch ads
-      queryClient.invalidateQueries({ queryKey: [adQueries.ads.key] });
-      queryClient.invalidateQueries({ queryKey: [adQueries.adById.key, variables.id] });
-      queryClient.invalidateQueries({ queryKey: [adQueries.myAds.key] });
-      queryClient.invalidateQueries({ queryKey: [adQueries.liveAds.key] });
+      queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
+      queryClient.invalidateQueries({
+        queryKey: [...adQueries.adById(variables.id).Key],
+      });
+      queryClient.invalidateQueries({ queryKey: adQueries.myAds.Key });
+      queryClient.invalidateQueries({ queryKey: adQueries.liveAds.Key });
     },
   });
 };
@@ -215,10 +217,12 @@ export const useUpdateAdStatus = () => {
     mutationFn: ({ id, status, reason }) => updateAdStatus(id, status, reason),
     onSuccess: (_, variables) => {
       // Invalidate and refetch ads
-      queryClient.invalidateQueries({ queryKey: [adQueries.ads.key] });
-      queryClient.invalidateQueries({ queryKey: [adQueries.adById.key, variables.id] });
-      queryClient.invalidateQueries({ queryKey: [adQueries.myAds.key] });
-      queryClient.invalidateQueries({ queryKey: [adQueries.liveAds.key] });
+      queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
+      queryClient.invalidateQueries({
+        queryKey: [...adQueries.adById(variables.id).Key],
+      });
+      queryClient.invalidateQueries({ queryKey: adQueries.myAds.Key });
+      queryClient.invalidateQueries({ queryKey: adQueries.liveAds.Key });
     },
   });
 };

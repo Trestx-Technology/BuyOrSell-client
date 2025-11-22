@@ -4,7 +4,7 @@ import { forwardRef, useCallback, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Plus, X, Trash2, Loader2, Upload } from "lucide-react";
-import { uploadFile } from "@/app/api/media";
+import { uploadFile } from '@/app/api/media/media.services';
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 

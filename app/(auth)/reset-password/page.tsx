@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "nextjs-toploader/app";
 import { useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { ResetPassword as ResetPasswordAPI } from "@/app/api/auth";
+import { resetPassword as ResetPasswordAPI } from '@/app/api/auth/auth.services';
 import { AxiosError } from "axios";
 import Image from "next/image";
 
