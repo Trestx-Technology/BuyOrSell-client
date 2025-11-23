@@ -9,16 +9,20 @@ import { motion } from "framer-motion";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useGetMainCategories } from "@/hooks/useCategories";
-import { SubCategory } from "@/interfaces/categories.types";
+import { PopularCategory } from "@/interfaces/home.types";
 
 interface CategoryCard {
   id: number;
   name: string;
-  icon: string;
+  icon: string | null;
   description: string;
   activeAds: string;
   href: string;
+}
+
+interface PopularCategoriesProps {
+  popularCategories?: PopularCategory[];
+  isLoading?: boolean;
 }
 
 // Framer Motion animation variants - using improved patterns from AI search bar
@@ -70,28 +74,15 @@ const CategorySkeleton = () => (
 );
 
 
-const PopularCategories = () => {
+const PopularCategories = ({ popularCategories = [], isLoading = false }: PopularCategoriesProps) => {
   const [showAllCategories, setShowAllCategories] = useState(false);
 
   // Mobile breakpoint at 500px
   const isMobile = useMediaQuery("(max-width: 500px)");
 
-  // Fetch categories using the hook
-  const {
-    data: categoriesData,
-    isLoading: categoriesLoading,
-    error: categoriesError,
-  } = useGetMainCategories();
-
   // Transform API data to match CategoryCard interface
-  const categoryData: CategoryCard[] = categoriesData?.map((category: SubCategory, index: number) => {
-    // Generate random active ads count for demo purposes
-    const getRandomActiveAds = () => {
-      const min = 5000;
-      const max = 30000;
-      const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-      return randomNum.toLocaleString() + " Active Ads";
-    };
+  const categoryData: CategoryCard[] = popularCategories?.map((popularCategory: PopularCategory, index: number) => {
+    const { category, activeAdsCount } = popularCategory;
 
     // Generate href based on category name
     const generateHref = () => {
@@ -124,39 +115,12 @@ const PopularCategories = () => {
       return `${name} category`;
     };
 
-    // Get icon with fallback
-    const getIcon = (name: string, existingIcon?: string) => {
-      if (existingIcon) return existingIcon;
-
-      const iconMap: Record<string, string> = {
-        motors: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/motors.svg",
-        property: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/sale.svg",
-        electronics: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/electronics.svg",
-        furniture: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/furniture.svg",
-        jobs: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/jobs.svg",
-        community: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/community.svg",
-        business: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/business.svg",
-        appliances: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/appliances.svg",
-        classifieds: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/classifieds.svg",
-      };
-
-      const normalizedName = name.toLowerCase();
-      for (const [key, icon] of Object.entries(iconMap)) {
-        if (normalizedName.includes(key)) {
-          return icon;
-        }
-      }
-
-      // Default fallback icon
-      return "https://dev-buyorsell.s3.me-central-1.amazonaws.com/category-icons/classifieds.svg";
-    };
-
     return {
       id: index + 1,
       name: category.name,
-      icon: getIcon(category.name, category.icon),
+      icon: category.icon,
       description: getDescription(category.name),
-      activeAds: getRandomActiveAds(),
+      activeAds: `${activeAdsCount.toLocaleString()} Active Ads`,
       href: generateHref(),
     };
   }) || [];
@@ -199,24 +163,11 @@ const PopularCategories = () => {
           showAllCategories && "overflow-y-auto"
         )}
       >
-        {categoriesLoading
+        {isLoading || !popularCategories || popularCategories.length === 0
           ? // Show skeleton loading state
             Array.from({ length: 10 }).map((_, index) => (
               <CategorySkeleton key={index} />
             ))
-          : categoriesError
-          ? // Show error state
-            <div className="col-span-full flex items-center justify-center py-8">
-              <div className="text-center">
-                <p className="text-gray-500 mb-2">Failed to load categories</p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="text-purple-600 hover:text-purple-700 text-sm underline"
-                >
-                  Try again
-                </button>
-              </div>
-            </div>
           : // Show actual data with Framer Motion animations
             displayCategories.map((category, index) => (
               <motion.div
@@ -250,16 +201,19 @@ const PopularCategories = () => {
                     {/* Icon and Name Section */}
                     <div className="flex flex-col items-center text-center mb-5">
                       <div className="size-[60px] bg-[#FAFAFC] rounded-full flex items-center justify-center mb-1">
-                        <Image
-                          src={category.icon}
-                          alt={category.name}
-                          width={40}
-                          height={40}
-                          className="size-12 object-contain"
-                          priority={index < 5}
-                          loading={index < 5 ? "eager" : "lazy"}
-                          // style={{ imageRendering: "crisp-edges" }}
-                        />
+                        {category.icon ? (
+                          <Image
+                            src={category.icon}
+                            alt={category.name}
+                            width={40}
+                            height={40}
+                            className="size-12 object-contain"
+                            priority={index < 5}
+                            loading={index < 5 ? "eager" : "lazy"}
+                          />
+                        ) : (
+                          <div className="size-12 bg-gray-200 rounded-full" />
+                        )}
                       </div>
                       <h3 className="text-xs font-medium text-black font-inter leading-tight">
                         {category.name}

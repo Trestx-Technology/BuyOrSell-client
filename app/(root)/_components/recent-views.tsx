@@ -46,7 +46,7 @@ export default function RecentViews() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="py-8 max-w-[1180px] mx-auto px-4 xl:px-0"
+      className="max-w-[1180px] mx-auto px-4 xl:px-0"
     >
       <CardsCarousel title="Recently Viewed">
         {mockAds.map((item) => (

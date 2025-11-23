@@ -248,7 +248,7 @@ export default function HostDeals({ className = "" }: HostDealsProps) {
         background:
           "radial-gradient(circle, rgba(180, 207, 199, 1) 0%, rgba(132, 75, 143, 1) 100%)",
       }}
-      className={`bg-[#B7FBE9] rounded-lg max-w-[1180px] mx-auto mb-10 py-5 ${className}`}
+      className={`bg-[#B7FBE9] rounded-lg max-w-[1180px] mx-auto py-5 ${className}`}
     >
       <div className="w-full mx-auto px-5">
         {/* Header with Timer */}
