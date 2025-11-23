@@ -30,6 +30,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { logout as LogoutAPI } from '@/app/api/auth/auth.services';
 import { toast } from "sonner";
+import { useEmirates } from "@/hooks/useLocations";
 
 // Internal component that uses useSearchParams
 const NavbarContent = ({ className }: { className?: string }) => {
@@ -38,6 +39,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
   const router = useRouter();
   const { isAuthenticated, session, clearSession } = useAuthStore();
   const user = session.user;
+  const { data: emirates, isLoading: isLoadingEmirates } = useEmirates();
 
   const handleLogout = async () => {
     try {
@@ -64,9 +66,8 @@ const NavbarContent = ({ className }: { className?: string }) => {
           className
         )}
       >
-        {/* Logo and Brand Name */}
         <div className="flex items-center gap-2">
-          <div>
+          {/*-------------- Side Menu for mobile devices---------- */}
             <SideMenu
               user={
                 user
@@ -95,9 +96,9 @@ const NavbarContent = ({ className }: { className?: string }) => {
                 />
               }
               isLoggedIn={isAuthenticated}
-            />
-          </div>
-          <div>
+          />
+          
+          {/*-------------- Logo and Brand Name---------- */}
             <Link href="/" className="flex items-center">
               <Image
                 src={ICONS.logo.main}
@@ -106,12 +107,10 @@ const NavbarContent = ({ className }: { className?: string }) => {
                 height={49}
               />
             </Link>
-          </div>
         </div>
 
-        {/* Center Section - Location and Search */}
+        {/*-------------- Center Section - Location and Search---------- */}
         <div className="flex items-start gap-2 md:flex-1">
-          {/* Location Selector */}
           <Button
             variant="ghost"
             size="icon"
@@ -119,7 +118,8 @@ const NavbarContent = ({ className }: { className?: string }) => {
             iconPosition="center"
             className="md:hidden"
           />
-          <div>
+
+          {/*---------- Location Selector for desktop devices---------- */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -131,33 +131,46 @@ const NavbarContent = ({ className }: { className?: string }) => {
                   {city || "UAE"}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-fit text-xs" align="start">
+              <DropdownMenuContent
+                className="w-fit text-xs max-h-[300px] overflow-y-auto"
+                align="start"
+              >
                 <DropdownMenuItem onClick={() => setCity("")}>
                   All Cities (UAE)
                 </DropdownMenuItem>
-                {/* {emirates?.data?.map((cityName) => (
-                  <DropdownMenuItem
-                    key={cityName}
-                    onClick={() => setCity(cityName)}
-                  >
-                    {cityName}
-                  </DropdownMenuItem>
-                ))} */}
-                <DropdownMenuItem key={"UAE"} onClick={() => setCity("UAE")}>
-                  UAE
-                </DropdownMenuItem>
+                {isLoadingEmirates ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <DropdownMenuItem key={i}>
+                      <div className="animate-pulse bg-gray-300 h-5 w-full rounded-sm"></div>
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  emirates?.map((emirateName) => (
+                    <DropdownMenuItem
+                      key={emirateName}
+                      onClick={() => setCity(emirateName)}
+                      className={cn(
+                        "cursor-pointer",
+                        city === emirateName
+                          ? "bg-purple/20 text-purple"
+                          : ""
+                      )}
+                    >
+                      {emirateName}
+                    </DropdownMenuItem>
+                  ))
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
 
           <div className="hidden md:flex flex-1">
             <SearchAnimated />
           </div>
         </div>
 
-        {/* Right Section - Action Buttons */}
+        {/*-------------- Right Section - Action Buttons---------- */}
         <div className="hidden md:flex items-center gap-5 ml-2">
-          {/* User Menu */}
+          {/*-------------- User Menu---------- */}
           {isAuthenticated && user ? (
             <Popover>
               <PopoverTrigger asChild>
@@ -303,7 +316,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
             </Link>
           )}
 
-          {/* Place Ad Button */}
+          {/*-------------- Place Ad Button---------- */}
 
           <Button
             variant="filled"
@@ -326,7 +339,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
         </div>
       </nav>
 
-      {/* Post Ad Dialog */}
+      {/*-------------- Post Ad Dialog---------- */}
       <PostAdDialog
         isOpen={isPostAdDialogOpen}
         onClose={() => setIsPostAdDialogOpen(false)}
@@ -335,7 +348,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
   );
 };
 
-// Main Navbar component with Suspense wrapper
+//-------------- Main Navbar component with Suspense wrapper---------- */}
 const Navbar = ({ className }: { className?: string }) => {
   return (
     <Suspense fallback={<div className="h-16 bg-white border-b" />}>
