@@ -82,7 +82,6 @@ const PopularCategories = () => {
     isLoading: categoriesLoading,
     error: categoriesError,
   } = useGetMainCategories();
-  console.log("categoriesData: ", categoriesData);
 
   // Transform API data to match CategoryCard interface
   const categoryData: CategoryCard[] = categoriesData?.map((category: SubCategory, index: number) => {
