@@ -1,20 +1,48 @@
 "use client";
 
 import * as React from "react";
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Banner } from "@/interfaces/banner.types";
 
-export interface BannerItem {
-  id: number | string;
-  image: StaticImageData | string;
-  callToAction: string;
-  alt?: string;
+interface SponsoredBannerProps {
+  banner: Banner;
+  className?: string;
+}
+
+function SponsoredBanner({ banner, className = "" }: SponsoredBannerProps) {
+  return (
+    <div
+      className={`md:block hidden w-full max-w-[400px] h-[300px] bg-black ${className}`}
+    >
+      <div className="w-full h-[85%] bg-white">
+        <Image
+          src={banner.image}
+          alt={banner.title || banner.titleAr || "Sponsored banner"}
+          unoptimized
+          width={400}
+          height={300}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div className="w-full h-[15%] flex items-center justify-center">
+        <Button
+          size="sm"
+          className="rounded-sm bg-white opacity-70 text-black mx-auto hover:opacity-100 hover:bg-white transition-all duration-300"
+        >
+          Explore More
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 export interface BannerCarouselProps {
-  banners: BannerItem[];
+  banners: Banner[];
+  isLoading?: boolean;
+  error: Error|null;
   autoPlay?: boolean;
   autoPlayInterval?: number;
   showDots?: boolean;
@@ -36,6 +64,7 @@ export interface BannerCarouselProps {
 
 export function BannerCarousel({
   banners,
+  isLoading,
   autoPlay = true,
   autoPlayInterval = 5000,
   showDots = true,
@@ -52,10 +81,10 @@ export function BannerCarousel({
   sponsoredBannerClassName = "",
   maxWidth = "max-w-[1280px]",
   height = "h-[200px] md:h-[300px]",
+  error,
   onSlideChange,
 }: BannerCarouselProps) {
   const [currentSlide, setCurrentSlide] = React.useState(0);
-  const [isLoading, setIsLoading] = React.useState(true);
 
   const previousSlide = React.useCallback(() => {
     setCurrentSlide((curr) =>
@@ -69,22 +98,13 @@ export function BannerCarousel({
     );
   }, [banners?.length]);
 
-  // Simulate API call loading
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
   // Auto-play functionality
   React.useEffect(() => {
-    if (isLoading || !autoPlay) return;
+    if (!autoPlay) return;
 
     const timer = setInterval(nextSlide, autoPlayInterval);
     return () => clearTimeout(timer);
-  }, [nextSlide, isLoading, autoPlay, autoPlayInterval]);
+  }, [nextSlide, autoPlay, autoPlayInterval]);
 
   // Callback for slide change
   React.useEffect(() => {
@@ -140,9 +160,11 @@ export function BannerCarousel({
     </div>
   );
 
-  if (isLoading) {
+  if (isLoading ) {
     return <LoadingSkeleton />;
   }
+
+  if (error) return
 
   return (
     <div
@@ -158,12 +180,13 @@ export function BannerCarousel({
         >
           {banners?.map((slide) => (
             <div
-              key={slide.id}
+              key={slide._id}
               className={`${height} w-full flex bg-grey-100 flex-col shrink-0 relative`}
             >
               <Image
                 src={slide.image}
-                alt={slide.alt || slide.callToAction}
+                alt={slide.title || slide.titleAr || "Banner"}
+                unoptimized
                 width={1200}
                 height={400}
                 className={`rounded-xl md:rounded-none h-[190px] sm:h-full w-full object-cover object-right md:object-center ${imageClassName}`}
@@ -222,27 +245,10 @@ export function BannerCarousel({
 
       {/* Sponsored Banner */}
       {showSponsoredBanner && banners && banners.length > 1 && (
-        <div
-          className={`md:block hidden w-full max-w-[400px] h-[300px] bg-black ${sponsoredBannerClassName}`}
-        >
-          <div className="w-full h-[85%] bg-white">
-            <Image
-              src={banners[1].image}
-              alt={banners[1].alt || banners[1].callToAction}
-              width={400}
-              height={300}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="w-full h-[15%] flex items-center justify-center">
-            <Button
-              size="sm"
-              className="rounded-sm bg-white opacity-70 text-black mx-auto hover:opacity-100 hover:bg-white transition-all duration-300"
-            >
-              Explore More
-            </Button>
-          </div>
-        </div>
+        <SponsoredBanner
+          banner={banners[1]}
+          className={sponsoredBannerClassName}
+        />
       )}
 
       {/* Mobile Dots */}

@@ -2,7 +2,6 @@ import { axiosInstance } from '@/services/axios-api-client';
 import { bannerQueries } from './index';
 import {
   BannerApiResponse,
-  BannersApiResponse,
   BannersListApiResponse,
   CreateBannerPayload,
   UpdateBannerPayload,
@@ -30,33 +29,6 @@ export const getBannerById = async (
 ): Promise<BannerApiResponse> => {
   const response = await axiosInstance.get<BannerApiResponse>(
     bannerQueries.bannerById(id).endpoint,
-  );
-  return response.data;
-};
-
-// Get active banners
-export const getActiveBanners = async (params?: {
-  position?: string;
-  limit?: number;
-}): Promise<BannersApiResponse> => {
-  const response = await axiosInstance.get<BannersApiResponse>(
-    bannerQueries.activeBanners.endpoint,
-    { params },
-  );
-  return response.data;
-};
-
-// Get banners by position
-export const getBannersByPosition = async (
-  position: string,
-  params?: {
-    limit?: number;
-    isActive?: boolean;
-  },
-): Promise<BannersApiResponse> => {
-  const response = await axiosInstance.get<BannersApiResponse>(
-    bannerQueries.bannersByPosition(position).endpoint,
-    { params },
   );
   return response.data;
 };
@@ -100,23 +72,6 @@ export const deleteBanner = async (
 ): Promise<{ message: string }> => {
   const response = await axiosInstance.delete(
     bannerQueries.deleteBanner(id).endpoint,
-  );
-  return response.data;
-};
-
-// Update banner status
-export const updateBannerStatus = async (
-  id: string,
-  isActive: boolean,
-): Promise<BannerApiResponse> => {
-  const response = await axiosInstance.patch<BannerApiResponse>(
-    bannerQueries.updateBannerStatus(id).endpoint,
-    { isActive },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    },
   );
   return response.data;
 };

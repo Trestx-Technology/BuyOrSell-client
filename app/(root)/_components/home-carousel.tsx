@@ -2,9 +2,17 @@
 
 import { BannerCarousel } from "@/components/global/banner-carousel";
 import { banners } from "@/constants/banners";
+import { useBannersByLocation } from "@/hooks/useBanners";
 import { motion } from "framer-motion";
 
 export function HomeCarousel() {
+  const {
+    data: bannersData,
+    isLoading: isLoadingBanners,
+    error: errorBanners,
+  } = useBannersByLocation("homepage-carousel");
+  
+
   // Blur fade animation variants
   const blurFadeVariants = {
     hidden: {
@@ -34,7 +42,9 @@ export function HomeCarousel() {
       viewport={{ once: true, margin: "-100px" }}
     >
       <BannerCarousel
-        banners={banners}
+        banners={bannersData?.data?.banners || []}
+        isLoading={isLoadingBanners}
+        error={errorBanners}
         showSponsoredBanner={true}
         autoPlay={true}
         autoPlayInterval={5000}

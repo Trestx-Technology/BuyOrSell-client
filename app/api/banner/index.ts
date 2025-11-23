@@ -7,14 +7,6 @@ export const bannerQueries = {
     Key: ['banner', id],
     endpoint: `/banner/${id}`,
   }),
-  activeBanners: {
-    Key: ['banners', 'active'],
-    endpoint: '/banner/active',
-  },
-  bannersByPosition: (position: string) => ({
-    Key: ['banners', 'position', position],
-    endpoint: `/banner/position/${position}`,
-  }),
   createBanner: {
     Key: ['banner', 'create'],
     endpoint: '/banner',
@@ -26,10 +18,6 @@ export const bannerQueries = {
   deleteBanner: (id: string) => ({
     Key: ['banner', id, 'delete'],
     endpoint: `/banner/${id}`,
-  }),
-  updateBannerStatus: (id: string) => ({
-    Key: ['banner', id, 'status'],
-    endpoint: `/banner/${id}/status`,
   }),
 };
 

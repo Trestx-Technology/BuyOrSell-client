@@ -2,19 +2,16 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getBanners,
   getBannerById,
-  getActiveBanners,
-  getBannersByPosition,
   createBanner,
   updateBanner,
   deleteBanner,
-  updateBannerStatus,
 } from '@/app/api/banner/banner.services';
 import {
   BannerApiResponse,
-  BannersApiResponse,
   BannersListApiResponse,
   CreateBannerPayload,
   UpdateBannerPayload,
+  Banner,
 } from '@/interfaces/banner.types';
 import { bannerQueries } from '@/app/api/banner/index';
 
@@ -46,30 +43,41 @@ export const useBannerById = (id: string) => {
   });
 };
 
-// Get active banners
-export const useActiveBanners = (params?: {
-  position?: string;
-  limit?: number;
-}) => {
-  return useQuery<BannersApiResponse, Error>({
-    queryKey: [...bannerQueries.activeBanners.Key, params],
-    queryFn: () => getActiveBanners(params),
-  });
-};
-
-// Get banners by position
-export const useBannersByPosition = (
-  position: string,
+// Get banners by location (client-side filtering)
+export const useBannersByLocation = (
+  location: string,
   params?: {
+    page?: number;
     limit?: number;
+    position?: string;
     isActive?: boolean;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
   }
 ) => {
-  return useQuery<BannersApiResponse, Error>({
-    queryKey: [...bannerQueries.bannersByPosition(position).Key, params],
-    queryFn: () => getBannersByPosition(position, params),
-    enabled: !!position,
-  });
+  const { data, isLoading, error, ...rest } = useBanners(params);
+
+  // Filter banners by location client-side
+  const filteredData: BannersListApiResponse | undefined = data
+    ? {
+        ...data,
+        data: {
+          ...data.data,
+          banners: data.data.banners.filter((banner: Banner) => {
+            // Check if banner has location field and matches the provided location
+            const bannerLocation = banner.location || banner.locationId;
+            return bannerLocation?.toLowerCase() === location.toLowerCase();
+          }),
+        },
+      }
+    : undefined;
+
+  return {
+    data: filteredData,
+    isLoading,
+    error,
+    ...rest,
+  };
 };
 
 // ============================================================================
@@ -85,7 +93,6 @@ export const useCreateBanner = () => {
     onSuccess: () => {
       // Invalidate and refetch banners
       queryClient.invalidateQueries({ queryKey: bannerQueries.banners.Key });
-      queryClient.invalidateQueries({ queryKey: bannerQueries.activeBanners.Key });
     },
   });
 };
@@ -106,7 +113,6 @@ export const useUpdateBanner = () => {
       queryClient.invalidateQueries({
         queryKey: [...bannerQueries.bannerById(variables.id).Key],
       });
-      queryClient.invalidateQueries({ queryKey: bannerQueries.activeBanners.Key });
     },
   });
 };
@@ -120,28 +126,6 @@ export const useDeleteBanner = () => {
     onSuccess: () => {
       // Invalidate and refetch banners
       queryClient.invalidateQueries({ queryKey: bannerQueries.banners.Key });
-      queryClient.invalidateQueries({ queryKey: bannerQueries.activeBanners.Key });
-    },
-  });
-};
-
-// Update banner status
-export const useUpdateBannerStatus = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation<
-    BannerApiResponse,
-    Error,
-    { id: string; isActive: boolean }
-  >({
-    mutationFn: ({ id, isActive }) => updateBannerStatus(id, isActive),
-    onSuccess: (_, variables) => {
-      // Invalidate and refetch banners
-      queryClient.invalidateQueries({ queryKey: bannerQueries.banners.Key });
-      queryClient.invalidateQueries({
-        queryKey: [...bannerQueries.bannerById(variables.id).Key],
-      });
-      queryClient.invalidateQueries({ queryKey: bannerQueries.activeBanners.Key });
     },
   });
 };

@@ -12,6 +12,8 @@ export interface Banner {
   isActive: boolean;
   startDate?: string;
   endDate?: string;
+  location?: string;
+  locationId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -54,5 +56,4 @@ export interface CreateBannerPayload {
   endDate?: string;
 }
 
-export interface UpdateBannerPayload extends Partial<CreateBannerPayload> {}
-
+export type UpdateBannerPayload = Partial<CreateBannerPayload>;
