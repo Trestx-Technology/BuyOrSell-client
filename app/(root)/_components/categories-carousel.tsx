@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import useEmblaCarousel from "embla-carousel-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { SubCategory } from "@/interfaces/categories.types";
+import { HomeCategory } from "@/interfaces/home.types";
 
 interface CategoriesCarouselProps {
-  categoryList?: SubCategory[];
+  categoryList?: HomeCategory[];
   isLoading?: boolean;
 }
 
@@ -32,11 +32,11 @@ const CategoriesCarousel = ({ categoryList = [], isLoading = false }: Categories
   const [canScrollNext, setCanScrollNext] = React.useState(false);
 
   // Transform API data to match expected format using API data directly
-  const categoryData = categoryList?.map((category: SubCategory, index: number) => {
+  const categoryData = categoryList?.map((category: HomeCategory, index: number) => {
     return {
       id: index + 1,
       name: category.name,
-      icon: category.icon ,
+      icon: category.icon,
       description: category.desc || `${category.name} category`,
     };
   }) || [];

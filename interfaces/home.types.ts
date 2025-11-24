@@ -1,6 +1,54 @@
-import { Banner } from './banner.types';
-import { SubCategory } from './categories.types';
 import { AD } from './ad';
+
+// ============================================================================
+// HOME API SPECIFIC TYPES
+// ============================================================================
+
+// Banner structure from home API
+export interface HomeBanner {
+  _id: string;
+  title: string;
+  subTitle: string;
+  content: string;
+  image: string;
+  location: string;
+  isActive: boolean;
+  callToAction: string;
+  promotional: boolean;
+  sponsored: boolean;
+  position: string;
+  placement: string;
+  bannerTypeId: string;
+  __v: number;
+}
+
+// Category structure from home API categoryList
+export interface HomeCategory {
+  _id: string;
+  name: string;
+  icon: string | null;
+  image: string | null;
+  banner: string | null;
+  desc: string | null;
+  fieldsCount: number;
+}
+
+// Subcategory structure from home API subCategoryList
+export interface HomeSubCategory {
+  _id: string;
+  name: string;
+  icon: string | null;
+  image: string | null;
+  banner: string | null;
+  desc: string | null;
+  fieldsCount: number;
+}
+
+// Category with subcategories structure from home API subCategoryList
+export interface CategoryWithSubCategories {
+  category: string;
+  subCategory: HomeSubCategory[];
+}
 
 // Category tree with ads - matches the API structure
 export interface CategoryTreeWithAds {
@@ -12,7 +60,7 @@ export interface CategoryTreeWithAds {
   desc: string | null;
   fieldsCount: number;
   ads: AD[];
-  children: CategoryTreeWithAds[];
+  children: CategoryTreeWithAds[]; // Recursive - same structure
 }
 
 // Latest ad structure (simplified version)
@@ -63,9 +111,9 @@ export interface PopularCategory {
 
 // Home page data structure
 export interface HomeData {
-  banner: Banner[];
-  categoryList: SubCategory[];
-  subCategoryList: SubCategory[];
+  banner: HomeBanner[];
+  categoryList: HomeCategory[];
+  subCategoryList: CategoryWithSubCategories[];
   categoryTreeWithAds: CategoryTreeWithAds[];
   categoryTreeWithDealAds: CategoryTreeWithAds[];
   categoryTreeWithExchangeAds: CategoryTreeWithAds[];
@@ -80,4 +128,3 @@ export interface HomeApiResponse {
   timestamp: string;
   data: HomeData;
 }
-
