@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 
-const TOKEN_NAME = "dealdome_access_token";
+const TOKEN_NAME = "buyorsell_access_token";
 
 export const setCookies = async (token: string) => {
   const cookiesStore = await cookies();

@@ -105,7 +105,7 @@ axiosInstance.interceptors.request.use(
   async (
     config: InternalAxiosRequestConfig,
   ): Promise<InternalAxiosRequestConfig> => {
-    const token = LocalStorageService.get<string>('dealdome_access_token');
+    const token = LocalStorageService.get<string>('buyorsell_access_token');
 
     // Case: expired or invalid access token -> refresh using single shared promise
     if (token && isTokenExpired(token)) {
@@ -138,7 +138,7 @@ axiosInstance.interceptors.request.use(
               throw new Error('No access token in refresh response');
             }
             
-            LocalStorageService.set('dealdome_access_token', newToken);
+            LocalStorageService.set('buyorsell_access_token', newToken);
             if (newRefresh) {
               LocalStorageService.set('refreshToken', newRefresh);
             }

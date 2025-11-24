@@ -116,7 +116,7 @@ export const useAuthStore = create<AuthStore>()(
         });
 
         // Also store in localStorage for backward compatibility
-        LocalStorageService.set('dealdome_access_token', accessToken);
+        LocalStorageService.set('buyorsell_access_token', accessToken);
         LocalStorageService.set('refresh_token', refreshToken);
         LocalStorageService.set('user', sessionUser);
 
@@ -174,7 +174,7 @@ export const useAuthStore = create<AuthStore>()(
         });
 
         // Update localStorage
-        LocalStorageService.set('dealdome_access_token', accessToken);
+        LocalStorageService.set('buyorsell_access_token', accessToken);
         if (refreshToken) {
           LocalStorageService.set('refresh_token', refreshToken);
         }
