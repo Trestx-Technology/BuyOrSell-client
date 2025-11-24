@@ -89,7 +89,7 @@ export function createUrlParamHandler<T extends string>(
   router: AppRouterInstance,
   paramName: string,
   setState?: (value: T) => void,
-  shouldRemove?: (value: T) => boolean
+  shouldRemove?: (value: string) => boolean
 ): (value: T) => void {
   return (value: T) => {
     // Update state if setter is provided
