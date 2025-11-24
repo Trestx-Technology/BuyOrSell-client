@@ -70,7 +70,7 @@ export default function ProductsGrid({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className={cn("w-full mx-auto py-4 h-full overflow-y-auto", className)}
+      className={cn("w-full mx-auto py-4 h-full", className)}
     >
       {/* Header Section */}
       <div className="mb-2">

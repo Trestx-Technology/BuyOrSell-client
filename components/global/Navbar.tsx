@@ -26,20 +26,36 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { logout as LogoutAPI } from '@/app/api/auth/auth.services';
 import { toast } from "sonner";
 import { useEmirates } from "@/hooks/useLocations";
+import { createUrlParamHandler } from "@/utils/url-params";
+import { useQueryParam } from "@/hooks/useQueryParam";
 
 // Internal component that uses useSearchParams
 const NavbarContent = ({ className }: { className?: string }) => {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const [city, setCity] = useState("");
   const [isPostAdDialogOpen, setIsPostAdDialogOpen] = useState(false);
-  const router = useRouter();
   const { isAuthenticated, session, clearSession } = useAuthStore();
   const user = session.user;
   const { data: emirates, isLoading: isLoadingEmirates } = useEmirates();
+
+  // Initialize city from URL query parameter
+  useQueryParam(searchParams, "emirate", setCity);
+
+  // Update URL when city changes
+  const handleCityChange = createUrlParamHandler(
+    searchParams,
+    pathname,
+    router,
+    "emirate",
+    setCity
+  );
 
   const handleLogout = async () => {
     try {
@@ -135,7 +151,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                 className="w-fit text-xs max-h-[300px] overflow-y-auto"
                 align="start"
               >
-                <DropdownMenuItem onClick={() => setCity("")}>
+                <DropdownMenuItem onClick={() => handleCityChange("")}>
                   All Cities (UAE)
                 </DropdownMenuItem>
                 {isLoadingEmirates ? (
@@ -148,7 +164,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                   emirates?.map((emirateName) => (
                     <DropdownMenuItem
                       key={emirateName}
-                      onClick={() => setCity(emirateName)}
+                      onClick={() => handleCityChange(emirateName)}
                       className={cn(
                         "cursor-pointer",
                         city === emirateName

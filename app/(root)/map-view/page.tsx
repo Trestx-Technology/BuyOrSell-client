@@ -58,7 +58,7 @@ const MapView = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex items-start max-w-[1080px] justify-between mx-auto gap-4 h-[calc(100vh-130px)] xl:px-0 px-5 relative">
+      <div className="flex items-start max-w-[1080px] justify-between mx-auto gap-4 xl:px-0 px-5 relative">
         {/* Products Grid */}
 
         <ProductsGrid
@@ -77,7 +77,7 @@ const MapView = () => {
 
         {/* Map Section */}
         {filters.showMap && (
-          <div className="w-full sticky top-4 h-full">
+          <div className="w-full sticky top-4 h-[calc(100vh-130px)]">
             <Map
               markers={mapMarkers}
               onMarkerClick={handleMarkerClick}

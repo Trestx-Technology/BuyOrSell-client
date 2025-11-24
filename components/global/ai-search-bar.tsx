@@ -16,7 +16,11 @@ import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
 import { BorderBeam } from "../magicui/border-beam";
 import { useRouter } from "nextjs-toploader/app";
+import { useSearchParams, usePathname } from "next/navigation";
+import { useRouter as useNextRouter } from "next/navigation";
 import { useGetMainCategories } from "@/hooks/useCategories";
+import { createUrlParamHandler } from "@/utils/url-params";
+import { useQueryParams } from "@/hooks/useQueryParam";
 
 // Color system (exactly 4 colors total):
 // 1) purple brand: teal-400 (#2dd4bf)
@@ -45,7 +49,36 @@ export function SearchAnimated() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const searchRef = React.useRef<HTMLDivElement>(null);
   const router = useRouter();
-const [selectedCategory, setSelectedCategory] = React.useState("All Categories");
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const nextRouter = useNextRouter();
+  const [selectedCategory, setSelectedCategory] = React.useState("All Categories");
+
+  // Initialize category and search query from URL query parameters
+  useQueryParams(searchParams, {
+    category: { setState: setSelectedCategory },
+    search: { setState: setSearchQuery },
+  });
+
+  // Update URL when category changes
+  const handleCategoryChange = createUrlParamHandler(
+    searchParams,
+    pathname,
+    nextRouter,
+    "category",
+    setSelectedCategory,
+    (value) => value === "All Categories"
+  );
+
+  // Update URL when search query changes
+  const handleSearchQueryChange = createUrlParamHandler(
+    searchParams,
+    pathname,
+    nextRouter,
+    "search",
+    setSearchQuery
+  );
+
   const handleTrigger = () => setIsAI(true);
   const handleReset = () => setIsAI(false);
 
@@ -114,12 +147,12 @@ const [selectedCategory, setSelectedCategory] = React.useState("All Categories")
                 <motion.div
                   key="simple"
                   layout
-                  className="flex items-center flex-1 "
+                  className="flex items-center flex-1"
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 1 }}
                   exit={{ opacity: 0, y: -6 }}
                 >
-                  <CategoryDropdown selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
+                  <CategoryDropdown selectedCategory={selectedCategory} setSelectedCategory={handleCategoryChange} />
                   <div
                     className="hidden lg:block h-6 w-px bg-black/10"
                     aria-hidden="true"
@@ -143,7 +176,7 @@ const [selectedCategory, setSelectedCategory] = React.useState("All Categories")
                     inputSize="sm"
                     placeholder="Search any product.."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => handleSearchQueryChange(e.target.value)}
                     onKeyDown={handleKeyDown}
                     className="pl-8 flex-1 block w-full bg-transparent text-xs placeholder-gray-500 focus:outline-none focus:ring-0 border-0"
                   />
@@ -177,7 +210,7 @@ const [selectedCategory, setSelectedCategory] = React.useState("All Categories")
                     inputSize="sm"
                     placeholder="Type or select by suggestions"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => handleSearchQueryChange(e.target.value)}
                     onKeyDown={handleKeyDown}
                     className="pl-8 flex-1 block w-full bg-transparent text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-0 border-0 h-full"
                   />
@@ -280,6 +313,9 @@ export const CategoryDropdown = ({selectedCategory, setSelectedCategory}: {selec
         className="w-48 z-[60] max-h-[300px] overflow-y-auto"
         align="start"
       >
+        <DropdownMenuItem onClick={() => setSelectedCategory("All Categories")}>
+          All Categories
+        </DropdownMenuItem>
         {isLoading ? (
           Array.from({ length: 5 }).map((_,i) => (
             <DropdownMenuItem key={i}>
