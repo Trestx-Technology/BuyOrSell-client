@@ -16,21 +16,6 @@ import CategoryTabbedCarousel from "@/components/global/category-tabbed-carousel
 export function HomeContent() {
   const { data: homeData, isLoading } = useHome();
 
-  // const banners = [
-  //   {
-  //     id: 1,
-  //     image:
-  //       "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/estate-banner.png",
-  //     callToAction: "Premium Properties",
-  //   },
-  //   {
-  //     id: 2,
-  //     image:
-  //       "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/estate-banner.png",
-  //     callToAction: "Luxury Real Estate",
-  //   },
-  // ];
-
   return (
     <main className="min-h-screen">
       <Navbar />
@@ -66,15 +51,6 @@ export function HomeContent() {
 
         {/* PhonePe-Style Stacking Animation Container */}
         <div className="max-w-[1280px] mx-auto relative">
-          {/* <TrendingCars className="sticky top-0 z-10" />
-          <TrendingProperties className="sticky top-[50px] z-20" />
-          <TrendingFurniture className="sticky top-[150px] z-40" />
-          <TrendingProducts className="sticky top-[200px] z-50" />
-          <PopularJobs className="sticky top-[250px] z-60" />
-
-          <PopularClassifieds className="sticky top-[300px] z-70" />
-          <BusinessIndustries className="sticky top-[350px] z-80" /> */}
-
           {homeData?.data.subCategoryList?.map((category, i) => {
             // Sticky positioning pattern matching the commented components
             const stickyClasses = [
@@ -102,13 +78,6 @@ export function HomeContent() {
               />
             );
           })}
-          {/* <MidBannerCarousel
-            className="max-w-[1180px] mx-auto"
-            containerClassName="sticky top-[400px] z-90"
-            banners={banners}
-            autoPlay={true}
-            autoPlayInterval={5000}
-          /> */}
         </div>
 
         {/* Footer */}
