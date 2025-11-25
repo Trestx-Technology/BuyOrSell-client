@@ -39,7 +39,7 @@ export default function OTPVerificationDialog({
   );
 
   const handleSubmit = () => {
-    if (otp.length === 4) {
+    if (otp.length === 6) {
       onVerify(otp);
     }
   };
@@ -51,7 +51,7 @@ export default function OTPVerificationDialog({
     }
   }, [isOpen]);
 
-  const isOtpComplete = otp.length === 4;
+  const isOtpComplete = otp.length === 6;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -65,7 +65,7 @@ export default function OTPVerificationDialog({
             <h3 className="text-lg font-semibold text-gray-900">Enter OTP</h3>
 
             <DialogDescription className="text-sm text-gray-600 leading-relaxed">
-              4 digit OTP has been sent to your mobile number <br /> starting
+              6 digit OTP has been sent to your mobile number <br /> starting
               from{" "}
               <span className="font-medium text-gray-900">
                 {maskedPhoneNumber}
@@ -77,16 +77,18 @@ export default function OTPVerificationDialog({
         {/* OTP Input Fields */}
         <div className="flex justify-center">
           <InputOTP
-            maxLength={4}
+            maxLength={6}
             value={otp}
             onChange={setOtp}
             disabled={isLoading}
           >
-            <InputOTPGroup className="flex gap-10">
+            <InputOTPGroup className="flex gap-5">
               <InputOTPSlot index={0} />
               <InputOTPSlot index={1} />
               <InputOTPSlot index={2} />
               <InputOTPSlot index={3} />
+              <InputOTPSlot index={4} />
+              <InputOTPSlot index={5} />
             </InputOTPGroup>
           </InputOTP>
         </div>
