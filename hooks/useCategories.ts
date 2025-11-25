@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getCategoriesTree,
   getCategoryTreeById,
+  getCategoryTreeAdsById,
   getCategoryFields,
   getCategoryById,
   createCategory,
@@ -13,7 +14,7 @@ import {
   getCategoriesWithFilter,
 } from '@/app/api/categories/categories.services';
 import { categoriesQueries } from '@/app/api/categories/index';
-import { SubCategory, CategoriesApiResponse, CategoryApiResponse, CategoryTreeResponse } from "@/interfaces/categories.types";
+import { SubCategory, CategoriesApiResponse, CategoryApiResponse, CategoryTreeResponse, CategoryTreeAdsResponse } from "@/interfaces/categories.types";
 
 // Query Hooks
 
@@ -53,6 +54,14 @@ export const useCategoryTreeById = (id: string) => {
   return useQuery<CategoryTreeResponse, Error>({
     queryKey: [...categoriesQueries.categoryTreeById(id).Key],
     queryFn: () => getCategoryTreeById(id),
+    enabled: !!id,
+  });
+};
+
+export const useCategoryTreeAdsById = (id: string) => {
+  return useQuery<CategoryTreeAdsResponse, Error>({
+    queryKey: [...categoriesQueries.categoryTreeAdsById(id).Key],
+    queryFn: () => getCategoryTreeAdsById(id),
     enabled: !!id,
   });
 };

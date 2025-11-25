@@ -11,6 +11,10 @@ export const categoriesQueries = {
     Key: ['category', 'tree', id],
     endpoint: `/categories/tree/${id}`,
   }),
+  categoryTreeAdsById: (id: string) => ({
+    Key: ['category', 'tree', id, 'ads'],
+    endpoint: `/categories/tree/${id}/ads`,
+  }),
   categoryFields: {
     Key: ['categories', 'fields'],
     endpoint: '/categories/fields',

@@ -4,6 +4,7 @@ import {
   CategoriesApiResponse,
   CategoryApiResponse,
   CategoryTreeResponse,
+  CategoryTreeAdsResponse,
 } from '@/interfaces/categories.types';
 
 export const getCategoriesWithFilter = async (params?: {
@@ -32,6 +33,15 @@ export const getCategoryTreeById = async (
     categoriesQueries.categoryTreeById(id).endpoint,
   );
   return response.data.data;
+};
+
+export const getCategoryTreeAdsById = async (
+  id: string,
+): Promise<CategoryTreeAdsResponse> => {
+  const response = await axiosInstance.get<CategoryTreeAdsResponse>(
+    categoriesQueries.categoryTreeAdsById(id).endpoint,
+  );
+  return response.data;
 };
 
 export const getCategoryFields = async (): Promise<CategoriesApiResponse> => {

@@ -1,3 +1,5 @@
+import { AD } from "./ad";
+
 export interface Field {
   name: string;
   type:
@@ -112,3 +114,27 @@ export interface CategoriesTreeApiResponse {
 
 // Response from /categories/tree/:id - returns a single category with nested children
 export type CategoryTreeResponse = SubCategory;
+
+// Response from /categories/tree/:id/ads - returns category with ads and pagination
+export interface CategoryTreeAdsResponse {
+  statusCode: number;
+  timestamp: string;
+  data: {
+    _id: string;
+    name: string;
+    ads: AD[];
+    adsPagination: {
+      total: number;
+      page: number;
+      limit: number;
+      hasNext: boolean;
+    };
+    banner?: string | null;
+    children: SubCategory[];
+    desc?: string;
+    fieldsCount?: number;
+    icon?: string | null;
+    image?: string | null;
+    [key: string]: unknown; // For any other fields
+  };
+}
