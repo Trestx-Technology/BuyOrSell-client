@@ -20,6 +20,7 @@ import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
 import { FaWhatsapp } from "react-icons/fa";
 import Link from "next/link";
+import { ProductExtraFields } from "@/interfaces/ad";
 
 export interface HotDealsListingCardProps {
   id: string;
@@ -30,12 +31,7 @@ export interface HotDealsListingCardProps {
   currency?: string;
   location: string;
   images: string[];
-  specifications: {
-    transmission?: string;
-    fuelType?: string;
-    mileage?: string;
-    year?: number;
-  };
+  extraFields: ProductExtraFields;
   postedTime: string;
   views?: number;
   isPremium?: boolean;
@@ -66,7 +62,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   currency = "AED",
   location,
   images,
-  specifications,
+  extraFields,
   postedTime,
   // views = 0,
   isPremium = false,
@@ -86,6 +82,26 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   timerTextColor = "text-white",
   endTime,
 }) => {
+  // Ensure extraFields exists
+  const safeExtraFields = extraFields || {};
+
+  // Helper function to get field value from extraFields
+  const getFieldValue = (fieldName: string): string | number | undefined => {
+    if (!safeExtraFields) return undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const value = (safeExtraFields as Record<string, any>)[fieldName];
+    if (value === undefined || value === null) return undefined;
+    if (typeof value === "string" || typeof value === "number") return value;
+    if (Array.isArray(value)) return value.join(", ");
+    if (typeof value === "boolean") return value ? "Yes" : "No";
+    return String(value);
+  };
+
+  // Extract commonly used fields - try multiple field name variations
+  const transmission = getFieldValue("Transmission Type") || getFieldValue("transmission") || getFieldValue("Transmission");
+  const fuelType = getFieldValue("Fule Type") || getFieldValue("Fuel Type") || getFieldValue("fuelType") || getFieldValue("fuel");
+  const mileage = getFieldValue("Mileage") || getFieldValue("mileage");
+  const year = getFieldValue("Year") || getFieldValue("year");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -383,25 +399,25 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
 
           {/* Dynamic Specs - First row (max 2 specs) */}
           <div className="hidden sm:flex items-center gap-4 px-2.5">
-            {specifications.transmission && (
+            {transmission && (
               <div className="w-full flex items-center gap-1">
                 <Zap className="w-4 h-4 text-[#667085]" />
                 <Typography
                   variant="body-small"
                   className="text-xs text-[#667085] truncate"
                 >
-                  {specifications.transmission}
+                  {String(transmission)}
                 </Typography>
               </div>
             )}
-            {specifications.fuelType && (
+            {fuelType && (
               <div className="w-full flex items-center gap-1">
                 <Fuel className="w-4 h-4 text-[#667085]" />
                 <Typography
                   variant="body-small"
                   className="text-xs text-[#667085] truncate"
                 >
-                  {specifications.fuelType}
+                  {String(fuelType)}
                 </Typography>
               </div>
             )}
@@ -409,25 +425,25 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
 
           {/* Dynamic Specs - Second row (max 2 specs) */}
           <div className="hidden sm:flex items-center gap-4 px-2.5">
-            {specifications.mileage && (
+            {mileage && (
               <div className="w-full flex items-center gap-1">
                 <Gauge className="w-4 h-4 text-[#667085]" />
                 <Typography
                   variant="body-small"
                   className="text-xs text-[#667085] truncate"
                 >
-                  {specifications.mileage}
+                  {String(mileage)}
                 </Typography>
               </div>
             )}
-            {specifications.year && (
+            {year && (
               <div className="w-full flex items-center gap-1">
                 <Calendar className="w-4 h-4 text-[#667085]" />
                 <Typography
                   variant="body-small"
                   className="text-xs text-[#667085] truncate"
                 >
-                  {specifications.year}
+                  {String(year)}
                 </Typography>
               </div>
             )}
