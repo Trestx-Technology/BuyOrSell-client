@@ -201,7 +201,7 @@ export default function TabbedCarousel<
             viewport={{ once: true, margin: "-100px" }}
             className="mb-4 flex items-center justify-between"
           >
-            <div className="flex flex-1 items-center gap-3 overflow-x-auto overflow-y-visible">
+            <div className="flex flex-1 items-center gap-3 overflow-x-auto scrollbar-hide">
               {tabs.map((tab, index) => (
                 <motion.button
                   key={tab.value}
