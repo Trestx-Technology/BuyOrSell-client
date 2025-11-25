@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { SearchableDropdownInput } from "./SearchableDropdownInput";
+import { useEmirates, useAreas } from "@/hooks/useLocations";
 
 declare global {
   interface Window {
@@ -53,12 +54,24 @@ export const MapComponent = ({
   const [selectedArea, setSelectedArea] = useState("");
   const [showMap, setShowMap] = useState(true);
 
-  // Dynamic data states
-  const [emirates, setEmirates] = useState<string[]>([]);
-  const [emirateAreas, setEmirateAreas] = useState<Record<string, string[]>>(
-    {}
-  );
-  const [loadingLocations, setLoadingLocations] = useState(false);
+  // Use location hooks
+  const { data: emirates = [], isLoading: isLoadingEmirates } = useEmirates();
+  const { data: areas = [], isLoading: isLoadingAreas } = useAreas(selectedEmirate);
+  
+  // Store areas by emirate
+  const [emirateAreas, setEmirateAreas] = useState<Record<string, string[]>>({});
+  
+  // Update emirateAreas when areas data changes
+  useEffect(() => {
+    if (selectedEmirate && areas.length > 0) {
+      setEmirateAreas((prev) => ({
+        ...prev,
+        [selectedEmirate]: areas,
+      }));
+    }
+  }, [selectedEmirate, areas]);
+  
+  const loadingLocations = isLoadingEmirates || isLoadingAreas;
   const [quickLocations, setQuickLocations] = useState<
     { name: string; coordinates: { lat: number; lng: number } }[]
   >([]);
@@ -157,67 +170,10 @@ export const MapComponent = ({
     }
   }, []);
 
-  // Fetch emirates dynamically using API
-  const fetchEmirates = useCallback(async () => {
-    setLoadingLocations(true);
-    try {
-      const { getEmirates } = await import("@/app/api/location");
-      const response = await getEmirates();
-      if (response.data && Array.isArray(response.data)) {
-        setEmirates(response.data);
-      }
-    } catch (err) {
-      console.error("Error fetching emirates:", err);
-      // Fallback to default emirates if API fails
-      setEmirates([
-        "Dubai",
-        "Abu Dhabi",
-        "Sharjah",
-        "Ajman",
-        "Ras Al Khaimah",
-        "Fujairah",
-        "Umm Al Quwain",
-      ]);
-    } finally {
-      setLoadingLocations(false);
-    }
-  }, []);
 
-  // Fetch areas for a specific emirate dynamically using API
-  const fetchAreasForEmirate = useCallback(async (emirate: string) => {
-    if (!emirate) return;
-
-    setLoadingLocations(true);
-    try {
-      const { getAreas } = await import("@/app/api/location");
-      const response = await getAreas(emirate);
-      if (response.data && Array.isArray(response.data)) {
-        setEmirateAreas((prev) => ({
-          ...prev,
-          [emirate]: response.data,
-        }));
-      } else {
-        // Fallback to basic areas if API fails
-        setEmirateAreas((prev) => ({
-          ...prev,
-          [emirate]: ["City Center", "Downtown", "Beach Area"],
-        }));
-      }
-    } catch (err) {
-      console.error("Error fetching areas:", err);
-      // Fallback areas
-      setEmirateAreas((prev) => ({
-        ...prev,
-        [emirate]: ["City Center", "Downtown", "Beach Area"],
-      }));
-    } finally {
-      setLoadingLocations(false);
-    }
-  }, []);
-
-  // Get areas for selected emirate
+  // Get areas for selected emirate (from hook or cached)
   const availableAreas = selectedEmirate
-    ? emirateAreas[selectedEmirate] || []
+    ? (emirateAreas[selectedEmirate] || areas)
     : [];
 
   // Convert to options format for SearchableDropdownInput
@@ -362,10 +318,6 @@ export const MapComponent = ({
     loadGoogleMaps();
   }, []);
 
-  // Fetch emirates when component mounts
-  useEffect(() => {
-    fetchEmirates();
-  }, [fetchEmirates]);
 
   // Fetch quick locations when Google Maps is loaded (can work without map instance)
   useEffect(() => {
@@ -847,11 +799,6 @@ export const MapComponent = ({
   const handleEmirateSelect = (emirate: string) => {
     setSelectedEmirate(emirate);
     setSelectedArea(""); // Reset area when emirate changes
-
-    // Fetch areas for selected emirate
-    if (!emirateAreas[emirate]) {
-      fetchAreasForEmirate(emirate);
-    }
 
     // Search for the emirate and update map
     const map = mapInstanceRef.current;
