@@ -6,8 +6,8 @@ import {
   sendPhoneOtp,
   sendLoginEmailOtp,
   sendLoginPhoneOtp,
-  verifyEmail,
-  verifyPhone,
+  verifyEmailOtp,
+  verifyPhoneOtp,
   getProfile,
   addUserType,
   updateUserType,
@@ -144,42 +144,42 @@ export const useDeleteUser = () => {
 };
 
 export const useSendEmailOtp = () => {
-  return useMutation<SendEmailOtpResponse, Error, string>({
+  return useMutation<SendEmailOtpResponse, Error, { email: string }>({
     mutationFn: sendEmailOtp,
-    mutationKey: userQueries.sendEmailOtp('').Key,
+    mutationKey: userQueries.sendEmailOtp.Key,
   });
 };
 
 export const useSendPhoneOtp = () => {
-  return useMutation<SendPhoneOtpResponse, Error, string>({
+  return useMutation<SendPhoneOtpResponse, Error, { phoneNumber: string }>({
     mutationFn: sendPhoneOtp,
-    mutationKey: userQueries.sendPhoneOtp('').Key,
+    mutationKey: userQueries.sendPhoneOtp.Key,
   });
 };
 
 export const useSendLoginEmailOtp = () => {
-  return useMutation<SendEmailOtpResponse, Error, string>({
+  return useMutation<SendEmailOtpResponse, Error, { email: string }>({
     mutationFn: sendLoginEmailOtp,
-    mutationKey: userQueries.sendLoginEmailOtp('').Key,
+    mutationKey: userQueries.sendLoginEmailOtp.Key,
   });
 };
 
 export const useSendLoginPhoneOtp = () => {
-  return useMutation<SendPhoneOtpResponse, Error, string>({
+  return useMutation<SendPhoneOtpResponse, Error, { phoneNumber: string }>({
     mutationFn: sendLoginPhoneOtp,
-    mutationKey: userQueries.sendLoginPhoneOtp('').Key,
+    mutationKey: userQueries.sendLoginPhoneOtp.Key,
   });
 };
 
-export const useVerifyEmail = () => {
+export const useVerifyEmailOtp = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
     VerifyEmailResponse,
     Error,
-    { email: string; code: string }
+    { email: string; otp: string }
   >({
-    mutationFn: ({ email, code }) => verifyEmail(email, code),
+    mutationFn: verifyEmailOtp,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: userQueries.getProfile.Key,
@@ -188,15 +188,15 @@ export const useVerifyEmail = () => {
   });
 };
 
-export const useVerifyPhone = () => {
+export const useVerifyPhoneOtp = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
     VerifyPhoneResponse,
     Error,
-    { phone: string; code: string }
+    { phone: string; otp: string }
   >({
-    mutationFn: ({ phone, code }) => verifyPhone(phone, code),
+    mutationFn: verifyPhoneOtp,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: userQueries.getProfile.Key,
