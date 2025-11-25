@@ -42,62 +42,66 @@ export const createUser = async (
 
 // Send email OTP
 export const sendEmailOtp = async (
-  email: string,
+  data: { email: string },
 ): Promise<SendEmailOtpResponse> => {
-  const response = await axiosInstance.put<SendEmailOtpResponse>(
-    userQueries.sendEmailOtp(email).endpoint,
+  const response = await axiosInstance.post<SendEmailOtpResponse>(
+    userQueries.sendEmailOtp.endpoint,
+    data,
   );
   return response.data;
 };
 
 // Send phone OTP
 export const sendPhoneOtp = async (
-  phone: string,
+  data: { phoneNumber: string },
 ): Promise<SendPhoneOtpResponse> => {
-  const response = await axiosInstance.put<SendPhoneOtpResponse>(
-    userQueries.sendPhoneOtp(phone).endpoint,
+  const response = await axiosInstance.post<SendPhoneOtpResponse>(
+    userQueries.sendPhoneOtp.endpoint,
+    data,
   );
   return response.data;
 };
 
 // Send login email OTP
 export const sendLoginEmailOtp = async (
-  email: string,
+  data: { email: string },
 ): Promise<SendEmailOtpResponse> => {
-  const response = await axiosInstance.put<SendEmailOtpResponse>(
-    userQueries.sendLoginEmailOtp(email).endpoint,
+  const response = await axiosInstance.post<SendEmailOtpResponse>(
+    userQueries.sendLoginEmailOtp.endpoint,
+    data,
   );
   return response.data;
 };
 
 // Send login phone OTP
 export const sendLoginPhoneOtp = async (
-  phone: string,
+  data: { phoneNumber: string },
 ): Promise<SendPhoneOtpResponse> => {
-  const response = await axiosInstance.put<SendPhoneOtpResponse>(
-    userQueries.sendLoginPhoneOtp(phone).endpoint,
+  const response = await axiosInstance.post<SendPhoneOtpResponse>(
+    userQueries.sendLoginPhoneOtp.endpoint,
+    data,
   );
   return response.data;
 };
 
-// Verify email
-export const verifyEmail = async (
-  email: string,
-  code: string,
+// Verify email OTP
+export const verifyEmailOtp = async (
+  data: { email: string; otp: string },
 ): Promise<VerifyEmailResponse> => {
-  const response = await axiosInstance.get<VerifyEmailResponse>(
-    userQueries.verifyEmail(email, code).endpoint,
+  const response = await axiosInstance.post<VerifyEmailResponse>(
+    userQueries.verifyEmailOtp.endpoint,
+    data,
   );
   return response.data;
 };
 
-// Verify phone
-export const verifyPhone = async (
-  phone: string,
-  code: string,
+// Verify phone OTP
+export const verifyPhoneOtp = async (
+  data: { phone: string; otp: string },
 ): Promise<VerifyPhoneResponse> => {
-  const response = await axiosInstance.get<VerifyPhoneResponse>(
-    userQueries.verifyPhone(phone, code).endpoint,
+  const response = await axiosInstance.post<VerifyPhoneResponse>(
+    userQueries.verifyPhoneOtp.endpoint,
+    data,
   );
   return response.data;
 };

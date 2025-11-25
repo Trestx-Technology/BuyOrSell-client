@@ -7,30 +7,30 @@ export const userQueries = {
     Key: ['user', 'create'],
     endpoint: '/users',
   },
-  sendEmailOtp: (email: string) => ({
-    Key: ['user', 'email-otp', email],
-    endpoint: `/users/send-email-otp/${email}`,
-  }),
-  sendPhoneOtp: (phone: string) => ({
-    Key: ['user', 'phone-otp', phone],
-    endpoint: `/users/send-phone-otp/${phone}`,
-  }),
-  sendLoginEmailOtp: (email: string) => ({
-    Key: ['user', 'login-email-otp', email],
-    endpoint: `/users/send-login-email-otp/${email}`,
-  }),
-  sendLoginPhoneOtp: (phone: string) => ({
-    Key: ['user', 'login-phone-otp', phone],
-    endpoint: `/users/send-login-phone-otp/${phone}`,
-  }),
-  verifyEmail: (email: string, code: string) => ({
-    Key: ['user', 'verify-email', email, code],
-    endpoint: `/users/verify-email/${email}/${code}`,
-  }),
-  verifyPhone: (phone: string, code: string) => ({
-    Key: ['user', 'verify-phone', phone, code],
-    endpoint: `/users/verify-phone/${phone}/${code}`,
-  }),
+  sendEmailOtp: {
+    Key: ['user', 'email-otp'],
+    endpoint: '/send-email-otp',
+  },
+  sendPhoneOtp: {
+    Key: ['user', 'phone-otp'],
+    endpoint: '/send-phone-otp',
+  },
+  sendLoginEmailOtp: {
+    Key: ['user', 'login-email-otp'],
+    endpoint: '/send-login-email-otp',
+  },
+  sendLoginPhoneOtp: {
+    Key: ['user', 'login-phone-otp'],
+    endpoint: '/send-login-phone-otp',
+  },
+  verifyEmailOtp: {
+    Key: ['user', 'verify-email-otp'],
+    endpoint: '/verify-email-otp',
+  },
+  verifyPhoneOtp: {
+    Key: ['user', 'verify-phone-otp'],
+    endpoint: '/verify-phone-otp',
+  },
   getProfile: {
     Key: ['user', 'profile'],
     endpoint: '/users/profile',
