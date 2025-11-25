@@ -13,7 +13,11 @@ export interface GetAdSearchResponseType {
   data: AdSearchType[];
 }
 
-export type ProductExtraFields = Record<string, any>;
+export type ProductExtraFields = {
+  name: string,
+  icon: string,
+  optionalArray: string[]
+}
 
 export type AD = {
   _id: string;

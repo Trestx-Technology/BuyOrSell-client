@@ -63,16 +63,23 @@ export interface CategoryTreeWithAds {
   children: CategoryTreeWithAds[]; // Recursive - same structure
 }
 
+// Extra field structure
+export interface ExtraField {
+  name: string;
+  value: string | number | boolean | string[] | null;
+  icon: string | null;
+}
+
 // Latest ad structure (simplified version)
 export interface LatestAd {
   id: string;
   title: string;
   price: number;
-  discountedPrice: number;
-  dealPercentage: number;
+  discountedPrice: number | null;
+  dealPercentage: number | null;
   dealValidThrough: string | null;
-  extraFields: unknown[];
-  exchanged: unknown | null;
+  extraFields: ExtraField[];
+  exchanged: boolean | null;
   exchangeWith: unknown | null;
   isExchangeable: boolean | null;
   createdAt: string;
@@ -84,7 +91,7 @@ export interface LatestAd {
     name: string;
     firstName: string;
     lastName: string;
-    image: string;
+    image: string | null;
   };
 }
 
