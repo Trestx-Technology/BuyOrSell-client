@@ -24,24 +24,14 @@ import {
 } from "@/components/ui/select";
 import { useRouter } from "nextjs-toploader/app";
 import { useSignUp } from "@/hooks/useAuth";
-import { useSendPhoneOtp, useVerifyPhone } from "@/hooks/useUsers";
+import { useSendPhoneOtp, useVerifyPhoneOtp } from "@/hooks/useUsers";
+import { useAuthStore } from "@/stores/authStore";
 import OTPVerificationDialog from "@/app/(root)/user/_components/otp-verification-dialog";
-
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { calculatePasswordStrength } from "@/utils/password-strength";
+import { createSignupSchema, countryCodes, type SignupFormData } from "@/schemas/signup.schema";
 import Image from "next/image";
-
-// Country codes data
-const countryCodes = [
-  { code: "+971", country: "UAE" },
-  { code: "+1", country: "USA" },
-  { code: "+44", country: "UK" },
-  { code: "+91", country: "India" },
-  { code: "+86", country: "China" },
-  { code: "+81", country: "Japan" },
-  { code: "+49", country: "Germany" },
-  { code: "+33", country: "France" },
-  { code: "+61", country: "Australia" },
-  { code: "+65", country: "Singapore" },
-];
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -50,89 +40,47 @@ const Signup = () => {
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
   const router = useRouter();
+  const setSession = useAuthStore((state) => state.setSession);
   const signUpMutation = useSignUp();
   const sendPhoneOtpMutation = useSendPhoneOtp();
-  const verifyPhoneMutation = useVerifyPhone();
+  const verifyPhoneOtpMutation = useVerifyPhoneOtp();
 
-  const [signupData, setSignupData] = useState({
-    fullName: "",
-    email: "",
-    phoneNumber: "",
-    password: "",
+  const signupSchema = useMemo(
+    () => createSignupSchema(selectedCountryCode),
+    [selectedCountryCode]
+  );
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    setValue,
+    trigger,
+  } = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
+    mode: "onChange",
+    defaultValues: {
+      fullName: "",
+      email: "",
+      phoneNumber: "",
+      password: "",
+    },
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const password = watch("password");
+  const passwordStrength = useMemo(
+    () => calculatePasswordStrength(password || ""),
+    [password]
+  );
 
-  // Password strength calculation for progress bar
-  const passwordStrength = useMemo(() => {
-    const password = signupData.password;
-    if (!password) return { score: 0, label: "", progress: 0 };
+  const onSubmit = async (data: SignupFormData) => {
+    // Clean phone number (remove non-numeric characters)
+    const cleanedPhoneNumber = data.phoneNumber.replace(/\D/g, "");
+    const fullPhoneNumber = `${selectedCountryCode}${cleanedPhoneNumber}`;
 
-    let score = 0;
-
-    // Length check
-    if (password.length >= 8) score += 1;
-    if (password.length >= 12) score += 1;
-
-    // Character variety checks
-    if (/[a-z]/.test(password)) score += 1;
-    if (/[A-Z]/.test(password)) score += 1;
-    if (/[0-9]/.test(password)) score += 1;
-    if (/[^A-Za-z0-9]/.test(password)) score += 1;
-
-    // Calculate progress percentage (0-100)
-    const progress = Math.min((score / 6) * 100, 100);
-
-    // Determine strength level
-    let label;
-    if (score <= 2) {
-      label = "Weak";
-    } else if (score <= 4) {
-      label = "Strong";
-    } else {
-      label = "Excellent";
-    }
-
-    return { score, label, progress };
-  }, [signupData.password]);
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!signupData.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
-    }
-
-    if (!signupData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(signupData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
-
-    if (!signupData.phoneNumber.trim()) {
-      newErrors.phoneNumber = "Phone number is required";
-    }
-
-    if (!signupData.password) {
-      newErrors.password = "Password is required";
-    } else if (signupData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
-    }
-
-    // Send OTP first
-    const fullPhoneNumber = `${selectedCountryCode}${signupData.phoneNumber}`;
-    
     try {
-      await sendPhoneOtpMutation.mutateAsync(fullPhoneNumber);
+      await sendPhoneOtpMutation.mutateAsync({ phoneNumber: fullPhoneNumber });
       toast.success("OTP sent to your phone number");
       setShowOtpDialog(true);
     } catch (error: unknown) {
@@ -146,32 +94,47 @@ const Signup = () => {
 
   const handleVerifyOtp = async (otp: string) => {
     setIsVerifyingOtp(true);
-    const fullPhoneNumber = `${selectedCountryCode}${signupData.phoneNumber}`;
+    const formData = watch();
+    // Clean phone number before sending
+    const cleanedPhoneNumber = formData.phoneNumber.replace(/\D/g, "");
+    const fullPhoneNumber = `${selectedCountryCode}${cleanedPhoneNumber}`;
 
     try {
       // Verify OTP
-      await verifyPhoneMutation.mutateAsync({
+      await verifyPhoneOtpMutation.mutateAsync({
         phone: fullPhoneNumber,
-        code: otp,
+        otp: otp,
       });
 
+      if (verifyPhoneOtpMutation.isSuccess) {
+        setShowOtpDialog(false);
+      }
       toast.success("Phone number verified successfully!");
 
       // Now proceed with signup
-      const nameParts = signupData.fullName.trim().split(/\s+/);
+      const nameParts = formData.fullName.trim().split(/\s+/);
       const firstName = nameParts[0] || "";
       const lastName = nameParts.slice(1).join(" ") || nameParts[0] || "";
 
       const response = await signUpMutation.mutateAsync({
         firstName: firstName,
         lastName: lastName,
-        email: signupData.email,
-        password: signupData.password,
+        email: formData.email,
+        password: formData.password,
         countryCode: selectedCountryCode,
         deviceKey: "123456",
       });
 
       if (response.statusCode === 201 || response.statusCode === 200) {
+        // Save session and tokens if available in response
+        if (response.data?.accessToken && response.data?.user) {
+          await setSession(
+            response.data.accessToken,
+            response.data.refreshToken || "",
+            response.data.user as unknown as Parameters<typeof setSession>[2]
+          );
+        }
+
         toast.success(response.message || "Account created successfully!");
         setShowOtpDialog(false);
         router.push("/");
@@ -189,13 +152,16 @@ const Signup = () => {
     }
   };
 
-  const isFormValid = () => {
-    return (
-      signupData.fullName.trim() &&
-      signupData.email.trim() &&
-      signupData.phoneNumber.trim() &&
-      signupData.password
-    );
+  const handleCountryCodeChange = (value: string) => {
+    setSelectedCountryCode(value);
+    // Re-validate phone number when country code changes
+    trigger("phoneNumber");
+  };
+
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow digits, spaces, hyphens, and parentheses for formatting
+    const value = e.target.value.replace(/[^\d\s\-()]/g, "");
+    setValue("phoneNumber", value, { shouldValidate: true });
   };
 
   return (
@@ -212,60 +178,60 @@ const Signup = () => {
       >
         Create Account
       </Typography>
-      <div className="space-y-2">
-        <Input
-          leftIcon={<CircleUserRound className="size-6 -ml-0.5" />}
-          placeholder="Full name"
-          inputSize="lg"
-          className="w-full text-sm pl-12"
-          value={signupData.fullName}
-          onChange={(e) =>
-            setSignupData({ ...signupData, fullName: e.target.value })
-          }
-          error={errors.fullName}
-        />
-        {errors.fullName && (
-          <p className="text-error text-xs mt-1">{errors.fullName}</p>
-        )}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
+        <div>
+          <Input
+            {...register("fullName")}
+            autoComplete="name"
+            leftIcon={<CircleUserRound className="size-6 -ml-0.5" />}
+            placeholder="Full name"
+            inputSize="lg"
+            className="w-full text-sm pl-12"
+            error={errors.fullName?.message}
+          />
+          {errors.fullName && (
+            <p className="text-error text-xs mt-1">{errors.fullName.message}</p>
+          )}
+        </div>
 
-        <Input
-          leftIcon={
-            <Image
-              width={24}
-              height={24}
-              src={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/mail.svg"
-              }
-              alt="mail"
-              className="size-5"
-            />
-          }
-          placeholder="Enter Email"
-          inputSize="lg"
-          className="w-full text-sm pl-12"
-          value={signupData.email}
-          onChange={(e) =>
-            setSignupData({ ...signupData, email: e.target.value })
-          }
-          error={errors.email}
-        />
-        {errors.email && (
-          <p className="text-error text-xs mt-1">{errors.email}</p>
-        )}
+        <div>
+          <Input
+            {...register("email")}
+            autoComplete="username"
+            type="email"
+            name="username"
+            id="username"
+            leftIcon={
+              <Image
+                width={24}
+                height={24}
+                src={
+                  "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/mail.svg"
+                }
+                alt="mail"
+                className="size-5"
+              />
+            }
+            placeholder="Enter Email"
+            inputSize="lg"
+            className="w-full text-sm pl-12"
+            error={errors.email?.message}
+          />
+          {errors.email && (
+            <p className="text-error text-xs mt-1">{errors.email.message}</p>
+          )}
+        </div>
 
         {/* Phone Number with Country Code */}
         <div className="flex gap-3">
-          <Select
-            value={selectedCountryCode}
-            onValueChange={setSelectedCountryCode}
-          >
+          <Select value={selectedCountryCode} onValueChange={handleCountryCodeChange}>
             <SelectTrigger className="min-w-fit border-grey-blue/30 hover:border-purple/50 bg-white text-dark-blue text-sm font-medium py-6">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {countryCodes.map((country) => (
                 <SelectItem key={country.code} value={country.code}>
-                  {country.code}
+                  {country.code} ({country.country})
                 </SelectItem>
               ))}
             </SelectContent>
@@ -273,95 +239,108 @@ const Signup = () => {
 
           <div className="flex-1">
             <Input
+              {...register("phoneNumber")}
+              autoComplete="tel"
+              type="tel"
               placeholder="Enter phone number"
               inputSize="lg"
               inputMode="numeric"
-name="phoneNumber"
+              name="phoneNumber"
+              id="phoneNumber"
               className="w-full text-sm"
-              value={signupData.phoneNumber}
-              onChange={(e) =>
-                setSignupData({ ...signupData, phoneNumber: e.target.value })
-              }
-              error={errors.phoneNumber}
+              onChange={handlePhoneNumberChange}
+              error={errors.phoneNumber?.message}
             />
           </div>
         </div>
         {errors.phoneNumber && (
-          <p className="text-error text-xs mt-1">{errors.phoneNumber}</p>
+          <p className="text-error text-xs mt-1">{errors.phoneNumber.message}</p>
         )}
 
-        <Input
-          leftIcon={
-            <Image
-              width={24}
-              height={24}
-              src={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/key.svg"
-              }
-              alt="key"
-              className="size-5"
-            />
-          }
-          placeholder="Enter password"
-          type={showPassword ? "text" : "password"}
-          onRightIconClick={() => setShowPassword(!showPassword)}
-          rightIcon={
-            !showPassword ? (
-              <EyeIcon
-                className={`size-5 ${showPassword ? "text-purple" : "text-gray-500"}`}
+        <div>
+          <Input
+            {...register("password")}
+            autoComplete="new-password"
+            type={showPassword ? "text" : "password"}
+            name="new-password"
+            id="new-password"
+            leftIcon={
+              <Image
+                width={24}
+                height={24}
+                src={
+                  "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/key.svg"
+                }
+                alt="key"
+                className="size-5"
               />
-            ) : (
-              <EyeOffIcon
-                className={`size-5 ${showPassword ? "text-purple" : "text-gray-500"}`}
-              />
-            )
-          }
-          inputSize="lg"
-          className="w-full text-sm pl-12"
-          value={signupData.password}
-          onChange={(e) =>
-            setSignupData({ ...signupData, password: e.target.value })
-          }
-          error={errors.password}
-        />
-        {errors.password && (
-          <p className="text-error text-xs mt-1">{errors.password}</p>
-        )}
+            }
+            placeholder="Enter password"
+            onRightIconClick={() => setShowPassword(!showPassword)}
+            rightIcon={
+              !showPassword ? (
+                <EyeIcon
+                  className={`size-5 ${showPassword ? "text-purple" : "text-gray-500"}`}
+                />
+              ) : (
+                <EyeOffIcon
+                  className={`size-5 ${showPassword ? "text-purple" : "text-gray-500"}`}
+                />
+              )
+            }
+            inputSize="lg"
+            className="w-full text-sm pl-12"
+            error={errors.password?.message}
+          />
+          {errors.password && (
+            <p className="text-error text-xs mt-1">{errors.password.message}</p>
+          )}
 
-        {/* Password Strength Indicator with Progress Bar */}
-        <div className="space-y-2 mt-2">
-          <div className="text-sm">Password Strength</div>
-          <Progress value={passwordStrength.progress} className="h-2" />
-          <div className="text-xs text-grey-blue text-right">
-            {passwordStrength.label}
+          {/* Password Strength Indicator with Progress Bar */}
+          <div className="space-y-2 mt-2">
+            <div className="text-sm">Password Strength</div>
+            <Progress value={passwordStrength.progress} className="h-2" />
+            <div className="flex justify-between items-center">
+              <div className="text-xs text-grey-blue">
+                {passwordStrength.requirements.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="font-medium">Requirements:</div>
+                    <ul className="list-disc list-inside space-y-0.5">
+                      {passwordStrength.requirements.map((req, idx) => (
+                        <li key={idx} className="text-xs">{req}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <div className="text-xs text-grey-blue text-right">
+                {passwordStrength.label}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <Button
-        className="w-full text-sm mt-6"
-        size="lg"
-        variant="filled"
-        onClick={handleSubmit}
-        disabled={
-          !isFormValid() ||
-          signUpMutation.isPending ||
-          sendPhoneOtpMutation.isPending
-        }
-        isLoading={signUpMutation.isPending || sendPhoneOtpMutation.isPending}
-      >
-        {signUpMutation.isPending || sendPhoneOtpMutation.isPending
-          ? "Sending OTP..."
-          : "Create Account"}
-      </Button>
+        <Button
+          type="submit"
+          className="w-full text-sm mt-6"
+          size="lg"
+          variant="filled"
+          disabled={signUpMutation.isPending || sendPhoneOtpMutation.isPending}
+          isLoading={signUpMutation.isPending || sendPhoneOtpMutation.isPending}
+        >
+          {signUpMutation.isPending || sendPhoneOtpMutation.isPending
+            ? "Sending OTP..."
+            : "Create Account"}
+        </Button>
+      </form>
 
       {/* OTP Verification Dialog */}
       <OTPVerificationDialog
         isOpen={showOtpDialog}
         onClose={() => setShowOtpDialog(false)}
-        phoneNumber={`${selectedCountryCode}${signupData.phoneNumber}`}
+        phoneNumber={`${selectedCountryCode}${watch("phoneNumber")?.replace(/\D/g, "") || ""}`}
         onVerify={handleVerifyOtp}
-        isLoading={isVerifyingOtp || verifyPhoneMutation.isPending || signUpMutation.isPending}
+        isLoading={isVerifyingOtp || verifyPhoneOtpMutation.isPending || signUpMutation.isPending}
       />
 
       <Typography variant="h3" className="text-center text-sm py-6">
