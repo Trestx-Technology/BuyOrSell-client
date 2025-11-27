@@ -87,8 +87,7 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
     // Generate href based on category name
     const generateHref = () => {
       // Convert category name to URL-friendly format
-      const urlName = category.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-      return `/categories/${urlName}`;
+      return `/categories/${category.name}`;
     };
 
     // Get description or use default

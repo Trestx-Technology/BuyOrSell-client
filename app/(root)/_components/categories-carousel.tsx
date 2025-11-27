@@ -154,7 +154,7 @@ const CategoriesCarousel = ({ categoryList = [], isLoading = false }: Categories
                   }}
                 >
                   <Link
-                    href={`/categories/${category.id}`}
+                    href={`/categories/${category.name}`}
                     className="flex flex-col items-center gap-3"
                   >
                     <div className="rounded-full flex items-center justify-center size-[70px] bg-[#FAFAFC] border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-110 group-hover:border-purple-200 group-hover:bg-purple-50">

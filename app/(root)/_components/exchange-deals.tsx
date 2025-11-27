@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Typography } from "@/components/typography";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import ListingCard from "@/components/global/listing-card";
+import { CategoryTreeWithAds, DealAd } from "@/interfaces/home.types";
+import { AD } from "@/interfaces/ad";
+import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
+import { ListingCardProps } from "@/components/global/listing-card";
 
 // Framer Motion animation variants - using improved patterns from AI search bar
 const containerVariants = {
@@ -64,177 +68,125 @@ const contentVariants = {
   },
 };
 
-// Types for the deals - using HotDealsListingCard interface
-interface DealItem {
-  id: string;
-  title: string;
-  price: number;
-  originalPrice?: number;
-  discount?: number;
-  currency?: string;
-  location: string;
-  images: string[];
-  specifications: {
-    transmission?: string;
-    fuelType?: string;
-    mileage?: string;
-    year?: number;
-  };
-  postedTime: string;
-  views?: number;
-  isPremium?: boolean;
-  isFavorite?: boolean;
-  onFavorite?: (id: string) => void;
-  onShare?: (id: string) => void;
-  onClick?: (id: string) => void;
-  className?: string;
-  showSeller?: boolean;
-  showSocials?: boolean;
-  // Hot deals specific props
-  discountText?: string;
-  discountBadgeBg?: string;
-  discountBadgeTextColor?: string;
-  showDiscountBadge?: boolean;
-  showTimer?: boolean;
-  timerBg?: string;
-  timerTextColor?: string;
-  endTime?: Date;
-}
-
 interface ExchangeDealsProps {
   className?: string;
+  categoryTreeWithExchangeAds?: CategoryTreeWithAds[];
+  isLoading?: boolean;
 }
 
-// Sample deals data - adapted for ListingCard
-const sampleDeals: DealItem[] = [
-  {
-    id: "1",
-    title: "MacBook Pro M2 2022",
-    price: 95000,
-    originalPrice: 95000,
-    discount: 10,
-    location: "Ras Al Khaimah",
-    images: [
-      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    ],
-    specifications: {
-      transmission: "Apple M2",
-      fuelType: "RAM 16GB",
-      mileage: "16GB SSD",
-      year: 2022,
-    },
-    postedTime: "1 hour ago",
-    views: 45,
-    isPremium: true,
-    isFavorite: false,
-    discountText: "Top Discount of the Sale",
-    discountBadgeBg: "bg-white",
-    discountBadgeTextColor: "text-black",
-    showDiscountBadge: true,
-    showTimer: true,
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
-    endTime: new Date(Date.now() + 15 * 60 * 60 * 1000), // 15 hours from now
-  },
-  {
-    id: "2",
-    title: "MacBook Pro M2 2022",
-    price: 95000,
-    originalPrice: 95000,
-    discount: 10,
-    location: "Ras Al Khaimah",
-    images: [
-      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    ],
-    specifications: {
-      transmission: "Apple M2",
-      fuelType: "RAM 16GB",
-      mileage: "16GB SSD",
-      year: 2022,
-    },
-    postedTime: "1 hour ago",
-    views: 67,
-    isPremium: true,
-    isFavorite: false,
-    discountText: "FLAT 12% OFF",
-    discountBadgeBg: "bg-white",
-    discountBadgeTextColor: "text-black",
-    showDiscountBadge: true,
-    showTimer: true,
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
-    endTime: new Date(Date.now() + 15 * 60 * 60 * 1000), // 15 hours from now
-  },
-  {
-    id: "3",
-    title: "MacBook Pro M2 2022",
-    price: 95000,
-    originalPrice: 95000,
-    discount: 10,
-    location: "Ras Al Khaimah",
-    images: [
-      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    ],
-    specifications: {
-      transmission: "Apple M2",
-      fuelType: "RAM 16GB",
-      mileage: "16GB SSD",
-      year: 2022,
-    },
-    postedTime: "1 hour ago",
-    views: 89,
-    isPremium: true,
-    isFavorite: false,
-    discountText: "FLAT 12% OFF",
-    discountBadgeBg: "bg-white",
-    discountBadgeTextColor: "text-black",
-    showDiscountBadge: true,
-    showTimer: true,
-    timerBg: "bg-[#4A4A4A]",
-    timerTextColor: "text-white",
-    endTime: new Date(Date.now() + 15 * 60 * 60 * 1000), // 15 hours from now
-  },
-  {
-    id: "4",
-    title: "MacBook Pro M2 2022",
-    price: 95000,
-    originalPrice: 95000,
-    discount: 10,
-    location: "Ras Al Khaimah",
-    images: [
-      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    ],
-    specifications: {
-      transmission: "Apple M2",
-      fuelType: "RAM 16GB",
-      mileage: "16GB SSD",
-      year: 2022,
-    },
-    postedTime: "1 hour ago",
-    views: 112,
-    isPremium: true,
-    isFavorite: false,
-    discountText: "FLAT 12% OFF",
-    discountBadgeBg: "bg-[#FB9800]",
-    discountBadgeTextColor: "text-white",
-    showDiscountBadge: true,
-    showTimer: true,
-    timerBg: "bg-[#FB4918]",
-    timerTextColor: "text-white",
-    endTime: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour from now
-  },
-];
+// Helper function to check if ad is premium
+const isPremiumAd = (ad: AD | DealAd): boolean => {
+  if ('_id' in ad && 'isFeatured' in ad) {
+    return (ad as AD).isFeatured === true;
+  }
+  // For DealAd, check if it has premium indicators (if any)
+  return false;
+};
 
-export default function ExchangeDeals({ className = "" }: ExchangeDealsProps) {
-  const [deals, setDeals] = useState<DealItem[]>(sampleDeals);
-
-  const handleFavoriteToggle = (id: string | number) => {
-    setDeals((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
-      )
+// Helper function to check if ad has exchange available
+const hasExchangeAvailable = (ad: AD | DealAd): boolean => {
+  if ('_id' in ad) {
+    const adObj = ad as AD;
+    return Boolean(
+      adObj.upForExchange ||
+      adObj.isExchangable ||
+      adObj.exchanged
     );
+  }
+  if ('id' in ad) {
+    const dealAd = ad as DealAd;
+    return Boolean(
+      dealAd.isExchangeable ||
+      dealAd.exchanged
+    );
+  }
+  return false;
+};
+
+export default function ExchangeDeals({ 
+  className = "",
+  categoryTreeWithExchangeAds = [],
+  isLoading = false,
+}: ExchangeDealsProps) {
+  // Transform and filter exchange ads from categoryTreeWithExchangeAds
+  const transformedAdsByCategory = useMemo(() => {
+    if (!categoryTreeWithExchangeAds || categoryTreeWithExchangeAds.length === 0) {
+      return {};
+    }
+
+    const adsByCategory: Record<string, ListingCardProps[]> = {};
+
+    categoryTreeWithExchangeAds.forEach((category) => {
+      if (category.ads && category.ads.length > 0) {
+        const categoryName = category.name.toLowerCase().replace(/\s+/g, '-');
+        
+        // Filter ads: must be premium OR have exchange available
+        // categoryTreeWithExchangeAds should contain AD[] type
+        const filteredAds = (category.ads as AD[]).filter((ad) => {
+          return isPremiumAd(ad) || hasExchangeAvailable(ad);
+        });
+
+        // Transform filtered ads
+        adsByCategory[categoryName] = filteredAds
+          .map((ad) => transformAdToListingCard(ad))
+          .map((card) => ({
+            ...card,
+            isExchange: true, // All ads in exchange deals should show exchange badge
+          }));
+      }
+    });
+
+    return adsByCategory;
+  }, [categoryTreeWithExchangeAds]);
+
+  // Get category names for tabs
+  const categories = useMemo(() => {
+    if (!categoryTreeWithExchangeAds || categoryTreeWithExchangeAds.length === 0) {
+      return [];
+    }
+    return categoryTreeWithExchangeAds
+      .filter((category) => {
+        // Only show categories that have filtered ads
+        const categoryName = category.name.toLowerCase().replace(/\s+/g, '-');
+        const ads = transformedAdsByCategory[categoryName] || [];
+        return ads.length > 0;
+      })
+      .map((category) => ({
+        id: category._id,
+        name: category.name,
+        value: category.name.toLowerCase().replace(/\s+/g, '-'),
+      }));
+  }, [categoryTreeWithExchangeAds, transformedAdsByCategory]);
+
+  // Get default tab value
+  const defaultTab = categories.length > 0 ? categories[0].value : '';
+
+  const [activeTab, setActiveTab] = useState(defaultTab);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+
+  // Update active tab when categories change
+  useEffect(() => {
+    if (defaultTab && !activeTab) {
+      setActiveTab(defaultTab);
+    }
+  }, [defaultTab, activeTab]);
+
+  const handleFavoriteToggle = (id: string) => {
+    setFavorites((prev) => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(id)) {
+        newFavorites.delete(id);
+      } else {
+        newFavorites.add(id);
+      }
+      return newFavorites;
+    });
   };
+
+  // Don't render if no categories
+  if (!isLoading && categories.length === 0) {
+    return null;
+  }
 
   return (
     <motion.section
@@ -274,145 +226,86 @@ export default function ExchangeDeals({ className = "" }: ExchangeDealsProps) {
           viewport={{ once: true, margin: "-100px" }}
           className="mb-4"
         >
-          <Tabs defaultValue="electronics" className="w-full">
-            <TabsList className="flex items-center justify-start w-full bg-transparent gap-3">
-              <TabsTrigger
-                value="electronics"
-                className="data-[state=active]:bg-teal data-[state=active]:text-white data-[state=active]:shadow-sm w-fit"
-              >
-                Electronics
-              </TabsTrigger>
-              <TabsTrigger
-                value="property"
-                className="data-[state=active]:bg-purple bg-white data-[state=active]:text-white data-[state=active]:shadow-sm w-fit"
-              >
-                Property
-              </TabsTrigger>
-              <TabsTrigger
-                value="car"
-                className="data-[state=active]:bg-purple bg-white data-[state=active]:text-white data-[state=active]:shadow-sm w-fit"
-              >
-                Car
-              </TabsTrigger>
-            </TabsList>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-10">
+              <Typography variant="body" className="text-white">
+                Loading exchange offers...
+              </Typography>
+            </div>
+          ) : categories.length > 0 ? (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="flex items-center justify-start w-full bg-transparent gap-3">
+                {categories.map((category, index) => (
+                  <TabsTrigger
+                    key={category.id}
+                    value={category.value}
+                    className={`data-[state=active]:bg-teal data-[state=active]:text-white data-[state=active]:shadow-sm w-fit ${
+                      index === 0 
+                        ? 'data-[state=active]:bg-teal' 
+                        : 'data-[state=active]:bg-purple bg-white'
+                    }`}
+                  >
+                    {category.name}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
 
-            {/* Electronics Tab */}
-            <TabsContent value="electronics" className="mt-4">
-              <motion.div
-                variants={contentVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-                className="flex gap-4 items-center"
-              >
-                {/* Deals Carousel */}
-                <div className="flex-1 overflow-hidden">
-                  <CardsCarousel title="" showNavigation={true}>
-                    {deals.map((deal, index) => (
-                      <motion.div
-                        key={deal.id}
-                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                        viewport={{ once: true, margin: "-100px" }}
-                        transition={{
-                          type: "spring" as const,
-                          stiffness: 300,
-                          damping: 22,
-                          delay: 0.6 + index * 0.08, // Staggered delay for each deal
-                        }}
-                        className="flex-[0_0_auto] max-w-[220px] w-full"
-                      >
-                        <ListingCard
-                          {...deal}
-                          isExchange={true}
-                          onFavorite={handleFavoriteToggle}
-                          className="w-full"
-                        />
-                      </motion.div>
-                    ))}
-                  </CardsCarousel>
-                </div>
-              </motion.div>
-            </TabsContent>
-
-            {/* Property Tab */}
-            <TabsContent value="property" className="mt-4">
-              <motion.div
-                variants={contentVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-                className="flex gap-4"
-              >
-                {/* Deals Carousel */}
-                <div className="flex-1">
-                  <CardsCarousel title="" showNavigation={true}>
-                    {deals.slice(0, 3).map((deal, index) => (
-                      <motion.div
-                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                        viewport={{ once: true, margin: "-100px" }}
-                        transition={{
-                          type: "spring" as const,
-                          stiffness: 300,
-                          damping: 22,
-                          delay: 0.6 + index * 0.08, // Staggered delay for each deal
-                        }}
-                        key={deal.id}
-                        className="flex-[0_0_auto] max-w-[220px] w-full"
-                      >
-                        <ListingCard
-                          {...deal}
-                          isExchange={true}
-                          onFavorite={handleFavoriteToggle}
-                          className="w-full"
-                        />
-                      </motion.div>
-                    ))}
-                  </CardsCarousel>
-                </div>
-              </motion.div>
-            </TabsContent>
-
-            {/* Car Tab */}
-            <TabsContent value="car" className="mt-4">
-              <motion.div
-                variants={contentVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-                className="flex gap-4"
-              >
-                {/* Deals Carousel */}
-                <div className="flex-1">
-                  <CardsCarousel title="" showNavigation={true}>
-                    {deals.slice(0, 2).map((deal, index) => (
-                      <motion.div
-                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                        viewport={{ once: true, margin: "-100px" }}
-                        transition={{
-                          type: "spring" as const,
-                          stiffness: 300,
-                          damping: 22,
-                          delay: 0.6 + index * 0.08, // Staggered delay for each deal
-                        }}
-                        key={deal.id}
-                        className="flex-[0_0_auto] max-w-[220px] w-full"
-                      >
-                        <ListingCard
-                          {...deal}
-                          isExchange={true}
-                          onFavorite={handleFavoriteToggle}
-                          className="w-full"
-                        />
-                      </motion.div>
-                    ))}
-                  </CardsCarousel>
-                </div>
-              </motion.div>
-            </TabsContent>
-          </Tabs>
+              {/* Dynamic Tab Content */}
+              {categories.map((category) => {
+                const categoryAds = transformedAdsByCategory[category.value] || [];
+                
+                return (
+                  <TabsContent key={category.id} value={category.value} className="mt-4">
+                    <motion.div
+                      variants={contentVariants}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, margin: "-100px" }}
+                      className="flex gap-4 items-center"
+                    >
+                      {/* Deals Carousel */}
+                      <div className="flex-1 overflow-hidden">
+                        {categoryAds.length > 0 ? (
+                          <CardsCarousel title="" showNavigation={true}>
+                            {categoryAds.map((ad, index) => (
+                              <motion.div
+                                key={ad.id}
+                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                                viewport={{ once: true, margin: "-100px" }}
+                                transition={{
+                                  type: "spring" as const,
+                                  stiffness: 300,
+                                  damping: 22,
+                                  delay: 0.6 + index * 0.08,
+                                }}
+                                className="flex-[0_0_auto] max-w-[220px] w-full"
+                              >
+                                <ListingCard
+                                  {...ad}
+                                  isFavorite={favorites.has(ad.id)}
+                                  onFavorite={handleFavoriteToggle}
+                                  showSeller={true}
+                                  showSocials={true}
+                                  className="w-full"
+                                />
+                              </motion.div>
+                            ))}
+                          </CardsCarousel>
+                        ) : (
+                          <div className="flex items-center justify-center py-10">
+                            <Typography variant="body" className="text-white">
+                              No exchange offers available for this category
+                            </Typography>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  </TabsContent>
+                );
+              })}
+            </Tabs>
+          ) : null}
         </motion.div>
       </div>
     </motion.section>
