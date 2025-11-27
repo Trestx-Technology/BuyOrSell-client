@@ -8,22 +8,12 @@ import {
   GetAdSearchResponseType,
   UploadAdImagesResponse,
   AdStatus,
+  AdFilters,
+  AdFilterPayload,
 } from '@/interfaces/ad';
 
 // Get all ads with optional filters
-export const getAds = async (params?: {
-  page?: number;
-  limit?: number;
-  category?: string;
-  status?: 'live' | 'rejected' | 'pending';
-  featured?: boolean;
-  search?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  location?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}): Promise<GetLiveAdsResponse> => {
+export const getAds = async (params?: AdFilters): Promise<GetLiveAdsResponse> => {
   const response = await axiosInstance.get<GetLiveAdsResponse>(
     adQueries.ads.endpoint,
     { params },
@@ -211,6 +201,22 @@ export const uploadAdImages = async (
     {
       headers: {
         'Content-Type': 'multipart/form-data',
+      },
+    },
+  );
+  return response.data;
+};
+
+// Filter ads with advanced filters
+export const filterAds = async (
+  payload: AdFilterPayload,
+): Promise<GetLiveAdsResponse> => {
+  const response = await axiosInstance.post<GetLiveAdsResponse>(
+    adQueries.filterAds.endpoint,
+    payload,
+    {
+      headers: {
+        'Content-Type': 'application/json',
       },
     },
   );

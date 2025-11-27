@@ -51,5 +51,9 @@ export const adQueries = {
     Key: ['ad', 'images', 'upload'],
     endpoint: '/ad/images',
   },
+  filterAds: {
+    Key: ['ads', 'filter'],
+    endpoint: '/ad/filter',
+  },
 };
 

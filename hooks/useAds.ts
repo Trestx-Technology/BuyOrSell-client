@@ -9,10 +9,10 @@ import {
   getAdsByUser,
   getAdsByCategory,
   searchAds,
-  getLiveAds,
   getFeaturedAds,
   getMyAds,
   uploadAdImages,
+  filterAds,
 } from '@/app/api/ad/ad.services';
 import {
   PostAdPayload,
@@ -22,6 +22,8 @@ import {
   GetAdSearchResponseType,
   UploadAdImagesResponse,
   AdStatus,
+  AdFilters,
+  AdFilterPayload,
 } from '@/interfaces/ad';
 import { adQueries } from '@/app/api/ad/index';
 
@@ -30,19 +32,7 @@ import { adQueries } from '@/app/api/ad/index';
 // ============================================================================
 
 // Get all ads with optional filters
-export const useAds = (params?: {
-  page?: number;
-  limit?: number;
-  category?: string;
-  status?: "live" | "rejected" | "pending";
-  featured?: boolean;
-  search?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  location?: string;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-}) => {
+export const useAds = (params?: AdFilters) => {
   return useQuery<GetLiveAdsResponse, Error>({
     queryKey: [...adQueries.ads.Key, params],
     queryFn: () => getAds(params),
@@ -110,20 +100,6 @@ export const useSearchAds = (params: {
   });
 };
 
-// Get live ads
-export const useLiveAds = (params?: {
-  page?: number;
-  limit?: number;
-  category?: string;
-  featured?: boolean;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-}) => {
-  return useQuery<GetLiveAdsResponse, Error>({
-    queryKey: [...adQueries.liveAds.Key, params],
-    queryFn: () => getLiveAds(params),
-  });
-};
 
 // Get featured ads
 export const useFeaturedAds = (params?: {
@@ -231,6 +207,15 @@ export const useUpdateAdStatus = () => {
 export const useUploadAdImages = () => {
   return useMutation<UploadAdImagesResponse, Error, File[]>({
     mutationFn: uploadAdImages,
+  });
+};
+
+// Filter ads with advanced filters
+export const useFilterAds = (payload: AdFilterPayload, enabled: boolean = true) => {
+  return useQuery<GetLiveAdsResponse, Error>({
+    queryKey: [...adQueries.filterAds.Key, payload],
+    queryFn: () => filterAds(payload),
+    enabled: enabled && Object.keys(payload).length > 0, // Only run if enabled and payload has at least one filter
   });
 };
 
