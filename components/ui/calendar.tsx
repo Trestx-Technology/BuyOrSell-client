@@ -29,7 +29,7 @@ function Calendar({
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn(
-        "bg-background group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+        "bg-purple/20 group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className
@@ -53,12 +53,18 @@ function Calendar({
         ),
         button_previous: cn(
           buttonVariants({ variant: buttonVariant }),
-          "size-7 h-7 w-7 bg-gray-100 hover:bg-gray-200 border-0 rounded-md p-0 select-none text-[#1D2939]",
+          "size-7 h-7 w-7 bg-purple/20 hover:bg-purple/30 border-0 rounded-md p-0 select-none text-purple",
+          "focus:border-purple focus:ring-purple/20 focus:outline-none focus-visible:border-purple focus-visible:ring-purple/20 focus-visible:ring-offset-0 focus-visible:outline-none",
+          "[&>svg]:text-purple [&>svg]:fill-purple [&>svg]:stroke-purple",
+          "[&:focus-visible]:ring-purple/20 [&:focus-visible]:ring-2 [&:focus-visible]:ring-offset-0",
           defaultClassNames.button_previous
         ),
         button_next: cn(
           buttonVariants({ variant: buttonVariant }),
-          "size-7 h-7 w-7 bg-gray-100 hover:bg-gray-200 border-0 rounded-md p-0 select-none text-[#1D2939]",
+          "size-7 h-7 w-7 bg-purple/20 hover:bg-purple/30 border-0 rounded-md p-0 select-none text-purple",
+          "focus:border-purple focus:ring-purple/20 focus:outline-none focus-visible:border-purple focus-visible:ring-purple/20 focus-visible:ring-offset-0 focus-visible:outline-none",
+          "[&>svg]:text-purple [&>svg]:fill-purple [&>svg]:stroke-purple",
+          "[&:focus-visible]:ring-purple/20 [&:focus-visible]:ring-2 [&:focus-visible]:ring-offset-0",
           defaultClassNames.button_next
         ),
         month_caption: cn(
@@ -78,16 +84,16 @@ function Calendar({
           defaultClassNames.dropdown
         ),
         caption_label: cn(
-          "select-none font-medium text-[#1D2939]",
+          "select-none font-medium text-purple",
           captionLayout === "label"
             ? "text-base"
-            : "rounded-md pl-2 pr-1 flex items-center gap-1 text-sm h-8 [&>svg]:text-[#8A8A8A] [&>svg]:size-3.5",
+            : "rounded-md pl-2 pr-1 flex items-center gap-1 text-sm h-8 [&>svg]:text-purple/70 [&>svg]:size-3.5",
           defaultClassNames.caption_label
         ),
         table: "w-full border-collapse",
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
-          "text-[#8A8A8A] rounded-md flex-1 font-normal text-[0.8rem] select-none",
+          "text-purple/70 rounded-md flex-1 font-normal text-[0.8rem] select-none",
           defaultClassNames.weekday
         ),
         week: cn("flex w-full mt-2", defaultClassNames.week),
@@ -107,13 +113,13 @@ function Calendar({
           defaultClassNames.day
         ),
         range_start: cn(
-          "rounded-l-md bg-[#F5EBFF]",
+          "rounded-l-md bg-purple/20",
           defaultClassNames.range_start
         ),
-        range_middle: cn("rounded-none bg-[#F5EBFF]", defaultClassNames.range_middle),
-        range_end: cn("rounded-r-md bg-[#F5EBFF]", defaultClassNames.range_end),
+        range_middle: cn("rounded-none bg-purple/20", defaultClassNames.range_middle),
+        range_end: cn("rounded-r-md bg-purple/20", defaultClassNames.range_end),
         today: cn(
-          "bg-[#F5EBFF] text-[#8B31E1] font-medium rounded-md data-[selected=true]:rounded-none data-[selected=true]:bg-[#8B31E1] data-[selected=true]:text-white",
+          "bg-purple/20 text-purple font-medium rounded-md data-[selected=true]:rounded-none data-[selected=true]:bg-purple data-[selected=true]:text-white",
           defaultClassNames.today
         ),
         outside: cn(
@@ -133,7 +139,7 @@ function Calendar({
             <div
               data-slot="calendar"
               ref={rootRef}
-              className={cn(className)}
+              className={cn(className,)}
               {...props}
             />
           );
@@ -141,14 +147,14 @@ function Calendar({
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === "left") {
             return (
-              <ChevronLeftIcon className={cn("size-4", className)} {...props} />
+              <ChevronLeftIcon className={cn("size-4 text-purple", className)} {...props} />
             );
           }
 
           if (orientation === "right") {
             return (
               <ChevronRightIcon
-                className={cn("size-4", className)}
+                className={cn("size-4 text-purple", className)}
                 {...props}
               />
             );
@@ -204,18 +210,20 @@ function CalendarDayButton({
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       className={cn(
-        "text-purple hover:bg-[#F5EBFF] hover:text-[#8B31E1] rounded-md transition-colors",
-        "data-[selected-single=true]:bg-[#8B31E1] data-[selected-single=true]:text-white data-[selected-single=true]:hover:bg-[#8B31E1]",
-        "data-[range-middle=true]:bg-[#F5EBFF] data-[range-middle=true]:text-[#8B31E1]",
-        "data-[range-start=true]:bg-[#8B31E1] data-[range-start=true]:text-white",
-        "data-[range-end=true]:bg-[#8B31E1] data-[range-end=true]:text-white",
-        "group-data-[focused=true]/day:border-[#8B31E1] group-data-[focused=true]/day:ring-[#8B31E1]/20",
+        "text-purple hover:bg-purple/20 hover:text-purple rounded-md transition-colors",
+        "data-[selected-single=true]:bg-purple/20 data-[selected-single=true]:text-white data-[selected-single=true]:hover:bg-purple data-[selected-single=true]:border-purple data-[selected-single=true]:ring-purple/20",
+        "data-[range-middle=true]:bg-purple/20 data-[range-middle=true]:text-purple",
+        "data-[range-start=true]:bg-purple data-[range-start=true]:text-white data-[range-start=true]:border-purple",
+        "data-[range-end=true]:bg-purple data-[range-end=true]:text-white data-[range-end=true]:border-purple",
+        "group-data-[focused=true]/day:border-purple group-data-[focused=true]/day:ring-purple/20 group-data-[focused=true]/day:outline-none",
+        "focus:border-purple focus:ring-purple/20 focus:outline-none focus-visible:border-purple focus-visible:ring-purple/20 focus-visible:ring-offset-0 focus-visible:outline-none",
         "flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal",
         "group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-2",
         "data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md",
         "data-[range-middle=true]:rounded-none",
         "data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md",
         "[&>span]:text-xs [&>span]:opacity-70",
+        "border-0 [&:focus]:border-purple [&:focus]:ring-2 [&:focus]:ring-purple/20 [&:focus]:outline-none [&:focus-visible]:ring-purple/20 [&:focus-visible]:ring-offset-0 [&:focus-visible]:ring-2",
         defaultClassNames.day,
         className
       )}
