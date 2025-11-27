@@ -12,7 +12,18 @@ export interface PasswordStrength {
  */
 export const calculatePasswordStrength = (password: string): PasswordStrength => {
   if (!password) {
-    return { score: 0, label: "", progress: 0, requirements: [] };
+    return {
+      score: 0,
+      label: "",
+      progress: 0,
+      requirements: [
+        "At least 8 characters",
+        "One lowercase letter",
+        "One uppercase letter",
+        "One number",
+        "One special character (!@#$%^&*)",
+      ],
+    };
   }
 
   let score = 0;
