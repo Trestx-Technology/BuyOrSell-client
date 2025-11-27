@@ -197,10 +197,8 @@ const Signup = () => {
         <div>
           <Input
             {...register("email")}
-            autoComplete="username"
+            autoComplete="email"
             type="email"
-            name="username"
-            id="username"
             leftIcon={
               <Image
                 width={24}
@@ -262,8 +260,6 @@ const Signup = () => {
             {...register("password")}
             autoComplete="new-password"
             type={showPassword ? "text" : "password"}
-            name="new-password"
-            id="new-password"
             leftIcon={
               <Image
                 width={24}
@@ -300,23 +296,7 @@ const Signup = () => {
           <div className="space-y-2 mt-2">
             <div className="text-sm">Password Strength</div>
             <Progress value={passwordStrength.progress} className="h-2" />
-            <div className="flex justify-between items-center">
-              <div className="text-xs text-grey-blue">
-                {passwordStrength.requirements.length > 0 && (
-                  <div className="space-y-1">
-                    <div className="font-medium">Requirements:</div>
-                    <ul className="list-disc list-inside space-y-0.5">
-                      {passwordStrength.requirements.map((req, idx) => (
-                        <li key={idx} className="text-xs">{req}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-              <div className="text-xs text-grey-blue text-right">
-                {passwordStrength.label}
-              </div>
-            </div>
+          
           </div>
         </div>
 
