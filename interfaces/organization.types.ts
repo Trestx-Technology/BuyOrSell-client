@@ -117,7 +117,7 @@ export interface UpdateOrganizationPayload extends Partial<CreateOrganizationPay
 export interface OrganizationResponse {
   statusCode: number;
   message: string;
-  data: Organization;
+  data: Organization[];
   timestamp: string;
 }
 

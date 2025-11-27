@@ -53,10 +53,11 @@ export const useOrganizationById = (id: string) => {
 };
 
 // Get my organization
-export const useMyOrganization = () => {
+export const useMyOrganization = (enabled: boolean = true) => {
   return useQuery<OrganizationResponse, Error>({
     queryKey: [...organizationQueries.getMyOrganization.Key],
     queryFn: () => getMyOrganization(),
+    enabled,
   });
 };
 
