@@ -42,6 +42,7 @@ export interface HomeSubCategory {
   banner: string | null;
   desc: string | null;
   fieldsCount: number;
+  ads: AD[];
 }
 
 // Category with subcategories structure from home API subCategoryList
@@ -59,7 +60,7 @@ export interface CategoryTreeWithAds {
   banner: string | null;
   desc: string | null;
   fieldsCount: number;
-  ads: AD[];
+  ads: AD[] | DealAd[] | LatestAd[]; // Can be AD, DealAd, or LatestAd depending on context
   children: CategoryTreeWithAds[]; // Recursive - same structure
 }
 
@@ -86,6 +87,40 @@ export interface LatestAd {
   connectionTypes: string[];
   images: string[];
   location: string | null;
+  owner: {
+    id: string;
+    name: string;
+    firstName: string;
+    lastName: string;
+    image: string | null;
+  };
+}
+
+// Deal ad structure from categoryTreeWithDealAds
+export interface DealAd {
+  id: string;
+  title: string;
+  price: number;
+  discountedPrice: number | null;
+  dealPercentage: number | null;
+  dealValidThrough: string | null;
+  extraFields: ExtraField[];
+  exchanged: boolean | null;
+  exchangeWith: unknown | null;
+  isExchangeable: boolean | null;
+  createdAt: string;
+  connectionTypes: string[];
+  relatedCategories: string[];
+  images: string[];
+  address: {
+    state: {
+      state: string;
+      city: string;
+      area?: string;
+      latitude?: number;
+      longitude?: number;
+    };
+  } | null;
   owner: {
     id: string;
     name: string;

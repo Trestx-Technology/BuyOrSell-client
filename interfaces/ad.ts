@@ -13,10 +13,55 @@ export interface GetAdSearchResponseType {
   data: AdSearchType[];
 }
 
-export type ProductExtraFields = {
-  name: string,
-  icon: string,
-  optionalArray: string[]
+export type ProductExtraField = {
+  name: string;
+  type: string;
+  value: string | string[] | number | boolean | null;
+  optionalArray?: string[];
+  icon?: string; // Optional icon URL or identifier
+}
+
+export type ProductExtraFields = ProductExtraField[] | Record<string, any>;
+
+export interface AdOrganization {
+  owner: string;
+  type: string;
+  country: string;
+  emirate: string;
+  tradeLicenseNumber: string;
+  tradeLicenseExpiry: string;
+  trn: string;
+  legalName: string;
+  tradeName: string;
+  reraNumber?: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  poBox?: string | null;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  website?: string;
+  logoUrl?: string;
+  coverImageUrl?: string;
+  locations?: any[];
+  tags?: any[];
+  verified?: boolean;
+  brands?: any[];
+  dealershipCodes?: any[];
+  languages?: any[];
+  businessHours?: any[];
+  certificates?: any[];
+  documents?: any[];
+  status?: string;
+  blocked?: boolean;
+  blockedReason?: any[];
+  ratingAvg?: number;
+  ratingCount?: number;
+  followersCount?: number;
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type AD = {
@@ -24,6 +69,8 @@ export type AD = {
   title: string;
   description: string;
   price: number;
+  views?: number; // Number of views
+  adType?: "JOB" | "AD"; // Type of ad
   stockQuantity: number;
   availability: string;
   images: string[];
@@ -31,15 +78,18 @@ export type AD = {
   tags: any[];
   category: AdCategory | AdCategoryWithoutParent; // accepts both structures
   brand: AdBrand | string | null; // some responses have brand as object, others as string or null
-  owner: AdOwner;
-  extraFields: ProductExtraFields;
+  owner: AdOwner | null; // Owner can be null
+  organization?: AdOrganization; // Organization info for job ads
+  extraFields?: ProductExtraFields; // Optional, not present in all ads
   featuredStatus?: string; // present in some APIs
   isFeatured?: boolean;
   status: AdStatus;
-  connectionTypes: ["call", "chat", "whatsapp"];
+  connectionTypes: ("call" | "chat" | "whatsapp")[]; // Array of connection types
   topChoice: boolean;
   deal: boolean;
-  location: AdLocation; // can be string address or object with country/city/state/area
+  validity?: string; // Validity date for the ad
+  location?: AdLocation | string; // can be string address or object with country/city/state/area
+  address?: AdLocation; // Alternative location field name
   relatedCategories: string[];
   subscriptionId?: string;
   documents?: Document[];
@@ -47,6 +97,9 @@ export type AD = {
   contactPhoneNumber?: string;
   blockedReason?: string[];
   statusHistory?: StatusHistory[];
+  upForExchange?: boolean; // Exchange availability flag
+  isExchangable?: boolean; // Exchange availability (note spelling)
+  exchanged?: boolean; // Whether item has been exchanged
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -74,12 +127,12 @@ export interface AdCategoryWithoutParent {
   name: string;
   desc: string;
   icon: string | null;
-  banner: string | null;
-  image: string | null;
+  banner?: string | null; // Optional, not always present
+  image?: string | null; // Optional, not always present
   children: AdCategory[];
   fields: CategoryField[];
   childIDs: string[];
-  bgColor?: string;
+  bgColor?: string | null;
   mobileImage?: string | null;
   _id: string;
   createdAt: string;
@@ -98,10 +151,12 @@ export interface CategoryField {
   required: boolean;
   min: number | null;
   max: number | null;
-  excludeFor?: string[];
+  excludeFor?: string | string[];
   relatedTo?: string;
   searchable?: boolean;
   filter?: string[];
+  icon?: string;
+  colorMap?: string;
 }
 
 export interface AdBrand {
@@ -161,9 +216,11 @@ export interface AdLocation {
   state?: string;
   city?: string;
   area?: string;
+  street?: string;
   address?: string | null;
-  coordinates?: string | null;
+  coordinates?: number[]  | null; // Can be array of [lng, lat] or string
   zipCode?: string | null;
+  type?: string; // e.g., "Point" for GeoJSON
 }
 
 export type GetLiveAdsResponse = {
@@ -253,19 +310,77 @@ export interface DeleteAdResponse {
   message: string;
 }
 
-// Ad filters type
+// Ad filters type - matches /ad API query parameters
 export interface AdFilters {
+  // Pagination
   page?: number;
   limit?: number;
+  
+  // String filters
   category?: string;
-  status?: "live" | "rejected" | "pending";
-  featured?: boolean;
+  brand?: string;
   search?: string;
+  status?: string;
+  location?: string;
+  neighbourhood?: string;
+  state?: string;
+  userId?: string;
+  organizationName?: string;
+  sort?: string; // e.g., "createdAt:desc"
+  
+  // Boolean dropdown filters (all dropdowns except adType are boolean)
+  deal?: boolean;
+  topChoice?: boolean;
+  isFeatured?: boolean;
+  hasVideo?: boolean;
+  
+  // String dropdown filter (only non-boolean dropdown)
+  adType?: "JOB" | "AD";
+  
+  // Date filters
+  currentDate?: string; // ISO date-time string
+  fromDate?: string; // ISO date-time string
+  toDate?: string; // ISO date-time string
+  
+  // Legacy/alternative field names
+  featured?: boolean; // Alias for isFeatured
   minPrice?: number;
   maxPrice?: number;
-  location?: string;
   sortBy?: "price" | "createdAt" | "updatedAt" | "title";
   sortOrder?: "asc" | "desc";
   owner?: string;
   tags?: string[];
+}
+
+// Filter API payload interface
+export interface AdFilterPayload {
+  category?: string;
+  organizationId?: string;
+  organizationName?: string;
+  brand?: string;
+  adType?: "JOB" | "AD";
+  search?: string;
+  status?: string;
+  deal?: boolean;
+  currentDate?: string; // ISO date-time string
+  fromDate?: string; // ISO date-time string
+  toDate?: string; // ISO date-time string
+  topChoice?: boolean;
+  priceFrom?: number;
+  priceTo?: number;
+  city?: string;
+  neighbourhood?: string;
+  age?: number;
+  usage?: string[];
+  condition?: string[];
+  adsPosted?: string; // ISO date-time string
+  extraFields?: Record<string, string | string[] | number | boolean>;
+  coordinates?: number[];
+  distance?: number;
+  isFeatured?: boolean;
+  dealType?: string;
+  state?: string;
+  hasVideo?: boolean;
+  page?: number;
+  limit?: number;
 }
