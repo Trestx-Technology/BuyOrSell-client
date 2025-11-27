@@ -7,20 +7,27 @@ import {
   ChevronLeft,
   ChevronRight,
   MapPin,
-  Calendar,
-  Gauge,
-  Zap,
-  Fuel,
   CircleUser,
   Phone,
   MessageSquareText,
   Clock,
+  ImageOffIcon,
+  ImageIcon,
+  Eye,
+  Repeat,
 } from "lucide-react";
 import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
 import { FaWhatsapp } from "react-icons/fa";
 import Link from "next/link";
+import { Badge } from "../ui/badge";
 import { ProductExtraFields } from "@/interfaces/ad";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export interface HotDealsListingCardProps {
   id: string;
@@ -32,6 +39,7 @@ export interface HotDealsListingCardProps {
   location: string;
   images: string[];
   extraFields: ProductExtraFields;
+  isExchange?: boolean;
   postedTime: string;
   views?: number;
   isPremium?: boolean;
@@ -42,6 +50,14 @@ export interface HotDealsListingCardProps {
   className?: string;
   showSeller?: boolean;
   showSocials?: boolean;
+  seller?: {
+    name?: string;
+    firstName?: string;
+    lastName?: string;
+    type?: "Agent" | "Individual";
+    isVerified?: boolean;
+    image?: string | null;
+  };
   // Hot deals specific props
   discountText?: string;
   discountBadgeBg?: string;
@@ -50,7 +66,7 @@ export interface HotDealsListingCardProps {
   showTimer?: boolean;
   timerBg?: string;
   timerTextColor?: string;
-  endTime?: Date;
+  dealValidThrough?: string | null; // ISO date string from ad data
 }
 
 const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
@@ -63,8 +79,9 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   location,
   images,
   extraFields,
+  isExchange = false,
   postedTime,
-  // views = 0,
+  views,
   isPremium = false,
   isFavorite = false,
   onFavorite,
@@ -73,6 +90,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   className,
   showSeller,
   showSocials,
+  seller,
   discountText,
   discountBadgeBg = "bg-white",
   discountBadgeTextColor = "text-black",
@@ -80,40 +98,60 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   showTimer = true,
   timerBg = "bg-[#4A4A4A]",
   timerTextColor = "text-white",
-  endTime,
+  dealValidThrough,
 }) => {
-  // Ensure extraFields exists
-  const safeExtraFields = extraFields || {};
+  // Normalize extraFields: handle both array and object formats, preserving icon info
+  interface FieldWithIcon {
+    name: string;
+    value: string | number | boolean | string[] | null;
+    icon?: string;
+  }
 
-  // Helper function to get field value from extraFields
-  const getFieldValue = (fieldName: string): string | number | undefined => {
-    if (!safeExtraFields) return undefined;
+  const normalizeExtraFields = (): FieldWithIcon[] => {
+    if (!extraFields) return [];
+    
+    // If it's an array, use it directly (preserves icon info)
+    if (Array.isArray(extraFields)) {
+      return extraFields
+        .filter((field) => field && typeof field === 'object' && 'name' in field && 'value' in field)
+        .map((field) => ({
+          name: field.name,
+          value: field.value,
+          icon: field.icon,
+        }))
+        .filter((field) => field.value !== null && field.value !== undefined && field.value !== '');
+    }
+
+    // If it's an object, convert to array format (no icon info available)
+    const fields: FieldWithIcon[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const value = (safeExtraFields as Record<string, any>)[fieldName];
-    if (value === undefined || value === null) return undefined;
-    if (typeof value === "string" || typeof value === "number") return value;
-    if (Array.isArray(value)) return value.join(", ");
-    if (typeof value === "boolean") return value ? "Yes" : "No";
-    return String(value);
+    Object.entries(extraFields as Record<string, any>).forEach(([name, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        fields.push({ name, value });
+      }
+    });
+    return fields;
   };
 
-  // Extract commonly used fields - try multiple field name variations
-  const transmission = getFieldValue("Transmission Type") || getFieldValue("transmission") || getFieldValue("Transmission");
-  const fuelType = getFieldValue("Fule Type") || getFieldValue("Fuel Type") || getFieldValue("fuelType") || getFieldValue("fuel");
-  const mileage = getFieldValue("Mileage") || getFieldValue("mileage");
-  const year = getFieldValue("Year") || getFieldValue("year");
+  const extraFieldsList = normalizeExtraFields();
+  
+  // Get first 4 fields for display (2 per row)
+  const displayFields = extraFieldsList.slice(0, 4);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string>("");
 
-  // Timer logic for countdown
+  // Timer logic for countdown using dealValidThrough
   useEffect(() => {
-    if (!showTimer || !endTime) return;
+    if (!showTimer || !dealValidThrough) {
+      setTimeLeft("");
+      return;
+    }
 
     const updateTimer = () => {
       const now = new Date().getTime();
-      const end = endTime.getTime();
+      const end = new Date(dealValidThrough).getTime();
       const distance = end - now;
 
       if (distance > 0) {
@@ -129,7 +167,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [endTime, showTimer]);
+  }, [dealValidThrough, showTimer]);
 
   const handlePreviousImage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -179,12 +217,12 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
 
   return (
     <div
-      className={`w-full overflow-hidden rounded-2xl border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
+      className={`w-full max-w-[170px] overflow-hidden rounded-2xl border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
     >
-      <Link href={"/ad/123"} className="absolute inset-0 "></Link>
+      <Link href={`/ad/${id}`} className="absolute inset-0 "></Link>
       <div className="p-0">
         {/* Image Section */}
         {/* Main Image */}
@@ -216,16 +254,16 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
             <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
               <div className="text-center text-gray-400">
                 <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mb-2 mx-auto">
-                  <span className="text-2xl">🚗</span>
+                  <ImageOffIcon className="w-8 h-8 text-gray-400" />
                 </div>
-                <span className="text-sm">No Image</span>
+                <span className="text-sm font-medium">No Image</span>
               </div>
             </div>
           )}
 
           {/* Premium Badge - Hidden when discount is present */}
           {isPremium && !(discount && discount > 0) && (
-            <div className="absolute top-8 left-3">
+            <div className="absolute top-3 left-3">
               <Image
                 src={"/premium.svg"}
                 alt="Premium"
@@ -234,26 +272,36 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
               />
             </div>
           )}
+          {isExchange && (
+            <Badge className="absolute h-8 bg-[#FE9800] top-3 left-12">
+              <Repeat size={22} />
+              Exchange Available
+            </Badge>
+          )}
 
           {/* Image Counter */}
-          {/* <div className="absolute bottom-3 left-3 w-fit">
-            <div className="bg-[#777777] rounded-lg px-2 py-1 flex items-center gap-1 w-fit">
-              <ImageIcon className="size-3 sm:size-4 text-white" />
-              <span className="text-[10px] sm:text-[10px] text-white font-medium">
-                {currentImageIndex + 1}/{images.length}
-              </span>
+          {images?.length > 0 && (
+            <div className="absolute bottom-3 left-3 w-fit">
+              <div className="bg-[#777777] rounded-lg px-2 py-1 flex items-center gap-1 w-fit">
+                <ImageIcon className="size-3 sm:size-4 text-white" />
+                <span className="text-[10px] text-white font-medium">
+                  {currentImageIndex + 1}/{images.length}
+                </span>
+              </div>
             </div>
-          </div> */}
+          )}
 
           {/* Views Counter */}
-          {/* <div className="absolute bottom-3 right-3">
-            <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
-              <Eye className="size-3 sm:size-4 text-white" />
-              <span className="text-[10px] sm:text-[10px] text-white font-medium">
-                {views}
-              </span>
+          {views && (
+            <div className="absolute bottom-3 right-3">
+              <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
+                <Eye className="size-3 sm:size-4 text-white" />
+                <span className="text-[10px] text-white font-medium">
+                  {views}
+                </span>
+              </div>
             </div>
-          </div> */}
+          )}
 
           {/* Navigation Arrows */}
           {images.length > 1 && isHovered && (
@@ -383,11 +431,11 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
           </Typography>
 
           {/* Location */}
-          <div className="flex items-center gap-1 px-2.5">
+          <div className="flex px-1 gap-1 items-center">
             <MapPin
               size={22}
               stroke="white"
-              className="-ml-1 fill-dark-blue text-[#667085]"
+              className="w-fit min-w-6 fill-dark-blue text-dark-blue"
             />
             <Typography
               variant="body-small"
@@ -397,87 +445,117 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
             </Typography>
           </div>
 
-          {/* Dynamic Specs - First row (max 2 specs) */}
-          <div className="hidden sm:flex items-center gap-4 px-2.5">
-            {transmission && (
-              <div className="w-full flex items-center gap-1">
-                <Zap className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(transmission)}
-                </Typography>
-              </div>
-            )}
-            {fuelType && (
-              <div className="w-full flex items-center gap-1">
-                <Fuel className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(fuelType)}
-                </Typography>
-              </div>
-            )}
-          </div>
-
-          {/* Dynamic Specs - Second row (max 2 specs) */}
-          <div className="hidden sm:flex items-center gap-4 px-2.5">
-            {mileage && (
-              <div className="w-full flex items-center gap-1">
-                <Gauge className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(mileage)}
-                </Typography>
-              </div>
-            )}
-            {year && (
-              <div className="w-full flex items-center gap-1">
-                <Calendar className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(year)}
-                </Typography>
-              </div>
-            )}
-          </div>
+          {/* Dynamic Specs - Grid with 2 columns */}
+          {displayFields.length > 0 && (
+            <div className="hidden sm:grid grid-cols-2 gap-2 px-2.5">
+              {displayFields.map((field) => {
+                const displayValue = Array.isArray(field.value)
+                  ? field.value.join(", ")
+                  : typeof field.value === "boolean"
+                  ? field.value
+                    ? "Yes"
+                    : "No"
+                  : String(field.value);
+                
+                return (
+                  <div key={field.name} className="flex items-center gap-1 min-w-0">
+                    {field.icon && (
+                      <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
+                        <Image
+                          src={field.icon}
+                          alt={field.name}
+                          width={16}
+                          height={16}
+                          className="w-4 h-4 object-contain"
+                        />
+                      </div>
+                    )}
+                    <Typography
+                      variant="body-small"
+                      className="text-xs text-[#667085] truncate min-w-0 flex-1"
+                    >
+                      {displayValue}
+                    </Typography>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* Time ago */}
           <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-start justify-between">
-            {showSeller && (
-              <div className="hidden sm:flex items-center gap-2">
-                <CircleUser size={22} className="text-purple" />
-                <div>
-                  <Typography
-                    variant="sm-black-inter"
-                    className="text-xs text-gray-500 font-medium flex items-center gap-1 truncate"
-                  >
-                    Premium Motors
-                    <Image
-                      src={"/verified-seller.svg"}
-                      alt="Premium"
-                      width={16}
-                      height={16}
-                    />
-                  </Typography>
-                  <Typography
-                    variant="body-small"
-                    className="text-xs text-grey-blue"
-                  >
-                    By Agent
-                  </Typography>
-                </div>
-              </div>
+            {showSeller && seller && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="hidden sm:flex items-center gap-2 cursor-pointer">
+                      {seller.image ? (
+                        <div className="relative border w-[22px] h-[22px] rounded-full overflow-hidden flex-shrink-0">
+                          <Image
+                            src={seller.image}
+                            alt={seller.name || "Seller"}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <CircleUser size={20} className="text-purple" />
+                      )}
+                      <div>
+                        <Typography
+                          variant="sm-black-inter"
+                          className="text-xs text-gray-500 font-medium flex items-center gap-1 truncate"
+                        >
+                          {seller.name || `${seller.firstName || ""} ${seller.lastName || ""}`.trim() || "Seller"}
+                          {seller.isVerified && (
+                            <Image
+                              src={"/verified-seller.svg"}
+                              alt="Verified"
+                              width={16}
+                              height={16}
+                            />
+                          )}
+                        </Typography>
+                        {seller.type && (
+                          <Typography
+                            variant="body-small"
+                            className="text-[10px] text-grey-blue"
+                          >
+                            By {seller.type}
+                          </Typography>
+                        )}
+                      </div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[200px]">
+                    <div className="space-y-1">
+                      <div className="font-semibold text-sm">
+                        {seller.name || `${seller.firstName || ""} ${seller.lastName || ""}`.trim() || "Seller"}
+                        {seller.isVerified && (
+                          <span className="ml-1 text-xs text-green-600">✓ Verified</span>
+                        )}
+                      </div>
+                      {seller.type && (
+                        <div className="text-xs text-gray-500">
+                          Seller Type: {seller.type}
+                        </div>
+                      )}
+                      {seller.firstName && seller.lastName && seller.name && (
+                        <div className="text-xs text-gray-400">
+                          {seller.firstName} {seller.lastName}
+                        </div>
+                      )}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
-            {postedTime}
-            {showSocials && (
+            {/* <span className="whitespace-nowrap">
+              {postedTime}
+            </span> */}
+          </div>
+
+            {/* {showSocials && (
               <div className="flex items-center gap-2 sm:hidden">
                 <Phone
                   size={18}
@@ -493,8 +571,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
                   className="text-purple hover:scale-110 transition-all duration-300"
                 />
               </div>
-            )}
-          </div>
+            )} */}
         </div>
       </div>
     </div>

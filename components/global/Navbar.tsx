@@ -327,7 +327,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
               </PopoverContent>
             </Popover>
           ) : (
-            <Link href="/login" className="text-xs font-medium text-purple">
+            <Link href="/methods" className="text-xs font-medium text-purple">
               Log In / Sign Up
             </Link>
           )}

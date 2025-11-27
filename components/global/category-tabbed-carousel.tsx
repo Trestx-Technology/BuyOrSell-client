@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import { CategoryWithSubCategories } from "@/interfaces/home.types";
 import ListingCard from "@/components/global/listing-card";
-import { useCategoryTreeAdsById } from "@/hooks/useCategories";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { AD } from "@/interfaces/ad";
 
@@ -43,20 +42,20 @@ export default function CategoryTabbedCarousel<
 }: CategoryTabbedCarouselProps<T>) {
   const displayTitle = title || `Trending ${categoryData.category}`;
   const subCategories = useMemo(() => categoryData.subCategory || [], [categoryData.subCategory]);
-  const showMainCategory = subCategories.length === 0;
   
   const firstTabValue = categoryData.subCategory[0]?._id;
   const [activeTab, setActiveTab] = useState(firstTabValue);
 
-  // Fetch ads for the active tab
-  const { data: adsData, isLoading: adsLoading, error: adsError } = useCategoryTreeAdsById(activeTab || "");
-  
-  // Get ads array from the response
+  // Get ads directly from the selected subcategory
   const currentAds = useMemo(() => {
-    return adsData?.data?.ads || [];
-  }, [adsData]);
+    const activeSubCategory = subCategories.find(sub => sub._id === activeTab);
+    return activeSubCategory?.ads || [];
+  }, [subCategories, activeTab]);
 
-  // Combine external loading with ads loading
+  // Don't render if subCategory is empty
+  if (subCategories.length === 0) {
+    return null;
+  }
 
   // Framer Motion animation variants - sequential reveal pattern
   const containerVariants = {
@@ -189,18 +188,8 @@ export default function CategoryTabbedCarousel<
   );
 
   const renderCards = () => {
-    const isCardsLoading = adsLoading || isLoading;
-
-    if (isCardsLoading) {
+    if (isLoading) {
       return <CardsSkeleton />;
-    }
-
-    if (adsError) {
-      return (
-        <div className="text-center py-8 text-gray-500">
-          Failed to load ads. Please try again.
-        </div>
-      );
     }
 
     if (currentAds.length === 0) {
@@ -241,10 +230,6 @@ export default function CategoryTabbedCarousel<
       </motion.div>
     );
   };
-
-  if (!showMainCategory && subCategories.length === 0) {
-    return null;
-  }
 
   return (
     <motion.section

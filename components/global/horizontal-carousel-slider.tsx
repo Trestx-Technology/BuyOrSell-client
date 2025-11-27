@@ -234,27 +234,41 @@ export function HorizontalCarouselSlider({
                         {item.title}
                       </h3>
                       <div className="flex items-center gap-2 px-2.5">
-                        {Object.entries(item.specifications || {}).length >
-                          0 && (
-                          <div className="flex items-center gap-2 px-2.5">
-                            {Object.entries(item.specifications || {})
-                              .slice(0, 2)
-                              .map(([key, value]) => {
-                                const Icon = getSpecIcon(key);
-                                return (
-                                  <div
-                                    key={key}
-                                    className="flex items-center gap-1"
-                                  >
-                                    <Icon className="w-3 h-3 text-grey-500" />
-                                    <span className="text-xs text-grey-500 truncate">
-                                      {formatSpecValue(key, value)}
-                                    </span>
-                                  </div>
-                                );
-                              })}
-                          </div>
-                        )}
+                        {(() => {
+                          // Normalize extraFields: handle both array and object formats
+                          let normalizedFields: Record<string, any> = {};
+                          if (Array.isArray(item.extraFields)) {
+                            item.extraFields.forEach((field: any) => {
+                              if (field && typeof field === 'object' && 'name' in field && 'value' in field) {
+                                normalizedFields[field.name] = field.value;
+                              }
+                            });
+                          } else if (item.extraFields && typeof item.extraFields === 'object') {
+                            normalizedFields = item.extraFields as Record<string, any>;
+                          }
+                          
+                          const entries = Object.entries(normalizedFields);
+                          return entries.length > 0 && (
+                            <div className="flex items-center gap-2 px-2.5">
+                              {entries
+                                .slice(0, 2)
+                                .map(([key, value]) => {
+                                  const Icon = getSpecIcon(key);
+                                  return (
+                                    <div
+                                      key={key}
+                                      className="flex items-center gap-1"
+                                    >
+                                      <Icon className="w-3 h-3 text-grey-500" />
+                                      <span className="text-xs text-grey-500 truncate">
+                                        {formatSpecValue(key, value)}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {/* Location */}
@@ -368,7 +382,7 @@ export function HorizontalCarouselSlider({
                         />
                       </svg>
                       <span className="text-xs text-gray-600">
-                        {selectedItem.specifications?.bedrooms || "N/A"}{" "}
+                        {selectedItem.extraFields || "N/A"}{" "}
                         Bedrooms
                       </span>
                     </div>
@@ -388,7 +402,7 @@ export function HorizontalCarouselSlider({
                         />
                       </svg>
                       <span className="text-xs text-gray-600">
-                        {selectedItem.specifications?.bathrooms || "N/A"}{" "}
+                        {selectedItem.extraFields || "N/A"}{" "}
                         Bathrooms
                       </span>
                     </div>
