@@ -301,8 +301,8 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                OTHER CATEGORIES - Flat List Layout
                ============================================================ */
             <motion.div className="bg-white rounded-xl rounded-tl-none shadow-lg border border-gray-200 overflow-hidden max-h-[500px]">
-              <div className="w-full max-w-md overflow-y-auto">
-              
+              <div className="w-full max-w-md overflow-y-auto scrollbar-hide">
+              {/* Added a check for jobs to redirect to "/Jobs" */}
                     {categoryData.map((category) => (
                       <motion.div
                         key={category._id}
@@ -310,12 +310,12 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                         className="flex items-center justify-between p-3 hover:bg-purple/10 cursor-pointer transition-colors group"
                         onClick={() => onCategoryHover(category)}
                       >
-                        <Typography
-                          variant="xs-bold"
-                          className="text-gray-600 group-hover:text-purple"
+                        <Link
+                          href={category.name.toLowerCase()==="job"? `/jobs`: `/categories/${category.name}`}
+                          className="text-gray-600 group-hover:text-purple text-xs w-full"
                         >
                           {category.name}
-                        </Typography>
+                        </Link>
                       </motion.div>
                     ))}
               </div>

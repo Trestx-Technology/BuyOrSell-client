@@ -5,6 +5,7 @@ import { Typography } from "@/components/typography";
 import ListingCard from "@/app/(root)/categories/_components/ListingCard";
 import { mockAds } from "@/constants/sample-listings";
 import SortAndViewControls from "@/app/(root)/post-ad/_components/SortAndViewControls";
+import { ProductExtraFields } from "@/interfaces/ad";
 
 // Sort options for seller listings
 const sortOptions = [
@@ -83,16 +84,28 @@ export default function SellerListings({ sellerId }: SellerListingsProps) {
             : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
         }`}
       >
-        {sortedAds.map((ad) => (
-          <ListingCard
-            key={ad.id}
-            {...ad}
-            onFavorite={(id) => console.log("Favorited:", id)}
-            onShare={(id) => console.log("Shared:", id)}
-            onClick={(id) => console.log("Clicked:", id)}
-            className={view === "list" ? "flex-row" : "min-h-[284px]"}
-          />
-        ))}
+        {sortedAds.map((ad) => {
+          // Transform specifications to extraFields format
+          const extraFields: ProductExtraFields = ad.specifications
+            ? Object.entries(ad.specifications).map(([name, value]) => ({
+                name,
+                type: typeof value === "number" ? "number" : "string",
+                value: value as string | number,
+              }))
+            : [];
+          
+          return (
+            <ListingCard
+              key={ad.id}
+              {...ad}
+              extraFields={extraFields}
+              onFavorite={(id) => console.log("Favorited:", id)}
+              onShare={(id) => console.log("Shared:", id)}
+              onClick={(id) => console.log("Clicked:", id)}
+              className={view === "list" ? "flex-row" : "min-h-[284px]"}
+            />
+          );
+        })}
       </div>
 
       {/* No Results */}

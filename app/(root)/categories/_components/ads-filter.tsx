@@ -216,7 +216,7 @@ const AdsFilter = ({
               placeholder={searchPlaceholder}
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-10 bg-gray-50 border-0 bg-gray-100"
+              className="pl-10 bg-gray-100 border-0"
             />
           )}
         </div>
@@ -265,8 +265,7 @@ const AdsFilter = ({
 
         {/* Active Filters */}
         {activeFilters.length > 0 && (
-          <div className="flex items-center gap-2 pt-2 border-t">
-            <span className="text-sm text-gray-600">Active filters:</span>
+          <div className="flex items-center border-t p-2">
             <div className="flex flex-wrap gap-2">
               {activeFilters.map(([key, value]) => {
                 const filterConfig = config.find((c) => c.key === key);
@@ -300,7 +299,7 @@ const AdsFilter = ({
               variant="ghost"
               size="sm"
               onClick={onClearFilters}
-              className="text-gray-500"
+              className="text-gray-500 h-6"
             >
               Clear all
             </Button>

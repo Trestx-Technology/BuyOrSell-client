@@ -247,6 +247,15 @@ export default function HotDealsPage() {
                 }
 
                 // Transform the ad data to match HotDealsListingCard interface
+                // Transform specifications to extraFields format
+                const extraFields = ad.specifications
+                  ? Object.entries(ad.specifications).map(([name, value]) => ({
+                      name,
+                      type: typeof value === "number" ? "number" : "string",
+                      value: value as string | number,
+                    }))
+                  : [];
+                
                 const transformedAd = {
                   id: ad.id,
                   title: ad.title,
@@ -256,6 +265,7 @@ export default function HotDealsPage() {
                   currency: ad.currency || "AED",
                   location: ad.location,
                   images: ad.images,
+                  extraFields,
                   specifications: {
                     transmission: ad.specifications.transmission,
                     fuelType: ad.specifications.fuelType,
@@ -272,8 +282,11 @@ export default function HotDealsPage() {
                   discountBadgeBg: "bg-[#FB9800]",
                   discountBadgeTextColor: "text-white",
                   showDiscountBadge: !!ad.discount,
-                  seller: ad.seller,
-                  type: ad.seller.type,
+                  seller: {
+                    ...ad.seller,
+                    type: (ad.seller.type === "Owner" ? "Individual" : ad.seller.type) as "Agent" | "Individual",
+                  },
+                  type: (ad.seller.type === "Owner" ? "Individual" : ad.seller.type) as "Agent" | "Individual",
                   showTimer: true,
                   timerBg: "bg-black",
                   timerTextColor: "text-white",
@@ -296,6 +309,7 @@ export default function HotDealsPage() {
                       <>
                         <HorizontalListingCard
                           {...transformedAd}
+                          extraFields={extraFields}
                           onFavorite={(id) => console.log("Favorited:", id)}
                           onShare={(id) => console.log("Shared:", id)}
                           onClick={(id) => console.log("Clicked:", id)}
@@ -303,6 +317,7 @@ export default function HotDealsPage() {
                         />
                         <MobileHorizontalListViewCard
                           {...transformedAd}
+                          extraFields={extraFields}
                           onClick={(id) => console.log("Clicked:", id)}
                           className="block sm:hidden border-none"
                         />

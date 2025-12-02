@@ -16,6 +16,7 @@ import {
   getJobApplicantById,
   updateApplicantStatus,
   filterJobs,
+  getJobHome,
 } from '@/app/api/job/job.services';
 import {
   JobsListResponse,
@@ -29,6 +30,8 @@ import {
   JobFilters,
   JobSearchParams,
   JobFilterPayload,
+  JobHomeResponse,
+  JobHomeParams,
 } from '@/interfaces/job.types';
 import { jobQueries } from '@/app/api/job/index';
 
@@ -250,6 +253,17 @@ export const useUpdateApplicantStatus = () => {
 export const useFilterJobs = () => {
   return useMutation<JobsListResponse, Error, JobFilterPayload>({
     mutationFn: filterJobs,
+  });
+};
+
+// ============================================================================
+// JOB HOME QUERY HOOK
+// ============================================================================
+
+export const useGetJobHome = (params?: JobHomeParams) => {
+  return useQuery<JobHomeResponse, Error>({
+    queryKey: [...jobQueries.getJobHome.Key, params],
+    queryFn: () => getJobHome(params || {}),
   });
 };
 

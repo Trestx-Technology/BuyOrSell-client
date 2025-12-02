@@ -63,5 +63,9 @@ export const jobQueries = {
     Key: ['jobs', 'filter'],
     endpoint: '/jobs/filter',
   },
+  getJobHome: {
+    Key: ['job', 'home'],
+    endpoint: '/job-home',
+  },
 };
 

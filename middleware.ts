@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
     '/post-ad',
     '/chat',
     '/favorites',
-    '/ai-ad-post',
+    '/ai-ad-post',   
   ];
 
   // Check if the current path is a protected route

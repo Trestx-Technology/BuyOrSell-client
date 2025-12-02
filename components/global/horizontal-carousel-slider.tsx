@@ -13,6 +13,7 @@ import {
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { Typography } from "../typography";
 import Image from "next/image";
+import { ProductExtraField } from "@/interfaces/ad";
 
 export interface HorizontalCarouselSliderProps {
   items: ListingCardProps[];
@@ -236,15 +237,15 @@ export function HorizontalCarouselSlider({
                       <div className="flex items-center gap-2 px-2.5">
                         {(() => {
                           // Normalize extraFields: handle both array and object formats
-                          let normalizedFields: Record<string, any> = {};
+                          let normalizedFields: Record<string, string | number | boolean | string[] | null> = {};
                           if (Array.isArray(item.extraFields)) {
-                            item.extraFields.forEach((field: any) => {
+                            item.extraFields.forEach((field) => {
                               if (field && typeof field === 'object' && 'name' in field && 'value' in field) {
                                 normalizedFields[field.name] = field.value;
                               }
                             });
                           } else if (item.extraFields && typeof item.extraFields === 'object') {
-                            normalizedFields = item.extraFields as Record<string, any>;
+                            normalizedFields = item.extraFields as Record<string, string | number | boolean | string[] | null>;
                           }
                           
                           const entries = Object.entries(normalizedFields);
@@ -261,7 +262,7 @@ export function HorizontalCarouselSlider({
                                     >
                                       <Icon className="w-3 h-3 text-grey-500" />
                                       <span className="text-xs text-grey-500 truncate">
-                                        {formatSpecValue(key, value)}
+                                        {formatSpecValue(key, value as string | number)}
                                       </span>
                                     </div>
                                   );
@@ -382,7 +383,7 @@ export function HorizontalCarouselSlider({
                         />
                       </svg>
                       <span className="text-xs text-gray-600">
-                        {selectedItem.extraFields || "N/A"}{" "}
+                        {selectedItem.extraFields.map((field: ProductExtraField) => field.name).join(", ") || "N/A"}{" "}
                         Bedrooms
                       </span>
                     </div>
@@ -402,7 +403,7 @@ export function HorizontalCarouselSlider({
                         />
                       </svg>
                       <span className="text-xs text-gray-600">
-                        {selectedItem.extraFields || "N/A"}{" "}
+                        {selectedItem.extraFields.map((field: ProductExtraField) => field.name).join(", ") || "N/A"}{" "}
                         Bathrooms
                       </span>
                     </div>
@@ -422,7 +423,7 @@ export function HorizontalCarouselSlider({
                         />
                       </svg>
                       <span className="text-xs text-gray-600">
-                        {selectedItem.specifications?.area || "N/A"} sqft
+                        {selectedItem.extraFields.find((field: ProductExtraField) => field.name === "area")?.value || "N/A"} sqft
                       </span>
                     </div>
                   </div>
@@ -457,7 +458,7 @@ export function HorizontalCarouselSlider({
                       Description
                     </h3>
                     <p className="text-xs text-gray-600 leading-relaxed">
-                      {selectedItem.specifications?.description ||
+                        {selectedItem.extraFields.find((field: ProductExtraField) => field.name === "description")?.value ||
                         "This is a beautiful property with modern amenities and great location. Perfect for families looking for comfort and convenience in a prime area."}
                     </p>
                   </div>

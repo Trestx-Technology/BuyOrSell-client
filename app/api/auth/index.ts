@@ -33,7 +33,7 @@ export const authQueries = {
   },
   refreshToken: {
     Key: ['auth', 'refresh-token'],
-    endpoint: '/auth/refresh-token',
+    endpoint: '/auth/refresh',
   },
   requestResetPassword: {
     Key: ['auth', 'request-reset-password'],

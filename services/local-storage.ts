@@ -6,9 +6,16 @@ export class LocalStorageService {
     const value = localStorage.getItem(key);
     if (value) {
       try {
-        return JSON?.parse(value) as T;
+        // Try to parse as JSON first (for values stored via LocalStorageService.set)
+        const parsed = JSON.parse(value);
+        return parsed as T;
       } catch (err) {
-        console.error(err);
+        // If parsing fails, it might be a plain string (not JSON-stringified)
+        // Return the raw value as-is for string types
+        if (typeof value === 'string') {
+          return value as T;
+        }
+        console.error(`[LocalStorageService] Failed to parse value for key "${key}":`, err);
         return null;
       }
     }

@@ -60,6 +60,7 @@ export interface BusinessHours {
   open: string;
   close: string;
   isClosed?: boolean;
+  allDay?: boolean;
 }
 
 export interface Certificate {
@@ -69,6 +70,7 @@ export interface Certificate {
   issueDate: string;
   expiryDate?: string;
   certificateUrl?: string;
+  fileId?: string;
 }
 
 export interface Document {
@@ -99,12 +101,14 @@ export interface CreateOrganizationPayload {
   contactEmail: string;
   contactPhone: string;
   website?: string;
+  logoUrl?: string;
   locations?: Omit<OrganizationLocation, '_id'>[];
   tags?: string[];
   brands?: string[];
   dealershipCodes?: string[];
   languages?: string[];
   businessHours?: BusinessHours[];
+  certificates?: Omit<Certificate, '_id'>[];
 }
 
 export interface UpdateOrganizationPayload extends Partial<CreateOrganizationPayload> {
@@ -120,6 +124,12 @@ export interface OrganizationResponse {
   data: Organization[];
   timestamp: string;
 }
+export interface OrganizationByIdResponse {
+  statusCode: number;
+  message: string;
+  data: Organization;
+  timestamp: string;
+}
 
 export interface OrganizationsListResponse {
   statusCode: number;
@@ -133,6 +143,7 @@ export interface OrganizationsListResponse {
   };
   timestamp: string;
 }
+
 
 export interface VerifyOrganizationPayload {
   verified: boolean;

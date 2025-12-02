@@ -1,6 +1,7 @@
 import Navbar from "@/components/global/Navbar";
 import React from "react";
 import CategoryNav from "../_components/CategoryNav";
+import { Footer } from "@/components/global/footer";
 
 const AdListingLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -8,6 +9,7 @@ const AdListingLayout = ({ children }: { children: React.ReactNode }) => {
       <Navbar className="hidden sm:flex" />
       <CategoryNav className="hidden sm:block" />
       <section className="w-full max-w-[1080px] mx-auto">{children}</section>
+      <Footer />
     </main>
   );
 };

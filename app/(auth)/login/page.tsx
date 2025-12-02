@@ -23,6 +23,8 @@ const LoginContent = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+      const redirectTo = searchParams.get("redirect") || "/";
+
   const setSession = useAuthStore((state) => state.setSession);
   const [loginData, setLoginData] = useState({
     email: "",
@@ -42,8 +44,12 @@ const LoginContent = () => {
       toast.success("Login successful!");
       
       // Redirect to the original destination or home page
-      const redirectTo = searchParams.get("redirect") || "/";
-      router.push(redirectTo);
+      if (redirectTo) {
+        
+        router.push(redirectTo);
+      } else {
+        router.push("/");
+      }
     },
     onError: (error) => {
       const axiosError = error as AxiosError<{ message?: string }>;

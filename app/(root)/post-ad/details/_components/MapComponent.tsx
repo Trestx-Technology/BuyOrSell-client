@@ -968,7 +968,7 @@ export const MapComponent = ({
                   variant="ghost"
                   size="sm"
                   disabled
-                  className="bg-gray-100"
+                  className="bg-gray-100 truncate max-w-[100px]"
                 >
                   {location.name}
                 </Button>
@@ -1092,7 +1092,7 @@ export const MapComponent = ({
             >
               Use Current Location
             </Button>
-            <div className="flex gap-2 flex-wrap">
+            <div className="hidden md:flex gap-2 flex-wrap">
               {quickLocations.slice(0, 10).map((location) => (
                 <Button
                   key={location.name}
@@ -1100,7 +1100,7 @@ export const MapComponent = ({
                   size="sm"
                   onClick={() => handleQuickLocation(location)}
                   disabled={disabled}
-                  className="bg-gray-100 hover:bg-purple-50 hover:border-purple-300"
+                  className="bg-gray-100 hover:bg-purple-50 hover:border-purple-300 truncate"
                 >
                   {location.name}
                 </Button>

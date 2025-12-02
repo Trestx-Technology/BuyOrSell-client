@@ -10,6 +10,7 @@ export interface BreadcrumbItem {
   name?: string;
   href?: string;
   isActive?: boolean;
+  isEllipsis?: boolean;
 }
 
 export interface BreadcrumbsProps {
@@ -119,23 +120,30 @@ const Breadcrumbs = React.forwardRef<HTMLDivElement, BreadcrumbsProps>(
             const isLast = index === displayItems.length - 1;
             const href = item.href ?? "#";
             const isActive = item.isActive ?? isLast;
+            const isEllipsis = item.isEllipsis ?? false;
 
             return (
               <React.Fragment key={item.id || index}>
-                <Link
-                  href={href}
-                  onClick={() =>
-                    handleItemClick(item, index + (showHomeIcon ? 1 : 0))
-                  }
-                  className={cn(
-                    "flex items-center gap-1 font-normal cursor-pointer transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8B31E1] focus:ring-opacity-50 rounded px-1 whitespace-nowrap flex-shrink-0",
-                    isActive
-                      ? "text-[#8B31E1] font-semibold"
-                      : "text-[#8A8A8A] hover:text-purple"
-                  )}
-                >
-                  <span>{item.label}</span>
-                </Link>
+                {isEllipsis ? (
+                  <span className="flex items-center gap-1 font-normal text-[#8A8A8A] px-1 whitespace-nowrap flex-shrink-0">
+                    <span>{item.label}</span>
+                  </span>
+                ) : (
+                  <Link
+                    href={href}
+                    onClick={() =>
+                      handleItemClick(item, index + (showHomeIcon ? 1 : 0))
+                    }
+                    className={cn(
+                      "flex items-center gap-1 font-normal cursor-pointer transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8B31E1] focus:ring-opacity-50 rounded px-1 whitespace-nowrap flex-shrink-0",
+                      isActive
+                        ? "text-[#8B31E1] font-semibold"
+                        : "text-[#8A8A8A] hover:text-purple"
+                    )}
+                  >
+                    <span>{item.label}</span>
+                  </Link>
+                )}
 
                 {!isLast && (
                   <li className="flex items-center">

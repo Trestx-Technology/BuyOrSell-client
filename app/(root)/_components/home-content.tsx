@@ -58,52 +58,40 @@ export function HomeContent() {
         {/* PhonePe-Style Stacking Animation Container */}
         <div className="max-w-[1280px] mx-auto relative">
           {homeData?.data.subCategoryList?.map((category, i) => {
-            // Sticky positioning pattern matching the commented components
-            const stickyClasses = [
-              "sticky top-0 z-10",
-              "sticky top-[50px] z-20",
-              "sticky top-[150px] z-40",
-              "sticky top-[200px] z-50",
-              "sticky top-[250px] z-60",
-              "sticky top-[300px] z-70",
-              "sticky top-[350px] z-80",
-            ];
-            const className = stickyClasses[i] || `sticky top-[${i * 50}px] z-${(i + 1) * 10}`;
+            // Calculate dynamic sticky positioning
+            // Top pattern: 0, 50, 150, 200, 250, 300, 350, 400, 450...
+            // - First: 0
+            // - Second: 50
+            // - Third and beyond: 50 + index * 50
+            const calculateTop = (index: number): number => {
+              if (index === 0) return 0;
+              if (index === 1) return 50;
+              // For index 2+: 50 + index * 50
+              // index 2: 50 + 2 * 50 = 150 ✓
+              // index 3: 50 + 3 * 50 = 200 ✓
+              // index 4: 50 + 4 * 50 = 250 ✓
+              return 50 + index * 50;
+            };
             
-            // // Calculate dynamic sticky positioning
-            // // Top pattern: 0, 50, 150, 200, 250, 300, 350...
-            // // - First: 0
-            // // - Second: 50
-            // // - Third and beyond: 50 + (index - 1) * 50 = 150, 200, 250, 300, 350...
-            // const calculateTop = (index: number): number => {
-            //   if (index === 0) return 0;
-            //   if (index === 1) return 50;
-            //   // For index 2+: 50 + (index - 1) * 50
-            //   // index 2: 50 + 1 * 50 = 100... but should be 150
-            //   // Actually: 50 + 100 = 150, so: 50 + index * 50
-            //   // index 2: 50 + 2 * 50 = 150 ✓
-            //   // index 3: 50 + 3 * 50 = 200 ✓
-            //   return 50 + index * 50;
-            // };
+            // Z-index pattern: 10, 20, 40, 50, 60, 70, 80, 90, 100...
+            // - First: 10
+            // - Second: 20
+            // - Third: 40 (jump of 20)
+            // - Fourth and beyond: 40 + (index - 2) * 10 = 50, 60, 70, 80, 90, 100...
+            const calculateZIndex = (index: number): number => {
+              if (index === 0) return 10;
+              if (index === 1) return 20;
+              if (index === 2) return 40;
+              // For index 3+: 40 + (index - 2) * 10
+              // index 3: 40 + 1 * 10 = 50 ✓
+              // index 4: 40 + 2 * 10 = 60 ✓
+              // index 5: 40 + 3 * 10 = 70 ✓
+              return 40 + (index - 2) * 10;
+            };
             
-            // // Z-index pattern: 10, 20, 40, 50, 60, 70, 80...
-            // // - First: 10
-            // // - Second: 20
-            // // - Third: 40 (jump of 20)
-            // // - Fourth and beyond: 40 + (index - 2) * 10 = 50, 60, 70, 80...
-            // const calculateZIndex = (index: number): number => {
-            //   if (index === 0) return 10;
-            //   if (index === 1) return 20;
-            //   if (index === 2) return 40;
-            //   // For index 3+: 40 + (index - 2) * 10
-            //   // index 3: 40 + 1 * 10 = 50 ✓
-            //   // index 4: 40 + 2 * 10 = 60 ✓
-            //   return 40 + (index - 2) * 10;
-            // };
-            
-            // const topValue = calculateTop(i);
-            // const zIndexValue = calculateZIndex(i);
-            // const className = `sticky top-[${topValue}px] z-[${zIndexValue}]`;
+            const topValue = calculateTop(i);
+            const zIndexValue = calculateZIndex(i);
+            const className = `sticky top-[${topValue}px] z-[${zIndexValue}]`;
             
             return (
               <CategoryTabbedCarousel

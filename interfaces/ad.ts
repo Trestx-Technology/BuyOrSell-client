@@ -237,6 +237,7 @@ export interface PostAdPayload {
   description: string;
   price: number;
   images: string[];
+  video?: string;
   contactPhoneNumber?: string;
   extraFields: ProductExtraFields;
   address: AdLocation;
@@ -253,6 +254,7 @@ export interface PostAdPayload {
   tags: any[];
   stockQuantity: number;
   availability: string;
+  organizationId?: string;
 }
 
 export interface PostAdResponse {

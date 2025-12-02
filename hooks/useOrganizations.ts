@@ -21,6 +21,7 @@ import {
   VerifyOrganizationPayload,
   BlockOrganizationPayload,
   UploadImageResponse,
+  OrganizationByIdResponse,
 } from '@/interfaces/organization.types';
 import { organizationQueries } from '@/app/api/organization/index';
 
@@ -45,7 +46,7 @@ export const useOrganizations = (params?: {
 
 // Get organization by ID
 export const useOrganizationById = (id: string) => {
-  return useQuery<OrganizationResponse, Error>({
+  return useQuery<OrganizationByIdResponse, Error>({
     queryKey: [...organizationQueries.getOrganizationById(id).Key],
     queryFn: () => getOrganizationById(id),
     enabled: !!id,
@@ -88,11 +89,10 @@ export const useUpdateOrganization = () => {
     { id: string; data: UpdateOrganizationPayload }
   >({
     mutationFn: ({ id, data }) => updateOrganization(id, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ 
-        queryKey: organizationQueries.getOrganizationById(variables.id).Key 
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: organizationQueries.getMyOrganization.Key,
       });
-      queryClient.invalidateQueries({ queryKey: organizationQueries.findAllOrganizations.Key });
     },
   });
 };

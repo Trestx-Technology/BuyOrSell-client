@@ -8,8 +8,6 @@ import {
   ChevronRight,
   MapPin,
   CircleUser,
-  Phone,
-  MessageSquareText,
   Clock,
   ImageOffIcon,
   ImageIcon,
@@ -18,7 +16,6 @@ import {
 } from "lucide-react";
 import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
-import { FaWhatsapp } from "react-icons/fa";
 import Link from "next/link";
 import { Badge } from "../ui/badge";
 import { ProductExtraFields } from "@/interfaces/ad";
@@ -80,7 +77,6 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   images,
   extraFields,
   isExchange = false,
-  postedTime,
   views,
   isPremium = false,
   isFavorite = false,
@@ -89,7 +85,6 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   onClick,
   className,
   showSeller,
-  showSocials,
   seller,
   discountText,
   discountBadgeBg = "bg-white",

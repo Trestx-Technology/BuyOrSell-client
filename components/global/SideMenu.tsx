@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 
 import { Typography } from "../typography";
 import { usePathname } from "next/navigation";
+import { useMyOrganization } from "@/hooks/useOrganizations";
+import { Organization } from "@/interfaces/organization.types";
 
 interface SideMenuProps {
   trigger: React.ReactNode;
@@ -96,11 +98,116 @@ const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
   </div>
 );
 
+interface OrganizationItemProps {
+  organization: Organization;
+  onClick?: () => void;
+}
+
+const OrganizationItem: React.FC<OrganizationItemProps> = ({
+  organization,
+  onClick,
+}) => {
+  // Format location (City, Country)
+  const getLocation = (): string => {
+    const city = organization.city || "";
+    const country = organization.country || "AE";
+    return city ? `${city}, ${country}` : country;
+  };
+
+  // Get organization display name
+  const displayName = organization.tradeName || organization.legalName || "Organization";
+  
+  // Get organization type - show as-is from API
+  const organizationType = organization.type || "ORGANIZATION";
+  
+  // Get status badge text and color
+  const getStatusBadge = () => {
+    const status = organization.status?.toLowerCase();
+    if (!status) return null;
+    
+    const statusConfig: Record<string, { text: string; bgColor: string; textColor: string }> = {
+      pending: { text: "Draft", bgColor: "bg-[#FFF4E6]", textColor: "text-[#B88230]" },
+      active: { text: "Active", bgColor: "bg-green-100", textColor: "text-green-700" },
+      inactive: { text: "Inactive", bgColor: "bg-gray-100", textColor: "text-gray-700" },
+      suspended: { text: "Suspended", bgColor: "bg-red-100", textColor: "text-red-700" },
+    };
+    
+    const config = statusConfig[status];
+    if (!config) return null;
+    
+    return (
+      <div className={`px-2 py-1 ${config.bgColor} rounded-md flex-shrink-0 mr-4`}>
+        <Typography
+          variant="xs-regular-inter"
+          className={`text-xs font-medium ${config.textColor}`}
+        >
+          {config.text}
+        </Typography>
+      </div>
+    );
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center justify-between w-full py-3 pr-4 hover:bg-purple/10 group transition-colors border-b border-[#E5E5E5]"
+    >
+      <div className="flex items-center gap-3 px-6 flex-1 min-w-0">
+        {/* Organization Icon */}
+        <div className="size-7 flex-shrink-0">
+          {organization.logoUrl ? (
+            <Image
+              src={organization.logoUrl}
+              alt={displayName}
+              width={28}
+              height={28}
+              className="w-full h-full object-cover rounded"
+            />
+          ) : (
+            <div className="w-full h-full bg-purple/20 rounded flex items-center justify-center">
+              <Typography
+                variant="xs-regular-inter"
+                className="text-purple font-semibold text-xs"
+              >
+                {displayName.charAt(0).toUpperCase()}
+              </Typography>
+            </div>
+          )}
+        </div>
+
+        {/* Organization Details */}
+        <div className="flex-1 text-left min-w-0">
+          <Typography
+            variant="xs-regular-inter"
+            className="text-xs font-semibold text-[#1D2939] truncate"
+          >
+            {displayName}
+          </Typography>
+          <Typography
+            variant="xs-regular-inter"
+            className="text-xs text-[#8A8A8A] truncate"
+          >
+            {organizationType.toUpperCase()} • {getLocation()}
+          </Typography>
+        </div>
+      </div>
+
+      {/* Status Badge */}
+      {getStatusBadge()}
+    </button>
+  );
+};
+
 export const SideMenu: React.FC<SideMenuProps> = ({
   trigger,
   isLoggedIn = false,
   user,
 }) => {
+  // Fetch current user's organization using /organizations/me endpoint
+  const { data: myOrganizationData } = useMyOrganization(isLoggedIn);
+  
+  const organizations = myOrganizationData?.data ?? [];
+
   return (
     <Sheet>
       <SheetTrigger asChild>{trigger}</SheetTrigger>
@@ -217,6 +324,38 @@ export const SideMenu: React.FC<SideMenuProps> = ({
               />
             )}
           </div>
+
+          {/* My Organizations Section */}
+          {isLoggedIn && organizations.length > 0 && (
+            <div className="py-0">
+              <div className="flex items-center justify-between px-6 py-3">
+                <Typography
+                  variant="sm-semibold-inter"
+                  className="text-sm font-semibold text-[#1D2939]"
+                >
+                  My Organizations
+                </Typography>
+                <Link href="/organizations">
+                  <Typography
+                    variant="xs-regular-inter"
+                    className="text-xs text-purple hover:text-purple/80 cursor-pointer"
+                  >
+                    View All
+                  </Typography>
+                </Link>
+              </div>
+              {organizations?.map((org) => (
+                <OrganizationItem
+                  key={org._id}
+                  organization={org}
+                  onClick={() => {
+                    // Navigate to organization details or dashboard
+                    console.log("Organization clicked:", org._id);
+                  }}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Explore Section */}
           <div className="py-0">

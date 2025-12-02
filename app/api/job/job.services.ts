@@ -12,6 +12,8 @@ import type {
   JobFilters,
   JobSearchParams,
   JobFilterPayload,
+  JobHomeResponse,
+  JobHomeParams,
 } from '@/interfaces/job.types';
 
 // ============================================================================
@@ -235,6 +237,18 @@ export const filterJobs = async (payload: JobFilterPayload): Promise<JobsListRes
         'Content-Type': 'application/json',
       },
     },
+  );
+  return response.data;
+};
+
+// ============================================================================
+// JOB HOME
+// ============================================================================
+
+export const getJobHome = async (params?: JobHomeParams): Promise<JobHomeResponse> => {
+  const response = await axiosInstance.get<JobHomeResponse>(
+    jobQueries.getJobHome.endpoint,
+    { params },
   );
   return response.data;
 };

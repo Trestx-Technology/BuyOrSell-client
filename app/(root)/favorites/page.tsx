@@ -15,6 +15,7 @@ import HorizontalListingCard from "../categories/_components/desktop-horizontal-
 import { cn } from "@/lib/utils";
 import React from "react";
 import ListingCard from "../categories/_components/ListingCard";
+import { ProductExtraFields } from "@/interfaces/ad";
 
 // Sort options
 const sortOptions = [
@@ -206,34 +207,48 @@ export default function FavoritesPage() {
                 view === "list" && "flex flex-col"
               )}
             >
-              {sortedAds.slice(0, 8).map((ad) => (
-                <React.Fragment key={ad.id}>
-                  {view === "grid" ? (
-                    <ListingCard
-                      {...ad}
-                      isFavorite={true}
-                      onShare={(id) => console.log("Shared:", id)}
-                      onClick={(id) => console.log("Clicked:", id)}
-                      className="min-h-[284px]"
-                    />
-                  ) : (
-                    <>
-                      <HorizontalListingCard
+              {sortedAds.slice(0, 8).map((ad) => {
+                // Transform specifications to extraFields format
+                const extraFields: ProductExtraFields = ad.specifications
+                  ? Object.entries(ad.specifications).map(([name, value]) => ({
+                      name,
+                      type: typeof value === "number" ? "number" : "string",
+                      value: value as string | number,
+                    }))
+                  : [];
+                
+                return (
+                  <React.Fragment key={ad.id}>
+                    {view === "grid" ? (
+                      <ListingCard
                         {...ad}
-                        onFavorite={(id) => console.log("Favorited:", id)}
+                        extraFields={extraFields}
+                        isFavorite={true}
                         onShare={(id) => console.log("Shared:", id)}
                         onClick={(id) => console.log("Clicked:", id)}
-                        className="hidden sm:block"
+                        className="min-h-[284px]"
                       />
-                      <MobileHorizontalListViewCard
-                        {...ad}
-                        onClick={(id) => console.log("Clicked:", id)}
-                        className="block sm:hidden"
-                      />
-                    </>
-                  )}
-                </React.Fragment>
-              ))}
+                    ) : (
+                      <>
+                        <HorizontalListingCard
+                          {...ad}
+                          extraFields={extraFields}
+                          onFavorite={(id) => console.log("Favorited:", id)}
+                          onShare={(id) => console.log("Shared:", id)}
+                          onClick={(id) => console.log("Clicked:", id)}
+                          className="hidden sm:block"
+                        />
+                        <MobileHorizontalListViewCard
+                          {...ad}
+                          extraFields={extraFields}
+                          onClick={(id) => console.log("Clicked:", id)}
+                          className="block sm:hidden"
+                        />
+                      </>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </div>
           </div>
         </div>

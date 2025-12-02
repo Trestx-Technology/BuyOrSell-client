@@ -8,6 +8,7 @@ import type {
   VerifyOrganizationPayload,
   BlockOrganizationPayload,
   UploadImageResponse,
+  OrganizationByIdResponse,
 } from '@/interfaces/organization.types';
 
 // Get all organizations
@@ -40,8 +41,8 @@ export const createOrganization = async (
 // Get organization by ID
 export const getOrganizationById = async (
   id: string,
-): Promise<OrganizationResponse> => {
-  const response = await axiosInstance.get<OrganizationResponse>(
+): Promise<OrganizationByIdResponse> => {
+  const response = await axiosInstance.get<OrganizationByIdResponse>(
     organizationQueries.getOrganizationById(id).endpoint,
   );
   return response.data;
@@ -52,7 +53,7 @@ export const updateOrganization = async (
   id: string,
   data: UpdateOrganizationPayload,
 ): Promise<OrganizationResponse> => {
-  const response = await axiosInstance.put<OrganizationResponse>(
+  const response = await axiosInstance.patch<OrganizationResponse>(
     organizationQueries.updateOrganization(id).endpoint,
     data,
   );

@@ -50,6 +50,7 @@ export const AUTH_ICONS = {
   key: `${S3_BASE_URL}/icons/key.svg`,
   gmail: `${S3_BASE_URL}/icons/gmail.svg`,
   userLogin: `${S3_BASE_URL}/icons/user-login.svg`,
+  verified: `/verified-seller.svg`,
 } as const;
 
 // ============================================================================

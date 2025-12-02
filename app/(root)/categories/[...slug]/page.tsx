@@ -19,6 +19,10 @@ import { mockAds } from "@/constants/sample-listings";
 import { cn } from "@/lib/utils";
 import HorizontalListingCard from "../_components/desktop-horizontal-list-card";
 import MobileHorizontalListViewCard from "../_components/MobileHorizontalListViewCard";
+import Pagination from "@/components/global/pagination";
+import { ProductExtraFields } from "@/interfaces/ad";
+
+const ITEMS_PER_PAGE = 12;
 
 // Sort options
 const sortOptions = [
@@ -112,6 +116,7 @@ const filterConfig: FilterConfig[] = [
 export default function CategoryListingPage() {
   const params = useParams();
   const [searchQuery, setSearchQuery] = useState("");
+  const [locationQuery, setLocationQuery] = useState("");
   const [filters, setFilters] = useState({
     location: "",
     price: "",
@@ -121,6 +126,7 @@ export default function CategoryListingPage() {
   });
   const [view, setView] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState("default");
+  const [currentPage, setCurrentPage] = useState(1);
   // Get category from URL params
   const slugSegments = Array.isArray(params.slug)
     ? params.slug
@@ -164,6 +170,13 @@ export default function CategoryListingPage() {
       year: "",
       mileage: "",
     });
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const filteredAds = mockAds.filter((ad) => {
@@ -206,8 +219,16 @@ export default function CategoryListingPage() {
     }
   });
 
+  // Paginate sorted ads
+  const totalPages = Math.ceil(sortedAds.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedAds = sortedAds.slice(startIndex, endIndex);
+
   return (
     <div className="min-h-screen bg-gray-50">
+
+      
       {/* Mobile Header */}
       <div className="w-full bg-purple sm:hidden p-4 space-y-4">
         <div className="flex items-center justify-between">
@@ -237,10 +258,7 @@ export default function CategoryListingPage() {
 
       <div className="max-w-7xl mx-auto py-6">
         <div className="hidden sm:block mb-6 px-4">
-          <Breadcrumbs
-            items={breadcrumbItems}
-            showSelectCategoryLink={false}
-          />
+          <Breadcrumbs items={breadcrumbItems} showSelectCategoryLink={false} />
         </div>
 
         {/* Page Header */}
@@ -294,20 +312,32 @@ export default function CategoryListingPage() {
               view === "list" && "flex flex-col"
             )}
           >
-            {sortedAds.slice(0, 8).map((ad) => (
-              <React.Fragment key={ad.id}>
-                {view === "grid" ? (
-                  <ListingCard
-                    {...ad}
-                    onFavorite={(id) => console.log("Favorited:", id)}
-                    onShare={(id) => console.log("Shared:", id)}
-                    onClick={(id) => console.log("Clicked:", id)}
-                    className="min-h-[284px]"
-                  />
+            {paginatedAds.map((ad) => {
+              // Transform specifications to extraFields format
+              const extraFields = ad.specifications
+                ? Object.entries(ad.specifications).map(([name, value]) => ({
+                    name,
+                    type: typeof value === "number" ? "number" : "string",
+                    value: value as string | number,
+                  }))
+                : [];
+              
+              return (
+                <React.Fragment key={ad.id}>
+                  {view === "grid" ? (
+                    <ListingCard
+                      {...ad}
+                      extraFields={extraFields}
+                      onFavorite={(id) => console.log("Favorited:", id)}
+                      onShare={(id) => console.log("Shared:", id)}
+                      onClick={(id) => console.log("Clicked:", id)}
+                      className="min-h-[284px]"
+                    />
                 ) : (
                   <>
                     <HorizontalListingCard
                       {...ad}
+                      extraFields={extraFields}
                       onFavorite={(id) => console.log("Favorited:", id)}
                       onShare={(id) => console.log("Shared:", id)}
                       onClick={(id) => console.log("Clicked:", id)}
@@ -315,53 +345,19 @@ export default function CategoryListingPage() {
                     />
                     <MobileHorizontalListViewCard
                       {...ad}
+                      extraFields={extraFields}
                       onClick={(id) => console.log("Clicked:", id)}
                       className="block sm:hidden"
                     />
                   </>
-                )}
-              </React.Fragment>
-            ))}
+                  )}
+                </React.Fragment>
+              );
+            })}
           </div>
 
-          {/* Curated Cars Collection */}
-          <CuratedCarsCollection />
-
-          <div
-            className={cn(
-              `px-4 lg:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3`,
-              view === "list" && "flex flex-col"
-            )}
-          >
-            {sortedAds.slice(0, 7).map((ad) => (
-              <React.Fragment key={ad.id}>
-                {view === "grid" ? (
-                  <ListingCard
-                    {...ad}
-                    onFavorite={(id) => console.log("Favorited:", id)}
-                    onShare={(id) => console.log("Shared:", id)}
-                    onClick={(id) => console.log("Clicked:", id)}
-                    className="min-h-[284px]"
-                  />
-                ) : (
-                  <>
-                    <HorizontalListingCard
-                      {...ad}
-                      onFavorite={(id) => console.log("Favorited:", id)}
-                      onShare={(id) => console.log("Shared:", id)}
-                      onClick={(id) => console.log("Clicked:", id)}
-                      className="hidden sm:block"
-                    />
-                    <MobileHorizontalListViewCard
-                      {...ad}
-                      onClick={(id) => console.log("Clicked:", id)}
-                      className="block sm:hidden"
-                    />
-                  </>
-                )}
-              </React.Fragment>
-            ))}
-          </div>
+          {/* Curated Cars Collection - Only show on first page */}
+          {currentPage === 1 && <CuratedCarsCollection />}
         </div>
 
         {/* No Results */}
@@ -374,6 +370,15 @@ export default function CategoryListingPage() {
               Clear Filters
             </Button>
           </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         )}
       </div>
     </div>

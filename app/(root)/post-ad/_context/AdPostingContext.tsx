@@ -7,6 +7,7 @@ import ProgressBar from "../_components/ProgressBar";
 import { Breadcrumbs, type BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import Link from "next/link";
+import { ICONS } from "@/constants/icons";
 
 // Re-export types from the store
 export type {
@@ -34,52 +35,100 @@ export const AdPostingProvider: React.FC<AdPostingProviderProps> = ({
     setActiveCategory
   } = useAdPostingStore((state)=>state);
 
-  // Build breadcrumb items - simple: just id and name from categoryArray
+  // Build breadcrumb items - collapse middle items if more than 3 categories
   const breadcrumbItems: BreadcrumbItem[] = useMemo(() => {
     const validCategories = categoryArray.filter((cat) => cat.name !== cat.id);
 
-    return validCategories.map((category, index) => {
-      const slugPath = validCategories
-        .slice(0, index + 1)
-        .map((cat) => cat.id)
-        .join("/");
+    // If 3 or fewer categories, show all
+    if (validCategories.length <= 3) {
+      return validCategories.map((category, index) => {
+        const slugPath = validCategories
+          .slice(0, index + 1)
+          .map((cat) => cat.id)
+          .join("/");
 
-      return {
-        id: category.id,
-        label: category.name,
-        href: `/post-ad/${slugPath}`,
-        isActive: index === validCategories.length - 1,
-      };
+        return {
+          id: category.id,
+          label: category.name,
+          href: `/post-ad/${slugPath}`,
+          isActive: index === validCategories.length - 1,
+        };
+      });
+    }
+
+    // If more than 3 categories, show: first, ..., second-to-last, last
+    const firstCategory = validCategories[0];
+    const secondToLastCategory = validCategories[validCategories.length - 2];
+    const lastCategory = validCategories[validCategories.length - 1];
+
+    const items: BreadcrumbItem[] = [];
+
+    // First category
+    items.push({
+      id: firstCategory.id,
+      label: firstCategory.name,
+      href: `/post-ad/${firstCategory.id}`,
+      isActive: false,
     });
+
+    // Ellipsis (non-clickable)
+    items.push({
+      id: "ellipsis",
+      label: "...",
+      href: "#",
+      isActive: false,
+      isEllipsis: true,
+    });
+
+    // Second-to-last category (previous)
+    const secondToLastPath = validCategories
+      .slice(0, validCategories.length - 1)
+      .map((cat) => cat.id)
+      .join("/");
+    items.push({
+      id: secondToLastCategory.id,
+      label: secondToLastCategory.name,
+      href: `/post-ad/${secondToLastPath}`,
+      isActive: false,
+    });
+
+    // Last category (current)
+    const lastPath = validCategories.map((cat) => cat.id).join("/");
+    items.push({
+      id: lastCategory.id,
+      label: lastCategory.name,
+      href: `/post-ad/${lastPath}`,
+      isActive: true,
+    });
+
+    return items;
   }, [categoryArray]);
 
 
 
 
-  // Handle breadcrumb click - simple: just use the index
+  // Handle breadcrumb click - find category by ID and remove all after it
   const handleBreadcrumbClick = (item: BreadcrumbItem, index: number) => {
-    // Filter out categories with IDs as names
-    const validCategories = categoryArray.filter(cat => cat.name !== cat.id);
+    // Find the index of the clicked category in categoryArray by its ID
+    const clickedIndex = categoryArray.findIndex(cat => cat.id === item.id);
     
-    // Update categoryArray to match the clicked breadcrumb path
-    if (index >= 0 && index < validCategories.length) {
-      // Clear and rebuild categoryArray up to the clicked item
-      clearCategoryArray();
+    // If category found, remove all categories after it
+    if (clickedIndex >= 0) {
+      // Keep only categories up to and including the clicked one
+      const categoriesToKeep = categoryArray.slice(0, clickedIndex + 1);
       
-      // Rebuild array up to clicked category
-      const categoriesToKeep = validCategories.slice(0, index + 1);
+      // Clear and rebuild categoryArray with only the categories to keep
+      clearCategoryArray();
       categoriesToKeep.forEach((cat) => {
         addToCategoryArray(cat);
       });
       
       // Set active category to the clicked one
-      const clickedCategory = categoriesToKeep[index];
-      if (clickedCategory) {
-        setActiveCategory(clickedCategory.id);
-        // Build slug path and navigate
-        const slugPath = categoriesToKeep.map(cat => cat.id);
-        router.push(`/post-ad/${slugPath.join("/")}`);
-      }
+      setActiveCategory(item.id);
+      
+      // Build slug path and navigate
+      const slugPath = categoriesToKeep.map(cat => cat.id);
+      router.push(`/post-ad/${slugPath.join("/")}`);
     }
   };
 
@@ -88,7 +137,7 @@ export const AdPostingProvider: React.FC<AdPostingProviderProps> = ({
       <section className="flex h-full overflow-y-auto flex-col max-w-[1080px] mx-auto bg-white px-6">
         <Link href={"/"} className="pt-6">
           <Image
-            src="/images/category-icons/logo.png"
+            src={ICONS.logo.main}
             alt="BuyOrSell Logo"
             width={155}
             height={49}

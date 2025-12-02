@@ -1,15 +1,14 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ImageOffIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MOTORS_ICONS } from "@/constants/icons";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useCategoryTreeById } from "@/hooks/useCategories";
 import { SubCategory } from "@/interfaces/categories.types";
-import { getCategoryById } from '@/app/api/categories/categories.services';
 import { useAdPostingStore } from "@/stores/adPostingStore";
+import { findCategoryInTree } from "@/validations/post-ad.validation";
 
 export default function CategoryTraversalPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -24,119 +23,70 @@ export default function CategoryTraversalPage() {
   const router = useRouter();
 
   const currentCategoryId = slug?.length > 0 ? slug[slug.length - 1] : null;
+  const mainCategoryId = slug?.length > 0 ? slug[0] : null;
 
-  // Fetch the category tree by current category ID
+  // Fetch the category tree by main category ID to get the full tree
+  // We'll use this tree to find the active category and its children
   const {
-    data: categoryData,
+    data: mainCategoryTree,
     isLoading,
     error,
-  } = useCategoryTreeById(currentCategoryId || "");
+  } = useCategoryTreeById(mainCategoryId || "");
 
-  // Get the current category (which includes its children)
-  const currentCategory = categoryData;
+  // Get the current/active category from the main tree (includes its children)
+  // The active category is the last one in the slug array (slug[slug.length - 1])
+  const currentCategory = useMemo(() => {
+    if (!currentCategoryId || !mainCategoryTree) return null;
+    return findCategoryInTree(mainCategoryTree, currentCategoryId);
+  }, [currentCategoryId, mainCategoryTree]);
 
-  // Fetch category names for all categories in slugArray
-  const fetchCategoryNames = async (categoryIds: string[]) => {
-    const categoryPromises = categoryIds.map(async (categoryId) => {
-      try {
-        const response = await getCategoryById(categoryId);
-        const category = response.data;
-        return {
-          id: categoryId,
-          name: category?.name || categoryId, // Fallback to ID only if fetch fails
-        };
-      } catch (error) {
-        console.error(`Failed to fetch category ${categoryId}:`, error);
-        return {
-          id: categoryId,
-          name: categoryId, // Will be updated later
-        };
-      }
+  /**
+   * Extract category names from the main category tree
+   * This avoids making individual API calls for each category
+   */
+  const getCategoryNamesFromTree = (categoryIds: string[]) => {
+    return categoryIds.map((categoryId) => {
+      const category = findCategoryInTree(mainCategoryTree, categoryId);
+      return {
+        id: categoryId,
+        name: category?.name,
+      };
     });
-    
-    return Promise.all(categoryPromises);
   };
 
-  // Sync categoryArray with slugArray from URL and fetch missing category names
+  // Sync categoryArray with slugArray from URL - only update if slug is longer
   useEffect(() => {
-    if (slug?.length > 0) {
-      // Check if categoryArray matches the current slugArray
-      const currentCategoryIds = categoryArray.map(cat => cat.id);
-      const slugIds = slug;
-      
-      // If arrays don't match, rebuild categoryArray from slugArray
-      const arraysMatch = 
-        currentCategoryIds.length === slugIds.length &&
-        currentCategoryIds.every((id, index) => id === slugIds[index]);
-      
-      if (!arraysMatch) {
-        // Store existing categories for lookup (only keep those with proper names, not IDs)
-        const existingCategoriesMap = new Map(
-          categoryArray
-            .filter(cat => cat.name !== cat.id) // Only keep categories with real names
-            .map(cat => [cat.id, cat])
-        );
-        
-        // Identify categories that need names fetched
-        const categoriesNeedingNames = slug.filter(
-          (categoryId) => !existingCategoriesMap.has(categoryId)
-        );
-        
-        // Fetch names for missing categories
-        if (categoriesNeedingNames.length > 0) {
-          fetchCategoryNames(categoriesNeedingNames).then((fetchedCategories) => {
-            // Clear and rebuild categoryArray with all categories
-            clearCategoryArray();
-            
-            slug.forEach((categoryId) => {
-              // Check if category exists in existing categoryArray or fetched categories
-              const existingCategory = existingCategoriesMap.get(categoryId);
-              const fetchedCategory = fetchedCategories.find(cat => cat.id === categoryId);
-              
-              if (existingCategory) {
-                addToCategoryArray(existingCategory);
-              } else if (categoryId === currentCategory?._id && currentCategory) {
-                // Use current category if it matches
-                addToCategoryArray({
-                  id: currentCategory._id,
-                  name: currentCategory.name,
-                });
-              } else if (fetchedCategory && fetchedCategory.name !== fetchedCategory.id) {
-                // Use fetched category if it has a proper name
-                addToCategoryArray(fetchedCategory);
-              }
-              // Skip categories that still don't have names (don't add ID as name)
-            });
-            
-            // Set active category to the last one in slugArray
-            setActiveCategory(slug[slug.length - 1]);
-          });
-        } else {
-          // All categories already have names, just rebuild array
-          clearCategoryArray();
-          slug.forEach((categoryId) => {
-            const existingCategory = existingCategoriesMap.get(categoryId);
-            if (existingCategory) {
-              addToCategoryArray(existingCategory);
-            } else if (categoryId === currentCategory?._id && currentCategory) {
-              addToCategoryArray({
-                id: currentCategory._id,
-                name: currentCategory.name,
-              });
-            }
-          });
-          setActiveCategory(slug[slug.length - 1]);
-        }
-      }
-    } else {
-      // If slugArray is empty, clear categoryArray
+    if (!slug || slug.length === 0) {
+      // If slug is empty, clear categoryArray
       if (categoryArray.length > 0) {
         clearCategoryArray();
         setActiveCategory(null);
       }
+      return;
+    }
+
+    // Only update if slug length is greater than categoryArray length
+    if (slug.length > categoryArray.length && mainCategoryTree) {
+      // Get category names from the main category tree
+      const categoriesFromTree = getCategoryNamesFromTree(slug);
+      
+      // Clear and rebuild categoryArray with all categories from slug (only those with names)
+      clearCategoryArray();
+      
+      categoriesFromTree
+        .filter((category) => category.name) // Only add categories with names
+        .forEach((category) => {
+          addToCategoryArray({
+            id: category.id,
+            name: category.name as string, // Type assertion safe after filter
+          });
+        });
+      
+      // Set active category to the last one in slugArray
+      setActiveCategory(slug[slug.length - 1]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug?.join(","), currentCategory?._id, currentCategory?.name, clearCategoryArray]);
+  }, [slug?.join(","), mainCategoryTree?._id, clearCategoryArray]);
   
 
   // Extract children subcategories from the current category
@@ -168,50 +118,12 @@ export default function CategoryTraversalPage() {
   const displayCategories = useMemo(() => {
     if (!childCategories || childCategories.length === 0) return [];
 
-    return childCategories.map((category: SubCategory, index: number) => {
-        // Icon mapping based on category name
-        const getIcon = (name: string) => {
-          const iconMap: Record<string, string> = {
-            cars: MOTORS_ICONS.cars,
-            bikes: MOTORS_ICONS.motorcycle,
-            motorcycles: MOTORS_ICONS.motorcycle,
-            boats: MOTORS_ICONS.cruiseShip,
-            "heavy vehicles": MOTORS_ICONS.crane,
-            trucks: MOTORS_ICONS.crane,
-            others: MOTORS_ICONS.others,
-          };
-
-          const normalizedName = name.toLowerCase();
-          for (const [key, icon] of Object.entries(iconMap)) {
-            if (normalizedName.includes(key)) {
-              return icon;
-            }
-          }
-
-          // Default fallback icon
-          return MOTORS_ICONS.others;
-        };
-
-        // Color mapping based on index for variety
-        const colorSchemes = [
-          { color: "text-red-500", bgColor: "bg-red-50" },
-          { color: "text-blue-500", bgColor: "bg-blue-50" },
-          { color: "text-cyan-500", bgColor: "bg-cyan-50" },
-          { color: "text-yellow-500", bgColor: "bg-yellow-50" },
-          { color: "text-amber-600", bgColor: "bg-amber-50" },
-          { color: "text-green-500", bgColor: "bg-green-50" },
-          { color: "text-purple-500", bgColor: "bg-purple-50" },
-          { color: "text-pink-500", bgColor: "bg-pink-50" },
-        ];
-
-        const colorScheme = colorSchemes[index % colorSchemes.length];
-
+    return childCategories.map((category: SubCategory) => {
         return {
           id: category._id,
           name: category.name,
-          icon: category.icon || getIcon(category.name),
-          color: colorScheme.color,
-          bgColor: colorScheme.bgColor,
+          icon: category.icon || "",
+          bgColor: category.bgColor || "",
           hasChildren:
             category.children && category.children.length > 0,
           category: category,
@@ -225,7 +137,6 @@ export default function CategoryTraversalPage() {
     id: string;
     name: string;
     icon: string;
-    color: string;
     bgColor: string;
     hasChildren: boolean;
     category: SubCategory;
@@ -239,12 +150,79 @@ export default function CategoryTraversalPage() {
     id: string;
     name: string;
     icon: string;
-    color: string;
     bgColor: string;
     hasChildren: boolean;
     category: SubCategory;
   }) => {
     handleCategorySelect(category);
+  };
+
+  // Handle back button click - navigate to parent category or select page
+  const handleBackClick = () => {
+    if (!slug || slug.length === 0) {
+      // No slug, go to select page
+      clearCategoryArray();
+      setActiveCategory(null);
+      setStep(1);
+      router.push("/post-ad/select");
+      return;
+    }
+
+    if (slug.length > 1) {
+      // Remove last item from categoryArray to go to parent
+      const parentCategoryArray = categoryArray.slice(0, -1);
+      clearCategoryArray();
+      parentCategoryArray.forEach(cat => addToCategoryArray(cat));
+      
+      // Set active category to the new last item
+      if (parentCategoryArray.length > 0) {
+        setActiveCategory(parentCategoryArray[parentCategoryArray.length - 1].id);
+      }
+      
+      // Remove last slug to go to parent
+      const parentSlugPath = slug.slice(0, -1);
+      router.push(`/post-ad/${parentSlugPath.join("/")}`);
+      setSelectedCategory(null);
+    } else {
+      // At root category, go back to select page
+      clearCategoryArray();
+      setActiveCategory(null);
+      setStep(1);
+      router.push("/post-ad/select");
+    }
+  };
+
+  // Handle next button click - navigate to selected category or details page
+  const handleNextClick = () => {
+    if (!selectedCategory) return;
+
+    const selectedCategoryData = displayCategories.find(
+      (cat) => cat.id === selectedCategory
+    );
+
+    if (!selectedCategoryData) return;
+
+    // Add to categoryArray when Next is clicked
+    addToCategoryArray({
+      id: selectedCategoryData.id,
+      name: selectedCategoryData.name,
+    });
+
+    // Set as active category
+    setActiveCategory(selectedCategoryData.id);
+
+    // If category has no children, redirect to details page
+    if (!selectedCategoryData.hasChildren) {
+      // Move to step 3 (leaf category selected)
+      setStep(3);
+      // Redirect to details page with active category ID
+      router.push(`/post-ad/details/${selectedCategory}`);
+    } else {
+      // Build new slug path by appending the selected category ID
+      const newSlugPath = [...slug, selectedCategory];
+      // Navigate to the new slug path
+      router.push(`/post-ad/${newSlugPath.join("/")}`);
+    }
   };
 
   if (isLoading) {
@@ -333,7 +311,7 @@ export default function CategoryTraversalPage() {
             ) : (
               <div className="space-y-3">
                 {displayCategories.map((category) => {
-                  const isSelected = selectedCategory === category.id;
+                  const isSelected = selectedCategory === category.id 
 
                   return (
                     <button
@@ -348,15 +326,17 @@ export default function CategoryTraversalPage() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                           <div
-                            className={`size-[50px] bg-[#F7F8FA] rounded-lg flex items-center justify-center`}
+                            className={`size-[50px] ${category.bgColor || "bg-[#F7F8FA]"} rounded-lg flex items-center justify-center`}
                           >
-                            <Image
-                              src={category.icon}
-                              alt={category.name}
-                              width={50}
-                              height={50}
-                              className={`object-cover ${category.color}`}
-                            />
+                            {category.icon ? (
+                              <Image
+                                src={category.icon}
+                                alt={category.name}
+                                width={50}
+                                height={50}
+                                className="object-cover"
+                              />
+                            ): <ImageOffIcon className="size-5 text-gray-400"/>}
                           </div>
                           <span className="text-lg font-medium text-gray-900">
                             {category.name}
@@ -372,7 +352,7 @@ export default function CategoryTraversalPage() {
           </div>
 
           {/* Right Column - Image Upload Area */}
-          <div className="sticky top-0 bg-gray-100 hidden md:flex flex-1 p-6 w-1/3 max-h-[420px] min-h-[380px] rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+          <div className="sticky top-0 bg-gray-100 hidden md:flex flex-1 p-6 w-1/3 max-h-[420px] min-h-[380px] rounded-lg border-2 border-dashed border-gray-300 items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
@@ -397,74 +377,14 @@ export default function CategoryTraversalPage() {
         <div className="flex w-full justify-between max-w-[888px] mx-auto gap-3">
           <Button
             className="w-full"
-            onClick={() => {
-              // Go back to parent category by removing last slug from path
-                if (slug?.length > 1) {
-                // Remove last item from categoryArray
-                const parentCategoryArray = categoryArray.slice(0, -1);
-                clearCategoryArray();
-                parentCategoryArray.forEach(cat => addToCategoryArray(cat));
-                
-                // Set active category to the new last item
-                if (parentCategoryArray.length > 0) {
-                  setActiveCategory(parentCategoryArray[parentCategoryArray.length - 1].id);
-                }
-                
-                // Remove last slug to go to parent
-                const parentSlugPath = slug.slice(0, -1);
-                router.push(`/post-ad/${parentSlugPath.join("/")}`);
-                setSelectedCategory(null);
-              } else if (slug?.length === 1) {
-                // Go back to select page
-                clearCategoryArray();
-                setActiveCategory(null);
-                setStep(1);
-                router.push("/post-ad/select");
-              } else {
-                clearCategoryArray();
-                setActiveCategory(null);
-                setStep(1);
-                router.push("/post-ad/select");
-              }
-            }}
+            onClick={handleBackClick}
             variant={"outline"}
           >
             Back
           </Button>
           <Button
             className="w-full"
-            onClick={() => {
-              // If a category is selected, navigate to it
-              if (selectedCategory) {
-                const selectedCategoryData = displayCategories.find(
-                  (cat) => cat.id === selectedCategory
-                );
-                
-                if (selectedCategoryData) {
-                  // Add to categoryArray when Next is clicked
-                  addToCategoryArray({
-                    id: selectedCategoryData.id,
-                    name: selectedCategoryData.name,
-                  });
-                  
-                  // Set as active category
-                  setActiveCategory(selectedCategoryData.id);
-                  
-                  // If category has no children, redirect to details page
-                  if (!selectedCategoryData.hasChildren) {
-                    // Move to step 3 (leaf category selected)
-                    setStep(3);
-                    // Redirect to details page with active category ID
-                    router.push(`/post-ad/details/${selectedCategory}`);
-                  } else {
-                    // Build new slug path by appending the selected category ID
-                    const newSlugPath = [...slug, selectedCategory];
-                    // Navigate to the new slug path
-                    router.push(`/post-ad/${newSlugPath.join("/")}`);
-                  }
-                }
-              }
-            }}
+            onClick={handleNextClick}
             variant={"primary"}
             disabled={!selectedCategory}
           >

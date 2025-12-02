@@ -1,19 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useMemo } from "react";
 import { useCategoryById } from "@/hooks/useCategories";
 import { useCreateAd } from "@/hooks/useAds";
+import { useMyOrganization } from "@/hooks/useOrganizations";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { useAuthStore } from "@/stores/authStore";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { PostAdPayload } from "@/interfaces/ad";
 import { ImageGallery, ImageItem } from "../_components/image-upload";
+import { VideoUpload, type VideoItem } from "../_components/video-upload";
 import { FormField } from "../_components/FormField";
 import { TextInput } from "../_components/TextInput";
 import { TextareaInput } from "../_components/TextareaInput";
@@ -25,32 +25,14 @@ import { RadioInput } from "../_components/RadioInput";
 import { Field } from "@/interfaces/categories.types";
 import DateTimeInput from "../_components/DateTimeInput";
 import { DynamicFieldRenderer } from "../_components/DynamicFieldRenderer";
-
-// Address object type for form values
-type AddressFormValue = {
-  state?: string;
-  country?: string;
-  zipCode?: string;
-  city?: string;
-  street?: string;
-  address?: string;
-  coordinates?: number[];
-  type?: string;
-};
+import { SelectInput } from "../_components/SelectInput";
+import { FormSkeleton } from "../_components/FormSkeleton";
+import { createPostAdSchema, type AddressFormValue } from "@/schemas/post-ad.schema";
+import { getFieldOptions, shouldShowField, isJobCategory } from "@/validations/post-ad.validation";
+import { AD_SYSTEM_FIELDS } from "@/constants/ad.constants";
+import { removeUndefinedFields } from "@/utils/remove-undefined-fields";
 
 type FormValues = Record<string, string | number | boolean | string[] | MultipleImageItem[] | ImageItem[] | AddressFormValue>;
-
-// Create Zod schema for address validation
-const addressSchema = z.object({
-  state: z.string().optional(),
-  country: z.string().optional(),
-  zipCode: z.string().optional(),
-  city: z.string().optional(),
-  street: z.string().optional(),
-  address: z.string().min(1, "Address is required"),
-  coordinates: z.array(z.number()).optional(),
-  type: z.string().optional(),
-});
 
 export default function LeafCategoryPage() {
   const { leafCategoryId } = useParams<{ leafCategoryId: string }>();
@@ -75,125 +57,13 @@ export default function LeafCategoryPage() {
   // For single category, we take the first item
   const category = categoryData?.data;
 
+  // Fetch organizations
+  const { data: organizationsData } = useMyOrganization();
+  const organizations = organizationsData?.data || [];
+
   // Build dynamic Zod schema based on category fields
   const formSchema = useMemo(() => {
-    // Base schema with required fields
-    const baseSchema = z.object({
-      title: z.string().min(1, "Title is required"),
-      description: z.string().min(1, "Description is required"),
-      price: z.number().min(0, "Price must be greater than or equal to 0"),
-      phoneNumber: z.string().min(1, "Phone number is required"),
-      address: addressSchema,
-      images: z.array(z.any()).min(1, "At least one image is required"),
-      connectionTypes: z.union([
-        z.string(),
-        z.array(z.string()),
-      ]).refine((val) => {
-        if (Array.isArray(val)) return val.length > 0;
-        return !!val;
-      }, "Connection type is required"),
-      isFeatured: z.union([z.boolean(), z.string()]).optional(),
-      isExchange: z.union([z.boolean(), z.string()]).optional(),
-      exchangeTitle: z.string().optional(),
-      exchangeDescription: z.string().optional(),
-      exchangeImages: z.array(z.any()).optional(),
-      deal: z.union([z.boolean(), z.string()]).optional(),
-      validity: z.string().optional(),
-      dealValidThru: z.string().optional(),
-      discountedPercent: z.number().min(0).max(100).optional(),
-      stockQuantity: z.number().optional(),
-      availability: z.string().optional(),
-    });
-
-    // Add dynamic fields from category
-    const dynamicFields: Record<string, z.ZodTypeAny> = {};
-    if (category?.fields) {
-      category.fields.forEach((field: Field) => {
-        const systemFields = [
-          "title", "description", "price", "phoneNumber", "address", 
-          "images", "isFeatured", "connectionTypes", "isExchange", 
-          "exchangeTitle", "exchangeDescription", "exchangeImages",
-          "deal", "validity", "dealValidThru", "discountedPercent"
-        ];
-
-        if (!systemFields.includes(field.name)) {
-          // Create schema based on field type
-          let fieldSchema: z.ZodTypeAny;
-          
-          if (field.type === "number" || field.type === "int") {
-            let numSchema = z.number();
-            if (field.min !== undefined && field.min !== null) {
-              numSchema = numSchema.min(field.min, `Value must be at least ${field.min}`);
-            }
-            if (field.max !== undefined && field.max !== null) {
-              numSchema = numSchema.max(field.max, `Value must be at most ${field.max}`);
-            }
-            fieldSchema = (field.required || field.requires) ? numSchema : numSchema.optional();
-          } else if (field.type === "checkboxes") {
-            fieldSchema = (field.required || field.requires)
-              ? z.array(z.string()).min(1, `${field.name} is required`)
-              : z.array(z.string()).optional();
-          } else {
-            fieldSchema = (field.required || field.requires)
-              ? z.string().min(1, `${field.name} is required`)
-              : z.union([z.string(), z.array(z.string())]).optional();
-          }
-
-          dynamicFields[field.name] = fieldSchema;
-        }
-      });
-    }
-
-    // Merge base schema with dynamic fields
-    const mergedSchema = baseSchema.extend(dynamicFields);
-
-    // Add conditional validation using refine
-    return mergedSchema
-      .refine(
-        (data) => {
-          // If exchange is enabled, validate exchange fields
-          const isExchange = data.isExchange === true || data.isExchange === "true";
-          if (isExchange) {
-            if (!data.exchangeTitle || (data.exchangeTitle as string).trim() === "") {
-              return false;
-            }
-            if (!data.exchangeDescription || (data.exchangeDescription as string).trim() === "") {
-              return false;
-            }
-          }
-          return true;
-        },
-        {
-          message: "Exchange ad title and description are required when exchange is enabled",
-          path: ["exchangeTitle"],
-        }
-      )
-      .refine(
-        (data) => {
-          // If deal is enabled, validate deal fields
-          const isDeal = data.deal === true || data.deal === "true";
-          if (isDeal) {
-            if (!data.validity || (data.validity as string).trim() === "") {
-              return false;
-            }
-            if (!data.dealValidThru || (data.dealValidThru as string).trim() === "") {
-              return false;
-            }
-            if (
-              data.discountedPercent === undefined ||
-              (data.discountedPercent as number) < 0 ||
-              (data.discountedPercent as number) > 100
-            ) {
-              return false;
-            }
-          }
-          return true;
-        },
-        {
-          message: "Deal fields (validity, dealValidThru, discountedPercent) are required when deal is enabled",
-          path: ["validity"],
-        }
-      );
+    return createPostAdSchema(category);
   }, [category]);
 
   const {
@@ -232,66 +102,6 @@ export default function LeafCategoryPage() {
   // Watch form values for dependent fields
   const formValues = watch();
 
-  // Get options for a field based on dependencies
-  const getFieldOptions = (field: Field): { value: string; label: string }[] => {
-    // If field depends on another field (and it's not "none"), use optionalMapOfArray
-    if (
-      field.dependsOn && 
-      field.dependsOn !== "none" && 
-      field.dependsOn.trim() !== "" &&
-      field.optionalMapOfArray &&
-      Object.keys(field.optionalMapOfArray).length > 0
-    ) {
-      const parentValue = formValues[field.dependsOn];
-      // Ensure parentValue is a string for the map lookup
-      if (parentValue && typeof parentValue === "string") {
-        const normalizedParentValue = parentValue.trim();
-        
-        // First try exact match
-        if (field.optionalMapOfArray[normalizedParentValue]) {
-          return field.optionalMapOfArray[normalizedParentValue].map((option: string) => ({
-            value: option,
-            label: option,
-          }));
-        }
-        
-        // Try case-insensitive match
-        const matchingKey = Object.keys(field.optionalMapOfArray).find(
-          (key) => key.trim().toLowerCase() === normalizedParentValue.toLowerCase()
-        );
-        
-        if (matchingKey && field.optionalMapOfArray[matchingKey]) {
-          return field.optionalMapOfArray[matchingKey].map((option: string) => ({
-            value: option,
-            label: option,
-          }));
-        }
-      }
-      return []; // Return empty if parent not selected
-    }
-    
-    // Otherwise use optionalArray
-    if (field.optionalArray && field.optionalArray.length > 0) {
-      return field.optionalArray.map((option: string) => ({
-        value: option,
-        label: option,
-      }));
-    }
-    
-    return [];
-  };
-
-  // Check if field should be shown (based on dependencies)
-  const shouldShowField = (field: Field): boolean => {
-    // If field depends on another field, only show if parent has a value
-    // Handle cases where dependsOn is "none" or empty string (no dependency)
-    if (field.dependsOn && field.dependsOn !== "none" && field.dependsOn.trim() !== "") {
-      const parentValue = formValues[field.dependsOn];
-      return !!parentValue;
-    }
-    return true;
-  };
-
   // Handle location select
   const handleLocationSelect = (location: {
     address: string;
@@ -325,11 +135,11 @@ export default function LeafCategoryPage() {
   // Render field based on type
   const renderField = (field: Field) => {
     // Don't render if field should be hidden based on dependencies
-    if (!shouldShowField(field)) {
+    if (!shouldShowField(field, formValues)) {
       return null;
     }
 
-    const options = getFieldOptions(field);
+    const options = getFieldOptions(field, formValues);
 
     return (
       <DynamicFieldRenderer
@@ -367,13 +177,6 @@ export default function LeafCategoryPage() {
       const addressData = (data.address as AddressFormValue) || {};
 
       // Extract dynamic category fields (exclude system fields)
-      const systemFields = [
-        "title", "description", "price", "phoneNumber", "address", 
-        "images", "isFeatured", "connectionTypes", "isExchange", 
-        "exchangeTitle", "exchangeDescription", "exchangeImages",
-        "deal", "validity", "dealValidThru", "discountedPercent"
-      ];
-      
       // Format extraFields as array of field objects (matching API structure)
       const extraFields: Array<{
         name: string;
@@ -382,9 +185,16 @@ export default function LeafCategoryPage() {
         optionalArray?: string[];
       }> = [];
       
+    if (category?.name&& isJobCategory(category?.name  )) {
+      
       if (category?.fields) {
         category.fields.forEach((field: Field) => {
-          if (!systemFields.includes(field.name) && data[field.name] !== undefined) {
+          if (
+            !AD_SYSTEM_FIELDS.includes(
+              field.name as (typeof AD_SYSTEM_FIELDS)[number]
+            ) &&
+            data[field.name] !== undefined
+          ) {
             const fieldValue = data[field.name];
             extraFields.push({
               name: field.name,
@@ -395,7 +205,12 @@ export default function LeafCategoryPage() {
           }
         });
       }
+    }
 
+
+      // Get organization selection
+      const organizationValue = (data.organization as string) || "";
+      const isIndividual = organizationValue === "individual";
 
       // Prepare payload according to the API structure
       const payload: PostAdPayload = {
@@ -405,6 +220,7 @@ export default function LeafCategoryPage() {
         stockQuantity: (data.stockQuantity as number) || 1,
         availability: (data.availability as string) || "in-stock",
         images: imageUrls,
+        video: (data.video as string) || undefined,
         category: leafCategoryId as string,
         owner: (session.user?._id as string) || "",
         contactPhoneNumber: (data.phoneNumber as string) || "",
@@ -418,7 +234,7 @@ export default function LeafCategoryPage() {
           zipCode: addressData.zipCode || "",
           city: addressData.city || "",
           address: addressData.address || null,
-          coordinates: addressData.coordinates ? JSON.stringify(addressData.coordinates) : null,
+          coordinates: Array.isArray(addressData.coordinates) ? addressData.coordinates : null,
         },
         relatedCategories: categoryArray.map((cat) => cat.name),
         featuredStatus: data.isFeatured ? "live" : "created",
@@ -427,15 +243,13 @@ export default function LeafCategoryPage() {
         tags: [],
         documents: [],
         // Convert extraFields array to Record<string, unknown> format
-        extraFields: extraFields
+        extraFields: extraFields,
+        // Only include organizationId if not posting as individual
+        ...(isIndividual ? {} : { organizationId: organizationValue }),
       };
 
       // Remove undefined fields
-      Object.keys(payload).forEach((key) => {
-        if (payload[key as keyof typeof payload] === undefined) {
-          delete payload[key as keyof typeof payload];
-        }
-      });
+      removeUndefinedFields(payload);
 
       // Submit the ad
       await createAdMutation.mutateAsync(payload);
@@ -445,15 +259,7 @@ export default function LeafCategoryPage() {
   };
 
   if (isLoading) {
-    return (
-      <section className="h-full w-full max-w-[888px] mx-auto">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p className="text-gray-500">Loading category details...</p>
-          </div>
-        </div>
-      </section>
-    );
+    return <FormSkeleton />;
   }
 
   if (error) {
@@ -506,6 +312,54 @@ export default function LeafCategoryPage() {
                 Fill in the basic details of your ad
               </p>
             </div>
+
+            {/* Organization Selection */}
+            <FormField
+              label="Organization"
+              htmlFor="organization"
+              required
+              error={errors.organization?.message as string}
+            >
+              <Controller
+                name="organization"
+                control={control}
+                rules={{ required: "Organization selection is required" }}
+                render={({ field }) => {
+                  // Check if category is a job (case-insensitive)
+                  const isJob = categoryArray.some((cat) => isJobCategory(cat.name));
+
+                  // Create options with icons and names from API
+                  const organizationOptions = [
+                    {
+                      value: "individual",
+                      label: "Post as Individual",
+                      disabled: isJob, // Disable individual option for job categories
+                    },
+                    ...organizations.map((org) => ({
+                      value: org._id,
+                      label: `${org.tradeName || org.legalName}${org.verified ? " (Verified)" : ""}`,
+                      icon: org.logoUrl,
+                    })),
+                  ];
+                      
+                  return (
+                    <SelectInput
+                      value={field.value as string}
+                      onChange={(value) => {
+                        field.onChange(value);
+                        handleInputChange("organization", value);
+                      }}
+                      options={organizationOptions}
+                      placeholder={
+                        isJob
+                          ? "Select organization"
+                          : "Select organization or post as individual"
+                      }
+                    />
+                  );
+                }}
+              />
+            </FormField>
 
             {/* Title */}
             <FormField
@@ -560,7 +414,7 @@ export default function LeafCategoryPage() {
 
             {/* Image Upload */}
             <FormField
-              label="Ad Images or Video"
+              label="Ad Images"
               htmlFor="images"
               fullWidth={true}
             >
@@ -580,10 +434,53 @@ export default function LeafCategoryPage() {
                       "image/jpeg",
                       "image/png",
                       "image/gif",
-                      "video/mp4",
                     ]}
                   />
                 )}
+              />
+            </FormField>
+
+            {/* Video Upload */}
+            <FormField
+              label="Video"
+              htmlFor="video"
+              error={errors.video?.message as string}
+              fullWidth={true}
+            >
+              <Controller
+                name="video"
+                control={control}
+                render={({ field }) => {
+                  // Convert string URL to VideoItem format for the component
+                  const videoItem: VideoItem | null = field.value
+                    ? {
+                        id: "video-1",
+                        url: field.value as string,
+                        presignedUrl: field.value as string,
+                       
+                      }
+                    : null;
+
+                  return (
+                    <VideoUpload
+                      video={videoItem}
+                      onVideoChange={(video: VideoItem | null) => {
+                        // Extract URL from video item and update form
+                        const videoUrl = video?.presignedUrl || video?.url || "";
+                        field.onChange(videoUrl);
+                        handleInputChange("video", videoUrl);
+                      }}
+                      maxFileSize={5}
+                      maxDuration={30}
+                      acceptedFileTypes={[
+                        "video/mp4",
+                        "video/webm",
+                        "video/quicktime",
+                        "video/x-msvideo",
+                      ]}
+                    />
+                  );
+                }}
               />
             </FormField>
 
@@ -980,7 +877,7 @@ export default function LeafCategoryPage() {
         </div>
 
         {/* Right Column - Image Upload Area */}
-        <div className="sticky top-0 bg-gray-100 hidden md:flex flex-1 p-6 w-1/3 max-h-[800px] rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+        <div className="sticky top-0 bg-gray-100 hidden md:flex flex-1 p-6 w-1/3 max-h-[800px] rounded-lg border-2 border-dashed border-gray-300 items-center justify-center">
           <div className="text-center">
             <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
               <svg

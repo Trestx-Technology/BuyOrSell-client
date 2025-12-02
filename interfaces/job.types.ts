@@ -546,3 +546,64 @@ export interface JobFilterPayload {
   filters: JobFilters;
 }
 
+// ============================================================================
+// JOB HOME TYPES
+// ============================================================================
+
+export interface JobStatistics {
+  savedJobs?: number;
+  appliedJobs?: number;
+  shortlistedJobs?: number;
+  rejectedJobs?: number;
+  profileCompletion?: number;
+  lastUpdated?: string;
+  appliedJobsCount?: number;
+  savedJobsCount?: number;
+  profileCompletionPercentage?: number;
+  recommendedJobsCount?: number;
+}
+
+export interface JobHomeData {
+  userProfile?: JobseekerProfile | null;
+  statistics?: {
+    appliedJobsCount: number;
+    savedJobsCount: number;
+    profileCompletionPercentage: number;
+    recommendedJobsCount: number;
+  };
+  featuredJobs?: {
+    jobs: JobData[];
+    count: number;
+  };
+  latestJobs?: {
+    jobs: JobData[];
+    count: number;
+  };
+  recommendedJobs?: JobData[];
+  popularIndustries?: Array<{
+    id?: string;
+    name?: string;
+    jobCount?: number;
+    logoUrl?: string;
+    [key: string]: unknown;
+  }>;
+  professionals?: User[];
+  companiesToFollow?: Organization[];
+  topEmployers?: Organization[];
+  // Legacy fields for backward compatibility
+  jobStatistics?: JobStatistics;
+  similarJobs?: JobData[];
+}
+
+export interface JobHomeResponse {
+  statusCode: number;
+  timestamp: string;
+  message?: string;
+  data: JobHomeData;
+}
+
+export interface JobHomeParams {
+  userId?: string;
+  device?: 'mobile' | 'desktop';
+}
+
