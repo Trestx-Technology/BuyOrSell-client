@@ -496,6 +496,7 @@ export interface CreateJobPayload {
   expiresAt?: string;
   isFeatured?: boolean;
   extraFields?: Record<string, unknown>;
+  adType: "AD" | "JOB";
 }
 
 export interface UpdateJobPayload extends Partial<CreateJobPayload> {

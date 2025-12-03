@@ -212,6 +212,10 @@ export default function LeafCategoryPage() {
       const organizationValue = (data.organization as string) || "";
       const isIndividual = organizationValue === "individual";
 
+      // Determine adType based on category
+      const categoryName = category?.name || categoryArray[categoryArray.length - 1]?.name || "";
+      const adType: "AD" | "JOB" = isJobCategory(categoryName) ? "JOB" : "AD";
+
       // Prepare payload according to the API structure
       const payload: PostAdPayload = {
         title: (data.title as string) || "",
@@ -244,6 +248,7 @@ export default function LeafCategoryPage() {
         documents: [],
         // Convert extraFields array to Record<string, unknown> format
         extraFields: extraFields,
+        adType: adType,
         // Only include organizationId if not posting as individual
         ...(isIndividual ? {} : { organizationId: organizationValue }),
       };

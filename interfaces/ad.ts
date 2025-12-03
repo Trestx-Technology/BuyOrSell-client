@@ -255,6 +255,7 @@ export interface PostAdPayload {
   stockQuantity: number;
   availability: string;
   organizationId?: string;
+  adType: "AD" | "JOB";
 }
 
 export interface PostAdResponse {
