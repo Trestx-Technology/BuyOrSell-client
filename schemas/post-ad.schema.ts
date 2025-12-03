@@ -91,6 +91,11 @@ export const createPostAdSchema = (category?: SubCategory) => {
             field.required || field.requires
               ? numSchema
               : numSchema.optional();
+        } else if (field.type === "bool") {
+          fieldSchema =
+            field.required || field.requires
+              ? z.boolean()
+              : z.boolean().optional();
         } else if (field.type === "checkboxes") {
           fieldSchema =
             field.required || field.requires
