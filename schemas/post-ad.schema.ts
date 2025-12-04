@@ -33,36 +33,121 @@ export const addressSchema = z.object({
  * @returns A Zod schema with base fields and dynamic category-specific fields
  */
 export const createPostAdSchema = (category?: SubCategory) => {
-  // Base schema with required fields
+  // Base schema with required fields - using preprocess to handle undefined values
   const baseSchema = z.object({
-    organization: z.string().min(1, "Organization selection is required"),
-    title: z.string().min(1, "Title is required"),
-    description: z.string().min(1, "Description is required"),
-    price: z.number().min(0, "Price must be greater than or equal to 0"),
-    phoneNumber: z.string().min(1, "Phone number is required"),
-    address: addressSchema,
-    images: z.array(z.any()).min(1, "At least one image is required"),
-    video: z.string().url("Please enter a valid video URL").optional().or(z.literal("")),
-    connectionTypes: z
-      .union([z.string(), z.array(z.string())])
-      .refine(
-        (val) => {
-          if (Array.isArray(val)) return val.length > 0;
-          return !!val;
-        },
-        "Connection type is required"
-      ),
+    organization: z.preprocess(
+      (val) => (val === undefined || val === null ? "" : val),
+      z.string().min(1, "Organization selection is required")
+    ),
+    title: z.preprocess(
+      (val) => (val === undefined || val === null ? "" : val),
+      z.string().min(1, "Title is required")
+    ),
+    description: z.preprocess(
+      (val) => (val === undefined || val === null ? "" : val),
+      z.string().min(1, "Description is required")
+    ),
+    price: z.preprocess(
+      (val) => {
+        if (val === undefined || val === null) return 0;
+        if (typeof val === "string") {
+          const parsed = parseFloat(val);
+          return isNaN(parsed) ? 0 : parsed;
+        }
+        return typeof val === "number" ? val : 0;
+      },
+      z.number().min(0, "Price must be greater than or equal to 0")
+    ),
+    phoneNumber: z.preprocess(
+      (val) => (val === undefined || val === null ? "" : val),
+      z.string().min(1, "Phone number is required")
+    ),
+    address: z.preprocess(
+      (val) => {
+        if (val === undefined || val === null) {
+          return { address: "" };
+        }
+        return val;
+      },
+      addressSchema
+    ),
+    images: z.preprocess(
+      (val) => {
+        if (val === undefined || val === null) return [];
+        return Array.isArray(val) ? val : [];
+      },
+      z.array(z.any()).min(1, "At least one image is required")
+    ),
+    video: z.preprocess(
+      (val) => {
+        if (val === undefined || val === null || val === "") return undefined;
+        return val;
+      },
+      z.string().url("Please enter a valid video URL").optional().or(z.literal(""))
+    ),
+    connectionTypes: z.preprocess(
+      (val) => {
+        if (val === undefined || val === null) return [];
+        if (Array.isArray(val)) return val;
+        if (typeof val === "string" && val !== "") return [val];
+        return [];
+      },
+      z
+        .array(z.string())
+        .min(1, "At least one connection type is required")
+    ),
     isFeatured: z.union([z.boolean(), z.string()]).optional(),
     isExchange: z.union([z.boolean(), z.string()]).optional(),
-    exchangeTitle: z.string().optional(),
-    exchangeDescription: z.string().optional(),
-    exchangeImages: z.array(z.any()).optional(),
+    exchangeTitle: z.preprocess(
+      (val) => (val === undefined || val === null ? undefined : val),
+      z.string().optional()
+    ),
+    exchangeDescription: z.preprocess(
+      (val) => (val === undefined || val === null ? undefined : val),
+      z.string().optional()
+    ),
+    exchangeImages: z.preprocess(
+      (val) => {
+        if (val === undefined || val === null) return undefined;
+        return Array.isArray(val) ? val : [];
+      },
+      z.array(z.any()).optional()
+    ),
     deal: z.union([z.boolean(), z.string()]).optional(),
-    validity: z.string().optional(),
-    dealValidThru: z.string().optional(),
-    discountedPercent: z.number().min(0).max(100).optional(),
-    stockQuantity: z.number().optional(),
-    availability: z.string().optional(),
+    validity: z.preprocess(
+      (val) => (val === undefined || val === null ? undefined : val),
+      z.string().optional()
+    ),
+    dealValidThru: z.preprocess(
+      (val) => (val === undefined || val === null ? undefined : val),
+      z.string().optional()
+    ),
+    discountedPercent: z.preprocess(
+      (val) => {
+        if (val === undefined || val === null) return undefined;
+        if (typeof val === "string") {
+          const parsed = parseFloat(val);
+          return isNaN(parsed) ? undefined : parsed;
+        }
+        return typeof val === "number" ? val : undefined;
+      },
+      z.number().min(0).max(100).optional()
+    ),
+    stockQuantity: z.preprocess(
+      (val) => {
+        if (val === undefined || val === null) return undefined;
+        if (typeof val === "string") {
+          const parsed = parseFloat(val);
+          return isNaN(parsed) ? undefined : parsed;
+        }
+        return typeof val === "number" ? val : undefined;
+      },
+      z.number().optional()
+    ),
+    availability: z.preprocess(
+      (val) => (val === undefined || val === null ? undefined : val),
+      z.string().optional()
+    ),
   });
 
   // Add dynamic fields from category
@@ -102,10 +187,18 @@ export const createPostAdSchema = (category?: SubCategory) => {
               ? z.array(z.string()).min(1, `${field.name} is required`)
               : z.array(z.string()).optional();
         } else {
-          fieldSchema =
-            field.required || field.requires
-              ? z.string().min(1, `${field.name} is required`)
-              : z.union([z.string(), z.array(z.string())]).optional();
+          // For string fields (dropdown, select, etc.), handle undefined properly
+          if (field.required || field.requires) {
+            fieldSchema = z.preprocess(
+              (val) => (val === undefined || val === null ? "" : val),
+              z.string().min(1, `${field.name} is required`)
+            );
+          } else {
+            fieldSchema = z.preprocess(
+              (val) => (val === undefined || val === null ? undefined : val),
+              z.union([z.string(), z.array(z.string())]).optional()
+            );
+          }
         }
 
         dynamicFields[field.name] = fieldSchema;
