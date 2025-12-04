@@ -26,6 +26,7 @@ interface SelectInputProps {
   disabled?: boolean;
   options: SelectOption[];
   placeholder?: string;
+  error?: string;
 }
 
 export const SelectInput = forwardRef<HTMLButtonElement, SelectInputProps>(
@@ -37,6 +38,7 @@ export const SelectInput = forwardRef<HTMLButtonElement, SelectInputProps>(
       disabled = false,
       options,
       placeholder = "Select an option",
+      error,
     },
     ref
   ) => {
@@ -49,12 +51,13 @@ export const SelectInput = forwardRef<HTMLButtonElement, SelectInputProps>(
         <SelectTrigger
           ref={ref}
           className={cn(
-              "w-full h-12 border-[#D8B1FF] bg-white text-[#8B31E1] font-medium text-xs",
+              "w-full h-12 bg-white text-[#8B31E1] font-medium text-xs",
               "data-[placeholder]:text-[#8B31E1]",
-              "focus-visible:border-[#D8B1FF] focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20",
-              "hover:bg-white hover:border-[#D8B1FF]",
-              "rounded-lg px-3 py-5",
+              "hover:bg-white rounded-lg px-3 py-5",
               "[&_svg]:text-[#8B31E1]",
+              error
+                ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500/20 hover:border-red-500"
+                : "border-[#D8B1FF] focus-visible:border-[#D8B1FF] focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20 hover:border-[#D8B1FF]",
             className
           )}
         >

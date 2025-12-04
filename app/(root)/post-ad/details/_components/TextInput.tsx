@@ -11,6 +11,7 @@ interface TextInputProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   type?: "text" | "email" | "tel" | "url";
+  error?: string;
 }
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
@@ -22,6 +23,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       onChange,
       disabled = false,
       type = "text",
+      error,
     },
     ref
   ) => {
@@ -34,10 +36,12 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         placeholder={placeholder || "Typing"}
         disabled={disabled}
         className={cn(
-          "w-full h-11 px-3 py-2.5 border border-[#F5EBFF] rounded-lg",
+          "w-full h-11 px-3 py-2.5 border rounded-lg",
           "text-xs font-medium text-[#8B31E1] placeholder:text-[#8B31E1]",
-          "bg-white focus-visible:border-[#F5EBFF] focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20",
-          "transition-all duration-200",
+          "bg-white transition-all duration-200",
+          error
+            ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500/20"
+            : "border-[#F5EBFF] focus-visible:border-[#F5EBFF] focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20",
           disabled && "bg-gray-100 cursor-not-allowed opacity-50",
           className
         )}

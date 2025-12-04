@@ -10,7 +10,6 @@ import { useMyOrganization } from "@/hooks/useOrganizations";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { useAuthStore } from "@/stores/authStore";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { PostAdPayload } from "@/interfaces/ad";
 import { ImageGallery, ImageItem } from "../_components/image-upload";
 import { VideoUpload, type VideoItem } from "../_components/video-upload";
@@ -21,7 +20,7 @@ import { NumberInput } from "../_components/NumberInput";
 import { BooleanInput } from "../_components/BooleanInput";
 import { MultipleImageInput, ImageItem as MultipleImageItem } from "../_components/MultipleImageInput";
 import { MapComponent } from "../_components/MapComponent";
-import { RadioInput } from "../_components/RadioInput";
+import { CheckboxInput } from "../_components/CheckboxInput";
 import { Field } from "@/interfaces/categories.types";
 import DateTimeInput from "../_components/DateTimeInput";
 import { DynamicFieldRenderer } from "../_components/DynamicFieldRenderer";
@@ -178,6 +177,7 @@ export default function LeafCategoryPage() {
 
       // Extract dynamic category fields (exclude system fields)
       // Format extraFields as array of field objects (matching API structure)
+      // Always process extraFields regardless of category type
       const extraFields: Array<{
         name: string;
         type: string;
@@ -185,15 +185,15 @@ export default function LeafCategoryPage() {
         optionalArray?: string[];
       }> = [];
       
-    if (category?.name&& isJobCategory(category?.name  )) {
-      
       if (category?.fields) {
         category.fields.forEach((field: Field) => {
           if (
             !AD_SYSTEM_FIELDS.includes(
               field.name as (typeof AD_SYSTEM_FIELDS)[number]
             ) &&
-            data[field.name] !== undefined
+            data[field.name] !== undefined &&
+            data[field.name] !== null &&
+            data[field.name] !== ""
           ) {
             const fieldValue = data[field.name];
             extraFields.push({
@@ -205,7 +205,6 @@ export default function LeafCategoryPage() {
           }
         });
       }
-    }
 
 
       // Get organization selection
@@ -257,10 +256,16 @@ export default function LeafCategoryPage() {
       removeUndefinedFields(payload);
 
       // Submit the ad
-      await createAdMutation.mutateAsync(payload);
-      
-      toast.success("Ad created successfully!");
-      router.push("/");
+      try {
+        await createAdMutation.mutateAsync(payload);
+        
+        // Redirect to success page with status
+        router.push(`/post-ad/success?status=success&title=Ad created successfully!`);
+      } catch (error) {
+        // Redirect to success page with error status
+        const errorMessage = error instanceof Error ? error.message : "Failed to create ad";
+        router.push(`/post-ad/success?status=error&title=Ad creation failed&message=${encodeURIComponent(errorMessage)}`);
+      }
   };
 
   if (isLoading) {
@@ -360,6 +365,7 @@ export default function LeafCategoryPage() {
                           ? "Select organization"
                           : "Select organization or post as individual"
                       }
+                      error={errors.organization?.message as string}
                     />
                   );
                 }}
@@ -385,6 +391,7 @@ export default function LeafCategoryPage() {
                       handleInputChange("title", val);
                     }}
                     placeholder="Enter ad title"
+                    error={errors.title?.message as string}
                   />
                 )}
               />
@@ -412,6 +419,7 @@ export default function LeafCategoryPage() {
                     placeholder="Enter ad description"
                     rows={4}
                     maxLength={500}
+                    error={errors.description?.message as string}
                   />
                 )}
               />
@@ -512,6 +520,7 @@ export default function LeafCategoryPage() {
                     }}
                     min={0}
                     placeholder="Enter price"
+                    error={errors.price?.message as string}
                   />
                 )}
               />
@@ -537,6 +546,7 @@ export default function LeafCategoryPage() {
                     }}
                     placeholder="Enter phone number"
                     type="tel"
+                    error={errors.phoneNumber?.message as string}
                   />
                 )}
               />
@@ -596,10 +606,10 @@ export default function LeafCategoryPage() {
               <Controller
                 name="connectionTypes"
                 control={control}
-                rules={{ required: "Connection type is required" }}
+                rules={{ required: "At least one connection type is required" }}
                 render={({ field }) => (
-                  <RadioInput
-                    value={(field.value as string) || ""}
+                  <CheckboxInput
+                    value={Array.isArray(field.value) ? (field.value as string[]) : field.value ? [field.value as string] : []}
                     onChange={(val) => {
                       field.onChange(val);
                       handleInputChange("connectionTypes", val);
@@ -609,6 +619,7 @@ export default function LeafCategoryPage() {
                       { value: "chat", label: "Chat" },
                       { value: "whatsapp", label: "WhatsApp" },
                     ]}
+                    columns={3}
                   />
                 )}
               />

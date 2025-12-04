@@ -12,6 +12,7 @@ interface TextareaInputProps {
   disabled?: boolean;
   rows?: number;
   maxLength?: number;
+  error?: string;
 }
 
 export const TextareaInput = forwardRef<
@@ -27,6 +28,7 @@ export const TextareaInput = forwardRef<
       disabled = false,
       rows = 4,
       maxLength,
+      error,
     },
     ref
   ) => {
@@ -42,11 +44,13 @@ export const TextareaInput = forwardRef<
             rows={rows}
             maxLength={maxLength}
             className={cn(
-              "w-full min-h-[121px] px-3 py-3 border border-[#F5EBFF] rounded-lg",
+              "w-full min-h-[121px] px-3 py-3 border rounded-lg",
               "text-xs font-medium text-[#8B31E1] placeholder:text-[#8B31E1]",
-              "focus-visible:border-[#F5EBFF] focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20",
               "bg-white resize-none transition-all duration-200",
               maxLength && "pb-10",
+              error
+                ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500/20"
+                : "border-[#F5EBFF] focus-visible:border-[#F5EBFF] focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20",
               disabled && "bg-gray-100 cursor-not-allowed opacity-50"
             )}
           />

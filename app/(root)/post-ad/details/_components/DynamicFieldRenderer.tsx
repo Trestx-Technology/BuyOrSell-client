@@ -94,6 +94,7 @@ export const DynamicFieldRenderer = ({
                   onInputChange(field.name, val);
                 }}
                 placeholder={field.value || field.default || `Enter ${field.name}`}
+                error={fieldError}
               />
             )}
           />
@@ -127,6 +128,7 @@ export const DynamicFieldRenderer = ({
                 placeholder={field.value || field.default || `Enter ${field.name}`}
                 rows={4}
                 maxLength={field.max}
+                error={fieldError}
               />
             )}
           />
@@ -161,6 +163,7 @@ export const DynamicFieldRenderer = ({
                 min={field.min}
                 max={field.max}
                 placeholder={field.value || field.default}
+                error={fieldError}
               />
             )}
           />
@@ -192,6 +195,7 @@ export const DynamicFieldRenderer = ({
                 }}
                 options={options}
                 placeholder={field.value || field.default || `Select ${field.name}`}
+                error={fieldError}
               />
             )}
           />
@@ -222,6 +226,7 @@ export const DynamicFieldRenderer = ({
                 }}
                 options={options}
                 placeholder={field.value || field.default || `Select ${field.name}`}
+                error={fieldError}
               />
             )}
           />

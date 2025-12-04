@@ -12,6 +12,7 @@ interface SearchableDropdownInputProps {
   disabled?: boolean;
   options: { value: string; label: string }[];
   placeholder?: string;
+  error?: string;
 }
 
 export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDropdownInputProps>(
@@ -23,6 +24,7 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
       disabled = false,
       options,
       placeholder = "Item",
+      error,
     },
     ref
   ) => {
@@ -46,12 +48,16 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
           className={cn(
-            "w-full h-11 px-3 py-2.5 rounded-t-lg border border-purple bg-white",
+            "w-full h-11 px-3 py-2.5 rounded-t-lg border bg-white",
             "flex items-center justify-between text-xs font-medium text-[#8B31E1]",
-            "focus:outline-none focus:ring-2 focus:ring-[#8B31E1]/20",
-            "transition-all duration-200",
-                !isOpen && "rounded-b-lg border-[#F5EBFF]",
-            selectedOption&& "border-purple/50",
+            "focus:outline-none focus:ring-2 transition-all duration-200",
+            !isOpen && "rounded-b-lg",
+            error
+              ? "border-red-500 focus:ring-red-500/20"
+              : !isOpen
+                ? "border-[#F5EBFF]"
+                : "border-purple",
+            selectedOption && !error && "border-purple/50",
             disabled && "opacity-50 cursor-not-allowed"
           )}
         >

@@ -15,6 +15,7 @@ interface NumberInputProps {
   max?: number;
   step?: number;
   unit?: string;
+  error?: string;
 }
 
 export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
@@ -29,6 +30,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
       max,
       step = 1,
       unit,
+      error,
     },
     ref
   ) => {
@@ -64,8 +66,11 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
           max={max}
           step={step}
           className={cn(
-            "h-11 pr-10 border-[#D8B1FF] text-[#8B31E1] font-medium text-xs placeholder:text-[#8B31E1]",
+            "h-11 pr-10 text-[#8B31E1] font-medium text-xs placeholder:text-[#8B31E1]",
             unit && "pr-20",
+            error
+              ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500/20"
+              : "border-[#D8B1FF]",
             className
           )}
         />
