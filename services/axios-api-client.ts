@@ -9,6 +9,7 @@ import ApiErrorHandler from './errorHandler';
 import { toast } from 'sonner';
 import { jwtDecode } from 'jwt-decode';
 import { useAuthStore } from '@/stores/authStore';
+import { removeCookies } from '@/actions/cookies.action';
 
 // ============================================================================
 // TYPES
@@ -103,6 +104,7 @@ async function handleLogoutAndRedirect(): Promise<void> {
   try {
     const { clearSession } = useAuthStore.getState();
     await clearSession();
+    await removeCookies();
   } catch (error) {
     // If clearing store fails, still clear localStorage
     console.error('Error clearing auth store:', error);
@@ -259,7 +261,7 @@ axiosInstance.interceptors.request.use(
               console.log('[Axios Interceptor] Token refresh successful');
               LocalStorageService.set('buyorsell_access_token', newToken);
               if (newRefresh) {
-                LocalStorageService.set('refresh_token', newRefresh);
+                LocalStorageService.set("refresh_token", newRefresh);
               }
               
               // Reset redirect flag on successful refresh
