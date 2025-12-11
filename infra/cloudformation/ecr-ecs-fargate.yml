@@ -130,6 +130,22 @@ Resources:
           ToPort: !Ref AppPort
           CidrIp: !Ref IngressCidr
 
+  AlbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Application Load Balancer
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref IngressCidr
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: 0
+          ToPort: 0
+          CidrIp: 0.0.0.0/0
+
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
@@ -155,10 +171,47 @@ Resources:
               awslogs-stream-prefix: ecs
           Environment: []
 
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub ${ServiceName}-alb
+      Scheme: internet-facing
+      Type: application
+      IpAddressType: ipv4
+      SecurityGroups:
+        - !Ref AlbSecurityGroup
+      Subnets: !Ref SubnetIds
+
+  AlbTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${ServiceName}-tg
+      Protocol: HTTP
+      Port: !Ref AppPort
+      TargetType: ip
+      VpcId: !Ref VpcId
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 2
+
+  AlbListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref AlbTargetGroup
+
   EcsService:
     Type: AWS::ECS::Service
     DependsOn:
       - LogGroup
+      - AlbListener
     Properties:
       ServiceName: !Ref ServiceName
       Cluster: !Ref EcsCluster
@@ -167,11 +220,16 @@ Resources:
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 50
+      HealthCheckGracePeriodSeconds: 60
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: !Ref AssignPublicIp
           SecurityGroups: [!Ref ServiceSecurityGroup]
           Subnets: !Ref SubnetIds
+      LoadBalancers:
+        - TargetGroupArn: !Ref AlbTargetGroup
+          ContainerName: !Ref ContainerName
+          ContainerPort: !Ref AppPort
       TaskDefinition: !Ref TaskDefinition
       EnableECSManagedTags: true
       PropagateTags: SERVICE
@@ -202,3 +260,9 @@ Outputs:
     Value: !Ref ServiceSecurityGroup
     Export:
       Name: !Sub ${AWS::StackName}-ServiceSecurityGroupId
+
+  AlbDNSName:
+    Description: DNS name of the Application Load Balancer
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
+    Export:
+      Name: !Sub ${AWS::StackName}-AlbDNSName
