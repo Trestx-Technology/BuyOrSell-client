@@ -1,0 +1,268 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Creates an ECR repository, an ECS cluster, a Fargate task definition, and an ECS service.
+  The service runs on Fargate in provided subnets with a security group allowing ingress on the app port.
+
+Parameters:
+  RepositoryName:
+    Type: String
+    Description: Name of the ECR repository to create/use
+  ClusterName:
+    Type: String
+    Default: app-cluster
+    Description: Name of the ECS cluster
+  ServiceName:
+    Type: String
+    Default: app-service
+    Description: Name of the ECS service to create
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC where Fargate tasks will run
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Subnets for the service (use public subnets if AssignPublicIp is ENABLED)
+  AssignPublicIp:
+    Type: String
+    AllowedValues: [ENABLED, DISABLED]
+    Default: ENABLED
+    Description: Whether to assign public IPs to tasks (use ENABLED for public subnets)
+  AppPort:
+    Type: Number
+    Default: 3000
+    Description: Container and service port to expose
+  IngressCidr:
+    Type: String
+    Default: 0.0.0.0/0
+    Description: CIDR range allowed to access the service port
+  DesiredCount:
+    Type: Number
+    Default: 1
+    Description: Desired number of tasks in the service
+  Cpu:
+    Type: String
+    Default: 512
+    AllowedValues: ['256','512','1024','2048','4096']
+    Description: Fargate task CPU units
+  Memory:
+    Type: String
+    Default: 1024
+    AllowedValues: ['512','1024','2048','3072','4096','5120','6144','7168','8192','12288','16384','30720']
+    Description: Fargate task memory (MiB)
+  ImageTag:
+    Type: String
+    Default: latest
+    Description: Image tag to deploy from the ECR repository
+  ContainerName:
+    Type: String
+    Default: app
+    Description: Logical name for the container in the task definition
+  LogGroupRetentionDays:
+    Type: Number
+    Default: 14
+    AllowedValues: [1,3,5,7,14,30,60,90,120,150,180,365,400,545,731,1096,1827,2192,2557,2922,3288,3653]
+    Description: Retention in days for CloudWatch Logs
+
+Mappings:
+  RegionPartitionMap:
+    aws:
+      DnsSuffix: amazonaws.com
+
+Resources:
+  EcrRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref RepositoryName
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {"rulePriority": 1, "description": "Expire untagged images after 7 days", "selection": {"tagStatus": "untagged", "countType": "sinceImagePushed", "countUnit": "days", "countNumber": 7}, "action": {"type": "expire"}}
+            ]
+          }
+
+  EcsCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Ref ClusterName
+
+  TaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Path: /
+
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /ecs/${ClusterName}/${ServiceName}
+      RetentionInDays: !Ref LogGroupRetentionDays
+
+  ServiceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for ECS Fargate service
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref AppPort
+          ToPort: !Ref AppPort
+          CidrIp: !Ref IngressCidr
+
+  AlbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Application Load Balancer
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: !Ref IngressCidr
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: 0
+          ToPort: 0
+          CidrIp: 0.0.0.0/0
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub ${ServiceName}-task
+      Cpu: !Ref Cpu
+      Memory: !Ref Memory
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      ExecutionRoleArn: !GetAtt TaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt TaskRole.Arn
+      ContainerDefinitions:
+        - Name: !Ref ContainerName
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${RepositoryName}:${ImageTag}
+          PortMappings:
+            - ContainerPort: !Ref AppPort
+              Protocol: tcp
+          Essential: true
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref LogGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+          Environment: []
+
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub ${ServiceName}-alb
+      Scheme: internet-facing
+      Type: application
+      IpAddressType: ipv4
+      SecurityGroups:
+        - !Ref AlbSecurityGroup
+      Subnets: !Ref SubnetIds
+
+  AlbTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${ServiceName}-tg
+      Protocol: HTTP
+      Port: !Ref AppPort
+      TargetType: ip
+      VpcId: !Ref VpcId
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 2
+
+  AlbListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref AlbTargetGroup
+
+  EcsService:
+    Type: AWS::ECS::Service
+    DependsOn:
+      - LogGroup
+      - AlbListener
+    Properties:
+      ServiceName: !Ref ServiceName
+      Cluster: !Ref EcsCluster
+      LaunchType: FARGATE
+      DesiredCount: !Ref DesiredCount
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 50
+      HealthCheckGracePeriodSeconds: 60
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: !Ref AssignPublicIp
+          SecurityGroups: [!Ref ServiceSecurityGroup]
+          Subnets: !Ref SubnetIds
+      LoadBalancers:
+        - TargetGroupArn: !Ref AlbTargetGroup
+          ContainerName: !Ref ContainerName
+          ContainerPort: !Ref AppPort
+      TaskDefinition: !Ref TaskDefinition
+      EnableECSManagedTags: true
+      PropagateTags: SERVICE
+
+Outputs:
+  RepositoryUri:
+    Description: ECR Repository URI
+    Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${RepositoryName}
+    Export:
+      Name: !Sub ${AWS::StackName}-RepositoryUri
+  ClusterArn:
+    Description: ECS Cluster ARN
+    Value: !Ref EcsCluster
+    Export:
+      Name: !Sub ${AWS::StackName}-ClusterArn
+  ServiceNameOut:
+    Description: ECS Service name
+    Value: !Ref EcsService
+    Export:
+      Name: !Sub ${AWS::StackName}-ServiceName
+  TaskDefinitionArn:
+    Description: Task Definition ARN
+    Value: !Ref TaskDefinition
+    Export:
+      Name: !Sub ${AWS::StackName}-TaskDefinitionArn
+  SecurityGroupId:
+    Description: Security group for service
+    Value: !Ref ServiceSecurityGroup
+    Export:
+      Name: !Sub ${AWS::StackName}-ServiceSecurityGroupId
+
+  AlbDNSName:
+    Description: DNS name of the Application Load Balancer
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
+    Export:
+      Name: !Sub ${AWS::StackName}-AlbDNSName
