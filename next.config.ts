@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // Produce a standalone build so the Docker image only needs the minimal files
+  output: "standalone",
   images: {
     remotePatterns: [
       {
