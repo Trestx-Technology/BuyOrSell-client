@@ -64,9 +64,9 @@ const ChangePasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-50">
+    <div className="w-full">
       {/* Mobile Header */}
-      <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
+      <div className="flex justify-center sm:hidden border sticky top-0 z-10 py-4 shadow-sm">
         <Button
           variant="ghost"
           icon={<ChevronLeft className="h-4 w-4 -mr-2" />}
@@ -103,7 +103,7 @@ const ChangePasswordPage = () => {
         </div>
 
         {/* Settings Card */}
-        <div className="sm:bg-white sm:rounded-2xl border-0 sm:border border-gray-200 sm:shadow-sm max-w-2xl w-full mx-auto">
+        <div className="sm:bg-white sm:rounded-2xl border-0 sm:border border-gray-200 sm:shadow-sm max-w-2xl w-full mx-auto mt-4">
           {/* Header */}
           <div className="hidden sm:block text-center py-6">
             <h2 className="text-xl font-semibold text-gray-900">

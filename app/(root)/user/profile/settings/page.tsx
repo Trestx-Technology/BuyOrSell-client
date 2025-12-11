@@ -9,8 +9,8 @@ import { Button } from "@/components/ui/button";
 
 const SettingsPage = () => {
   return (
-    <div className="min-h-screen w-full bg-gray-50">
-      <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
+    <div className="w-full">
+      <div className="flex justify-center sm:hidden border sticky top-0 z-10 py-4 shadow-sm">
         <Button
           variant={"ghost"}
           icon={<ChevronLeft className="h-4 w-4 -mr-2" />}

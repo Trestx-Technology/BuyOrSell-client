@@ -4,6 +4,18 @@ import { User } from './user.types';
 import { Organization } from './organization.types';
 import { AD } from './ad';
 
+export interface Professional {
+  _id: string;
+  userId: string;
+  name: string;
+  headline: string;
+  location: string;
+  skills: string[];
+  experienceYears: number;
+  image?: string;
+  isVerified?: boolean;
+}
+
 // Job Applicant - represents someone who applied to a job
 export interface JobApplicant {
   _id: string;
@@ -588,7 +600,7 @@ export interface JobHomeData {
     logoUrl?: string;
     [key: string]: unknown;
   }>;
-  professionals?: User[];
+  professionals?: Professional[];
   companiesToFollow?: Organization[];
   topEmployers?: Organization[];
   // Legacy fields for backward compatibility

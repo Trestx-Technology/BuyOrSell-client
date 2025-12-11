@@ -206,6 +206,7 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
                             alt={category.name}
                             width={40}
                             height={40}
+                            unoptimized
                             className="size-12 object-contain"
                             priority={index < 5}
                             loading={index < 5 ? "eager" : "lazy"}

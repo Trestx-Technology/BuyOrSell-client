@@ -8,7 +8,7 @@ const JobsRootlayout = ({children}: {children: React.ReactNode}) => {
     <main className="bg-[#F9FAFC]">
       <Navbar className="hidden sm:flex" />
       <CategoryNav className="hidden sm:block" />
-      <section className="w-full max-w-[1080px] mx-auto px-4 lg:px-0">{children}</section>
+      <section className="w-full mx-auto px-4 lg:px-0">{children}</section>
       <Footer />  
     </main>
   )

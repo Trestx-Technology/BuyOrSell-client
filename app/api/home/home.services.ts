@@ -2,11 +2,9 @@ import { axiosInstance } from "@/services/axios-api-client";
 import { homeQueries } from ".";
 import { HomeApiResponse } from "@/interfaces/home.types";
 
-export const getHomeData = async (userId?: string): Promise<HomeApiResponse> => {
-  const endpoint = userId 
-    ? `${homeQueries.home.endpoint}?userId=${userId}`
-    : homeQueries.home.endpoint;
-  
-  const response = await axiosInstance.get<HomeApiResponse>(endpoint);
+export const getHomeData = async (): Promise<HomeApiResponse> => {
+  const response = await axiosInstance.get<HomeApiResponse>(
+    homeQueries.home.endpoint
+  );
   return response.data;
 };

@@ -165,6 +165,7 @@ const CategoriesCarousel = ({ categoryList = [], isLoading = false }: Categories
                           width={40}
                           height={40}
                           className="size-12 transition-all duration-300 hover:scale-110"
+                          unoptimized
                         />
                       ) : (
                         <div className="size-12 bg-gray-200 rounded-full" />

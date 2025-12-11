@@ -104,7 +104,7 @@ const BlockedUsersPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-50">
+    <div className="w-full">
       {/* Mobile Header */}
       <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
         <Button

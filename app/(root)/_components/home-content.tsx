@@ -91,20 +91,26 @@ export function HomeContent() {
             
             const topValue = calculateTop(i);
             const zIndexValue = calculateZIndex(i);
-            const className = `sticky top-[${topValue}px] z-[${zIndexValue}]`;
             
             return (
-              <CategoryTabbedCarousel
+              <div
                 key={`trending-category-ads-${i}`}
-                categoryData={category}
-                isLoading={isLoading}
-                showNavigation={false}
-                showViewAll={true}
-                viewAllText="View all"
-                onViewAll={() => console.log(`View all ${category.category} clicked`)}
-                onTabChange={(tabId) => console.log("Tab changed to:", tabId)}
-                className={className}
-              />
+                className="sticky"
+                style={{
+                  top: `${topValue}px`,
+                  zIndex: zIndexValue,
+                }}
+              >
+                <CategoryTabbedCarousel
+                  categoryData={category}
+                  isLoading={isLoading}
+                  showNavigation={false}
+                  showViewAll={true}
+                  viewAllText="View all"
+                  onViewAll={() => console.log(`View all ${category.category} clicked`)}
+                  onTabChange={(tabId) => console.log("Tab changed to:", tabId)}
+                />
+              </div>
             );
           })}
         </div>

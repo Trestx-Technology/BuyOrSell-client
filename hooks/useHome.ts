@@ -10,12 +10,11 @@ import { useAuthStore } from '@/stores/authStore';
 
 // Get home page data
 export const useHome = () => {
-  const { session, isAuthenticated } = useAuthStore();
-  const userId = isAuthenticated && session.user ? session.user._id : undefined;
+  const { session } = useAuthStore();
 
   return useQuery<HomeApiResponse, Error>({
-    queryKey: [...homeQueries.home.Key, userId],
-    queryFn: () => getHomeData(userId),
+    queryKey: [...homeQueries.home.Key, session],
+    queryFn: () => getHomeData(),
   });
 };
 

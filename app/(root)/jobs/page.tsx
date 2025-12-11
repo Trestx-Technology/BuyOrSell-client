@@ -18,9 +18,8 @@ export const metadata: Metadata = {
 
 export default function JobsHomePage() {
   return (
-    <main className="min-h-screen bg-[#F2F4F7]">
+    <main className="bg-white">
       <JobHomeComponent />
-      <Footer />
     </main>
   );
 }

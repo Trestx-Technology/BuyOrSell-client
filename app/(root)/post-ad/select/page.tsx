@@ -118,7 +118,8 @@ export default function SelectCategoryPage() {
                     <Image
                       src={category.icon}
                       alt={category.name}
-                      fill
+                        fill
+                        unoptimized
                       className="object-cover rounded"
                     />
                     </div>}

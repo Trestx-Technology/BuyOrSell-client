@@ -1,5 +1,4 @@
 import React from "react";
-import { Footer } from "@/components/global/footer";
 
 const ApplicantsLayout = ({ children }: { children: React.ReactNode }) => {
   return (

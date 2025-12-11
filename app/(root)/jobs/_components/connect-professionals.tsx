@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -8,8 +8,23 @@ import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import JobsSectionTitle from "./jobs-section-title";
-import { User } from "@/interfaces/user.types";
 import { Check } from "lucide-react";
+import { useMyConnections, useSendConnectionRequest, useRemoveConnection } from "@/hooks/useConnections";
+import { useAuthStore } from "@/stores/authStore";
+import { toast } from "sonner";
+
+// Professional/Jobseeker interface matching API response
+export interface Professional {
+  _id: string;
+  userId: string;
+  name: string;
+  headline: string;
+  location: string;
+  skills: string[];
+  experienceYears: number;
+  image?: string;
+  isVerified?: boolean;
+}
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -37,24 +52,17 @@ const itemVariants = {
 };
 
 interface ProfessionalCardProps {
-  user: User;
+  professional: Professional;
   onConnect?: (userId: string) => void;
   isConnected?: boolean;
 }
 
 function ProfessionalCard({
-  user,
+  professional,
   onConnect,
   isConnected = false,
 }: ProfessionalCardProps) {
-  // Extract skills from userTypeDetails - only use API data
-  const skills = (user.userTypeDetails as { skills?: string[] })?.skills || [];
-
-  // Get location from user data - only use API data
-  const location = (user as { location?: string }).location || "";
-
-  // Get professional title from userTypeLabel - only use API data
-  const professionalTitle = user.userTypeLabel || user.userTypeKey || "";
+  const { skills, location, name, _id, image, isVerified } = professional;
 
   return (
     <motion.div
@@ -64,21 +72,21 @@ function ProfessionalCard({
       {/* Profile Picture */}
       <div className="relative">
         <div className="size-24 bg-gradient-to-br from-purple/20 to-purple/10 rounded-full flex items-center justify-center overflow-hidden border-4 border-white shadow-lg ring-2 ring-purple/10 group-hover:ring-purple/20 transition-all">
-          {user.image ? (
+          {image ? (
             <Image
-              src={user.image}
-              alt={user.name || "Professional"}
+              src={image}
+              alt={name || "Professional"}
               width={96}
               height={96}
               className="rounded-full object-cover w-full h-full"
             />
           ) : (
             <span className="text-purple font-bold text-3xl">
-              {(user.name || "P").charAt(0).toUpperCase()}
+              {(name || "P").charAt(0).toUpperCase()}
             </span>
           )}
         </div>
-        {user.isVerified && (
+        {isVerified && (
           <div className="absolute -bottom-1 -right-1 bg-purple rounded-full p-1.5 border-2 border-white shadow-md">
             <Check className="w-3.5 h-3.5 text-white" />
           </div>
@@ -87,24 +95,17 @@ function ProfessionalCard({
 
       {/* Name */}
       <Link 
-        href={`/jobs/jobseeker/${user._id}`}
+        href={`/jobs/jobseeker/${_id}`}
         className="text-center"
       >
         <Typography
           variant="h3"
           className="text-dark-blue font-bold text-lg text-center group-hover:text-purple transition-colors cursor-pointer"
         >
-          {user.name}
+          {name}
         </Typography>
       </Link>
 
-      {/* Role/Title */}
-      <Typography
-        variant="body-large"
-        className="text-grey-blue text-base text-center font-medium"
-      >
-        {professionalTitle}
-      </Typography>
 
       {/* Location */}
       <div className="flex items-center gap-1.5">
@@ -136,7 +137,7 @@ function ProfessionalCard({
       </div>
 
       {/* Skills/Tools */}
-      <div className="flex flex-wrap justify-center gap-2 min-h-[32px]">
+      <div className="flex justify-center gap-2">
         {skills.slice(0, 2).map((skill, index) => (
           <Badge
             key={index}
@@ -149,26 +150,21 @@ function ProfessionalCard({
 
       {/* Connect Button */}
       <Button
-        onClick={() => onConnect?.(user._id)}
+        onClick={() => onConnect?.(_id)}
         className="w-full rounded-lg py-2.5 font-semibold transition-all"
         variant={isConnected ? "outline" : "primary"}
         width="full"
+        icon={isConnected && <Check className="w-4 h-4" /> }
+        iconPosition="left"
       >
-        {isConnected ? (
-          <>
-            <Check className="w-4 h-4" />
-            Connected
-          </>
-        ) : (
-          "Connect"
-        )}
+        {isConnected ? "Connected" : "Connect"}
       </Button>
     </motion.div>
   );
 }
 
 interface ConnectProfessionalsProps {
-  professionals?: User[];
+  professionals?: Professional[];
   isLoading?: boolean;
 }
 
@@ -176,25 +172,64 @@ export default function ConnectProfessionals({
   professionals: professionalsProp, 
   isLoading: isLoadingProp 
 }: ConnectProfessionalsProps = {}) {
-  const [connectedUsers, setConnectedUsers] = React.useState<Set<string>>(
-    new Set()
-  );
-
   // Only use API data, no fallback
   const professionals = professionalsProp || [];
   const isLoading = isLoadingProp ?? false;
 
-  const handleConnect = (userId: string) => {
-    setConnectedUsers((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(userId)) {
-        newSet.delete(userId);
-      } else {
-        newSet.add(userId);
+  // Get current user ID
+  const { session } = useAuthStore();
+  const currentUserId = session?.user?._id;
+
+  // Fetch user's connections
+  const { data: connectionsData } = useMyConnections('ACCEPTED');
+  const sendRequestMutation = useSendConnectionRequest();
+  const removeConnectionMutation = useRemoveConnection();
+
+  // Create a map of connected user IDs for quick lookup
+  // Only include the OTHER user in the connection (not the current user)
+  const connectedUserIds = useMemo(() => {
+    const connectedSet = new Set<string>();
+    if (connectionsData?.data?.items && currentUserId) {
+      connectionsData.data.items.forEach((connection) => {
+        // If current user is the sender, the connected user is the receiver
+        if (connection.fromUserId === currentUserId && connection.toUserId) {
+          connectedSet.add(connection.toUserId);
+        }
+        // If current user is the receiver, the connected user is the sender
+        if (connection.toUserId === currentUserId && connection.fromUserId) {
+          connectedSet.add(connection.fromUserId);
+        }
+      });
+    }
+    return connectedSet;
+  }, [connectionsData, currentUserId]);
+
+  const handleConnect = async (userId: string) => {
+    const isConnected = connectedUserIds.has(userId);
+    
+    if (isConnected) {
+      // Find the connection ID to remove
+      const connection = connectionsData?.data?.items?.find(
+        (conn) => conn.fromUserId === userId || conn.toUserId === userId
+      );
+      
+      if (connection) {
+        try {
+          await removeConnectionMutation.mutateAsync(connection.id);
+          toast.success('Connection removed successfully');
+        } catch {
+          toast.error('Failed to remove connection');
+        }
       }
-      return newSet;
-    });
-    // TODO: Implement API call to connect/disconnect
+    } else {
+      // Send connection request
+      try {
+        await sendRequestMutation.mutateAsync({ receiverId: userId });
+        toast.success('Connection request sent');
+      } catch {
+        toast.error('Failed to send connection request');
+      }
+    }
   };
 
   if (isLoading) {
@@ -224,16 +259,13 @@ export default function ConnectProfessionals({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="w-full bg-white py-12"
+      className="w-full max-w-[1080px] mx-auto bg-white py-12"
     >
       <div className="max-w-[1080px] mx-auto px-4">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <JobsSectionTitle>Connect Professionals</JobsSectionTitle>
-          <Link 
-            href="/jobs/professionals"
-            className="group"
-          >
+          <Link href="/jobs/professionals" className="group">
             <Typography
               variant="body-large"
               className="text-purple font-semibold text-base hover:underline transition-all flex items-center gap-1"
@@ -259,15 +291,15 @@ export default function ConnectProfessionals({
         {/* Professionals Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
           {professionals.slice(0, 4).map((professional) => (
-            <motion.div 
-              key={professional._id} 
+            <motion.div
+              key={professional._id}
               variants={itemVariants}
               className="w-full"
             >
               <ProfessionalCard
-                user={professional}
+                professional={professional}
                 onConnect={handleConnect}
-                isConnected={connectedUsers.has(professional._id)}
+                isConnected={connectedUserIds.has(professional.userId)}
               />
             </motion.div>
           ))}
