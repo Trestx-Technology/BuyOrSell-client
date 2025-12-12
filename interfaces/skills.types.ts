@@ -29,12 +29,11 @@ export interface SkillsListResponse {
   statusCode: number;
   timestamp: string;
   message?: string;
-  data: Skill[];
-  pagination?: {
+  data: {
+    items: Skill[];
+    total: number;
     page: number;
     limit: number;
-    total: number;
-    totalPages: number;
   };
 }
 

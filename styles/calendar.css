@@ -1,0 +1,48 @@
+/* Calendar Component Styles - Purple Theme Overrides */
+
+/* Override react-day-picker default blue colors with purple */
+@layer base {
+  .rdp-button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgb(139 49 225 / 0.5); /* purple/50 */
+  }
+  
+  .rdp-day_button:focus-visible,
+  .rdp-day_button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgb(139 49 225 / 0.5); /* purple/50 */
+  }
+  
+  /* Override any blue colors in react-day-picker */
+  .rdp-day_selected,
+  .rdp-day_range_start,
+  .rdp-day_range_end {
+    background-color: #8B31E1 !important; /* purple */
+    color: white !important;
+  }
+  
+  .rdp-day_range_middle {
+    background-color: rgb(139 49 225 / 0.2) !important; /* purple/20 */
+    color: #8B31E1 !important; /* purple */
+  }
+  
+  .rdp-day_today {
+    background-color: rgb(139 49 225 / 0.1) !important; /* purple/10 */
+    color: #8B31E1 !important; /* purple */
+    font-weight: 600;
+  }
+  
+  .rdp-day_today.rdp-day_selected {
+    background-color: #8B31E1 !important; /* purple */
+    color: white !important;
+  }
+  
+  /* Override any blue border/ring colors */
+  .rdp-button:focus,
+  .rdp-button:focus-visible,
+  .rdp-day_button:focus,
+  .rdp-day_button:focus-visible {
+    border-color: #8B31E1 !important; /* purple */
+  }
+}
+

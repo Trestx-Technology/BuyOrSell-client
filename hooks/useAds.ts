@@ -13,6 +13,7 @@ import {
   getMyAds,
   uploadAdImages,
   filterAds,
+  getSimilarAds,
 } from '@/app/api/ad/ad.services';
 import {
   PostAdPayload,
@@ -216,6 +217,22 @@ export const useFilterAds = (payload: AdFilterPayload, enabled: boolean = true) 
     queryKey: [...adQueries.filterAds.Key, payload],
     queryFn: () => filterAds(payload),
     enabled: enabled && Object.keys(payload).length > 0, // Only run if enabled and payload has at least one filter
+  });
+};
+
+// Get similar ads by ad ID
+export const useSimilarAds = (
+  id: string,
+  params?: {
+    viewerId?: string;
+    page?: number;
+    limit?: number;
+  },
+) => {
+  return useQuery<GetLiveAdsResponse, Error>({
+    queryKey: [...adQueries.similarAds(id).Key, params],
+    queryFn: () => getSimilarAds(id, params),
+    enabled: !!id,
   });
 };
 

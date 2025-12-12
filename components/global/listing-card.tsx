@@ -216,8 +216,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
               <div className="text-center text-gray-400">
-                  <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mb-2 mx-auto">
-                    <ImageOffIcon/>
+                <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mb-2 mx-auto">
+                  <ImageOffIcon />
                 </div>
                 <span className="text-sm font-medium">No Image</span>
               </div>
@@ -243,24 +243,28 @@ const ListingCard: React.FC<ListingCardProps> = ({
           )}
 
           {/* Image Counter */}
-          {images?.length>0&& <div className="absolute bottom-3 left-3 w-fit">
-            <div className="bg-[#777777] rounded-lg px-2 py-1 flex items-center gap-1 w-fit">
-              <ImageIcon className="size-3 sm:size-4 text-white" />
-              <span className="text-[10px] text-white font-medium">
-                {currentImageIndex + 1}/{images.length}
-              </span>
+          {images?.length > 0 && (
+            <div className="absolute bottom-3 left-3 w-fit">
+              <div className="bg-[#777777] rounded-lg px-2 py-1 flex items-center gap-1 w-fit">
+                <ImageIcon className="size-3 sm:size-4 text-white" />
+                <span className="text-[10px] text-white font-medium">
+                  {currentImageIndex + 1}/{images.length}
+                </span>
+              </div>
             </div>
-          </div>}
+          )}
 
           {/* Views Counter */}
-          {views && <div className="absolute bottom-3 right-3">
-            <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
-              <Eye className="size-3 sm:size-4 text-white" />
-              <span className="text-[10px] text-white font-medium">
-                {views}
-              </span>
+          {views && (
+            <div className="absolute bottom-3 right-3">
+              <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
+                <Eye className="size-3 sm:size-4 text-white" />
+                <span className="text-[10px] text-white font-medium">
+                  {views}
+                </span>
+              </div>
             </div>
-          </div>}
+          )}
 
           {/* Navigation Arrows */}
           {images.length > 1 && isHovered && (
@@ -356,7 +360,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
               </span>
             )}
             {discount && (
-              <span className="text-md text-grey-blue text-sm text-teal font-semibold">
+              <span className="text-md text-teal text-sm font-semibold">
                 {discount}%
               </span>
             )}
@@ -386,45 +390,50 @@ const ListingCard: React.FC<ListingCardProps> = ({
           </div>
 
           {/* Dynamic Specs - Grid with 2 columns */}
-          {displayFields.length > 0 && (
-            <div className="hidden sm:grid grid-cols-2 gap-2 px-2.5">
-              {displayFields.map((field) => {
-                const displayValue = Array.isArray(field.value)
-                  ? field.value.join(", ")
-                  : typeof field.value === "boolean"
-                  ? field.value
-                    ? "Yes"
-                    : "No"
-                  : String(field.value);
-                
-                return (
-                  <div key={field.name} className="flex items-center gap-1 min-w-0">
-                    {field.icon && (
-                      <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
-                        <Image
-                          src={field.icon}
-                          alt={field.name}
-                          width={16}
-                          height={16}
-                          className="w-4 h-4 object-contain"
-                        />
-                      </div>
-                    ) }
-                    <Typography
-                      variant="body-small"
-                      className="text-xs text-[#667085] truncate min-w-0 flex-1"
+          <div className="min-h-10">
+            {displayFields.length > 0 && (
+              <div className="hidden sm:grid grid-cols-2 gap-2 px-2.5">
+                {displayFields.map((field) => {
+                  const displayValue = Array.isArray(field.value)
+                    ? field.value.join(", ")
+                    : typeof field.value === "boolean"
+                    ? field.value
+                      ? "Yes"
+                      : "No"
+                    : String(field.value);
+
+                  return (
+                    <div
+                      key={field.name}
+                      className="flex items-center gap-1 min-w-0"
                     >
-                      {displayValue}
-                    </Typography>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                      {field.icon && (
+                        <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
+                          <Image
+                            src={field.icon}
+                            alt={field.name}
+                            width={16}
+                            height={16}
+                            className="w-4 h-4 object-contain"
+                          />
+                        </div>
+                      )}
+                      <Typography
+                        variant="body-small"
+                        className="text-xs text-[#667085] truncate min-w-0 flex-1"
+                      >
+                        {displayValue}
+                      </Typography>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
           {/* Time ago */}
           <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-start justify-between">
-            {showSeller && seller && (
+            {seller && (showSeller !== false) && (
               <TooltipProvider delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -446,7 +455,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
                           variant="sm-black-inter"
                           className="text-xs text-gray-500 font-medium flex items-center gap-1 truncate"
                         >
-                          {seller.name || `${seller.firstName || ""} ${seller.lastName || ""}`.trim() || "Seller"}
+                          {seller.name ||
+                            `${seller.firstName || ""} ${
+                              seller.lastName || ""
+                            }`.trim() ||
+                            "Seller"}
                           {seller.isVerified && (
                             <Image
                               src={"/verified-seller.svg"}
@@ -470,9 +483,15 @@ const ListingCard: React.FC<ListingCardProps> = ({
                   <TooltipContent className="max-w-[200px]">
                     <div className="space-y-1">
                       <div className="font-semibold text-sm">
-                        {seller.name || `${seller.firstName || ""} ${seller.lastName || ""}`.trim() || "Seller"}
+                        {seller.name ||
+                          `${seller.firstName || ""} ${
+                            seller.lastName || ""
+                          }`.trim() ||
+                          "Seller"}
                         {seller.isVerified && (
-                          <span className="ml-1 text-xs text-green-600">✓ Verified</span>
+                          <span className="ml-1 text-xs text-green-600">
+                            ✓ Verified
+                          </span>
                         )}
                       </div>
                       {seller.type && (

@@ -74,6 +74,15 @@ export interface JobseekerProfile extends User {
   // Portfolio
   portfolio?: PortfolioItem[];
   
+  // Languages
+  languages?: Array<{
+    name: string;
+    proficiency: string;
+    read?: boolean;
+    write?: boolean;
+    speak?: boolean;
+  }>;
+  
   // Job preferences
   jobPreferences?: {
     jobType?: string[];
@@ -134,13 +143,15 @@ export interface Certification {
 
 export interface PortfolioItem {
   _id?: string;
-  title: string;
-  description?: string;
-  projectUrl?: string;
-  imageUrl?: string;
-  technologies?: string[];
+  name: string;
+  role?: string;
   startDate?: string;
   endDate?: string;
+  url?: string;
+  description?: string;
+  techStack?: string[];
+  projectType?: string;
+  teamSize?: number;
 }
 
 // Employer Profile - extended organization profile for employers
@@ -298,12 +309,11 @@ export interface JobApplicationsResponse {
   statusCode: number;
   timestamp: string;
   message?: string;
-  data: JobApplication[];
-  pagination?: {
+  data: {
     page: number;
     limit: number;
     total: number;
-    totalPages: number;
+    items: JobApplication[];
   };
 }
 
@@ -406,13 +416,15 @@ export interface UpdateCertificationPayload extends Partial<CreateCertificationP
 }
 
 export interface CreatePortfolioItemPayload {
-  title: string;
-  description?: string;
-  projectUrl?: string;
-  imageUrl?: string;
-  technologies?: string[];
+  name: string;
+  role?: string;
   startDate?: string;
   endDate?: string;
+  url?: string;
+  description?: string;
+  techStack?: string[];
+  projectType?: string;
+  teamSize?: number;
 }
 
 export interface UpdatePortfolioItemPayload extends Partial<CreatePortfolioItemPayload> {
@@ -431,13 +443,27 @@ export interface UpdateJobPreferencesPayload {
 }
 
 export interface ApplyToJobPayload {
-  jobId: string;
-  coverLetter?: string;
-  resumeUrl?: string;
-  experience?: string;
-  skills?: string[];
-  expectedSalary?: number;
-  availability?: string;
+  applicantProfileId: string;
+}
+
+export interface AcceptApplicationPayload {
+  note?: string;
+}
+
+export interface RejectApplicationPayload {
+  note?: string;
+}
+
+export interface UpdateApplicationStatusPayload {
+  status: 'pending' | 'reviewed' | 'shortlisted' | 'rejected' | 'accepted';
+  note?: string;
+}
+
+export interface SimilarJobsParams {
+  page?: number;
+  limit?: number;
+  status?: 'active' | 'archived';
+  excludeApplied?: boolean;
 }
 
 export interface SaveJobPayload {

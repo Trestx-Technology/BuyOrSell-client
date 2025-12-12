@@ -2,6 +2,7 @@
 @import "./design-token.css";
 @import "tw-animate-css";
 @import "react-day-picker/style.css";
+@import "./calendar.css";
 
 @custom-variant dark (&:is(.dark *));
 

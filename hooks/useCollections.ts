@@ -5,6 +5,9 @@ import {
   getCollectionById,
   updateCollection,
   deleteCollection,
+  addAdsToCollection,
+  removeAdFromCollection,
+  getCollectionsByAd,
 } from '@/app/api/collections/collections.services';
 import {
   SingleCollectionResponse,
@@ -13,6 +16,10 @@ import {
   CreateCollectionPayload,
   UpdateCollectionPayload,
   MyCollectionsParams,
+  AddAdsToCollectionPayload,
+  AddAdsResponse,
+  RemoveAdResponse,
+  CollectionsByAdResponse,
 } from '@/interfaces/collections.types';
 import { collectionsQueries } from '@/app/api/collections/index';
 
@@ -80,6 +87,60 @@ export const useDeleteCollection = () => {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({
         queryKey: collectionsQueries.getCollectionById(id).Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueries.getMyCollections.Key,
+      });
+    },
+  });
+};
+
+// ============================================================================
+// COLLECTION ADS HOOKS
+// ============================================================================
+
+export const useGetCollectionsByAd = (adId: string) => {
+  return useQuery<CollectionsByAdResponse, Error>({
+    queryKey: collectionsQueries.getCollectionsByAd(adId).Key,
+    queryFn: () => getCollectionsByAd(adId),
+    enabled: !!adId,
+  });
+};
+
+export const useAddAdsToCollection = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    AddAdsResponse,
+    Error,
+    { collectionId: string; payload: AddAdsToCollectionPayload }
+  >({
+    mutationFn: ({ collectionId, payload }) =>
+      addAdsToCollection(collectionId, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueries.getCollectionById(variables.collectionId).Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueries.getMyCollections.Key,
+      });
+    },
+  });
+};
+
+export const useRemoveAdFromCollection = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    RemoveAdResponse,
+    Error,
+    { collectionId: string; adId: string }
+  >({
+    mutationFn: ({ collectionId, adId }) =>
+      removeAdFromCollection(collectionId, adId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueries.getCollectionById(variables.collectionId).Key,
       });
       queryClient.invalidateQueries({
         queryKey: collectionsQueries.getMyCollections.Key,

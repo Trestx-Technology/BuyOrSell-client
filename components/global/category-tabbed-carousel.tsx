@@ -222,7 +222,7 @@ export default function CategoryTabbedCarousel<
                       transition={{ type: "spring" as const, stiffness: 280, damping: 20, delay: 0.9 + index * 0.1 }}
                       className="flex-[0_0_auto] max-w-[190px] w-full"
                     >
-                      <ListingCard {...listingCardProps} />
+                      <ListingCard showSeller={false} {...listingCardProps} />
                     </motion.div>
                   );
                 })}

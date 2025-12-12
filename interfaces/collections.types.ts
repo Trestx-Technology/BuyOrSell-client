@@ -52,6 +52,8 @@ export interface DeleteCollectionResponse {
 export interface CreateCollectionPayload {
   name: string;
   description?: string;
+  userId?: string;
+  imageURL?: string;
 }
 
 export interface UpdateCollectionPayload extends Partial<CreateCollectionPayload> {
@@ -61,5 +63,54 @@ export interface UpdateCollectionPayload extends Partial<CreateCollectionPayload
 export interface MyCollectionsParams {
   page?: number;
   limit?: number;
+}
+
+// ============================================================================
+// COLLECTION ADS TYPES
+// ============================================================================
+
+export interface AddAdsToCollectionPayload {
+  adIds: string[]; // Array of ad IDs to add to the collection
+}
+
+export interface AddAdsResponse {
+  statusCode: number;
+  timestamp: string;
+  message?: string;
+  data?: {
+    added: number;
+    failed?: number;
+  };
+}
+
+export interface RemoveAdResponse {
+  statusCode: number;
+  timestamp: string;
+  message?: string;
+}
+
+// ============================================================================
+// COLLECTIONS BY AD RESPONSE TYPES
+// ============================================================================
+
+export interface CollectionByAd {
+  collectionId: string;
+  collectionName: string;
+  description?: string;
+  adCount: number;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CollectionsByAdResponse {
+  statusCode: number;
+  timestamp: string;
+  message?: string;
+  data: {
+    adId: string;
+    isAddedInCollection: boolean;
+    collections: CollectionByAd[];
+  };
 }
 

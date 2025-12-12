@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   // Produce a standalone build so the Docker image only needs the minimal files
   output: "standalone",
   images: {
+    unoptimized:true,
     remotePatterns: [
       {
         protocol: "https",
