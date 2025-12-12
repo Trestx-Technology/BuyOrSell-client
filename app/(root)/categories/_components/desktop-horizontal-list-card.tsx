@@ -35,6 +35,11 @@ export interface HorizontalListingCardProps {
   views?: number;
   isPremium?: boolean;
   isFavorite?: boolean;
+  seller?: {
+    name: string;
+    isVerified: boolean;
+    type: string;
+  };
   // Discount and timer props
   discountText?: string;
   discountBadgeBg?: string;
@@ -64,6 +69,7 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
   views = 0,
   isPremium = false,
   isFavorite = false,
+  seller,
   // Discount and timer props
   discountText,
   discountBadgeBg = "bg-red-500",
@@ -74,12 +80,26 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
   timerTextColor = "text-white",
   endTime,
   onFavorite,
-  onShare,
+  onShare, // eslint-disable-line @typescript-eslint/no-unused-vars
   onClick,
   className,
 }) => {
-  // Ensure extraFields exists
-  const safeExtraFields = extraFields || {};
+  // Ensure extraFields exists and normalize to object format
+  const safeExtraFields = (() => {
+    if (!extraFields) return {};
+    // If it's already an object, return it
+    if (!Array.isArray(extraFields)) {
+      return extraFields as Record<string, string | number | boolean | string[] | null>;
+    }
+    // If it's an array, convert to object
+    const flatFields: Record<string, string | number | boolean | string[] | null> = {};
+    extraFields.forEach((field) => {
+      if (field && typeof field === 'object' && 'name' in field && 'value' in field) {
+        flatFields[field.name] = field.value;
+      }
+    });
+    return flatFields;
+  })();
 
   // Helper function to get field value from extraFields
   const getFieldValue = (fieldName: string): string | number | undefined => {
@@ -161,11 +181,6 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
   const handleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
     onFavorite?.(id);
-  };
-
-  const handleShare = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onShare?.(id);
   };
 
   const handleCardClick = () => {
@@ -438,29 +453,38 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
         {/* Right Side */}
         <div className="lg:flex-1 hidden sm:flex flex-col justify-between items-end gap-4 p-4">
           <div className="flex flex-col md:flex-row justify-end items-end gap-2">
-            <>
+            {seller && (
               <Typography
                 variant="sm-black-inter"
                 className="text-xs text-gray-500 whitespace-nowrap font-medium flex items-center gap-1"
               >
                 <CircleUser size={16} className="text-purple" />
                 <span className="text-xs text-grey-blue font-normal">
-                  By Agent:
+                  {seller.type === "Agent" ? "By Agent:" : "By:"}
                 </span>
-                Premium Motors
+                {seller.name}
               </Typography>
-            </>
+            )}
             <div className="flex items-center gap-2">
-              <Image
-                src={"/verified-seller.svg"}
-                alt="Verified Seller"
-                width={16}
-                height={16}
-              />
+              {seller?.isVerified && (
+                <Image
+                  src={"/verified-seller.svg"}
+                  alt="Verified Seller"
+                  width={16}
+                  height={16}
+                />
+              )}
               <span className="text-xs text-grey-blue">{postedTime}</span>
             </div>
           </div>
-          <Button size={"default"} className="max-w-[117px]">
+          <Button 
+            size={"default"} 
+            className="max-w-[117px]"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.(id);
+            }}
+          >
             View Details
           </Button>
         </div>

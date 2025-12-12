@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, MapPin } from "lucide-react";
+import { Search, MapPin, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Typography } from "@/components/typography";
@@ -19,18 +19,28 @@ export default function JobsHero() {
   const [searchType, setSearchType] = useState<"job" | "candidate">("candidate");
   const [jobTitle, setJobTitle] = useState("");
   const [location, setLocation] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = () => {
+    if (!jobTitle.trim()) {
+      return; // Don't search if no query
+    }
+
+    setIsSearching(true);
     const params = new URLSearchParams();
     params.set("type", searchType);
-    if (jobTitle) params.set("search", jobTitle);
+    if (jobTitle) params.set("query", jobTitle); // Use 'query' for API compatibility
     if (location) params.set("location", location);
-    
+
+    // Navigate to results page - the destination pages will use useAds with adType: "JOB"
     if (searchType === "job") {
       router.push(`/jobs/listing?${params.toString()}`);
     } else {
-      router.push(`/jobs/applicants?${params.toString()}`);
+      router.push(`/jobs/jobseeker?${params.toString()}`);
     }
+    
+    // Reset loading state after navigation
+    setTimeout(() => setIsSearching(false), 500);
   };
 
   return (
@@ -121,12 +131,23 @@ export default function JobsHero() {
               {/* Search Button */}
               <Button
                 onClick={handleSearch}
-                icon={<Search className="w-[24.22px] h-[24.22px]" />}
+                disabled={isSearching || !jobTitle.trim()}
+                icon={
+                  isSearching ? (
+                    <Loader2 className="w-[24.22px] h-[24.22px] animate-spin" />
+                  ) : (
+                    <Search className="w-[24.22px] h-[24.22px]" />
+                  )
+                }
                 iconPosition="left"
-                className="bg-purple text-white rounded-none h-[71.11px] px-[24.89px] hover:bg-purple/90 flex items-center gap-[8.89px]"
+                className="bg-purple text-white rounded-none h-[71.11px] px-[24.89px] hover:bg-purple/90 flex items-center gap-[8.89px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="font-semibold text-base">
-                  {searchType === "job" ? "Search Job" : "Search Candidate"}
+                  {isSearching
+                    ? "Searching..."
+                    : searchType === "job"
+                      ? "Search Job"
+                      : "Search Candidate"}
                 </span>
               </Button>
             </div>

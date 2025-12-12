@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Typography } from "@/components/typography";
 import { Star } from "lucide-react";
 import {
@@ -11,37 +11,67 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AD } from "@/interfaces/ad";
+import { useAdReviews } from "@/hooks/useReviews";
+import { formatDate } from "@/utils/format-date";
 
 interface ReviewsSectionProps {
   ad: AD;
 }
 
 const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
-  const [sortBy, setSortBy] = useState("latest");
+  const [sortBy, setSortBy] = useState<"latest" | "oldest" | "highest" | "lowest">("latest");
 
-  // Use organization rating if available, otherwise use mock data
-  // TODO: Replace with actual reviews API call
-  const overallRating = ad.organization?.ratingAvg || 0;
-  const totalReviews = ad.organization?.ratingCount || 0;
-  
-  // Mock reviews data - TODO: Replace with actual API call
-  const reviews = totalReviews > 0 ? [] : [
-      {
-        id: 1,
-        userName: "Sameer Khan",
-        rating: 4.8,
-        comment: "Awesome Car",
-        timeAgo: "Latest",
-        avatar: "S",
-        fullComment:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-      },
-  ];
+  const adId = ad._id;
+
+  // Fetch ad reviews
+  const { data: reviewsResponse, isLoading } = useAdReviews(
+    adId,
+    {
+      page: 1,
+      limit: 10,
+      sortBy,
+    }
+  );
+
+  // Transform API reviews to component format
+  const transformedReviews = useMemo(() => {
+    if (!reviewsResponse?.data?.reviews) return [];
+
+    return reviewsResponse.data.reviews.map((review) => {
+      // Get user initials for avatar
+      const userName = review.userName || "User";
+      const initials = userName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+
+      // Format time ago
+      const timeAgo = review.createdAt ? formatDate(review.createdAt) : "Recently";
+
+      return {
+        id: review._id,
+        userName,
+        rating: review.rating,
+        comment: review.comment || review.fullComment || "",
+        timeAgo,
+        avatar: initials || "U",
+        fullComment: review.fullComment || review.comment || "",
+      };
+    });
+  }, [reviewsResponse]);
+
+  // Get overall rating and total from API response
+  const overallRating = reviewsResponse?.data?.overallRating || 0;
+  const totalReviews = reviewsResponse?.data?.total || 
+                      reviewsResponse?.data?.ratingCount || 
+                      transformedReviews.length;
 
   const reviewData = {
-    overallRating: overallRating || 4.8,
-    totalReviews: totalReviews || reviews.length,
-    reviews,
+    overallRating,
+    totalReviews,
+    reviews: transformedReviews,
   };
 
   const renderStars = (rating: number, size: "small" | "large" = "small") => {
@@ -57,6 +87,11 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
       />
     ));
   };
+
+  // Hide component if no reviews and not loading
+  if (!isLoading && reviewData.totalReviews === 0 && reviewData.reviews.length === 0) {
+    return null;
+  }
 
   return (
     <div className=" bg-white rounded-xl border border-gray-200 shadow-sm p-4">
@@ -77,7 +112,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
           variant="h2"
           className="text-2xl font-semibold text-dark-blue"
         >
-          {reviewData.overallRating}
+          {reviewData.overallRating > 0 ? reviewData.overallRating.toFixed(1) : "0.0"}
         </Typography>
         <div>
           <Typography variant="sm-regular" className="text-grey-blue">
@@ -100,7 +135,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
         </Typography>
 
         {/* Sort Select */}
-        <Select value={sortBy} onValueChange={setSortBy}>
+        <Select value={sortBy} onValueChange={(value) => setSortBy(value as typeof sortBy)}>
           <SelectTrigger className="w-24 h-8 border-purple-100 rounded-lg">
             <SelectValue />
           </SelectTrigger>
@@ -113,9 +148,20 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
         </Select>
       </div>
 
-      {/* Individual Review */}
-      <div className="space-y-4">
-        {reviewData.reviews.map((review) => (
+      {/* Loading State */}
+      {isLoading && (
+        <div className="text-center py-8">
+          <Typography variant="body-small" className="text-grey-blue">
+            Loading reviews...
+          </Typography>
+        </div>
+      )}
+
+      {/* Individual Reviews */}
+      {!isLoading && (
+        <div className="space-y-4">
+          {reviewData.reviews.length > 0 ? (
+            reviewData.reviews.map((review) => (
           <div key={review.id} className="flex items-start gap-4">
             {/* User Avatar */}
             <div className="w-10 h-10 bg-[#9FB7E4] rounded-full flex items-center justify-center flex-shrink-0">
@@ -165,8 +211,16 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
               </Typography>
             </div>
           </div>
-        ))}
-      </div>
+            ))
+          ) : (
+            <div className="text-center py-8">
+              <Typography variant="body-small" className="text-grey-blue">
+                No reviews yet. Be the first to review!
+              </Typography>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

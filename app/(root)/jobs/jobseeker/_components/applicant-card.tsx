@@ -163,7 +163,7 @@ export default function ApplicantCard({
 
       {/* Action Button */}
       <Link
-        href={`/jobs/applicants/${id}`}
+        href={`/jobs/jobseeker/${id}`}
         className="block absolute bottom-4 left-4 right-4"
       >
         <Button size={"sm"} className="w-full uppercase font-medium text-xs">

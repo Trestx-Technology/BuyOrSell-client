@@ -55,5 +55,9 @@ export const adQueries = {
     Key: ['ads', 'filter'],
     endpoint: '/ad/filter',
   },
+  similarAds: (id: string) => ({
+    Key: ['ad', id, 'similar'],
+    endpoint: `/ad/${id}/similar`,
+  }),
 };
 

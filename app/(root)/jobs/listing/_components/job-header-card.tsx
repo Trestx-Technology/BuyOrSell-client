@@ -1,23 +1,22 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Briefcase,
   Clock,
   MapPin,
   Share2,
   Heart,
-  DollarSign,
 } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AD } from "@/interfaces/ad";
-import { formatDistanceToNow } from "date-fns";
 import { FaMoneyBillWave } from "react-icons/fa";
 import { toast } from "sonner";
+import { useApplyToJob, useGetMyApplications } from "@/hooks/useJobApplications";
+import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 
 export interface JobHeaderCardProps {
   job: AD;
@@ -46,9 +45,49 @@ export default function JobHeaderCard({
   isFavorite = false,
 }: JobHeaderCardProps) {
   const jobProps = transformAdToJobCardProps(job);
-  const postedTime = formatDistanceToNow(new Date(job.createdAt), {
-    addSuffix: true,
-  });
+
+  // Get current user's jobseeker profile
+  const { data: profileData } = useGetJobseekerProfile();
+  // The API returns { data: { profile: { _id: ... } } } - structure differs from interface
+  const applicantProfileId = 
+    (profileData?.data as { profile?: { _id?: string } })?.profile?._id;
+
+  // Get user's applications to check if job is already applied
+  const { data: applicationsData } = useGetMyApplications();
+  
+  // Check if current job has been applied to
+  // API returns { data: { items: [...], page, limit, total } }
+  const isApplied = useMemo(() => {
+    if (!applicationsData?.data?.items) return false;
+    return applicationsData.data.items.some(
+      (application: { jobId: string }) => application.jobId === job._id
+    );
+  }, [applicationsData, job._id]);
+
+  // Apply to job mutation
+  const applyToJobMutation = useApplyToJob();
+
+  const handleApply = async () => {
+    if (!applicantProfileId) {
+      toast.error("Please create a jobseeker profile first");
+      return;
+    }
+
+    try {
+      await applyToJobMutation.mutateAsync({
+        jobId: job._id,
+        payload: {
+          applicantProfileId,
+        },
+      });
+      toast.success("Application submitted successfully!");
+    } catch (error: unknown) {
+      const errorMessage = 
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        "Failed to submit application";
+      toast.error(errorMessage);
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-[#E2E2E2] p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] relative">
@@ -196,8 +235,17 @@ export default function JobHeaderCard({
             <Button variant="outline" size={"lg"} className="px-4 py-2" onClick={()=> toast.info("Work in progress")}>
               Chat with employer
             </Button>
-            <Button variant={"filled"} size={"lg"} onClick={()=> toast.info("Work in progress")}>
-              Apply Now
+            <Button 
+              variant={isApplied ? "outline" : "filled"} 
+              size={"lg"} 
+              onClick={handleApply}
+              disabled={applyToJobMutation.isPending || !applicantProfileId || isApplied}
+            >
+              {applyToJobMutation.isPending 
+                ? "Applying..." 
+                : isApplied 
+                  ? "Applied" 
+                  : "Apply Now"}
             </Button>
           </div>
         </div>

@@ -223,3 +223,19 @@ export const filterAds = async (
   return response.data;
 };
 
+// Get similar ads by ad ID
+export const getSimilarAds = async (
+  id: string,
+  params?: {
+    viewerId?: string;
+    page?: number;
+    limit?: number;
+  },
+): Promise<GetLiveAdsResponse> => {
+  const response = await axiosInstance.get<GetLiveAdsResponse>(
+    adQueries.similarAds(id).endpoint,
+    { params },
+  );
+  return response.data;
+};
+

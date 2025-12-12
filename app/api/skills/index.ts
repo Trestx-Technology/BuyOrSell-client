@@ -21,7 +21,7 @@ export const skillsQueries = {
   }),
   searchSkills: {
     Key: ['skills', 'search'],
-    endpoint: '/skills/search',
+    endpoint: '/skills',
   },
 };
 

@@ -1,10 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Share2, Heart, ChevronLeft } from "lucide-react";
 import AddToCollectionDialog from "@/app/(root)/favorites/_components/add-to-collection-dialog";
 import { AD } from "@/interfaces/ad";
+import { useGetMyCollections, useGetCollectionsByAd } from "@/hooks/useCollections";
+import { addAdsToCollection, removeAdFromCollection } from "@/app/api/collections/collections.services";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { collectionsQueries } from "@/app/api/collections/index";
+import type { Collection as AddToCollectionDialogCollection } from "@/app/(root)/favorites/_components/add-to-collection-dialog";
+import type { CollectionByAd } from "@/interfaces/collections.types";
 
 interface HeaderProps {
   ad: AD;
@@ -13,6 +19,70 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ ad }) => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  // Fetch user's collections
+  const { data: collectionsResponse } = useGetMyCollections();
+
+  // Fetch collections that contain this ad
+  const { data: collectionsByAdResponse } = useGetCollectionsByAd(ad._id);
+
+  // Get collection IDs that contain this ad
+  const adCollectionIds = useMemo(() => {
+    if (!collectionsByAdResponse?.data?.collections) return [];
+    return collectionsByAdResponse.data.collections.map(
+      (collection: CollectionByAd) => collection.collectionId
+    );
+  }, [collectionsByAdResponse]);
+
+  // Check if ad is in any collection
+  const isAdInCollection =
+    collectionsByAdResponse?.data?.isAddedInCollection ?? false;
+
+  // Add ad to collection mutation
+  const addAdMutation = useMutation({
+    mutationFn: ({ collectionId, adId }: { collectionId: string; adId: string }) =>
+      addAdsToCollection(collectionId, { adIds: [adId] }),
+    onSuccess: () => {
+      // Invalidate collections to refresh the count and ad collections
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueries.getMyCollections.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueries.getCollectionsByAd(ad._id).Key,
+      });
+      setIsOpen(false);
+    },
+  });
+
+  // Remove ad from collection mutation
+  const removeAdMutation = useMutation({
+    mutationFn: ({ collectionId, adId }: { collectionId: string; adId: string }) =>
+      removeAdFromCollection(collectionId, adId),
+    onSuccess: () => {
+      // Invalidate collections to refresh the count and ad collections
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueries.getMyCollections.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueries.getCollectionsByAd(ad._id).Key,
+      });
+      setIsOpen(false);
+    },
+  });
+
+  // Transform API collections to match AddToCollectionDialog format
+  const transformedCollections: AddToCollectionDialogCollection[] = useMemo(() => {
+    if (!collectionsResponse?.data) return [];
+    
+    return collectionsResponse.data.map((collection) => ({
+      id: collection._id,
+      name: collection.name,
+      count: collection.count || 0,
+      images: collection.images || [],
+      isSelected: adCollectionIds.includes(collection._id),
+    }));
+  }, [collectionsResponse, adCollectionIds]);
 
   const handleBack = () => {
     router.back();
@@ -24,8 +94,27 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
   };
 
   const handleSave = () => {
-    // Implement save/favorite functionality
-    console.log("Save clicked");
+    setIsOpen(true);
+  };
+
+  const handleAddToCollection = async (adId: string, collectionId: string) => {
+    try {
+      const isInCollection = adCollectionIds.includes(collectionId);
+      if (isInCollection) {
+        // Remove from collection if already present
+        await removeAdMutation.mutateAsync({ collectionId, adId });
+      } else {
+        // Add to collection if not present
+        await addAdMutation.mutateAsync({ collectionId, adId });
+      }
+    } catch (error) {
+      console.error("Error toggling ad in collection:", error);
+    }
+  };
+
+  const handleCreateNewCollection = () => {
+    // This will be handled by the CreateCollectionDialog
+    // The dialog will open when the user clicks "Create new list"
   };
 
   return (
@@ -55,18 +144,23 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
           adId={ad._id}
           adTitle={ad.title}
           adImage={ad.images?.[0] || "/car-image.jpg"}
-          onAddToCollection={(adId, collectionId) => {
-            console.log(`Adding ${adId} to ${collectionId}`);
-          }}
-          onCreateNewCollection={() => {
-            console.log("Create new collection");
-          }}
+          collections={transformedCollections}
+          onAddToCollection={handleAddToCollection}
+          onCreateNewCollection={handleCreateNewCollection}
         >
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110"
+            className={`flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent transition-all cursor-pointer hover:scale-110 ${
+              isAdInCollection
+                ? "text-purple hover:text-purple"
+                : "text-gray-600 hover:text-purple"
+            }`}
           >
-            <Heart className="h-5 w-5" />
+            <Heart
+              className={`h-5 w-5 ${
+                isAdInCollection ? "fill-purple text-purple" : ""
+              }`}
+            />
             <span className="text-sm font-medium sm:block hidden">Save</span>
           </button>
         </AddToCollectionDialog>

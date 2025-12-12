@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
@@ -14,8 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { JobseekerProfile } from "@/interfaces/job.types";
-import { FileText, Upload, Edit } from "lucide-react";
+import { FileText, Upload, Edit, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUploadResume } from "@/hooks/useJobseeker";
 
 interface BasicDetailsProps {
   form: UseFormReturn<JobseekerProfile>;
@@ -23,24 +24,86 @@ interface BasicDetailsProps {
 
 export default function BasicDetails({ form }: BasicDetailsProps) {
   const { register, watch, setValue } = form;
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [workStatus, setWorkStatus] = useState<string>("experienced");
   const [experienceYears, setExperienceYears] = useState<string>("");
   const [experienceMonths, setExperienceMonths] = useState<string>("");
   const [salaryBreakdown, setSalaryBreakdown] = useState<string>("all-fixed");
-  const [locationType, setLocationType] = useState<string>("abroad");
-  const [location, setLocation] = useState<string>("Gurugram, India");
+  const [locationType, setLocationType] = useState<string>("");
+  const [currentSalary, setCurrentSalary] = useState<string>("");
   const [isEditingMobile, setIsEditingMobile] = useState<boolean>(false);
   const [isEditingEmail, setIsEditingEmail] = useState<boolean>(false);
   const [noticePeriod, setNoticePeriod] = useState<string>("15-days");
+  const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+  const uploadResumeMutation = useUploadResume();
+
+  const handleResumeUpload = useCallback(
+    async (file: File) => {
+      // Validate file type
+      const allowedTypes = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "image/jpeg",
+        "image/jpg",
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        alert("Please upload a PDF, DOC, DOCX, or JPEG file");
+        return;
+      }
+
+      // Validate file size (2MB max)
+      if (file.size > 2 * 1024 * 1024) {
+        alert("File size must be less than 2MB");
+        return;
+      }
+
       setResumeFile(file);
-      // TODO: Upload file to server and get URL
-    }
-  };
+      try {
+        const response = await uploadResumeMutation.mutateAsync(file);
+        if (response?.data?.resumeUrl) {
+          setValue("resumeUrl", response.data.resumeUrl);
+        }
+      } catch (error) {
+        console.error("Error uploading resume:", error);
+      }
+    },
+    [uploadResumeMutation, setValue]
+  );
+
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        handleResumeUpload(file);
+      }
+    },
+    [handleResumeUpload]
+  );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      const file = e.dataTransfer.files?.[0];
+      if (file) {
+        handleResumeUpload(file);
+      }
+    },
+    [handleResumeUpload]
+  );
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
 
   const noticePeriodOptions = [
     { value: "15-days", label: "15 Days or less" },
@@ -49,6 +112,12 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
     { value: "3-months", label: "3 Months" },
     { value: "serving", label: "Serving Notice Period" },
     { value: "immediately", label: "Immediately" },
+  ];
+
+  const salaryBreakdownOptions = [
+    { value: "all-fixed", label: "All Fixed" },
+    { value: "fixed-variable", label: "Fixed + Some Variable" },
+    { value: "esop", label: "ESOP" },
   ];
 
   return (
@@ -63,37 +132,57 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
       {/* Resume Upload */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-dark-blue">Resume</label>
-        <div className="border-2 border-dashed border-grey-blue/30 rounded-lg p-8 text-center hover:border-purple/50 transition-colors cursor-pointer bg-purple/5">
+        <div
+          className={cn(
+            "border-2 border-dashed rounded-lg p-6 transition-colors cursor-pointer",
+            isDragging
+              ? "border-purple bg-purple/10"
+              : "border-purple/30 hover:border-purple/50 bg-purple/5"
+          )}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onClick={() => fileInputRef.current?.click()}
+        >
           <input
+            ref={fileInputRef}
             type="file"
-            id="resume-upload"
             className="hidden"
             accept=".pdf,.doc,.docx,.jpg,.jpeg"
-            onChange={handleResumeUpload}
+            onChange={handleFileSelect}
           />
-          <label htmlFor="resume-upload" className="cursor-pointer">
-            <FileText className="w-12 h-12 text-purple mx-auto mb-4" />
-            <Typography variant="body-small" className="text-dark-blue mb-2">
-              Drag & drop file or browse from your device.
-            </Typography>
-            <Typography variant="caption" className="text-grey-blue mb-4">
-              Support PDF, WRD, JPEG max 2MB
-            </Typography>
-            <Button
-              type="button"
-              variant="primary"
-              icon={<Upload className="w-4 h-4" />}
-              iconPosition="left"
-              onClick={() => document.getElementById("resume-upload")?.click()}
-            >
-              Upload resume
-            </Button>
-            {resumeFile && (
-              <Typography variant="caption" className="text-success-100 mt-2 block">
-                {resumeFile.name}
+          <div className="flex items-center gap-4">
+            {/* Large purple circular icon with PDF symbol */}
+            <div className="w-16 h-16 bg-purple rounded-full flex items-center justify-center flex-shrink-0">
+              <FileText className="w-8 h-8 text-white" />
+            </div>
+            <div className="flex-1">
+              <Typography variant="body-small" className="text-dark-blue mb-1">
+                Drag & drop file or browse from your device.
               </Typography>
-            )}
-          </label>
+              <Typography variant="caption" className="text-grey-blue mb-4">
+                Support PDF, WRD, JPEG max 2MB
+              </Typography>
+              <Button
+                type="button"
+                variant="primary"
+                icon={<Upload className="w-4 h-4" />}
+                iconPosition="left"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+                disabled={uploadResumeMutation.isPending}
+              >
+                {uploadResumeMutation.isPending ? "Uploading..." : "Upload resume"}
+              </Button>
+            </div>
+          </div>
+          {resumeFile && (
+            <Typography variant="caption" className="text-success-100 mt-3 block">
+              {resumeFile.name}
+            </Typography>
+          )}
         </div>
       </div>
 
@@ -175,38 +264,28 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
           Current Salary in Dirham (Monthly)
         </label>
         <Input
+          value={currentSalary}
+          onChange={(e) => setCurrentSalary(e.target.value)}
           placeholder="Enter Amount"
           type="number"
         />
       </div>
 
-      {/* Salary Breakdown */}
-      <div className="space-y-3">
+      {/* Salary Breakdown - Dropdown */}
+      <div className="space-y-2">
         <label className="text-sm font-medium text-dark-blue">Salary Breakdown</label>
-        <RadioGroup
-          value={salaryBreakdown}
-          onValueChange={setSalaryBreakdown}
-          className="flex flex-col gap-3"
-        >
-          <div className="flex items-center gap-2">
-            <RadioGroupItem value="all-fixed" id="all-fixed" />
-            <label htmlFor="all-fixed" className="text-sm text-dark-blue cursor-pointer">
-              All Fixed
-            </label>
-          </div>
-          <div className="flex items-center gap-2">
-            <RadioGroupItem value="fixed-variable" id="fixed-variable" />
-            <label htmlFor="fixed-variable" className="text-sm text-dark-blue cursor-pointer">
-              Fixed + Some Variable
-            </label>
-          </div>
-          <div className="flex items-center gap-2">
-            <RadioGroupItem value="esop" id="esop" />
-            <label htmlFor="esop" className="text-sm text-dark-blue cursor-pointer">
-              ESOP
-            </label>
-          </div>
-        </RadioGroup>
+        <Select value={salaryBreakdown} onValueChange={setSalaryBreakdown}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select salary breakdown" />
+          </SelectTrigger>
+          <SelectContent>
+            {salaryBreakdownOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Location */}
@@ -215,7 +294,7 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
         <RadioGroup
           value={locationType}
           onValueChange={setLocationType}
-          className="flex gap-6 mb-3"
+          className="flex gap-6"
         >
           <div className="flex items-center gap-2">
             <RadioGroupItem value="uae" id="uae" />
@@ -230,11 +309,6 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
             </label>
           </div>
         </RadioGroup>
-        <Input
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="Location"
-        />
       </div>
 
       {/* Mobile Number */}
@@ -248,7 +322,7 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
             icon={<Edit className="w-4 h-4" />}
             iconPosition="left"
             onClick={() => setIsEditingMobile(!isEditingMobile)}
-            className="text-purple hover:text-purple hover:bg-purple/10"
+            className="text-purple hover:text-purple hover:bg-purple/10 p-0 h-auto"
           >
             Edit
           </Button>
@@ -263,7 +337,7 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
             type="tel"
           />
         ) : (
-          <Typography variant="body-small" className="text-dark-blue">
+          <Typography variant="body-small" className="text-purple">
             +91 9811962973
           </Typography>
         )}
@@ -280,7 +354,7 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
             icon={<Edit className="w-4 h-4" />}
             iconPosition="left"
             onClick={() => setIsEditingEmail(!isEditingEmail)}
-            className="text-purple hover:text-purple hover:bg-purple/10"
+            className="text-purple hover:text-purple hover:bg-purple/10 p-0 h-auto"
           >
             Edit
           </Button>
@@ -295,7 +369,7 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
             type="email"
           />
         ) : (
-          <Typography variant="body-small" className="text-dark-blue">
+          <Typography variant="body-small" className="text-purple">
             98sameerkhan.sk@gmail.com
           </Typography>
         )}
@@ -317,7 +391,7 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
                 "px-4 py-2 rounded-lg text-sm font-medium transition-all",
                 noticePeriod === option.value
                   ? "bg-purple text-white"
-                  : "bg-[#F2F4F7] text-dark-blue hover:bg-grey-blue/20"
+                  : "bg-[#F2F4F7] text-dark-blue hover:bg-grey-blue/20 border border-transparent"
               )}
             >
               {option.label}
@@ -328,4 +402,3 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
     </div>
   );
 }
-

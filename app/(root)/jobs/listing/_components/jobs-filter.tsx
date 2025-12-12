@@ -37,7 +37,7 @@ export interface FilterOption {
 export interface FilterConfig {
   key: string;
   label: string;
-  type: "select" | "range" | "multiselect" | "search";
+  type: "select" | "range" | "multiselect" | "search" | "calendar";
   options?: FilterOption[];
   placeholder?: string;
   min?: number;

@@ -170,7 +170,7 @@ export default function JobseekerProfilePage() {
             icon={<ArrowLeft className="w-4 h-4" />}
             iconPosition="left"
           >
-            Applicants Profile
+            Jobseeker Profile
           </Button>
         </div>
       </div>

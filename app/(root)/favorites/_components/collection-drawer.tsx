@@ -1,51 +1,179 @@
 "use client";
 
-import React from "react";
+import React, { useMemo, useState } from "react";
 import DrawerWrapper from "../../../../components/global/drawer-wrapper";
 import { Typography } from "@/components/typography";
-import {  Plus, Heart } from "lucide-react";
-import { mockAds } from "@/constants/sample-listings";
+import { Plus, Heart, ImageIcon, Check } from "lucide-react";
 import { Collection } from "./add-to-collection-dialog";
 import NewCollectionDrawer from "./new-collection-drawer";
+import { useGetMyCollections, useGetCollectionsByAd } from "@/hooks/useCollections";
+import { addAdsToCollection, removeAdFromCollection } from "@/app/api/collections/collections.services";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { collectionsQueries } from "@/app/api/collections/index";
+import type { CollectionByAd } from "@/interfaces/collections.types";
+import Image from "next/image";
 
 export interface CollectionDrawerProps {
   trigger: React.ReactNode;
   className?: string;
+  adId?: string | null;
   collections?: Collection[];
+  onAddToCollection?: (adId: string, collectionId: string) => void;
 }
 
-const dummyCollections: Collection[] = [
-  {
-    id: "1",
-    name: "Collection 1",
-    count: 10,
-    images: [mockAds[0].images[0]],
-  },
-  {
-    id: "2",
-    name: "Collection 1",
-    count: 10,
-    images: [mockAds[1].images[1]],
-  },
-  {
-    id: "3",
-    name: "Collection 1",
-    count: 10,
-    images: [mockAds[2].images[0]],
-  },
-  {
-    id: "4",
-    name: "Collection 1",
-    count: 10,
-    images: [mockAds[3].images[0]],
-  },
-];
-
 const CollectionDrawer: React.FC<CollectionDrawerProps> = ({
-  collections = dummyCollections,
   trigger,
   className,
+  adId,
+  collections: externalCollections,
+  onAddToCollection: externalOnAddToCollection,
 }) => {
+  const queryClient = useQueryClient();
+  
+  // Track optimistic updates for immediate UI feedback
+  // Tracks collections that have been toggled (added or removed)
+  const [optimisticToggles, setOptimisticToggles] = useState<Map<string, boolean>>(new Map());
+
+  // Fetch user's collections
+  const { data: collectionsResponse } = useGetMyCollections();
+
+  // Fetch collections that contain this ad (only if adId is provided)
+  const { data: collectionsByAdResponse } = useGetCollectionsByAd(adId || "");
+
+  // Get collection IDs that contain this ad
+  const adCollectionIds = useMemo(() => {
+    if (!collectionsByAdResponse?.data?.collections || !adId) return [];
+    return collectionsByAdResponse.data.collections.map(
+      (collection: CollectionByAd) => collection.collectionId
+    );
+  }, [collectionsByAdResponse, adId]);
+  
+  // Combine API data with optimistic updates
+  const effectiveCollectionIds = useMemo(() => {
+    const baseIds = new Set(adCollectionIds);
+    // Apply optimistic toggles
+    optimisticToggles.forEach((shouldBeSelected, collectionId) => {
+      if (shouldBeSelected) {
+        baseIds.add(collectionId);
+      } else {
+        baseIds.delete(collectionId);
+      }
+    });
+    return Array.from(baseIds);
+  }, [adCollectionIds, optimisticToggles]);
+
+  // Add ad to collection mutation
+  const addAdMutation = useMutation({
+    mutationFn: ({ collectionId, adId }: { collectionId: string; adId: string }) =>
+      addAdsToCollection(collectionId, { adIds: [adId] }),
+    onMutate: async ({ collectionId }) => {
+      // Optimistic update - immediately show as selected
+      setOptimisticToggles((prev) => {
+        const next = new Map(prev);
+        next.set(collectionId, true);
+        return next;
+      });
+    },
+    onSuccess: () => {
+      // Clear optimistic update and refresh data
+      setOptimisticToggles(new Map());
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueries.getMyCollections.Key,
+      });
+      if (adId) {
+        queryClient.invalidateQueries({
+          queryKey: collectionsQueries.getCollectionsByAd(adId).Key,
+        });
+      }
+    },
+    onError: (_, { collectionId }) => {
+      // Rollback optimistic update on error
+      setOptimisticToggles((prev) => {
+        const next = new Map(prev);
+        next.delete(collectionId);
+        return next;
+      });
+    },
+  });
+
+  // Remove ad from collection mutation
+  const removeAdMutation = useMutation({
+    mutationFn: ({ collectionId, adId }: { collectionId: string; adId: string }) =>
+      removeAdFromCollection(collectionId, adId),
+    onMutate: async ({ collectionId }) => {
+      // Optimistic update - immediately show as not selected
+      setOptimisticToggles((prev) => {
+        const next = new Map(prev);
+        next.set(collectionId, false);
+        return next;
+      });
+    },
+    onSuccess: () => {
+      // Clear optimistic update and refresh data
+      setOptimisticToggles(new Map());
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueries.getMyCollections.Key,
+      });
+      if (adId) {
+        queryClient.invalidateQueries({
+          queryKey: collectionsQueries.getCollectionsByAd(adId).Key,
+        });
+      }
+    },
+    onError: (_, { collectionId }) => {
+      // Rollback optimistic update on error
+      setOptimisticToggles((prev) => {
+        const next = new Map(prev);
+        next.delete(collectionId);
+        return next;
+      });
+    },
+  });
+
+  // Transform API collections to match Collection format
+  const transformedCollections: Collection[] = useMemo(() => {
+    // If external collections are provided, merge with isSelected state
+    if (externalCollections) {
+      return externalCollections.map((collection) => ({
+        ...collection,
+        isSelected: effectiveCollectionIds.includes(collection.id) || collection.isSelected,
+      }));
+    }
+    
+    if (!collectionsResponse?.data) return [];
+    
+    return collectionsResponse.data.map((collection) => ({
+      id: collection._id,
+      name: collection.name,
+      count: collection.count || 0,
+      images: collection.images || [],
+      isSelected: effectiveCollectionIds.includes(collection._id),
+    }));
+  }, [collectionsResponse, effectiveCollectionIds, externalCollections]);
+
+  const handleCollectionSelect = async (collectionId: string) => {
+    if (!adId) {
+      console.warn("Cannot add to collection: adId is not provided");
+      return;
+    }
+
+    try {
+      const isInCollection = effectiveCollectionIds.includes(collectionId);
+      
+      if (isInCollection) {
+        // Remove from collection if already present
+        await removeAdMutation.mutateAsync({ collectionId, adId });
+      } else {
+        // Add to collection if not present
+        await addAdMutation.mutateAsync({ collectionId, adId });
+      }
+      
+      // Call external handler if provided
+      externalOnAddToCollection?.(adId, collectionId);
+    } catch (error) {
+      console.error("Error toggling ad in collection:", error);
+    }
+  };
   return (
     <DrawerWrapper
       title="Favorites"
@@ -69,49 +197,96 @@ const CollectionDrawer: React.FC<CollectionDrawerProps> = ({
               </Typography>
             </div>
           }
+          onCollectionCreated={() => {
+            // Invalidate queries to refresh collections list
+            queryClient.invalidateQueries({
+              queryKey: collectionsQueries.getMyCollections.Key,
+            });
+            if (adId) {
+              queryClient.invalidateQueries({
+                queryKey: collectionsQueries.getCollectionsByAd(adId).Key,
+              });
+            }
+          }}
         ></NewCollectionDrawer>
 
         {/* Collections List */}
         <div className="space-y-0">
-          {collections.length > 0 ? (
-            collections.map((collection) => (
-              <div
-                key={collection.id}
-                className={`flex group items-center justify-between py-1  cursor-pointer transition-colors`}
-              >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-12 h-12 rounded-sm overflow-hidden flex-shrink-0">
-                    <img
-                      src={collection.images[0] || "/placeholder.jpg"}
-                      alt={collection.name}
-                      width={48}
-                      height={48}
-                      className="w-full h-full object-cover"
-                    />
+          {transformedCollections.length > 0 ? (
+            transformedCollections.map((collection) => {
+              const isSelected = collection.isSelected;
+              return (
+                <div
+                  key={collection.id}
+                  onClick={() => handleCollectionSelect(collection.id)}
+                  className={`flex group items-center justify-between py-1 cursor-pointer transition-colors ${
+                    isSelected
+                      ? "bg-purple-50 hover:bg-purple-100"
+                      : "hover:bg-purple-50"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-12 h-12 rounded-sm overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                      {collection.images?.[0] ? (
+                        <Image
+                          src={collection.images[0]}
+                          alt={collection.name}
+                          width={48}
+                          height={48}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <ImageIcon className="w-6 h-6 text-gray-400" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <Typography
+                        variant="sm-semibold"
+                        className={`${
+                          isSelected
+                            ? "text-purple"
+                            : "text-dark-blue group-hover:text-purple"
+                        }`}
+                      >
+                        {collection.name}
+                      </Typography>
+                      <Typography
+                        variant="xs-regular"
+                        className={`${
+                          isSelected
+                            ? "text-purple/80"
+                            : "text-grey-blue group-hover:text-purple"
+                        }`}
+                      >
+                        {collection.count} Favorites
+                      </Typography>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <Typography
-                      variant="sm-semibold"
-                      className=" text-dark-blue group-hover:text-purple"
-                    >
-                      {collection.name}
-                    </Typography>
-                    <Typography
-                      variant="xs-regular"
-                      className="text-grey-blue group-hover:text-purple"
-                    >
-                      {collection.count} Favorites
-                    </Typography>
-                  </div>
-                </div>
 
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center group-hover:bg-purple/10 transition-colors">
-                    <Plus className="h-4 w-4 text-gray-600 group-hover:text-purple" />
+                  <div className="flex-shrink-0">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                        isSelected
+                          ? "bg-purple text-white"
+                          : "bg-gray-300 group-hover:bg-purple/10"
+                      }`}
+                    >
+                      {isSelected ? (
+                        <Check className="h-4 w-4 text-white" />
+                      ) : (
+                        <Plus
+                          className={`h-4 w-4 ${
+                            isSelected
+                              ? "text-white"
+                              : "text-gray-600 group-hover:text-purple"
+                          }`}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="text-center py-8">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">

@@ -66,6 +66,7 @@ const MobileHorizontalListViewCard: React.FC<
   location,
   images,
   extraFields,
+  postedTime,
   views = 0,
   isPremium = false,
   seller,
@@ -81,8 +82,22 @@ const MobileHorizontalListViewCard: React.FC<
   onClick,
   className,
 }) => {
-  // Ensure extraFields exists
-  const safeExtraFields = extraFields || {};
+  // Ensure extraFields exists and normalize to object format
+  const safeExtraFields = (() => {
+    if (!extraFields) return {};
+    // If it's already an object, return it
+    if (!Array.isArray(extraFields)) {
+      return extraFields as Record<string, string | number | boolean | string[] | null>;
+    }
+    // If it's an array, convert to object
+    const flatFields: Record<string, string | number | boolean | string[] | null> = {};
+    extraFields.forEach((field) => {
+      if (field && typeof field === 'object' && 'name' in field && 'value' in field) {
+        flatFields[field.name] = field.value;
+      }
+    });
+    return flatFields;
+  })();
 
   // Helper function to get field value from extraFields
   const getFieldValue = (fieldName: string): string | number | undefined => {
@@ -407,7 +422,7 @@ const MobileHorizontalListViewCard: React.FC<
               variant="body-small"
               className="text-xs text-[#667085] truncate"
             >
-              By {seller?.type} <span>• 2hr ago</span>
+              By {seller?.type || "Seller"}{postedTime ? ` • ${postedTime}` : ""}
             </Typography>
           </div>
         </div>

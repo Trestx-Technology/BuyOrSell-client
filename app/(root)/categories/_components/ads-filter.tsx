@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import {
   Search,
   SlidersHorizontal,
@@ -27,6 +28,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { FormField } from "../../post-ad/details/_components/FormField";
 import { cn } from "@/lib/utils";
+import { NaturalLanguageCalendar } from "@/components/ui/natural-language-calendar";
 
 export interface FilterOption {
   value: string;
@@ -36,19 +38,22 @@ export interface FilterOption {
 export interface FilterConfig {
   key: string;
   label: string;
-  type: "select" | "range" | "multiselect" | "search";
+  type: "select" | "range" | "multiselect" | "search" | "calendar";
   options?: FilterOption[];
   placeholder?: string;
   min?: number;
   max?: number;
   step?: number;
+  isStatic?: boolean; // If true, shows outside dialog; if false, shows inside dialog
 }
 
 export interface AdsFilterProps {
   filters: Record<string, any>;
   onFilterChange: (key: string, value: any) => void;
   onClearFilters: () => void;
-  config: FilterConfig[];
+  config?: FilterConfig[]; // Legacy support - will be split into staticFilters and dynamicFilters
+  staticFilters?: FilterConfig[]; // Filters to show outside dialog
+  dynamicFilters?: FilterConfig[]; // Filters to show inside dialog
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
   searchPlaceholder?: string;
@@ -60,15 +65,32 @@ const AdsFilter = ({
   onFilterChange,
   onClearFilters,
   config,
+  staticFilters,
+  dynamicFilters,
   searchQuery = "",
   onSearchChange,
   searchPlaceholder = "Search...",
   className,
 }: AdsFilterProps) => {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  
+  // Use debounced value hook for search input
+  const [localSearchQuery, setLocalSearchQuery] = useDebouncedValue(
+    searchQuery,
+    (value) => {
+      if (onSearchChange) {
+        onSearchChange(value);
+      }
+    },
+    500 // 500ms debounce delay
+  );
+
+  // Separate static and dynamic filters
+  const staticFilterConfigs = staticFilters || (config || []).filter((f) => f.isStatic !== false);
+  const dynamicFilterConfigs = dynamicFilters || (config || []).filter((f) => f.isStatic === false);
 
   const activeFilters = Object.entries(filters).filter(
-    ([_, value]) =>
+    ([, value]) =>
       value && value !== "" && (Array.isArray(value) ? value.length > 0 : true)
   );
 
@@ -195,6 +217,19 @@ const AdsFilter = ({
           </FormField>
         );
 
+      case "calendar":
+        return (
+          <FormField label={filterConfig.label} required={false}>
+            <div className="min-w-40">
+              <NaturalLanguageCalendar
+                value={value || ""}
+                onChange={(newValue) => onFilterChange(key, newValue)}
+                placeholder={placeholder || "Tomorrow or next week"}
+              />
+            </div>
+          </FormField>
+        );
+
       default:
         return null;
     }
@@ -214,22 +249,22 @@ const AdsFilter = ({
             <Input
               leftIcon={<Search className="h-4 w-4" />}
               placeholder={searchPlaceholder}
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
+              value={localSearchQuery}
+              onChange={(e) => setLocalSearchQuery(e.target.value)}
               className="pl-10 bg-gray-100 border-0"
             />
           )}
         </div>
 
-        {/* Filter Controls */}
+        {/* Filter Controls - Static Filters Outside Dialog */}
         <div className="min-w-full flex items-end gap-3 pb-4 sm:p-4 border-b sm:border-none whitespace-nowrap overflow-x-auto scrollbar-hide relative">
-          {config.map((filterConfig) => (
-            <div key={filterConfig.key} className="w-40 shrink-0">
+          {staticFilterConfigs.map((filterConfig) => (
+            <div key={filterConfig.key} className="min-w-40 shrink-0">
               {renderFilterControl(filterConfig)}
             </div>
           ))}
 
-          {/* Advanced Filters Dialog */}
+          {/* Advanced Filters Dialog - Dynamic Filters Inside */}
           <Dialog open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
             <DialogTrigger asChild>
               <Button
@@ -245,11 +280,17 @@ const AdsFilter = ({
                 <DialogTitle>Advanced Filters</DialogTitle>
               </DialogHeader>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                {config.map((filterConfig) => (
-                  <div key={filterConfig.key} className="space-y-2">
-                    {renderFilterControl(filterConfig)}
+                {dynamicFilterConfigs.length > 0 ? (
+                  dynamicFilterConfigs.map((filterConfig) => (
+                    <div key={filterConfig.key} className="space-y-2">
+                      {renderFilterControl(filterConfig)}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-500 py-8">
+                    No additional filters available
                   </div>
-                ))}
+                )}
               </div>
               <div className="flex justify-end gap-2 pt-4 border-t">
                 <Button variant="outline" onClick={onClearFilters}>
@@ -268,7 +309,7 @@ const AdsFilter = ({
           <div className="flex items-center border-t p-2">
             <div className="flex flex-wrap gap-2">
               {activeFilters.map(([key, value]) => {
-                const filterConfig = config.find((c) => c.key === key);
+                const filterConfig = [...staticFilterConfigs, ...dynamicFilterConfigs].find((c) => c.key === key);
                 const displayValue = Array.isArray(value)
                   ? value.join(", ")
                   : value;

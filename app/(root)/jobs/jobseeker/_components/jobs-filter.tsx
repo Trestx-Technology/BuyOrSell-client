@@ -28,6 +28,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { FormField } from "@/app/(root)/post-ad/details/_components/FormField";
 import { cn } from "@/lib/utils";
+import { NaturalLanguageCalendar } from "@/components/ui/natural-language-calendar";
 
 export interface FilterOption {
   value: string;
@@ -37,12 +38,13 @@ export interface FilterOption {
 export interface FilterConfig {
   key: string;
   label: string;
-  type: "select" | "range" | "multiselect" | "search";
+  type: "select" | "range" | "multiselect" | "search" | "calendar";
   options?: FilterOption[];
   placeholder?: string;
   min?: number;
   max?: number;
   step?: number;
+  isStatic?: boolean; // If true, shows outside dialog; if false, shows inside dialog
 }
 
 export interface JobsFilterProps {
@@ -199,6 +201,19 @@ export default function JobsFilter({
               onChange={(e) => onFilterChange(key, e.target.value)}
               className="w-40"
             />
+          </FormField>
+        );
+
+      case "calendar":
+        return (
+          <FormField label={filterConfig.label} required={false}>
+            <div className="min-w-40">
+              <NaturalLanguageCalendar
+                value={value || ""}
+                onChange={(newValue) => onFilterChange(key, newValue)}
+                placeholder={placeholder || "Select date"}
+              />
+            </div>
           </FormField>
         );
 

@@ -1,25 +1,22 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { useState, useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { ChevronLeft, MoreHorizontal, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
-import { CreateCollectionDialog } from "./_components/CreateCollectionDialog";
-import CollectionCard from "./_components/CollectionCard";
-import SortAndViewControls, {
-  ViewMode,
-} from "../post-ad/_components/SortAndViewControls";
-import MobileHorizontalListViewCard from "../categories/_components/MobileHorizontalListViewCard";
-import HorizontalListingCard from "../categories/_components/desktop-horizontal-list-card";
 import { cn } from "@/lib/utils";
 import React from "react";
 import ListingCard from "@/components/global/listing-card";
 import { ProductExtraFields, AD } from "@/interfaces/ad";
-import { useGetMyCollections } from "@/hooks/useCollections";
-import { useQueryClient } from "@tanstack/react-query";
-import { collectionsQueries } from "@/app/api/collections/index";
+import { useGetCollectionById } from "@/hooks/useCollections";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
+import SortAndViewControls, {
+  ViewMode,
+} from "../../post-ad/_components/SortAndViewControls";
+import MobileHorizontalListViewCard from "../../categories/_components/MobileHorizontalListViewCard";
+import HorizontalListingCard from "../../categories/_components/desktop-horizontal-list-card";
+import Image from "next/image";
 
 // Sort options
 const sortOptions = [
@@ -30,50 +27,43 @@ const sortOptions = [
   { value: "price-desc", label: "Price (High to Low)" },
 ];
 
-export default function FavoritesPage() {
+export default function CollectionDetailPage() {
+  const params = useParams();
   const router = useRouter();
-  const queryClient = useQueryClient();
+  const collectionId = params.id as string;
   const [view, setView] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState("default");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch user's collections
-  const { data: collectionsResponse, isLoading: isLoadingCollections } = useGetMyCollections();
+  // Fetch collection details by ID
+  const {
+    data: collectionResponse,
+    isLoading,
+    error,
+  } = useGetCollectionById(collectionId);
 
-  // Get collections from API response
-  const collections = useMemo(() => {
-    return collectionsResponse?.data || [];
-  }, [collectionsResponse]);
+  const collection = collectionResponse?.data;
 
-  // For the favorites page, we show all collections
-  // Individual collection items are shown on the collection detail page
-  const allFavorites: AD[] = useMemo(() => {
-    // If you want to show all ads from all collections, you would need to:
-    // 1. Fetch each collection's details
-    // 2. Aggregate all ads
-    // For now, return empty array as collections are shown separately
-    return [];
-  }, []);
+  // Get ads from collection response
+  // Note: The API might return ads in the collection response even if not in the TypeScript interface
+  const collectionAds = useMemo(() => {
+    if (!collectionResponse?.data) {
+      return [];
+    }
+    // Check if the collection response includes ads (even if not in TypeScript interface)
+    const collectionData = collectionResponse.data as unknown as Record<
+      string,
+      unknown
+    >;
+    // The API might return ads as an array or nested in the response
+    return (collectionData?.ads as AD[]) ||
+      (collectionData?.items as AD[]) ||
+      [];
+  }, [collectionResponse]);
 
-  const handleCollectionClick = useCallback((collectionId: string) => {
-    router.push(`/favorites/${collectionId}`);
-  }, [router]);
-
-  const handleMoreOptions = useCallback((collectionId: string) => {
-    // Show more options menu (edit, delete, etc.)
-    console.log("More options for collection:", collectionId);
-  }, []);
-
-  const handleCollectionCreated = useCallback(() => {
-    // Refresh collections list
-    queryClient.invalidateQueries({
-      queryKey: collectionsQueries.getMyCollections.Key,
-    });
-  }, [queryClient]);
-
-  // Filter and sort favorites
+  // Filter and sort ads
   const filteredAds = useMemo(() => {
-    return allFavorites.filter((ad: AD) => {
+    return collectionAds.filter((ad: AD) => {
       if (
         searchQuery &&
         !ad.title?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -82,7 +72,7 @@ export default function FavoritesPage() {
       }
       return true;
     });
-  }, [allFavorites, searchQuery]);
+  }, [collectionAds, searchQuery]);
 
   const sortedAds = useMemo(() => {
     const ads = [...filteredAds];
@@ -108,11 +98,65 @@ export default function FavoritesPage() {
     }
   }, [filteredAds, sortBy]);
 
-  const isLoading = isLoadingCollections;
+  if (isLoading) {
+    return (
+      <div className="w-full space-y-8 sm:py-4">
+        <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
+          <Button
+            variant={"ghost"}
+            icon={<ChevronLeft className="h-4 w-4 -mr-2" />}
+            iconPosition="center"
+            size={"icon-sm"}
+            className="absolute left-4 text-purple"
+            onClick={() => router.back()}
+          />
+          <Typography variant="lg-semibold" className="text-dark-blue">
+            Collection
+          </Typography>
+        </div>
+        <div className="text-center py-12">
+          <Typography variant="body-small" className="text-gray-500">
+            Loading collection...
+          </Typography>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !collection) {
+    return (
+      <div className="w-full space-y-8 sm:py-4">
+        <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
+          <Button
+            variant={"ghost"}
+            icon={<ChevronLeft className="h-4 w-4 -mr-2" />}
+            iconPosition="center"
+            size={"icon-sm"}
+            className="absolute left-4 text-purple"
+            onClick={() => router.back()}
+          />
+          <Typography variant="lg-semibold" className="text-dark-blue">
+            Collection
+          </Typography>
+        </div>
+        <div className="text-center py-12">
+          <Typography variant="body-large" className="text-gray-900 font-semibold mb-2">
+            Collection Not Found
+          </Typography>
+          <Typography variant="body-small" className="text-gray-500 mb-4">
+            The collection you&apos;re looking for doesn&apos;t exist or has been removed.
+          </Typography>
+          <Button onClick={() => router.push("/favorites")} variant="outline">
+            Back to Favorites
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full space-y-8 sm:py-4">
-      {/* Header */}
+      {/* Mobile Header */}
       <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
         <Button
           variant={"ghost"}
@@ -123,10 +167,11 @@ export default function FavoritesPage() {
           onClick={() => router.back()}
         />
         <Typography variant="lg-semibold" className="text-dark-blue">
-          My Favorites
+          {collection.name}
         </Typography>
       </div>
 
+      {/* Desktop Header */}
       <Button
         variant={"ghost"}
         icon={<ChevronLeft className="h-4 w-4 -mr-2" />}
@@ -134,64 +179,72 @@ export default function FavoritesPage() {
         className="hidden sm:flex text-purple text-sm w-32"
         onClick={() => router.back()}
       >
-        My Favorites
+        {collection.name}
       </Button>
 
       <div className="w-full px-4 lg:px-0">
-        {/* Collections Section */}
-        <div className="mb-8">
-          <Typography
-            variant="body-large"
-            className="text-gray-900 mb-3 font-semibold"
-          >
-            List
-          </Typography>
-
-          {isLoadingCollections ? (
-            <div className="text-center py-8">
+        {/* Collection Header */}
+        <div className="mb-8 bg-white md:bg-transparent border md:border-none rounded-xl p-4 md:p-0 shadow-sm md:shadow-none">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <Typography
+                variant="h2"
+                className="text-gray-900 font-bold text-2xl mb-2"
+              >
+                {collection.name}
+              </Typography>
+              {collection.description && (
+                <Typography
+                  variant="body-small"
+                  className="text-gray-600 mb-2"
+                >
+                  {collection.description}
+                </Typography>
+              )}
               <Typography variant="body-small" className="text-gray-500">
-                Loading collections...
+                {collection.count || sortedAds.length} items
+                {collection.createdAt &&
+                  ` • Created ${new Date(collection.createdAt).toLocaleDateString()}`}
               </Typography>
             </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto pb-4 scrollbar-hide bg-white md:bg-transparent border md:border-none rounded-xl p-4 md:p-0 shadow-sm md:shadow-none">
-              {collections.map((collection) => (
-                <CollectionCard
-                  key={collection._id}
-                  id={collection._id}
-                  name={collection.name}
-                  count={collection.count || 0}
-                  images={collection.images || []}
-                  onClick={handleCollectionClick}
-                  onMoreOptions={handleMoreOptions}
-                />
-              ))}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-2"
+              onClick={() => {
+                // TODO: Implement more options (edit, delete, etc.)
+                console.log("More options");
+              }}
+            >
+              <MoreHorizontal className="h-5 w-5" />
+            </Button>
+          </div>
 
-              {/* Create new collection card */}
-              <CreateCollectionDialog onCollectionCreated={handleCollectionCreated}>
-                <CollectionCard
-                  isCreateNew={true}
-                  id="create-new"
-                  name=""
-                  count={0}
-                  images={[]}
-                />
-              </CreateCollectionDialog>
+          {/* Collection Cover Image */}
+          {collection.images && collection.images.length > 0 && (
+            <div className="relative h-48 md:h-64 rounded-lg overflow-hidden bg-gray-100 mb-4">
+              <Image
+                src={collection.images[0]}
+                alt={collection.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 80vw"
+              />
             </div>
           )}
         </div>
 
-        {/* Favorites Section */}
+        {/* Collection Items Section */}
         <div className="bg-white md:bg-transparent border md:border-none rounded-xl p-4 md:p-0 shadow-sm md:shadow-none">
           <div className="flex flex-wrap items-start justify-between mb-6">
             <Typography
               variant="body-large"
               className="text-gray-900 font-semibold"
             >
-              Favorites ({sortedAds.length})
+              Items ({sortedAds.length})
             </Typography>
 
-            {/* Sort Dropdown */}
+            {/* Sort and View Controls */}
             <SortAndViewControls
               sortOptions={sortOptions}
               sortValue={sortBy}
@@ -209,22 +262,16 @@ export default function FavoritesPage() {
           <div className="mb-4">
             <input
               type="text"
-              placeholder="Search favorites..."
+              placeholder="Search items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
 
-          {/* Favorites Grid */}
+          {/* Items Grid */}
           <div className="space-y-6">
-            {isLoading ? (
-              <div className="text-center py-12">
-                <Typography variant="body-small" className="text-gray-500">
-                  Loading favorites...
-                </Typography>
-              </div>
-            ) : sortedAds.length > 0 ? (
+            {sortedAds.length > 0 ? (
               <div
                 className={cn(
                   `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3`,
@@ -233,7 +280,7 @@ export default function FavoritesPage() {
               >
                 {sortedAds.map((ad: AD) => {
                   const listingCardProps = transformAdToListingCard(ad);
-                  
+
                   return (
                     <React.Fragment key={ad._id}>
                       {view === "grid" ? (
@@ -253,7 +300,9 @@ export default function FavoritesPage() {
                             location={
                               typeof ad.location === "string"
                                 ? ad.location
-                                : ad.location?.city || ad.address?.city || "Location not specified"
+                                : ad.location?.city ||
+                                  ad.address?.city ||
+                                  "Location not specified"
                             }
                             images={ad.images || []}
                             extraFields={ad.extraFields as ProductExtraFields}
@@ -272,7 +321,9 @@ export default function FavoritesPage() {
                             location={
                               typeof ad.location === "string"
                                 ? ad.location
-                                : ad.location?.city || ad.address?.city || "Location not specified"
+                                : ad.location?.city ||
+                                  ad.address?.city ||
+                                  "Location not specified"
                             }
                             images={ad.images || []}
                             extraFields={ad.extraFields as ProductExtraFields}
@@ -289,9 +340,22 @@ export default function FavoritesPage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <Typography variant="body-small" className="text-gray-500">
-                  No favorites yet. Click on a collection to view its items.
+                <ImageIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <Typography
+                  variant="body-large"
+                  className="text-gray-900 font-semibold mb-2"
+                >
+                  No items in this collection
                 </Typography>
+                <Typography variant="body-small" className="text-gray-500 mb-4">
+                  Start adding items to your collection to see them here.
+                </Typography>
+                <Button
+                  onClick={() => router.push("/favorites")}
+                  variant="outline"
+                >
+                  Back to Collections
+                </Button>
               </div>
             )}
           </div>
@@ -300,3 +364,4 @@ export default function FavoritesPage() {
     </div>
   );
 }
+

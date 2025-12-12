@@ -10,28 +10,7 @@ interface JobDetailContentProps {
 }
 
 export default function JobDetailContent({ job }: JobDetailContentProps) {
-  // Dummy data for now
-  const dummyData = {
-    description: "We are looking for a talented UI/UX Designer to join our creative team. You will be responsible for creating intuitive and engaging user experiences for our digital products. The ideal candidate should have a strong portfolio showcasing their design process and problem-solving skills.",
-    responsibilities: [
-      "Design user interfaces for web and mobile applications",
-      "Create wireframes, prototypes, and high-fidelity mockups",
-      "Collaborate with product managers and developers",
-      "Conduct user research and usability testing",
-      "Maintain design systems and style guides",
-      "Present design concepts to stakeholders",
-    ],
-    skills: [
-      "Figma",
-      "Adobe Creative Suite",
-      "User Research",
-      "Prototyping",
-      "Design Systems",
-      "HTML/CSS",
-    ],
-  };
-
-  // Extract job description, responsibilities, and skills from extraFields or use dummy data
+  // Extract job description, responsibilities, and skills from extraFields
   const extraFields = Array.isArray(job.extraFields)
     ? job.extraFields
     : Object.entries(job.extraFields || {}).map(([name, value]) => ({
@@ -52,17 +31,17 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
     return "";
   };
 
-  const description = job.description || getFieldValue("description") || dummyData.description;
+  const description = job.description || getFieldValue("description") || "";
   const responsibilities = getFieldValue("responsibilities") || "";
   const skills = getFieldValue("skills") || getFieldValue("required skills") || "";
 
-  // Parse responsibilities and skills into arrays, fallback to dummy data
+  // Parse responsibilities and skills into arrays
   const responsibilitiesList = responsibilities
     ? responsibilities.split(/[,;]/).map((s) => s.trim()).filter(Boolean)
-    : dummyData.responsibilities;
+    : [];
   const skillsList = skills
     ? skills.split(/[,;]/).map((s) => s.trim()).filter(Boolean)
-    : dummyData.skills;
+    : [];
 
   return (
     <div className="bg-white rounded-2xl border border-[#E2E2E2] p-4 space-y-6">

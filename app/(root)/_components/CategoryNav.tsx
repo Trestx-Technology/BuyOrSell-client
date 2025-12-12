@@ -314,7 +314,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                           href={category.name.toLowerCase()==="job"? `/jobs`: `/categories/${category.name}`}
                           className="text-gray-600 group-hover:text-purple text-xs w-full"
                         >
-                          {category.name}
+                          {category.name === "Jobs" ? "Job" : category.name}
                         </Link>
                       </motion.div>
                     ))}

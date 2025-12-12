@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { ExternalLink, Calendar, Plus, Trash2 } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Badge } from "@/components/ui/badge";
@@ -46,9 +45,9 @@ export default function JobseekerPortfolio({
             type="button"
             onClick={() =>
               append({
-                title: "",
+                name: "",
                 description: "",
-                technologies: [],
+                techStack: [],
               })
             }
             variant="outline"
@@ -61,7 +60,7 @@ export default function JobseekerPortfolio({
 
         <div className="space-y-6">
           {fields.map((field, index) => {
-            const technologies = watch(`portfolio.${index}.technologies`) || [];
+            const techStack = (watch(`portfolio.${index}.techStack`) as string[]) || [];
             return (
               <div
                 key={field.id}
@@ -83,8 +82,8 @@ export default function JobseekerPortfolio({
                 </div>
 
                 <Input
-                  {...register(`portfolio.${index}.title`)}
-                  label="Project Title"
+                  {...register(`portfolio.${index}.name`)}
+                  label="Project Name"
                   placeholder="e.g., E-commerce Website"
                   isRequired
                 />
@@ -98,20 +97,14 @@ export default function JobseekerPortfolio({
                     className="min-h-[100px]"
                   />
                 </div>
-                <Input
-                  {...register(`portfolio.${index}.imageUrl`)}
-                  label="Image URL"
-                  type="url"
-                  placeholder="https://..."
-                />
                 <div>
                   <label className="text-sm font-medium text-dark-blue mb-2 block">
                     Technologies
                   </label>
                   <ChipsInput
-                    value={technologies}
+                    value={techStack}
                     onChange={(value) =>
-                      setValue(`portfolio.${index}.technologies`, value)
+                      setValue(`portfolio.${index}.techStack`, value)
                     }
                     placeholder="Add technologies (press Enter or comma)"
                   />
@@ -129,7 +122,7 @@ export default function JobseekerPortfolio({
                   />
                 </div>
                 <Input
-                  {...register(`portfolio.${index}.projectUrl`)}
+                  {...register(`portfolio.${index}.url`)}
                   label="Project URL"
                   type="url"
                   placeholder="https://..."
@@ -167,22 +160,12 @@ export default function JobseekerPortfolio({
             key={item._id || index}
             className="border border-[#E2E2E2] rounded-lg overflow-hidden hover:shadow-lg transition-all"
           >
-            {item.imageUrl && (
-              <div className="relative w-full h-48 bg-gray-100">
-                <Image
-                  src={item.imageUrl}
-                  alt={item.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
             <div className="p-4">
               <Typography
                 variant="h3"
                 className="text-dark-blue font-semibold text-lg mb-2"
               >
-                {item.title}
+                {item.name}
               </Typography>
               {item.description && (
                 <Typography
@@ -192,9 +175,9 @@ export default function JobseekerPortfolio({
                   {item.description}
                 </Typography>
               )}
-              {item.technologies && item.technologies.length > 0 && (
+              {item.techStack && item.techStack.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {item.technologies.map((tech, i) => (
+                  {item.techStack.map((tech: string, i: number) => (
                     <Badge
                       key={i}
                       className="bg-purple/20 text-purple px-2 py-1 rounded-full text-xs"
@@ -222,9 +205,9 @@ export default function JobseekerPortfolio({
                     </span>
                   </div>
                 )}
-                {item.projectUrl && (
+                {item.url && (
                   <a
-                    href={item.projectUrl}
+                    href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-purple hover:underline text-sm flex items-center gap-1"

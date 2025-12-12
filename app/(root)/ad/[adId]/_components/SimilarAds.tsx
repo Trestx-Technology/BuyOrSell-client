@@ -1,63 +1,43 @@
 "use client";
 
-import React from "react";
-import { mockAds } from "@/constants/sample-listings";
+import React, { useMemo } from "react";
 import { ListingCard } from "@/components/global/listing-card";
 import { CardsCarousel } from "@/components/global/cards-carousel";
-import { ProductExtraFields } from "@/interfaces/ad";
+import { useSimilarAds } from "@/hooks/useAds";
+import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
+import { useRouter } from "next/navigation";
 
 interface SimilarAdsProps {
   adId: string;
 }
 
 const SimilarAds: React.FC<SimilarAdsProps> = ({ adId }) => {
-  // TODO: Use adId to fetch similar ads from API instead of mockAds
-  // For now, using mockAds for demonstration
-  // Future: const { data: similarAds } = useSimilarAds(adId);
-  // Reference adId to avoid unused variable warning (will be used when API is ready)
-  const _currentAdId = adId;
-  void _currentAdId;
+  const router = useRouter();
   
-  // Transform mockAds to match ListingCard props
-  const transformedAds = mockAds.map((item) => {
-    // Convert specifications object to extraFields array format
-    const extraFields: ProductExtraFields = Object.entries(
-      item.specifications || {}
-    ).map(([name, value]) => ({
-      name,
-      type: typeof value === "number" ? "number" : "string",
-      value: value as string | number,
-    }));
-
-    // Map seller type: "Owner" -> "Individual"
-    const sellerType =
-      item.seller?.type === "Owner" ? "Individual" : item.seller?.type || "Individual";
-
-    return {
-      id: item.id,
-      title: item.title,
-      price: item.price,
-      originalPrice: item.originalPrice,
-      discount: item.discount,
-      currency: item.currency || "AED",
-      location: item.location,
-      images: item.images,
-      extraFields,
-      postedTime: item.postedTime,
-      views: item.views,
-      isPremium: item.isPremium,
-      isFavorite: item.isFavorite,
-      showSeller: true,
-      seller: item.seller
-        ? {
-            name: item.seller.name,
-            type: sellerType as "Agent" | "Individual",
-            isVerified: item.seller.isVerified,
-            image: null,
-          }
-        : undefined,
-    };
+  // Fetch similar ads from API
+  const { data: similarAdsResponse, isLoading } = useSimilarAds(adId, {
+    limit: 10, // Default limit as per API docs
   });
+
+  // Transform API ads to listing card format
+  const transformedAds = useMemo(() => {
+    if (!similarAdsResponse?.data?.adds) return [];
+    return similarAdsResponse.data.adds.map(transformAdToListingCard);
+  }, [similarAdsResponse]);
+
+  // Handle navigation to ad detail page
+  const handleCardClick = (id: string) => {
+    router.push(`/ad/${id}`);
+  };
+
+  // Hide component if no ads are available
+  if (isLoading) {
+    return null; // Or show a loading skeleton if preferred
+  }
+
+  if (!transformedAds || transformedAds.length === 0) {
+    return null;
+  }
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
@@ -72,27 +52,16 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({ adId }) => {
           wide: 3,
         }}
       >
-        {transformedAds.map((item) => (
+        {transformedAds.map((ad) => (
           <div
-            key={item.id}
+            key={ad.id}
             className="flex-[0_0_auto] max-w-[220px] sm:max-w-[255px] w-full"
           >
             <ListingCard
-              id={item.id}
-              title={item.title}
-              price={item.price}
-              originalPrice={item.originalPrice}
-              discount={item.discount}
-              currency={item.currency}
-              location={item.location}
-              images={item.images}
-              extraFields={item.extraFields}
-              postedTime={item.postedTime}
-              views={item.views}
-              isPremium={item.isPremium}
-              isFavorite={item.isFavorite}
-              showSeller={item.showSeller}
-              seller={item.seller}
+              {...ad}
+              onFavorite={(id) => console.log("Favorited:", id)}
+              onShare={(id) => console.log("Shared:", id)}
+              onClick={handleCardClick}
             />
           </div>
         ))}

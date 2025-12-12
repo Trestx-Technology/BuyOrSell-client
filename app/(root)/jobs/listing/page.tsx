@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { FilterConfig } from "@/app/(root)/categories/_components/ads-filter";
@@ -8,8 +9,8 @@ import { Typography } from "@/components/typography";
 import { Bell, ChevronLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import JobsFilter from "./_components/jobs-filter";
-import { useAds, useFilterAds } from "@/hooks/useAds";
-import { AD, AdFilterPayload, ProductExtraField } from "@/interfaces/ad";
+import { useAds, useFilterAds, useAdById } from "@/hooks/useAds";
+import { AD, AdFilterPayload, AdFilters, ProductExtraField } from "@/interfaces/ad";
 import { formatDistanceToNow } from "date-fns";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
 import JobListingCard from "./_components/job-listing-card";
@@ -96,10 +97,14 @@ const getFilterString = (value: string | string[] | undefined): string => {
 };
 
 export default function JobsListingPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [locationQuery, setLocationQuery] = useState("");
+  const searchParams = useSearchParams();
+  const urlQuery = searchParams.get("query") || searchParams.get("search") || "";
+  const urlLocation = searchParams.get("location") || "";
+  
+  const [searchQuery, setSearchQuery] = useState(urlQuery);
+  const [locationQuery, setLocationQuery] = useState(urlLocation);
   const [filters, setFilters] = useState<Record<string, string | string[]>>({
-    location: "",
+    location: urlLocation,
     salary: "",
     jobType: "",
     workMode: "",
@@ -108,6 +113,17 @@ export default function JobsListingPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [savedExtraFields, setSavedExtraFields] = useState<ProductExtraField[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+
+  // Initialize search query and location from URL params
+  useEffect(() => {
+    if (urlQuery) {
+      setSearchQuery(urlQuery);
+    }
+    if (urlLocation) {
+      setLocationQuery(urlLocation);
+      setFilters((prev) => ({ ...prev, location: urlLocation }));
+    }
+  }, [urlQuery, urlLocation]);
 
   // Initial fetch to get extraFields structure
   const { data: initialAdsData } = useAds({
@@ -197,14 +213,36 @@ export default function JobsListingPage() {
     );
   }, [searchQuery, filters]);
 
-  // Build filter payload for API
+  // Build API params for useAds - always use adType: "JOB"
+  const adsParams = useMemo(() => {
+    const params: AdFilters = {
+      adType: "JOB",
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
+    };
+
+    // Add search query if present
+    if (searchQuery) {
+      params.search = searchQuery;
+    }
+
+    // Add location if present
+    const locationFilter = getFilterString(filters.location) || locationQuery;
+    if (locationFilter) {
+      params.location = locationFilter;
+    }
+
+    return params;
+  }, [searchQuery, locationQuery, filters, currentPage]);
+
+  // Build filter payload for useFilterAds when there are extra filters
   const filterPayload = useMemo((): AdFilterPayload => {
     const payload: AdFilterPayload = {
       adType: "JOB",
     };
 
     if (searchQuery) payload.search = searchQuery;
-    const locationFilter = getFilterString(filters.location);
+    const locationFilter = getFilterString(filters.location) || locationQuery;
     if (locationFilter) payload.city = locationFilter;
     
     // Parse salary range
@@ -255,26 +293,36 @@ export default function JobsListingPage() {
     payload.limit = ITEMS_PER_PAGE;
 
     return payload;
-  }, [searchQuery, filters, currentPage]);
+  }, [searchQuery, locationQuery, filters, currentPage]);
+
+  // Use useAds when only search/location filters (simple case)
+  // Use useFilterAds when there are complex filters (salary, jobType, etc.)
+  const hasComplexFilters = useMemo(() => {
+    return !!(
+      getFilterString(filters.salary) ||
+      getFilterString(filters.jobType) ||
+      getFilterString(filters.workMode) ||
+      getFilterString(filters.experience) ||
+      Object.entries(filters).some(([key, value]) => 
+        !["location", "salary", "jobType", "workMode", "experience"].includes(key) && value
+      )
+    );
+  }, [filters]);
 
   // Fetch jobs using ads API
   const { data: filterAdsData, isLoading: isFilterLoading } = useFilterAds(
     filterPayload,
-    hasActiveFilters
+    hasComplexFilters || hasActiveFilters
   );
 
   const { data: regularAdsData, isLoading: isRegularLoading } = useAds(
-    hasActiveFilters
-      ? undefined
-      : {
-          adType: "JOB",
-          page: currentPage,
-          limit: ITEMS_PER_PAGE,
-        }
+    !hasComplexFilters && !hasActiveFilters
+      ? adsParams
+      : undefined
   );
 
-  const adsData = hasActiveFilters ? filterAdsData : regularAdsData;
-  const isLoading = hasActiveFilters ? isFilterLoading : isRegularLoading;
+  const adsData = (hasComplexFilters || hasActiveFilters) ? filterAdsData : regularAdsData;
+  const isLoading = (hasComplexFilters || hasActiveFilters) ? isFilterLoading : isRegularLoading;
 
   const jobs = useMemo(() => (adsData?.data?.adds || []) as AD[], [adsData?.data?.adds]);
   const totalItems = adsData?.data?.total || jobs.length;
@@ -287,7 +335,11 @@ export default function JobsListingPage() {
     }
   }, [jobs.length, selectedJobId, jobs]);
 
-  const selectedJob = jobs.find((job) => job._id === selectedJobId) || jobs[0];
+  // Fetch job details by ID using API
+  const { data: jobResponse, isLoading: isJobLoading, error: jobError } = useAdById(
+    selectedJobId || ""
+  );
+  const selectedJob = jobResponse?.data;
 
   const handleFilterChange = (key: string, value: string | string[]) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -511,17 +563,33 @@ export default function JobsListingPage() {
                 </div>
 
                 {/* Right Column - Job Detail View */}
-                  {selectedJob && (
+                  {selectedJobId && (
                     <div className="space-y-6">
-                      <JobHeaderCard
-                        job={selectedJob}
-                        transformAdToJobCardProps={transformAdToJobCardProps}
-                        onFavorite={(id: string) => console.log("Favorited:", id)}
-                        onShare={(id: string) => console.log("Shared:", id)}
-                        isFavorite={false}
-                      />
-                      <JobDetailContent job={selectedJob} />
-                      <Disclaimer />
+                      {isJobLoading ? (
+                        <div className="text-center py-12">
+                          <Typography variant="body" className="text-gray-500">
+                            Loading job details...
+                          </Typography>
+                        </div>
+                      ) : jobError || !selectedJob ? (
+                        <div className="text-center py-12">
+                          <Typography variant="body" className="text-red-500">
+                            {jobError ? "Failed to load job details" : "Job not found"}
+                          </Typography>
+                        </div>
+                      ) : selectedJob ? (
+                        <>
+                          <JobHeaderCard
+                            job={selectedJob}
+                            transformAdToJobCardProps={transformAdToJobCardProps}
+                            onFavorite={(id: string) => console.log("Favorited:", id)}
+                            onShare={(id: string) => console.log("Shared:", id)}
+                            isFavorite={false}
+                          />
+                          <JobDetailContent job={selectedJob} />
+                          <Disclaimer />
+                        </>
+                      ) : null}
                     </div>
                   )}
                 </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { FilterConfig } from "@/app/(root)/categories/_components/ads-filter";
@@ -14,16 +15,15 @@ import SortAndViewControls, {
 } from "@/app/(root)/post-ad/_components/SortAndViewControls";
 import { cn } from "@/lib/utils";
 import { useAds, useFilterAds } from "@/hooks/useAds";
-import { AD, AdFilterPayload, ProductExtraField } from "@/interfaces/ad";
+import { AD, AdFilterPayload, AdFilters, ProductExtraField } from "@/interfaces/ad";
 import { formatDistanceToNow } from "date-fns";
 import Pagination from "@/components/global/pagination";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
-import { useEffect } from "react";
 
 const ITEMS_PER_PAGE = 12;
 
-// Default filter configuration for applicants (similar to jobs)
-const defaultApplicantFilters: FilterConfig[] = [
+// Default filter configuration for jobseekers (similar to jobs)
+const defaultJobseekerFilters: FilterConfig[] = [
   {
     key: "location",
     label: "Location",
@@ -97,11 +97,15 @@ const getFilterString = (value: string | string[] | undefined): string => {
   return Array.isArray(value) ? value[0] || "" : value;
 };
 
-export default function ApplicantsPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [locationQuery, setLocationQuery] = useState("");
+export default function JobseekersPage() {
+  const searchParams = useSearchParams();
+  const urlQuery = searchParams.get("query") || searchParams.get("search") || "";
+  const urlLocation = searchParams.get("location") || "";
+  
+  const [searchQuery, setSearchQuery] = useState(urlQuery);
+  const [locationQuery, setLocationQuery] = useState(urlLocation);
   const [filters, setFilters] = useState<Record<string, string | string[]>>({
-    location: "",
+    location: urlLocation,
     salary: "",
     jobType: "",
     workMode: "",
@@ -110,6 +114,17 @@ export default function ApplicantsPage() {
   const [view, setView] = useState<ViewMode>("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const [savedExtraFields, setSavedExtraFields] = useState<ProductExtraField[]>([]);
+
+  // Initialize search query and location from URL params
+  useEffect(() => {
+    if (urlQuery) {
+      setSearchQuery(urlQuery);
+    }
+    if (urlLocation) {
+      setLocationQuery(urlLocation);
+      setFilters((prev) => ({ ...prev, location: urlLocation }));
+    }
+  }, [urlQuery, urlLocation]);
 
   // Initial fetch to get extraFields structure
   const { data: initialAdsData } = useAds({
@@ -120,11 +135,11 @@ export default function ApplicantsPage() {
 
   const firstJob = initialAdsData?.data?.adds?.[0] as AD | undefined;
 
-  const categoryName = "Applicants";
+  const categoryName = "Jobseekers";
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { id: "jobs", label: "Jobs", href: "/jobs" },
-    { id: "applicants", label: "Applicants", href: "/jobs/applicants", isActive: true },
+    { id: "jobseekers", label: "Jobseekers", href: "/jobs/jobseeker", isActive: true },
   ];
 
   // Get extraFields from first job and save them
@@ -188,7 +203,7 @@ export default function ApplicantsPage() {
       });
 
     // Combine default filters with dynamic filters from extraFields
-    return [...defaultApplicantFilters, ...dynamicFilters];
+    return [...defaultJobseekerFilters, ...dynamicFilters];
   }, [savedExtraFields, firstJob]);
 
   // Check if any filters are active
@@ -259,7 +274,29 @@ export default function ApplicantsPage() {
     return payload;
   }, [searchQuery, filters, currentPage]);
 
-  // Fetch applicants using ads API
+  // Build API params for useAds - always use adType: "JOB"
+  const adsParams = useMemo(() => {
+    const params: AdFilters = {
+      adType: "JOB",
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
+    };
+
+    // Add search query if present
+    if (searchQuery) {
+      params.search = searchQuery;
+    }
+
+    // Add location if present
+    const locationFilter = getFilterString(filters.location) || locationQuery;
+    if (locationFilter) {
+      params.location = locationFilter;
+    }
+
+    return params;
+  }, [searchQuery, locationQuery, filters, currentPage]);
+
+  // Fetch jobseekers using ads API with adType: "JOB"
   const { data: filterAdsData, isLoading: isFilterLoading } = useFilterAds(
     filterPayload,
     hasActiveFilters
@@ -268,18 +305,14 @@ export default function ApplicantsPage() {
   const { data: regularAdsData, isLoading: isRegularLoading } = useAds(
     hasActiveFilters
       ? undefined
-      : {
-          adType: "JOB",
-          page: currentPage,
-          limit: ITEMS_PER_PAGE,
-        }
+      : adsParams
   );
 
   const adsData = hasActiveFilters ? filterAdsData : regularAdsData;
   const isLoading = hasActiveFilters ? isFilterLoading : isRegularLoading;
 
-  const applicants = (adsData?.data?.adds || []) as AD[];
-  const totalItems = adsData?.data?.total || applicants.length;
+  const jobseekers = (adsData?.data?.adds || []) as AD[];
+  const totalItems = adsData?.data?.total || jobseekers.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
   const handleFilterChange = (key: string, value: string | string[]) => {
@@ -385,11 +418,11 @@ export default function ApplicantsPage() {
         ? ad.location
         : ad.location?.city || ad.address?.city || "Location not specified";
 
-    // Get applicant name (from owner or title)
+    // Get jobseeker name (from owner or title)
     const name =
       (ad.owner?.firstName && ad.owner?.lastName
         ? `${ad.owner.firstName} ${ad.owner.lastName}`
-        : ad.title) || "Applicant";
+        : ad.title) || "Jobseeker";
 
     // Get company name
     const company =
@@ -437,7 +470,7 @@ export default function ApplicantsPage() {
         {/* Search Bar */}
         <Input
           leftIcon={<Search className="h-4 w-4" />}
-          placeholder={"Search applicants..."}
+          placeholder={"Search jobseekers..."}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10 bg-gray-100 border-0"
@@ -452,7 +485,7 @@ export default function ApplicantsPage() {
         {/* Page Header */}
         <div className="flex items-center justify-between mb-6 px-4">
           <Typography variant="md-black-inter" className="font-semibold">
-            {categoryName} in Dubai ({applicants.length})
+            {categoryName} in Dubai ({jobseekers.length})
           </Typography>
 
           <SortAndViewControls
@@ -468,7 +501,7 @@ export default function ApplicantsPage() {
           />
         </div>
 
-        {/* Applicants Filters */}
+        {/* Jobseekers Filters */}
         <JobsFilter
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -495,27 +528,27 @@ export default function ApplicantsPage() {
           className="px-4 flex justify-end mb-4 sm:hidden"
         />
 
-        {/* Applicants Grid */}
+        {/* Jobseekers Grid */}
         <div className="space-y-6">
           {isLoading ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">Loading applicants...</p>
+              <p className="text-gray-500 text-lg">Loading jobseekers...</p>
             </div>
-          ) : applicants.length > 0 ? (
+          ) : jobseekers.length > 0 ? (
             <div
               className={cn(
                 `px-4 lg:px-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4`,
                 view === "list" && "flex flex-col"
               )}
             >
-              {applicants.map((applicant) => (
-                <ApplicantCard key={applicant._id} {...transformAdToApplicantCardProps(applicant)} />
+              {jobseekers.map((jobseeker) => (
+                <ApplicantCard key={jobseeker._id} {...transformAdToApplicantCardProps(jobseeker)} />
               ))}
             </div>
           ) : (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">
-                No applicants found matching your criteria.
+                No jobseekers found matching your criteria.
               </p>
               <Button variant="outline" onClick={clearFilters} className="mt-4">
                 Clear Filters
@@ -537,3 +570,4 @@ export default function ApplicantsPage() {
     </div>
   );
 }
+

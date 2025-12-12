@@ -62,7 +62,6 @@ export default function JobsProfileSection({ profile, isLoading }: JobsProfileSe
     ? formatDistanceToNow(new Date(profile.updatedAt), { addSuffix: true })
     : "";
   
-  const profileId = profile._id || "";
   return (
     <section className="w-full bg-[#F2F4F7] pt-10 px-4 lg:px-[100px]">
       <div className="max-w-[1080px] mx-auto bg-white rounded-2xl p-6 relative flex gap-6">

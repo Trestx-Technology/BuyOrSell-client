@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { MoreHorizontal, Plus } from "lucide-react";
+import { MoreHorizontal, Plus, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
 
@@ -67,12 +67,12 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
       className={`flex-shrink-0 w-full lg:max-w-64 sm:p-4 sm:bg-white rounded-xl sm:border border-gray-200 sm:shadow-sm sm:hover:shadow-md transition-all duration-300 cursor-pointer group ${className}`}
     >
       {/* Image Grid Section */}
-      <div className="relative h-48 rounded-t-xl rounded-b-xl overflow-hidden">
+      <div className="relative h-48 rounded-t-xl rounded-b-xl overflow-hidden bg-gray-100">
         {/* Collection thumbnail grid - 2x2 layout */}
         <div className="grid grid-cols-2 gap-1 h-full">
           {/* Main image - takes left half */}
-          <div className="relative bg-gray-200">
-            {images[0] && (
+          <div className="relative bg-gray-200 flex items-center justify-center">
+            {images?.[0] ? (
               <Image
                 src={images[0]}
                 alt={`${name} - Main`}
@@ -80,14 +80,16 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
                 className="object-cover"
                 sizes="128px"
               />
+            ) : (
+              <ImageIcon className="w-8 h-8 text-gray-400" />
             )}
           </div>
 
           {/* Right side - split into two */}
           <div className="grid grid-rows-2 gap-1">
             {/* Top right */}
-            <div className="relative bg-gray-300">
-              {images[1] && (
+            <div className="relative bg-gray-300 flex items-center justify-center">
+              {images?.[1] ? (
                 <Image
                   src={images[1]}
                   alt={`${name} - Secondary`}
@@ -95,20 +97,14 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
                   className="object-cover"
                   sizes="64px"
                 />
+              ) : (
+                <ImageIcon className="w-6 h-6 text-gray-400" />
               )}
             </div>
 
             {/* Bottom right */}
-            <div className="relative bg-gray-400">
-              {images[2] ? (
-                <Image
-                  src={images[2]}
-                  alt={`${name} - Third`}
-                  fill
-                  className="object-cover"
-                  sizes="64px"
-                />
-              ) : count > 2 ? (
+            <div className="relative bg-gray-400 flex items-center justify-center">
+              {count > 2 ? (
                 <div className="w-full h-full bg-black/60 flex items-center justify-center">
                   <Typography
                     variant="body-small"
@@ -117,7 +113,17 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
                     +{count - 2}
                   </Typography>
                 </div>
-              ) : null}
+              ) : images?.[2] ? (
+                <Image
+                  src={images[2]}
+                  alt={`${name} - Third`}
+                  fill
+                  className="object-cover"
+                  sizes="64px"
+                />
+              ) : (
+                <ImageIcon className="w-6 h-6 text-gray-400" />
+              )}
             </div>
           </div>
         </div>

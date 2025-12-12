@@ -7,6 +7,10 @@ import type {
   CreateCollectionPayload,
   UpdateCollectionPayload,
   MyCollectionsParams,
+  AddAdsToCollectionPayload,
+  AddAdsResponse,
+  RemoveAdResponse,
+  CollectionsByAdResponse,
 } from '@/interfaces/collections.types';
 
 // ============================================================================
@@ -68,6 +72,45 @@ export const deleteCollection = async (
 ): Promise<DeleteCollectionResponse> => {
   const response = await axiosInstance.delete<DeleteCollectionResponse>(
     collectionsQueries.deleteCollection(id).endpoint,
+  );
+  return response.data;
+};
+
+// ============================================================================
+// COLLECTION ADS OPERATIONS
+// ============================================================================
+
+export const addAdsToCollection = async (
+  collectionId: string,
+  payload: AddAdsToCollectionPayload,
+): Promise<AddAdsResponse> => {
+  const response = await axiosInstance.post<AddAdsResponse>(
+    collectionsQueries.addAdsToCollection(collectionId).endpoint,
+    payload,
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+  return response.data;
+};
+
+export const removeAdFromCollection = async (
+  collectionId: string,
+  adId: string,
+): Promise<RemoveAdResponse> => {
+  const response = await axiosInstance.delete<RemoveAdResponse>(
+    collectionsQueries.removeAdFromCollection(collectionId, adId).endpoint,
+  );
+  return response.data;
+};
+
+export const getCollectionsByAd = async (
+  adId: string,
+): Promise<CollectionsByAdResponse> => {
+  const response = await axiosInstance.get<CollectionsByAdResponse>(
+    collectionsQueries.getCollectionsByAd(adId).endpoint,
   );
   return response.data;
 };

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Plus, Heart } from "lucide-react";
+import React from "react";
+import { X, Plus, Heart, Check, ImageIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -73,24 +73,16 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
   className,
   children,
 }) => {
-  const [selectedCollection, setSelectedCollection] = useState<string | null>(
-    null
-  );
-
   const handleCollectionSelect = (collectionId: string) => {
-    setSelectedCollection(collectionId);
-  };
-
-  const handleAddToCollection = () => {
-    if (adId && selectedCollection) {
-      onAddToCollection?.(adId, selectedCollection);
+    // Immediately add the item to the selected collection
+    if (adId) {
+      onAddToCollection?.(adId, collectionId);
       onOpenChange(false);
-      setSelectedCollection(null);
     }
   };
 
   const handleCreateNew = () => {
-    onOpenChange(false);
+    // Don't close the parent dialog - let CreateCollectionDialog open on top
     onCreateNewCollection?.();
   };
 
@@ -98,7 +90,7 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger>{children}</DialogTrigger>
       <DialogContent
-        className={`max-w-md w-[95%] rounded-lg ${className}`}
+        className={`max-w-md w-[95%] overflow-y-auto max-h-[450px] rounded-lg ${className}`}
         showCloseButton={false}
       >
         <DialogHeader className="pb-4">
@@ -119,11 +111,8 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
 
         <div className="space-y-4">
           {/* Create New Collection - First Item */}
-          <CreateCollectionDialog>
-            <div
-              onClick={handleCreateNew}
-              className="flex items-center gap-3 cursor-pointer transition-colors group"
-            >
+          <CreateCollectionDialog onCollectionCreated={handleCreateNew}>
+            <div className="flex items-center gap-3 cursor-pointer transition-colors group">
               <div className="size-10 bg-purple-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-all">
                 <Plus className="h-6 w-6 text-white" />
               </div>
@@ -139,47 +128,80 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
           {/* Collections List */}
           <div className="space-y-0">
             {collections.length > 0 ? (
-              collections.map((collection) => (
-                <div
-                  key={collection.id}
-                  onClick={() => handleCollectionSelect(collection.id)}
-                  className={`flex group items-center justify-between py-1  cursor-pointer transition-colors ${
-                    selectedCollection === collection.id ? "bg-purple-50" : ""
-                  }`}
-                >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-12 h-12 rounded-sm overflow-hidden flex-shrink-0">
-                      <Image
-                        src={collection.images[0] || "/placeholder.jpg"}
-                        alt={collection.name}
-                        width={48}
-                        height={48}
-                        className="w-full h-full object-cover"
-                      />
+              collections.map((collection) => {
+                const isSelected = collection.isSelected;
+                return (
+                  <div
+                    key={collection.id}
+                    onClick={() => handleCollectionSelect(collection.id)}
+                    className={`flex group items-center justify-between py-1 cursor-pointer transition-colors ${
+                      isSelected
+                        ? "bg-purple-50 hover:bg-purple-100"
+                        : "hover:bg-purple-50"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-12 h-12 rounded-sm overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                        {collection.images?.[0] ? (
+                          <Image
+                            src={collection.images[0]}
+                            alt={collection.name}
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <ImageIcon className="w-6 h-6 text-gray-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <Typography
+                          variant="sm-semibold"
+                          className={`${
+                            isSelected
+                              ? "text-purple"
+                              : "text-dark-blue group-hover:text-purple"
+                          }`}
+                        >
+                          {collection.name}
+                        </Typography>
+                        <Typography
+                          variant="xs-regular"
+                          className={`${
+                            isSelected
+                              ? "text-purple/80"
+                              : "text-grey-blue group-hover:text-purple"
+                          }`}
+                        >
+                          {collection.count} Favorites
+                        </Typography>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <Typography
-                        variant="sm-semibold"
-                        className=" text-dark-blue group-hover:text-purple"
-                      >
-                        {collection.name}
-                      </Typography>
-                      <Typography
-                        variant="xs-regular"
-                        className="text-grey-blue group-hover:text-purple"
-                      >
-                        {collection.count} Favorites
-                      </Typography>
-                    </div>
-                  </div>
 
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center group-hover:bg-purple/10 transition-colors">
-                      <Plus className="h-4 w-4 text-gray-600 group-hover:text-purple" />
+                    <div className="flex-shrink-0">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                          isSelected
+                            ? "bg-purple text-white"
+                            : "bg-gray-300 group-hover:bg-purple/10"
+                        }`}
+                      >
+                        {isSelected ? (
+                          <Check className="h-4 w-4 text-white" />
+                        ) : (
+                          <Plus
+                            className={`h-4 w-4 ${
+                              isSelected
+                                ? "text-white"
+                                : "text-gray-600 group-hover:text-purple"
+                            }`}
+                          />
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="text-center py-8">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">

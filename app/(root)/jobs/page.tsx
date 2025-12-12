@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { Footer } from "@/components/global/footer";
 import JobHomeComponent from "./_components/job-home-component";
 
 export const metadata: Metadata = {
