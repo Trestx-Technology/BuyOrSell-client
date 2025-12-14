@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useAdById } from "@/hooks/useAds";
 import Header from "./_components/Header";
@@ -15,17 +15,44 @@ import ReviewsSection from "./_components/ReviewsSection";
 import SimilarAds from "./_components/SimilarAds";
 import ProductInfoCard from "./_components/ProductInfoCard";
 import AdCard from "../../categories/_components/AdCard";
-import ProductInfoTabs from "./_components/ProductInfoTabs";
+import ProductInfoTabs, { TabType } from "./_components/ProductInfoTabs";
 import ProductInfoCardMobile from "./_components/ProductInfoCardMobile";
 import { Typography } from "@/components/typography";
 
 export default function AdDetailPage() {
   const params = useParams();
   const adId = params.adId as string;
+  const [activeTab, setActiveTab] = useState<TabType>("specifications");
 
   // Fetch ad data by ID
   const { data: adResponse, isLoading, error } = useAdById(adId);
   const ad = adResponse?.data;
+
+  // Memoize sections for reordering - must be called before early returns
+  const sections = useMemo(() => {
+    if (!ad) return [];
+    
+    return [
+      { id: "description" as TabType, component: <DescriptionSection key="description" ad={ad} /> },
+      { id: "specifications" as TabType, component: <SpecificationsSection key="specifications" ad={ad} /> },
+      { id: "location" as TabType, component: <LocationSection key="location" ad={ad} /> },
+      { id: "reviews" as TabType, component: <ReviewsSection key="reviews" ad={ad} /> },
+    ];
+  }, [ad]);
+
+  // Reorder sections based on active tab with smooth animations
+  const reorderedSections = useMemo(() => {
+    if (sections.length === 0) return [];
+    
+    const activeIndex = sections.findIndex((s) => s.id === activeTab);
+    return activeIndex >= 0
+      ? [
+          sections[activeIndex],
+          ...sections.slice(0, activeIndex),
+          ...sections.slice(activeIndex + 1),
+        ]
+      : sections;
+  }, [sections, activeTab]);
 
   // Loading state
   if (isLoading) {
@@ -63,24 +90,22 @@ export default function AdDetailPage() {
             <ProductGallery ad={ad} />
 
             <ProductInfoTabs
-              onTabChange={(activeTab) => {
-                console.log("Active tab changed to:", activeTab);
-                // Handle tab change logic here
-              }}
+              onTabChange={(tab) => setActiveTab(tab)}
               initialTab="specifications"
             />
-            <div className="space-y-6">
-              {/* Description Section */}
-              <DescriptionSection ad={ad} />
-
-              {/* Specifications Section */}
-              <SpecificationsSection ad={ad} />
-
-              {/* Location Section */}
-              <LocationSection ad={ad} />
-
-              {/* Reviews Section */}
-              <ReviewsSection ad={ad} />
+            <div className="space-y-6 relative">
+              {/* Reorder sections based on active tab with smooth animations */}
+              {reorderedSections.map((section, index) => (
+                <div
+                  key={section.id}
+                  className="section-item transition-all duration-500 ease-in-out"
+                  style={{
+                    animationDelay: `${index * 50}ms`,
+                  }}
+                >
+                  {section.component}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -104,35 +129,37 @@ export default function AdDetailPage() {
 
         {/* Mobile Layout */}
         <div className="block lg:hidden space-y-6 mb-6 relative">
+
+          {/* TODO: update the zindex of the gallery in the mobile layout */}
           <ProductGallery ad={ad} />
-          <div className="bg-[#F9FAFC] space-y-6 relative z-20 rounded-t-xl -mt-8">
+          <div className="bg-[#F9FAFC] space-y-6 relative z-10 rounded-t-xl -mt-8">
             <ProductInfoCardMobile ad={ad} />
 
             <ProductInfoTabs
-              onTabChange={(activeTab) => {
-                console.log("Active tab changed to:", activeTab);
-                // Handle tab change logic here
-              }}
+              onTabChange={(tab) => setActiveTab(tab)}
               initialTab="specifications"
             />
 
-            {/* Description Section */}
-            <DescriptionSection ad={ad} />
-
-            {/* Specifications Section */}
-            <SpecificationsSection ad={ad} />
+            {/* Reorder sections based on active tab with smooth animations */}
+            <div className="space-y-6 relative">
+              {reorderedSections.map((section, index) => (
+                <div
+                  key={section.id}
+                  className="section-item transition-all duration-500 ease-in-out"
+                  style={{
+                    animationDelay: `${index * 50}ms`,
+                  }}
+                >
+                  {section.component}
+                </div>
+              ))}
+            </div>
 
             {/* Seller Information */}
             <SellerInfo ad={ad} />
 
             {/* Safety Features */}
             <SafetyFeatures ad={ad} />
-
-            {/* Location Section */}
-            <LocationSection ad={ad} />
-
-            {/* Reviews Section */}
-            <ReviewsSection ad={ad} />
 
             {/* Contact Actions */}
             <ContactActions ad={ad} />

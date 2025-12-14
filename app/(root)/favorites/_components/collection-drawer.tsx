@@ -12,6 +12,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { collectionsQueries } from "@/app/api/collections/index";
 import type { CollectionByAd } from "@/interfaces/collections.types";
 import Image from "next/image";
+import { useAuthStore } from "@/stores/authStore";
+import { usePathname } from "next/navigation";
+import { LoginRequiredDialog } from "@/components/auth/login-required-dialog";
 
 export interface CollectionDrawerProps {
   trigger: React.ReactNode;
@@ -29,15 +32,16 @@ const CollectionDrawer: React.FC<CollectionDrawerProps> = ({
   onAddToCollection: externalOnAddToCollection,
 }) => {
   const queryClient = useQueryClient();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const pathname = usePathname();
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   
   // Track optimistic updates for immediate UI feedback
   // Tracks collections that have been toggled (added or removed)
   const [optimisticToggles, setOptimisticToggles] = useState<Map<string, boolean>>(new Map());
 
-  // Fetch user's collections
+  // Hooks automatically check authentication internally
   const { data: collectionsResponse } = useGetMyCollections();
-
-  // Fetch collections that contain this ad (only if adId is provided)
   const { data: collectionsByAdResponse } = useGetCollectionsByAd(adId || "");
 
   // Get collection IDs that contain this ad
@@ -174,13 +178,38 @@ const CollectionDrawer: React.FC<CollectionDrawerProps> = ({
       console.error("Error toggling ad in collection:", error);
     }
   };
+  const handleTriggerClick = (e: React.MouseEvent) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsLoginDialogOpen(true);
+      return;
+    }
+  };
+
+  // Only render drawer if authenticated, otherwise just show login dialog on click
+  if (!isAuthenticated) {
+    return (
+      <>
+        <div onClick={handleTriggerClick}>{trigger}</div>
+        <LoginRequiredDialog
+          open={isLoginDialogOpen}
+          onOpenChange={setIsLoginDialogOpen}
+          redirectUrl={pathname}
+          message="You need to be logged in to save ads to collections. Would you like to login?"
+        />
+      </>
+    );
+  }
+
   return (
-    <DrawerWrapper
-      title="Favorites"
-      trigger={trigger}
-      direction="bottom"
-      className={className}
-    >
+    <>
+      <DrawerWrapper
+        title="Favorites"
+        trigger={trigger}
+        direction="bottom"
+        className={className}
+      >
       <div className="space-y-4 p-4">
         {/* Create New Collection - First Item */}
         <NewCollectionDrawer
@@ -303,6 +332,13 @@ const CollectionDrawer: React.FC<CollectionDrawerProps> = ({
         </div>
       </div>
     </DrawerWrapper>
+    <LoginRequiredDialog
+      open={isLoginDialogOpen}
+      onOpenChange={setIsLoginDialogOpen}
+      redirectUrl={pathname}
+      message="You need to be logged in to save ads to collections. Would you like to login?"
+    />
+    </>
   );
 };
 

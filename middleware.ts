@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { AUTH_TOKEN_NAMES } from '@/constants/auth.constants';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Get the authentication token from cookies
-  const token = request.cookies.get('buyorsell_access_token');
+  const token = request.cookies.get(AUTH_TOKEN_NAMES.ACCESS_TOKEN);
   const isAuthenticated = !!token?.value;
 
   // Define auth routes (login, signup, etc.)

@@ -9,7 +9,9 @@ import ApiErrorHandler from './errorHandler';
 import { toast } from 'sonner';
 import { jwtDecode } from 'jwt-decode';
 import { useAuthStore } from '@/stores/authStore';
-import { removeCookies } from '@/actions/cookies.action';
+import { AUTH_TOKEN_NAMES } from '@/constants/auth.constants';
+import { CookieService } from '@/services/cookie-service';
+import { log } from '@/services/logger';
 
 // ============================================================================
 // TYPES
@@ -49,8 +51,14 @@ function isTokenExpired(
   token: string | null,
   skewMs: number = EXP_SKEW_MS,
 ): boolean {
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:48',message:'isTokenExpired entry',data:{hasToken:!!token,skewMs},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+  // #endregion
   if (!token) {
-    console.warn('[Token Check] No token provided');
+    log.warn('No token provided');
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:54',message:'isTokenExpired no token',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
     return true;
   }
   try {
@@ -60,9 +68,13 @@ function isTokenExpired(
     const timeUntilExpiry = expMs - now;
     const isExpired = now >= expMs - Math.max(0, skewMs);
     
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:61',message:'isTokenExpired result',data:{isExpired,timeUntilExpiry:Math.round(timeUntilExpiry/1000),expiryDate:new Date(expMs).toISOString(),skewMs},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
+    
     // Only log if token is expired or close to expiry (within 5 minutes)
     if (isExpired || timeUntilExpiry < 5 * 60 * 1000) {
-      console.log('[Token Check]', {
+      log.debug('Token check result', {
         isExpired,
         timeUntilExpiry: Math.round(timeUntilExpiry / 1000) + 's',
         expiryDate: new Date(expMs).toISOString(),
@@ -72,7 +84,10 @@ function isTokenExpired(
     
     return isExpired;
   } catch (error) {
-    console.error('[Token Check] Failed to decode token:', error);
+    log.error('Failed to decode token', error);
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:75',message:'isTokenExpired decode error',data:{error:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
     return true;
   }
 }
@@ -94,7 +109,13 @@ function getLoginUrlWithRedirect(): string {
  * Handles logout and redirect (prevents multiple redirects)
  */
 async function handleLogoutAndRedirect(): Promise<void> {
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:96',message:'handleLogoutAndRedirect entry',data:{isRedirecting,hasWindow:typeof window!=='undefined',pathname:typeof window!=='undefined'?window.location.pathname:'N/A'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+  // #endregion
   if (typeof window === 'undefined' || isRedirecting) {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:98',message:'handleLogoutAndRedirect early return',data:{reason:typeof window==='undefined'?'no window':'already redirecting'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
     return;
   }
   
@@ -104,15 +125,26 @@ async function handleLogoutAndRedirect(): Promise<void> {
   try {
     const { clearSession } = useAuthStore.getState();
     await clearSession();
-    await removeCookies();
+    // Clear cookie using client-side CookieService
+    CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: '/' });
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:107',message:'handleLogoutAndRedirect cleared session',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
   } catch (error) {
-    // If clearing store fails, still clear localStorage
-    console.error('Error clearing auth store:', error);
+    // If clearing store fails, still clear localStorage and cookies
+    log.error('Error clearing auth store', error);
     LocalStorageService.clear();
+    CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: '/' });
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:111',message:'handleLogoutAndRedirect error clearing',data:{error:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
   }
   
   // Use setTimeout to allow current request to complete
   setTimeout(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:116',message:'handleLogoutAndRedirect redirecting',data:{redirectUrl:getLoginUrlWithRedirect()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
     window.location.href = getLoginUrlWithRedirect();
   }, 100);
 }
@@ -156,11 +188,27 @@ async function callRefreshTokenAPI(refreshToken: string): Promise<{
   timestamp?: string;
   data?: { accessToken?: string; refreshToken?: string; user?: unknown };
 }> {
+  // #region agent log
+  fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:154',message:'callRefreshTokenAPI entry',data:{refreshTokenLength:refreshToken.length,refreshTokenExpired:isTokenExpired(refreshToken,0)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+  // #endregion
   const refreshAxios = createRefreshAxiosInstance();
-  const response = await refreshAxios.post('/auth/refresh-token', {
-    refreshToken,
-  });
-  return response.data;
+  const startTime = Date.now();
+  try {
+    const response = await refreshAxios.post('/auth/refresh-token', {
+      refreshToken,
+    });
+    const duration = Date.now() - startTime;
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:163',message:'callRefreshTokenAPI success',data:{duration,statusCode:response.status,hasAccessToken:!!response.data?.data?.accessToken,hasRefreshToken:!!response.data?.data?.refreshToken},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    return response.data;
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:168',message:'callRefreshTokenAPI error',data:{duration,errorCode:(error as AxiosError).code,status:(error as AxiosError).response?.status,message:(error as Error).message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    throw error;
+  }
 }
 
 // ============================================================================
@@ -201,16 +249,22 @@ axiosInstance.interceptors.request.use(
   async (
     config: InternalAxiosRequestConfig,
   ): Promise<InternalAxiosRequestConfig> => {
-    const token = LocalStorageService.get<string>('buyorsell_access_token');
+    const token = LocalStorageService.get<string>(AUTH_TOKEN_NAMES.ACCESS_TOKEN);
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:200',message:'request interceptor entry',data:{hasToken:!!token,url:config.url,method:config.method,refreshPromiseExists:!!refreshPromise},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
 
     // Case: expired or invalid access token -> refresh using single shared promise
     if (token && isTokenExpired(token)) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:207',message:'token expired, attempting refresh',data:{url:config.url},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
       // Try to get refresh token - check both LocalStorageService and direct localStorage
-      let refreshToken = LocalStorageService.get<string>("refresh_token");
+      let refreshToken = LocalStorageService.get<string>(AUTH_TOKEN_NAMES.REFRESH_TOKEN);
       
       // Fallback: try direct localStorage access if LocalStorageService returns null
       if (!refreshToken && typeof window !== 'undefined') {
-        const rawRefreshToken = localStorage.getItem("refresh_token");
+        const rawRefreshToken = localStorage.getItem(AUTH_TOKEN_NAMES.REFRESH_TOKEN);
         if (rawRefreshToken) {
           try {
             // Try to parse as JSON first (in case it was stored via LocalStorageService)
@@ -223,7 +277,10 @@ axiosInstance.interceptors.request.use(
       }
 
       if (!refreshToken) {
-        console.error('[Axios Interceptor] No refresh token found in localStorage');
+        log.error('No refresh token found in localStorage', undefined, { url: config.url });
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:225',message:'no refresh token found',data:{url:config.url},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
         void handleLogoutAndRedirect();
         return Promise.reject(new Error('No refresh token'));
       }
@@ -231,10 +288,14 @@ axiosInstance.interceptors.request.use(
       // Check if refresh token is also expired
       const isRefreshExpired = isTokenExpired(refreshToken, 0);
       if (isRefreshExpired) {
-        console.error('[Axios Interceptor] Refresh token is expired', {
+        log.error('Refresh token is expired', undefined, {
           tokenLength: refreshToken.length,
           tokenPreview: refreshToken.substring(0, 20) + '...',
+          url: config.url,
         });
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:233',message:'refresh token expired',data:{url:config.url},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
         void handleLogoutAndRedirect();
         return Promise.reject(new Error('Refresh token expired'));
       }
@@ -243,7 +304,7 @@ axiosInstance.interceptors.request.use(
         // Start refresh with timeout protection
         refreshPromise = Promise.race([
           callRefreshTokenAPI(refreshToken)
-            .then((res: {
+            .then(async (res: {
               statusCode?: number;
               timestamp?: string;
               data?: { accessToken?: string; refreshToken?: string; user?: unknown };
@@ -254,15 +315,39 @@ axiosInstance.interceptors.request.use(
               const newRefresh = responseData?.refreshToken;
               
               if (!newToken) {
-                console.error('[Axios Interceptor] No access token in refresh response', res);
+                log.error('No access token in refresh response', undefined, { response: res });
                 throw new Error('No access token in refresh response');
               }
               
-              console.log('[Axios Interceptor] Token refresh successful');
-              LocalStorageService.set('buyorsell_access_token', newToken);
+              log.info('Token refresh successful', { hasNewRefresh: !!newRefresh });
+              LocalStorageService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, newToken);
               if (newRefresh) {
-                LocalStorageService.set("refresh_token", newRefresh);
+                LocalStorageService.set(AUTH_TOKEN_NAMES.REFRESH_TOKEN, newRefresh);
               }
+              
+              // Update cookie with new access token using client-side CookieService
+              try {
+                const maxAge = Number(process.env.NEXT_PUBLIC_COOKIE_MAX_AGE) || 86400; // Default to 24 hours
+                CookieService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, newToken, {
+                  maxAge,
+                  path: '/',
+                  secure: true,
+                  sameSite: 'lax',
+                });
+                // #region agent log
+                fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:323',message:'cookie updated after refresh',data:{newTokenLength:newToken.length,maxAge},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                // #endregion
+              } catch (cookieError) {
+                log.error('Failed to update cookie after token refresh', cookieError);
+                // #region agent log
+                fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:328',message:'cookie update failed after refresh',data:{error:String(cookieError)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                // #endregion
+                // Don't throw - token refresh succeeded, cookie update failure is non-critical
+              }
+              
+              // #region agent log
+              fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:261',message:'token refresh successful',data:{newTokenLength:newToken.length,hasNewRefresh:!!newRefresh,newTokenExpired:isTokenExpired(newToken)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+              // #endregion
               
               // Reset redirect flag on successful refresh
               isRedirecting = false;
@@ -270,7 +355,7 @@ axiosInstance.interceptors.request.use(
               return newToken;
             })
             .catch((err) => {
-              console.error('[Axios Interceptor] Refresh token API call failed:', err);
+              log.error('Refresh token API call failed', err);
               throw err;
             }),
           new Promise<string>((_, reject) =>
@@ -280,7 +365,7 @@ axiosInstance.interceptors.request.use(
           .catch((err: Error) => {
             // Clear refresh promise immediately on error to prevent hanging
             refreshPromise = null;
-            console.error('[Axios Interceptor] Refresh token flow failed:', err.message);
+            log.error('Refresh token flow failed', err, { message: err.message });
             // On refresh failure, clear and redirect; propagate rejection to callers
             void handleLogoutAndRedirect();
             throw err;
@@ -330,6 +415,10 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:323',message:'response interceptor error',data:{status,errorCode,hasResponse:!!error.response,message:error.message,pathname:typeof window!=='undefined'?window.location.pathname:'N/A'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
+
     // Handle network errors and timeouts that could cause infinite loops
     if (!error.response) {
       // Network error - check if it's a timeout or connection issue
@@ -341,6 +430,9 @@ axiosInstance.interceptors.response.use(
         error.message?.includes('timeout') ||
         error.message?.includes('Network Error')
       ) {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:343',message:'network error detected',data:{errorCode,pathname:typeof window!=='undefined'?window.location.pathname:'N/A'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
         // Clear any pending refresh promise to prevent loops
         refreshPromise = null;
         
@@ -354,6 +446,9 @@ axiosInstance.interceptors.response.use(
     }
 
     if (status === 401) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:356',message:'401 unauthorized',data:{isRedirecting,pathname:typeof window!=='undefined'?window.location.pathname:'N/A'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
       // Prevent multiple redirects
       if (!isRedirecting) {
         void handleLogoutAndRedirect();

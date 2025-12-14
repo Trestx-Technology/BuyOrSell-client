@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { setCookies, removeCookies } from '@/actions/cookies.action';
 import { LocalStorageService } from '@/services/local-storage';
+import { CookieService } from '@/services/cookie-service';
+import { AUTH_TOKEN_NAMES } from '@/constants/auth.constants';
 
 // ============================================================================
 // TYPES
@@ -116,12 +117,18 @@ export const useAuthStore = create<AuthStore>()(
         });
 
         // Also store in localStorage for backward compatibility
-        LocalStorageService.set('buyorsell_access_token', accessToken);
-        LocalStorageService.set('refresh_token', refreshToken);
+        LocalStorageService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken);
+        LocalStorageService.set(AUTH_TOKEN_NAMES.REFRESH_TOKEN, refreshToken);
         LocalStorageService.set('user', sessionUser);
 
-        // Set httpOnly cookie for server-side access
-        await setCookies(accessToken);
+        // Set cookie using client-side CookieService
+        const maxAge = Number(process.env.NEXT_PUBLIC_COOKIE_MAX_AGE) || 86400; // Default to 24 hours
+        CookieService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken, {
+          maxAge,
+          path: '/',
+          secure: true,
+          sameSite: 'lax',
+        });
       },
 
       // Clear Session (Logout)
@@ -133,10 +140,10 @@ export const useAuthStore = create<AuthStore>()(
         });
 
         // Clear localStorage
-        LocalStorageService.clear()
+        LocalStorageService.clear();
 
-        // Clear httpOnly cookie
-        await removeCookies();
+        // Clear cookie using client-side CookieService
+        CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: '/' });
       },
 
       // Update User Data
@@ -174,13 +181,19 @@ export const useAuthStore = create<AuthStore>()(
         });
 
         // Update localStorage
-        LocalStorageService.set('buyorsell_access_token', accessToken);
+        LocalStorageService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken);
         if (refreshToken) {
-          LocalStorageService.set('refresh_token', refreshToken);
+          LocalStorageService.set(AUTH_TOKEN_NAMES.REFRESH_TOKEN, refreshToken);
         }
 
-        // Update httpOnly cookie
-        await setCookies(accessToken);
+        // Update cookie using client-side CookieService
+        const maxAge = Number(process.env.NEXT_PUBLIC_COOKIE_MAX_AGE) || 86400; // Default to 24 hours
+        CookieService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken, {
+          maxAge,
+          path: '/',
+          secure: true,
+          sameSite: 'lax',
+        });
       },
     }),
     {

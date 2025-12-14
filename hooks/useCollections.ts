@@ -22,15 +22,19 @@ import {
   CollectionsByAdResponse,
 } from '@/interfaces/collections.types';
 import { collectionsQueries } from '@/app/api/collections/index';
+import { useAuthStore } from '@/stores/authStore';
 
 // ============================================================================
 // COLLECTION QUERY HOOKS
 // ============================================================================
 
 export const useGetMyCollections = (params?: MyCollectionsParams) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  
   return useQuery<CollectionsListResponse, Error>({
     queryKey: [...collectionsQueries.getMyCollections.Key, params],
     queryFn: () => getMyCollections(params),
+    enabled: isAuthenticated,
   });
 };
 
@@ -100,10 +104,12 @@ export const useDeleteCollection = () => {
 // ============================================================================
 
 export const useGetCollectionsByAd = (adId: string) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  
   return useQuery<CollectionsByAdResponse, Error>({
     queryKey: collectionsQueries.getCollectionsByAd(adId).Key,
     queryFn: () => getCollectionsByAd(adId),
-    enabled: !!adId,
+    enabled: isAuthenticated && !!adId,
   });
 };
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Share2, Heart, ChevronLeft } from "lucide-react";
 import AddToCollectionDialog from "@/app/(root)/favorites/_components/add-to-collection-dialog";
 import { AD } from "@/interfaces/ad";
@@ -11,6 +11,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { collectionsQueries } from "@/app/api/collections/index";
 import type { Collection as AddToCollectionDialogCollection } from "@/app/(root)/favorites/_components/add-to-collection-dialog";
 import type { CollectionByAd } from "@/interfaces/collections.types";
+import { useAuthStore } from "@/stores/authStore";
+import { LoginRequiredDialog } from "@/components/auth/login-required-dialog";
 
 interface HeaderProps {
   ad: AD;
@@ -18,13 +20,14 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ ad }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const queryClient = useQueryClient();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  // Fetch user's collections
+  // Hooks automatically check authentication internally
   const { data: collectionsResponse } = useGetMyCollections();
-
-  // Fetch collections that contain this ad
   const { data: collectionsByAdResponse } = useGetCollectionsByAd(ad._id);
 
   // Get collection IDs that contain this ad
@@ -94,7 +97,12 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
   };
 
   const handleSave = () => {
-    setIsOpen(true);
+    if (!isAuthenticated) {
+      setIsLoginDialogOpen(true);
+    } else {
+      
+      setIsOpen(true);
+    }
   };
 
   const handleAddToCollection = async (adId: string, collectionId: string) => {
@@ -138,16 +146,34 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
           <span className="text-sm font-medium sm:block hidden">Share</span>
         </button>
 
-        <AddToCollectionDialog
-          open={isOpen}
-          onOpenChange={setIsOpen}
-          adId={ad._id}
-          adTitle={ad.title}
-          adImage={ad.images?.[0] || "/car-image.jpg"}
-          collections={transformedCollections}
-          onAddToCollection={handleAddToCollection}
-          onCreateNewCollection={handleCreateNewCollection}
-        >
+        {isAuthenticated ? (
+          <AddToCollectionDialog
+            open={isOpen}
+            onOpenChange={setIsOpen}
+            adId={ad._id}
+            adTitle={ad.title}
+            adImage={ad.images?.[0] || "/car-image.jpg"}
+            collections={transformedCollections}
+            onAddToCollection={handleAddToCollection}
+            onCreateNewCollection={handleCreateNewCollection}
+          >
+            <button
+              onClick={handleSave}
+              className={`flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent transition-all cursor-pointer hover:scale-110 ${
+                isAdInCollection
+                  ? "text-purple hover:text-purple"
+                  : "text-gray-600 hover:text-purple"
+              }`}
+            >
+              <Heart
+                className={`h-5 w-5 ${
+                  isAdInCollection ? "fill-purple text-purple" : ""
+                }`}
+              />
+              <span className="text-sm font-medium sm:block hidden">Save</span>
+            </button>
+          </AddToCollectionDialog>
+        ) : (
           <button
             onClick={handleSave}
             className={`flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent transition-all cursor-pointer hover:scale-110 ${
@@ -163,8 +189,16 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
             />
             <span className="text-sm font-medium sm:block hidden">Save</span>
           </button>
-        </AddToCollectionDialog>
+        )}
       </div>
+
+      {/* Login Required Dialog */}
+      <LoginRequiredDialog
+        open={isLoginDialogOpen}
+        onOpenChange={setIsLoginDialogOpen}
+        redirectUrl={pathname}
+        message="You need to be logged in to save ads to collections. Would you like to login?"
+      />
     </div>
   );
 };

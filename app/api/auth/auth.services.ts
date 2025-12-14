@@ -6,7 +6,8 @@ import type {
   SocialLoginPayload,
   User,
 } from '@/interfaces/auth.types';
-import { removeCookies } from '@/actions/cookies.action';
+import { CookieService } from '@/services/cookie-service';
+import { AUTH_TOKEN_NAMES } from '@/constants/auth.constants';
 import { LocalStorageService } from '@/services/local-storage';
 
 // Signup
@@ -69,7 +70,7 @@ export const signUp = async (
 export const logout = async (): Promise<any> => {
   const response = await axiosInstance.post(authQueries.logout.endpoint);
   LocalStorageService.clear();
-  await removeCookies();
+  CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: '/' });
   return response.data;
 };
 
