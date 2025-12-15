@@ -24,6 +24,7 @@ import {
   OrganizationByIdResponse,
 } from '@/interfaces/organization.types';
 import { organizationQueries } from '@/app/api/organization/index';
+import { useAuthStore } from '@/stores/authStore';
 
 // ============================================================================
 // QUERY HOOKS
@@ -54,11 +55,13 @@ export const useOrganizationById = (id: string) => {
 };
 
 // Get my organization
-export const useMyOrganization = (enabled: boolean = true) => {
+export const useMyOrganization = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  
   return useQuery<OrganizationResponse, Error>({
     queryKey: [...organizationQueries.getMyOrganization.Key],
     queryFn: () => getMyOrganization(),
-    enabled,
+    enabled: isAuthenticated,
   });
 };
 

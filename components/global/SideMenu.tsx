@@ -204,7 +204,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   user,
 }) => {
   // Fetch current user's organization using /organizations/me endpoint
-  const { data: myOrganizationData } = useMyOrganization(isLoggedIn);
+  const { data: myOrganizationData } = useMyOrganization();
   
   const organizations = myOrganizationData?.data ?? [];
 
