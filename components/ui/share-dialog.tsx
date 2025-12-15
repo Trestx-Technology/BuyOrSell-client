@@ -3,14 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { Share2, Copy, Check } from "lucide-react"
@@ -25,6 +18,7 @@ interface ShareDialogProps {
 
 export function ShareDialog({ url, title, description, children }: ShareDialogProps) {
   const [copied, setCopied] = useState(false)
+  const [open, setOpen] = useState(false)
 
   const shareText = description ? `${title}\n\n${description}` : title
   const encodedUrl = encodeURIComponent(url)
@@ -36,7 +30,7 @@ export function ShareDialog({ url, title, description, children }: ShareDialogPr
       setCopied(true)
       toast.success("Link copied to clipboard")
       setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
+    } catch {
       toast.error("Failed to copy. Please try again")
     }
   }
@@ -85,45 +79,45 @@ export function ShareDialog({ url, title, description, children }: ShareDialogPr
   ]
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        {children || (
+    <ResponsiveDialogDrawer
+      open={open}
+      onOpenChange={setOpen}
+      title="Share"
+      description={`Share this ${title.toLowerCase()} on your favorite platform`}
+      dialogContentClassName="sm:max-w-lg"
+      trigger={
+        children || (
           <Button variant="outline" size="icon">
             <Share2 className="size-4" />
             <span className="sr-only">Share</span>
           </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent className=" sm:max-w-lg ">
-        <DialogHeader>
-          <DialogTitle>Share</DialogTitle>
-          <DialogDescription>Share this {title.toLowerCase()} on your favorite platform</DialogDescription>
-        </DialogHeader>
-        <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-            {shareLinks.map((platform) => (
-              <Button
-                key={platform.name}
-                        variant="outline"
-                        icon={platform.icon}
-                        iconPosition="center"
-                className={`gap-3 transition-colors w-full ${platform.color}`}
-                onClick={() => window.open(platform.url, "_blank", "noopener,noreferrer")}
-              >
-                <span>{platform.name}</span>
-              </Button>
-            ))}
-          </div>
-          <div className="flex items-center gap-2">
-            <Input readOnly value={url} className="w-full rounded-md border bg-muted px-3 py-2 text-sm truncate" />
-            <Button size="icon" variant="filled" onClick={handleCopyToClipboard} className="w-10 h">
-              {copied ? <Check className="size-4 text-green-500" /> : <Copy className="size-4" />}
-              <span className="sr-only">Copy link</span>
+        )
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+          {shareLinks.map((platform) => (
+            <Button
+              key={platform.name}
+              variant="outline"
+              icon={platform.icon}
+              iconPosition="center"
+              className={`gap-3 transition-colors w-full ${platform.color}`}
+              onClick={() => window.open(platform.url, "_blank", "noopener,noreferrer")}
+            >
+              <span>{platform.name}</span>
             </Button>
-          </div>
+          ))}
         </div>
-      </DialogContent>
-    </Dialog>
+        <div className="flex items-center gap-2">
+          <Input readOnly value={url} className="w-full rounded-md border bg-muted px-3 py-2 text-sm truncate" />
+          <Button size="icon" variant="filled" onClick={handleCopyToClipboard} className="w-10 h-10">
+            {copied ? <Check className="size-4 text-green-500" /> : <Copy className="size-4" />}
+            <span className="sr-only">Copy link</span>
+          </Button>
+        </div>
+      </div>
+    </ResponsiveDialogDrawer>
   )
 }
 
