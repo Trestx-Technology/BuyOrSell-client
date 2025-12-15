@@ -21,31 +21,11 @@ interface ExchangeableAdWrapperProps {
 export function ExchangeableAdWrapper({ children, exchangeAd, className }: ExchangeableAdWrapperProps) {
   return (
     <div className={className}>
-      <TooltipProvider>
-        <Card className="border-2 border-dashed border-primary/30 bg-accent/10">
+        <Card className="border-2 border-dashed border-primary/30 bg-accent/10 py-4">
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                    Exchangeable
-                  </span>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full">
-                        <Info className="h-4 w-4 text-muted-foreground" />
-                        <span className="sr-only">What is Exchange?</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="max-w-xs">
-                      <p className="text-pretty">
-                        Exchange allows you to swap this item with another user's item of similar value. Both parties
-                        agree to trade their items directly, creating a win-win transaction without money changing
-                        hands.
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+               
                 <CardTitle className="text-lg">Available for Exchange</CardTitle>
                 <CardDescription>Owner is willing to accept this item in exchange</CardDescription>
               </div>
@@ -75,7 +55,6 @@ export function ExchangeableAdWrapper({ children, exchangeAd, className }: Excha
             {children && <div className="pt-2">{children}</div>}
           </CardContent>
         </Card>
-      </TooltipProvider>
     </div>
   )
 }

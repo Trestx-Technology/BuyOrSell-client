@@ -3,13 +3,14 @@
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Camera, ImagePlusIcon, Heart, Share2, Repeat } from "lucide-react";
+import { ChevronLeft, ChevronRight, Camera, ImagePlusIcon, Heart, Share2, Repeat, Info } from "lucide-react";
 import CollectionDrawer from "@/app/(root)/favorites/_components/collection-drawer";
 import { AD } from "@/interfaces/ad";
 import GalleryDialog, { MediaItem } from "./GalleryDialog";
 import { ShareDialog } from "@/components/ui/share-dialog";
 import { ExchangeableAdWrapper } from "./ExchangeableAdWrapper";
 import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ProductGalleryProps {
   ad: AD;
@@ -47,30 +48,16 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
   // Check if ad is exchangeable and get exchange data
   const isExchangeable = ad.upForExchange || ad.isExchangable || false;
   
-  // Get exchange data from ad (checking various possible field locations)
+  // Get exchange data from ad.exchangeWith
   const exchangeData = useMemo(() => {
-    if (!isExchangeable) return null;
+    if (!isExchangeable || !ad.exchangeWith) return null;
     
-    // Try to get exchange data from extraFields or direct properties
-    const extraFields = ad.extraFields as Record<string, unknown> | undefined;
-    const adRecord = ad as Record<string, unknown>;
-    
-    const exchangeTitle = (extraFields?.exchangeTitle as string) || 
-                          (adRecord.exchangeTitle as string) || 
-                          "Item for Exchange";
-    const exchangeDescription = (extraFields?.exchangeDescription as string) || 
-                                (adRecord.exchangeDescription as string) || 
-                                "Looking for items of similar value";
-    const exchangeImages = (extraFields?.exchangeImages as string[]) || 
-                          (adRecord.exchangeImages as string[]);
-    const exchangeImage = exchangeImages?.[0] || 
-                         ad.images?.[0] || 
-                         "/placeholder.svg";
+    const exchangeWith = ad.exchangeWith;
     
     return {
-      image: exchangeImage,
-      title: exchangeTitle,
-      description: exchangeDescription,
+      image: exchangeWith.imageUrl  || "/placeholder.svg",
+      title: exchangeWith.title || "Item for Exchange",
+      description: exchangeWith.description || "Looking for items of similar value",
     };
   }, [ad, isExchangeable]);
 
@@ -143,27 +130,48 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
             )}
 
             {/* Exchange Available Button */}
-            {isExchangeable && exchangeData && (
-              <ResponsiveDialogDrawer
-                open={isExchangeDialogOpen}
-                onOpenChange={setIsExchangeDialogOpen}
-                title="Exchange Information"
-                dialogContentClassName="sm:max-w-2xl"
-                trigger={
-                  <button
-                    className="absolute bottom-8 lg:bottom-4 left-4 border bg-white px-2 py-1 rounded-sm text-sm flex items-center gap-1 cursor-pointer hover:scale-110 transition-all border-accent"
-                  >
-                    <Repeat className="h-4 w-4" />
-                    <span className="text-xs font-semibold">
-                      Exchange Available
-                    </span>
-                  </button>
-                }
-              >
-                <ExchangeableAdWrapper exchangeAd={exchangeData} />
-              </ResponsiveDialogDrawer>
-            )}
-
+            <div className="flex items-center gap-2 absolute top-8 lg:top-4 right-4">
+              {isExchangeable && exchangeData && (
+                <ResponsiveDialogDrawer
+                  open={isExchangeDialogOpen}
+                  onOpenChange={setIsExchangeDialogOpen}
+                  title="Exchange Information"
+                  dialogContentClassName="sm:max-w-2xl"
+                  trigger={
+                    <button className="border bg-white px-2 py-1 rounded-sm text-sm flex items-center gap-1 cursor-pointer hover:scale-110 transition-all border-accent">
+                      <Repeat className="h-4 w-4" />
+                      <span className="text-xs font-semibold">
+                        Exchange Available
+                      </span>
+                    </button>
+                  }
+                >
+                  <ExchangeableAdWrapper exchangeAd={exchangeData} />
+                </ResponsiveDialogDrawer>
+              )}
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 rounded-full"
+                    >
+                      <Info className="h-4 w-4 text-muted-foreground" />
+                      <span className="sr-only">What is Exchange?</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-xs">
+                    <p className="text-pretty">
+                      Exchange allows you to swap this item with another
+                      user&apos;s item of similar value. Both parties agree to
+                      trade their items directly, creating a win-win transaction
+                      without money changing hands.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             {/* Navigation Arrows */}
             {images.length > 1 && (
               <>
@@ -220,7 +228,6 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
         mediaItems={mediaItems}
         initialIndex={currentImageIndex}
       />
-
     </div>
   );
 };
