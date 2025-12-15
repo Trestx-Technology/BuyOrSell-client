@@ -90,14 +90,16 @@ const hasExchangeAvailable = (ad: AD | DealAd): boolean => {
     return Boolean(
       adObj.upForExchange ||
       adObj.isExchangable ||
-      adObj.exchanged
+      adObj.exchanged ||
+      adObj.exchangeWith // If exchangeWith exists, exchange is available
     );
   }
   if ('id' in ad) {
     const dealAd = ad as DealAd;
     return Boolean(
       dealAd.isExchangeable ||
-      dealAd.exchanged
+      dealAd.exchanged ||
+      dealAd.exchangeWith // If exchangeWith exists, exchange is available
     );
   }
   return false;
