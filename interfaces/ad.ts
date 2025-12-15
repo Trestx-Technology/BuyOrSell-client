@@ -237,14 +237,15 @@ export interface PostAdPayload {
   description: string;
   price: number;
   images: string[];
-  video?: string;
+  videoUrl?: string;
   contactPhoneNumber?: string;
   extraFields: ProductExtraFields;
   address: AdLocation;
   owner: string;
   category: string;
   deal: boolean;
-  discountPercentage?: number;
+  discountedPrice?: number;
+  dealValidThru?: string; // ISO 8601 date string
   connectionTypes: ("chat" | "call" | "whatsapp")[] | undefined;
   relatedCategories: string[];
   featuredStatus: "created" | "rejected" | "live";

@@ -30,6 +30,7 @@ import { createPostAdSchema, type AddressFormValue } from "@/schemas/post-ad.sch
 import { getFieldOptions, shouldShowField, isJobCategory } from "@/validations/post-ad.validation";
 import { AD_SYSTEM_FIELDS } from "@/constants/ad.constants";
 import { removeUndefinedFields } from "@/utils/remove-undefined-fields";
+import { log } from "@/services/logger";
 
 type FormValues = Record<string, string | number | boolean | string[] | MultipleImageItem[] | ImageItem[] | AddressFormValue>;
 
@@ -70,6 +71,7 @@ export default function LeafCategoryPage() {
     handleSubmit,
     setValue,
     watch,
+    trigger,
     formState: { errors },
   } = useForm<FormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -79,13 +81,19 @@ export default function LeafCategoryPage() {
     },
     mode: "onChange",
   });
-
+  
+  console.log("errors: ", errors);
 
 
 
   // Handle input change (wrapper for setValue)
   const handleInputChange = (field: string, value: string | number | boolean | string[] | MultipleImageItem[] | AddressFormValue) => {
     setValue(field as keyof FormValues, value as FormValues[keyof FormValues], { shouldValidate: true });
+    
+    // If price changes, trigger validation for discountedPrice to show error if needed
+    if (field === "price") {
+      trigger("discountedPrice");
+    }
     
     // Clear dependent fields when parent field changes
     if (category?.fields) {
@@ -163,7 +171,8 @@ export default function LeafCategoryPage() {
 
       // Calculate discountedPrice if deal is active
       const price = (data.price as number) || 0;
-      const discountedPercent = (data.discountedPercent as number) || 0;
+      const discountedPrice = (data.discountedPrice as number) || 0;
+      const dealValidThru = (data.dealValidThru as string) || undefined;
 
       // Prepare connectionTypes array
       const connectionTypes = Array.isArray(data.connectionTypes) 
@@ -223,14 +232,16 @@ export default function LeafCategoryPage() {
         stockQuantity: (data.stockQuantity as number) || 1,
         availability: (data.availability as string) || "in-stock",
         images: imageUrls,
-        video: (data.video as string) || undefined,
+        videoUrl: (data.video as string) || undefined,
         category: leafCategoryId as string,
         owner: (session.user?._id as string) || "",
         contactPhoneNumber: (data.phoneNumber as string) || "",
         connectionTypes: connectionTypes as ("chat" | "call" | "whatsapp")[] | undefined,
         deal: data.deal === true || data.deal === "true",
-        discountPercentage:
-          data.deal && discountedPercent > 0 ? discountedPercent : undefined,
+        discountedPrice:
+          data.deal && discountedPrice > 0 ? discountedPrice : undefined,
+        dealValidThru:
+          data.deal && dealValidThru ? dealValidThru : undefined,
         address: {
           state: addressData.state || "",
           country: addressData.country || "",
@@ -261,10 +272,9 @@ export default function LeafCategoryPage() {
         
         // Redirect to success page with status
         router.push(`/post-ad/success?status=success&title=Ad created successfully!`);
-      } catch (error) {
-        // Redirect to success page with error status
-        const errorMessage = error instanceof Error ? error.message : "Failed to create ad";
-        router.push(`/post-ad/success?status=error&title=Ad creation failed&message=${encodeURIComponent(errorMessage)}`);
+      } catch (error: unknown) {
+
+        log.error("Error creating ad", error);
       }
   };
 
@@ -810,33 +820,9 @@ export default function LeafCategoryPage() {
             {/* Conditional Fields - Show when deal is true */}
             {(formValues.deal === true || formValues.deal === "true") && (
               <div className="space-y-3 pl-4 border-l-2 border-[#8B31E1]/20">
-                {/* Validity */}
+                {/* Valid Till */}
                 <FormField
-                  label="Validity"
-                  htmlFor="validity"
-                  required
-                  error={errors.validity?.message as string}
-                >
-                  <Controller
-                    name="validity"
-                    control={control}
-                    rules={{ required: "Validity date is required" }}
-                    render={({ field }) => (
-                      <DateTimeInput
-                        value={(field.value as string) || ""}
-                        onChange={(val) => {
-                          field.onChange(val);
-                          handleInputChange("validity", val);
-                        }}
-                        placeholder="Select validity date and time"
-                      />
-                    )}
-                  />
-                </FormField>
-
-                {/* Deal Valid Thru */}
-                <FormField
-                  label="Deal Valid Thru"
+                  label="Valid Till"
                   htmlFor="dealValidThru"
                   required
                   error={errors.dealValidThru?.message as string}
@@ -844,7 +830,7 @@ export default function LeafCategoryPage() {
                   <Controller
                     name="dealValidThru"
                     control={control}
-                    rules={{ required: "Deal valid thru date is required" }}
+                    rules={{ required: "Valid till date is required" }}
                     render={({ field }) => (
                       <DateTimeInput
                         value={(field.value as string) || ""}
@@ -852,37 +838,49 @@ export default function LeafCategoryPage() {
                           field.onChange(val);
                           handleInputChange("dealValidThru", val);
                         }}
-                        placeholder="Select deal valid thru date and time"
+                        placeholder="Select valid till date and time"
                       />
                     )}
                   />
                 </FormField>
 
-                {/* Discounted Percent */}
+                {/* Discounted Price */}
                 <FormField
-                  label="Discounted Percent"
-                  htmlFor="discountedPercent"
+                  label="Discounted Price"
+                  htmlFor="discountedPrice"
                   required
-                  error={errors.discountedPercent?.message as string}
+                  error={errors.discountedPrice?.message as string}
                 >
                   <Controller
-                    name="discountedPercent"
+                    name="discountedPrice"
                     control={control}
                     rules={{ 
-                      required: "Discounted percent is required",
-                      min: { value: 0, message: "Value must be at least 0" },
-                      max: { value: 100, message: "Value must be at most 100" }
+                      required: "Discounted price is required",
+                      min: { value: 0, message: "Price must be at least 0" },
+                      validate: (value) => {
+                        const currentPrice = Number(formValues.price) || 0;
+                        if (typeof value === 'number' && value > 0 && currentPrice > 0) {
+                          if (value >= currentPrice) {
+                            return `Discounted price (${value}) must be less than the original price (${currentPrice})`;
+                          }
+                        }
+                        return true;
+                      }
                     }}
                     render={({ field }) => (
                       <NumberInput
                         value={(field.value as number) || 0}
                         onChange={(val) => {
                           field.onChange(val);
-                          handleInputChange("discountedPercent", val);
+                          handleInputChange("discountedPrice", val);
+                          // Trigger validation when price changes
+                          const currentPrice = Number(formValues.price) || 0;
+                          if (typeof val === 'number' && val >= currentPrice && currentPrice > 0) {
+                            // Validation will be triggered automatically by react-hook-form
+                          }
                         }}
                         min={0}
-                        max={100}
-                        placeholder="Enter discount percentage"
+                        placeholder="Enter discounted price"
                       />
                     )}
                   />

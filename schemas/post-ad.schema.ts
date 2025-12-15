@@ -114,15 +114,12 @@ export const createPostAdSchema = (category?: SubCategory) => {
       z.array(z.any()).optional()
     ),
     deal: z.union([z.boolean(), z.string()]).optional(),
-    validity: z.preprocess(
-      (val) => (val === undefined || val === null ? undefined : val),
-      z.string().optional()
-    ),
+    
     dealValidThru: z.preprocess(
       (val) => (val === undefined || val === null ? undefined : val),
       z.string().optional()
     ),
-    discountedPercent: z.preprocess(
+    discountedPrice: z.preprocess(
       (val) => {
         if (val === undefined || val === null) return undefined;
         if (typeof val === "string") {
@@ -131,7 +128,7 @@ export const createPostAdSchema = (category?: SubCategory) => {
         }
         return typeof val === "number" ? val : undefined;
       },
-      z.number().min(0).max(100).optional()
+      z.number().min(0, "Discounted price must be at least 0").optional()
     ),
     stockQuantity: z.preprocess(
       (val) => {
@@ -243,9 +240,6 @@ export const createPostAdSchema = (category?: SubCategory) => {
         // If deal is enabled, validate deal fields
         const isDeal = data.deal === true || data.deal === "true";
         if (isDeal) {
-          if (!data.validity || (data.validity as string).trim() === "") {
-            return false;
-          }
           if (
             !data.dealValidThru ||
             (data.dealValidThru as string).trim() === ""
@@ -253,9 +247,8 @@ export const createPostAdSchema = (category?: SubCategory) => {
             return false;
           }
           if (
-            data.discountedPercent === undefined ||
-            (data.discountedPercent as number) < 0 ||
-            (data.discountedPercent as number) > 100
+            data.discountedPrice === undefined ||
+            (data.discountedPrice as number) < 0
           ) {
             return false;
           }
@@ -264,8 +257,26 @@ export const createPostAdSchema = (category?: SubCategory) => {
       },
       {
         message:
-          "Deal fields (validity, dealValidThru, discountedPercent) are required when deal is enabled",
-        path: ["validity"],
+          "Deal fields (dealValidThru and discountedPrice) are required when deal is enabled",
+        path: ["dealValidThru"],
+      }
+    )
+    .refine(
+      (data) => {
+        // Validate that discountedPrice is less than price when deal is enabled
+        const isDeal = data.deal === true || data.deal === "true";
+        if (isDeal && data.discountedPrice !== undefined && data.price !== undefined) {
+          const discountedPrice = data.discountedPrice as number;
+          const price = data.price as number;
+          if (discountedPrice >= price) {
+            return false;
+          }
+        }
+        return true;
+      },
+      {
+        message: "Discounted price must be less than the original price",
+        path: ["discountedPrice"],
       }
     );
 };
