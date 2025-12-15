@@ -174,6 +174,21 @@ export default function LeafCategoryPage() {
       const discountedPrice = (data.discountedPrice as number) || 0;
       const dealValidThru = (data.dealValidThru as string) || undefined;
 
+      // Extract exchange data
+      const isExchange = data.isExchange === true || data.isExchange === "true";
+      const exchangeImages = (data.exchangeImages as MultipleImageItem[]) || [];
+      // Use fileUrl (S3 URL) - this is only set after successful upload
+      // Filter out blob URLs and get the first valid S3 URL
+      const exchangeImageUrl = exchangeImages
+        .map((img) => {
+          // Prioritize fileUrl (set after upload), fallback to url if it's not a blob
+          const url = img.fileUrl || (img.url && !img.url.startsWith("blob:") ? img.url : null);
+          return url;
+        })
+        .filter((url): url is string => !!url)[0]; // Get first valid non-blob URL
+      const exchangeTitle = (data.exchangeTitle as string) || "";
+      const exchangeDescription = (data.exchangeDescription as string) || "";
+
       // Prepare connectionTypes array
       const connectionTypes = Array.isArray(data.connectionTypes) 
         ? data.connectionTypes 
@@ -242,6 +257,15 @@ export default function LeafCategoryPage() {
           data.deal && discountedPrice > 0 ? discountedPrice : undefined,
         dealValidThru:
           data.deal && dealValidThru ? dealValidThru : undefined,
+        isExchangable: isExchange,
+        exchangeWith:
+          isExchange && exchangeTitle
+            ? {
+                title: exchangeTitle,
+                description: exchangeDescription || undefined,
+                imageUrl: exchangeImageUrl || undefined,
+              }
+            : undefined,
         address: {
           state: addressData.state || "",
           country: addressData.country || "",
@@ -726,7 +750,7 @@ export default function LeafCategoryPage() {
                           field.onChange(val);
                           handleInputChange("exchangeImages", val);
                         }}
-                        maxImages={8}
+                        maxImages={1}
                       />
                     )}
                   />

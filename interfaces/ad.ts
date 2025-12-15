@@ -99,6 +99,11 @@ export type AD = {
   statusHistory?: StatusHistory[];
   upForExchange?: boolean; // Exchange availability flag
   isExchangable?: boolean; // Exchange availability (note spelling)
+  exchangeWith?: {
+    title: string;
+    description?: string;
+    imageUrl?: string;
+  };
   exchanged?: boolean; // Whether item has been exchanged
   createdAt: string;
   updatedAt: string;
@@ -246,6 +251,12 @@ export interface PostAdPayload {
   deal: boolean;
   discountedPrice?: number;
   dealValidThru?: string; // ISO 8601 date string
+  isExchangable?: boolean;
+  exchangeWith?: {
+    title: string;
+    description?: string;
+    imageUrl?: string;
+  };
   connectionTypes: ("chat" | "call" | "whatsapp")[] | undefined;
   relatedCategories: string[];
   featuredStatus: "created" | "rejected" | "live";
