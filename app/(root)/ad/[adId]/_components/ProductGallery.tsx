@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Camera, ImagePlusIcon, Heart, Share2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Camera, ImagePlusIcon, Heart, Share2, Repeat } from "lucide-react";
 import CollectionDrawer from "@/app/(root)/favorites/_components/collection-drawer";
 import { AD } from "@/interfaces/ad";
 import GalleryDialog, { MediaItem } from "./GalleryDialog";
 import { ShareDialog } from "@/components/ui/share-dialog";
+import { ExchangeableAdWrapper } from "./ExchangeableAdWrapper";
+import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
 
 interface ProductGalleryProps {
   ad: AD;
@@ -16,6 +18,7 @@ interface ProductGalleryProps {
 const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => { 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isExchangeDialogOpen, setIsExchangeDialogOpen] = useState(false);
 
   // Use real ad images or fallback to empty array
   const images = ad.images && ad.images.length > 0 ? ad.images : [];
@@ -41,12 +44,42 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
     setCurrentImageIndex(index);
   };
 
+  // Check if ad is exchangeable and get exchange data
+  const isExchangeable = ad.upForExchange || ad.isExchangable || false;
+  
+  // Get exchange data from ad (checking various possible field locations)
+  const exchangeData = useMemo(() => {
+    if (!isExchangeable) return null;
+    
+    // Try to get exchange data from extraFields or direct properties
+    const extraFields = ad.extraFields as Record<string, unknown> | undefined;
+    const adRecord = ad as Record<string, unknown>;
+    
+    const exchangeTitle = (extraFields?.exchangeTitle as string) || 
+                          (adRecord.exchangeTitle as string) || 
+                          "Item for Exchange";
+    const exchangeDescription = (extraFields?.exchangeDescription as string) || 
+                                (adRecord.exchangeDescription as string) || 
+                                "Looking for items of similar value";
+    const exchangeImages = (extraFields?.exchangeImages as string[]) || 
+                          (adRecord.exchangeImages as string[]);
+    const exchangeImage = exchangeImages?.[0] || 
+                         ad.images?.[0] || 
+                         "/placeholder.svg";
+    
+    return {
+      image: exchangeImage,
+      title: exchangeTitle,
+      description: exchangeDescription,
+    };
+  }, [ad, isExchangeable]);
+
   return (
     <div className="overflow-hidden sticky lg:relative z-10 top-0 left-0 w-full">
       {/* Main Image */}
       <div className="bg-white border border-accent rounded-xl relative aspect-[16/9]">
         {images.length > 0 ? (
-          <div className="relative w-full h-full relative">
+          <div className="relative w-full h-full">
             <Image
               src={images[currentImageIndex]}
               alt={`${ad.title || "Product"} - Image ${currentImageIndex + 1}`}
@@ -72,7 +105,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
             {/* Right side - Share and Save */}
             <div className="sm:hidden flex items-center gap-2 z-10 sm:gap-4 absolute top-3 right-3">
               <ShareDialog
-                url={window.location.href}
+                url={typeof window !== "undefined" ? window.location.href : ""}
                 title={ad.title}
                 description={ad.description}
               >
@@ -107,6 +140,28 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                   {images.length} Photos
                 </span>
               </button>
+            )}
+
+            {/* Exchange Available Button */}
+            {isExchangeable && exchangeData && (
+              <ResponsiveDialogDrawer
+                open={isExchangeDialogOpen}
+                onOpenChange={setIsExchangeDialogOpen}
+                title="Exchange Information"
+                dialogContentClassName="sm:max-w-2xl"
+                trigger={
+                  <button
+                    className="absolute bottom-8 lg:bottom-4 left-4 border bg-white px-2 py-1 rounded-sm text-sm flex items-center gap-1 cursor-pointer hover:scale-110 transition-all border-accent"
+                  >
+                    <Repeat className="h-4 w-4" />
+                    <span className="text-xs font-semibold">
+                      Exchange Available
+                    </span>
+                  </button>
+                }
+              >
+                <ExchangeableAdWrapper exchangeAd={exchangeData} />
+              </ResponsiveDialogDrawer>
             )}
 
             {/* Navigation Arrows */}
@@ -165,6 +220,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
         mediaItems={mediaItems}
         initialIndex={currentImageIndex}
       />
+
     </div>
   );
 };
