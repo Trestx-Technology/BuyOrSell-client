@@ -17,15 +17,15 @@ import ProductInfoCard from "./_components/ProductInfoCard";
 import AdCard from "../../categories/_components/AdCard";
 import ProductInfoTabs, { TabType } from "./_components/ProductInfoTabs";
 import ProductInfoCardMobile from "./_components/ProductInfoCardMobile";
-import { Typography } from "@/components/typography";
+import AdDetailSkeleton from "./_components/AdDetailSkeleton";
+import { ErrorCard } from "@/components/ui/error-card";
 
 export default function AdDetailPage() {
-  const params = useParams();
-  const adId = params.adId as string;
+  const { adId } = useParams();
   const [activeTab, setActiveTab] = useState<TabType>("specifications");
 
   // Fetch ad data by ID
-  const { data: adResponse,  error } = useAdById(adId);
+  const { data: adResponse, isLoading, error } = useAdById(adId as string);
   const ad = adResponse?.data;
 
   // Memoize sections for reordering - must be called before early returns
@@ -54,14 +54,35 @@ export default function AdDetailPage() {
       : sections;
   }, [sections, activeTab]);
 
- 
+  // Loading state
+  if (isLoading) {
+    return <AdDetailSkeleton />;
+  }
+
   // Error state
-  if (error || !ad) {
+  if (error || !adId) {
     return (
-      <div className="w-full min-h-[500px] flex items-center justify-center">
-        <Typography variant="body" className="text-red-500">
-          {error ? "Failed to load ad details" : "Ad not found"}
-        </Typography>
+      <div className="w-full min-h-[500px] flex items-center justify-center p-4">
+        <ErrorCard
+          variant="error"
+          title="Failed to load ad"
+          description={error?.message || "Unable to fetch ad details. Please try again later."}
+          className="max-w-md"
+        />
+      </div>
+    );
+  }
+
+  // Ad not found state
+  if (!ad) {
+    return (
+      <div className="w-full min-h-[500px] flex items-center justify-center p-4">
+        <ErrorCard
+          variant="warning"
+          title="Ad not found"
+          description="The ad you're looking for doesn't exist or has been removed."
+          className="max-w-md"
+        />
       </div>
     );
   }
@@ -157,7 +178,7 @@ export default function AdDetailPage() {
         </div>
 
         {/* Similar Ads */}
-        <SimilarAds adId={adId} />
+        <SimilarAds adId={adId as string} />
       </div>
     </div>
   );

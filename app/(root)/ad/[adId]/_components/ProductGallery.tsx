@@ -12,7 +12,7 @@ interface ProductGalleryProps {
   ad: AD;
 }
 
-const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
+const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => { 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
@@ -43,15 +43,17 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
   return (
     <div className="overflow-hidden sticky lg:relative z-10 top-0 left-0 w-full">
       {/* Main Image */}
-      <div className="relative aspect-[16/9]">
+      <div className="bg-white border border-accent rounded-xl relative aspect-[16/9]">
         {images.length > 0 ? (
-          <div className="relative w-full h-full">
+          <div className="relative w-full h-full relative">
             <Image
               src={images[currentImageIndex]}
               alt={`${ad.title || "Product"} - Image ${currentImageIndex + 1}`}
               fill
-              className="object-cover md:rounded-xl"
-              unoptimized
+              className="absolute inset-0 object-contain md:rounded-xl"
+              quality={90}
+              sizes="(max-width: 768px) 100vw, 1200px"
+              priority
             />
 
             {/* Premium Badge */}
@@ -89,15 +91,15 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
 
             {/* Image Counter - Opens Gallery */}
             {images.length > 0 && (
-                <button
-                  onClick={() => setIsGalleryOpen(true)}
-                  className="absolute bottom-8 lg:bottom-4 right-4 border bg-white px-2 py-1 rounded-sm text-sm flex items-center gap-1 cursor-pointer hover:scale-110 transition-all border-accent"
-                >
-                  <ImagePlusIcon className="h-4 w-4" />
-                  <span className="text-xs font-semibold">
-                    {images.length} Photos
-                  </span>
-                </button>
+              <button
+                onClick={() => setIsGalleryOpen(true)}
+                className="absolute bottom-8 lg:bottom-4 right-4 border bg-white px-2 py-1 rounded-sm text-sm flex items-center gap-1 cursor-pointer hover:scale-110 transition-all border-accent"
+              >
+                <ImagePlusIcon className="h-4 w-4" />
+                <span className="text-xs font-semibold">
+                  {images.length} Photos
+                </span>
+              </button>
             )}
 
             {/* Navigation Arrows */}

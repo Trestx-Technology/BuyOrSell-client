@@ -21,20 +21,12 @@ export default function AdDetailSkeleton() {
           {/* Left Column - Main Content */}
           <div className="md:col-span-2 space-y-6 relative">
             {/* Product Gallery Skeleton */}
-            <div className="w-full">
-              <Skeleton className="w-full h-[500px] rounded-lg" />
-              {/* Thumbnail row */}
-              <div className="flex gap-2 mt-4 overflow-x-auto">
-                {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-20 w-20 flex-shrink-0 rounded-lg" />
-                ))}
-              </div>
-            </div>
+            <Skeleton className="w-full h-[500px] rounded-lg shadow border border-accent" />
 
             {/* Tabs Skeleton */}
-            <div className="w-full px-4 bg-white rounded-l-xl md:rounded-r-xl border border-gray-200 shadow-sm flex items-center gap-4 h-12">
-              {[...Array(4)].map((_, i) => (
-                <Skeleton key={i} className="h-6 w-20" />
+            <div className="w-full px-4 bg-white rounded-l-xl md:rounded-r-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4 h-12">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-6 w-full" />
               ))}
             </div>
 
