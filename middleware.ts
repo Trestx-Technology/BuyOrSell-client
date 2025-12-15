@@ -6,6 +6,9 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Get the authentication token from cookies
+  // Note: Cookies are set client-side via CookieService (non-httpOnly)
+  // but are still accessible to middleware because cookies are sent with every HTTP request
+  // The cookie is set in authStore.setSession() and authStore.refreshTokens()
   const token = request.cookies.get(AUTH_TOKEN_NAMES.ACCESS_TOKEN);
   const isAuthenticated = !!token?.value;
 
