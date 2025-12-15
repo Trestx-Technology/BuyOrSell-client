@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";
@@ -17,6 +17,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { AD } from "@/interfaces/ad";
 import { formatDistanceToNow } from "date-fns";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
+import { useAuthStore } from "@/stores/authStore";
 
 interface ProductInfoCardProps {
   ad: AD;
@@ -24,6 +25,18 @@ interface ProductInfoCardProps {
 
 const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
   const router = useRouter();
+  const { session } = useAuthStore((state) => state);
+  
+  // Check if current user is the owner or organization owner
+  const isOwner = useMemo(() => {
+    if (!session.user?._id) return false;
+    
+    const currentUserId = session.user._id;
+    const adOwnerId = typeof ad.owner === "string" ? ad.owner : ad.owner?._id;
+    const orgOwnerId = ad.organization?.owner;
+    
+    return currentUserId === adOwnerId || currentUserId === orgOwnerId;
+  }, [session.user?._id, ad.owner, ad.organization?.owner]);
 
   // Extract location
   const location =
@@ -169,61 +182,63 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
       {/* Divider Line */}
       <div className="border-b border-dashed border-gray-300 mb-4"></div>
 
-      {/* Contact Actions */}
-      <div className="space-y-3">
-        {/* Call Button */}
-        {ad.contactPhoneNumber && (
-          <Button
-            onClick={handleCall}
-            variant="primary"
-            icon={<Phone className="h-5 w-5 -mr-2 fill-white" stroke="0" />}
-            iconPosition="center"
-            className="w-full h-12"
-          >
-            Call Seller
-          </Button>
-        )}
+      {/* Contact Actions - Only show if user is not the owner */}
+      {!isOwner && (
+        <div className="space-y-3">
+          {/* Call Button */}
+          {ad.contactPhoneNumber && (
+            <Button
+              onClick={handleCall}
+              variant="primary"
+              icon={<Phone className="h-5 w-5 -mr-2 fill-white" stroke="0" />}
+              iconPosition="center"
+              className="w-full h-12"
+            >
+              Call Seller
+            </Button>
+          )}
 
-        {/* Message Button */}
-        {ad.owner?._id && (
-          <Button
-            onClick={handleMessage}
-            variant="outline"
-            icon={
-              <MdMessage
-                className="h-5 w-5 -mr-2 fill-dark-blue"
-                stroke="white"
-              />
-            }
-            iconPosition="center"
-            className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-12"
-          >
-            Send Message
-          </Button>
-        )}
+          {/* Message Button */}
+          {ad.owner?._id && (
+            <Button
+              onClick={handleMessage}
+              variant="outline"
+              icon={
+                <MdMessage
+                  className="h-5 w-5 -mr-2 fill-dark-blue"
+                  stroke="white"
+                />
+              }
+              iconPosition="center"
+              className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-12"
+            >
+              Send Message
+            </Button>
+          )}
 
-        {/* WhatsApp Button */}
-        {ad.contactPhoneNumber && (
-          <Button
-            onClick={handleWhatsApp}
-            variant="outline"
-            icon={
-              <FaWhatsapp className="h-5 w-5 -mr-2 fill-green-500" stroke="0" />
-            }
-            iconPosition="center"
-            className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-12"
-          >
-            WhatsApp
-          </Button>
-        )}
+          {/* WhatsApp Button */}
+          {ad.contactPhoneNumber && (
+            <Button
+              onClick={handleWhatsApp}
+              variant="outline"
+              icon={
+                <FaWhatsapp className="h-5 w-5 -mr-2 fill-green-500" stroke="0" />
+              }
+              iconPosition="center"
+              className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-12"
+            >
+              WhatsApp
+            </Button>
+          )}
 
-        {/* Show message if no contact options available */}
-        {!ad.contactPhoneNumber && !ad.owner?._id && (
-          <Typography variant="body-small" className="text-grey-blue text-center py-2">
-            Contact information not available
-          </Typography>
-        )}
-      </div>
+          {/* Show message if no contact options available */}
+          {!ad.contactPhoneNumber && !ad.owner?._id && (
+            <Typography variant="body-small" className="text-grey-blue text-center py-2">
+              Contact information not available
+            </Typography>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,12 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { MdMessage } from "react-icons/md";
 import { AD } from "@/interfaces/ad";
 import { useRouter } from "nextjs-toploader/app";
+import { useAuthStore } from "@/stores/authStore";
 
 interface ContactActionsProps {
   ad: AD;
@@ -14,6 +15,23 @@ interface ContactActionsProps {
 
 const ContactActions: React.FC<ContactActionsProps> = ({ ad }) => {
   const router = useRouter();
+  const { session } = useAuthStore((state) => state);
+  
+  // Check if current user is the owner or organization owner
+  const isOwner = useMemo(() => {
+    if (!session.user?._id) return false;
+    
+    const currentUserId = session.user._id;
+    const adOwnerId = typeof ad.owner === "string" ? ad.owner : ad.owner?._id;
+    const orgOwnerId = ad.organization?.owner;
+    
+    return currentUserId === adOwnerId || currentUserId === orgOwnerId;
+  }, [session.user?._id, ad.owner, ad.organization?.owner]);
+  
+  // Don't show contact options if user is viewing their own ad
+  if (isOwner) {
+    return null;
+  }
 
   const handleCall = () => {
     if (ad.contactPhoneNumber) {
