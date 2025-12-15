@@ -2,14 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
 import { Button } from "@/components/ui/button";
 
 interface LoginRequiredDialogProps {
@@ -40,29 +33,29 @@ export function LoginRequiredDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Login Required</DialogTitle>
-          <DialogDescription className="pt-2">{message}</DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
-          <Button
-            variant="outline"
-            onClick={handleCancel}
-            className="w-full sm:w-auto"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleLogin}
-            className="w-full sm:w-auto bg-purple hover:bg-purple/90"
-          >
-            Login
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <ResponsiveDialogDrawer
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Login Required"
+      description={message}
+      dialogContentClassName="sm:max-w-[425px]"
+    >
+      <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+        <Button
+          variant="outline"
+          onClick={handleCancel}
+          className="w-full sm:w-auto"
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleLogin}
+          className="w-full sm:w-auto bg-purple hover:bg-purple/90"
+        >
+          Login
+        </Button>
+      </div>
+    </ResponsiveDialogDrawer>
   );
 }
 
