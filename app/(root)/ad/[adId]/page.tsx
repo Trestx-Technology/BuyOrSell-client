@@ -25,7 +25,7 @@ export default function AdDetailPage() {
   const [activeTab, setActiveTab] = useState<TabType>("specifications");
 
   // Fetch ad data by ID
-  const { data: adResponse, isLoading, error } = useAdById(adId);
+  const { data: adResponse,  error } = useAdById(adId);
   const ad = adResponse?.data;
 
   // Memoize sections for reordering - must be called before early returns
@@ -54,17 +54,7 @@ export default function AdDetailPage() {
       : sections;
   }, [sections, activeTab]);
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="w-full min-h-[500px] flex items-center justify-center">
-        <Typography variant="body" className="text-gray-500">
-          Loading ad details...
-        </Typography>
-      </div>
-    );
-  }
-
+ 
   // Error state
   if (error || !ad) {
     return (
