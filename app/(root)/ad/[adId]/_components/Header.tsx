@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Share2, Heart, ChevronLeft } from "lucide-react";
+import { Heart, ChevronLeft, Share2 } from "lucide-react";
 import AddToCollectionDialog from "@/app/(root)/favorites/_components/add-to-collection-dialog";
 import { AD } from "@/interfaces/ad";
 import { useGetMyCollections, useGetCollectionsByAd } from "@/hooks/useCollections";
@@ -13,6 +13,7 @@ import type { Collection as AddToCollectionDialogCollection } from "@/app/(root)
 import type { CollectionByAd } from "@/interfaces/collections.types";
 import { useAuthStore } from "@/stores/authStore";
 import { LoginRequiredDialog } from "@/components/auth/login-required-dialog";
+import { ShareDialog } from "@/components/ui/share-dialog";
 
 interface HeaderProps {
   ad: AD;
@@ -91,10 +92,15 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
     router.back();
   };
 
-  const handleShare = () => {
-    // Implement share functionality
-    console.log("Share clicked");
-  };
+  // Get current URL for sharing
+  const shareUrl = useMemo(() => {
+    if (typeof window !== "undefined") {
+      return window.location.href;
+    }
+    return "";
+  }, []);
+  
+  const shareDescription = ad.description || ad.title;
 
   const handleSave = () => {
     if (!isAuthenticated) {
@@ -138,13 +144,16 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
 
       {/* Right side - Share and Save */}
       <div className="hidden sm:flex items-center gap-2 z-10 sm:gap-4">
-        <button
-          onClick={handleShare}
-          className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110"
+        <ShareDialog
+          url={shareUrl}
+          title={ad.title}
+          description={shareDescription}
         >
-          <Share2 className="h-5 w-5" />
-          <span className="text-sm font-medium sm:block hidden">Share</span>
-        </button>
+          <button className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110">
+            <Share2 className="h-5 w-5" />
+            <span className="text-sm font-medium sm:block hidden">Share</span>
+          </button>
+        </ShareDialog>
 
         {isAuthenticated ? (
           <AddToCollectionDialog

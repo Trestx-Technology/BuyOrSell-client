@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, Camera, ImagePlusIcon, Heart, Share2 } from 
 import CollectionDrawer from "@/app/(root)/favorites/_components/collection-drawer";
 import { AD } from "@/interfaces/ad";
 import GalleryDialog, { MediaItem } from "./GalleryDialog";
+import { ShareDialog } from "@/components/ui/share-dialog";
 
 interface ProductGalleryProps {
   ad: AD;
@@ -70,12 +71,18 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
 
             {/* Right side - Share and Save */}
             <div className="sm:hidden flex items-center gap-2 z-10 sm:gap-4 absolute top-3 right-3">
-              <button className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110">
-                <Share2 className="h-5 w-5" />
-                <span className="text-sm font-medium sm:block hidden">
-                  Share
-                </span>
-              </button>
+              <ShareDialog
+                url={window.location.href}
+                title={ad.title}
+                description={ad.description}
+              >
+                <button className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110">
+                  <Share2 className="h-5 w-5" />
+                  <span className="text-sm font-medium sm:block hidden">
+                    Share
+                  </span>
+                </button>
+              </ShareDialog>
 
               <CollectionDrawer
                 trigger={
