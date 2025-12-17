@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { mockAds } from "@/constants/sample-listings";
 import { ChatSidebar } from "./_components/ChatSidebar";
-import { ChatHeader } from "./_components/ChatHeader";
-import { MessagesList } from "./_components/MessagesList";
-import { MessageInput } from "./_components/MessageInput";
+import { ChatArea } from "./_components/ChatArea";
+import { ChatType } from "./_components/ChatTypeSelector";
+import { cn } from "@/lib/utils";
 
 // Mock chat data
 const mockChats = [
@@ -18,6 +18,7 @@ const mockChats = [
     unreadCount: 1,
     isVerified: true,
     isOnline: true,
+    chatType: "ad" as ChatType,
   },
   {
     id: "2",
@@ -28,6 +29,7 @@ const mockChats = [
     unreadCount: 0,
     isVerified: false,
     isOnline: false,
+    chatType: "dm" as ChatType,
   },
   {
     id: "3",
@@ -38,6 +40,7 @@ const mockChats = [
     unreadCount: 1,
     isVerified: false,
     isOnline: false,
+    chatType: "ad" as ChatType,
   },
   {
     id: "4",
@@ -49,6 +52,7 @@ const mockChats = [
     isVerified: false,
     isOnline: false,
     isRead: true,
+    chatType: "organisation" as ChatType,
   },
   {
     id: "5",
@@ -60,6 +64,7 @@ const mockChats = [
     isVerified: false,
     isOnline: false,
     isRead: true,
+    chatType: "dm" as ChatType,
   },
   {
     id: "6",
@@ -70,6 +75,7 @@ const mockChats = [
     unreadCount: 1,
     isVerified: false,
     isOnline: false,
+    chatType: "ad" as ChatType,
   },
   {
     id: "7",
@@ -81,10 +87,11 @@ const mockChats = [
     isVerified: false,
     isOnline: false,
     isRead: true,
+    chatType: "dm" as ChatType,
   },
   {
     id: "8",
-    name: "Giana Carder",
+    name: "Tech Solutions Inc.",
     avatar: mockAds[7].images[0],
     lastMessage: "Let's see.",
     time: "10/16/20",
@@ -92,6 +99,7 @@ const mockChats = [
     isVerified: false,
     isOnline: false,
     isRead: true,
+    chatType: "organisation" as ChatType,
   },
 ];
 
@@ -139,8 +147,20 @@ export default function ChatPage() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState(initialMessages);
   const [isTyping, setIsTyping] = useState(false);
+  const [chatType, setChatType] = useState<ChatType>("ad");
 
-  const currentChat = mockChats.find((chat) => chat.id === activeChat);
+  // Filter chats based on selected chat type
+  const filteredChats = useMemo(() => {
+    return mockChats.filter((chat) => chat.chatType === chatType);
+  }, [chatType]);
+
+  const currentChat = filteredChats.find((chat) => chat.id === activeChat);
+
+  // Reset active chat when chat type changes
+  const handleChatTypeChange = (type: ChatType) => {
+    setChatType(type);
+    setActiveChat(""); // Reset active chat when switching types
+  };
 
   const getCurrentTime = () => {
     const now = new Date();
@@ -231,89 +251,36 @@ export default function ChatPage() {
 
   return (
     <div className="h-full flex relative">
-      {/* Full Width Sidebar - When no chat is selected */}
-      {!currentChat && (
-        <div className="w-full flex h-full bg-white">
-          {/* Sidebar */}
-          <div className="w-80 lg:w-96 border-r border-gray-200">
-            <ChatSidebar
-              chats={mockChats}
-              activeChat={activeChat}
-              onChatSelect={handleChatSelect}
-              onBack={handleBack}
-            />
-          </div>
+      {/* Sidebar - Hidden on mobile when chat is selected, always visible on desktop */}
+      <div
+        className={cn(
+          "border-r border-gray-200 flex flex-col h-full bg-white",
+          !currentChat ? "flex w-full sm:w-80 sm:flex lg:w-96" : "hidden sm:flex sm:w-80 lg:w-96"
+        )}
+      >
+        <ChatSidebar
+          chats={filteredChats}
+          activeChat={activeChat}
+          chatType={chatType}
+          onChatSelect={handleChatSelect}
+          onChatTypeChange={handleChatTypeChange}
+          onBack={handleBack}
+        />
+      </div>
 
-          {/* Empty State Message */}
-          <div className="flex-1 flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-8 h-8 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Select a chat to continue
-              </h3>
-              <p className="text-gray-500 max-w-sm">
-                Choose a conversation from the left sidebar to start chatting
-                with other users.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Desktop Layout - When chat is selected */}
-      {currentChat && (
-        <>
-          <div className=" lg:flex w-80 lg:w-96 border-r border-gray-200 flex flex-col h-full bg-white">
-            <ChatSidebar
-              chats={mockChats}
-              activeChat={activeChat}
-              onChatSelect={handleChatSelect}
-              onBack={handleBack}
-            />
-          </div>
-
-          {/* Chat Area */}
-          <div className="flex-1 w-full flex flex-col min-h-0 bg-white">
-            <ChatHeader
-              currentChat={currentChat}
-              onSearch={handleSearch}
-              onCall={handleCall}
-              onMoreOptions={handleMoreOptions}
-              onBackToSidebar={handleBackToSidebar}
-              showBackButton={true}
-            />
-
-            <div className="flex-1 min-h-0">
-              <MessagesList messages={messages} isTyping={isTyping} />
-            </div>
-
-            <MessageInput
-              value={message}
-              onChange={setMessage}
-              onSend={handleSendMessage}
-              onAIMessageGenerated={handleAIMessageGenerated}
-              itemTitle={currentChat.name}
-              itemPrice="$15,000"
-              maxRows={5}
-              minRows={1}
-            />
-          </div>
-        </>
-      )}
+      <ChatArea
+        currentChat={currentChat}
+        messages={messages}
+        message={message}
+        isTyping={isTyping}
+        onMessageChange={setMessage}
+        onSendMessage={handleSendMessage}
+        onAIMessageGenerated={handleAIMessageGenerated}
+        onSearch={handleSearch}
+        onCall={handleCall}
+        onMoreOptions={handleMoreOptions}
+        onBackToSidebar={handleBackToSidebar}
+      />
     </div>
   );
 }

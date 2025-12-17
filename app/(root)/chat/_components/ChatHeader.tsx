@@ -1,20 +1,9 @@
 "use client";
 
-import {  MoreVertical, ChevronLeft } from "lucide-react";
+import { MoreVertical, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
-
-interface Chat {
-  id: string;
-  name: string;
-  avatar: string;
-  lastMessage: string;
-  time: string;
-  unreadCount: number;
-  isVerified: boolean;
-  isOnline: boolean;
-  isRead?: boolean;
-}
+import { Chat } from "./ChatSidebar";
 
 interface ChatHeaderProps {
   currentChat: Chat | undefined;

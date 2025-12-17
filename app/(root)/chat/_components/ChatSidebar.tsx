@@ -2,8 +2,9 @@
 
 import { Input } from "@/components/ui/input";
 import { Typography } from "@/components/typography";
+import { ChatTypeSelector, ChatType } from "./ChatTypeSelector";
 
-interface Chat {
+export interface Chat {
   id: string;
   name: string;
   avatar: string;
@@ -13,19 +14,24 @@ interface Chat {
   isVerified: boolean;
   isOnline: boolean;
   isRead?: boolean;
+  chatType: ChatType;
 }
 
 interface ChatSidebarProps {
   chats: Chat[];
   activeChat: string;
+  chatType: ChatType;
   onChatSelect: (chatId: string) => void;
+  onChatTypeChange: (type: ChatType) => void;
   onBack?: () => void;
 }
 
 export function ChatSidebar({
   chats,
   activeChat,
+  chatType,
   onChatSelect,
+  onChatTypeChange,
 }: ChatSidebarProps) {
   const handleChatSelect = (chatId: string) => {
     // Also call the onChatSelect callback for state management
@@ -35,7 +41,8 @@ export function ChatSidebar({
   return (
     <div className="w-full flex flex-col h-full">
       {/* Header */}
-      <div className="bg-purple p-4">
+      <div className="bg-purple p-4 space-y-3">
+        <ChatTypeSelector value={chatType} onChange={onChatTypeChange} />
         <div className="flex items-center gap-4">
           <Input
             placeholder="Search Chat"
