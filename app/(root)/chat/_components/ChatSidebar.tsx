@@ -4,6 +4,19 @@ import { Input } from "@/components/ui/input";
 import { Typography } from "@/components/typography";
 import { ChatTypeSelector, ChatType } from "./ChatTypeSelector";
 
+export interface AdDetails {
+  adId: string;
+  adTitle: string;
+  adImage: string;
+  adPrice: number;
+}
+
+export interface OrganisationDetails {
+  organisationId: string;
+  orgTradeName: string;
+  orgImage: string;
+}
+
 export interface Chat {
   id: string;
   name: string;
@@ -15,6 +28,8 @@ export interface Chat {
   isOnline: boolean;
   isRead?: boolean;
   chatType: ChatType;
+  ad?: AdDetails;
+  organisation?: OrganisationDetails;
 }
 
 interface ChatSidebarProps {
@@ -53,7 +68,32 @@ export function ChatSidebar({
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
-        {chats.map((chat) => (
+        {chats.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+              <svg
+                className="w-8 h-8 text-purple-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+            </div>
+            <Typography variant="body-small" className="text-gray-500 mb-2">
+              No chats found
+            </Typography>
+            <Typography variant="caption" className="text-gray-400">
+              Start a conversation to see your chats here
+            </Typography>
+          </div>
+        ) : (
+          chats.map((chat) => (
           <div
             key={chat.id}
             onClick={() => handleChatSelect(chat.id)}
@@ -116,7 +156,8 @@ export function ChatSidebar({
               </div>
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
     </div>
   );

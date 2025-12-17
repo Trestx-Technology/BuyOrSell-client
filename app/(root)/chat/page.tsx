@@ -1,219 +1,298 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { mockAds } from "@/constants/sample-listings";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ChatSidebar } from "./_components/ChatSidebar";
 import { ChatArea } from "./_components/ChatArea";
 import { ChatType } from "./_components/ChatTypeSelector";
+import { ChatService } from "@/lib/firebase/chat.service";
+import { Chat as FirebaseChat, Message } from "@/lib/firebase/types";
+import { Chat } from "./_components/ChatSidebar";
+import { useAuthStore } from "@/stores/authStore";
+import { usePresence } from "@/lib/firebase/presence.hook";
 import { cn } from "@/lib/utils";
-
-// Mock chat data
-const mockChats = [
-  {
-    id: "1",
-    name: "Premium Auto Collection",
-    avatar: mockAds[0].images[0],
-    lastMessage: "Dubai, I/A. Sharjah...",
-    time: "00:13",
-    unreadCount: 1,
-    isVerified: true,
-    isOnline: true,
-    chatType: "ad" as ChatType,
-  },
-  {
-    id: "2",
-    name: "Giana Carder",
-    avatar: mockAds[1].images[0],
-    lastMessage: "Hey",
-    time: "00:17",
-    unreadCount: 0,
-    isVerified: false,
-    isOnline: false,
-    chatType: "dm" as ChatType,
-  },
-  {
-    id: "3",
-    name: "Alena Passaquindici Ar..",
-    avatar: mockAds[2].images[0],
-    lastMessage: "Hey",
-    time: "18:56",
-    unreadCount: 1,
-    isVerified: false,
-    isOnline: false,
-    chatType: "ad" as ChatType,
-  },
-  {
-    id: "4",
-    name: "Jocelyn Carder",
-    avatar: mockAds[3].images[0],
-    lastMessage: "Please join.",
-    time: "Yesterday",
-    unreadCount: 0,
-    isVerified: false,
-    isOnline: false,
-    isRead: true,
-    chatType: "organisation" as ChatType,
-  },
-  {
-    id: "5",
-    name: "Kaylynn Vetrovs",
-    avatar: mockAds[4].images[0],
-    lastMessage: "Thank you.",
-    time: "Yesterday",
-    unreadCount: 0,
-    isVerified: false,
-    isOnline: false,
-    isRead: true,
-    chatType: "dm" as ChatType,
-  },
-  {
-    id: "6",
-    name: "Mira Passaquindici Ar..",
-    avatar: mockAds[5].images[0],
-    lastMessage: "Okay.",
-    time: "Yesterday",
-    unreadCount: 1,
-    isVerified: false,
-    isOnline: false,
-    chatType: "ad" as ChatType,
-  },
-  {
-    id: "7",
-    name: "Giana Carder",
-    avatar: mockAds[6].images[0],
-    lastMessage: "Fine.",
-    time: "10/16/20",
-    unreadCount: 0,
-    isVerified: false,
-    isOnline: false,
-    isRead: true,
-    chatType: "dm" as ChatType,
-  },
-  {
-    id: "8",
-    name: "Tech Solutions Inc.",
-    avatar: mockAds[7].images[0],
-    lastMessage: "Let's see.",
-    time: "10/16/20",
-    unreadCount: 0,
-    isVerified: false,
-    isOnline: false,
-    isRead: true,
-    chatType: "organisation" as ChatType,
-  },
-];
-
-// Initial messages for the active chat
-const initialMessages = [
-  {
-    id: "1",
-    text: "Thanks!",
-    time: "18:16",
-    isFromUser: true,
-    isRead: true,
-  },
-  {
-    id: "2",
-    text: "What's your shop address?",
-    time: "18:16",
-    isFromUser: true,
-    isRead: true,
-  },
-  {
-    id: "3",
-    text: "What's the price?",
-    time: "18:16",
-    isFromUser: false,
-    isRead: true,
-  },
-  {
-    id: "4",
-    text: "Okay wil reach there 😄",
-    time: "18:16",
-    isFromUser: true,
-    isRead: true,
-  },
-  {
-    id: "5",
-    text: "Dubai, 1/A, Sharjah street",
-    time: "18:12",
-    isFromUser: false,
-    isRead: true,
-  },
-];
+import { toast } from "sonner";
 
 export default function ChatPage() {
-  const [activeChat, setActiveChat] = useState("");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { session, isAuthenticated } = useAuthStore((state) => state);
+  
+  const [chats, setChats] = useState<FirebaseChat[]>([]);
+  const [currentChatData, setCurrentChatData] = useState<FirebaseChat | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState(initialMessages);
-  const [isTyping, setIsTyping] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [chatType, setChatType] = useState<ChatType>("ad");
+  const [onlineStatus, setOnlineStatus] = useState<{ [userId: string]: boolean }>({});
+  const [typingStatus, setTypingStatus] = useState<{ [userId: string]: boolean }>({});
+  const [isOtherUserOnline, setIsOtherUserOnline] = useState(false);
 
-  // Filter chats based on selected chat type
-  const filteredChats = useMemo(() => {
-    return mockChats.filter((chat) => chat.chatType === chatType);
-  }, [chatType]);
+  // Get chat type and chatId from URL
+  const urlChatType = searchParams.get("type") as ChatType | null;
+  const urlChatId = searchParams.get("chatId");
 
-  const currentChat = filteredChats.find((chat) => chat.id === activeChat);
+  // Initialize chat type
+  useEffect(() => {
+    if (urlChatType && ["ad", "dm", "organisation"].includes(urlChatType)) {
+      setChatType(urlChatType);
+    }
+  }, [urlChatType]);
 
-  // Reset active chat when chat type changes
+  // Set up presence hook for current user
+  const userId = session.user?._id || null;
+  usePresence(userId);
+
+  // Subscribe to user chats in real-time
+  useEffect(() => {
+    const userId = session.user?._id;
+    if (!isAuthenticated || !userId) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    const unsubscribe = ChatService.subscribeToUserChats(
+      userId,
+      chatType,
+      (firebaseChats) => {
+        setChats(firebaseChats);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [isAuthenticated, session.user?._id, chatType]);
+
+  // Load current chat data when chatId is in URL
+  useEffect(() => {
+    if (!urlChatId || !session.user?._id) {
+      setCurrentChatData(null);
+      setMessages([]);
+      setMessage("");
+      return;
+    }
+
+    const loadChat = async () => {
+      try {
+        const chatData = await ChatService.getChat(urlChatId);
+        
+        if (!chatData) {
+          toast.error("Chat not found");
+          router.push("/chat");
+          return;
+        }
+
+        setCurrentChatData(chatData);
+        setChatType(chatData.chatType);
+
+        // Load messages
+        const chatMessages = await ChatService.getMessages(urlChatId);
+        setMessages(chatMessages);
+
+        // Mark chat as read for current user
+        if (session.user?._id) {
+          await ChatService.markChatAsRead(urlChatId, session.user._id);
+        }
+      } catch (error) {
+        console.error("Error loading chat:", error);
+        toast.error("Failed to load chat");
+        router.push("/chat");
+      }
+    };
+
+    loadChat();
+  }, [urlChatId, router, session.user?._id]);
+
+  // Subscribe to real-time messages
+  useEffect(() => {
+    if (!urlChatId) return;
+
+    const unsubscribe = ChatService.subscribeToMessages(urlChatId, (newMessages) => {
+      setMessages(newMessages);
+      // Mark chat as read when new messages arrive
+      if (session.user?._id) {
+        ChatService.markChatAsRead(urlChatId, session.user._id).catch(console.error);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [urlChatId, session.user?._id]);
+
+  // Subscribe to typing status
+  useEffect(() => {
+    if (!urlChatId) return;
+
+    const unsubscribe = ChatService.subscribeToTypingStatus(urlChatId, (typing) => {
+      setTypingStatus(typing);
+    });
+
+    return () => unsubscribe();
+  }, [urlChatId]);
+
+  // Subscribe to other user's online status (for current chat)
+  useEffect(() => {
+    if (!currentChatData || !session.user?._id) return;
+
+    const otherParticipantId = currentChatData.participants.find(id => id !== session.user?._id);
+    if (!otherParticipantId) return;
+
+    const unsubscribe = ChatService.subscribeToOnlineStatus(otherParticipantId, (isOnline) => {
+      setIsOtherUserOnline(isOnline);
+    });
+
+    return () => unsubscribe();
+  }, [currentChatData, session.user?._id]);
+
+  // Helper function to format timestamp
+  const formatTimestamp = (timestamp: Date | { toDate?: () => Date } | string | number | undefined): string => {
+    if (!timestamp) return "";
+    
+    let date: Date;
+    
+    if (timestamp instanceof Date) {
+      date = timestamp;
+    } else if (typeof timestamp === "object" && timestamp !== null && "toDate" in timestamp && typeof timestamp.toDate === "function") {
+      date = timestamp.toDate();
+    } else if (typeof timestamp === "string" || typeof timestamp === "number") {
+      date = new Date(timestamp);
+    } else {
+      return "";
+    }
+    
+    if (isNaN(date.getTime())) return "";
+
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInHours = diffInMs / (1000 * 60 * 60);
+    const diffInDays = diffInHours / 24;
+
+    if (diffInHours < 24) {
+      return date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+    } else if (diffInDays < 7) {
+      return date.toLocaleDateString("en-US", { weekday: "short" });
+    } else {
+      return date.toLocaleDateString("en-US", {
+        month: "2-digit",
+        day: "2-digit",
+        year: "2-digit",
+      });
+    }
+  };
+
+  // Subscribe to online status for all participants
+  useEffect(() => {
+    const userId = session.user?._id;
+    if (!userId || chats.length === 0) return;
+
+    const unsubscribes: (() => void)[] = [];
+    const statusMap: { [userId: string]: boolean } = {};
+
+    chats.forEach((chat) => {
+      chat.participants.forEach((participantId) => {
+        if (participantId !== userId) {
+          const unsubscribe = ChatService.subscribeToOnlineStatus(
+            participantId,
+            (online) => {
+              statusMap[participantId] = online;
+              setOnlineStatus({ ...statusMap });
+            }
+          );
+          unsubscribes.push(unsubscribe);
+        }
+      });
+    });
+
+    return () => {
+      unsubscribes.forEach((unsub) => unsub());
+    };
+  }, [chats, session.user?._id]);
+
+  // Convert Firebase chats to component format
+  const formattedChats: Chat[] = useMemo(() => {
+    const userId = session.user?._id;
+    if (!userId) return [];
+
+    return chats.map((firebaseChat) => {
+      // Get the other participant (not the current user)
+      const otherParticipantId = firebaseChat.participants.find(
+        (id) => id !== userId
+      );
+      const otherParticipant = otherParticipantId
+        ? firebaseChat.participantDetails[otherParticipantId]
+        : null;
+
+      if (!otherParticipant) {
+        // Fallback if participant not found
+        return {
+          id: firebaseChat.id,
+          name: "Unknown",
+          avatar: "",
+          lastMessage: firebaseChat.lastMessage.text || "",
+          time: formatTimestamp(firebaseChat.lastMessage.timestamp),
+          unreadCount: firebaseChat.unreadCount[userId] || 0,
+          isVerified: false,
+          isOnline: false,
+          chatType: firebaseChat.chatType,
+          ad: firebaseChat.ad,
+          organisation: firebaseChat.organisation,
+        };
+      }
+
+      return {
+        id: firebaseChat.id,
+        name: otherParticipant.name,
+        avatar: otherParticipant.avatar,
+        lastMessage: firebaseChat.lastMessage.text || "",
+        time: formatTimestamp(firebaseChat.lastMessage.timestamp),
+        unreadCount: firebaseChat.unreadCount[userId] || 0,
+        isVerified: otherParticipant.isVerified,
+        isOnline: otherParticipantId ? (onlineStatus[otherParticipantId] || false) : false,
+        chatType: firebaseChat.chatType,
+        ad: firebaseChat.ad,
+        organisation: firebaseChat.organisation,
+      };
+    });
+  }, [chats, session.user?._id, onlineStatus]);
+
   const handleChatTypeChange = (type: ChatType) => {
     setChatType(type);
-    setActiveChat(""); // Reset active chat when switching types
   };
 
-  const getCurrentTime = () => {
-    const now = new Date();
-    return now.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+  const handleChatSelect = (chatId: string) => {
+    router.push(`/chat?chatId=${chatId}&type=${chatType}`);
   };
 
-  const handleSendMessage = () => {
-    if (message.trim()) {
-      const newMessage = {
-        id: Date.now().toString(),
+  const handleBack = () => {
+    router.push("/chat");
+  };
+
+  const handleSendMessage = async () => {
+    if (!message.trim() || !urlChatId || !session.user?._id) return;
+
+    try {
+      await ChatService.sendMessage({
+        chatId: urlChatId,
+        senderId: session.user._id,
         text: message.trim(),
-        time: getCurrentTime(),
-        isFromUser: true,
-        isRead: false,
-      };
-
-      setMessages((prev) => [...prev, newMessage]);
+      });
       setMessage("");
+      // Reset typing status after sending message
+      await ChatService.setTypingStatus(urlChatId, session.user._id, false);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message");
+    }
+  };
 
-      // Show typing indicator
-      setIsTyping(true);
-
-      // Simulate a response after 1-2 seconds
-      setTimeout(
-        () => {
-          setIsTyping(false);
-
-          const responses = [
-            "Thanks for your message!",
-            "I'll get back to you soon.",
-            "Let me check that for you.",
-            "That sounds good!",
-            "I understand. Let me help you with that.",
-          ];
-
-          const randomResponse =
-            responses[Math.floor(Math.random() * responses.length)];
-          const responseMessage = {
-            id: (Date.now() + 1).toString(),
-            text: randomResponse,
-            time: getCurrentTime(),
-            isFromUser: false,
-            isRead: true,
-          };
-
-          setMessages((prev) => [...prev, responseMessage]);
-        },
-        1000 + Math.random() * 1000
-      );
+  const handleMessageChange = async (value: string) => {
+    setMessage(value);
+    if (session.user?._id && urlChatId) {
+      await ChatService.setTypingStatus(urlChatId, session.user._id, !!value.trim());
     }
   };
 
@@ -221,46 +300,103 @@ export default function ChatPage() {
     setMessage(generatedMessage);
   };
 
-  const handleChatSelect = (chatId: string) => {
-    setActiveChat(chatId);
-  };
-
   const handleBackToSidebar = () => {
-    setActiveChat(""); // Reset to no chat selected
-  };
-
-  const handleBack = () => {
-    // Handle back navigation
-    console.log("Navigate back");
+    router.push("/chat");
   };
 
   const handleSearch = () => {
-    // Handle search functionality
     console.log("Search messages");
   };
 
   const handleCall = () => {
-    // Handle call functionality
     console.log("Start call");
   };
 
   const handleMoreOptions = () => {
-    // Handle more options
     console.log("Show more options");
   };
 
+  // Convert Firebase Chat to component Chat format (for current chat)
+  const currentChat = useMemo(() => {
+    if (!currentChatData || !session.user?._id) return undefined;
+
+    const userId = session.user._id;
+    const otherParticipantId = currentChatData.participants.find(
+      (id) => id !== userId
+    );
+    const otherParticipant = otherParticipantId
+      ? currentChatData.participantDetails[otherParticipantId]
+      : null;
+
+    if (!otherParticipant) return undefined;
+
+    return {
+      id: currentChatData.id,
+      name: otherParticipant.name,
+      avatar: otherParticipant.avatar,
+      lastMessage: currentChatData.lastMessage.text,
+      time: formatTimestamp(currentChatData.lastMessage.timestamp),
+      unreadCount: currentChatData.unreadCount[session.user._id] || 0,
+      isVerified: otherParticipant.isVerified,
+      isOnline: isOtherUserOnline,
+      chatType: currentChatData.chatType,
+      ad: currentChatData.ad,
+      organisation: currentChatData.organisation,
+    };
+  }, [currentChatData, session.user?._id, isOtherUserOnline]);
+
+  // Convert Firebase Messages to component Message format
+  const formattedMessages = useMemo(() => {
+    return messages.map((msg) => ({
+      id: msg.id,
+      text: msg.text,
+      time: formatTimestamp(msg.timestamp),
+      isFromUser: msg.senderId === session.user?._id,
+      isRead: msg.isRead,
+    }));
+  }, [messages, session.user?._id]);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading chats...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login prompt if not authenticated
+  if (!isAuthenticated || !session.user) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500 mb-4">Please login to view your chats</p>
+          <button
+            onClick={() => router.push("/login")}
+            className="text-purple-600 hover:text-purple-700"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex relative">
-      {/* Sidebar - Hidden on mobile when chat is selected, always visible on desktop */}
+      {/* Sidebar - Always visible on desktop, full width on mobile when no chat selected */}
       <div
         className={cn(
           "border-r border-gray-200 flex flex-col h-full bg-white",
-          !currentChat ? "flex w-full sm:w-80 sm:flex lg:w-96" : "hidden sm:flex sm:w-80 lg:w-96"
+          urlChatId ? "hidden sm:flex sm:w-80 lg:w-96" : "flex w-full sm:w-80 sm:flex lg:w-96"
         )}
       >
         <ChatSidebar
-          chats={filteredChats}
-          activeChat={activeChat}
+          chats={formattedChats}
+          activeChat={urlChatId || ""}
           chatType={chatType}
           onChatSelect={handleChatSelect}
           onChatTypeChange={handleChatTypeChange}
@@ -268,12 +404,13 @@ export default function ChatPage() {
         />
       </div>
 
+      {/* Chat Area - Show current chat if selected, otherwise show empty state */}
       <ChatArea
         currentChat={currentChat}
-        messages={messages}
+        messages={formattedMessages}
         message={message}
-        isTyping={isTyping}
-        onMessageChange={setMessage}
+        isTyping={Object.values(typingStatus).some((typing) => typing)}
+        onMessageChange={handleMessageChange}
         onSendMessage={handleSendMessage}
         onAIMessageGenerated={handleAIMessageGenerated}
         onSearch={handleSearch}
