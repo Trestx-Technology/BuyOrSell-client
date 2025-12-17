@@ -145,7 +145,7 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="w-full max-w-[1180px] mx-auto px-4 xl:px-0 mt-16 sm:mt-0 sm:pt-11"
+      className="w-full max-w-[1180px] mx-auto px-4 xl:px-0 mt-16 sm:mt-5"
     >
       {/* Section Title */}
       <motion.h2
@@ -196,9 +196,9 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
                   className="bg-white w-full md:border border-[#F5EBFF] rounded-md shadow-purple/20 hover:shadow-purple/30 block relative hover:bg-purple/10 transition-all duration-300 group"
                 >
                   {/* Category Content */}
-                  <div className="px-5 py-3 h-[160px]">
+                  <div className="px-2 py-1 min-h-[130px]">
                     {/* Icon and Name Section */}
-                    <div className="flex flex-col items-center text-center mb-5">
+                    <div className="flex flex-col items-center text-center mb-2">
                       <div className="size-[60px] bg-[#FAFAFC] rounded-full flex items-center justify-center mb-1">
                         {category.icon ? (
                           <Image
@@ -229,7 +229,7 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
                   {/* Bottom Section with Active Ads and Arrow */}
                   <Typography
                     variant="xs-black-inter"
-                    className="hidden items-center text-xs justify-center gap-1 text-purple text-center hover:underline px-2.5 w-full border-t group-hover:border-purple/20 h-[56px] font-medium md:flex"
+                    className="hidden items-center text-xs justify-center gap-1 text-purple text-center hover:underline p-2.5 w-full border-t group-hover:border-purple/20 font-medium md:flex"
                   >
                     {category.activeAds}
                     <ArrowRight className="w-4 h-4" />

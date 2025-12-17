@@ -21,17 +21,16 @@ export function HomeContent() {
       <Navbar />
       <CategoryNav />
 
-      {/* Promotional Banners and Sponsored Banner */}
       <div className="max-w-[1280px] mx-auto">
         {/* Promotional Banners with Sponsored Banner */}
         <HomeCarousel />
       </div>
       <div className="max-w-[1280px] mx-auto relative">
         {/* Category Carousel */}
-        <CategoriesCarousel
+        {/* <CategoriesCarousel
           categoryList={homeData?.data?.categoryList}
           isLoading={isLoading}
-        />
+        /> */}
         <PopularCategories
           popularCategories={homeData?.data?.popularCategories}
           isLoading={isLoading}
