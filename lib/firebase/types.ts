@@ -36,16 +36,26 @@ export interface TypingStatus {
   [userId: string]: boolean;
 }
 
+export interface AdDetails {
+  adId: string;
+  adTitle: string;
+  adImage: string;
+  adPrice: number;
+}
+
+export interface OrganisationDetails {
+  organisationId: string;
+  orgTradeName: string;
+  orgImage: string;
+}
+
 export interface Chat {
   id: string;
   chatType: ChatType;
   participants: string[];
   participantDetails: ParticipantDetails;
-  adId?: string;
-  adTitle?: string;
-  adImage?: string;
-  organisationId?: string;
-  organisationName?: string;
+  ad?: AdDetails;
+  organisation?: OrganisationDetails;
   lastMessage: LastMessage;
   unreadCount: UnreadCount;
   typing: TypingStatus;
@@ -83,11 +93,8 @@ export interface CreateChatParams {
   chatType: ChatType;
   participants: string[];
   participantDetails: ParticipantDetails;
-  adId?: string;
-  adTitle?: string;
-  adImage?: string;
-  organisationId?: string;
-  organisationName?: string;
+  ad?: AdDetails;
+  organisation?: OrganisationDetails;
 }
 
 export interface SendMessageParams {

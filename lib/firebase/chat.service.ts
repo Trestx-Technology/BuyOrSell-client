@@ -16,21 +16,19 @@ import {
   serverTimestamp,
   Timestamp,
   arrayUnion,
-  arrayRemove,
   increment,
   writeBatch,
-  QuerySnapshot,
-  DocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "./config";
 import {
   Chat,
   Message,
-  UserChat,
   Presence,
   CreateChatParams,
   SendMessageParams,
   ChatType,
+  UnreadCount,
+  TypingStatus,
 } from "./types";
 
 // Collection names
@@ -48,37 +46,52 @@ const COLLECTIONS = {
  */
 export class ChatService {
   /**
+   * Generate a prefixed chat ID based on chat type
+   */
+  private static generateChatId(chatType: ChatType): string {
+    const prefix = `chat_${chatType}_`;
+    const randomId = doc(collection(db, COLLECTIONS.CHATS)).id;
+    return `${prefix}${randomId}`;
+  }
+
+  /**
    * Create a new chat
    */
   static async createChat(params: CreateChatParams): Promise<string> {
-    const chatRef = doc(collection(db, COLLECTIONS.CHATS));
-    const chatId = chatRef.id;
+    // Generate prefixed chat ID
+    const chatId = this.generateChatId(params.chatType);
+    const chatRef = doc(db, COLLECTIONS.CHATS, chatId);
 
-    const chatData: Omit<Chat, "id"> = {
+    // Initialize unread counts and typing status
+    const unreadCount: UnreadCount = {};
+    const typing: TypingStatus = {};
+    params.participants.forEach((userId) => {
+      unreadCount[userId] = 0;
+      typing[userId] = false;
+    });
+
+    // Build base chat data object
+    const baseChatData: Omit<Chat, "id"> = {
       chatType: params.chatType,
       participants: params.participants,
       participantDetails: params.participantDetails,
-      adId: params.adId,
-      adTitle: params.adTitle,
-      adImage: params.adImage,
-      organisationId: params.organisationId,
-      organisationName: params.organisationName,
       lastMessage: {
         text: "",
         senderId: "",
         timestamp: serverTimestamp() as Timestamp,
       },
-      unreadCount: {},
-      typing: {},
+      unreadCount,
+      typing,
       createdAt: serverTimestamp() as Timestamp,
       updatedAt: serverTimestamp() as Timestamp,
     };
 
-    // Initialize unread counts for all participants
-    params.participants.forEach((userId) => {
-      chatData.unreadCount[userId] = 0;
-      chatData.typing[userId] = false;
-    });
+    // Add nested ad or organisation object if provided
+    const chatData: Omit<Chat, "id"> = {
+      ...baseChatData,
+      ...(params.ad && { ad: params.ad }),
+      ...(params.organisation && { organisation: params.organisation }),
+    };
 
     await setDoc(chatRef, chatData);
 
