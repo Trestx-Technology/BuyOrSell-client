@@ -11,7 +11,6 @@ import { jwtDecode } from 'jwt-decode';
 import { useAuthStore } from '@/stores/authStore';
 import { AUTH_TOKEN_NAMES } from '@/constants/auth.constants';
 import { CookieService } from '@/services/cookie-service';
-import { log } from '@/services/logger';
 
 // ============================================================================
 // TYPES
@@ -55,7 +54,7 @@ function isTokenExpired(
   fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:48',message:'isTokenExpired entry',data:{hasToken:!!token,skewMs},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
   // #endregion
   if (!token) {
-    log.warn('No token provided');
+    console.warn('No token provided');
     // #region agent log
     fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:54',message:'isTokenExpired no token',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
     // #endregion
@@ -74,7 +73,7 @@ function isTokenExpired(
     
     // Only log if token is expired or close to expiry (within 5 minutes)
     if (isExpired || timeUntilExpiry < 5 * 60 * 1000) {
-      log.debug('Token check result', {
+      console.debug('Token check result', {
         isExpired,
         timeUntilExpiry: Math.round(timeUntilExpiry / 1000) + 's',
         expiryDate: new Date(expMs).toISOString(),
@@ -84,7 +83,7 @@ function isTokenExpired(
     
     return isExpired;
   } catch (error) {
-    log.error('Failed to decode token', error);
+    console.error('Failed to decode token', error);
     // #region agent log
     fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:75',message:'isTokenExpired decode error',data:{error:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
     // #endregion
@@ -132,7 +131,7 @@ async function handleLogoutAndRedirect(): Promise<void> {
     // #endregion
   } catch (error) {
     // If clearing store fails, still clear localStorage and cookies
-    log.error('Error clearing auth store', error);
+    console.error('Error clearing auth store', error);
     LocalStorageService.clear();
     CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: '/' });
     // #region agent log
@@ -277,7 +276,7 @@ axiosInstance.interceptors.request.use(
       }
 
       if (!refreshToken) {
-        log.error('No refresh token found in localStorage', undefined, { url: config.url });
+        console.error('No refresh token found in localStorage', { url: config.url });
         // #region agent log
         fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:225',message:'no refresh token found',data:{url:config.url},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
         // #endregion
@@ -288,7 +287,7 @@ axiosInstance.interceptors.request.use(
       // Check if refresh token is also expired
       const isRefreshExpired = isTokenExpired(refreshToken, 0);
       if (isRefreshExpired) {
-        log.error('Refresh token is expired', undefined, {
+        console.error('Refresh token is expired', {
           tokenLength: refreshToken.length,
           tokenPreview: refreshToken.substring(0, 20) + '...',
           url: config.url,
@@ -315,11 +314,11 @@ axiosInstance.interceptors.request.use(
               const newRefresh = responseData?.refreshToken;
               
               if (!newToken) {
-                log.error('No access token in refresh response', undefined, { response: res });
+                console.error('No access token in refresh response', { response: res });
                 throw new Error('No access token in refresh response');
               }
               
-              log.info('Token refresh successful', { hasNewRefresh: !!newRefresh });
+              console.info('Token refresh successful', { hasNewRefresh: !!newRefresh });
               LocalStorageService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, newToken);
               if (newRefresh) {
                 LocalStorageService.set(AUTH_TOKEN_NAMES.REFRESH_TOKEN, newRefresh);
@@ -338,7 +337,7 @@ axiosInstance.interceptors.request.use(
                 fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:323',message:'cookie updated after refresh',data:{newTokenLength:newToken.length,maxAge},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
                 // #endregion
               } catch (cookieError) {
-                log.error('Failed to update cookie after token refresh', cookieError);
+                console.error('Failed to update cookie after token refresh', cookieError);
                 // #region agent log
                 fetch('http://127.0.0.1:7243/ingest/4c125430-28cc-47b1-938e-921a1c6e152f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'axios-api-client.ts:328',message:'cookie update failed after refresh',data:{error:String(cookieError)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
                 // #endregion
@@ -355,7 +354,7 @@ axiosInstance.interceptors.request.use(
               return newToken;
             })
             .catch((err) => {
-              log.error('Refresh token API call failed', err);
+              console.error('Refresh token API call failed', err);
               throw err;
             }),
           new Promise<string>((_, reject) =>
@@ -365,7 +364,7 @@ axiosInstance.interceptors.request.use(
           .catch((err: Error) => {
             // Clear refresh promise immediately on error to prevent hanging
             refreshPromise = null;
-            log.error('Refresh token flow failed', err, { message: err.message });
+            console.error('Refresh token flow failed', err, { message: err.message });
             // On refresh failure, clear and redirect; propagate rejection to callers
             void handleLogoutAndRedirect();
             throw err;
