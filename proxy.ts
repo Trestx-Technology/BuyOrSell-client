@@ -20,6 +20,11 @@ export function proxy(request: NextRequest) {
   // Only these routes will be redirected to include locale prefix
   const localeRoutes = [
     '/test-i18n',
+    '/login',
+    '/signup',
+    '/methods',
+    '/forgot-password',
+    '/reset-password',
     // Add more routes here that should be under [locale]
   ];
 
