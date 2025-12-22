@@ -9,10 +9,12 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "nextjs-toploader/app";
 import { useMutation } from "@tanstack/react-query";
 import { sendResetPasswordEmail as SendResetPasswordEmailAPI } from '@/app/api/auth/auth.services';
+import { useLocale } from "@/hooks/useLocale";
 import Image from "next/image";
 
 const ForgotPasswordContent = () => {
   const router = useRouter();
+  const { localePath, t } = useLocale();
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
 
@@ -49,16 +51,16 @@ const ForgotPasswordContent = () => {
     return (
       <section className="w-full mx-auto lg:w-1/2 max-w-[530px] h-full flex flex-col justify-start lg:justify-center relative">
         <Link
-          href={"/login"}
+          href={localePath("/login")}
           className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
         >
-          <ChevronLeft className="size-5" /> Back
+          <ChevronLeft className="size-5" /> {t.forgotPassword.back}
         </Link>
         <Typography
           variant="h1"
           className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
         >
-          Check Your Email
+          {t.forgotPassword.checkEmail}
         </Typography>
         <div className="space-y-4">
           <div className="flex items-center justify-center py-8">
@@ -67,7 +69,7 @@ const ForgotPasswordContent = () => {
             </div>
           </div>
           <Typography variant="h3" className="text-center text-sm">
-            We&apos;ve sent a password reset link to
+            {t.forgotPassword.emailSent}
           </Typography>
           <Typography variant="h3" className="text-center text-sm font-semibold">
             {email}
@@ -85,9 +87,9 @@ const ForgotPasswordContent = () => {
             className="w-full text-sm"
             size={"lg"}
             variant={"filled"}
-            onClick={() => router.push("/login")}
+            onClick={() => router.push(localePath("/login"))}
           >
-            Back to Login
+            {t.forgotPassword.backToLogin}
           </Button>
           <Button
             className="w-full text-sm"
@@ -98,7 +100,7 @@ const ForgotPasswordContent = () => {
               setEmail("");
             }}
           >
-            Resend Email
+            {t.forgotPassword.resendEmail}
           </Button>
         </div>
       </section>
@@ -111,17 +113,16 @@ const ForgotPasswordContent = () => {
         href={"/login"}
         className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
       >
-        <ChevronLeft className="size-5" /> Back
+        <ChevronLeft className="size-5" /> {t.forgotPassword.back}
       </Link>
       <Typography
         variant="h1"
         className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
       >
-        Forgot Password?
+        {t.forgotPassword.title}
       </Typography>
       <Typography variant="h3" className="text-sm text-gray-600 pb-6">
-        Don&apos;t worry! Enter your email address and we&apos;ll send you a
-        link to reset your password.
+        {t.forgotPassword.subtitle}
       </Typography>
       <div className="space-y-2">
         <Input
@@ -136,7 +137,7 @@ const ForgotPasswordContent = () => {
               className="size-5"
             />
           }
-          placeholder="Email"
+          placeholder={t.forgotPassword.email}
           inputSize="lg"
           className="w-full text-sm pl-12"
           value={email}
@@ -157,15 +158,15 @@ const ForgotPasswordContent = () => {
         disabled={!email || forgotPasswordMutation.isPending}
         isLoading={forgotPasswordMutation.isPending}
       >
-        Send Reset Link
+{t.forgotPassword.sendResetLink}
       </Button>
       <Typography
         variant="h3"
         className="text-center text-sm mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit"
       >
-        Remember your password?{" "}
-        <Link href="/login" className="text-purple m-custom-8 hover:underline">
-          Log In
+        {t.forgotPassword.rememberPassword}{" "}
+        <Link href={localePath("/login")} className="text-purple m-custom-8 hover:underline">
+          {t.forgotPassword.logIn}
         </Link>
       </Typography>
     </section>

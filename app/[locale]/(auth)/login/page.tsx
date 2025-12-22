@@ -16,6 +16,8 @@ import { login as LoginAPI } from '@/app/api/auth/auth.services';
 import type { loginResponse } from "@/interfaces/auth.types";
 import { useAuthStore } from "@/stores/authStore";
 import { AxiosError } from "axios";
+import { useLocale } from "@/hooks/useLocale";
+import { locales } from "@/lib/i18n/config";
 
 import Image from "next/image";
 
@@ -23,7 +25,8 @@ const LoginContent = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-      const redirectTo = searchParams.get("redirect") || "/";
+  const { localePath, t } = useLocale();
+  const redirectTo = searchParams.get("redirect") || "/";
 
   const setSession = useAuthStore((state) => state.setSession);
   const [loginData, setLoginData] = useState({
@@ -44,11 +47,17 @@ const LoginContent = () => {
       toast.success("Login successful!");
       
       // Redirect to the original destination or home page
+      // Note: redirectTo might already include locale, so check first
       if (redirectTo) {
-        
-        router.push(redirectTo);
+        // If redirectTo starts with a locale, use it as-is, otherwise add locale
+        const hasLocale = locales.some(loc => redirectTo.startsWith(`/${loc}/`) || redirectTo === `/${loc}`);
+        if (hasLocale) {
+          router.push(redirectTo);
+        } else {
+          router.push(localePath(redirectTo));
+        }
       } else {
-        router.push("/");
+        router.push(localePath("/"));
       }
     },
     onError: (error) => {
@@ -74,16 +83,16 @@ const LoginContent = () => {
   return (
     <section className="w-full mx-auto lg:w-1/2 max-w-[530px] h-full flex flex-col justify-start lg:justify-center relative">
       <Link
-        href={"/methods"}
+        href={localePath("/methods")}
         className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
       >
-        <ChevronLeft className="size-5" /> Back
+        <ChevronLeft className="size-5" /> {t.login.back}
       </Link>
       <Typography
         variant="h1"
         className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
       >
-        Log In
+        {t.login.title}
       </Typography>
       <div className="space-y-2">
         <Input
@@ -98,7 +107,7 @@ const LoginContent = () => {
               className="size-5"
             />
           }
-          placeholder="Email"
+          placeholder={t.login.email}
           inputSize="lg"
           className="w-full text-sm pl-12"
           value={loginData.email}
@@ -117,7 +126,7 @@ const LoginContent = () => {
               alt="key"
             />
           }
-          placeholder="Password"
+          placeholder={t.login.password}
           type={showPassword ? "text" : "password"}
           onRightIconClick={() => setShowPassword(!showPassword)}
           rightIcon={
@@ -140,10 +149,10 @@ const LoginContent = () => {
         />
       </div>
       <Link
-        href={"/forgot-password"}
+        href={localePath("/forgot-password")}
         className="text-sm text-purple text-right font-medium cursor-pointer hover:underline py-6 w-fit ml-auto"
       >
-        Forgot Password?
+        {t.login.forgotPassword}
       </Link>
       <Button
         className="w-full text-sm"
@@ -153,10 +162,10 @@ const LoginContent = () => {
         disabled={!loginData.email || !loginData.password || loginMutation.isPending}
         isLoading={loginMutation.isPending}
       >
-        Log In
+        {t.login.loginButton}
       </Button>
       <Typography variant="h3" className="text-center text-sm py-6">
-        Or continue with
+        {t.login.orContinueWith}
       </Typography>
       <div className="space-y-2 text-sm sm:text-md font-medium">
         <GoogleLoginButton
@@ -189,7 +198,7 @@ const LoginContent = () => {
               iconPosition={"center"}
               icon={<FcGoogle />}
             >
-              Continue with Google
+              {t.login.continueWithGoogle}
             </Button>
           )}
         />
@@ -201,16 +210,16 @@ const LoginContent = () => {
           iconPosition={"center"}
           icon={<FaApple />}
         >
-          Continue with Apple
+          {t.login.continueWithApple}
         </Button>
       </div>
       <Typography
         variant="h3"
         className="text-center text-sm mx-auto  absolute left-1/2 -translate-x-1/2  bottom-20 lg:bottom-16 w-fit"
       >
-        Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-purple m-custom-8 hover:underline">
-          Sign up
+        {t.login.dontHaveAccount}{" "}
+        <Link href={localePath("/signup")} className="text-purple m-custom-8 hover:underline">
+          {t.login.signUp}
         </Link>
       </Typography>
     </section>

@@ -11,11 +11,13 @@ import { useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { resetPassword as ResetPasswordAPI } from '@/app/api/auth/auth.services';
 import { AxiosError } from "axios";
+import { useLocale } from "@/hooks/useLocale";
 import Image from "next/image";
 
 const ResetPasswordContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { localePath, t } = useLocale();
   const resetToken = searchParams.get("token") || "";
   
   const [passwordData, setPasswordData] = useState({
@@ -43,7 +45,7 @@ const ResetPasswordContent = () => {
   const handleSubmit = () => {
     if (!resetToken) {
       toast.error("Invalid reset link. Please request a new password reset.");
-      router.push("/forgot-password");
+      router.push(localePath("/forgot-password"));
       return;
     }
 
@@ -72,16 +74,16 @@ const ResetPasswordContent = () => {
     return (
       <section className="w-full mx-auto lg:w-1/2 max-w-[530px] h-full flex flex-col justify-start lg:justify-center relative">
         <Link
-          href={"/login"}
+          href={localePath("/login")}
           className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
         >
-          <ChevronLeft className="size-5" /> Back
+          <ChevronLeft className="size-5" /> {t.resetPassword.back}
         </Link>
         <Typography
           variant="h1"
           className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
         >
-          Password Reset Successful
+          {t.resetPassword.success}
         </Typography>
         <div className="space-y-4">
           <div className="flex items-center justify-center py-8">
@@ -90,7 +92,7 @@ const ResetPasswordContent = () => {
             </div>
           </div>
           <Typography variant="h3" className="text-center text-sm">
-            Your password has been reset successfully!
+            {t.resetPassword.successMessage}
           </Typography>
           <Typography
             variant="h3"
@@ -104,9 +106,9 @@ const ResetPasswordContent = () => {
             className="w-full text-sm"
             size={"lg"}
             variant={"filled"}
-            onClick={() => router.push("/login")}
+            onClick={() => router.push(localePath("/login"))}
           >
-            Go to Login
+            {t.resetPassword.goToLogin}
           </Button>
         </div>
       </section>
@@ -117,21 +119,20 @@ const ResetPasswordContent = () => {
     return (
       <section className="w-full mx-auto lg:w-1/2 max-w-[530px] h-full flex flex-col justify-start lg:justify-center relative">
         <Link
-          href={"/login"}
+          href={localePath("/login")}
           className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
         >
-          <ChevronLeft className="size-5" /> Back
+          <ChevronLeft className="size-5" /> {t.resetPassword.back}
         </Link>
         <Typography
           variant="h1"
           className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
         >
-          Invalid Reset Link
+          {t.resetPassword.invalidLink}
         </Typography>
         <div className="space-y-4">
           <Typography variant="h3" className="text-sm text-gray-600">
-            This password reset link is invalid or has expired. Please request a
-            new password reset link.
+            {t.resetPassword.invalidLinkMessage}
           </Typography>
         </div>
         <div className="mt-8 space-y-3">
@@ -139,17 +140,17 @@ const ResetPasswordContent = () => {
             className="w-full text-sm"
             size={"lg"}
             variant={"filled"}
-            onClick={() => router.push("/forgot-password")}
+            onClick={() => router.push(localePath("/forgot-password"))}
           >
-            Request New Reset Link
+            {t.resetPassword.requestNewLink}
           </Button>
           <Button
             className="w-full text-sm"
             size={"lg"}
             variant={"outlined"}
-            onClick={() => router.push("/login")}
+            onClick={() => router.push(localePath("/login"))}
           >
-            Back to Login
+            {t.resetPassword.backToLogin}
           </Button>
         </div>
       </section>
@@ -162,16 +163,16 @@ const ResetPasswordContent = () => {
         href={"/login"}
         className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
       >
-        <ChevronLeft className="size-5" /> Back
+        <ChevronLeft className="size-5" /> {t.resetPassword.back}
       </Link>
       <Typography
         variant="h1"
         className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
       >
-        Reset Password
+        {t.resetPassword.title}
       </Typography>
       <Typography variant="h3" className="text-sm text-gray-600 pb-6">
-        Enter your new password below.
+        {t.resetPassword.subtitle}
       </Typography>
       <div className="space-y-2">
         <Input
@@ -185,7 +186,7 @@ const ResetPasswordContent = () => {
               alt="key"
             />
           }
-          placeholder="New Password"
+          placeholder={t.resetPassword.newPassword}
           type={showPassword ? "text" : "password"}
           onRightIconClick={() => setShowPassword(!showPassword)}
           rightIcon={
@@ -226,7 +227,7 @@ const ResetPasswordContent = () => {
               alt="key"
             />
           }
-          placeholder="Confirm New Password"
+          placeholder={t.resetPassword.confirmPassword}
           type={showConfirmPassword ? "text" : "password"}
           onRightIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
           rightIcon={
@@ -261,7 +262,7 @@ const ResetPasswordContent = () => {
         />
       </div>
       <Typography variant="h3" className="text-xs text-gray-500 pt-2 pb-4">
-        Password must be at least 8 characters long
+        {t.resetPassword.passwordHint}
       </Typography>
       <Button
         className="w-full text-sm"
@@ -275,15 +276,15 @@ const ResetPasswordContent = () => {
         }
         isLoading={resetPasswordMutation.isPending}
       >
-        Reset Password
+        {t.resetPassword.resetPassword}
       </Button>
       <Typography
         variant="h3"
         className="text-center text-sm mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit"
       >
-        Remember your password?{" "}
-        <Link href="/login" className="text-purple m-custom-8 hover:underline">
-          Log In
+        {t.resetPassword.rememberPassword}{" "}
+        <Link href={localePath("/login")} className="text-purple m-custom-8 hover:underline">
+          {t.resetPassword.logIn}
         </Link>
       </Typography>
     </section>

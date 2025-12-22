@@ -9,11 +9,18 @@ export const metadata: Metadata = {
   description: "Authentication forms built using the components.",
 };
 
-const AuthRootLayout = ({ children }: { children: React.ReactNode }) => {
+interface AuthRootLayoutProps {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}
+
+const AuthRootLayout = async ({ children, params }: AuthRootLayoutProps) => {
+  const { locale } = await params;
+  
   return (
     <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID!}>
       <div className="px-[12px] lg:px-[100px] min-h-[750px] h-screen w-screen max-w-[1280px] mx-auto flex flex-col">
-        <Link href="/" className=" pt-8">
+        <Link href={`/${locale}`} className=" pt-8">
           <Image
             src={
               "https://dev-buyorsell.s3.me-central-1.amazonaws.com/assets/logo.svg"
@@ -41,3 +48,4 @@ const AuthRootLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default AuthRootLayout;
+

@@ -31,9 +31,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { calculatePasswordStrength } from "@/utils/password-strength";
 import { createSignupSchema, countryCodes, type SignupFormData } from "@/schemas/signup.schema";
+import { useLocale } from "@/hooks/useLocale";
 import Image from "next/image";
 
 const Signup = () => {
+  const { localePath, t } = useLocale();
   const [showPassword, setShowPassword] = useState(false);
   const [selectedCountryCode, setSelectedCountryCode] = useState("+971");
   const [showOtpDialog, setShowOtpDialog] = useState(false);
@@ -137,7 +139,7 @@ const Signup = () => {
 
         toast.success(response.message || "Account created successfully!");
         setShowOtpDialog(false);
-        router.push("/");
+        router.push(localePath("/"));
       } else {
         toast.error(response.message || "Failed to create account. Please try again.");
       }
@@ -167,16 +169,16 @@ const Signup = () => {
   return (
     <section className="w-full mx-auto lg:w-1/2 max-w-[530px] h-full flex flex-col justify-start lg:justify-center relative">
       <Link
-        href={"/methods"}
+        href={localePath("/methods")}
         className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
       >
-        <ChevronLeft className="size-5" /> Back
+        <ChevronLeft className="size-5" /> {t.signup.back}
       </Link>
       <Typography
         variant="h1"
         className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
       >
-        Create Account
+        {t.signup.title}
       </Typography>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
         <div>
@@ -184,7 +186,7 @@ const Signup = () => {
             {...register("fullName")}
             autoComplete="name"
             leftIcon={<CircleUserRound className="size-6 -ml-0.5" />}
-            placeholder="Full name"
+            placeholder={t.signup.fullName}
             inputSize="lg"
             className="w-full text-sm pl-12"
             error={errors.fullName?.message}
@@ -210,7 +212,7 @@ const Signup = () => {
                 className="size-5"
               />
             }
-            placeholder="Enter Email"
+            placeholder={t.signup.email}
             inputSize="lg"
             className="w-full text-sm pl-12"
             error={errors.email?.message}
@@ -240,7 +242,7 @@ const Signup = () => {
               {...register("phoneNumber")}
               autoComplete="tel"
               type="tel"
-              placeholder="Enter phone number"
+              placeholder={t.signup.phoneNumber}
               inputSize="lg"
               inputMode="numeric"
               name="phoneNumber"
@@ -271,7 +273,7 @@ const Signup = () => {
                 className="size-5"
               />
             }
-            placeholder="Enter password"
+            placeholder={t.signup.password}
             onRightIconClick={() => setShowPassword(!showPassword)}
             rightIcon={
               !showPassword ? (
@@ -294,7 +296,7 @@ const Signup = () => {
 
           {/* Password Strength Indicator with Progress Bar */}
           <div className="space-y-2 mt-2">
-            <div className="text-sm">Password Strength</div>
+            <div className="text-sm">{t.signup.passwordStrength}</div>
             <Progress value={passwordStrength.progress} className="h-2" />
           
           </div>
@@ -310,7 +312,7 @@ const Signup = () => {
         >
           {signUpMutation.isPending || sendPhoneOtpMutation.isPending
             ? "Sending OTP..."
-            : "Create Account"}
+            : t.signup.createAccount}
         </Button>
       </form>
 
@@ -324,7 +326,7 @@ const Signup = () => {
       />
 
       <Typography variant="h3" className="text-center text-sm py-6">
-        Or continue with
+        {t.signup.orContinueWith}
       </Typography>
 
       <div className="space-y-2 text-sm sm:text-md font-medium">
@@ -357,7 +359,7 @@ const Signup = () => {
               iconPosition="center"
               icon={<FcGoogle />}
             >
-              Continue with Google
+              {t.signup.continueWithGoogle}
             </Button>
           )}
         />
@@ -369,7 +371,7 @@ const Signup = () => {
           iconPosition="center"
           icon={<FaApple />}
         >
-          Continue with Apple
+          {t.signup.continueWithApple}
         </Button>
       </div>
 
@@ -377,9 +379,9 @@ const Signup = () => {
         variant="h3"
         className="text-center text-sm mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit"
       >
-        Already have an account?{" "}
-        <Link href="/login" className="text-purple m-custom-8 hover:underline">
-          Log In
+        {t.signup.alreadyHaveAccount}{" "}
+        <Link href={localePath("/login")} className="text-purple m-custom-8 hover:underline">
+          {t.signup.logIn}
         </Link>
       </Typography>
     </section>

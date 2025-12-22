@@ -9,17 +9,18 @@ import Link from "next/link";
 import { GoogleLoginButton } from "../_components/google";
 import { toast } from "sonner";
 import { useRouter } from "nextjs-toploader/app";
+import { useLocale } from "@/hooks/useLocale";
 
 const Login = () => {
   const router = useRouter();
+  const { localePath, t } = useLocale();
   return (
     <section className="w-full lg:w-1/2 max-w-[530px] h-full flex flex-col justify-center relative space-y-8">
       <Typography
         variant="h1"
         className="text-center lg:text-left text-xl min-[500px]:text-3xl font-extrabold"
       >
-        Buy & Sell <span className="text-purple">anything</span> you want on
-        single place
+        {t.methods.title} <span className="text-purple">{t.methods.subtitle}</span>
       </Typography>
       <div className="space-y-3 text-sm sm:text-md font-medium">
         <GoogleLoginButton
@@ -50,7 +51,7 @@ const Login = () => {
               iconPosition="center"
               icon={<FcGoogle />}
             >
-              Continue with Google
+{t.methods.continueWithGoogle}
             </Button>
           )}
         />
@@ -60,7 +61,7 @@ const Login = () => {
           size={"lg"}
           className="w-full bg-white border-[#8B31E18A] border text-dark-blue"
           iconPosition="center"
-          onClick={() => router.push("/login")}
+          onClick={() => router.push(localePath("/login"))}
           icon={
             <Image
               width={24}
@@ -72,7 +73,7 @@ const Login = () => {
             />
           }
         >
-          Continue with Email and Password
+{t.methods.continueWithEmail}
         </Button>
         <Button
           variant={"ghost"}
@@ -81,20 +82,20 @@ const Login = () => {
           iconPosition="center"
           icon={<FaApple />}
         >
-          Continue with Apple
+{t.methods.continueWithApple}
         </Button>
 
         <Typography variant="h3" className="text-center text-sm py-4">
-          Or
+{t.methods.or}
         </Typography>
       </div>
       <Typography
         variant="h3"
         className="text-center text-sm absolute left-1/2 -translate-x-1/2  bottom-16 w-full"
       >
-        Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-purple m-custom-16">
-          Sign up
+{t.methods.dontHaveAccount}{" "}
+        <Link href={localePath("/signup")} className="text-purple m-custom-16">
+          {t.methods.signUp}
         </Link>
       </Typography>
     </section>
