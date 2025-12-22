@@ -13,26 +13,66 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
-let app: FirebaseApp;
-let db: Firestore;
-let auth: Auth;
-let storage: FirebaseStorage;
+// Lazy initialization - only initialize when accessed on client side
+let _app: FirebaseApp | null = null;
+let _db: Firestore | null = null;
+let _auth: Auth | null = null;
+let _storage: FirebaseStorage | null = null;
 
-if (typeof window !== "undefined") {
-  // Client-side initialization
-  if (getApps().length === 0) {
-    app = initializeApp(firebaseConfig);
-  } else {
-    app = getApps()[0];
+function ensureClientSide() {
+  if (typeof window === "undefined") {
+    throw new Error("Firebase should only be initialized on the client side");
   }
-  db = getFirestore(app);
-  auth = getAuth(app);
-  storage = getStorage(app);
-} else {
-  // Server-side: return null or throw error
-  throw new Error("Firebase should only be initialized on the client side");
 }
 
-export { app, db, auth, storage };
+function getApp(): FirebaseApp {
+  ensureClientSide();
 
+  if (!_app) {
+    if (getApps().length === 0) {
+      _app = initializeApp(firebaseConfig);
+    } else {
+      _app = getApps()[0];
+    }
+  }
+
+  return _app;
+}
+
+function getDb(): Firestore {
+  ensureClientSide();
+  if (!_db) {
+    _db = getFirestore(getApp());
+  }
+  return _db;
+}
+
+function getAuthInstance(): Auth {
+  ensureClientSide();
+  if (!_auth) {
+    _auth = getAuth(getApp());
+  }
+  return _auth;
+}
+
+function getStorageInstance(): FirebaseStorage {
+  ensureClientSide();
+  if (!_storage) {
+    _storage = getStorage(getApp());
+  }
+  return _storage;
+}
+
+// ONLY export the getter functions - do NOT export direct access
+export const getFirebaseApp = getApp;
+export const getFirebaseDb = getDb;
+export const getFirebaseAuth = getAuthInstance;
+export const getFirebaseStorage = getStorageInstance;
+
+// Alternative: Export as namespace object (if you prefer this style)
+export const firebase = {
+  getApp,
+  getDb: getDb,
+  getAuth: getAuthInstance,
+  getStorage: getStorageInstance,
+};

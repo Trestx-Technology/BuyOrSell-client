@@ -19,7 +19,7 @@ import {
   increment,
   writeBatch,
 } from "firebase/firestore";
-import { db } from "./config";
+import { getFirebaseDb } from "./config";
 import {
   Chat,
   Message,
@@ -44,13 +44,19 @@ const COLLECTIONS = {
  * Chat Service
  * Handles all chat-related Firebase operations
  */
+
 export class ChatService {
+  // Use getter function instead of direct import
+  private static get db() {
+    return getFirebaseDb();
+  }
+
   /**
    * Generate a prefixed chat ID based on chat type
    */
   private static generateChatId(chatType: ChatType): string {
     const prefix = `chat_${chatType}_`;
-    const randomId = doc(collection(db, COLLECTIONS.CHATS)).id;
+    const randomId = doc(collection(this.db, COLLECTIONS.CHATS)).id;
     return `${prefix}${randomId}`;
   }
 
@@ -60,7 +66,7 @@ export class ChatService {
   static async createChat(params: CreateChatParams): Promise<string> {
     // Generate prefixed chat ID
     const chatId = this.generateChatId(params.chatType);
-    const chatRef = doc(db, COLLECTIONS.CHATS, chatId);
+    const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
 
     // Initialize unread counts and typing status
     const unreadCount: UnreadCount = {};
@@ -96,10 +102,10 @@ export class ChatService {
     await setDoc(chatRef, chatData);
 
     // Create user chat index entries for all participants
-    const batch = writeBatch(db);
+    const batch = writeBatch(this.db);
     params.participants.forEach((userId) => {
       const userChatRef = doc(
-        db,
+        this.db,
         COLLECTIONS.USER_CHATS,
         userId,
         "chats",
@@ -122,7 +128,7 @@ export class ChatService {
    * Get a chat by ID
    */
   static async getChat(chatId: string): Promise<Chat | null> {
-    const chatRef = doc(db, COLLECTIONS.CHATS, chatId);
+    const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
     const chatSnap = await getDoc(chatRef);
 
     if (!chatSnap.exists()) {
@@ -140,7 +146,7 @@ export class ChatService {
     chatType?: ChatType
   ): Promise<Chat[]> {
     const userChatsRef = collection(
-      db,
+      this.db,
       COLLECTIONS.USER_CHATS,
       userId,
       "chats"
@@ -149,7 +155,11 @@ export class ChatService {
     let q = query(userChatsRef, orderBy("updatedAt", "desc"));
 
     if (chatType) {
-      q = query(userChatsRef, where("chatType", "==", chatType), orderBy("updatedAt", "desc"));
+      q = query(
+        userChatsRef,
+        where("chatType", "==", chatType),
+        orderBy("updatedAt", "desc")
+      );
     }
 
     const snapshot = await getDocs(q);
@@ -180,7 +190,7 @@ export class ChatService {
     callback: (chats: Chat[]) => void
   ): () => void {
     const userChatsRef = collection(
-      db,
+      this.db,
       COLLECTIONS.USER_CHATS,
       userId,
       "chats"
@@ -219,7 +229,7 @@ export class ChatService {
 
     // Create message
     const messagesRef = collection(
-      db,
+      this.db,
       COLLECTIONS.CHATS,
       chatId,
       COLLECTIONS.MESSAGES
@@ -240,11 +250,11 @@ export class ChatService {
     await setDoc(messageRef, messageData);
 
     // Update chat document
-    const chatRef = doc(db, COLLECTIONS.CHATS, chatId);
+    const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
     const chat = await this.getChat(chatId);
 
     if (chat) {
-      const batch = writeBatch(db);
+      const batch = writeBatch(this.db);
 
       // Update chat last message
       batch.update(chatRef, {
@@ -265,7 +275,7 @@ export class ChatService {
 
           // Update user chat index
           const userChatRef = doc(
-            db,
+            this.db,
             COLLECTIONS.USER_CHATS,
             participantId,
             "chats",
@@ -283,7 +293,7 @@ export class ChatService {
         } else {
           // Update sender's user chat index (no unread increment)
           const userChatRef = doc(
-            db,
+            this.db,
             COLLECTIONS.USER_CHATS,
             senderId,
             "chats",
@@ -314,7 +324,7 @@ export class ChatService {
     limitCount: number = 50
   ): Promise<Message[]> {
     const messagesRef = collection(
-      db,
+      this.db,
       COLLECTIONS.CHATS,
       chatId,
       COLLECTIONS.MESSAGES
@@ -340,7 +350,7 @@ export class ChatService {
     limitCount: number = 50
   ): () => void {
     const messagesRef = collection(
-      db,
+      this.db,
       COLLECTIONS.CHATS,
       chatId,
       COLLECTIONS.MESSAGES
@@ -368,7 +378,7 @@ export class ChatService {
     userId: string
   ): Promise<void> {
     const messageRef = doc(
-      db,
+      this.db,
       COLLECTIONS.CHATS,
       chatId,
       COLLECTIONS.MESSAGES,
@@ -384,10 +394,7 @@ export class ChatService {
   /**
    * Mark all messages in chat as read for a user
    */
-  static async markChatAsRead(
-    chatId: string,
-    userId: string
-  ): Promise<void> {
+  static async markChatAsRead(chatId: string, userId: string): Promise<void> {
     const chat = await this.getChat(chatId);
     if (!chat) return;
 
@@ -396,8 +403,8 @@ export class ChatService {
 
     if (unreadCount === 0) return;
 
-    const batch = writeBatch(db);
-    const chatRef = doc(db, COLLECTIONS.CHATS, chatId);
+    const batch = writeBatch(this.db);
+    const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
 
     // Reset unread count
     batch.update(chatRef, {
@@ -406,7 +413,7 @@ export class ChatService {
 
     // Update user chat index
     const userChatRef = doc(
-      db,
+      this.db,
       COLLECTIONS.USER_CHATS,
       userId,
       "chats",
@@ -427,7 +434,7 @@ export class ChatService {
     userId: string,
     isTyping: boolean
   ): Promise<void> {
-    const chatRef = doc(db, COLLECTIONS.CHATS, chatId);
+    const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
     await updateDoc(chatRef, {
       [`typing.${userId}`]: isTyping,
     });
@@ -440,7 +447,7 @@ export class ChatService {
     chatId: string,
     callback: (typing: { [userId: string]: boolean }) => void
   ): () => void {
-    const chatRef = doc(db, COLLECTIONS.CHATS, chatId);
+    const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
 
     return onSnapshot(chatRef, (snapshot) => {
       const data = snapshot.data();
@@ -451,11 +458,8 @@ export class ChatService {
   /**
    * Set user online status
    */
-  static async setOnlineStatus(
-    userId: string,
-    online: boolean
-  ): Promise<void> {
-    const presenceRef = doc(db, COLLECTIONS.PRESENCE, userId);
+  static async setOnlineStatus(userId: string, online: boolean): Promise<void> {
+    const presenceRef = doc(this.db, COLLECTIONS.PRESENCE, userId);
     await setDoc(
       presenceRef,
       {
@@ -472,7 +476,7 @@ export class ChatService {
    * Get user online status
    */
   static async getOnlineStatus(userId: string): Promise<boolean> {
-    const presenceRef = doc(db, COLLECTIONS.PRESENCE, userId);
+    const presenceRef = doc(this.db, COLLECTIONS.PRESENCE, userId);
     const presenceSnap = await getDoc(presenceRef);
 
     if (!presenceSnap.exists()) {
@@ -490,7 +494,7 @@ export class ChatService {
     userId: string,
     callback: (online: boolean) => void
   ): () => void {
-    const presenceRef = doc(db, COLLECTIONS.PRESENCE, userId);
+    const presenceRef = doc(this.db, COLLECTIONS.PRESENCE, userId);
 
     return onSnapshot(presenceRef, (snapshot) => {
       if (!snapshot.exists()) {
@@ -506,10 +510,7 @@ export class ChatService {
   /**
    * Get unread count for a specific chat and user
    */
-  static async getUnreadCount(
-    chatId: string,
-    userId: string
-  ): Promise<number> {
+  static async getUnreadCount(chatId: string, userId: string): Promise<number> {
     const chat = await this.getChat(chatId);
     if (!chat) return 0;
 
@@ -534,7 +535,7 @@ export class ChatService {
    * Delete a chat
    */
   static async deleteChat(chatId: string): Promise<void> {
-    const chatRef = doc(db, COLLECTIONS.CHATS, chatId);
+    const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
     await deleteDoc(chatRef);
 
     // Note: User chat indexes should be cleaned up via Cloud Function

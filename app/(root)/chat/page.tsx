@@ -2,16 +2,26 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ChatSidebar } from "./_components/ChatSidebar";
-import { ChatArea } from "./_components/ChatArea";
-import { ChatType } from "./_components/ChatTypeSelector";
+import dynamic from "next/dynamic";
 import { ChatService } from "@/lib/firebase/chat.service";
 import { Chat as FirebaseChat, Message } from "@/lib/firebase/types";
-import { Chat } from "./_components/ChatSidebar";
 import { useAuthStore } from "@/stores/authStore";
 import { usePresence } from "@/lib/firebase/presence.hook";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+// Dynamic imports with SSR disabled for all chat components
+const ChatSidebar = dynamic(() => import("./_components/ChatSidebar").then(mod => ({ default: mod.ChatSidebar })), {
+  ssr: false,
+});
+
+const ChatArea = dynamic(() => import("./_components/ChatArea").then(mod => ({ default: mod.ChatArea })), {
+  ssr: false,
+});
+
+// Import types (not components, so regular import is fine)
+import type { ChatType } from "./_components/ChatTypeSelector";
+import type { Chat } from "./_components/ChatSidebar";
 
 export default function ChatPage() {
   const searchParams = useSearchParams();
