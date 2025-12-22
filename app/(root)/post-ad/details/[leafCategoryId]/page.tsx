@@ -30,7 +30,6 @@ import { createPostAdSchema, type AddressFormValue } from "@/schemas/post-ad.sch
 import { getFieldOptions, shouldShowField, isJobCategory } from "@/validations/post-ad.validation";
 import { AD_SYSTEM_FIELDS } from "@/constants/ad.constants";
 import { removeUndefinedFields } from "@/utils/remove-undefined-fields";
-import { log } from "@/services/logger";
 
 type FormValues = Record<string, string | number | boolean | string[] | MultipleImageItem[] | ImageItem[] | AddressFormValue>;
 
@@ -298,7 +297,7 @@ export default function LeafCategoryPage() {
         router.push(`/post-ad/success?status=success&title=Ad created successfully!`);
       } catch (error: unknown) {
 
-        log.error("Error creating ad", error);
+        console.error("Error creating ad", error);
       }
   };
 
