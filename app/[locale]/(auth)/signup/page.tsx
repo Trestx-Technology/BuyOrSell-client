@@ -172,13 +172,13 @@ const Signup = () => {
         href={localePath("/methods")}
         className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
       >
-        <ChevronLeft className="size-5" /> {t.signup.back}
+        <ChevronLeft className="size-5" /> {t.auth.signup.back}
       </Link>
       <Typography
         variant="h1"
         className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
       >
-        {t.signup.title}
+        {t.auth.signup.title}
       </Typography>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
         <div>
@@ -186,7 +186,7 @@ const Signup = () => {
             {...register("fullName")}
             autoComplete="name"
             leftIcon={<CircleUserRound className="size-6 -ml-0.5" />}
-            placeholder={t.signup.fullName}
+            placeholder={t.auth.signup.fullName}
             inputSize="lg"
             className="w-full text-sm pl-12"
             error={errors.fullName?.message}
@@ -212,7 +212,7 @@ const Signup = () => {
                 className="size-5"
               />
             }
-            placeholder={t.signup.email}
+            placeholder={t.auth.signup.email}
             inputSize="lg"
             className="w-full text-sm pl-12"
             error={errors.email?.message}
@@ -242,7 +242,7 @@ const Signup = () => {
               {...register("phoneNumber")}
               autoComplete="tel"
               type="tel"
-              placeholder={t.signup.phoneNumber}
+              placeholder={t.auth.signup.phoneNumber}
               inputSize="lg"
               inputMode="numeric"
               name="phoneNumber"
@@ -273,7 +273,7 @@ const Signup = () => {
                 className="size-5"
               />
             }
-            placeholder={t.signup.password}
+            placeholder={t.auth.signup.password}
             onRightIconClick={() => setShowPassword(!showPassword)}
             rightIcon={
               !showPassword ? (
@@ -296,7 +296,7 @@ const Signup = () => {
 
           {/* Password Strength Indicator with Progress Bar */}
           <div className="space-y-2 mt-2">
-            <div className="text-sm">{t.signup.passwordStrength}</div>
+            <div className="text-sm">{t.auth.signup.passwordStrength}</div>
             <Progress value={passwordStrength.progress} className="h-2" />
           
           </div>
@@ -312,7 +312,7 @@ const Signup = () => {
         >
           {signUpMutation.isPending || sendPhoneOtpMutation.isPending
             ? "Sending OTP..."
-            : t.signup.createAccount}
+            : t.auth.signup.createAccount}
         </Button>
       </form>
 
@@ -326,7 +326,7 @@ const Signup = () => {
       />
 
       <Typography variant="h3" className="text-center text-sm py-6">
-        {t.signup.orContinueWith}
+        {t.auth.signup.orContinueWith}
       </Typography>
 
       <div className="space-y-2 text-sm sm:text-md font-medium">
@@ -359,7 +359,7 @@ const Signup = () => {
               iconPosition="center"
               icon={<FcGoogle />}
             >
-              {t.signup.continueWithGoogle}
+              {t.auth.signup.continueWithGoogle}
             </Button>
           )}
         />
@@ -371,7 +371,7 @@ const Signup = () => {
           iconPosition="center"
           icon={<FaApple />}
         >
-          {t.signup.continueWithApple}
+          {t.auth.signup.continueWithApple}
         </Button>
       </div>
 
@@ -379,9 +379,9 @@ const Signup = () => {
         variant="h3"
         className="text-center text-sm mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit"
       >
-        {t.signup.alreadyHaveAccount}{" "}
+        {t.auth.signup.alreadyHaveAccount}{" "}
         <Link href={localePath("/login")} className="text-purple m-custom-8 hover:underline">
-          {t.signup.logIn}
+          {t.auth.signup.logIn}
         </Link>
       </Typography>
     </section>

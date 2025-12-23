@@ -86,13 +86,13 @@ const LoginContent = () => {
         href={localePath("/methods")}
         className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
       >
-        <ChevronLeft className="size-5" /> {t.login.back}
+        <ChevronLeft className="size-5" /> {t.auth.login.back}
       </Link>
       <Typography
         variant="h1"
         className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
       >
-        {t.login.title}
+        {t.auth.login.title}
       </Typography>
       <div className="space-y-2">
         <Input
@@ -107,7 +107,7 @@ const LoginContent = () => {
               className="size-5"
             />
           }
-          placeholder={t.login.email}
+          placeholder={t.auth.login.email}
           inputSize="lg"
           className="w-full text-sm pl-12"
           value={loginData.email}
@@ -126,7 +126,7 @@ const LoginContent = () => {
               alt="key"
             />
           }
-          placeholder={t.login.password}
+          placeholder={t.auth.login.password}
           type={showPassword ? "text" : "password"}
           onRightIconClick={() => setShowPassword(!showPassword)}
           rightIcon={
@@ -152,7 +152,7 @@ const LoginContent = () => {
         href={localePath("/forgot-password")}
         className="text-sm text-purple text-right font-medium cursor-pointer hover:underline py-6 w-fit ml-auto"
       >
-        {t.login.forgotPassword}
+        {t.auth.login.forgotPassword}
       </Link>
       <Button
         className="w-full text-sm"
@@ -162,10 +162,10 @@ const LoginContent = () => {
         disabled={!loginData.email || !loginData.password || loginMutation.isPending}
         isLoading={loginMutation.isPending}
       >
-        {t.login.loginButton}
+        {t.auth.login.loginButton}
       </Button>
       <Typography variant="h3" className="text-center text-sm py-6">
-        {t.login.orContinueWith}
+        {t.auth.login.orContinueWith}
       </Typography>
       <div className="space-y-2 text-sm sm:text-md font-medium">
         <GoogleLoginButton
@@ -198,7 +198,7 @@ const LoginContent = () => {
               iconPosition={"center"}
               icon={<FcGoogle />}
             >
-              {t.login.continueWithGoogle}
+              {t.auth.login.continueWithGoogle}
             </Button>
           )}
         />
@@ -210,16 +210,16 @@ const LoginContent = () => {
           iconPosition={"center"}
           icon={<FaApple />}
         >
-          {t.login.continueWithApple}
+          {t.auth.login.continueWithApple}
         </Button>
       </div>
       <Typography
         variant="h3"
         className="text-center text-sm mx-auto  absolute left-1/2 -translate-x-1/2  bottom-20 lg:bottom-16 w-fit"
       >
-        {t.login.dontHaveAccount}{" "}
+        {t.auth.login.dontHaveAccount}{" "}
         <Link href={localePath("/signup")} className="text-purple m-custom-8 hover:underline">
-          {t.login.signUp}
+          {t.auth.login.signUp}
         </Link>
       </Typography>
     </section>

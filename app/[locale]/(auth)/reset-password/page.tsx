@@ -77,13 +77,13 @@ const ResetPasswordContent = () => {
           href={localePath("/login")}
           className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
         >
-          <ChevronLeft className="size-5" /> {t.resetPassword.back}
+          <ChevronLeft className="size-5" /> {t.auth.resetPassword.back}
         </Link>
         <Typography
           variant="h1"
           className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
         >
-          {t.resetPassword.success}
+          {t.auth.resetPassword.success}
         </Typography>
         <div className="space-y-4">
           <div className="flex items-center justify-center py-8">
@@ -92,7 +92,7 @@ const ResetPasswordContent = () => {
             </div>
           </div>
           <Typography variant="h3" className="text-center text-sm">
-            {t.resetPassword.successMessage}
+            {t.auth.resetPassword.successMessage}
           </Typography>
           <Typography
             variant="h3"
@@ -108,7 +108,7 @@ const ResetPasswordContent = () => {
             variant={"filled"}
             onClick={() => router.push(localePath("/login"))}
           >
-            {t.resetPassword.goToLogin}
+            {t.auth.resetPassword.goToLogin}
           </Button>
         </div>
       </section>
@@ -122,17 +122,17 @@ const ResetPasswordContent = () => {
           href={localePath("/login")}
           className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
         >
-          <ChevronLeft className="size-5" /> {t.resetPassword.back}
+          <ChevronLeft className="size-5" /> {t.auth.resetPassword.back}
         </Link>
         <Typography
           variant="h1"
           className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
         >
-          {t.resetPassword.invalidLink}
+          {t.auth.resetPassword.invalidLink}
         </Typography>
         <div className="space-y-4">
           <Typography variant="h3" className="text-sm text-gray-600">
-            {t.resetPassword.invalidLinkMessage}
+            {t.auth.resetPassword.invalidLinkMessage}
           </Typography>
         </div>
         <div className="mt-8 space-y-3">
@@ -142,7 +142,7 @@ const ResetPasswordContent = () => {
             variant={"filled"}
             onClick={() => router.push(localePath("/forgot-password"))}
           >
-            {t.resetPassword.requestNewLink}
+            {t.auth.resetPassword.requestNewLink}
           </Button>
           <Button
             className="w-full text-sm"
@@ -150,7 +150,7 @@ const ResetPasswordContent = () => {
             variant={"outlined"}
             onClick={() => router.push(localePath("/login"))}
           >
-            {t.resetPassword.backToLogin}
+            {t.auth.resetPassword.backToLogin}
           </Button>
         </div>
       </section>
@@ -163,16 +163,16 @@ const ResetPasswordContent = () => {
         href={"/login"}
         className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
       >
-        <ChevronLeft className="size-5" /> {t.resetPassword.back}
+        <ChevronLeft className="size-5" /> {t.auth.resetPassword.back}
       </Link>
       <Typography
         variant="h1"
         className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
       >
-        {t.resetPassword.title}
+        {t.auth.resetPassword.title}
       </Typography>
       <Typography variant="h3" className="text-sm text-gray-600 pb-6">
-        {t.resetPassword.subtitle}
+        {t.auth.resetPassword.subtitle} 
       </Typography>
       <div className="space-y-2">
         <Input
@@ -186,7 +186,7 @@ const ResetPasswordContent = () => {
               alt="key"
             />
           }
-          placeholder={t.resetPassword.newPassword}
+          placeholder={t.auth.resetPassword.newPassword}
           type={showPassword ? "text" : "password"}
           onRightIconClick={() => setShowPassword(!showPassword)}
           rightIcon={
@@ -227,7 +227,7 @@ const ResetPasswordContent = () => {
               alt="key"
             />
           }
-          placeholder={t.resetPassword.confirmPassword}
+          placeholder={t.auth.resetPassword.confirmPassword}
           type={showConfirmPassword ? "text" : "password"}
           onRightIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
           rightIcon={
@@ -262,7 +262,7 @@ const ResetPasswordContent = () => {
         />
       </div>
       <Typography variant="h3" className="text-xs text-gray-500 pt-2 pb-4">
-        {t.resetPassword.passwordHint}
+        {t.auth.resetPassword.passwordHint}
       </Typography>
       <Button
         className="w-full text-sm"
@@ -276,15 +276,15 @@ const ResetPasswordContent = () => {
         }
         isLoading={resetPasswordMutation.isPending}
       >
-        {t.resetPassword.resetPassword}
+        {t.auth.resetPassword.resetPassword}
       </Button>
       <Typography
         variant="h3"
         className="text-center text-sm mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit"
       >
-        {t.resetPassword.rememberPassword}{" "}
+        {t.auth.resetPassword.rememberPassword}{" "}
         <Link href={localePath("/login")} className="text-purple m-custom-8 hover:underline">
-          {t.resetPassword.logIn}
+          {t.auth.resetPassword.logIn}
         </Link>
       </Typography>
     </section>

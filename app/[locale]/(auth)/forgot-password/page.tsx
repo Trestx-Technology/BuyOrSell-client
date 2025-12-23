@@ -54,13 +54,13 @@ const ForgotPasswordContent = () => {
           href={localePath("/login")}
           className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
         >
-          <ChevronLeft className="size-5" /> {t.forgotPassword.back}
+          <ChevronLeft className="size-5" /> {t.auth.forgotPassword.back}
         </Link>
         <Typography
           variant="h1"
           className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
         >
-          {t.forgotPassword.checkEmail}
+          {t.auth.forgotPassword.checkEmail}
         </Typography>
         <div className="space-y-4">
           <div className="flex items-center justify-center py-8">
@@ -69,7 +69,7 @@ const ForgotPasswordContent = () => {
             </div>
           </div>
           <Typography variant="h3" className="text-center text-sm">
-            {t.forgotPassword.emailSent}
+            {t.auth.forgotPassword.emailSent}
           </Typography>
           <Typography variant="h3" className="text-center text-sm font-semibold">
             {email}
@@ -89,7 +89,7 @@ const ForgotPasswordContent = () => {
             variant={"filled"}
             onClick={() => router.push(localePath("/login"))}
           >
-            {t.forgotPassword.backToLogin}
+            {t.auth.forgotPassword.backToLogin}
           </Button>
           <Button
             className="w-full text-sm"
@@ -100,7 +100,7 @@ const ForgotPasswordContent = () => {
               setEmail("");
             }}
           >
-            {t.forgotPassword.resendEmail}
+            {t.auth.forgotPassword.resendEmail}
           </Button>
         </div>
       </section>
@@ -113,16 +113,16 @@ const ForgotPasswordContent = () => {
         href={"/login"}
         className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
       >
-        <ChevronLeft className="size-5" /> {t.forgotPassword.back}
+        <ChevronLeft className="size-5" /> {t.auth.forgotPassword.back}
       </Link>
       <Typography
         variant="h1"
         className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
       >
-        {t.forgotPassword.title}
+        {t.auth.forgotPassword.title}
       </Typography>
       <Typography variant="h3" className="text-sm text-gray-600 pb-6">
-        {t.forgotPassword.subtitle}
+        {t.auth.forgotPassword.subtitle}
       </Typography>
       <div className="space-y-2">
         <Input
@@ -137,7 +137,7 @@ const ForgotPasswordContent = () => {
               className="size-5"
             />
           }
-          placeholder={t.forgotPassword.email}
+          placeholder={t.auth.forgotPassword.email}
           inputSize="lg"
           className="w-full text-sm pl-12"
           value={email}
@@ -158,15 +158,15 @@ const ForgotPasswordContent = () => {
         disabled={!email || forgotPasswordMutation.isPending}
         isLoading={forgotPasswordMutation.isPending}
       >
-{t.forgotPassword.sendResetLink}
+{t.auth.forgotPassword.sendResetLink}
       </Button>
       <Typography
         variant="h3"
         className="text-center text-sm mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit"
       >
-        {t.forgotPassword.rememberPassword}{" "}
+        {t.auth.forgotPassword.rememberPassword}{" "}
         <Link href={localePath("/login")} className="text-purple m-custom-8 hover:underline">
-          {t.forgotPassword.logIn}
+          {t.auth.forgotPassword.logIn}
         </Link>
       </Typography>
     </section>

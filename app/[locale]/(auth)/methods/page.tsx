@@ -20,7 +20,7 @@ const Login = () => {
         variant="h1"
         className="text-center lg:text-left text-xl min-[500px]:text-3xl font-extrabold"
       >
-        {t.methods.title} <span className="text-purple">{t.methods.subtitle}</span>
+        {t.auth.methods.title} <span className="text-purple">{t.auth.methods.subtitle}</span>
       </Typography>
       <div className="space-y-3 text-sm sm:text-md font-medium">
         <GoogleLoginButton
@@ -51,7 +51,7 @@ const Login = () => {
               iconPosition="center"
               icon={<FcGoogle />}
             >
-{t.methods.continueWithGoogle}
+{t.auth.methods.continueWithGoogle}
             </Button>
           )}
         />
@@ -73,7 +73,7 @@ const Login = () => {
             />
           }
         >
-{t.methods.continueWithEmail}
+  {t.auth.methods.continueWithEmail}
         </Button>
         <Button
           variant={"ghost"}
@@ -82,20 +82,20 @@ const Login = () => {
           iconPosition="center"
           icon={<FaApple />}
         >
-{t.methods.continueWithApple}
+{t.auth.methods.continueWithApple}
         </Button>
 
         <Typography variant="h3" className="text-center text-sm py-4">
-{t.methods.or}
+{t.auth.methods.or}
         </Typography>
       </div>
       <Typography
         variant="h3"
         className="text-center text-sm absolute left-1/2 -translate-x-1/2  bottom-16 w-full"
       >
-{t.methods.dontHaveAccount}{" "}
+{t.auth.methods.dontHaveAccount}{" "}
         <Link href={localePath("/signup")} className="text-purple m-custom-16">
-          {t.methods.signUp}
+          {t.auth.methods.signUp}
         </Link>
       </Typography>
     </section>
