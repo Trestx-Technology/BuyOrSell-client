@@ -54,3 +54,4 @@ export function HomeCarousel() {
     </motion.div>
   );
 }
+

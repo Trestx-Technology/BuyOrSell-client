@@ -33,6 +33,7 @@ import { toast } from "sonner";
 import { useEmirates } from "@/hooks/useLocations";
 import { createUrlParamHandler } from "@/utils/url-params";
 import { useQueryParam } from "@/hooks/useQueryParam";
+import { useLocale } from "@/hooks/useLocale";
 
 // Internal component that uses useSearchParams
 const NavbarContent = ({ className }: { className?: string }) => {
@@ -44,6 +45,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
   const { isAuthenticated, session, clearSession } = useAuthStore();
   const user = session.user;
   const { data: emirates, isLoading: isLoadingEmirates } = useEmirates();
+  const { t,locale } = useLocale();
 
   // Initialize city from URL query parameter
   useQueryParam(searchParams, "emirate", setCity);
@@ -79,7 +81,8 @@ const NavbarContent = ({ className }: { className?: string }) => {
       <nav
         className={cn(
           "flex max-w-[1080px] gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between overflow-visible",
-          className
+          className,
+          locale === 'ar' ? 'flex-row-reverse' : 'flex-row'
         )}
       >
         <div className="flex items-center gap-2">
@@ -153,7 +156,8 @@ const NavbarContent = ({ className }: { className?: string }) => {
               >
                 <DropdownMenuItem onClick={() => handleCityChange("")}>
                   All Cities (UAE)
-                </DropdownMenuItem>
+              </DropdownMenuItem>
+              {/* TODO: fix this */}
                 {isLoadingEmirates ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <DropdownMenuItem key={i}>
@@ -222,7 +226,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                       width={24}
                       height={24}
                     />
-                    My Profile
+                    {t.home.navbar.myProfile}
                   </Link>
 
                   <Link
@@ -235,7 +239,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                       width={24}
                       height={24}
                     />
-                    Jobs Dashboard
+                    {t.home.navbar.jobsDashboard}
                   </Link>
 
                   <Link
@@ -248,7 +252,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                       width={24}
                       height={24}
                     />
-                    My Searches
+                    {t.home.navbar.mySearches}
                   </Link>
 
                   <Link
@@ -261,7 +265,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                       width={24}
                       height={24}
                     />
-                    My Ads
+                    {t.home.navbar.myAds}
                   </Link>
 
                   <Link
@@ -274,7 +278,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                       width={24}
                       height={24}
                     />
-                    Favourites
+                    {t.home.navbar.favourites}
                   </Link>
 
                   <Link
@@ -287,7 +291,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                       width={24}
                       height={24}
                     />
-                    Notifications
+                    {t.home.navbar.notifications}
                   </Link>
 
                   <Link
@@ -300,7 +304,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                       width={24}
                       height={24}
                     />
-                    Offers & Packages
+                    {t.home.navbar.offersPackages}
                   </Link>
 
                   <Link
@@ -313,7 +317,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                       width={24}
                       height={24}
                     />
-                    Settings
+                    {t.home.navbar.settings}
                   </Link>
 
                   <button
@@ -321,14 +325,14 @@ const NavbarContent = ({ className }: { className?: string }) => {
                     className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition-colors text-gray-700 hover:text-red-700 w-full"
                   >
                     <LogOut className="w-6 h-6" />
-                    Sign Out
+                    {t.home.navbar.signOut}
                   </button>
                 </div>
               </PopoverContent>
             </Popover>
           ) : (
             <Link href="/methods" className="text-xs font-medium text-purple">
-              Log In / Sign Up
+              {t.home.navbar.logIn}
             </Link>
           )}
 
@@ -349,8 +353,8 @@ const NavbarContent = ({ className }: { className?: string }) => {
             }
             className="px-4 text-xs font-medium text-white h-10"
           >
-            <span className="hidden lg:block">Place Ad Free with</span>
-            <span className="block lg:hidden">Place Ad</span>
+            <span className="hidden lg:block">{t.home.navbar.placeAd}</span>
+            <span className="block lg:hidden">{t.home.navbar.placeAdShort}</span>
           </Button>
         </div>
       </nav>

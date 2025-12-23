@@ -3,11 +3,15 @@ import { ListingCardProps } from "@/components/global/listing-card";
 import { HotDealsListingCardProps } from "@/components/global/hot-deals-listing-card";
 import { LatestAd, DealAd } from "@/interfaces/home.types";
 import { formatDate } from "./format-date";
+import { type Locale } from "@/lib/i18n/config";
 
 /**
  * Transforms an AD object to ListingCardProps format
+ * @param ad - The AD object to transform
+ * @param locale - Optional locale to use Arabic fields when locale is 'ar'
  */
-export const transformAdToListingCard = (ad: AD): ListingCardProps => {
+export const transformAdToListingCard = (ad: AD, locale?: Locale): ListingCardProps => {
+  const isArabic = locale === 'ar';
   // Extract location
   const getLocation = (): string => {
     // Helper function to safely get and trim string values
@@ -36,6 +40,17 @@ export const transformAdToListingCard = (ad: AD): ListingCardProps => {
     // Handle object location - check for address field first
     const address = getStringValue(locationData.address);
     if (address) return address;
+    
+    // Use Arabic address if available and locale is Arabic
+    if (isArabic && ad.addressAr) {
+      const cityAr = ad.addressAr.city;
+      const stateAr = ad.addressAr.state;
+      if (cityAr && stateAr) {
+        return `${cityAr}, ${stateAr}`;
+      }
+      if (cityAr) return cityAr;
+      if (stateAr) return stateAr;
+    }
     
     // Build location from city and state
     const city = getStringValue(locationData.city);
@@ -138,7 +153,7 @@ export const transformAdToListingCard = (ad: AD): ListingCardProps => {
 
   return {
     id: ad._id,
-    title: ad.title,
+    title: isArabic && ad.titleAr ? ad.titleAr : ad.title,
     price: ad.price,
     originalPrice,
     discount: discountPercentage,
@@ -157,10 +172,14 @@ export const transformAdToListingCard = (ad: AD): ListingCardProps => {
 /**
  * Transforms an AD object, LatestAd, or DealAd to HotDealsListingCardProps format
  * Includes deal validity and seller information
+ * @param ad - The ad object to transform
+ * @param locale - Optional locale to use Arabic fields when locale is 'ar'
  */
 export const transformAdToHotDealsCard = (
-  ad: AD | LatestAd | DealAd
+  ad: AD | LatestAd | DealAd,
+  locale?: Locale
 ): HotDealsListingCardProps => {
+  const isArabic = locale === 'ar';
   // Check which type of ad it is
   const isDealAd = 'address' in ad && ad.address && typeof ad.address === 'object' && 'state' in ad.address;
   const isLatestAd = 'dealValidThrough' in ad && !isDealAd;
@@ -221,11 +240,11 @@ export const transformAdToHotDealsCard = (
   // Use the appropriate transform function
   let baseCard: ListingCardProps;
   if (isDealAd) {
-    baseCard = transformDealAdToCard(ad as DealAd);
+    baseCard = transformDealAdToCard(ad as DealAd, locale);
   } else if (isLatestAd) {
-    baseCard = transformLatestAdToCard(ad as LatestAd);
+    baseCard = transformLatestAdToCard(ad as LatestAd, locale);
   } else {
-    baseCard = transformAdToListingCard(ad as AD);
+    baseCard = transformAdToListingCard(ad as AD, locale);
   }
 
   // For DealAd, prices are already set correctly in transformDealAdToCard
@@ -248,8 +267,11 @@ export const transformAdToHotDealsCard = (
 
 /**
  * Helper function to transform LatestAd to base card format
+ * @param ad - The LatestAd object to transform
+ * @param locale - Optional locale to use Arabic fields when locale is 'ar'
  */
-const transformLatestAdToCard = (ad: LatestAd): ListingCardProps => {
+const transformLatestAdToCard = (ad: LatestAd, locale?: Locale): ListingCardProps => {
+  const isArabic = locale === 'ar';
   // Normalize extraFields
   const normalizeExtraFields = (): Record<string, string | number | boolean | string[] | null> => {
     if (!ad.extraFields) return {};
@@ -274,13 +296,27 @@ const transformLatestAdToCard = (ad: LatestAd): ListingCardProps => {
     image: ad.owner.image || null,
   } : undefined;
 
+  // Get location - use Arabic address if available
+  const getLocation = (): string => {
+    if (isArabic && ad.addressAr) {
+      const cityAr = ad.addressAr.city;
+      const stateAr = ad.addressAr.state;
+      if (cityAr && stateAr) {
+        return `${cityAr}, ${stateAr}`;
+      }
+      if (cityAr) return cityAr;
+      if (stateAr) return stateAr;
+    }
+    return ad.location || "Location not specified";
+  };
+
   return {
     id: ad.id,
-    title: ad.title,
+    title: isArabic && ad.titleAr ? ad.titleAr : ad.title,
     price: ad.price,
     originalPrice: ad.discountedPrice ? ad.price : undefined,
     discount: ad.dealPercentage || undefined,
-    location: ad.location || "Location not specified",
+    location: getLocation(),
     images: ad.images || [],
     extraFields: extraFields as ProductExtraFields,
     isExchange: Boolean(ad.exchanged || ad.isExchangeable),
@@ -294,8 +330,11 @@ const transformLatestAdToCard = (ad: LatestAd): ListingCardProps => {
 
 /**
  * Helper function to transform DealAd to base card format
+ * @param ad - The DealAd object to transform
+ * @param locale - Optional locale to use Arabic fields when locale is 'ar'
  */
-const transformDealAdToCard = (ad: DealAd): ListingCardProps => {
+const transformDealAdToCard = (ad: DealAd, locale?: Locale): ListingCardProps => {
+  const isArabic = locale === 'ar';
   // Normalize extraFields
   const normalizeExtraFields = (): Record<string, string | number | boolean | string[] | null> => {
     if (!ad.extraFields) return {};
@@ -310,8 +349,19 @@ const transformDealAdToCard = (ad: DealAd): ListingCardProps => {
 
   const extraFields = normalizeExtraFields();
 
-  // Extract location from nested address structure
+  // Extract location from nested address structure - use Arabic if available
   const getLocation = (): string => {
+    // Use Arabic address if available and locale is Arabic
+    if (isArabic && ad.addressAr) {
+      const cityAr = ad.addressAr.city;
+      const stateAr = ad.addressAr.state;
+      if (cityAr && stateAr) {
+        return `${cityAr}, ${stateAr}`;
+      }
+      if (cityAr) return cityAr;
+      if (stateAr) return stateAr;
+    }
+    
     if (!ad.address || !ad.address.state) {
       return "Location not specified";
     }
@@ -346,8 +396,8 @@ const transformDealAdToCard = (ad: DealAd): ListingCardProps => {
     : undefined;
 
   return {
-    id: ad.id,
-    title: ad.title,
+    id: ad.id || ad._id || '',
+    title: isArabic && ad.titleAr ? ad.titleAr : ad.title,
     price: displayPrice,
     originalPrice: originalPrice,
     discount: ad.dealPercentage || undefined,

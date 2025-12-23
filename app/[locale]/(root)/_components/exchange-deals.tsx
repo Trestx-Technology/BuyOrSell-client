@@ -10,6 +10,7 @@ import { CategoryTreeWithAds, DealAd } from "@/interfaces/home.types";
 import { AD } from "@/interfaces/ad";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { ListingCardProps } from "@/components/global/listing-card";
+import { useLocale } from "@/hooks/useLocale";
 
 // Framer Motion animation variants - using improved patterns from AI search bar
 const containerVariants = {
@@ -105,11 +106,12 @@ const hasExchangeAvailable = (ad: AD | DealAd): boolean => {
   return false;
 };
 
-export default function ExchangeDeals({ 
+export default function ExchangeDeals({
   className = "",
   categoryTreeWithExchangeAds = [],
   isLoading = false,
 }: ExchangeDealsProps) {
+  const { t, locale } = useLocale();
   // Transform and filter exchange ads from categoryTreeWithExchangeAds
   const transformedAdsByCategory = useMemo(() => {
     if (!categoryTreeWithExchangeAds || categoryTreeWithExchangeAds.length === 0) {
@@ -130,7 +132,7 @@ export default function ExchangeDeals({
 
         // Transform filtered ads
         adsByCategory[categoryName] = filteredAds
-          .map((ad) => transformAdToListingCard(ad))
+          .map((ad) => transformAdToListingCard(ad, locale))
           .map((card) => ({
             ...card,
             isExchange: true, // All ads in exchange deals should show exchange badge
@@ -146,6 +148,9 @@ export default function ExchangeDeals({
     if (!categoryTreeWithExchangeAds || categoryTreeWithExchangeAds.length === 0) {
       return [];
     }
+
+    const isArabic = locale === 'ar';
+
     return categoryTreeWithExchangeAds
       .filter((category) => {
         // Only show categories that have filtered ads
@@ -153,12 +158,15 @@ export default function ExchangeDeals({
         const ads = transformedAdsByCategory[categoryName] || [];
         return ads.length > 0;
       })
-      .map((category) => ({
-        id: category._id,
-        name: category.name,
-        value: category.name.toLowerCase().replace(/\s+/g, '-'),
-      }));
-  }, [categoryTreeWithExchangeAds, transformedAdsByCategory]);
+      .map((category) => {
+        const name = isArabic ? (category.nameAr || category.name) : category.name;
+        return {
+          id: category._id,
+          name,
+          value: category.name.toLowerCase().replace(/\s+/g, '-'), // Keep original name for value to maintain consistency
+        };
+      });
+  }, [categoryTreeWithExchangeAds, transformedAdsByCategory, locale]);
 
   // Get default tab value
   const defaultTab = categories.length > 0 ? categories[0].value : '';
@@ -216,7 +224,7 @@ export default function ExchangeDeals({
             variant="lg-black-inter"
             className="text-lg font-medium text-white"
           >
-            Exchange Offers
+            {t.home.exchangeDeals.title}
           </Typography>
         </motion.div>
 

@@ -5,6 +5,7 @@ import { CardsCarousel } from "@/components/global/cards-carousel";
 import ListingCard from "@/components/global/listing-card";
 import { AD } from "@/interfaces/ad";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
+import { useLocale } from "@/hooks/useLocale";
 
 interface RecentViewsProps {
   recentlyViewedAds?: AD[];
@@ -15,6 +16,8 @@ export default function RecentViews({
   recentlyViewedAds = [],
   isLoading = false,
 }: RecentViewsProps) {
+  const { t, locale } = useLocale();
+  
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -39,7 +42,7 @@ export default function RecentViews({
   // Transform AD objects to ListingCardProps (filter out any null/undefined ads)
   const listingItems = recentlyViewedAds
     .filter((ad): ad is AD => ad != null)
-    .map(transformAdToListingCard);
+    .map((ad) => transformAdToListingCard(ad, locale));
 
   if (isLoading) {
     return (
@@ -50,7 +53,7 @@ export default function RecentViews({
         viewport={{ once: true, margin: "-100px" }}
         className="max-w-[1180px] mx-auto px-4 xl:px-0"
       >
-        <CardsCarousel title="Recently Viewed">
+        <CardsCarousel title={t.home.recentViews.title}>
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
@@ -81,7 +84,7 @@ export default function RecentViews({
       viewport={{ once: true, margin: "-100px" }}
       className="max-w-[1180px] mx-auto px-4 xl:px-0"
     >
-      <CardsCarousel title="Recently Viewed">
+      <CardsCarousel title={t.home.recentViews.title}>
         {listingItems.map((item) => (
           <motion.div
             key={item.id}
@@ -95,3 +98,4 @@ export default function RecentViews({
     </motion.section>
   );
 }
+

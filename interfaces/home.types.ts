@@ -8,12 +8,16 @@ import { AD } from './ad';
 export interface HomeBanner {
   _id: string;
   title: string;
+  titleAr: string;
   subTitle: string;
+  subTitleAr: string;
   content: string;
+  contentAr: string;
   image: string;
   location: string;
   isActive: boolean;
   callToAction: string;
+  callToActionAr:string
   promotional: boolean;
   sponsored: boolean;
   position: string;
@@ -26,10 +30,12 @@ export interface HomeBanner {
 export interface HomeCategory {
   _id: string;
   name: string;
+  nameAr?: string;
   icon: string | null;
   image: string | null;
   banner: string | null;
   desc: string | null;
+  descAr?: string | null;
   fieldsCount: number;
 }
 
@@ -37,10 +43,12 @@ export interface HomeCategory {
 export interface HomeSubCategory {
   _id: string;
   name: string;
+  nameAr?: string;
   icon: string | null;
   image: string | null;
   banner: string | null;
   desc: string | null;
+  descAr?: string | null;
   fieldsCount: number;
   ads: AD[];
 }
@@ -48,6 +56,7 @@ export interface HomeSubCategory {
 // Category with subcategories structure from home API subCategoryList
 export interface CategoryWithSubCategories {
   category: string;
+  categoryAr?: string;
   subCategory: HomeSubCategory[];
 }
 
@@ -55,10 +64,12 @@ export interface CategoryWithSubCategories {
 export interface CategoryTreeWithAds {
   _id: string;
   name: string;
+  nameAr?: string;
   icon: string | null;
   image: string | null;
   banner: string | null;
   desc: string | null;
+  descAr?: string | null;
   fieldsCount: number;
   ads: AD[] | DealAd[] | LatestAd[]; // Can be AD, DealAd, or LatestAd depending on context
   children: CategoryTreeWithAds[]; // Recursive - same structure
@@ -75,18 +86,34 @@ export interface ExtraField {
 export interface LatestAd {
   id: string;
   title: string;
+  titleAr?: string;
   price: number;
   discountedPrice: number | null;
   dealPercentage: number | null;
   dealValidThrough: string | null;
   extraFields: ExtraField[];
   exchanged: boolean | null;
-  exchangeWith: unknown | null;
+  exchangeWith?: {
+    title: string;
+    titleAr?: string;
+    description?: string;
+    descriptionAr?: string;
+    imageUrl?: string;
+    _id?: string;
+  } | null;
   isExchangeable: boolean | null;
   createdAt: string;
   connectionTypes: string[];
   images: string[];
   location: string | null;
+  address?: {
+    state: string;
+    city: string;
+  } | null;
+  addressAr?: {
+    state: string;
+    city: string;
+  } | null;
   owner: {
     id: string;
     name: string;
@@ -99,14 +126,24 @@ export interface LatestAd {
 // Deal ad structure from categoryTreeWithDealAds
 export interface DealAd {
   id: string;
+  _id?: string;
   title: string;
+  titleAr?: string;
   price: number;
   discountedPrice: number | null;
   dealPercentage: number | null;
+  dealValidThru?: string | null;
   dealValidThrough: string | null;
   extraFields: ExtraField[];
   exchanged: boolean | null;
-  exchangeWith: unknown | null;
+  exchangeWith?: {
+    title: string;
+    titleAr?: string;
+    description?: string;
+    descriptionAr?: string;
+    imageUrl?: string;
+    _id?: string;
+  } | null;
   isExchangeable: boolean | null;
   createdAt: string;
   connectionTypes: string[];
@@ -121,8 +158,13 @@ export interface DealAd {
       longitude?: number;
     };
   } | null;
+  addressAr?: {
+    state: string;
+    city: string;
+  } | null;
   owner: {
     id: string;
+    _id?: string;
     name: string;
     firstName: string;
     lastName: string;
@@ -133,6 +175,7 @@ export interface DealAd {
 // Ads grouped by category
 export interface AdsByCategory {
   category: string;
+  categoryAr: string
   featuredAds: AD[];
   latestAds: LatestAd;
 }
@@ -142,10 +185,12 @@ export interface PopularCategory {
   category: {
     _id: string;
     name: string;
+    nameAr?: string;
     icon: string | null;
     image: string | null;
     banner: string | null;
     desc: string | null;
+    descAr?: string | null;
     fieldsCount: number;
   };
   activeAdsCount: number;

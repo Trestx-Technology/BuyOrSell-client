@@ -1,6 +1,6 @@
 "use client";
 
-import CategoryNav from "@/app/(root)/_components/CategoryNav";
+import CategoryNav from "./CategoryNav";
 import { HomeCarousel } from "./home-carousel";
 import CategoriesCarousel from "./categories-carousel";
 import PopularCategories from "./popular-categories";
@@ -12,9 +12,12 @@ import { Footer } from "@/components/global/footer";
 import ExchangeDeals from "./exchange-deals";
 import { useHome } from "@/hooks/useHome";
 import CategoryTabbedCarousel from "@/components/global/category-tabbed-carousel";
+import { useLocale } from "@/hooks/useLocale";
 
 export function HomeContent() {
   const { data: homeData, isLoading } = useHome();
+  const { locale, t } = useLocale();
+  const isArabic = locale === 'ar';
 
   return (
     <main className="min-h-screen">
@@ -101,12 +104,15 @@ export function HomeContent() {
                 }}
               >
                 <CategoryTabbedCarousel
-                  categoryData={category}
+                  categoryData={{
+                    ...category,
+                    category: isArabic && category.categoryAr ? category.categoryAr : category.category,
+                  }}
                   isLoading={isLoading}
                   showNavigation={false}
                   showViewAll={true}
-                  viewAllText="View all"
-                  onViewAll={() => console.log(`View all ${category.category} clicked`)}
+                  viewAllText={t.home.common.viewAll}
+                  onViewAll={() => console.log(`View all ${isArabic && category.categoryAr ? category.categoryAr : category.category} clicked`)}
                   onTabChange={(tabId) => console.log("Tab changed to:", tabId)}
                 />
               </div>

@@ -10,6 +10,7 @@ import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PopularCategory } from "@/interfaces/home.types";
+import { useLocale } from "@/hooks/useLocale";
 
 interface CategoryCard {
   id: number;
@@ -75,6 +76,7 @@ const CategorySkeleton = () => (
 
 
 const PopularCategories = ({ popularCategories = [], isLoading = false }: PopularCategoriesProps) => {
+  const { t, locale } = useLocale();
   const [showAllCategories, setShowAllCategories] = useState(false);
 
   // Mobile breakpoint at 500px
@@ -84,43 +86,20 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
   const categoryData: CategoryCard[] = popularCategories?.map((popularCategory: PopularCategory, index: number) => {
     const { category, activeAdsCount } = popularCategory;
 
-    // Generate href based on category name
-    const generateHref = () => {
-      // Convert category name to URL-friendly format
-      return `/categories/${category.name}`;
-    };
-
-    // Get description or use default
-    const getDescription = (name: string) => {
-      const descriptions: Record<string, string> = {
-        motors: "Cars, Rental Cars, New Cars, Export Cars",
-        property: "Residential, Commercial, New Projects",
-        electronics: "Mobile Phone & Tablet Accessories",
-        furniture: "Furniture, Home Accessories, Garden",
-        jobs: "Accounting, Finance, Engineering, Sales",
-        community: "Freelancers, Home Maintenance",
-        business: "Businesses for Sale, Construction",
-        appliances: "Large Appliances, Kitchen Appliances",
-        classifieds: "Electronics, Computer & Networking",
-      };
-
-      const normalizedName = name.toLowerCase();
-      for (const [key, desc] of Object.entries(descriptions)) {
-        if (normalizedName.includes(key)) {
-          return desc;
-        }
-      }
-
-      return `${name} category`;
-    };
+    // Use Arabic values if locale is Arabic, otherwise use default
+    const isArabic = locale === 'ar';
+    const name = isArabic ? (category.nameAr || category.name) : category.name;
+    const description = isArabic
+      ? (category.descAr || category.desc || `${name} category`)
+      : (category.desc || `${category.name} category`);
 
     return {
       id: index + 1,
-      name: category.name,
+      name,
       icon: category.icon,
-      description: getDescription(category.name),
-      activeAds: `${activeAdsCount.toLocaleString()} Active Ads`,
-      href: generateHref(),
+      description,
+      activeAds: `${activeAdsCount.toLocaleString()} ${t.home.popularCategories.activeAds}`,
+      href: `/categories/${category.name}`,
     };
   }) || [];
 
@@ -152,13 +131,13 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
         variants={itemVariants}
         className="text-[18px] font-medium text-[#1D2939] mb-3 font-poppins"
       >
-        Popular Categories
+        {t.home.popularCategories.title}
       </motion.h2>
 
       {/* Categories Grid */}
       <div
         className={cn(
-          "grid grid-cols-3 md:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4",
+          "grid grid-cols-3 md:grid-cols-3 xl:grid-cols-5 gap-4",
           showAllCategories && "overflow-y-auto"
         )}
       >
@@ -180,12 +159,8 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
                   damping: 22,
                   delay: 0.3 + index * 0.06, // Staggered delay for each category
                 }}
-                whileHover={{
-                  scale: 1.05,
-                  y: -4,
-                  transition: { duration: 0.2 },
-                }}
-                className="transform-gpu transition-all duration-300 ease-out"
+               
+                className="transition-all duration-300 ease-out"
                 style={{
                   willChange: "transform, opacity",
                   contain: "layout style paint",
@@ -266,7 +241,7 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
             className="flex sm:hidden w-full text-sm mt-2"
             onClick={handleToggleCategories}
           >
-            {showAllCategories ? "Show Less" : "View All"}
+            {showAllCategories ? t.home.popularCategories.showLess : t.home.popularCategories.viewAll}
           </Button>
         </motion.div>
       )}

@@ -67,7 +67,9 @@ export interface AdOrganization {
 export type AD = {
   _id: string;
   title: string;
+  titleAr?: string;
   description: string;
+  descriptionAr?: string;
   price: number;
   views?: number; // Number of views
   adType?: "JOB" | "AD"; // Type of ad
@@ -90,6 +92,10 @@ export type AD = {
   validity?: string; // Validity date for the ad
   location?: AdLocation | string; // can be string address or object with country/city/state/area
   address?: AdLocation; // Alternative location field name
+  addressAr?: {
+    state: string;
+    city: string;
+  }; // Arabic address
   relatedCategories: string[];
   subscriptionId?: string;
   documents?: Document[];
@@ -101,8 +107,11 @@ export type AD = {
   isExchangable?: boolean; // Exchange availability (note spelling)
   exchangeWith?: {
     title: string;
+    titleAr?: string;
     description?: string;
+    descriptionAr?: string;
     imageUrl?: string;
+    _id?: string;
   };
   exchanged?: boolean; // Whether item has been exchanged
   createdAt: string;
@@ -254,8 +263,11 @@ export interface PostAdPayload {
   isExchangable?: boolean;
   exchangeWith?: {
     title: string;
+    titleAr?: string;
     description?: string;
+    descriptionAr?: string;
     imageUrl?: string;
+    _id?: string;
   };
   connectionTypes: ("chat" | "call" | "whatsapp")[] | undefined;
   relatedCategories: string[];

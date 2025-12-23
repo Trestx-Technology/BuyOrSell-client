@@ -10,6 +10,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { CategoryTreeWithAds } from "@/interfaces/home.types";
 import { formatDate } from "@/utils/format-date";
+import { useLocale } from "@/hooks/useLocale";
 
 // Framer Motion animation variants - using improved patterns from AI search bar
 const containerVariants = {
@@ -74,24 +75,31 @@ interface HostDealsProps {
   isLoading?: boolean;
 }
 
-export default function HostDeals({ 
+export default function HostDeals({
   className = "",
   categoryTreeWithDealAds = [],
   isLoading = false,
 }: HostDealsProps) {
+  const { t, locale } = useLocale();
   // Get category names for tabs
   const categories = useMemo(() => {
     if (!categoryTreeWithDealAds || categoryTreeWithDealAds.length === 0) {
       return [];
     }
+
+    const isArabic = locale === 'ar';
+
     return categoryTreeWithDealAds
       .filter((category) => category.ads && category.ads.length > 0)
-      .map((category) => ({
-        id: category._id,
-        name: category.name,
-        value: category.name.toLowerCase().replace(/\s+/g, '-'),
-      }));
-  }, [categoryTreeWithDealAds]);
+      .map((category) => {
+        const name = isArabic ? (category.nameAr || category.name) : category.name;
+        return {
+          id: category._id,
+          name,
+          value: category.name.toLowerCase().replace(/\s+/g, '-'), // Keep original name for value to maintain consistency
+        };
+      });
+  }, [categoryTreeWithDealAds, locale]);
 
   // Get default tab value
   const defaultTab = categories.length > 0 ? categories[0].value : '';
@@ -109,26 +117,35 @@ export default function HostDeals({
   // Get active category and its ads
   const activeCategory = useMemo(() => {
     return categoryTreeWithDealAds.find(
-      (category) => category.name === activeTab
+      (category) => category.name.toLowerCase().replace(/\s+/g, '-') === activeTab
     );
   }, [categoryTreeWithDealAds, activeTab]);
 
   // Simple mapper function to transform API ad to component props
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapAdToCardProps = (ad: any) => {
-    // Get location from address
+    // Get location from address (use Arabic if locale is Arabic)
     const getLocation = (): string => {
-      if (!ad.address) return "Location not specified";
-      const { state, city } = ad.address;
+      const isArabic = locale === 'ar';
+      const address = isArabic ? ad.addressAr || ad.address : ad.address;
+
+      if (!address) return "Location not specified";
+      const { state, city } = address;
       if (city && state) return `${city}, ${state}`;
       if (city) return city;
       if (state) return state;
       return "Location not specified";
     };
 
+    // Get title (use Arabic if locale is Arabic)
+    const getTitle = (): string => {
+      const isArabic = locale === 'ar';
+      return isArabic ? (ad.titleAr || ad.title) : ad.title;
+    };
+
     return {
       id: ad._id || ad.id,
-      title: ad.title,
+      title: getTitle(),
       price: ad.discountedPrice || ad.price,
       originalPrice: ad.discountedPrice ? ad.price : undefined,
       discount: ad.dealPercentage,

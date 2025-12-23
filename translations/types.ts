@@ -83,11 +83,57 @@ export type AuthTranslations = {
 };
 
 /**
+ * Home translations type
+ */
+export type HomeTranslations = {
+  popularCategories: {
+    title: string;
+    viewAll: string;
+    showLess: string;
+    activeAds: string;
+  };
+  recentViews: {
+    title: string;
+  };
+  hostDeals: {
+    title: string;
+  };
+  exchangeDeals: {
+    title: string;
+  };
+  categoryNav: {
+    viewAll: string;
+  };
+  navbar: {
+    placeAd: string;
+    placeAdShort: string;
+    logIn: string;
+    myProfile: string;
+    jobsDashboard: string;
+    mySearches: string;
+    myAds: string;
+    favourites: string;
+    notifications: string;
+    offersPackages: string;
+    settings: string;
+    signOut: string;
+    myAdsTooltip: string;
+    messages: string;
+    favouritesTooltip: string;
+    viewOnMap: string;
+  };
+  common: {
+    viewAll: string;
+  };
+};
+
+/**
  * Combined translations type
  * Add new translation namespaces here as you create them
  */
 export type Translations = {
   auth: AuthTranslations;
+  home: HomeTranslations;
   // Add more namespaces here as needed:
   // common: CommonTranslations;
   // navigation: NavigationTranslations;

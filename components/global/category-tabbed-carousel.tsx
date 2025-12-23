@@ -9,6 +9,7 @@ import { CategoryWithSubCategories } from "@/interfaces/home.types";
 import ListingCard from "@/components/global/listing-card";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { AD } from "@/interfaces/ad";
+import { useLocale } from "@/hooks/useLocale";
 
 interface CategoryTabbedCarouselProps<
   T extends { id?: string | number } = { id?: string | number },
@@ -40,7 +41,13 @@ export default function CategoryTabbedCarousel<
   onViewAll,
   onTabChange,
 }: CategoryTabbedCarouselProps<T>) {
-  const displayTitle = title || `Trending ${categoryData.category}`;
+  const { locale } = useLocale();
+  const isArabic = locale === 'ar';
+
+  // Use Arabic category name if available
+  const categoryName = isArabic ? (categoryData.categoryAr || categoryData.category) : categoryData.category;
+  const displayTitle = title || `Trending ${categoryName}`;
+
   const subCategories = useMemo(() => categoryData.subCategory || [], [categoryData.subCategory]);
   
   const firstTabValue = categoryData.subCategory[0]?._id;
@@ -150,23 +157,26 @@ export default function CategoryTabbedCarousel<
       className="mb-4 flex items-center justify-between"
     >
       <div className="flex flex-1 items-center gap-3 overflow-x-auto scrollbar-hide">
-        {subCategories.map((subCategory, index) => (
-          <motion.button
-            key={subCategory._id}
-            initial={{ opacity: 0, y: 10, scale: 0.9 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ type: "spring" as const, stiffness: 300, damping: 22, delay: 0.6 + index * 0.08 }}
-            onClick={() => handleTabChange(subCategory._id)}
-            className={`px-4 py-2 h-8 text-xs font-medium rounded-lg border transition-colors flex-shrink-0 ${
-              activeTab === subCategory._id
-                ? "bg-purple text-white border-purple shadow-sm"
-                : "bg-white border-[#F5EBFF] text-[#475467] hover:bg-purple/10"
-            }`}
-          >
-            {subCategory.name}
-          </motion.button>
-        ))}
+        {subCategories.map((subCategory, index) => {
+          const subCategoryName = isArabic ? (subCategory.nameAr || subCategory.name) : subCategory.name;
+          return (
+            <motion.button
+              key={subCategory._id}
+              initial={{ opacity: 0, y: 10, scale: 0.9 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ type: "spring" as const, stiffness: 300, damping: 22, delay: 0.6 + index * 0.08 }}
+              onClick={() => handleTabChange(subCategory._id)}
+              className={`px-4 py-2 h-8 text-xs font-medium rounded-lg border transition-colors flex-shrink-0 ${
+                activeTab === subCategory._id
+                  ? "bg-purple text-white border-purple shadow-sm"
+                  : "bg-white border-[#F5EBFF] text-[#475467] hover:bg-purple/10"
+              }`}
+            >
+              {subCategoryName}
+            </motion.button>
+          );
+        })}
       </div>
       {showViewAll && (
         <motion.div
@@ -212,7 +222,7 @@ export default function CategoryTabbedCarousel<
               {currentAds
                 .filter((item): item is AD => item != null)
                 .map((item, index) => {
-                  const listingCardProps = transformAdToListingCard(item);
+                  const listingCardProps = transformAdToListingCard(item, locale);
                   return (
                     <motion.div
                       key={item._id || index}

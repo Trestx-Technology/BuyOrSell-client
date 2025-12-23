@@ -24,6 +24,7 @@
 
 import { type Locale } from '@/lib/i18n/config';
 import { authTranslations } from './auth';
+import { homeTranslations } from './home';
 import type { Translations } from './types';
 
 /**
@@ -34,6 +35,7 @@ import type { Translations } from './types';
 export function getTranslations(locale: Locale): Translations {
   return {
     auth: authTranslations[locale],
+    home: homeTranslations[locale],
     // Add more namespaces here as you create them:
     // common: commonTranslations[locale],
     // navigation: navigationTranslations[locale],
@@ -56,7 +58,8 @@ export function getTranslationNamespace<K extends keyof Translations>(
 
 // Export individual translation files for direct access if needed
 export { authTranslations } from './auth';
+export { homeTranslations } from './home';
 
 // Export types
-export type { Translations, AuthTranslations } from './types';
+export type { Translations, AuthTranslations, HomeTranslations } from './types';
 
