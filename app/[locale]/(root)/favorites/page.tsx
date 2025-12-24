@@ -5,13 +5,10 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
+import { useLocale } from "@/hooks/useLocale";
 import { CreateCollectionDialog } from "./_components/CreateCollectionDialog";
 import CollectionCard from "./_components/CollectionCard";
-import SortAndViewControls, {
-  ViewMode,
-} from "../post-ad/_components/SortAndViewControls";
-import MobileHorizontalListViewCard from "../categories/_components/MobileHorizontalListViewCard";
-import HorizontalListingCard from "../categories/_components/desktop-horizontal-list-card";
+
 import { cn } from "@/lib/utils";
 import React from "react";
 import ListingCard from "@/components/global/listing-card";
@@ -20,25 +17,31 @@ import { useGetMyCollections } from "@/hooks/useCollections";
 import { useQueryClient } from "@tanstack/react-query";
 import { collectionsQueries } from "@/app/api/collections/index";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
-
-// Sort options
-const sortOptions = [
-  { value: "default", label: "Default" },
-  { value: "newest", label: "Newest" },
-  { value: "oldest", label: "Oldest" },
-  { value: "price-asc", label: "Price (Low to High)" },
-  { value: "price-desc", label: "Price (High to Low)" },
-];
+import SortAndViewControls, {
+  ViewMode,
+} from "@/app/(root)/post-ad/_components/SortAndViewControls";
+import HorizontalListingCard from "@/app/(root)/categories/_components/desktop-horizontal-list-card";
+import MobileHorizontalListViewCard from "@/app/(root)/categories/_components/MobileHorizontalListViewCard";
 
 export default function FavoritesPage() {
+  const { t } = useLocale();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [view, setView] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState("default");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Sort options
+  const sortOptions = [
+    { value: "default", label: t.favorites.sort.default },
+    { value: "newest", label: t.favorites.sort.newest },
+    { value: "oldest", label: t.favorites.sort.oldest },
+    { value: "price-asc", label: t.favorites.sort.priceLowToHigh },
+    { value: "price-desc", label: t.favorites.sort.priceHighToLow },
+  ];
   // Fetch user's collections
-  const { data: collectionsResponse, isLoading: isLoadingCollections } = useGetMyCollections();
+  const { data: collectionsResponse, isLoading: isLoadingCollections } =
+    useGetMyCollections();
 
   // Get collections from API response
   const collections = useMemo(() => {
@@ -55,9 +58,12 @@ export default function FavoritesPage() {
     return [];
   }, []);
 
-  const handleCollectionClick = useCallback((collectionId: string) => {
-    router.push(`/favorites/${collectionId}`);
-  }, [router]);
+  const handleCollectionClick = useCallback(
+    (collectionId: string) => {
+      router.push(`/favorites/${collectionId}`);
+    },
+    [router]
+  );
 
   const handleMoreOptions = useCallback((collectionId: string) => {
     // Show more options menu (edit, delete, etc.)
@@ -123,7 +129,7 @@ export default function FavoritesPage() {
           onClick={() => router.back()}
         />
         <Typography variant="lg-semibold" className="text-dark-blue">
-          My Favorites
+          {t.favorites.myFavorites}
         </Typography>
       </div>
 
@@ -134,7 +140,7 @@ export default function FavoritesPage() {
         className="hidden sm:flex text-purple text-sm w-32"
         onClick={() => router.back()}
       >
-        My Favorites
+        {t.favorites.myFavorites}
       </Button>
 
       <div className="w-full px-4 lg:px-0">
@@ -144,13 +150,13 @@ export default function FavoritesPage() {
             variant="body-large"
             className="text-gray-900 mb-3 font-semibold"
           >
-            List
+            {t.favorites.list}
           </Typography>
 
           {isLoadingCollections ? (
             <div className="text-center py-8">
               <Typography variant="body-small" className="text-gray-500">
-                Loading collections...
+                {t.favorites.loadingCollections}
               </Typography>
             </div>
           ) : (
@@ -168,7 +174,9 @@ export default function FavoritesPage() {
               ))}
 
               {/* Create new collection card */}
-              <CreateCollectionDialog onCollectionCreated={handleCollectionCreated}>
+              <CreateCollectionDialog
+                onCollectionCreated={handleCollectionCreated}
+              >
                 <CollectionCard
                   isCreateNew={true}
                   id="create-new"
@@ -182,16 +190,16 @@ export default function FavoritesPage() {
         </div>
 
         {/* Favorites Section */}
-        <div className="bg-white md:bg-transparent border md:border-none rounded-xl p-4 md:p-0 shadow-sm md:shadow-none">
+        {/* <div className="bg-white md:bg-transparent border md:border-none rounded-xl p-4 md:p-0 shadow-sm md:shadow-none">
           <div className="flex flex-wrap items-start justify-between mb-6">
             <Typography
               variant="body-large"
               className="text-gray-900 font-semibold"
             >
-              Favorites ({sortedAds.length})
+              {t.favorites.favorites} ({sortedAds.length})
             </Typography>
 
-            {/* Sort Dropdown */}
+            Sort Dropdown
             <SortAndViewControls
               sortOptions={sortOptions}
               sortValue={sortBy}
@@ -205,23 +213,23 @@ export default function FavoritesPage() {
             />
           </div>
 
-          {/* Search Input */}
+          Search Input
           <div className="mb-4">
             <input
               type="text"
-              placeholder="Search favorites..."
+              placeholder={t.favorites.searchFavorites}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
 
-          {/* Favorites Grid */}
+          Favorites Grid
           <div className="space-y-6">
             {isLoading ? (
               <div className="text-center py-12">
                 <Typography variant="body-small" className="text-gray-500">
-                  Loading favorites...
+                  {t.favorites.loadingFavorites}
                 </Typography>
               </div>
             ) : sortedAds.length > 0 ? (
@@ -233,7 +241,7 @@ export default function FavoritesPage() {
               >
                 {sortedAds.map((ad: AD) => {
                   const listingCardProps = transformAdToListingCard(ad);
-                  
+
                   return (
                     <React.Fragment key={ad._id}>
                       {view === "grid" ? (
@@ -253,11 +261,15 @@ export default function FavoritesPage() {
                             location={
                               typeof ad.location === "string"
                                 ? ad.location
-                                : ad.location?.city || ad.address?.city || "Location not specified"
+                                : ad.location?.city ||
+                                  ad.address?.city ||
+                                  "Location not specified"
                             }
                             images={ad.images || []}
                             extraFields={ad.extraFields as ProductExtraFields}
-                            postedTime={new Date(ad.createdAt).toLocaleDateString()}
+                            postedTime={new Date(
+                              ad.createdAt
+                            ).toLocaleDateString()}
                             views={ad.views}
                             isFavorite={true}
                             onFavorite={(id) => console.log("Favorited:", id)}
@@ -272,11 +284,15 @@ export default function FavoritesPage() {
                             location={
                               typeof ad.location === "string"
                                 ? ad.location
-                                : ad.location?.city || ad.address?.city || "Location not specified"
+                                : ad.location?.city ||
+                                  ad.address?.city ||
+                                  "Location not specified"
                             }
                             images={ad.images || []}
                             extraFields={ad.extraFields as ProductExtraFields}
-                            postedTime={new Date(ad.createdAt).toLocaleDateString()}
+                            postedTime={new Date(
+                              ad.createdAt
+                            ).toLocaleDateString()}
                             views={ad.views}
                             onClick={(id) => router.push(`/ad/${id}`)}
                             className="block sm:hidden"
@@ -290,12 +306,12 @@ export default function FavoritesPage() {
             ) : (
               <div className="text-center py-12">
                 <Typography variant="body-small" className="text-gray-500">
-                  No favorites yet. Click on a collection to view its items.
+                  {t.favorites.noFavoritesYet}
                 </Typography>
               </div>
             )}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

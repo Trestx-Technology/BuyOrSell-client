@@ -69,9 +69,9 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
       {/* Image Grid Section */}
       <div className="relative h-48 rounded-t-xl rounded-b-xl overflow-hidden bg-gray-100">
         {/* Collection thumbnail grid - 2x2 layout */}
-        <div className="grid grid-cols-2 gap-1 h-full">
+        <div className="flex gap-1 h-full">
           {/* Main image - takes left half */}
-          <div className="relative bg-gray-200 flex items-center justify-center">
+          <div className="relative bg-gray-200 flex items-center justify-center w-full">
             {images?.[0] ? (
               <Image
                 src={images[0]}
@@ -86,46 +86,48 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
           </div>
 
           {/* Right side - split into two */}
-          <div className="grid grid-rows-2 gap-1">
-            {/* Top right */}
-            <div className="relative bg-gray-300 flex items-center justify-center">
-              {images?.[1] ? (
-                <Image
-                  src={images[1]}
-                  alt={`${name} - Secondary`}
-                  fill
-                  className="object-cover"
-                  sizes="64px"
-                />
-              ) : (
-                <ImageIcon className="w-6 h-6 text-gray-400" />
-              )}
-            </div>
+          {images?.length > 1 && (
+            <div className="grid grid-rows-2 gap-1 w-full">
+              {/* Top right */}
+              <div className="relative bg-gray-300 flex items-center justify-center">
+                {images?.[1] ? (
+                  <Image
+                    src={images[1]}
+                    alt={`${name} - Secondary`}
+                    fill
+                    className="object-cover"
+                    sizes="64px"
+                  />
+                ) : (
+                  <ImageIcon className="w-6 h-6 text-gray-400" />
+                )}
+              </div>
 
-            {/* Bottom right */}
-            <div className="relative bg-gray-400 flex items-center justify-center">
-              {count > 2 ? (
-                <div className="w-full h-full bg-black/60 flex items-center justify-center">
-                  <Typography
-                    variant="body-small"
-                    className="text-white font-semibold"
-                  >
-                    +{count - 2}
-                  </Typography>
-                </div>
-              ) : images?.[2] ? (
-                <Image
-                  src={images[2]}
-                  alt={`${name} - Third`}
-                  fill
-                  className="object-cover"
-                  sizes="64px"
-                />
-              ) : (
-                <ImageIcon className="w-6 h-6 text-gray-400" />
-              )}
+              {/* Bottom right */}
+              <div className="relative bg-gray-400 flex items-center justify-center">
+                {count > 2 ? (
+                  <div className="w-full h-full bg-black/60 flex items-center justify-center">
+                    <Typography
+                      variant="body-small"
+                      className="text-white font-semibold"
+                    >
+                      +{count - 2}
+                    </Typography>
+                  </div>
+                ) : images?.[2] ? (
+                  <Image
+                    src={images[2]}
+                    alt={`${name} - Third`}
+                    fill
+                    className="object-cover"
+                    sizes="64px"
+                  />
+                ) : (
+                  <ImageIcon className="w-6 h-6 text-gray-400" />
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* More options button */}

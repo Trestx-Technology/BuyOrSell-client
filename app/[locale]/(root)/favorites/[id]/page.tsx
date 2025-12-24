@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ChevronLeft, MoreHorizontal, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
+import { useLocale } from "@/hooks/useLocale";
 import { cn } from "@/lib/utils";
 import React from "react";
 import ListingCard from "@/components/global/listing-card";
@@ -13,21 +14,15 @@ import { useGetCollectionById } from "@/hooks/useCollections";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import SortAndViewControls, {
   ViewMode,
-} from "../../post-ad/_components/SortAndViewControls";
-import MobileHorizontalListViewCard from "../../categories/_components/MobileHorizontalListViewCard";
-import HorizontalListingCard from "../../categories/_components/desktop-horizontal-list-card";
+} from "@/app/(root)/post-ad/_components/SortAndViewControls";
+import MobileHorizontalListViewCard from "@/app/(root)/categories/_components/MobileHorizontalListViewCard";
+import HorizontalListingCard from "@/app/(root)/categories/_components/desktop-horizontal-list-card";
 import Image from "next/image";
 
 // Sort options
-const sortOptions = [
-  { value: "default", label: "Default" },
-  { value: "newest", label: "Newest" },
-  { value: "oldest", label: "Oldest" },
-  { value: "price-asc", label: "Price (Low to High)" },
-  { value: "price-desc", label: "Price (High to Low)" },
-];
 
 export default function CollectionDetailPage() {
+  const { t } = useLocale();
   const params = useParams();
   const router = useRouter();
   const collectionId = params.id as string;
@@ -35,6 +30,13 @@ export default function CollectionDetailPage() {
   const [sortBy, setSortBy] = useState("default");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const sortOptions = [
+    { value: "default", label: t.favorites.sort.default },
+    { value: "newest", label: t.favorites.sort.newest },
+    { value: "oldest", label: t.favorites.sort.oldest },
+    { value: "price-asc", label: t.favorites.sort.priceLowToHigh },
+    { value: "price-desc", label: t.favorites.sort.priceHighToLow },
+  ];
   // Fetch collection details by ID
   const {
     data: collectionResponse,
@@ -56,9 +58,9 @@ export default function CollectionDetailPage() {
       unknown
     >;
     // The API might return ads as an array or nested in the response
-    return (collectionData?.ads as AD[]) ||
-      (collectionData?.items as AD[]) ||
-      [];
+    return (
+      (collectionData?.ads as AD[]) || (collectionData?.items as AD[]) || []
+    );
   }, [collectionResponse]);
 
   // Filter and sort ads
@@ -111,12 +113,12 @@ export default function CollectionDetailPage() {
             onClick={() => router.back()}
           />
           <Typography variant="lg-semibold" className="text-dark-blue">
-            Collection
+            {t.favorites.collection}
           </Typography>
         </div>
         <div className="text-center py-12">
           <Typography variant="body-small" className="text-gray-500">
-            Loading collection...
+            {t.favorites.loadingCollection}
           </Typography>
         </div>
       </div>
@@ -136,18 +138,21 @@ export default function CollectionDetailPage() {
             onClick={() => router.back()}
           />
           <Typography variant="lg-semibold" className="text-dark-blue">
-            Collection
+            {t.favorites.collection}
           </Typography>
         </div>
         <div className="text-center py-12">
-          <Typography variant="body-large" className="text-gray-900 font-semibold mb-2">
-            Collection Not Found
+          <Typography
+            variant="body-large"
+            className="text-gray-900 font-semibold mb-2"
+          >
+            {t.favorites.collectionNotFound}
           </Typography>
           <Typography variant="body-small" className="text-gray-500 mb-4">
-            The collection you&apos;re looking for doesn&apos;t exist or has been removed.
+            {t.favorites.collectionNotFoundDescription}
           </Typography>
           <Button onClick={() => router.push("/favorites")} variant="outline">
-            Back to Favorites
+            {t.favorites.backToFavorites}
           </Button>
         </div>
       </div>
@@ -194,17 +199,20 @@ export default function CollectionDetailPage() {
                 {collection.name}
               </Typography>
               {collection.description && (
-                <Typography
-                  variant="body-small"
-                  className="text-gray-600 mb-2"
-                >
+                <Typography variant="body-small" className="text-gray-600 mb-2">
                   {collection.description}
                 </Typography>
               )}
               <Typography variant="body-small" className="text-gray-500">
-                {collection.count || sortedAds.length} items
+                {t.favorites.itemsCount.replace(
+                  "{{count}}",
+                  (collection.count || sortedAds.length).toString()
+                )}
                 {collection.createdAt &&
-                  ` • Created ${new Date(collection.createdAt).toLocaleDateString()}`}
+                  ` • ${t.favorites.createdAt.replace(
+                    "{{date}}",
+                    new Date(collection.createdAt).toLocaleDateString()
+                  )}`}
               </Typography>
             </div>
             <Button
@@ -241,7 +249,7 @@ export default function CollectionDetailPage() {
               variant="body-large"
               className="text-gray-900 font-semibold"
             >
-              Items ({sortedAds.length})
+              {t.favorites.items} ({sortedAds.length})
             </Typography>
 
             {/* Sort and View Controls */}
@@ -262,7 +270,7 @@ export default function CollectionDetailPage() {
           <div className="mb-4">
             <input
               type="text"
-              placeholder="Search items..."
+              placeholder={t.favorites.searchItems}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -306,7 +314,9 @@ export default function CollectionDetailPage() {
                             }
                             images={ad.images || []}
                             extraFields={ad.extraFields as ProductExtraFields}
-                            postedTime={new Date(ad.createdAt).toLocaleDateString()}
+                            postedTime={new Date(
+                              ad.createdAt
+                            ).toLocaleDateString()}
                             views={ad.views}
                             isFavorite={true}
                             onFavorite={(id) => console.log("Favorited:", id)}
@@ -327,7 +337,9 @@ export default function CollectionDetailPage() {
                             }
                             images={ad.images || []}
                             extraFields={ad.extraFields as ProductExtraFields}
-                            postedTime={new Date(ad.createdAt).toLocaleDateString()}
+                            postedTime={new Date(
+                              ad.createdAt
+                            ).toLocaleDateString()}
                             views={ad.views}
                             onClick={(id) => router.push(`/ad/${id}`)}
                             className="block sm:hidden"
@@ -345,16 +357,16 @@ export default function CollectionDetailPage() {
                   variant="body-large"
                   className="text-gray-900 font-semibold mb-2"
                 >
-                  No items in this collection
+                  {t.favorites.noItemsInCollection}
                 </Typography>
                 <Typography variant="body-small" className="text-gray-500 mb-4">
-                  Start adding items to your collection to see them here.
+                  {t.favorites.startAddingItems}
                 </Typography>
                 <Button
                   onClick={() => router.push("/favorites")}
                   variant="outline"
                 >
-                  Back to Collections
+                  {t.favorites.backToCollections}
                 </Button>
               </div>
             )}
@@ -364,4 +376,3 @@ export default function CollectionDetailPage() {
     </div>
   );
 }
-
