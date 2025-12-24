@@ -1,8 +1,7 @@
-import { type TranslationNamespace } from './types';
+import { createTranslationNamespace } from '../../validations/utils';
 import type { HomeTranslations } from './types';
-import { type Locale } from '@/lib/i18n/config';
 
-export const homeTranslations: TranslationNamespace<HomeTranslations> = {
+export const homeTranslations = createTranslationNamespace<HomeTranslations>({
   'en-US': {
     popularCategories: {
       title: 'Popular Categories',
@@ -15,6 +14,9 @@ export const homeTranslations: TranslationNamespace<HomeTranslations> = {
     },
     hostDeals: {
       title: 'Host Deals',
+      loading: 'Loading deals...',
+      noDealsAvailableForThisCategory: 'No deals available for this category',
+      sponsored: 'Sponsored',
     },
     exchangeDeals: {
       title: 'Exchange Deals',
@@ -40,9 +42,6 @@ export const homeTranslations: TranslationNamespace<HomeTranslations> = {
       favouritesTooltip: 'Favorites',
       viewOnMap: 'View on Map',
     },
-    common: {
-      viewAll: 'View all',
-    },
   },
   'nl-NL': {
     popularCategories: {
@@ -56,6 +55,9 @@ export const homeTranslations: TranslationNamespace<HomeTranslations> = {
     },
     hostDeals: {
       title: 'Host Deals',
+      loading: 'Deals laden...',
+      noDealsAvailableForThisCategory: 'Geen deals beschikbaar voor deze categorie',
+      sponsored: 'Gesponsord',
     },
     exchangeDeals: {
       title: 'Ruil Deals',
@@ -80,9 +82,6 @@ export const homeTranslations: TranslationNamespace<HomeTranslations> = {
       messages: 'Berichten',
       favouritesTooltip: 'Favorieten',
       viewOnMap: 'Op kaart bekijken',
-    },
-    common: {
-      viewAll: 'Alles bekijken',
     },
   },
   'nl': {
@@ -97,6 +96,9 @@ export const homeTranslations: TranslationNamespace<HomeTranslations> = {
     },
     hostDeals: {
       title: 'Host Deals',
+      loading: 'Deals laden...',
+      noDealsAvailableForThisCategory: 'Geen deals beschikbaar voor deze categorie',
+      sponsored: 'Gesponsord',
     },
     exchangeDeals: {
       title: 'Ruil Deals',
@@ -122,9 +124,6 @@ export const homeTranslations: TranslationNamespace<HomeTranslations> = {
       favouritesTooltip: 'Favorieten',
       viewOnMap: 'Op kaart bekijken',
     },
-    common: {
-      viewAll: 'Alles bekijken',
-    },
   },
   'ar': {
     popularCategories: {
@@ -138,6 +137,9 @@ export const homeTranslations: TranslationNamespace<HomeTranslations> = {
     },
     hostDeals: {
       title: 'صفقات المضيف',
+      loading: 'جاري تحميل الصفقات...',
+      noDealsAvailableForThisCategory: 'لا توجد صفقات متاحة لهذه الفئة',
+      sponsored: 'ممول',
     },
     exchangeDeals: {
       title: 'صفقات التبادل',
@@ -163,9 +165,5 @@ export const homeTranslations: TranslationNamespace<HomeTranslations> = {
       favouritesTooltip: 'المفضلة',
       viewOnMap: 'عرض على الخريطة',
     },
-    common: {
-      viewAll: 'عرض الكل',
-    },
   },
-};
-
+});

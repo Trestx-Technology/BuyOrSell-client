@@ -1,31 +1,58 @@
 /**
- * Global Translations Index
- * 
- * This is the main entry point for all translations in the application.
- * 
+ * Global Translations Entry Point
+ *
+ * This file provides the main interface for accessing translations
+ * across the application. It uses a modular folder structure where
+ * each feature/page has its own folder with translations and types.
+ *
  * Structure:
- * - Each feature/domain has its own translation file (e.g., auth.ts, common.ts)
- * - All translations are organized by locale
- * - Type-safe translations with TypeScript
- * 
+ * translations/
+ * ├── index.ts              # Main entry point (this file)
+ * ├── README.md             # Documentation
+ * ├── auth/                 # Authentication translations
+ * │   ├── index.ts         # Auth translations
+ * │   └── types.ts         # Auth type definitions
+ * ├── home/                 # Home page translations
+ * │   ├── index.ts         # Home translations
+ * │   └── types.ts         # Home type definitions
+ * ├── ad/                   # Ad page translations
+ * │   ├── index.ts         # Ad translations
+ * │   └── types.ts         # Ad type definitions
+ * ├── common/               # Shared/common translations
+ * │   ├── index.ts         # Common translations
+ * │   └── types.ts         # Common type definitions
+ * └── types/                # Global/shared types
+ *     └── index.ts         # Global type exports
+ *
  * Usage:
  * ```ts
  * import { getTranslations } from '@/translations';
  * const t = getTranslations('en-US');
  * t.auth.login.title // "Log In"
  * ```
- * 
+ *
  * Adding new translations:
- * 1. Create a new file in this directory (e.g., common.ts)
- * 2. Define the type in translations/types.ts
- * 3. Export it from this file
- * 4. Add it to the Translations type in types.ts
+ * 1. Create a new folder for your feature (e.g., translations/user/)
+ * 2. Add index.ts with translations and types.ts with type definitions
+ * 3. Import and add to the registry in this file
+ * 4. Update the Translations type in types/index.ts
  */
 
-import { type Locale } from '@/lib/i18n/config';
-import { authTranslations } from './auth';
-import { homeTranslations } from './home';
-import type { Translations } from './types';
+import { type Locale } from "@/lib/i18n/config";
+import { authTranslations } from "./auth";
+import { homeTranslations } from "./home";
+import { adTranslations } from "./ad";
+import { commonTranslations } from "./common";
+import type { Translations } from "./types";
+import { DEFAULT_LOCALE } from "../validations/utils";
+
+// Translation registry for automatic loading
+const translationRegistry = {
+  auth: authTranslations,
+  home: homeTranslations,
+  ad: adTranslations,
+  common: commonTranslations,
+} as const;
 
 /**
  * Get all translations for a specific locale
@@ -33,13 +60,33 @@ import type { Translations } from './types';
  * @returns All translations for the specified locale
  */
 export function getTranslations(locale: Locale): Translations {
-  return {
-    auth: authTranslations[locale],
-    home: homeTranslations[locale],
-    // Add more namespaces here as you create them:
-    // common: commonTranslations[locale],
-    // navigation: navigationTranslations[locale],
-  };
+  // Use registry to dynamically build translations object
+  const translations = {} as Translations;
+
+  for (const [namespace, translationData] of Object.entries(
+    translationRegistry
+  )) {
+    (translations as any)[namespace] = translationData[locale];
+  }
+
+  return translations;
+}
+
+/**
+ * Get translations for a specific locale with fallback to default locale
+ * @param locale - The requested locale
+ * @returns Translations for the locale or default locale if not found
+ */
+export function getTranslationsWithFallback(locale: Locale): Translations {
+  try {
+    return getTranslations(locale);
+  } catch (error) {
+    // Fallback to default locale if requested locale is not available
+    console.warn(
+      `Translations not found for locale: ${locale}, falling back to ${DEFAULT_LOCALE}`
+    );
+    return getTranslations(DEFAULT_LOCALE);
+  }
 }
 
 /**
@@ -57,9 +104,16 @@ export function getTranslationNamespace<K extends keyof Translations>(
 }
 
 // Export individual translation files for direct access if needed
-export { authTranslations } from './auth';
-export { homeTranslations } from './home';
+export { authTranslations } from "./auth";
+export { homeTranslations } from "./home";
+export { adTranslations } from "./ad";
+export { commonTranslations } from "./common";
 
 // Export types
-export type { Translations, AuthTranslations, HomeTranslations } from './types';
-
+export type {
+  Translations,
+  AuthTranslations,
+  HomeTranslations,
+  AdTranslations,
+  CommonTranslations,
+} from "./types";

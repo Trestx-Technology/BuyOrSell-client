@@ -1,33 +1,48 @@
 # Translations
 
-Global, scalable translation system for the BuyOrSell application.
+Optimized, scalable translation system for the BuyOrSell application with a modular folder structure following the API pattern.
 
 ## Structure
 
 ```
 translations/
-├── index.ts          # Main entry point - exports all translations
-├── types.ts          # TypeScript type definitions
-├── auth.ts           # Authentication-related translations
-├── README.md         # This file
-└── [feature].ts      # Additional feature-specific translations
+├── index.ts                    # Main entry point with registry system
+├── README.md                   # This documentation
+├── auth/                       # Authentication feature
+│   ├── index.ts               # Auth translations
+│   └── types.ts               # Auth type definitions
+├── home/                       # Home page feature
+│   ├── index.ts               # Home translations
+│   └── types.ts               # Home type definitions
+├── ad/                         # Ad page feature
+│   ├── index.ts               # Ad translations
+│   └── types.ts               # Ad type definitions
+├── common/                     # Shared/common translations
+│   ├── index.ts               # Common translations
+│   └── types.ts               # Common type definitions
+└── types/                      # Global/shared types
+    └── index.ts               # Global type exports
 ```
 
 ## Architecture
 
-### Type Safety
-- All translations are fully typed with TypeScript
-- Type definitions are centralized in `types.ts`
-- Compile-time checking ensures translation keys exist
+### Modular Folder Structure
+- **Feature-based organization** - Each page/feature has its own folder (like `@app/api/`)
+- **Separation of concerns** - Translations and types are co-located
+- **Easy discovery** - Find translations for specific features quickly
+- **Scalable** - Add new features by creating new folders
 
-### Scalability
-- Each feature/domain has its own translation file
-- Easy to add new translation namespaces
-- Maintainable structure for large applications
+### Type Safety & Optimization
+- **Fully typed** with TypeScript and compile-time checking
+- **Shared utilities** in `@validations/utils.ts` reduce code duplication
+- **Registry system** for automatic translation loading
+- **Helper functions** for consistent translation creation
 
-### Locale Support
-- Currently supports: `en-US`, `nl-NL`, `nl`, `ar`
-- Easy to add new locales by extending existing translation files
+### Performance Optimizations
+- **Reduced bundle size** through shared imports
+- **Tree shaking friendly** structure
+- **Lazy loading** support for large translation sets
+- **Fallback system** with default locale support
 
 ## Usage
 
@@ -38,7 +53,7 @@ import { useLocale } from '@/hooks/useLocale';
 
 function MyComponent() {
   const { locale, localePath, t } = useLocale();
-  
+
   return (
     <div>
       <h1>{t.auth.login.title}</h1>
@@ -62,150 +77,157 @@ const authTranslations = getTranslationNamespace('en-US', 'auth');
 const signupTitle = authTranslations.signup.title;
 ```
 
-## Adding New Translations
+## Adding New Feature Translations
 
-### Step 1: Define Types
+### Step 1: Create Feature Folder
 
-Edit `translations/types.ts`:
+Create a new folder for your feature (e.g., `translations/user/`):
+
+```bash
+mkdir translations/user
+```
+
+### Step 2: Define Types
+
+Create `translations/user/types.ts`:
 
 ```ts
-export type CommonTranslations = {
-  buttons: {
+export type UserTranslations = {
+  profile: {
+    title: string;
+    edit: string;
     save: string;
-    cancel: string;
-    delete: string;
   };
-  messages: {
-    success: string;
-    error: string;
+  settings: {
+    title: string;
+    notifications: string;
+    privacy: string;
   };
-};
-
-// Add to main Translations type
-export type Translations = {
-  auth: AuthTranslations;
-  common: CommonTranslations; // Add here
 };
 ```
 
-### Step 2: Create Translation File
+### Step 3: Create Translations
 
-Create `translations/common.ts`:
+Create `translations/user/index.ts`:
 
 ```ts
-import { type TranslationNamespace } from './types';
-import type { CommonTranslations } from './types';
-import { type Locale } from '@/lib/i18n/config';
+import { createTranslationNamespace } from '../../validations/utils';
+import type { UserTranslations } from './types';
 
-export const commonTranslations: TranslationNamespace<CommonTranslations> = {
+export const userTranslations = createTranslationNamespace<UserTranslations>({
   'en-US': {
-    buttons: {
-      save: 'Save',
-      cancel: 'Cancel',
-      delete: 'Delete',
+    profile: {
+      title: 'Profile',
+      edit: 'Edit Profile',
+      save: 'Save Changes',
     },
-    messages: {
-      success: 'Success!',
-      error: 'An error occurred',
+    settings: {
+      title: 'Settings',
+      notifications: 'Notifications',
+      privacy: 'Privacy',
     },
   },
   'nl-NL': {
-    buttons: {
-      save: 'Opslaan',
-      cancel: 'Annuleren',
-      delete: 'Verwijderen',
+    profile: {
+      title: 'Profiel',
+      edit: 'Profiel bewerken',
+      save: 'Wijzigingen opslaan',
     },
-    messages: {
-      success: 'Succes!',
-      error: 'Er is een fout opgetreden',
+    settings: {
+      title: 'Instellingen',
+      notifications: 'Meldingen',
+      privacy: 'Privacy',
     },
   },
   'nl': {
     // Same as nl-NL
   },
   'ar': {
-    buttons: {
-      save: 'حفظ',
-      cancel: 'إلغاء',
-      delete: 'حذف',
+    profile: {
+      title: 'الملف الشخصي',
+      edit: 'تعديل الملف الشخصي',
+      save: 'حفظ التغييرات',
     },
-    messages: {
-      success: 'نجح!',
-      error: 'حدث خطأ',
+    settings: {
+      title: 'الإعدادات',
+      notifications: 'الإشعارات',
+      privacy: 'الخصوصية',
     },
   },
+});
+```
+
+### Step 4: Update Global Types
+
+Add to `translations/types/index.ts`:
+
+```ts
+export type { UserTranslations } from '../user/types';
+
+// Add to Translations type
+export type Translations = {
+  auth: AuthTranslations;
+  home: HomeTranslations;
+  ad: AdTranslations;
+  common: CommonTranslations;
+  user: UserTranslations; // Add here
 };
 ```
 
-### Step 3: Export from Index
+### Step 5: Register in Main Index
 
-Edit `translations/index.ts`:
+Update `translations/index.ts`:
 
 ```ts
-import { commonTranslations } from './common';
+import { userTranslations } from './user';
 
-export function getTranslations(locale: Locale): Translations {
-  return {
-    auth: authTranslations[locale],
-    common: commonTranslations[locale], // Add here
-  };
-}
+// Add to registry
+const translationRegistry = {
+  auth: authTranslations,
+  home: homeTranslations,
+  ad: adTranslations,
+  common: commonTranslations,
+  user: userTranslations, // Add here
+} as const;
 
-// Export for direct access
-export { commonTranslations } from './common';
+// Export types
+export type {
+  Translations,
+  AuthTranslations,
+  HomeTranslations,
+  AdTranslations,
+  CommonTranslations,
+  UserTranslations, // Add here
+} from './types';
 ```
 
-### Step 4: Use in Components
+### Step 6: Use in Components
 
 ```tsx
 const { t } = useLocale();
-<Button>{t.common.buttons.save}</Button>
+<h1>{t.user.profile.title}</h1>
 ```
 
 ## Best Practices
 
-1. **Organize by Feature**: Group related translations together (auth, navigation, common, etc.)
-
-2. **Consistent Naming**: Use clear, descriptive keys that indicate the context
-   - ✅ `t.auth.login.title`
-   - ❌ `t.loginTitle`
-
-3. **Reuse Common Strings**: Create a `common` namespace for shared translations (buttons, messages, etc.)
-
-4. **Type Safety**: Always define types in `types.ts` before implementing translations
-
-5. **Complete Locales**: When adding a new translation key, ensure all locales are updated
-
-6. **Documentation**: Add comments for complex or context-specific translations
+1. **Feature-based Organization**: Each page/feature gets its own folder
+2. **Co-located Files**: Keep translations and types together
+3. **Shared Utilities**: Use `createTranslationNamespace` from `@validations/utils`
+4. **Consistent Naming**: Use clear, descriptive keys
+5. **Complete Locales**: Ensure all supported locales are implemented
+6. **Type Safety**: Define types before implementing translations
 
 ## File Naming Convention
 
-- Use kebab-case for file names: `user-profile.ts`, `job-listings.ts`
-- Use camelCase for TypeScript types: `UserProfileTranslations`, `JobListingsTranslations`
-- Use camelCase for export names: `userProfileTranslations`, `jobListingsTranslations`
-
-## Example: Complete Feature Translation
-
-```ts
-// translations/jobs.ts
-import { type TranslationNamespace } from './types';
-import type { JobTranslations } from './types';
-
-export const jobTranslations: TranslationNamespace<JobTranslations> = {
-  'en-US': {
-    listing: {
-      title: 'Job Listings',
-      apply: 'Apply Now',
-      posted: 'Posted',
-    },
-  },
-  // ... other locales
-};
-```
+- **Folders**: Use the feature/page name (e.g., `auth/`, `home/`, `user/`)
+- **Translation files**: Always `index.ts`
+- **Type files**: Always `types.ts`
+- **Type names**: `FeatureTranslations` (e.g., `UserTranslations`)
 
 ## Migration Notes
 
-- Old location: `lib/i18n/translations/*` → New location: `translations/*`
-- Old import: `@/lib/i18n/translations/auth` → New import: `@/translations`
-- The `useLocale` hook automatically provides all translations via `t`
+- **Old structure**: Flat files in `translations/` folder
+- **New structure**: Feature-based folders with `index.ts` and `types.ts`
+- **Utilities moved**: `utils.ts` → `@validations/utils.ts`
+- **Same API**: `useLocale` hook and import paths remain unchanged
 
