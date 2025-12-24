@@ -6,6 +6,7 @@ import { CardsCarousel } from "@/components/global/cards-carousel";
 import { useSimilarAds } from "@/hooks/useAds";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { useRouter } from "next/navigation";
+import { useLocale } from "@/hooks/useLocale";
 
 interface SimilarAdsProps {
   adId: string;
@@ -13,7 +14,8 @@ interface SimilarAdsProps {
 
 const SimilarAds: React.FC<SimilarAdsProps> = ({ adId }) => {
   const router = useRouter();
-  
+  const { t, locale } = useLocale();
+
   // Fetch similar ads from API
   const { data: similarAdsResponse, isLoading } = useSimilarAds(adId, {
     limit: 10, // Default limit as per API docs
@@ -22,7 +24,9 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({ adId }) => {
   // Transform API ads to listing card format
   const transformedAds = useMemo(() => {
     if (!similarAdsResponse?.data?.adds) return [];
-    return similarAdsResponse.data.adds.map(transformAdToListingCard);
+    return similarAdsResponse.data.adds.map((ad) =>
+      transformAdToListingCard(ad, locale)
+    );
   }, [similarAdsResponse]);
 
   // Handle navigation to ad detail page
@@ -44,7 +48,7 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({ adId }) => {
       <CardsCarousel
         className="space-y-0"
         titleClassName="text-md font-semibold"
-        title="Similar Ads"
+        title={t.ad.similarAds.title}
         breakpoints={{
           mobile: 1,
           tablet: 2,

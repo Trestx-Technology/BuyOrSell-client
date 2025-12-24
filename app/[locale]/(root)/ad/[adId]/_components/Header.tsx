@@ -14,6 +14,7 @@ import type { CollectionByAd } from "@/interfaces/collections.types";
 import { useAuthStore } from "@/stores/authStore";
 import { LoginRequiredDialog } from "@/components/auth/login-required-dialog";
 import { ShareDialog } from "@/components/ui/share-dialog";
+import { useLocale } from "@/hooks/useLocale";
 
 interface HeaderProps {
   ad: AD;
@@ -26,6 +27,7 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { t } = useLocale();
 
   // Hooks automatically check authentication internally
   const { data: collectionsResponse } = useGetMyCollections();
@@ -139,7 +141,7 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
         className="py-0 text-purple hover:font-semibold transition-all flex items-center gap-2 cursor-pointer hover:scale-110"
       >
         <ChevronLeft className="h-5 w-5" />
-        <span className="text-sm font-medium">Back</span>
+        <span className="text-sm font-medium">{t.ad.header.back}</span>
       </button>
 
       {/* Right side - Share and Save */}
@@ -151,7 +153,7 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
         >
           <button className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110">
             <Share2 className="h-5 w-5" />
-            <span className="text-sm font-medium sm:block hidden">Share</span>
+            <span className="text-sm font-medium sm:block hidden">{t.ad.header.share}</span>
           </button>
         </ShareDialog>
 
@@ -179,7 +181,7 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
                   isAdInCollection ? "fill-purple text-purple" : ""
                 }`}
               />
-              <span className="text-sm font-medium sm:block hidden">Save</span>
+              <span className="text-sm font-medium sm:block hidden">{t.ad.header.save}</span>
             </button>
           </AddToCollectionDialog>
         ) : (

@@ -1,6 +1,6 @@
 import Navbar from "@/components/global/Navbar";
 import React from "react";
-import CategoryNav from "../_components/CategoryNav";
+import CategoryNav from "@/app/[locale]/(root)/_components/CategoryNav";
 import { Footer } from "@/components/global/footer";
 
 const AdListingLayout = ({ children }: { children: React.ReactNode }) => {

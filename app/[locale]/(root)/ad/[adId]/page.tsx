@@ -14,15 +14,17 @@ import LocationSection from "./_components/LocationSection";
 import ReviewsSection from "./_components/ReviewsSection";
 import SimilarAds from "./_components/SimilarAds";
 import ProductInfoCard from "./_components/ProductInfoCard";
-import AdCard from "../../categories/_components/AdCard";
+import AdCard from "@/app/(root)/categories/_components/AdCard";
 import ProductInfoTabs, { TabType } from "./_components/ProductInfoTabs";
 import ProductInfoCardMobile from "./_components/ProductInfoCardMobile";
 import AdDetailSkeleton from "./_components/AdDetailSkeleton";
 import { ErrorCard } from "@/components/ui/error-card";
+import { useLocale } from "@/hooks/useLocale";
 
 export default function AdDetailPage() {
   const { adId } = useParams();
   const [activeTab, setActiveTab] = useState<TabType>("specifications");
+  const { t } = useLocale();
 
   // Fetch ad data by ID
   const { data: adResponse, isLoading, error } = useAdById(adId as string);
@@ -31,19 +33,31 @@ export default function AdDetailPage() {
   // Memoize sections for reordering - must be called before early returns
   const sections = useMemo(() => {
     if (!ad) return [];
-    
+
     return [
-      { id: "description" as TabType, component: <DescriptionSection key="description" ad={ad} /> },
-      { id: "specifications" as TabType, component: <SpecificationsSection key="specifications" ad={ad} /> },
-      { id: "location" as TabType, component: <LocationSection key="location" ad={ad} /> },
-      { id: "reviews" as TabType, component: <ReviewsSection key="reviews" ad={ad} /> },
+      {
+        id: "description" as TabType,
+        component: <DescriptionSection key="description" ad={ad} />,
+      },
+      {
+        id: "specifications" as TabType,
+        component: <SpecificationsSection key="specifications" ad={ad} />,
+      },
+      {
+        id: "location" as TabType,
+        component: <LocationSection key="location" ad={ad} />,
+      },
+      {
+        id: "reviews" as TabType,
+        component: <ReviewsSection key="reviews" ad={ad} />,
+      },
     ];
   }, [ad]);
 
   // Reorder sections based on active tab with smooth animations
   const reorderedSections = useMemo(() => {
     if (sections.length === 0) return [];
-    
+
     const activeIndex = sections.findIndex((s) => s.id === activeTab);
     return activeIndex >= 0
       ? [
@@ -65,8 +79,8 @@ export default function AdDetailPage() {
       <div className="w-full min-h-[500px] flex items-center justify-center p-4">
         <ErrorCard
           variant="error"
-          title="Failed to load ad"
-          description={error?.message || "Unable to fetch ad details. Please try again later."}
+          title={t.ad.errors.failedToLoad}
+          description={error?.message || t.ad.errors.unableToFetch}
           className="max-w-md"
         />
       </div>
@@ -79,8 +93,8 @@ export default function AdDetailPage() {
       <div className="w-full min-h-[500px] flex items-center justify-center p-4">
         <ErrorCard
           variant="warning"
-          title="Ad not found"
-          description="The ad you're looking for doesn't exist or has been removed."
+          title={t.ad.errors.adNotFound}
+          description={t.ad.errors.adNotFoundDescription}
           className="max-w-md"
         />
       </div>
@@ -140,7 +154,6 @@ export default function AdDetailPage() {
 
         {/* Mobile Layout */}
         <div className="block lg:hidden space-y-6 mb-6 relative">
-
           {/* TODO: update the zindex of the gallery in the mobile layout */}
           <ProductGallery ad={ad} />
           <div className="bg-[#F9FAFC] space-y-6 relative z-10 rounded-t-xl -mt-8">
@@ -183,4 +196,3 @@ export default function AdDetailPage() {
     </div>
   );
 }
-

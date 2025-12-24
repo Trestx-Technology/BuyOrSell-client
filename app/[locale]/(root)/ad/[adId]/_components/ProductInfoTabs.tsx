@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Typography } from "@/components/typography";
+import { useLocale } from "@/hooks/useLocale";
 
 export type TabType =
   | "description"
@@ -22,13 +23,14 @@ const ProductInfoTabs: React.FC<ProductInfoTabsProps> = ({
   className = "",
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>(initialTab);
+  const { t } = useLocale();
 
   const tabs = [
-    { id: "description" as TabType, label: "Description" },
-    { id: "specifications" as TabType, label: "Specifications" },
-    { id: "location" as TabType, label: "Location" },
-    { id: "reviews" as TabType, label: "Reviews" },
-    { id: "similar-cars" as TabType, label: "Similar Cars" },
+    { id: "description" as TabType, label: t.ad.tabs.description },
+    { id: "specifications" as TabType, label: t.ad.tabs.specifications },
+    { id: "location" as TabType, label: t.ad.tabs.location },
+    { id: "reviews" as TabType, label: t.ad.tabs.reviews },
+    { id: "similar-cars" as TabType, label: t.ad.tabs.similarCars },
   ];
 
   const handleTabClick = (tabId: TabType) => {

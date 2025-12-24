@@ -7,36 +7,39 @@ import { Star } from "lucide-react";
 import Link from "next/link";
 import { AD } from "@/interfaces/ad";
 import { format } from "date-fns";
+import { useLocale } from "@/hooks/useLocale";
 
 interface SellerInfoProps {
   ad: AD;
 }
 
 const SellerInfo: React.FC<SellerInfoProps> = ({ ad }) => {
+  const { t } = useLocale();
+
   // Extract seller data from ad
-  const sellerName = ad.organization?.tradeName || 
-                     ad.organization?.legalName || 
+  const sellerName = ad.organization?.tradeName ||
+                     ad.organization?.legalName ||
                      (ad.owner?.firstName && ad.owner?.lastName
                        ? `${ad.owner.firstName} ${ad.owner.lastName}`
                        : "Seller");
-  
+
   const isVerified = ad.organization?.verified || false;
-  const sellerType = ad.organization ? "Verified Dealer" : "Private Seller";
-  
-  const avatar = ad.organization?.logoUrl || 
+  const sellerType = ad.organization ? t.ad.sellerInfo.verifiedDealer : t.ad.sellerInfo.privateSeller;
+
+  const avatar = ad.organization?.logoUrl ||
                  ad.owner?.image ||
                  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
-  
+
   const location = typeof ad.location === "string"
     ? ad.location
-    : ad.location?.city || ad.address?.city || "Location not specified";
-  
-  const memberSince = ad.owner?.createdAt 
+    : ad.location?.city || ad.address?.city || t.ad.sellerInfo.locationNotSpecified;
+
+  const memberSince = ad.owner?.createdAt
     ? format(new Date(ad.owner.createdAt), "yyyy")
     : ad.organization?.createdAt
     ? format(new Date(ad.organization.createdAt), "yyyy")
-    : "N/A";
-  
+    : t.ad.sellerInfo.notAvailable;
+
   const rating = ad.organization?.ratingAvg || 0;
   const totalReviews = ad.organization?.ratingCount || 0;
   
@@ -51,7 +54,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ ad }) => {
         variant="h3"
         className="text-lg font-semibold text-dark-blue mb-4"
       >
-        Seller Information
+        {t.ad.sellerInfo.title}
       </Typography>
 
       {/* Seller Profile */}
@@ -89,14 +92,14 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ ad }) => {
       {/* Seller Details */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-grey-blue">Location</span>
+          <span className="text-sm text-grey-blue">{t.ad.sellerInfo.location}</span>
           <span className="text-sm text-dark-blue font-medium">
             {location}
           </span>
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-grey-blue">Member Since</span>
+          <span className="text-sm text-grey-blue">{t.ad.sellerInfo.memberSince}</span>
           <span className="text-sm text-dark-blue font-medium">
             {memberSince}
           </span>
@@ -104,7 +107,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ ad }) => {
 
         {rating > 0 && (
         <div className="flex items-center justify-between">
-          <span className="text-sm text-grey-blue">Rating</span>
+          <span className="text-sm text-grey-blue">{t.ad.sellerInfo.rating}</span>
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 text-yellow-500" fill="#FFB319" />
             <span className="text-sm text-dark-blue font-medium">
