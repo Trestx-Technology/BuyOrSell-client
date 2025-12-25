@@ -19,7 +19,7 @@ export type ProductExtraField = {
   value: string | string[] | number | boolean | null;
   optionalArray?: string[];
   icon?: string; // Optional icon URL or identifier
-}
+};
 
 export type ProductExtraFields = ProductExtraField[] | Record<string, any>;
 
@@ -232,18 +232,27 @@ export interface AdLocation {
   area?: string;
   street?: string;
   address?: string | null;
-  coordinates?: number[]  | null; // Can be array of [lng, lat] or string
+  coordinates?: number[] | null; // Can be array of [lng, lat] or string
   zipCode?: string | null;
   type?: string; // e.g., "Point" for GeoJSON
 }
 
 export type GetLiveAdsResponse = {
-  statusCode: number;
-  timestamp: string;
-  data: {
-    adds: AD[];
-    total: number;
+  statusCode?: number;
+  timestamp?: string;
+  data?: {
+    ads?: AD[];
+    adds?: AD[]; // Legacy field for backward compatibility
+    total?: number;
+    page?: number;
+    limit?: number;
   };
+  // Handle case where API returns array directly or different structure
+  ads?: AD[];
+  adds?: AD[]; // Legacy field for backward compatibility
+  total?: number;
+  page?: number;
+  limit?: number;
 };
 
 export interface PostAdPayload {
@@ -342,7 +351,7 @@ export interface AdFilters {
   // Pagination
   page?: number;
   limit?: number;
-  
+
   // String filters
   category?: string;
   brand?: string;
@@ -354,21 +363,21 @@ export interface AdFilters {
   userId?: string;
   organizationName?: string;
   sort?: string; // e.g., "createdAt:desc"
-  
+
   // Boolean dropdown filters (all dropdowns except adType are boolean)
   deal?: boolean;
   topChoice?: boolean;
   isFeatured?: boolean;
   hasVideo?: boolean;
-  
+
   // String dropdown filter (only non-boolean dropdown)
   adType?: "JOB" | "AD";
-  
+
   // Date filters
   currentDate?: string; // ISO date-time string
   fromDate?: string; // ISO date-time string
   toDate?: string; // ISO date-time string
-  
+
   // Legacy/alternative field names
   featured?: boolean; // Alias for isFeatured
   minPrice?: number;

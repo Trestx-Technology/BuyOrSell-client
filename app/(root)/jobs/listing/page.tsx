@@ -288,10 +288,6 @@ export default function JobsListingPage() {
       payload.extraFields = extraFieldsFilters;
     }
 
-    // Add pagination
-    payload.page = currentPage;
-    payload.limit = ITEMS_PER_PAGE;
-
     return payload;
   }, [searchQuery, locationQuery, filters, currentPage]);
 
@@ -312,6 +308,8 @@ export default function JobsListingPage() {
   // Fetch jobs using ads API
   const { data: filterAdsData, isLoading: isFilterLoading } = useFilterAds(
     filterPayload,
+    currentPage,
+    ITEMS_PER_PAGE,
     hasComplexFilters || hasActiveFilters
   );
 

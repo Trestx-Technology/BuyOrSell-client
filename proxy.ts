@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { getLocale, locales } from './lib/i18n/config';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getLocale, locales } from "./lib/i18n/config";
 // import { AUTH_TOKEN_NAMES } from '@/constants/auth.constants';
 
 export function proxy(request: NextRequest) {
@@ -16,41 +16,48 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Define routes that should be under [locale] (i18n routes)
-  // Only these routes will be redirected to include locale prefix
-  const localeRoutes = [
-    '/test-i18n',
-    '/login',
-    '/signup',
-    '/methods',
-    '/forgot-password',
-    '/reset-password',
-    // Add more routes here that should be under [locale]
+  // All routes except excluded ones will be validated and redirected with locale
+
+  // Define routes that should be excluded from locale validation
+  // These routes will NOT be redirected to include locale prefix
+  const excludedRoutes = [
+    "/api", // API routes
+    "/_next", // Next.js internal routes
+    "/favicon.ico", // Favicon
+    // Add more routes/keywords here that should be excluded from locale validation
   ];
 
-  // Check if the current path should be under [locale]
-  const shouldHaveLocale = localeRoutes.some(
+  // Check if the current path should be excluded from locale validation
+  const shouldBeExcluded = excludedRoutes.some(
     (route) => pathname.startsWith(route) || pathname === route
   );
 
-  // If the route should not have a locale, allow it to proceed
-  // This allows (auth) and (root) routes to be accessed freely
-  if (!shouldHaveLocale) {
+  // If the route should be excluded, allow it to proceed without locale validation
+  if (shouldBeExcluded) {
     return NextResponse.next();
   }
 
-  // Redirect if the route should have a locale but doesn't
+  // Double-check: if locale already exists in pathname, don't append again (extra safeguard)
+  const hasLocalePrefix = locales.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
+
+  if (hasLocalePrefix) {
+    return NextResponse.next();
+  }
+
+  // Redirect if the route is not excluded and doesn't have locale yet
   const locale = getLocale(request);
   request.nextUrl.pathname = `/${locale}${pathname}`;
-  
-  // e.g. incoming request is /test-i18n
-  // The new URL is now /en-US/test-i18n
+
+  // e.g. incoming request is /ad/123
+  // The new URL is now /en-US/ad/123
   return NextResponse.redirect(request.nextUrl);
 
   // ============================================================================
   // COMMENTED OUT: Token-related authentication logic
   // ============================================================================
-  
+
   // // Get the authentication token from cookies
   // // Note: Cookies are set client-side via CookieService (non-httpOnly)
   // // but are still accessible to middleware because cookies are sent with every HTTP request
@@ -67,16 +74,16 @@ export function proxy(request: NextRequest) {
   //   '/post-ad',
   //   '/chat',
   //   '/favorites',
-  //   '/ai-ad-post',   
+  //   '/ai-ad-post',
   // ];
 
   // // Check if the current path is a protected route
-  // const isProtectedRoute = protectedRoutes.some(route => 
+  // const isProtectedRoute = protectedRoutes.some(route =>
   //   pathname.startsWith(route)
   // );
 
   // // Check if the current path is an auth route
-  // const isAuthRoute = authRoutes.some(route => 
+  // const isAuthRoute = authRoutes.some(route =>
   //   pathname === route || pathname.startsWith(route)
   // );
 
@@ -103,7 +110,6 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     // Skip all internal paths (_next)
-    '/((?!_next|api|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    "/((?!_next|api|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
-

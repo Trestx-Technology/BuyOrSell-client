@@ -17,7 +17,7 @@ function SponsoredBanner({ banner, className = "" }: SponsoredBannerProps) {
     <div
       className={`md:block hidden w-full max-w-[400px] h-[300px] bg-black ${className}`}
     >
-      <div className="w-full h-[85%] bg-white">
+      <div className="w-full h-full bg-white">
         <Image
           src={banner.image}
           alt={banner.title || banner.titleAr || "Sponsored banner"}
@@ -27,14 +27,14 @@ function SponsoredBanner({ banner, className = "" }: SponsoredBannerProps) {
           className="w-full h-full object-cover"
         />
       </div>
-      <div className="w-full h-[15%] flex items-center justify-center">
+      {/* <div className="w-full h-[15%] flex items-center justify-center">
         <Button
           size="sm"
           className="rounded-sm bg-white opacity-70 text-black mx-auto hover:opacity-100 hover:bg-white transition-all duration-300"
         >
           Explore More
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -42,7 +42,7 @@ function SponsoredBanner({ banner, className = "" }: SponsoredBannerProps) {
 export interface BannerCarouselProps {
   banners: Banner[];
   isLoading?: boolean;
-  error: Error|null;
+  error: Error | null;
   autoPlay?: boolean;
   autoPlayInterval?: number;
   showDots?: boolean;
@@ -160,11 +160,11 @@ export function BannerCarousel({
     </div>
   );
 
-  if (isLoading ) {
+  if (isLoading) {
     return <LoadingSkeleton />;
   }
 
-  if (error) return
+  if (error) return;
 
   return (
     <div

@@ -36,6 +36,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useShare } from "@/hooks/useShare";
+import { CollectionManager } from "./collection-manager";
 
 export interface ListingCardProps {
   id: string;
@@ -91,6 +93,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
   showSocials,
   seller,
 }) => {
+  const { share } = useShare();
+
   // Normalize extraFields: handle both array and object formats, preserving icon info
   interface FieldWithIcon {
     name: string;
@@ -100,32 +104,45 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
   const normalizeExtraFields = (): FieldWithIcon[] => {
     if (!extraFields) return [];
-    
+
     // If it's an array, use it directly (preserves icon info)
     if (Array.isArray(extraFields)) {
       return extraFields
-        .filter((field) => field && typeof field === 'object' && 'name' in field && 'value' in field)
+        .filter(
+          (field) =>
+            field &&
+            typeof field === "object" &&
+            "name" in field &&
+            "value" in field
+        )
         .map((field) => ({
           name: field.name,
           value: field.value,
           icon: field.icon,
         }))
-        .filter((field) => field.value !== null && field.value !== undefined && field.value !== '');
+        .filter(
+          (field) =>
+            field.value !== null &&
+            field.value !== undefined &&
+            field.value !== ""
+        );
     }
 
     // If it's an object, convert to array format (no icon info available)
     const fields: FieldWithIcon[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Object.entries(extraFields as Record<string, any>).forEach(([name, value]) => {
-      if (value !== null && value !== undefined && value !== '') {
-        fields.push({ name, value });
+    Object.entries(extraFields as Record<string, any>).forEach(
+      ([name, value]) => {
+        if (value !== null && value !== undefined && value !== "") {
+          fields.push({ name, value });
+        }
       }
-    });
+    );
     return fields;
   };
 
   const extraFieldsList = normalizeExtraFields();
-  
+
   // Get first 4 fields for display (2 per row)
   const displayFields = extraFieldsList.slice(0, 4);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -161,8 +178,14 @@ const ListingCard: React.FC<ListingCardProps> = ({
     onFavorite?.(id);
   };
 
-  const handleShare = (e: React.MouseEvent) => {
+  const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    try {
+      await share(id, title);
+    } catch (error) {
+      console.error("Error sharing ad:", error);
+    }
+    // Also call the original onShare callback if provided
     onShare?.(id);
   };
 
@@ -236,7 +259,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
             </div>
           )}
           {isExchange && (
-            <Badge className="absolute h-8 bg-[#FE9800] top-3 left-12">
+            <Badge className="absolute h-6 bg-[#FE9800] top-3 left-2">
               <Repeat size={22} />
               Exchange Available
             </Badge>
@@ -325,24 +348,31 @@ const ListingCard: React.FC<ListingCardProps> = ({
           )}
 
           {/* Action Buttons */}
-          <div className="hidden absolute top-3 right-3 sm:flex gap-0">
+          <div className="hidden absolute top-3 right-3 sm:flex gap-2">
             <button
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer"
+              className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer text-purple bg-white border rounded-full"
               onClick={handleShare}
             >
-              <Share2 size={22} stroke="white" />
+              <Share2 size={22} className="mx-auto" />
             </button>
-            <button
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer"
-              onClick={handleFavorite}
+            <CollectionManager
+              itemId={id}
+              itemTitle={title}
+              itemImage={images[0]}
+              onSuccess={() => {
+                // Optionally refresh or show feedback
+                onFavorite?.(id);
+              }}
             >
-              <Heart
-                size={24}
-                className={` stroke-0 ${
-                  isFavorite ? "fill-red-500 text-red-500" : "fill-white"
-                }`}
-              />
-            </button>
+              <button className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer text-purple bg-white border rounded-full">
+                <Heart
+                  size={24}
+                  className={` mx-auto stroke-1 ${
+                    isFavorite ? "fill-red-500 text-red-500" : "text-purple"
+                  }`}
+                />
+              </button>
+            </CollectionManager>
           </div>
         </div>
 
@@ -433,7 +463,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
           {/* Time ago */}
           <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-start justify-between">
-            {seller && (showSeller !== false) && (
+            {seller && showSeller !== false && (
               <TooltipProvider delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger asChild>

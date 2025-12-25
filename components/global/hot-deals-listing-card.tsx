@@ -104,32 +104,45 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
 
   const normalizeExtraFields = (): FieldWithIcon[] => {
     if (!extraFields) return [];
-    
+
     // If it's an array, use it directly (preserves icon info)
     if (Array.isArray(extraFields)) {
       return extraFields
-        .filter((field) => field && typeof field === 'object' && 'name' in field && 'value' in field)
+        .filter(
+          (field) =>
+            field &&
+            typeof field === "object" &&
+            "name" in field &&
+            "value" in field
+        )
         .map((field) => ({
           name: field.name,
           value: field.value,
           icon: field.icon,
         }))
-        .filter((field) => field.value !== null && field.value !== undefined && field.value !== '');
+        .filter(
+          (field) =>
+            field.value !== null &&
+            field.value !== undefined &&
+            field.value !== ""
+        );
     }
 
     // If it's an object, convert to array format (no icon info available)
     const fields: FieldWithIcon[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Object.entries(extraFields as Record<string, any>).forEach(([name, value]) => {
-      if (value !== null && value !== undefined && value !== '') {
-        fields.push({ name, value });
+    Object.entries(extraFields as Record<string, any>).forEach(
+      ([name, value]) => {
+        if (value !== null && value !== undefined && value !== "") {
+          fields.push({ name, value });
+        }
       }
-    });
+    );
     return fields;
   };
 
   const extraFieldsList = normalizeExtraFields();
-  
+
   // Get first 4 fields for display (2 per row)
   const displayFields = extraFieldsList.slice(0, 4);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -451,9 +464,12 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
                     ? "Yes"
                     : "No"
                   : String(field.value);
-                
+
                 return (
-                  <div key={field.name} className="flex items-center gap-1 min-w-0">
+                  <div
+                    key={field.name}
+                    className="flex items-center gap-1 min-w-0"
+                  >
                     {field.icon && (
                       <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
                         <Image
@@ -501,7 +517,11 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
                           variant="sm-black-inter"
                           className="text-xs text-gray-500 font-medium flex items-center gap-1 truncate"
                         >
-                          {seller.name || `${seller.firstName || ""} ${seller.lastName || ""}`.trim() || "Seller"}
+                          {seller.name ||
+                            `${seller.firstName || ""} ${
+                              seller.lastName || ""
+                            }`.trim() ||
+                            "Seller"}
                           {seller.isVerified && (
                             <Image
                               src={"/verified-seller.svg"}
@@ -525,9 +545,15 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
                   <TooltipContent className="max-w-[200px]">
                     <div className="space-y-1">
                       <div className="font-semibold text-sm">
-                        {seller.name || `${seller.firstName || ""} ${seller.lastName || ""}`.trim() || "Seller"}
+                        {seller.name ||
+                          `${seller.firstName || ""} ${
+                            seller.lastName || ""
+                          }`.trim() ||
+                          "Seller"}
                         {seller.isVerified && (
-                          <span className="ml-1 text-xs text-green-600">✓ Verified</span>
+                          <span className="ml-1 text-xs text-green-600">
+                            ✓ Verified
+                          </span>
                         )}
                       </div>
                       {seller.type && (
@@ -550,7 +576,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
             </span> */}
           </div>
 
-            {/* {showSocials && (
+          {/* {showSocials && (
               <div className="flex items-center gap-2 sm:hidden">
                 <Phone
                   size={18}

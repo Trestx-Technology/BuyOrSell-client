@@ -158,6 +158,8 @@ const MapView = () => {
   // Use filter API if filters are selected, otherwise use regular ads API
   const { data: filterAdsData, isLoading: isFilterLoading } = useFilterAds(
     filterPayload,
+    1, // page
+    50, // limit
     hasActiveFilters
   );
   

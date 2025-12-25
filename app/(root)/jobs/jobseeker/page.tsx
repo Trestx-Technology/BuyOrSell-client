@@ -4,7 +4,7 @@ import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
-import { FilterConfig } from "@/app/(root)/categories/_components/ads-filter";
+import { FilterConfig } from "./_components/jobs-filter";
 import ApplicantCard from "./_components/applicant-card";
 import { Typography } from "@/components/typography";
 import { Bell, ChevronLeft, Search } from "lucide-react";
@@ -15,7 +15,12 @@ import SortAndViewControls, {
 } from "@/app/(root)/post-ad/_components/SortAndViewControls";
 import { cn } from "@/lib/utils";
 import { useAds, useFilterAds } from "@/hooks/useAds";
-import { AD, AdFilterPayload, AdFilters, ProductExtraField } from "@/interfaces/ad";
+import {
+  AD,
+  AdFilterPayload,
+  AdFilters,
+  ProductExtraField,
+} from "@/interfaces/ad";
 import { formatDistanceToNow } from "date-fns";
 import Pagination from "@/components/global/pagination";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
@@ -99,9 +104,10 @@ const getFilterString = (value: string | string[] | undefined): string => {
 
 export default function JobseekersPage() {
   const searchParams = useSearchParams();
-  const urlQuery = searchParams.get("query") || searchParams.get("search") || "";
+  const urlQuery =
+    searchParams.get("query") || searchParams.get("search") || "";
   const urlLocation = searchParams.get("location") || "";
-  
+
   const [searchQuery, setSearchQuery] = useState(urlQuery);
   const [locationQuery, setLocationQuery] = useState(urlLocation);
   const [filters, setFilters] = useState<Record<string, string | string[]>>({
@@ -113,7 +119,9 @@ export default function JobseekersPage() {
   });
   const [view, setView] = useState<ViewMode>("grid");
   const [currentPage, setCurrentPage] = useState(1);
-  const [savedExtraFields, setSavedExtraFields] = useState<ProductExtraField[]>([]);
+  const [savedExtraFields, setSavedExtraFields] = useState<ProductExtraField[]>(
+    []
+  );
 
   // Initialize search query and location from URL params
   useEffect(() => {
@@ -139,7 +147,12 @@ export default function JobseekersPage() {
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { id: "jobs", label: "Jobs", href: "/jobs" },
-    { id: "jobseekers", label: "Jobseekers", href: "/jobs/jobseeker", isActive: true },
+    {
+      id: "jobseekers",
+      label: "Jobseekers",
+      href: "/jobs/jobseeker",
+      isActive: true,
+    },
   ];
 
   // Get extraFields from first job and save them
@@ -158,10 +171,16 @@ export default function JobseekersPage() {
             experience: getFilterString(prevFilters.experience),
           };
           normalized.forEach((field) => {
-            if (field.optionalArray && Array.isArray(field.optionalArray) && field.optionalArray.length > 0) {
+            if (
+              field.optionalArray &&
+              Array.isArray(field.optionalArray) &&
+              field.optionalArray.length > 0
+            ) {
               // Only add if not already in default filters
               if (!newFilters[field.name]) {
-                newFilters[field.name] = getFilterString(prevFilters[field.name]);
+                newFilters[field.name] = getFilterString(
+                  prevFilters[field.name]
+                );
               }
             }
           });
@@ -173,9 +192,12 @@ export default function JobseekersPage() {
 
   // Generate dynamic filter config from extraFields
   const dynamicFilterConfig = useMemo(() => {
-    const extraFields = savedExtraFields.length > 0 
-      ? savedExtraFields 
-      : (firstJob?.extraFields ? normalizeExtraFieldsToArray(firstJob.extraFields) : []);
+    const extraFields =
+      savedExtraFields.length > 0
+        ? savedExtraFields
+        : firstJob?.extraFields
+        ? normalizeExtraFieldsToArray(firstJob.extraFields)
+        : [];
 
     const dynamicFilters: FilterConfig[] = extraFields
       .filter((field) => {
@@ -184,18 +206,22 @@ export default function JobseekersPage() {
           field.optionalArray &&
           Array.isArray(field.optionalArray) &&
           field.optionalArray.length > 0 &&
-          field.type !== 'bool'
+          field.type !== "bool"
         );
       })
       .map((field) => {
         const options = field.optionalArray!.map((value) => ({
           value: String(value),
-          label: String(value).charAt(0).toUpperCase() + String(value).slice(1).replace(/-/g, " "),
+          label:
+            String(value).charAt(0).toUpperCase() +
+            String(value).slice(1).replace(/-/g, " "),
         }));
 
         return {
           key: field.name,
-          label: field.name.charAt(0).toUpperCase() + field.name.slice(1).replace(/([A-Z])/g, " $1"),
+          label:
+            field.name.charAt(0).toUpperCase() +
+            field.name.slice(1).replace(/([A-Z])/g, " $1"),
           type: "select" as const,
           options,
           placeholder: `Select ${field.name}`,
@@ -209,8 +235,7 @@ export default function JobseekersPage() {
   // Check if any filters are active
   const hasActiveFilters = useMemo(() => {
     return !!(
-      searchQuery ||
-      Object.values(filters).some((value) => value !== "")
+      searchQuery || Object.values(filters).some((value) => value !== "")
     );
   }, [searchQuery, filters]);
 
@@ -223,7 +248,7 @@ export default function JobseekersPage() {
     if (searchQuery) payload.search = searchQuery;
     const locationFilter = getFilterString(filters.location);
     if (locationFilter) payload.city = locationFilter;
-    
+
     // Parse salary range
     const salaryFilter = getFilterString(filters.salary);
     if (salaryFilter) {
@@ -247,7 +272,10 @@ export default function JobseekersPage() {
     }
 
     // Add default job filters to extraFields
-    const extraFieldsFilters: Record<string, string | string[] | number | boolean> = {};
+    const extraFieldsFilters: Record<
+      string,
+      string | string[] | number | boolean
+    > = {};
     const jobTypeFilter = getFilterString(filters.jobType);
     if (jobTypeFilter) extraFieldsFilters.jobType = jobTypeFilter;
     const workModeFilter = getFilterString(filters.workMode);
@@ -258,7 +286,12 @@ export default function JobseekersPage() {
     // Add dynamic extraFields filters (from first job's extraFields)
     Object.entries(filters).forEach(([key, value]) => {
       // Skip default filters that are already handled
-      if (!["location", "salary", "jobType", "workMode", "experience"].includes(key) && value) {
+      if (
+        !["location", "salary", "jobType", "workMode", "experience"].includes(
+          key
+        ) &&
+        value
+      ) {
         extraFieldsFilters[key] = value;
       }
     });
@@ -266,10 +299,6 @@ export default function JobseekersPage() {
     if (Object.keys(extraFieldsFilters).length > 0) {
       payload.extraFields = extraFieldsFilters;
     }
-
-    // Add pagination
-    payload.page = currentPage;
-    payload.limit = ITEMS_PER_PAGE;
 
     return payload;
   }, [searchQuery, filters, currentPage]);
@@ -299,13 +328,13 @@ export default function JobseekersPage() {
   // Fetch jobseekers using ads API with adType: "JOB"
   const { data: filterAdsData, isLoading: isFilterLoading } = useFilterAds(
     filterPayload,
+    currentPage,
+    ITEMS_PER_PAGE,
     hasActiveFilters
   );
 
   const { data: regularAdsData, isLoading: isRegularLoading } = useAds(
-    hasActiveFilters
-      ? undefined
-      : adsParams
+    hasActiveFilters ? undefined : adsParams
   );
 
   const adsData = hasActiveFilters ? filterAdsData : regularAdsData;
@@ -335,7 +364,11 @@ export default function JobseekersPage() {
     // Clear all dynamic filters from extraFields
     dynamicFilterConfig.forEach((config) => {
       // Skip default filters
-      if (!["location", "salary", "jobType", "workMode", "experience"].includes(config.key)) {
+      if (
+        !["location", "salary", "jobType", "workMode", "experience"].includes(
+          config.key
+        )
+      ) {
         clearedFilters[config.key] = "";
       }
     });
@@ -352,30 +385,33 @@ export default function JobseekersPage() {
   };
 
   // Helper function to extract salary from AD extraFields
-  const getSalaryFromAd = useCallback((ad: AD, type: "min" | "max"): number | null => {
-    if (!ad.extraFields) return null;
-    
-    const extraFields = Array.isArray(ad.extraFields)
-      ? ad.extraFields
-      : Object.entries(ad.extraFields).map(([name, value]) => ({
-          name,
-          value,
-        }));
+  const getSalaryFromAd = useCallback(
+    (ad: AD, type: "min" | "max"): number | null => {
+      if (!ad.extraFields) return null;
 
-    const salaryField = extraFields.find(
-      (field) =>
-        field.name?.toLowerCase().includes("salary") &&
-        (type === "min"
-          ? field.name?.toLowerCase().includes("min")
-          : field.name?.toLowerCase().includes("max"))
-    );
+      const extraFields = Array.isArray(ad.extraFields)
+        ? ad.extraFields
+        : Object.entries(ad.extraFields).map(([name, value]) => ({
+            name,
+            value,
+          }));
 
-    if (salaryField && typeof salaryField.value === "number") {
-      return salaryField.value;
-    }
+      const salaryField = extraFields.find(
+        (field) =>
+          field.name?.toLowerCase().includes("salary") &&
+          (type === "min"
+            ? field.name?.toLowerCase().includes("min")
+            : field.name?.toLowerCase().includes("max"))
+      );
 
-    return null;
-  }, []);
+      if (salaryField && typeof salaryField.value === "number") {
+        return salaryField.value;
+      }
+
+      return null;
+    },
+    []
+  );
 
   // Transform AD to ApplicantCard props
   const transformAdToApplicantCardProps = (ad: AD) => {
@@ -392,8 +428,8 @@ export default function JobseekersPage() {
         }));
 
     const getFieldValue = (fieldName: string): string => {
-      const field = extraFields.find(
-        (f) => f.name?.toLowerCase().includes(fieldName.toLowerCase())
+      const field = extraFields.find((f) =>
+        f.name?.toLowerCase().includes(fieldName.toLowerCase())
       );
       if (field) {
         if (Array.isArray(field.value)) {
@@ -404,9 +440,14 @@ export default function JobseekersPage() {
       return "";
     };
 
-    const jobType = getFieldValue("jobType") || getFieldValue("job type") || "Not specified";
+    const jobType =
+      getFieldValue("jobType") || getFieldValue("job type") || "Not specified";
     const experience = getFieldValue("experience") || "Not specified";
-    const role = getFieldValue("role") || getFieldValue("position") || ad.title || "Not specified";
+    const role =
+      getFieldValue("role") ||
+      getFieldValue("position") ||
+      ad.title ||
+      "Not specified";
 
     // Extract salary from extraFields or use price
     const salaryMin = getSalaryFromAd(ad, "min") || ad.price || 0;
@@ -426,9 +467,7 @@ export default function JobseekersPage() {
 
     // Get company name
     const company =
-      ad.organization?.tradeName ||
-      ad.organization?.legalName ||
-      "Company";
+      ad.organization?.tradeName || ad.organization?.legalName || "Company";
 
     return {
       id: ad._id,
@@ -542,7 +581,10 @@ export default function JobseekersPage() {
               )}
             >
               {jobseekers.map((jobseeker) => (
-                <ApplicantCard key={jobseeker._id} {...transformAdToApplicantCardProps(jobseeker)} />
+                <ApplicantCard
+                  key={jobseeker._id}
+                  {...transformAdToApplicantCardProps(jobseeker)}
+                />
               ))}
             </div>
           ) : (
@@ -570,4 +612,3 @@ export default function JobseekersPage() {
     </div>
   );
 }
-

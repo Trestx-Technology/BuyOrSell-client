@@ -17,7 +17,7 @@ interface CategoryTabbedCarouselProps<
   categoryData: CategoryWithSubCategories;
   title?: string; // Optional, defaults to "Trending {category}"
   viewAllText?: string;
-  onViewAll?: () => void;
+  onViewAll?: (categoryName: string) => void;
   onTabChange?: (id: string) => void;
   className?: string;
   showViewAll?: boolean;
@@ -187,7 +187,7 @@ export default function CategoryTabbedCarousel<
         >
           <Button
             variant="filled"
-            onClick={onViewAll}
+            onClick={() => onViewAll?.(categoryName)}
             className="md:block hidden transition-colors px-5 py-2 h-8 text-xs font-medium"
           >
             {viewAllText}
