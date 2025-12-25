@@ -143,27 +143,40 @@ export default function GalleryDialog({
                   unoptimized
                 />
               ) : (
-                <div className="relative">
-                  <Image
-                    src={selectedItem.thumbnail || "/placeholder.svg"}
-                    alt={selectedItem.alt}
-                    width={1920}
-                    height={1080}
-                    className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-                    unoptimized
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsPlaying(!isPlaying)}
-                    className="absolute inset-0 m-auto h-16 w-16 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 text-white border-2 border-white/40"
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-8 w-8" />
-                    ) : (
-                      <Play className="h-8 w-8 ml-1" />
-                    )}
-                  </Button>
+                <div className="relative w-full h-full flex items-center justify-center">
+                  {isPlaying ? (
+                    <video
+                      key={selectedItem.id}
+                      src={selectedItem.src}
+                      controls
+                      autoPlay
+                      className="max-w-full max-h-full rounded-lg shadow-2xl animate-in fade-in zoom-in-95 duration-300"
+                      onEnded={() => setIsPlaying(false)}
+                      onPause={() => setIsPlaying(false)}
+                      onPlay={() => setIsPlaying(true)}
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <div className="relative">
+                      <Image
+                        src={selectedItem.thumbnail || "/placeholder.svg"}
+                        alt={selectedItem.alt}
+                        width={1920}
+                        height={1080}
+                        className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                        unoptimized
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsPlaying(true)}
+                        className="absolute inset-0 m-auto h-16 w-16 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 text-white border-2 border-white/40"
+                      >
+                        <Play className="h-8 w-8 ml-1" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

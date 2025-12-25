@@ -76,6 +76,7 @@ export type AD = {
   stockQuantity: number;
   availability: string;
   images: string[];
+  videoUrl?: string;
   blurredImages?: string[]; // optional if not always present
   tags: any[];
   category: AdCategory | AdCategoryWithoutParent; // accepts both structures
@@ -85,6 +86,7 @@ export type AD = {
   extraFields?: ProductExtraFields; // Optional, not present in all ads
   featuredStatus?: string; // present in some APIs
   isFeatured?: boolean;
+  isAddedInCollection?: boolean;
   status: AdStatus;
   connectionTypes: ("call" | "chat" | "whatsapp")[]; // Array of connection types
   topChoice: boolean;

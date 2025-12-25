@@ -10,6 +10,7 @@ export interface Collection {
   description?: string;
   userId?: string;
   count?: number;
+  adIds?: string[]; // Array of ad IDs in this collection
   images?: string[];
   createdAt?: string;
   updatedAt?: string;

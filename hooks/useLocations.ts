@@ -1,27 +1,40 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from "@tanstack/react-query";
 import {
   getEmirates,
   getAreas,
   getCities,
   getCountries,
-} from '@/app/api/location/location.services';
+} from "@/app/api/location/location.services";
 import {
   LocationApiResponse,
   AreasApiResponse,
   CitiesApiResponse,
   CountriesApiResponse,
-} from '@/interfaces/location.types';
-import { locationQueries } from '@/app/api/location/index';
+  Emirate,
+} from "@/interfaces/location.types";
+import { locationQueries } from "@/app/api/location/index";
 
 // ============================================================================
 // QUERY HOOKS
 // ============================================================================
 
 export const useEmirates = () => {
-  return useQuery<LocationApiResponse, Error, string[]>({
+  return useQuery<LocationApiResponse, Error, Emirate[]>({
     queryKey: locationQueries.emirates.Key,
     queryFn: getEmirates,
-    select: (data: LocationApiResponse) => data.data || [],
+    select: (data: LocationApiResponse) => {
+      // Handle both object array and string array formats
+      const rawData = data.data || [];
+      // If it's already an array of objects, return as is
+      if (rawData.length > 0 && typeof rawData[0] === "object") {
+        return rawData as Emirate[];
+      }
+      // If it's a string array, convert to Emirate format
+      return (rawData as string[]).map((emirate) => ({
+        emirate,
+        emirateAr: emirate, // Fallback to same value if no Arabic
+      }));
+    },
   });
 };
 
@@ -34,10 +47,7 @@ export const useAreas = (emirate?: string) => {
   });
 };
 
-export const useCities = (params?: {
-  emirate?: string;
-  country?: string;
-}) => {
+export const useCities = (params?: { emirate?: string; country?: string }) => {
   return useQuery<CitiesApiResponse, Error, string[]>({
     queryKey: [...locationQueries.cities.Key, params],
     queryFn: () => getCities(params),
@@ -52,4 +62,3 @@ export const useCountries = () => {
     select: (data: CountriesApiResponse) => data.data || [],
   });
 };
-

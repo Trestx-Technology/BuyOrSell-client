@@ -12,6 +12,7 @@ import {
   Share2,
   Repeat,
   Info,
+  Play,
 } from "lucide-react";
 import CollectionDrawer from "../../../favorites/_components/collection-drawer";
 import { AD } from "@/interfaces/ad";
@@ -37,22 +38,47 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
 
   // Use real ad images or fallback to empty array
   const images = ad.images && ad.images.length > 0 ? ad.images : [];
+  const hasVideo = !!ad.videoUrl;
 
-  // Convert images array to MediaItem format
-  const mediaItems: MediaItem[] = images.map((imageUrl, index) => ({
-    id: index + 1,
-    type: "image" as const,
-    src: imageUrl,
-    thumbnail: imageUrl,
-    alt: `${ad.title || "Product"} - Image ${index + 1}`,
-  }));
+  // Convert images and video to MediaItem format
+  const mediaItems: MediaItem[] = useMemo(() => {
+    const items: MediaItem[] = [];
+
+    // Add video first if it exists
+    if (hasVideo && ad.videoUrl) {
+      items.push({
+        id: 0,
+        type: "video" as const,
+        src: ad.videoUrl,
+        thumbnail: images[0] || "/placeholder.svg", // Use first image as video thumbnail
+        alt: `${ad.title || "Product"} - Video`,
+      });
+    }
+
+    // Add all images
+    images.forEach((imageUrl, index) => {
+      items.push({
+        id: index + 1,
+        type: "image" as const,
+        src: imageUrl,
+        thumbnail: imageUrl,
+        alt: `${ad.title || "Product"} - Image ${index + 1}`,
+      });
+    });
+
+    return items;
+  }, [images, hasVideo, ad.videoUrl, ad.title]);
 
   const handlePrevious = () => {
-    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? mediaItems.length - 1 : prev - 1
+    );
   };
 
   const handleNext = () => {
-    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setCurrentImageIndex((prev) =>
+      prev === mediaItems.length - 1 ? 0 : prev + 1
+    );
   };
 
   const handleImageSelect = (index: number) => {
@@ -78,19 +104,48 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
 
   return (
     <div className="overflow-hidden sticky lg:relative z-10 top-0 left-0 w-full">
-      {/* Main Image */}
+      {/* Main Image/Video */}
       <div className="bg-white border border-accent rounded-xl relative aspect-[16/9]">
-        {images.length > 0 ? (
+        {mediaItems.length > 0 ? (
           <div className="relative w-full h-full">
-            <Image
-              src={images[currentImageIndex]}
-              alt={`${ad.title || "Product"} - Image ${currentImageIndex + 1}`}
-              fill
-              className="absolute inset-0 object-contain md:rounded-xl"
-              quality={90}
-              sizes="(max-width: 768px) 100vw, 1200px"
-              priority
-            />
+            {mediaItems[currentImageIndex].type === "video" ? (
+              <div className="relative w-full h-full">
+                <Image
+                  src={mediaItems[currentImageIndex].thumbnail}
+                  alt={mediaItems[currentImageIndex].alt}
+                  fill
+                  className="absolute inset-0 object-cover md:rounded-xl"
+                  quality={90}
+                  sizes="(max-width: 768px) 100vw, 1200px"
+                  priority
+                />
+                {/* Video Play Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20 md:rounded-xl">
+                  <button
+                    onClick={() => setIsGalleryOpen(true)}
+                    className="flex items-center justify-center w-16 h-16 rounded-full bg-white/90 hover:bg-white transition-all hover:scale-110 shadow-lg"
+                    aria-label="Play video"
+                  >
+                    <Play className="h-8 w-8 text-purple ml-1" />
+                  </button>
+                </div>
+                {/* Video Badge */}
+                <div className="absolute top-3 left-3 bg-black/60 text-white px-2 py-1 rounded text-xs font-semibold flex items-center gap-1">
+                  <Camera className="h-3 w-3" />
+                  Video
+                </div>
+              </div>
+            ) : (
+              <Image
+                src={mediaItems[currentImageIndex].src}
+                alt={mediaItems[currentImageIndex].alt}
+                fill
+                className="absolute inset-0 object-contain md:rounded-xl"
+                quality={90}
+                sizes="(max-width: 768px) 100vw, 1200px"
+                priority
+              />
+            )}
 
             {/* Premium Badge */}
             {ad.isFeatured && (
@@ -120,6 +175,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
               </ShareDialog>
 
               <CollectionDrawer
+                
                 trigger={
                   <button className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110">
                     <Heart className="h-5 w-5" />
@@ -131,15 +187,20 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
               />
             </div>
 
-            {/* Image Counter - Opens Gallery */}
-            {images.length > 0 && (
+            {/* Media Counter - Opens Gallery */}
+            {mediaItems.length > 0 && (
               <button
                 onClick={() => setIsGalleryOpen(true)}
                 className="absolute bottom-8 lg:bottom-4 right-4 border bg-white px-2 py-1 rounded-sm text-sm flex items-center gap-1 cursor-pointer hover:scale-110 transition-all border-accent"
               >
                 <ImagePlusIcon className="h-4 w-4" />
                 <span className="text-xs font-semibold">
-                  {images.length} Photos
+                  {mediaItems.length}{" "}
+                  {hasVideo && currentImageIndex === 0
+                    ? "Media"
+                    : mediaItems.length === 1 && hasVideo
+                    ? "Video"
+                    : "Photos"}
                 </span>
               </button>
             )}
@@ -188,7 +249,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
               </div>
             )}
             {/* Navigation Arrows */}
-            {images.length > 1 && (
+            {mediaItems.length > 1 && (
               <>
                 <Button
                   variant="secondary"
@@ -209,19 +270,24 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
               </>
             )}
 
-            {/* Image Dots */}
-            {images.length > 1 && (
+            {/* Media Dots */}
+            {mediaItems.length > 1 && (
               <div className="hidden absolute bottom-4 left-1/2 transform -translate-x-1/2 lg:flex gap-2">
-                {images.map((_, index) => (
+                {mediaItems.map((item, index) => (
                   <button
-                    key={index}
+                    key={item.id}
                     onClick={() => handleImageSelect(index)}
-                    className={`w-2 h-2 rounded-full transition-all ${
+                    className={`w-2 h-2 rounded-full transition-all relative ${
                       index === currentImageIndex
                         ? "bg-white scale-125"
                         : "bg-white/50 hover:bg-white/75"
                     }`}
-                  />
+                    title={item.type === "video" ? "Video" : `Image ${index}`}
+                  >
+                    {item.type === "video" && index === currentImageIndex && (
+                      <div className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-purple rounded-full" />
+                    )}
+                  </button>
                 ))}
               </div>
             )}

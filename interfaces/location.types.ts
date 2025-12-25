@@ -1,7 +1,12 @@
+export interface Emirate {
+  emirate: string;
+  emirateAr: string;
+}
+
 export interface LocationApiResponse {
   statusCode: number;
   timestamp: string;
-  data: string[];
+  data: Emirate[] | string[];
 }
 
 export interface AreasApiResponse {

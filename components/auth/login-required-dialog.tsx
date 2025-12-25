@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
 import { Button } from "@/components/ui/button";
+import { useLocale } from "@/hooks/useLocale";
 
 interface LoginRequiredDialogProps {
   open: boolean;
@@ -19,13 +20,22 @@ export function LoginRequiredDialog({
   message = "You need to be logged in to continue. Would you like to login?",
 }: LoginRequiredDialogProps) {
   const router = useRouter();
+  const { localePath } = useLocale();
 
   const handleLogin = () => {
+    // Build login URL with locale prefix
+    const baseLoginPath = localePath("/login");
     const loginUrl = redirectUrl
-      ? `/login?redirect=${encodeURIComponent(redirectUrl)}`
-      : "/login";
-    router.push(loginUrl);
+      ? `${baseLoginPath}?redirect=${encodeURIComponent(redirectUrl)}`
+      : baseLoginPath;
+    
+    // Close dialog first, then navigate
     onOpenChange(false);
+    
+    // Use setTimeout to ensure dialog closes before navigation
+    setTimeout(() => {
+      router.push(loginUrl);
+    }, 100);
   };
 
   const handleCancel = () => {

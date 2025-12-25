@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useShare } from "@/hooks/useShare";
 import { CollectionManager } from "./collection-manager";
+import { useGetCollectionsByAd } from "@/hooks/useCollections";
 
 export interface ListingCardProps {
   id: string;
@@ -54,6 +55,7 @@ export interface ListingCardProps {
   views?: number;
   isPremium?: boolean;
   isFavorite?: boolean;
+  isAddedInCollection?: boolean; // Flag from ad data indicating if ad is in any collection
   onFavorite?: (id: string) => void;
   onShare?: (id: string) => void;
   onClick?: (id: string) => void;
@@ -85,6 +87,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
   views,
   isPremium = false,
   isFavorite = false,
+  isAddedInCollection,
   onFavorite,
   onShare,
   onClick,
@@ -94,6 +97,21 @@ const ListingCard: React.FC<ListingCardProps> = ({
   seller,
 }) => {
   const { share } = useShare();
+
+  // Use isAddedInCollection flag from ad data if provided, otherwise check via API
+  const { data: collectionsByAdResponse } = useGetCollectionsByAd(
+    isAddedInCollection === undefined ? id : "" // Only fetch if flag not provided
+  );
+  const apiIsAddedInCollection =
+    collectionsByAdResponse?.data?.isAddedInCollection ?? false;
+
+  // Use isAddedInCollection prop if provided, otherwise use API result, fallback to isFavorite
+  const effectiveIsFavorite =
+    isAddedInCollection !== undefined
+      ? isAddedInCollection
+      : collectionsByAdResponse !== undefined
+      ? apiIsAddedInCollection
+      : isFavorite;
 
   // Normalize extraFields: handle both array and object formats, preserving icon info
   interface FieldWithIcon {
@@ -173,8 +191,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
     }, 500);
   };
 
-  const handleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleCollectionSuccess = () => {
+    // Call the onFavorite callback to update parent state if needed
     onFavorite?.(id);
   };
 
@@ -359,16 +377,18 @@ const ListingCard: React.FC<ListingCardProps> = ({
               itemId={id}
               itemTitle={title}
               itemImage={images[0]}
-              onSuccess={() => {
-                // Optionally refresh or show feedback
-                onFavorite?.(id);
-              }}
+              onSuccess={handleCollectionSuccess}
             >
-              <button className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer text-purple bg-white border rounded-full">
+              <button
+                className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer text-purple bg-white border rounded-full"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Heart
                   size={24}
-                  className={` mx-auto stroke-1 ${
-                    isFavorite ? "fill-red-500 text-red-500" : "text-purple"
+                  className={`mx-auto stroke-1 ${
+                    effectiveIsFavorite
+                      ? "fill-red-500 text-red-500"
+                      : "text-purple"
                   }`}
                 />
               </button>

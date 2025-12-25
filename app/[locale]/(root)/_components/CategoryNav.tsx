@@ -145,6 +145,7 @@ interface CategoryDropdownProps {
   activeCategory: SubCategory | null; // Currently hovered subcategory
   onCategoryHover: (category: SubCategory | null) => void; // Handler for subcategory hover
   isOtherCategory?: boolean; // Whether this is the "Other" category dropdown
+  allCategories: SubCategory[]; // All main categories for parent lookup
 }
 
 /**
@@ -152,7 +153,96 @@ interface CategoryDropdownProps {
  */
 interface SubcategoryPanelProps {
   subcategories: SubCategory[]; // Subcategories to display
+  allCategories: SubCategory[]; // All main categories for parent lookup
 }
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Builds a category URL path including parent name if parent exists
+ * Recursively searches through all categories and their children to find parent
+ * @param category - The category/subcategory to build URL for
+ * @param allCategories - All main categories to search for parent (including nested children)
+ * @returns URL path like "/categories/parentName/categoryName" or "/categories/categoryName"
+ */
+const buildCategoryUrl = (
+  category: SubCategory,
+  allCategories: SubCategory[]
+): string => {
+  // Helper function to recursively search for a category by ID
+  const findCategoryById = (
+    categories: SubCategory[],
+    id: string
+  ): SubCategory | null => {
+    for (const cat of categories) {
+      if (cat._id === id) {
+        return cat;
+      }
+      // Recursively search in children
+      if (cat.children && cat.children.length > 0) {
+        const found = findCategoryById(cat.children, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  // Helper function to find the direct parent that contains this category in its children
+  const findDirectParent = (
+    categories: SubCategory[],
+    childId: string
+  ): SubCategory | null => {
+    for (const cat of categories) {
+      // Check if this category's children contain the target
+      if (cat.children && cat.children.length > 0) {
+        const childFound = cat.children.find((child) => child._id === childId);
+        if (childFound) {
+          // Found the direct parent!
+          return cat;
+        }
+        // Recursively search in children
+        const found = findDirectParent(cat.children, childId);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  // Helper function to build the full path recursively
+  const buildPathRecursive = (
+    cat: SubCategory,
+    categories: SubCategory[]
+  ): string[] => {
+    const path: string[] = [cat.name];
+
+    // First try parentID if it exists
+    if (cat.parentID) {
+      const parent = findCategoryById(categories, cat.parentID);
+      if (parent) {
+        // Recursively build parent's path and prepend it
+        const parentPath = buildPathRecursive(parent, categories);
+        return [...parentPath, cat.name];
+      }
+    }
+
+    // If no parentID, search for parent in the tree
+    const directParent = findDirectParent(categories, cat._id);
+    if (directParent) {
+      // Recursively build parent's path and prepend it
+      const parentPath = buildPathRecursive(directParent, categories);
+      return [...parentPath, cat.name];
+    }
+
+    // No parent found, return just this category
+    return path;
+  };
+
+  // Build the full path
+  const pathNames = buildPathRecursive(category, allCategories);
+  return `/categories/${pathNames.join("/")}`;
+};
 
 // ============================================================================
 // REUSABLE COMPONENTS
@@ -200,6 +290,7 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
  */
 const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
   subcategories,
+  allCategories,
 }) => {
   const { t, locale } = useLocale();
   return (
@@ -227,7 +318,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                     {/* "View all" link appears on hover */}
                     <div className="ml-auto group-hover:block hidden">
                       <Link
-                        href={`/categories/${subcategory._id}`}
+                        href={buildCategoryUrl(subcategory, allCategories)}
                         className="text-purple text-xs hover:text-purple/80 flex items-center gap-1"
                       >
                         <Typography
@@ -250,9 +341,9 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                           : child.name;
                       return (
                         <motion.div key={child._id} variants={itemVariants}>
-                          {/* Display child as a simple link - don't show grandchildren (level 3) */}
+                          {/* Display child as a simple link - include parent (subcategory) in URL */}
                           <Link
-                            href={`/categories/${subcategory._id}/${child._id}`}
+                            href={buildCategoryUrl(child, allCategories)}
                             className="text-sm text-grey-blue hover:text-purple hover:underline cursor-pointer transition-colors"
                           >
                             {childName}
@@ -265,7 +356,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
               ) : (
                 /* Subcategory without children - render as clickable link */
                 <Link
-                  href={`/categories/${subcategory._id}`}
+                  href={buildCategoryUrl(subcategory, allCategories)}
                   className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 hover:bg-purple/10 hover:text-purple transition-colors"
                 >
                   <Typography variant="xs-bold">
@@ -300,6 +391,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
   activeCategory,
   onCategoryHover,
   isOtherCategory = false,
+  allCategories,
 }) => {
   const { locale } = useLocale();
   return (
@@ -342,7 +434,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                         href={
                           category.name.toLowerCase() === "job"
                             ? `/jobs`
-                            : `/categories/${category.name}`
+                            : buildCategoryUrl(category, allCategories)
                         }
                         className="text-gray-600 group-hover:text-purple text-xs w-full"
                       >
@@ -380,7 +472,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                         onMouseEnter={() => onCategoryHover(null)}
                       >
                         <Link
-                          href={`/categories/${category._id}`}
+                          href={buildCategoryUrl(category, allCategories)}
                           className={cn(
                             "flex items-center text-xs justify-between p-3 hover:bg-purple/10 hover:text-purple cursor-pointer transition-colors group",
                             isActive && "bg-purple/10 text-purple"
@@ -444,7 +536,10 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
               {activeCategory &&
                 activeCategory.children &&
                 activeCategory.children.length > 0 && (
-                  <SubcategoryPanel subcategories={activeCategory.children} />
+                  <SubcategoryPanel
+                    subcategories={activeCategory.children}
+                    allCategories={allCategories}
+                  />
                 )}
             </motion.div>
           )}
@@ -703,6 +798,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     categoryData={getCurrentCategoryData()}
                     activeCategory={activeCategory}
                     onCategoryHover={handleCategoryHover}
+                    allCategories={categoriesData || []}
                   />
                 </motion.div>
               ))}
@@ -725,6 +821,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     activeCategory={activeCategory}
                     onCategoryHover={handleCategoryHover}
                     isOtherCategory={true}
+                    allCategories={categoriesData || []}
                   />
                 </motion.div>
               )}

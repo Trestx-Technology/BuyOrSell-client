@@ -157,6 +157,7 @@ export const transformAdToListingCard = (ad: AD, locale?: Locale): ListingCardPr
     price: ad.price,
     originalPrice,
     discount: discountPercentage,
+    isAddedInCollection: ad.isAddedInCollection,
     location: getLocation(),
     images: ad.images || [],
     extraFields: extraFields as ProductExtraFields, // Cast to ProductExtraFields for compatibility

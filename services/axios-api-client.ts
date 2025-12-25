@@ -3,14 +3,14 @@ import axios, {
   InternalAxiosRequestConfig,
   AxiosResponse,
   AxiosRequestHeaders,
-} from 'axios';
-import { LocalStorageService } from '@/services/local-storage';
-import ApiErrorHandler from './errorHandler';
-import { toast } from 'sonner';
-import { jwtDecode } from 'jwt-decode';
-import { useAuthStore } from '@/stores/authStore';
-import { AUTH_TOKEN_NAMES } from '@/constants/auth.constants';
-import { CookieService } from '@/services/cookie-service';
+} from "axios";
+import { LocalStorageService } from "@/services/local-storage";
+import ApiErrorHandler from "./errorHandler";
+import { toast } from "sonner";
+import { jwtDecode } from "jwt-decode";
+import { useAuthStore } from "@/stores/authStore";
+import { AUTH_TOKEN_NAMES } from "@/constants/auth.constants";
+import { CookieService } from "@/services/cookie-service";
 
 // ============================================================================
 // TYPES
@@ -48,10 +48,10 @@ const REFRESH_TIMEOUT_MS = 20_000;
  */
 function isTokenExpired(
   token: string | null,
-  skewMs: number = EXP_SKEW_MS,
+  skewMs: number = EXP_SKEW_MS
 ): boolean {
   if (!token) {
-    console.warn('No token provided');
+    console.warn("No token provided");
     return true;
   }
   try {
@@ -60,20 +60,20 @@ function isTokenExpired(
     const now = Date.now();
     const timeUntilExpiry = expMs - now;
     const isExpired = now >= expMs - Math.max(0, skewMs);
-    
+
     // Only log if token is expired or close to expiry (within 5 minutes)
     if (isExpired || timeUntilExpiry < 5 * 60 * 1000) {
-      console.debug('Token check result', {
+      console.debug("Token check result", {
         isExpired,
-        timeUntilExpiry: Math.round(timeUntilExpiry / 1000) + 's',
+        timeUntilExpiry: Math.round(timeUntilExpiry / 1000) + "s",
         expiryDate: new Date(expMs).toISOString(),
         skewMs,
       });
     }
-    
+
     return isExpired;
   } catch (error) {
-    console.error('Failed to decode token', error);
+    console.error("Failed to decode token", error);
     return true;
   }
 }
@@ -83,8 +83,8 @@ function isTokenExpired(
  * @returns Login URL with current path as redirect parameter
  */
 function getLoginUrlWithRedirect(): string {
-  if (typeof window === 'undefined') {
-    return '/login';
+  if (typeof window === "undefined") {
+    return "/login";
   }
   const currentPath = window.location.pathname + window.location.search;
   const redirectUrl = encodeURIComponent(currentPath);
@@ -95,25 +95,25 @@ function getLoginUrlWithRedirect(): string {
  * Handles logout and redirect (prevents multiple redirects)
  */
 async function handleLogoutAndRedirect(): Promise<void> {
-  if (typeof window === 'undefined' || isRedirecting) {
+  if (typeof window === "undefined" || isRedirecting) {
     return;
   }
-  
+
   isRedirecting = true;
-  
+
   // Clear Zustand auth store
   try {
     const { clearSession } = useAuthStore.getState();
     await clearSession();
     // Clear cookie using client-side CookieService
-    CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: '/' });
+    CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: "/" });
   } catch (error) {
     // If clearing store fails, still clear localStorage and cookies
-    console.error('Error clearing auth store', error);
+    console.error("Error clearing auth store", error);
     LocalStorageService.clear();
-    CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: '/' });
+    CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: "/" });
   }
-  
+
   // Use setTimeout to allow current request to complete
   setTimeout(() => {
     window.location.href = getLoginUrlWithRedirect();
@@ -132,8 +132,8 @@ function setAuthHeader(config: InternalAxiosRequestConfig, token: string) {
   const headers = config.headers as AxiosRequestHeaders & {
     set?: (k: string, v: string) => void;
   };
-  if (headers && typeof headers.set === 'function') {
-    headers.set('Authorization', `Bearer ${token}`);
+  if (headers && typeof headers.set === "function") {
+    headers.set("Authorization", `Bearer ${token}`);
   } else {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -162,7 +162,7 @@ async function callRefreshTokenAPI(refreshToken: string): Promise<{
   const refreshAxios = createRefreshAxiosInstance();
   const startTime = Date.now();
   try {
-    const response = await refreshAxios.post('/auth/refresh-token', {
+    const response = await refreshAxios.post("/auth/refresh-token", {
       refreshToken,
     });
     return response.data;
@@ -192,9 +192,7 @@ export const axiosInstance = axios.create({
     ...(axios.defaults.transformRequest as Array<(data: unknown) => unknown>),
   ],
   transformResponse: [
-    ...(axios.defaults.transformResponse as Array<
-      (data: unknown) => unknown
-    >),
+    ...(axios.defaults.transformResponse as Array<(data: unknown) => unknown>),
     (data: unknown): unknown => {
       return data;
     },
@@ -207,18 +205,24 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   async (
-    config: InternalAxiosRequestConfig,
+    config: InternalAxiosRequestConfig
   ): Promise<InternalAxiosRequestConfig> => {
-    const token = LocalStorageService.get<string>(AUTH_TOKEN_NAMES.ACCESS_TOKEN);
+    const token = LocalStorageService.get<string>(
+      AUTH_TOKEN_NAMES.ACCESS_TOKEN
+    );
 
     // Case: expired or invalid access token -> refresh using single shared promise
     if (token && isTokenExpired(token)) {
       // Try to get refresh token - check both LocalStorageService and direct localStorage
-      let refreshToken = LocalStorageService.get<string>(AUTH_TOKEN_NAMES.REFRESH_TOKEN);
-      
+      let refreshToken = LocalStorageService.get<string>(
+        AUTH_TOKEN_NAMES.REFRESH_TOKEN
+      );
+
       // Fallback: try direct localStorage access if LocalStorageService returns null
-      if (!refreshToken && typeof window !== 'undefined') {
-        const rawRefreshToken = localStorage.getItem(AUTH_TOKEN_NAMES.REFRESH_TOKEN);
+      if (!refreshToken && typeof window !== "undefined") {
+        const rawRefreshToken = localStorage.getItem(
+          AUTH_TOKEN_NAMES.REFRESH_TOKEN
+        );
         if (rawRefreshToken) {
           try {
             // Try to parse as JSON first (in case it was stored via LocalStorageService)
@@ -231,79 +235,106 @@ axiosInstance.interceptors.request.use(
       }
 
       if (!refreshToken) {
-        console.error('No refresh token found in localStorage', { url: config.url });
+        console.error("No refresh token found in localStorage", {
+          url: config.url,
+        });
         void handleLogoutAndRedirect();
-        return Promise.reject(new Error('No refresh token'));
+        return Promise.reject(new Error("No refresh token"));
       }
 
       // Check if refresh token is also expired
       const isRefreshExpired = isTokenExpired(refreshToken, 0);
       if (isRefreshExpired) {
-        console.error('Refresh token is expired', {
+        console.error("Refresh token is expired", {
           tokenLength: refreshToken.length,
-          tokenPreview: refreshToken.substring(0, 20) + '...',
+          tokenPreview: refreshToken.substring(0, 20) + "...",
           url: config.url,
         });
         void handleLogoutAndRedirect();
-        return Promise.reject(new Error('Refresh token expired'));
+        return Promise.reject(new Error("Refresh token expired"));
       }
 
       if (!refreshPromise) {
         // Start refresh with timeout protection
         refreshPromise = Promise.race([
           callRefreshTokenAPI(refreshToken)
-            .then(async (res: {
-              statusCode?: number;
-              timestamp?: string;
-              data?: { accessToken?: string; refreshToken?: string; user?: unknown };
-            }) => {
-              // Response structure from refreshToken: { statusCode, timestamp, data: { accessToken, refreshToken, user } }
-              const responseData = res?.data;
-              const newToken = responseData?.accessToken;
-              const newRefresh = responseData?.refreshToken;
-              
-              if (!newToken) {
-                console.error('No access token in refresh response', { response: res });
-                throw new Error('No access token in refresh response');
-              }
-              
-              console.info('Token refresh successful', { hasNewRefresh: !!newRefresh });
-              LocalStorageService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, newToken);
-              if (newRefresh) {
-                LocalStorageService.set(AUTH_TOKEN_NAMES.REFRESH_TOKEN, newRefresh);
-              }
-              
-              // Update cookie with new access token using client-side CookieService
-              try {
-                const maxAge = Number(process.env.NEXT_PUBLIC_COOKIE_MAX_AGE) || 86400; // Default to 24 hours
-                CookieService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, newToken, {
-                  maxAge,
-                  path: '/',
-                  secure: true,
-                  sameSite: 'lax',
+            .then(
+              async (res: {
+                statusCode?: number;
+                timestamp?: string;
+                data?: {
+                  accessToken?: string;
+                  refreshToken?: string;
+                  user?: unknown;
+                };
+              }) => {
+                // Response structure from refreshToken: { statusCode, timestamp, data: { accessToken, refreshToken, user } }
+                const responseData = res?.data;
+                const newToken = responseData?.accessToken;
+                const newRefresh = responseData?.refreshToken;
+
+                if (!newToken) {
+                  console.error("No access token in refresh response", {
+                    response: res,
+                  });
+                  throw new Error("No access token in refresh response");
+                }
+
+                console.info("Token refresh successful", {
+                  hasNewRefresh: !!newRefresh,
                 });
-              } catch (cookieError) {
-                console.error('Failed to update cookie after token refresh', cookieError);
-                // Don't throw - token refresh succeeded, cookie update failure is non-critical
+                LocalStorageService.set(
+                  AUTH_TOKEN_NAMES.ACCESS_TOKEN,
+                  newToken
+                );
+                if (newRefresh) {
+                  LocalStorageService.set(
+                    AUTH_TOKEN_NAMES.REFRESH_TOKEN,
+                    newRefresh
+                  );
+                }
+
+                // Update cookie with new access token using client-side CookieService
+                try {
+                  const maxAge =
+                    Number(process.env.NEXT_PUBLIC_COOKIE_MAX_AGE) || 86400; // Default to 24 hours
+                  CookieService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, newToken, {
+                    maxAge,
+                    path: "/",
+                    secure: true,
+                    sameSite: "lax",
+                  });
+                } catch (cookieError) {
+                  console.error(
+                    "Failed to update cookie after token refresh",
+                    cookieError
+                  );
+                  // Don't throw - token refresh succeeded, cookie update failure is non-critical
+                }
+
+                // Reset redirect flag on successful refresh
+                isRedirecting = false;
+
+                return newToken;
               }
-              
-              // Reset redirect flag on successful refresh
-              isRedirecting = false;
-              
-              return newToken;
-            })
+            )
             .catch((err) => {
-              console.error('Refresh token API call failed', err);
+              console.error("Refresh token API call failed", err);
               throw err;
             }),
           new Promise<string>((_, reject) =>
-            setTimeout(() => reject(new Error('Refresh token request timeout')), REFRESH_TIMEOUT_MS)
+            setTimeout(
+              () => reject(new Error("Refresh token request timeout")),
+              REFRESH_TIMEOUT_MS
+            )
           ),
         ])
           .catch((err: Error) => {
             // Clear refresh promise immediately on error to prevent hanging
             refreshPromise = null;
-            console.error('Refresh token flow failed', err, { message: err.message });
+            console.error("Refresh token flow failed", err, {
+              message: err.message,
+            });
             // On refresh failure, clear and redirect; propagate rejection to callers
             void handleLogoutAndRedirect();
             throw err;
@@ -330,9 +361,28 @@ axiosInstance.interceptors.request.use(
       setAuthHeader(config, token);
     }
 
+    // Automatically add emirate query parameter from URL to all requests
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const emirate = urlParams.get("emirate");
+
+      if (emirate) {
+        // Initialize params if not already present
+        if (!config.params) {
+          config.params = {};
+        }
+
+        // Only add emirate if it's not already set in the request params
+        // This allows explicit overrides if needed
+        if (!config.params.emirate) {
+          config.params.emirate = emirate;
+        }
+      }
+    }
+
     return config;
   },
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 );
 
 // ============================================================================
@@ -349,7 +399,10 @@ axiosInstance.interceptors.response.use(
 
     // Special handling for authentication
     // Don't show errors on login page
-    if (typeof window !== 'undefined' && window.location.pathname === '/login') {
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname === "/login"
+    ) {
       return Promise.reject(error);
     }
 
@@ -357,20 +410,23 @@ axiosInstance.interceptors.response.use(
     if (!error.response) {
       // Network error - check if it's a timeout or connection issue
       if (
-        errorCode === 'ECONNABORTED' ||
-        errorCode === 'ETIMEDOUT' ||
-        errorCode === 'ENOTFOUND' ||
-        errorCode === 'ECONNREFUSED' ||
-        error.message?.includes('timeout') ||
-        error.message?.includes('Network Error')
+        errorCode === "ECONNABORTED" ||
+        errorCode === "ETIMEDOUT" ||
+        errorCode === "ENOTFOUND" ||
+        errorCode === "ECONNREFUSED" ||
+        error.message?.includes("timeout") ||
+        error.message?.includes("Network Error")
       ) {
         // Clear any pending refresh promise to prevent loops
         refreshPromise = null;
-        
+
         // Check if we're already on the no-internet page to prevent redirect loops
-        if (typeof window !== 'undefined' && window.location.pathname !== '/no-internet') {
+        if (
+          typeof window !== "undefined" &&
+          window.location.pathname !== "/no-internet"
+        ) {
           // Redirect to no-internet page for connection issues
-          window.location.href = '/no-internet';
+          window.location.href = "/no-internet";
           return Promise.reject(error);
         }
       }
@@ -380,7 +436,7 @@ axiosInstance.interceptors.response.use(
       // Prevent multiple redirects
       if (!isRedirecting) {
         void handleLogoutAndRedirect();
-        toast.error('Session expired. Please log in again.');
+        toast.error("Session expired. Please log in again.");
       }
       return Promise.reject(error);
     }
@@ -389,7 +445,10 @@ axiosInstance.interceptors.response.use(
     const errorResponse = ApiErrorHandler.handle(error);
 
     // Display toast notification with the error message (but not for network errors that redirect)
-    if (typeof window !== 'undefined' && window.location.pathname !== '/no-internet') {
+    if (
+      typeof window !== "undefined" &&
+      window.location.pathname !== "/no-internet"
+    ) {
       toast.error(errorResponse.message);
     }
 
@@ -397,5 +456,5 @@ axiosInstance.interceptors.response.use(
     // This allows consumers to handle errors gracefully while still
     // maintaining the error flow with Promise.reject
     return Promise.reject(errorResponse);
-  },
+  }
 );

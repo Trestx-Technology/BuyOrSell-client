@@ -165,20 +165,31 @@ const NavbarContent = ({ className }: { className?: string }) => {
                     </DropdownMenuItem>
                   ))
                 ) : (
-                  emirates?.map((emirateName) => (
-                    <DropdownMenuItem
-                      key={emirateName}
-                      onClick={() => handleCityChange(emirateName)}
-                      className={cn(
-                        "cursor-pointer",
-                        city === emirateName
-                          ? "bg-purple/20 text-purple"
-                          : ""
-                      )}
-                    >
-                      {emirateName}
-                    </DropdownMenuItem>
-                  ))
+                  emirates?.map((emirate) => {
+                    // Extract emirate properties
+                    const emirateName = emirate.emirate;
+                    const emirateNameAr = emirate.emirateAr;
+                    
+                    // Display Arabic if locale is ar, otherwise English
+                    const displayName = locale === 'ar' ? emirateNameAr : emirateName;
+                    // Use English name for URL/state (consistent identifier)
+                    const emirateValue = emirateName;
+                    
+                    return (
+                      <DropdownMenuItem
+                        key={emirateName}
+                        onClick={() => handleCityChange(emirateValue)}
+                        className={cn(
+                          "cursor-pointer",
+                          city === emirateValue
+                            ? "bg-purple/20 text-purple"
+                            : ""
+                        )}
+                      >
+                        {displayName}
+                      </DropdownMenuItem>
+                    );
+                  })
                 )}
               </DropdownMenuContent>
             </DropdownMenu>

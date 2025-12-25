@@ -45,16 +45,20 @@ import {
   useGetMyCollections,
   useAddAdsToCollection,
   useRemoveAdFromCollection,
-  useGetCollectionsByAd,
 } from "@/hooks/useCollections";
 import { collectionsQueries } from "@/app/api/collections/index";
 import { useQueryClient } from "@tanstack/react-query";
 import { CreateCollectionDialog } from "@/app/[locale]/(root)/favorites/_components/CreateCollectionDialog";
+import { useAuthStore } from "@/stores/authStore";
+import { LoginRequiredDialog } from "@/components/auth/login-required-dialog";
+import { usePathname, useSearchParams } from "next/navigation";
+import { adQueries } from "@/app/api/ad";
 
 export interface Collection {
   _id: string;
   name: string;
   count?: number;
+  adIds?: string[]; // Array of ad IDs in this collection
   images?: string[];
   isSelected?: boolean;
 }
@@ -92,17 +96,22 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
 }) => {
   const { t } = useLocale();
   const [open, setOpen] = useState(false);
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const queryClient = useQueryClient();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  // Collection hooks
+  // Only fetch collections when dialog is open and user is authenticated
   const { data: collectionsResponse, isLoading: isLoadingCollections } =
-    useGetMyCollections();
-  const { data: itemCollectionsResponse } = useGetCollectionsByAd(itemId);
+    useGetMyCollections(undefined, {
+      enabled: open && isAuthenticated,
+    });
+
   const addToCollectionMutation = useAddAdsToCollection();
   const removeFromCollectionMutation = useRemoveAdFromCollection();
 
   const collections = collectionsResponse?.data || [];
-  const itemCollections = itemCollectionsResponse?.data?.collections || [];
 
   // Handle adding item to collection
   const handleAddToCollection = useCallback(
@@ -115,9 +124,28 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
           },
         });
 
-        // Invalidate collections by ad query to update the UI
+        // // Optimistically update the collection's adIds array
+        // queryClient.setQueryData(
+        //   [...collectionsQueries.getMyCollections.Key],
+        //   (oldData: CollectionsListResponse | undefined) => {
+        //     if (!oldData?.data) return oldData;
+        //     return {
+        //       ...oldData,
+        //       data: oldData.data.map((collection) =>
+        //         collection._id === collectionId
+        //           ? {
+        //               ...collection,
+        //               adIds: [...(collection.adIds || []), itemId],
+        //               count: (collection.count || 0) + 1,
+        //             }
+        //           : collection
+        //       ),
+        //     };
+        //   }
+        // );
+
         queryClient.invalidateQueries({
-          queryKey: collectionsQueries.getCollectionsByAd(itemId).Key,
+          queryKey: adQueries.ads.Key,
         });
 
         onSuccess?.();
@@ -138,9 +166,31 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
           adId: itemId,
         });
 
-        // Invalidate collections by ad query to update the UI
+        // // Optimistically update the collection's adIds array
+        // queryClient.setQueryData(
+        //   [...collectionsQueries.getMyCollections.Key],
+        //   (oldData: CollectionsListResponse | undefined) => {
+        //     if (!oldData?.data) return oldData;
+        //     return {
+        //       ...oldData,
+        //       data: oldData.data.map((collection) =>
+        //         collection._id === collectionId
+        //           ? {
+        //               ...collection,
+        //               adIds: (collection.adIds || []).filter(
+        //                 (id) => id !== itemId
+        //               ),
+        //               count: Math.max((collection.count || 0) - 1, 0),
+        //             }
+        //           : collection
+        //       ),
+        //     };
+        //   }
+        // );
+
+        // Invalidate queries to ensure server state is synced
         queryClient.invalidateQueries({
-          queryKey: collectionsQueries.getCollectionsByAd(itemId).Key,
+          queryKey: adQueries.ads.Key,
         });
 
         onSuccess?.();
@@ -153,25 +203,24 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
 
   // Handle collection creation success
   const handleCollectionCreated = useCallback(() => {
-    // Invalidate collections by ad query to update the UI
+    // Invalidate queries to update the UI
     queryClient.invalidateQueries({
-      queryKey: collectionsQueries.getCollectionsByAd(itemId).Key,
+      queryKey: collectionsQueries.getMyCollections.Key,
     });
     console.log("Collection created successfully");
-  }, [itemId, queryClient]);
+  }, [queryClient]);
 
-  // Check if item is in a specific collection
+  // Check if item is in a specific collection by checking adIds array
   const isItemInCollection = useCallback(
-    (collectionId: string) => {
-      return itemCollections.some(
-        (collection) => collection.collectionId === collectionId
-      );
+    (collection: Collection) => {
+      // Check if adId exists in the collection's adIds array
+      return collection.adIds?.includes(itemId) ?? false;
     },
-    [itemCollections]
+    [itemId]
   );
 
   const renderCollectionItem = (collection: Collection) => {
-    const isInCollection = isItemInCollection(collection._id);
+    const isInCollection = isItemInCollection(collection);
     const isLoading =
       addToCollectionMutation.isPending ||
       removeFromCollectionMutation.isPending;
@@ -227,7 +276,8 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
                   : "text-grey-blue group-hover:text-purple"
               }`}
             >
-              {collection.count || 0} {t.favorites.items}
+              {collection.count ?? collection.adIds?.length ?? 0}{" "}
+              {t.favorites.items}
             </Typography>
           </div>
         </div>
@@ -305,32 +355,72 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
     </div>
   );
 
+  // Handle trigger click - check authentication first and pass adId
+  const handleTriggerClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      setIsLoginDialogOpen(true);
+    } else {
+      // Open dialog with the current adId
+      setOpen(true);
+    }
+  };
+
+  // Get redirect URL for login - include pathname and search params
+  const redirectUrl = React.useMemo(() => {
+    const search = searchParams.toString();
+    return search ? `${pathname}?${search}` : pathname;
+  }, [pathname, searchParams]);
+
+  // Clone children to add onClick handler
+  const triggerElement = React.isValidElement(children) ? (
+    React.cloneElement(children as React.ReactElement<any>, {
+      onClick: (e: React.MouseEvent) => {
+        // Call original onClick if it exists
+        if ((children as React.ReactElement<any>).props.onClick) {
+          (children as React.ReactElement<any>).props.onClick(e);
+        }
+        handleTriggerClick(e);
+      },
+    })
+  ) : (
+    <div onClick={handleTriggerClick}>{children}</div>
+  );
+
   if (variant === "dialog") {
     return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent
-          className={`max-w-md w-[95%] overflow-y-auto max-h-[500px] rounded-lg ${className}`}
-          showCloseButton={false}
-        >
-          <DialogHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <DialogTitle className="text-xl font-bold text-dark-blue">
-                {t.favorites?.myFavorites || "Favorites"}
-              </DialogTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setOpen(false)}
-                className="h-8 w-8 p-0 hover:bg-gray-100"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </DialogHeader>
-          {content}
-        </DialogContent>
-      </Dialog>
+      <>
+        {triggerElement}
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent
+            className={`max-w-md w-[95%] overflow-y-auto max-h-[500px] rounded-lg ${className}`}
+            showCloseButton={false}
+          >
+            <DialogHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <DialogTitle className="text-xl font-bold text-dark-blue">
+                  {t.favorites?.myFavorites || "Favorites"}
+                </DialogTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setOpen(false)}
+                  className="h-8 w-8 p-0 hover:bg-gray-100"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </DialogHeader>
+            {content}
+          </DialogContent>
+        </Dialog>
+        <LoginRequiredDialog
+          open={isLoginDialogOpen}
+          onOpenChange={setIsLoginDialogOpen}
+          redirectUrl={redirectUrl}
+          message="You need to be logged in to save items to collections. Would you like to login?"
+        />
+      </>
     );
   }
 

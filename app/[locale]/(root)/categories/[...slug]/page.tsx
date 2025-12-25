@@ -33,7 +33,6 @@ export default function CategoryListingPage() {
   const [filters, setFilters] = useState<
     Record<string, string | number | string[] | undefined>
   >({});
-  console.log("filters: ", filters);
   const [view, setView] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState("default");
   const [currentPage, setCurrentPage] = useState(1);
@@ -142,7 +141,7 @@ export default function CategoryListingPage() {
     : [];
 
   const currentCategory = slugSegments[slugSegments.length - 1] || "";
-  const categoryName = currentCategory.replace(/-/g, " ") || "Category";
+  const categoryName = decodeURIComponent(currentCategory) || "Category";
 
   const formatLabel = (segment: string) =>
     segment
@@ -158,7 +157,7 @@ export default function CategoryListingPage() {
 
       return {
         id: path || `segment-${index}`,
-        label: formatLabel(segment),
+        label: formatLabel(decodeURIComponent(segment)),
         href,
         isActive: index === slugSegments.length - 1,
       };
@@ -170,7 +169,7 @@ export default function CategoryListingPage() {
     const apiParams: AdFilters = {
       page: currentPage,
       limit: ITEMS_PER_PAGE,
-      category: currentCategory,
+      category: categoryName,
     };
 
     // Add search query if present

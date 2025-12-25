@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { SearchableDropdownInput } from "./SearchableDropdownInput";
 import { useEmirates, useAreas } from "@/hooks/useLocations";
+import { useLocale } from "@/hooks/useLocale";
 
 declare global {
   interface Window {
@@ -56,11 +57,15 @@ export const MapComponent = ({
 
   // Use location hooks
   const { data: emirates = [], isLoading: isLoadingEmirates } = useEmirates();
-  const { data: areas = [], isLoading: isLoadingAreas } = useAreas(selectedEmirate);
-  
+  const { data: areas = [], isLoading: isLoadingAreas } =
+    useAreas(selectedEmirate);
+  const { locale } = useLocale();
+
   // Store areas by emirate
-  const [emirateAreas, setEmirateAreas] = useState<Record<string, string[]>>({});
-  
+  const [emirateAreas, setEmirateAreas] = useState<Record<string, string[]>>(
+    {}
+  );
+
   // Update emirateAreas when areas data changes
   useEffect(() => {
     if (selectedEmirate && areas.length > 0) {
@@ -70,7 +75,7 @@ export const MapComponent = ({
       }));
     }
   }, [selectedEmirate, areas]);
-  
+
   const loadingLocations = isLoadingEmirates || isLoadingAreas;
   const [quickLocations, setQuickLocations] = useState<
     { name: string; coordinates: { lat: number; lng: number } }[]
@@ -170,16 +175,15 @@ export const MapComponent = ({
     }
   }, []);
 
-
   // Get areas for selected emirate (from hook or cached)
   const availableAreas = selectedEmirate
-    ? (emirateAreas[selectedEmirate] || areas)
+    ? emirateAreas[selectedEmirate] || areas
     : [];
 
   // Convert to options format for SearchableDropdownInput
   const emirateOptions = emirates.map((emirate) => ({
-    value: emirate,
-    label: emirate,
+    value: emirate.emirate, // Use English name as value for consistency
+    label: locale === "ar" ? emirate.emirateAr : emirate.emirate, // Show localized label
   }));
 
   const areaOptions = availableAreas.map((area) => ({
@@ -199,35 +203,38 @@ export const MapComponent = ({
 
     addressComponents.forEach((component: any) => {
       const types = component.types;
-      
+
       // Street address
       if (types.includes("street_number")) {
         components.street = component.long_name;
       } else if (types.includes("route")) {
-        components.street = components.street 
+        components.street = components.street
           ? `${components.street} ${component.long_name}`
           : component.long_name;
       }
-      
+
       // City
       if (types.includes("locality")) {
         components.city = component.long_name;
       } else if (types.includes("sublocality") && !components.city) {
         components.city = component.long_name;
-      } else if (types.includes("administrative_area_level_2") && !components.city) {
+      } else if (
+        types.includes("administrative_area_level_2") &&
+        !components.city
+      ) {
         components.city = component.long_name;
       }
-      
+
       // State/Province/Emirate
       if (types.includes("administrative_area_level_1")) {
         components.state = component.long_name;
       }
-      
+
       // Country
       if (types.includes("country")) {
         components.country = component.long_name;
       }
-      
+
       // Postal code
       if (types.includes("postal_code")) {
         components.zipCode = component.long_name;
@@ -318,7 +325,6 @@ export const MapComponent = ({
     loadGoogleMaps();
   }, []);
 
-
   // Fetch quick locations when Google Maps is loaded (can work without map instance)
   useEffect(() => {
     if (!isLoading && window.google) {
@@ -329,7 +335,7 @@ export const MapComponent = ({
   // Ensure autocomplete is initialized when input is ready
   useEffect(() => {
     // Check if all prerequisites are met
-    const canInitialize = 
+    const canInitialize =
       !isLoading &&
       window.google &&
       window.google.maps &&
@@ -369,89 +375,89 @@ export const MapComponent = ({
         autocomplete.bindTo("bounds", mapInstanceRef.current);
 
         autocomplete.addListener("place_changed", () => {
-            const place = autocomplete.getPlace();
-            const map = mapInstanceRef.current;
+          const place = autocomplete.getPlace();
+          const map = mapInstanceRef.current;
 
-            if (!place.geometry || !place.geometry.location || !map) {
-              console.warn("No geometry found for the selected place");
-              return;
-            }
+          if (!place.geometry || !place.geometry.location || !map) {
+            console.warn("No geometry found for the selected place");
+            return;
+          }
 
-            const location = place.geometry.location;
-            const lat = location.lat();
-            const lng = location.lng();
+          const location = place.geometry.location;
+          const lat = location.lat();
+          const lng = location.lng();
 
-            if (place.geometry.viewport) {
-              map.fitBounds(place.geometry.viewport);
-            } else {
-              map.setCenter({ lat, lng });
-              map.setZoom(15);
-            }
+          if (place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+          } else {
+            map.setCenter({ lat, lng });
+            map.setZoom(15);
+          }
 
-            if (markerRef.current) {
-              markerRef.current.setMap(null);
-            }
+          if (markerRef.current) {
+            markerRef.current.setMap(null);
+          }
 
-            const newMarker = new window.google.maps.Marker({
-              position: { lat, lng },
-              map: map,
-              draggable: !disabled,
-              title: place.name || place.formatted_address,
-              animation: window.google.maps.Animation.DROP,
+          const newMarker = new window.google.maps.Marker({
+            position: { lat, lng },
+            map: map,
+            draggable: !disabled,
+            title: place.name || place.formatted_address,
+            animation: window.google.maps.Animation.DROP,
+          });
+
+          markerRef.current = newMarker;
+
+          if (!disabled) {
+            newMarker.addListener("dragend", () => {
+              const position = newMarker.getPosition();
+              if (position) {
+                getAddressFromCoordinates(position.lat(), position.lng());
+              }
             });
+          }
 
-            markerRef.current = newMarker;
+          setSearchQuery(place.formatted_address || place.name || "");
 
-            if (!disabled) {
-              newMarker.addListener("dragend", () => {
-                const position = newMarker.getPosition();
-                if (position) {
-                  getAddressFromCoordinates(position.lat(), position.lng());
-                }
+          if (place.address_components) {
+            const addressComponents = place.address_components;
+            const extractedComponents =
+              extractAddressComponents(addressComponents);
+
+            const emirateComponent = addressComponents.find((component: any) =>
+              component.types.includes("administrative_area_level_1")
+            );
+            if (emirateComponent) {
+              setSelectedEmirate(emirateComponent.long_name);
+            }
+
+            const areaComponent =
+              addressComponents.find((component: any) =>
+                component.types.includes("locality")
+              ) ||
+              addressComponents.find((component: any) =>
+                component.types.includes("sublocality")
+              );
+            if (areaComponent) {
+              setSelectedArea(areaComponent.long_name);
+            }
+
+            if (onLocationSelect) {
+              onLocationSelect({
+                address: place.formatted_address || place.name || "",
+                coordinates: { lat, lng },
+                ...extractedComponents,
               });
             }
-
-            setSearchQuery(place.formatted_address || place.name || "");
-
-            if (place.address_components) {
-              const addressComponents = place.address_components;
-              const extractedComponents = extractAddressComponents(addressComponents);
-              
-              const emirateComponent = addressComponents.find(
-                (component: any) =>
-                  component.types.includes("administrative_area_level_1")
-              );
-              if (emirateComponent) {
-                setSelectedEmirate(emirateComponent.long_name);
-              }
-
-              const areaComponent =
-                addressComponents.find((component: any) =>
-                  component.types.includes("locality")
-                ) ||
-                addressComponents.find((component: any) =>
-                  component.types.includes("sublocality")
-                );
-              if (areaComponent) {
-                setSelectedArea(areaComponent.long_name);
-              }
-
-              if (onLocationSelect) {
-                onLocationSelect({
-                  address: place.formatted_address || place.name || "",
-                  coordinates: { lat, lng },
-                  ...extractedComponents,
-                });
-              }
-            } else {
-              if (onLocationSelect) {
-                onLocationSelect({
-                  address: place.formatted_address || place.name || "",
-                  coordinates: { lat, lng },
-                });
-              }
+          } else {
+            if (onLocationSelect) {
+              onLocationSelect({
+                address: place.formatted_address || place.name || "",
+                coordinates: { lat, lng },
+              });
             }
-          });
+          }
+        });
 
         autocompleteRef.current = autocomplete;
         console.log("Autocomplete initialized successfully");
@@ -468,14 +474,14 @@ export const MapComponent = ({
 
     // Try immediate initialization first
     initializeAutocomplete();
-    
+
     // Also try after a short delay as fallback
     const timer = setTimeout(() => {
       if (!autocompleteRef.current && searchInputRef.current) {
         initializeAutocomplete();
       }
     }, 200);
-    
+
     // Cleanup function
     return () => {
       clearTimeout(timer);
@@ -486,7 +492,13 @@ export const MapComponent = ({
         autocompleteRef.current = null;
       }
     };
-  }, [isLoading, disabled, onLocationSelect, getAddressFromCoordinates, extractAddressComponents]);
+  }, [
+    isLoading,
+    disabled,
+    onLocationSelect,
+    getAddressFromCoordinates,
+    extractAddressComponents,
+  ]);
 
   // Initialize map and autocomplete (FIXED - removed marker from dependencies)
   useEffect(() => {
@@ -592,8 +604,9 @@ export const MapComponent = ({
 
               if (place.address_components) {
                 const addressComponents = place.address_components;
-                const extractedComponents = extractAddressComponents(addressComponents);
-                
+                const extractedComponents =
+                  extractAddressComponents(addressComponents);
+
                 const emirateComponent = addressComponents.find(
                   (component: any) =>
                     component.types.includes("administrative_area_level_1")
@@ -991,7 +1004,6 @@ export const MapComponent = ({
     return (
       <div className={cn("w-full space-y-4", className)}>
         <div className="flex items-end justify-end">
-         
           <Button
             variant={showMap ? "primary" : "ghost"}
             icon={<Map className="w-4 h-4" />}

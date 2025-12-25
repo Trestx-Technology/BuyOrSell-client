@@ -4,7 +4,11 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useUpdateOrganization, useMyOrganization, useOrganizationById } from "@/hooks/useOrganizations";
+import {
+  useUpdateOrganization,
+  useMyOrganization,
+  useOrganizationById,
+} from "@/hooks/useOrganizations";
 import { UpdateOrganizationPayload } from "@/interfaces/organization.types";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -12,7 +16,10 @@ import { FormField } from "../../post-ad/details/_components/FormField";
 import { TextInput } from "../../post-ad/details/_components/TextInput";
 import { SelectInput } from "../../post-ad/details/_components/SelectInput";
 import { DatePicker } from "../_components/DatePicker";
-import { SingleImageUpload, SingleImageItem } from "../_components/SingleImageUpload";
+import {
+  SingleImageUpload,
+  SingleImageItem,
+} from "../_components/SingleImageUpload";
 import { BusinessHoursInput } from "../_components/BusinessHoursInput";
 import { CertificatesInput } from "../_components/CertificatesInput";
 import { ChipsInput } from "@/components/ui/chips-input";
@@ -29,7 +36,11 @@ import {
   OrganizationStatus,
 } from "@/constants/enums";
 import { useEmirates } from "@/hooks/useLocations";
-import { organizationSchema, type OrganizationFormData } from "@/schemas/organization.schema";
+import {
+  organizationSchema,
+  type OrganizationFormData,
+} from "@/schemas/organization.schema";
+import { useLocale } from "@/hooks/useLocale";
 import { OrganizationFormSkeleton } from "../_components/OrganizationFormSkeleton";
 
 const EditOrganizationPage = () => {
@@ -38,20 +49,26 @@ const EditOrganizationPage = () => {
   const organizationId = params.id as string;
   const { session } = useAuthStore((state) => state);
   const updateOrganizationMutation = useUpdateOrganization();
-  const { data: organizationsData, isLoading: isLoadingOrgs } = useMyOrganization();
+  const { data: organizationsData, isLoading: isLoadingOrgs } =
+    useMyOrganization();
   const organizations = organizationsData?.data || [];
-  
-  const { data: organizationData, isLoading: isLoadingOrg, error: orgError } = useOrganizationById(organizationId);
+
+  const {
+    data: organizationData,
+    isLoading: isLoadingOrg,
+    error: orgError,
+  } = useOrganizationById(organizationId);
   // useOrganizationById returns an object directly in data, not an array
   // The API response structure is { data: Organization } not { data: Organization[] }
   const organization = organizationData?.data as Organization | undefined;
   const { data: emirates = [], isLoading: isLoadingEmirates } = useEmirates();
+  const { locale } = useLocale();
   const [logoImage, setLogoImage] = useState<SingleImageItem | null>(null);
-  
+
   // Transform emirates array to SelectInput format
-  const emirateOptions = emirates.map((emirate: string) => ({
-    value: emirate,
-    label: emirate,
+  const emirateOptions = emirates.map((emirate) => ({
+    value: emirate.emirate, // Use English name as value for consistency
+    label: locale === "ar" ? emirate.emirateAr : emirate.emirate, // Show localized label
   }));
 
   const {
@@ -109,33 +126,41 @@ const EditOrganizationPage = () => {
       }
 
       // Transform business hours from API format to form format
-      const businessHours = organization.businessHours?.map((bh) => ({
-        day: typeof bh.day === "string" ? parseInt(bh.day) : (bh.day as number),
-        open: bh.open,
-        close: bh.close,
-        closed: bh.isClosed || false,
-        allDay: false, // API doesn't have allDay, default to false
-      })) || [];
+      const businessHours =
+        organization.businessHours?.map((bh) => ({
+          day:
+            typeof bh.day === "string" ? parseInt(bh.day) : (bh.day as number),
+          open: bh.open,
+          close: bh.close,
+          closed: bh.isClosed || false,
+          allDay: false, // API doesn't have allDay, default to false
+        })) || [];
 
       // Transform certificates from API format to form format
-      const certificates = organization.certificates?.map((cert) => ({
-        name: cert.name,
-        issuer: cert.issuedBy,
-        issuedOn: cert.issueDate,
-        expiresOn: cert.expiryDate || "",
-        fileId: "",
-        url: cert.certificateUrl || "",
-      })) || [];
+      const certificates =
+        organization.certificates?.map((cert) => ({
+          name: cert.name,
+          issuer: cert.issuedBy,
+          issuedOn: cert.issueDate,
+          expiresOn: cert.expiryDate || "",
+          fileId: "",
+          url: cert.certificateUrl || "",
+        })) || [];
 
       // Ensure organization type matches enum value exactly
       const orgType = organization.type?.toUpperCase();
-      const validType = orgType && Object.values(OrganizationType).includes(orgType as OrganizationType)
-        ? (orgType as OrganizationType)
-        : undefined;
+      const validType =
+        orgType &&
+        Object.values(OrganizationType).includes(orgType as OrganizationType)
+          ? (orgType as OrganizationType)
+          : undefined;
 
       // Ensure emirate value matches one of the available options (case-insensitive match)
       const validEmirate = organization.emirate
-        ? emirates.find(e => e.toLowerCase() === organization.emirate?.toLowerCase()) || ""
+        ? emirates.find(
+            (e) =>
+              e.emirate.toLowerCase() === organization.emirate?.toLowerCase()
+          )?.emirate || ""
         : "";
 
       reset({
@@ -172,22 +197,33 @@ const EditOrganizationPage = () => {
     if (organization && !isLoadingEmirates && emirates.length > 0) {
       // Ensure organization type matches enum value exactly
       const orgType = organization.type?.toUpperCase();
-      const validType = orgType && Object.values(OrganizationType).includes(orgType as OrganizationType)
-        ? (orgType as OrganizationType)
-        : undefined;
+      const validType =
+        orgType &&
+        Object.values(OrganizationType).includes(orgType as OrganizationType)
+          ? (orgType as OrganizationType)
+          : undefined;
 
       // Ensure emirate value matches one of the available options (case-insensitive match)
       const validEmirate = organization.emirate
-        ? emirates.find(e => e.toLowerCase() === organization.emirate?.toLowerCase()) || ""
+        ? emirates.find(
+            (e) =>
+              e.emirate.toLowerCase() === organization.emirate?.toLowerCase()
+          )?.emirate || ""
         : "";
 
       // Use setTimeout to ensure Select components have rendered with options
       const timer = setTimeout(() => {
         if (validType) {
-          setValue("type", validType, { shouldValidate: false, shouldDirty: false });
+          setValue("type", validType, {
+            shouldValidate: false,
+            shouldDirty: false,
+          });
         }
         if (validEmirate) {
-          setValue("emirate", validEmirate, { shouldValidate: false, shouldDirty: false });
+          setValue("emirate", validEmirate, {
+            shouldValidate: false,
+            shouldDirty: false,
+          });
         }
       }, 0);
 
@@ -226,33 +262,44 @@ const EditOrganizationPage = () => {
         contactPhone: data.contactPhone,
         website: data.website || undefined,
         logoUrl: data.logoUrl || undefined,
-        businessHours: data.businessHours?.map((bh) => ({
-          day: bh.day.toString(),
-          open: bh.open,
-          close: bh.close,
-          isClosed: bh.closed,
-          allDay: bh.allDay,
-        })) || undefined,
-        certificates: data.certificates?.map((cert) => ({
-          name: cert.name,
-          issuedBy: cert.issuer,
-          issueDate: cert.issuedOn,
-          expiryDate: cert.expiresOn || undefined,
-          certificateUrl: cert.url || undefined,
-        })) || undefined,
-        languages: data.languages && data.languages.length > 0 ? data.languages : undefined,
+        businessHours:
+          data.businessHours?.map((bh) => ({
+            day: bh.day.toString(),
+            open: bh.open,
+            close: bh.close,
+            isClosed: bh.closed,
+            allDay: bh.allDay,
+          })) || undefined,
+        certificates:
+          data.certificates?.map((cert) => ({
+            name: cert.name,
+            issuedBy: cert.issuer,
+            issueDate: cert.issuedOn,
+            expiryDate: cert.expiresOn || undefined,
+            certificateUrl: cert.url || undefined,
+          })) || undefined,
+        languages:
+          data.languages && data.languages.length > 0
+            ? data.languages
+            : undefined,
         brands: data.brands && data.brands.length > 0 ? data.brands : undefined,
-        dealershipCodes: data.dealershipCodes && data.dealershipCodes.length > 0 ? data.dealershipCodes : undefined,
+        dealershipCodes:
+          data.dealershipCodes && data.dealershipCodes.length > 0
+            ? data.dealershipCodes
+            : undefined,
       };
 
-      await updateOrganizationMutation.mutateAsync({ id: organizationId, data: payload });
-     
+      await updateOrganizationMutation.mutateAsync({
+        id: organizationId,
+        data: payload,
+      });
+
       toast.success("Organization updated successfully!");
       router.push("/organizations");
     } catch (error: unknown) {
-      const errorMessage = 
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message 
-        || "Failed to update organization";
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Failed to update organization";
       toast.error(errorMessage);
     }
   };
@@ -268,10 +315,10 @@ const EditOrganizationPage = () => {
   const getStatusBadge = (status?: string) => {
     if (!status) return null;
     const statusLower = status.toLowerCase() as OrganizationStatus;
-    
+
     const config = ORGANIZATION_STATUS_CONFIG[statusLower];
     if (!config) return null;
-    
+
     return (
       <div className={`px-2 py-1 ${config.bgColor} rounded-md`}>
         <Typography
@@ -283,7 +330,6 @@ const EditOrganizationPage = () => {
       </div>
     );
   };
-
 
   if (isLoadingOrg) {
     return <OrganizationFormSkeleton />;
@@ -303,7 +349,8 @@ const EditOrganizationPage = () => {
             variant="sm-regular-inter"
             className="text-sm text-[#8A8A8A] mb-4"
           >
-            The organization you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
+            The organization you&apos;re looking for doesn&apos;t exist or you
+            don&apos;t have permission to view it.
           </Typography>
           <Link href="/organizations">
             <Button variant="filled" size="sm">
@@ -345,7 +392,10 @@ const EditOrganizationPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Form Section */}
         <div className="lg:col-span-2">
-          <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-lg border border-[#E5E5E5] p-6 space-y-6">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="bg-white rounded-lg border border-[#E5E5E5] p-6 space-y-6"
+          >
             {/* Basic Information */}
             <div>
               <Typography
@@ -366,12 +416,12 @@ const EditOrganizationPage = () => {
                       name="type"
                       control={control}
                       render={({ field }) => (
-                          <SelectInput
-                            value={field.value}
-                            onChange={field.onChange}
-                            options={ORGANIZATION_TYPE_OPTIONS}
-                            placeholder="Select organization type"
-                          />
+                        <SelectInput
+                          value={field.value}
+                          onChange={field.onChange}
+                          options={ORGANIZATION_TYPE_OPTIONS}
+                          placeholder="Select organization type"
+                        />
                       )}
                     />
                   </FormField>
@@ -407,13 +457,17 @@ const EditOrganizationPage = () => {
                     name="emirate"
                     control={control}
                     render={({ field }) => (
-                        <SelectInput
-                          value={field.value}
-                          onChange={field.onChange}
-                          options={emirateOptions}
-                          placeholder={isLoadingEmirates ? "Loading emirates..." : "Select emirate"}
-                          disabled={isLoadingEmirates}
-                        />
+                      <SelectInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        options={emirateOptions}
+                        placeholder={
+                          isLoadingEmirates
+                            ? "Loading emirates..."
+                            : "Select emirate"
+                        }
+                        disabled={isLoadingEmirates}
+                      />
                     )}
                   />
                 </FormField>
@@ -926,7 +980,9 @@ const EditOrganizationPage = () => {
                           variant="xs-semibold-inter"
                           className="text-purple font-semibold text-xs"
                         >
-                          {(org.tradeName || org.legalName || "O").charAt(0).toUpperCase()}
+                          {(org.tradeName || org.legalName || "O")
+                            .charAt(0)
+                            .toUpperCase()}
                         </Typography>
                       </div>
                     )}
@@ -949,11 +1005,7 @@ const EditOrganizationPage = () => {
                 ))}
                 {organizations.length > 5 && (
                   <Link href="/organizations">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full mt-2"
-                    >
+                    <Button variant="outline" size="sm" className="w-full mt-2">
                       View All ({organizations.length})
                     </Button>
                   </Link>
@@ -968,4 +1020,3 @@ const EditOrganizationPage = () => {
 };
 
 export default EditOrganizationPage;
-

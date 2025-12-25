@@ -28,13 +28,16 @@ import { useAuthStore } from '@/stores/authStore';
 // COLLECTION QUERY HOOKS
 // ============================================================================
 
-export const useGetMyCollections = (params?: MyCollectionsParams) => {
+export const useGetMyCollections = (
+  params?: MyCollectionsParams,
+  options?: { enabled?: boolean }
+) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   
   return useQuery<CollectionsListResponse, Error>({
     queryKey: [...collectionsQueries.getMyCollections.Key, params],
     queryFn: () => getMyCollections(params),
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && (options?.enabled !== false),
   });
 };
 
