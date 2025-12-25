@@ -4,7 +4,7 @@ import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
-import { FilterConfig } from "@/app/(root)/categories/_components/ads-filter";
+import { FilterConfig } from "@/app/[locale]/(root)/categories/_components/ads-filter";
 import { Typography } from "@/components/typography";
 import { Bell, ChevronLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";

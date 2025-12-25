@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { Typography } from "@/components/typography";
-import ListingCard from "@/app/(root)/categories/_components/ListingCard";
 import { mockAds } from "@/constants/sample-listings";
 import SortAndViewControls from "@/app/(root)/post-ad/_components/SortAndViewControls";
 import { ProductExtraFields } from "@/interfaces/ad";
+import ListingCard from "@/app/[locale]/(root)/categories/_components/ListingCard";
 
 // Sort options for seller listings
 const sortOptions = [
@@ -93,7 +93,7 @@ export default function SellerListings({ sellerId }: SellerListingsProps) {
                 value: value as string | number,
               }))
             : [];
-          
+
           return (
             <ListingCard
               key={ad.id}

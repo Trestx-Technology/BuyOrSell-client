@@ -8,6 +8,7 @@ import ListingCard from "@/components/global/listing-card";
 import { useRouter } from "nextjs-toploader/app";
 import { AD } from "@/interfaces/ad";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
+import { useLocale } from "@/hooks/useLocale";
 
 export interface ProductsGridProps {
   className?: string;
@@ -30,6 +31,7 @@ export default function ProductsGrid({
   onFavoriteToggle,
   gridClassName,
 }: ProductsGridProps) {
+  const { locale } = useLocale();
   // Animation variants for staggered reveal
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -68,8 +70,7 @@ export default function ProductsGrid({
   const router = useRouter();
 
   // Transform ads to listing card props
-  const listingCards = ads
-    .map(transformAdToListingCard)
+  const listingCards = ads.map((ad) => transformAdToListingCard(ad, locale));
 
   return (
     <motion.div
@@ -93,18 +94,19 @@ export default function ProductsGrid({
           </motion.button>
         )}
 
-          <motion.h1
-            variants={itemVariants}
-            className="text-md font-normal text-[#1D2939] mt-4 font-inter"
-          >
-            {title}
-          </motion.h1>
-
+        <motion.h1
+          variants={itemVariants}
+          className="text-md font-normal text-[#1D2939] mt-4 font-inter"
+        >
+          {title}
+        </motion.h1>
       </div>
 
       {/* Products Grid */}
       {isLoading ? (
-        <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-3", gridClassName)}>
+        <div
+          className={cn("grid grid-cols-1 md:grid-cols-2 gap-3", gridClassName)}
+        >
           {[...Array(6)].map((_, index) => (
             <div
               key={index}

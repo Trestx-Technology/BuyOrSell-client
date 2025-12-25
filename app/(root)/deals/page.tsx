@@ -5,10 +5,10 @@ import HotDealsCarousel from "./_components/hot-deals-banners-carousel";
 import { ChevronLeft, Search } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Input } from "@/components/ui/input";
-import MobileHorizontalListViewCard from "../categories/_components/MobileHorizontalListViewCard";
-import HorizontalListingCard from "../categories/_components/desktop-horizontal-list-card";
+import MobileHorizontalListViewCard from "@/app/[locale]/(root)/categories/_components/MobileHorizontalListViewCard";
+import HorizontalListingCard from "@/app/[locale]/(root)/categories/_components/desktop-horizontal-list-card";
 import HotDealsListingCard from "@/components/global/hot-deals-listing-card";
-import AdCard from "../categories/_components/AdCard";
+import AdCard from "@/app/[locale]/(root)/categories/_components/AdCard";
 import SortAndViewControls, {
   ViewMode,
 } from "../post-ad/_components/SortAndViewControls";

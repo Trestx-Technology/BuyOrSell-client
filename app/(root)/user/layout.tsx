@@ -1,7 +1,6 @@
 import Navbar from "@/components/global/Navbar";
 import React from "react";
-import CategoryNav from "../_components/CategoryNav";
-
+import CategoryNav from "@/app/[locale]/(root)/_components/CategoryNav";
 const UserLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <main className="bg-gray-100 relative flex flex-col h-dvh">
