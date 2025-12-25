@@ -15,9 +15,9 @@ import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import SortAndViewControls, {
   ViewMode,
 } from "@/app/(root)/post-ad/_components/SortAndViewControls";
-import MobileHorizontalListViewCard from "@/app/(root)/categories/_components/MobileHorizontalListViewCard";
-import HorizontalListingCard from "@/app/(root)/categories/_components/desktop-horizontal-list-card";
 import Image from "next/image";
+import HorizontalListingCard from "../../categories/_components/desktop-horizontal-list-card";
+import MobileHorizontalListViewCard from "../../categories/_components/MobileHorizontalListViewCard";
 
 // Sort options
 

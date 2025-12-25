@@ -9,36 +9,24 @@ import { useLocale } from "@/hooks/useLocale";
 import { CreateCollectionDialog } from "./_components/CreateCollectionDialog";
 import CollectionCard from "./_components/CollectionCard";
 
-import { cn } from "@/lib/utils";
-import React from "react";
-import ListingCard from "@/components/global/listing-card";
-import { ProductExtraFields, AD } from "@/interfaces/ad";
+import { AD } from "@/interfaces/ad";
 import { useGetMyCollections } from "@/hooks/useCollections";
 import { useQueryClient } from "@tanstack/react-query";
 import { collectionsQueries } from "@/app/api/collections/index";
-import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
-import SortAndViewControls, {
-  ViewMode,
-} from "@/app/(root)/post-ad/_components/SortAndViewControls";
-import HorizontalListingCard from "@/app/(root)/categories/_components/desktop-horizontal-list-card";
-import MobileHorizontalListViewCard from "@/app/(root)/categories/_components/MobileHorizontalListViewCard";
 
 export default function FavoritesPage() {
   const { t } = useLocale();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [view, setView] = useState<ViewMode>("grid");
-  const [sortBy, setSortBy] = useState("default");
-  const [searchQuery, setSearchQuery] = useState("");
 
   // Sort options
-  const sortOptions = [
-    { value: "default", label: t.favorites.sort.default },
-    { value: "newest", label: t.favorites.sort.newest },
-    { value: "oldest", label: t.favorites.sort.oldest },
-    { value: "price-asc", label: t.favorites.sort.priceLowToHigh },
-    { value: "price-desc", label: t.favorites.sort.priceHighToLow },
-  ];
+  // const sortOptions = [
+  //   { value: "default", label: t.favorites.sort.default },
+  //   { value: "newest", label: t.favorites.sort.newest },
+  //   { value: "oldest", label: t.favorites.sort.oldest },
+  //   { value: "price-asc", label: t.favorites.sort.priceLowToHigh },
+  //   { value: "price-desc", label: t.favorites.sort.priceHighToLow },
+  // ];
   // Fetch user's collections
   const { data: collectionsResponse, isLoading: isLoadingCollections } =
     useGetMyCollections();
@@ -78,41 +66,41 @@ export default function FavoritesPage() {
   }, [queryClient]);
 
   // Filter and sort favorites
-  const filteredAds = useMemo(() => {
-    return allFavorites.filter((ad: AD) => {
-      if (
-        searchQuery &&
-        !ad.title?.toLowerCase().includes(searchQuery.toLowerCase())
-      ) {
-        return false;
-      }
-      return true;
-    });
-  }, [allFavorites, searchQuery]);
+  // const filteredAds = useMemo(() => {
+  //   return allFavorites.filter((ad: AD) => {
+  //     if (
+  //       searchQuery &&
+  //       !ad.title?.toLowerCase().includes(searchQuery.toLowerCase())
+  //     ) {
+  //       return false;
+  //     }
+  //     return true;
+  //   });
+  // }, [allFavorites, searchQuery]);
 
-  const sortedAds = useMemo(() => {
-    const ads = [...filteredAds];
-    switch (sortBy) {
-      case "newest":
-        return ads.sort(
-          (a, b) =>
-            new Date(b.createdAt || 0).getTime() -
-            new Date(a.createdAt || 0).getTime()
-        );
-      case "oldest":
-        return ads.sort(
-          (a, b) =>
-            new Date(a.createdAt || 0).getTime() -
-            new Date(b.createdAt || 0).getTime()
-        );
-      case "price-asc":
-        return ads.sort((a, b) => (a.price || 0) - (b.price || 0));
-      case "price-desc":
-        return ads.sort((a, b) => (b.price || 0) - (a.price || 0));
-      default:
-        return ads;
-    }
-  }, [filteredAds, sortBy]);
+  // const sortedAds = useMemo(() => {
+  //   const ads = [...filteredAds];
+  //   switch (sortBy) {
+  //     case "newest":
+  //       return ads.sort(
+  //         (a, b) =>
+  //           new Date(b.createdAt || 0).getTime() -
+  //           new Date(a.createdAt || 0).getTime()
+  //       );
+  //     case "oldest":
+  //       return ads.sort(
+  //         (a, b) =>
+  //           new Date(a.createdAt || 0).getTime() -
+  //           new Date(b.createdAt || 0).getTime()
+  //       );
+  //     case "price-asc":
+  //       return ads.sort((a, b) => (a.price || 0) - (b.price || 0));
+  //     case "price-desc":
+  //       return ads.sort((a, b) => (b.price || 0) - (a.price || 0));
+  //     default:
+  //       return ads;
+  //   }
+  // }, [filteredAds, sortBy]);
 
   const isLoading = isLoadingCollections;
 
