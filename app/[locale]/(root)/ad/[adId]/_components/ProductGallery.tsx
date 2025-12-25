@@ -3,20 +3,34 @@
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Camera, ImagePlusIcon, Heart, Share2, Repeat, Info } from "lucide-react";
-import CollectionDrawer from "@/app/(root)/favorites/_components/collection-drawer";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Camera,
+  ImagePlusIcon,
+  Heart,
+  Share2,
+  Repeat,
+  Info,
+} from "lucide-react";
+import CollectionDrawer from "../../../favorites/_components/collection-drawer";
 import { AD } from "@/interfaces/ad";
 import GalleryDialog, { MediaItem } from "./GalleryDialog";
 import { ShareDialog } from "@/components/ui/share-dialog";
 import { ExchangeableAdWrapper } from "./ExchangeableAdWrapper";
 import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ProductGalleryProps {
   ad: AD;
 }
 
-const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => { 
+const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isExchangeDialogOpen, setIsExchangeDialogOpen] = useState(false);
@@ -47,17 +61,18 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
 
   // Check if ad is exchangeable and get exchange data
   const isExchangeable = ad.upForExchange || ad.isExchangable || false;
-  
+
   // Get exchange data from ad.exchangeWith
   const exchangeData = useMemo(() => {
     if (!isExchangeable || !ad.exchangeWith) return null;
-    
+
     const exchangeWith = ad.exchangeWith;
-    
+
     return {
-      image: exchangeWith.imageUrl  || "/placeholder.svg",
+      image: exchangeWith.imageUrl || "/placeholder.svg",
       title: exchangeWith.title || "Item for Exchange",
-      description: exchangeWith.description || "Looking for items of similar value",
+      description:
+        exchangeWith.description || "Looking for items of similar value",
     };
   }, [ad, isExchangeable]);
 
@@ -130,8 +145,8 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
             )}
 
             {/* Exchange Available Button */}
-            <div className="flex items-center gap-2 absolute top-8 lg:top-4 right-4">
-              {isExchangeable && exchangeData && (
+            {isExchangeable && exchangeData && (
+              <div className="flex items-center gap-2 absolute top-8 lg:top-4 right-4">
                 <ResponsiveDialogDrawer
                   open={isExchangeDialogOpen}
                   onOpenChange={setIsExchangeDialogOpen}
@@ -148,30 +163,30 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                 >
                   <ExchangeableAdWrapper exchangeAd={exchangeData} />
                 </ResponsiveDialogDrawer>
-              )}
-              <TooltipProvider delayDuration={100}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 rounded-full"
-                    >
-                      <Info className="h-4 w-4 text-muted-foreground" />
-                      <span className="sr-only">What is Exchange?</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className="max-w-xs">
-                    <p className="text-pretty">
-                      Exchange allows you to swap this item with another
-                      user&apos;s item of similar value. Both parties agree to
-                      trade their items directly, creating a win-win transaction
-                      without money changing hands.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 rounded-full"
+                      >
+                        <Info className="h-4 w-4 text-muted-foreground" />
+                        <span className="sr-only">What is Exchange?</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="max-w-xs">
+                      <p className="text-pretty">
+                        Exchange allows you to swap this item with another
+                        user&apos;s item of similar value. Both parties agree to
+                        trade their items directly, creating a win-win
+                        transaction without money changing hands.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
             {/* Navigation Arrows */}
             {images.length > 1 && (
               <>
@@ -233,4 +248,3 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
 };
 
 export default ProductGallery;
-

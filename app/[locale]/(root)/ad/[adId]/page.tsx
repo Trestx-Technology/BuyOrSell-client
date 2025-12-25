@@ -14,12 +14,12 @@ import LocationSection from "./_components/LocationSection";
 import ReviewsSection from "./_components/ReviewsSection";
 import SimilarAds from "./_components/SimilarAds";
 import ProductInfoCard from "./_components/ProductInfoCard";
-import AdCard from "@/app/(root)/categories/_components/AdCard";
 import ProductInfoTabs, { TabType } from "./_components/ProductInfoTabs";
 import ProductInfoCardMobile from "./_components/ProductInfoCardMobile";
 import AdDetailSkeleton from "./_components/AdDetailSkeleton";
 import { ErrorCard } from "@/components/ui/error-card";
 import { useLocale } from "@/hooks/useLocale";
+import AdCard from "../../categories/_components/AdCard";
 
 export default function AdDetailPage() {
   const { adId } = useParams();
@@ -116,7 +116,7 @@ export default function AdDetailPage() {
 
             <ProductInfoTabs
               onTabChange={(tab) => setActiveTab(tab)}
-              initialTab="specifications"
+              initialTab="reviews"
             />
             <div className="space-y-6 relative">
               {/* Reorder sections based on active tab with smooth animations */}
@@ -161,7 +161,7 @@ export default function AdDetailPage() {
 
             <ProductInfoTabs
               onTabChange={(tab) => setActiveTab(tab)}
-              initialTab="specifications"
+              initialTab="reviews"
             />
 
             {/* Reorder sections based on active tab with smooth animations */}
