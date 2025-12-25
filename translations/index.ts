@@ -43,6 +43,10 @@ import { authTranslations } from "./auth";
 import { homeTranslations } from "./home";
 import { adTranslations } from "./ad";
 import { commonTranslations } from "./common";
+import { searchHistoryTranslations } from "./search-history";
+import { notificationsTranslations } from "./notifications";
+import { favoritesTranslations } from "./favorites";
+import { categoriesTranslations } from "./categories";
 import type { Translations } from "./types";
 import { DEFAULT_LOCALE } from "../validations/utils";
 
@@ -52,6 +56,10 @@ const translationRegistry = {
   home: homeTranslations,
   ad: adTranslations,
   common: commonTranslations,
+  searchHistory: searchHistoryTranslations,
+  notifications: notificationsTranslations,
+  favorites: favoritesTranslations,
+  categories: categoriesTranslations,
 } as const;
 
 /**
@@ -108,12 +116,10 @@ export { authTranslations } from "./auth";
 export { homeTranslations } from "./home";
 export { adTranslations } from "./ad";
 export { commonTranslations } from "./common";
+export { searchHistoryTranslations } from "./search-history";
+export { notificationsTranslations } from "./notifications";
+export { favoritesTranslations } from "./favorites";
+export { categoriesTranslations } from "./categories";
 
 // Export types
-export type {
-  Translations,
-  AuthTranslations,
-  HomeTranslations,
-  AdTranslations,
-  CommonTranslations,
-} from "./types";
+export type { Translations } from "./types";
