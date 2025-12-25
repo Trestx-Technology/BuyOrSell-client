@@ -1,0 +1,14 @@
+---
+alwaysApply: true
+---
+
+Never add summaries, conclusions, or closing remarks after responses or code changes.
+
+Do not include:
+
+- “Summary”
+- “In short”
+- “To summarize”
+- “TL;DR”
+
+Only output what is directly requested unless the user explicitly asks for a summary.
