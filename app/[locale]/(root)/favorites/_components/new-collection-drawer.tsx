@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import DrawerWrapper from "../../../../components/global/drawer-wrapper";
+import DrawerWrapper from "@/components/global/drawer-wrapper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload, X, Loader2 } from "lucide-react";
@@ -151,7 +151,9 @@ const NewCollectionDrawer: React.FC<NewCollectionDrawerProps> = ({
                     ) : (
                       <>
                         <Upload className="size-6 text-gray-400 mb-1" />
-                        <span className="text-xs text-gray-500">Upload Image</span>
+                        <span className="text-xs text-gray-500">
+                          Upload Image
+                        </span>
                       </>
                     )}
                   </button>
@@ -184,7 +186,9 @@ const NewCollectionDrawer: React.FC<NewCollectionDrawerProps> = ({
                 }
                 className="w-full bg-purple-600 hover:bg-purple-700"
               >
-                {createCollectionMutation.isPending ? "Creating..." : "Create List"}
+                {createCollectionMutation.isPending
+                  ? "Creating..."
+                  : "Create List"}
               </Button>
             </div>
           </div>

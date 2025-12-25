@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
 import Image from "next/image";
 import { mockAds } from "@/constants/sample-listings";
-import { CreateCollectionDialog } from "@/app/(root)/favorites/_components/CreateCollectionDialog";
+import { CreateCollectionDialog } from "./CreateCollectionDialog";
 
 export interface Collection {
   id: string;
