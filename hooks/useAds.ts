@@ -14,7 +14,7 @@ import {
   uploadAdImages,
   filterAds,
   getSimilarAds,
-} from '@/app/api/ad/ad.services';
+} from "@/app/api/ad/ad.services";
 import {
   PostAdPayload,
   PostAdResponse,
@@ -25,8 +25,8 @@ import {
   AdStatus,
   AdFilters,
   AdFilterPayload,
-} from '@/interfaces/ad';
-import { adQueries } from '@/app/api/ad/index';
+} from "@/interfaces/ad";
+import { adQueries } from "@/app/api/ad/index";
 
 // ============================================================================
 // QUERY HOOKS
@@ -97,10 +97,9 @@ export const useSearchAds = (params: {
   return useQuery<GetAdSearchResponseType, Error>({
     queryKey: [...adQueries.searchAds.Key, params],
     queryFn: () => searchAds(params),
-    enabled: !!params.query && params.query.trim() !== '',
+    enabled: !!params.query && params.query.trim() !== "",
   });
 };
-
 
 // Get featured ads
 export const useFeaturedAds = (params?: {
@@ -212,10 +211,15 @@ export const useUploadAdImages = () => {
 };
 
 // Filter ads with advanced filters
-export const useFilterAds = (payload: AdFilterPayload, enabled: boolean = true) => {
+export const useFilterAds = (
+  payload: AdFilterPayload,
+  page?: number,
+  limit?: number,
+  enabled: boolean = true
+) => {
   return useQuery<GetLiveAdsResponse, Error>({
-    queryKey: [...adQueries.filterAds.Key, payload],
-    queryFn: () => filterAds(payload),
+    queryKey: [...adQueries.filterAds.Key, payload, page, limit],
+    queryFn: () => filterAds(payload, page, limit),
     enabled: enabled && Object.keys(payload).length > 0, // Only run if enabled and payload has at least one filter
   });
 };
@@ -227,7 +231,7 @@ export const useSimilarAds = (
     viewerId?: string;
     page?: number;
     limit?: number;
-  },
+  }
 ) => {
   return useQuery<GetLiveAdsResponse, Error>({
     queryKey: [...adQueries.similarAds(id).Key, params],
@@ -235,4 +239,3 @@ export const useSimilarAds = (
     enabled: !!id,
   });
 };
-

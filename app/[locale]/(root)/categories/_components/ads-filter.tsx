@@ -3,10 +3,7 @@
 
 import React, { useState } from "react";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import {
-  Search,
-  SlidersHorizontal,
-} from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -26,7 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
-import { FormField } from "../../post-ad/details/_components/FormField";
+import { FormField } from "@/app/(root)/post-ad/details/_components/FormField";
 import { cn } from "@/lib/utils";
 import { NaturalLanguageCalendar } from "@/components/ui/natural-language-calendar";
 
@@ -73,7 +70,7 @@ const AdsFilter = ({
   className,
 }: AdsFilterProps) => {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
-  
+
   // Use debounced value hook for search input
   const [localSearchQuery, setLocalSearchQuery] = useDebouncedValue(
     searchQuery,
@@ -86,8 +83,10 @@ const AdsFilter = ({
   );
 
   // Separate static and dynamic filters
-  const staticFilterConfigs = staticFilters || (config || []).filter((f) => f.isStatic !== false);
-  const dynamicFilterConfigs = dynamicFilters || (config || []).filter((f) => f.isStatic === false);
+  const staticFilterConfigs =
+    staticFilters || (config || []).filter((f) => f.isStatic !== false);
+  const dynamicFilterConfigs =
+    dynamicFilters || (config || []).filter((f) => f.isStatic === false);
 
   const activeFilters = Object.entries(filters).filter(
     ([, value]) =>
@@ -224,7 +223,7 @@ const AdsFilter = ({
               <NaturalLanguageCalendar
                 value={value || ""}
                 onChange={(newValue) => onFilterChange(key, newValue)}
-                placeholder={placeholder || "Tomorrow or next week"}
+                placeholder={placeholder || "Tomorrow"}
               />
             </div>
           </FormField>
@@ -309,7 +308,10 @@ const AdsFilter = ({
           <div className="flex items-center border-t p-2">
             <div className="flex flex-wrap gap-2">
               {activeFilters.map(([key, value]) => {
-                const filterConfig = [...staticFilterConfigs, ...dynamicFilterConfigs].find((c) => c.key === key);
+                const filterConfig = [
+                  ...staticFilterConfigs,
+                  ...dynamicFilterConfigs,
+                ].find((c) => c.key === key);
                 const displayValue = Array.isArray(value)
                   ? value.join(", ")
                   : value;

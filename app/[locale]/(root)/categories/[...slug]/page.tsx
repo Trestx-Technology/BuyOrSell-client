@@ -3,10 +3,11 @@
 import React, { useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
+import { useLocale } from "@/hooks/useLocale";
 import { Button } from "@/components/ui/button";
-import AdsFilter from "@/app/(root)/categories/_components/ads-filter";
+import AdsFilter from "../_components/ads-filter";
 import ListingCard from "@/components/global/listing-card";
-import CuratedCarsCollection from "@/app/(root)/categories/_components/CuratedCarsCollection";
+import CuratedCarsCollection from "../_components/CuratedCarsCollection";
 import { Typography } from "@/components/typography";
 import { Bell, ChevronLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -17,120 +18,123 @@ import { cn } from "@/lib/utils";
 import HorizontalListingCard from "../_components/desktop-horizontal-list-card";
 import MobileHorizontalListViewCard from "../_components/MobileHorizontalListViewCard";
 import Pagination from "@/components/global/pagination";
-import { useAds } from "@/hooks/useAds";
+import { useAds, useFilterAds } from "@/hooks/useAds";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { AdFilters, AD } from "@/interfaces/ad";
-import { FilterConfig } from "@/app/(root)/categories/_components/ads-filter";
+import { FilterConfig } from "../_components/ads-filter";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
 
 const ITEMS_PER_PAGE = 12;
 
-// Sort options
-const sortOptions = [
-  { value: "default", label: "Default" },
-  { value: "newest", label: "Newest" },
-  { value: "oldest", label: "Oldest" },
-  { value: "price-asc", label: "Price (Low to High)" },
-  { value: "price-desc", label: "Price (High to Low)" },
-];
-
-// Static filter configuration - shown outside the dialog
-const staticFilterConfig: FilterConfig[] = [
-  {
-    key: "price",
-    label: "Price",
-    type: "select",
-    options: [
-      { value: "under-50k", label: "Under 50,000" },
-      { value: "50k-100k", label: "50,000 - 100,000" },
-      { value: "100k-200k", label: "100,000 - 200,000" },
-      { value: "200k-500k", label: "200,000 - 500,000" },
-      { value: "over-500k", label: "Over 500,000" },
-    ],
-    placeholder: "Select Price",
-    isStatic: true,
-  },
-  {
-    key: "deal",
-    label: "Deal",
-    type: "select",
-    options: [
-      { value: "true", label: "Yes" },
-      { value: "false", label: "No" },
-    ],
-    placeholder: "Select",
-    isStatic: true,
-  },
-  {
-    key: "currentDate",
-    label: "Current Date",
-    type: "calendar",
-    placeholder: "Tomorrow or next week",
-    isStatic: true,
-  },
-  {
-    key: "fromDate",
-    label: "From Date",
-    type: "calendar",
-    placeholder: "Select start date",
-    isStatic: true,
-  },
-  {
-    key: "toDate",
-    label: "To Date",
-    type: "calendar",
-    placeholder: "Select end date",
-    isStatic: true,
-  },
-  {
-    key: "isFeatured",
-    label: "Featured",
-    type: "select",
-    options: [
-      { value: "true", label: "Yes" },
-      { value: "false", label: "No" },
-    ],
-    placeholder: "Select",
-    isStatic: true,
-  },
-  {
-    key: "neighbourhood",
-    label: "Neighbourhood",
-    type: "select",
-    options: [
-      { value: "dubai", label: "Dubai" },
-      { value: "abu-dhabi", label: "Abu Dhabi" },
-      { value: "sharjah", label: "Sharjah" },
-      { value: "ajman", label: "Ajman" },
-      { value: "ras-al-khaimah", label: "Ras Al Khaimah" },
-      { value: "fujairah", label: "Fujairah" },
-      { value: "umm-al-quwain", label: "Umm Al Quwain" },
-    ],
-    placeholder: "Select",
-    isStatic: true,
-  },
-  {
-    key: "hasVideo",
-    label: "Has Video",
-    type: "select",
-    options: [
-      { value: "true", label: "Yes" },
-      { value: "false", label: "No" },
-    ],
-    placeholder: "Select",
-    isStatic: true,
-  },
-];
-
 export default function CategoryListingPage() {
+  const { t, locale } = useLocale();
   const params = useParams();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState<Record<string, string | number | string[] | undefined>>({});
+  const [filters, setFilters] = useState<
+    Record<string, string | number | string[] | undefined>
+  >({});
+  console.log("filters: ", filters);
   const [view, setView] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState("default");
   const [currentPage, setCurrentPage] = useState(1);
-  
+  // Sort options
+  const sortOptions = [
+    { value: "default", label: t.categories.sort.default },
+    { value: "newest", label: t.categories.sort.newest },
+    { value: "oldest", label: t.categories.sort.oldest },
+    { value: "price-asc", label: t.categories.sort.priceLowToHigh },
+    { value: "price-desc", label: t.categories.sort.priceHighToLow },
+  ];
+
+  // Static filter configuration - shown outside the dialog
+  const staticFilterConfig: FilterConfig[] = [
+    {
+      key: "price",
+      label: t.categories.filters.price,
+      type: "select",
+      options: [
+        { value: "under-50k", label: t.categories.priceRanges.under50k },
+        { value: "50k-100k", label: t.categories.priceRanges.between50k100k },
+        { value: "100k-200k", label: t.categories.priceRanges.between100k200k },
+        { value: "200k-500k", label: t.categories.priceRanges.between200k500k },
+        { value: "over-500k", label: t.categories.priceRanges.over500k },
+      ],
+      placeholder: t.categories.placeholders.selectPrice,
+      isStatic: true,
+    },
+    {
+      key: "deal",
+      label: t.categories.filters.deal,
+      type: "select",
+      options: [
+        { value: "true", label: t.categories.boolean.yes },
+        { value: "false", label: t.categories.boolean.no },
+      ],
+      placeholder: t.categories.placeholders.select,
+      isStatic: true,
+    },
+    {
+      key: "currentDate",
+      label: t.categories.filters.currentDate,
+      type: "calendar",
+      placeholder: t.categories.placeholders.selectStartDate,
+      isStatic: true,
+    },
+    {
+      key: "fromDate",
+      label: t.categories.filters.fromDate,
+      type: "calendar",
+      placeholder: t.categories.placeholders.selectStartDate,
+      isStatic: true,
+    },
+    {
+      key: "toDate",
+      label: t.categories.filters.toDate,
+      type: "calendar",
+      placeholder: t.categories.placeholders.selectEndDate,
+      isStatic: true,
+    },
+    {
+      key: "isFeatured",
+      label: t.categories.filters.featured,
+      type: "select",
+      options: [
+        { value: "true", label: t.categories.boolean.yes },
+        { value: "false", label: t.categories.boolean.no },
+      ],
+      placeholder: t.categories.placeholders.select,
+      isStatic: true,
+    },
+    {
+      key: "neighbourhood",
+      label: t.categories.filters.neighbourhood,
+      type: "select",
+      options: [
+        { value: "dubai", label: t.categories.locations.dubai },
+        { value: "abu-dhabi", label: t.categories.locations.abuDhabi },
+        { value: "sharjah", label: t.categories.locations.sharjah },
+        { value: "ajman", label: t.categories.locations.ajman },
+        { value: "ras-al-khaimah", label: t.categories.locations.rasAlKhaimah },
+        { value: "fujairah", label: t.categories.locations.fujairah },
+        { value: "umm-al-quwain", label: t.categories.locations.ummAlQuwain },
+      ],
+      placeholder: t.categories.placeholders.select,
+      isStatic: true,
+    },
+    {
+      key: "hasVideo",
+      label: t.categories.filters.hasVideo,
+      type: "select",
+      options: [
+        { value: "true", label: t.categories.boolean.yes },
+        { value: "false", label: t.categories.boolean.no },
+      ],
+      placeholder: t.categories.placeholders.select,
+      isStatic: true,
+    },
+  ];
+
   // Get category from URL params - use the last slug segment
   const slugSegments = Array.isArray(params.slug)
     ? params.slug
@@ -148,7 +152,7 @@ export default function CategoryListingPage() {
       .join(" ");
 
   const breadcrumbItems: BreadcrumbItem[] = [
-    { id: "categories", label: "Categories", href: "/categories" },
+    { id: "categories", label: t.categories.categories, href: "/categories" },
     ...slugSegments.map((segment, index) => {
       const path = slugSegments.slice(0, index + 1).join("/");
       const href = `/categories/${path}`;
@@ -237,7 +241,10 @@ export default function CategoryListingPage() {
     }
 
     // Collect extraFields filters (prefixed with "extraField_")
-    const extraFieldsFilters: Record<string, string | string[] | number | boolean> = {};
+    const extraFieldsFilters: Record<
+      string,
+      string | string[] | number | boolean
+    > = {};
     Object.entries(filters).forEach(([key, value]) => {
       if (key.startsWith("extraField_") && value) {
         const fieldName = key.replace("extraField_", "");
@@ -279,8 +286,189 @@ export default function CategoryListingPage() {
     return apiParams;
   }, [currentCategory, currentPage, searchQuery, filters, sortBy]);
 
-  // Fetch ads from API
-  const { data: adsResponse, isLoading } = useAds(apiFilters);
+  // Check if only search filter is active
+  const hasOnlySearchFilter = useMemo(() => {
+    return !!(
+      searchQuery.trim() &&
+      !(
+        filters.price ||
+        filters.deal ||
+        filters.currentDate ||
+        filters.fromDate ||
+        filters.toDate ||
+        filters.isFeatured ||
+        filters.neighbourhood ||
+        filters.hasVideo ||
+        Object.keys(filters).some(
+          (key) =>
+            key !== "price" &&
+            key !== "deal" &&
+            key !== "currentDate" &&
+            key !== "fromDate" &&
+            key !== "toDate" &&
+            key !== "isFeatured" &&
+            key !== "neighbourhood" &&
+            key !== "hasVideo" &&
+            filters[key as keyof typeof filters]
+        )
+      )
+    );
+  }, [searchQuery, filters]);
+
+  // Check if any filters besides search are active
+  const hasOtherFilters = useMemo(() => {
+    return !!(
+      filters.price ||
+      filters.deal ||
+      filters.currentDate ||
+      filters.fromDate ||
+      filters.toDate ||
+      filters.isFeatured ||
+      filters.neighbourhood ||
+      filters.hasVideo ||
+      Object.keys(filters).some(
+        (key) =>
+          key !== "price" &&
+          key !== "deal" &&
+          key !== "currentDate" &&
+          key !== "fromDate" &&
+          key !== "toDate" &&
+          key !== "isFeatured" &&
+          key !== "neighbourhood" &&
+          key !== "hasVideo" &&
+          filters[key as keyof typeof filters]
+      )
+    );
+  }, [filters]);
+
+  // Build filter payload for useFilterAds
+  const filterPayload = useMemo(() => {
+    if (!hasOtherFilters) return {};
+
+    const payload: any = {
+      category: currentCategory,
+    };
+
+    // Add search query if present
+    if (searchQuery.trim()) {
+      payload.search = searchQuery.trim();
+    }
+
+    // Add price filter if present (from select dropdown)
+    if (filters.price && typeof filters.price === "string") {
+      switch (filters.price) {
+        case "under-50k":
+          payload.priceTo = 50000;
+          break;
+        case "50k-100k":
+          payload.priceFrom = 50000;
+          payload.priceTo = 100000;
+          break;
+        case "100k-200k":
+          payload.priceFrom = 100000;
+          payload.priceTo = 200000;
+          break;
+        case "200k-500k":
+          payload.priceFrom = 200000;
+          payload.priceTo = 500000;
+          break;
+        case "over-500k":
+          payload.priceFrom = 500000;
+          break;
+      }
+    }
+
+    // Add deal filter if present
+    if (filters.deal === "true") {
+      payload.deal = true;
+    } else if (filters.deal === "false") {
+      payload.deal = false;
+    }
+
+    // Add date filters if present
+    if (filters.currentDate && typeof filters.currentDate === "string") {
+      payload.currentDate = new Date(filters.currentDate).toISOString();
+    }
+    if (filters.fromDate && typeof filters.fromDate === "string") {
+      payload.fromDate = new Date(filters.fromDate).toISOString();
+    }
+    if (filters.toDate && typeof filters.toDate === "string") {
+      payload.toDate = new Date(filters.toDate).toISOString();
+    }
+
+    // Add isFeatured filter if present
+    if (filters.isFeatured === "true") {
+      payload.isFeatured = true;
+    } else if (filters.isFeatured === "false") {
+      payload.isFeatured = false;
+    }
+
+    // Add neighbourhood filter if present
+    if (filters.neighbourhood && typeof filters.neighbourhood === "string") {
+      payload.neighbourhood = filters.neighbourhood;
+    }
+
+    // Add hasVideo filter if present
+    if (filters.hasVideo === "true") {
+      payload.hasVideo = true;
+    } else if (filters.hasVideo === "false") {
+      payload.hasVideo = false;
+    }
+
+    // Collect extraFields filters (dynamic filters)
+    const extraFieldsFilters: Record<
+      string,
+      string | string[] | number | boolean
+    > = {};
+    Object.entries(filters).forEach(([key, value]) => {
+      // Skip static filters, only include dynamic ones
+      const staticKeys = [
+        "price",
+        "deal",
+        "currentDate",
+        "fromDate",
+        "toDate",
+        "isFeatured",
+        "neighbourhood",
+        "hasVideo",
+      ];
+      if (!staticKeys.includes(key) && value !== undefined && value !== "") {
+        // Convert value to appropriate type
+        if (Array.isArray(value)) {
+          extraFieldsFilters[key] = value;
+        } else if (typeof value === "number") {
+          extraFieldsFilters[key] = value;
+        } else if (typeof value === "boolean") {
+          extraFieldsFilters[key] = value;
+        } else {
+          extraFieldsFilters[key] = String(value);
+        }
+      }
+    });
+
+    // Add extraFields if any dynamic filters are set
+    if (Object.keys(extraFieldsFilters).length > 0) {
+      payload.extraFields = extraFieldsFilters;
+    }
+
+    return payload;
+  }, [hasOtherFilters, currentCategory, filters]);
+
+  // Use filter API if other filters are active, otherwise use regular ads API
+  const { data: filterAdsResponse, isLoading: isFilterLoading } = useFilterAds(
+    filterPayload as any,
+    currentPage,
+    ITEMS_PER_PAGE,
+    hasOtherFilters
+  );
+
+  const { data: regularAdsResponse, isLoading: isRegularLoading } = useAds(
+    hasOtherFilters ? undefined : apiFilters
+  );
+
+  // Use filter results if other filters are active, otherwise use regular ads
+  const adsResponse = hasOtherFilters ? filterAdsResponse : regularAdsResponse;
+  const isLoading = hasOtherFilters ? isFilterLoading : isRegularLoading;
 
   const handleFilterChange = (key: string, value: string | string[]) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -302,7 +490,9 @@ export default function CategoryListingPage() {
   // Transform API ads to listing card format
   const ads = useMemo(() => {
     if (!adsResponse?.data?.adds) return [];
-    return adsResponse.data.adds.map(transformAdToListingCard);
+    return adsResponse.data.adds.map((ad) =>
+      transformAdToListingCard(ad, locale)
+    );
   }, [adsResponse]);
 
   // Get first ad to extract extraFields for dynamic filters
@@ -313,42 +503,52 @@ export default function CategoryListingPage() {
     if (!firstAd?.extraFields) return [];
 
     const normalizedFields = normalizeExtraFieldsToArray(firstAd.extraFields);
-    
+
     return normalizedFields
       .filter((field) => {
         // Only include fields that have optionalArray (dropdown options) or are filterable
         // Exclude fields that are already in static filters
         const staticFilterKeys = staticFilterConfig.map((f) => f.key);
-        const hasOptions = field.optionalArray && field.optionalArray.length > 0;
+        const hasOptions =
+          field.optionalArray && field.optionalArray.length > 0;
         return (
           !staticFilterKeys.includes(field.name.toLowerCase()) &&
           (hasOptions || field.type === "select" || field.type === "checkboxes")
         );
       })
       .map((field) => {
-        const filterKey = `extraField_${field.name}`;
-        
+        const filterKey = field.name; // Use field name directly for extrafields
+
         // Create options from optionalArray if available
-        const options = field.optionalArray?.map((value) => ({
-          value: value.toLowerCase().replace(/\s+/g, "-"),
-          label: value,
-        })) || [];
+        const options =
+          field.optionalArray?.map((value) => ({
+            value: value.toLowerCase().replace(/\s+/g, "-"),
+            label: value,
+          })) || [];
 
         // If no optionalArray but it's a select/checkbox type, create options from unique values
-        if (options.length === 0 && (field.type === "select" || field.type === "checkboxes")) {
+        if (
+          options.length === 0 &&
+          (field.type === "select" || field.type === "checkboxes")
+        ) {
           // We could collect unique values from all ads, but for now just use the field value
           if (Array.isArray(field.value)) {
-            options.push(...field.value.map((v) => ({
-              value: String(v).toLowerCase().replace(/\s+/g, "-"),
-              label: String(v),
-            })));
+            options.push(
+              ...field.value.map((v) => ({
+                value: String(v).toLowerCase().replace(/\s+/g, "-"),
+                label: String(v),
+              }))
+            );
           }
         }
 
         return {
           key: filterKey,
-          label: field.name.charAt(0).toUpperCase() + field.name.slice(1).replace(/([A-Z])/g, " $1"),
-          type: field.type === "checkboxes" ? "multiselect" : "select" as const,
+          label:
+            field.name.charAt(0).toUpperCase() +
+            field.name.slice(1).replace(/([A-Z])/g, " $1"),
+          type:
+            field.type === "checkboxes" ? "multiselect" : ("select" as const),
           options: options.length > 0 ? options : undefined,
           placeholder: `Select ${field.name}`,
           isStatic: false, // Dynamic filters go inside dialog
@@ -361,8 +561,6 @@ export default function CategoryListingPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-
-      
       {/* Mobile Header */}
       <div className="w-full bg-purple sm:hidden p-4 space-y-4">
         <div className="flex items-center justify-between">
@@ -383,7 +581,7 @@ export default function CategoryListingPage() {
         {/* Search Bar */}
         <Input
           leftIcon={<Search className="h-4 w-4" />}
-          placeholder={"Search"}
+          placeholder={t.categories.search}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10 bg-gray-100 border-0"
@@ -398,8 +596,12 @@ export default function CategoryListingPage() {
         {/* Page Header */}
         <div className="flex items-center justify-between mb-6 px-4">
           <Typography variant="md-black-inter" className="font-semibold">
-            {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)} for
-            sale in Dubai ({totalAds})
+            {t.categories.forSaleIn
+              .replace(
+                "{{category}}",
+                categoryName.charAt(0).toUpperCase() + categoryName.slice(1)
+              )
+              .replace("{{count}}", totalAds.toString())}
           </Typography>
 
           <SortAndViewControls
@@ -424,7 +626,7 @@ export default function CategoryListingPage() {
           dynamicFilters={dynamicFilters}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          searchPlaceholder={`Search ${categoryName}...`}
+          searchPlaceholder={`${t.categories.search} ${categoryName}...`}
           className="mb-4"
         />
 
@@ -470,7 +672,7 @@ export default function CategoryListingPage() {
                 // Use extraFields as-is from transformed ad (already in correct format)
                 // The transformAdToListingCard already converts it to a flat object
                 const extraFields = ad.extraFields || {};
-                
+
                 // Prepare seller info for MobileHorizontalListViewCard
                 const sellerInfo = ad.seller
                   ? {
@@ -479,7 +681,7 @@ export default function CategoryListingPage() {
                       type: ad.seller.type || "Individual",
                     }
                   : undefined;
-                
+
                 return (
                   <React.Fragment key={ad.id}>
                     {view === "grid" ? (
@@ -517,18 +719,16 @@ export default function CategoryListingPage() {
             </div>
 
             {/* Curated Cars Collection - Only show on first page */}
-            {currentPage === 1 && <CuratedCarsCollection />}
+            {/* {currentPage === 1 && <CuratedCarsCollection />} */}
           </div>
         )}
 
         {/* No Results */}
         {!isLoading && ads.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">
-              No ads found matching your criteria.
-            </p>
+            <p className="text-gray-500 text-lg">{t.categories.noAdsFound}</p>
             <Button variant="outline" onClick={clearFilters} className="mt-4">
-              Clear Filters
+              {t.categories.clearFilters}
             </Button>
           </div>
         )}

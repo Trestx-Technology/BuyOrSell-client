@@ -210,9 +210,18 @@ export const uploadAdImages = async (
 // Filter ads with advanced filters
 export const filterAds = async (
   payload: AdFilterPayload,
+  page?: number,
+  limit?: number,
 ): Promise<GetLiveAdsResponse> => {
+  const params = new URLSearchParams();
+  if (page !== undefined) params.append('page', page.toString());
+  if (limit !== undefined) params.append('limit', limit.toString());
+
+  const queryString = params.toString();
+  const endpoint = queryString ? `${adQueries.filterAds.endpoint}?${queryString}` : adQueries.filterAds.endpoint;
+
   const response = await axiosInstance.post<GetLiveAdsResponse>(
-    adQueries.filterAds.endpoint,
+    endpoint,
     payload,
     {
       headers: {
