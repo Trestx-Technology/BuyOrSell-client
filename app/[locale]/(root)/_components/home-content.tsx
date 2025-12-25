@@ -13,12 +13,13 @@ import ExchangeDeals from "./exchange-deals";
 import { useHome } from "@/hooks/useHome";
 import CategoryTabbedCarousel from "@/components/global/category-tabbed-carousel";
 import { useLocale } from "@/hooks/useLocale";
+import { useRouter } from "nextjs-toploader/app";
 
 export function HomeContent() {
   const { data: homeData, isLoading } = useHome();
   const { locale, t } = useLocale();
-  const isArabic = locale === 'ar';
-
+  const isArabic = locale === "ar";
+  const router = useRouter();
   return (
     <main className="min-h-screen">
       <Navbar />
@@ -40,19 +41,22 @@ export function HomeContent() {
         />
 
         <div className="my-8 space-y-5">
-        {/* Recent Views */}
-        {homeData?.data?.recentlyViewed && homeData?.data?.recentlyViewed.length > 0 && (
-          <RecentViews 
-            recentlyViewedAds={homeData.data.recentlyViewed}
-            isLoading={isLoading}
-          />
-        )}          
-          <HostDeals 
+          {/* Recent Views */}
+          {homeData?.data?.recentlyViewed &&
+            homeData?.data?.recentlyViewed.length > 0 && (
+              <RecentViews
+                recentlyViewedAds={homeData.data.recentlyViewed}
+                isLoading={isLoading}
+              />
+            )}
+          <HostDeals
             categoryTreeWithDealAds={homeData?.data?.categoryTreeWithDealAds}
             isLoading={isLoading}
           />
-          <ExchangeDeals 
-            categoryTreeWithExchangeAds={homeData?.data?.categoryTreeWithExchangeAds}
+          <ExchangeDeals
+            categoryTreeWithExchangeAds={
+              homeData?.data?.categoryTreeWithExchangeAds
+            }
             isLoading={isLoading}
           />
         </div>
@@ -74,7 +78,7 @@ export function HomeContent() {
               // index 4: 50 + 4 * 50 = 250 ✓
               return 50 + index * 50;
             };
-            
+
             // Z-index pattern: 10, 20, 40, 50, 60, 70, 80, 90, 100...
             // - First: 10
             // - Second: 20
@@ -90,10 +94,10 @@ export function HomeContent() {
               // index 5: 40 + 3 * 10 = 70 ✓
               return 40 + (index - 2) * 10;
             };
-            
+
             const topValue = calculateTop(i);
             const zIndexValue = calculateZIndex(i);
-            
+
             return (
               <div
                 key={`trending-category-ads-${i}`}
@@ -106,13 +110,18 @@ export function HomeContent() {
                 <CategoryTabbedCarousel
                   categoryData={{
                     ...category,
-                    category: isArabic && category.categoryAr ? category.categoryAr : category.category,
+                    category:
+                      isArabic && category.categoryAr
+                        ? category.categoryAr
+                        : category.category,
                   }}
                   isLoading={isLoading}
                   showNavigation={false}
                   showViewAll={true}
-                  viewAllText={t.home.common.viewAll}
-                  onViewAll={() => console.log(`View all ${isArabic && category.categoryAr ? category.categoryAr : category.category} clicked`)}
+                  viewAllText={t.common.viewAll}
+                  onViewAll={(categoryName) =>
+                    router.push(`/categories/${categoryName}`)
+                  }
                   onTabChange={(tabId) => console.log("Tab changed to:", tabId)}
                 />
               </div>
@@ -127,4 +136,3 @@ export function HomeContent() {
     </main>
   );
 }
-

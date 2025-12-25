@@ -77,7 +77,7 @@ interface ExchangeDealsProps {
 
 // Helper function to check if ad is premium
 const isPremiumAd = (ad: AD | DealAd): boolean => {
-  if ('_id' in ad && 'isFeatured' in ad) {
+  if ("_id" in ad && "isFeatured" in ad) {
     return (ad as AD).isFeatured === true;
   }
   // For DealAd, check if it has premium indicators (if any)
@@ -86,21 +86,19 @@ const isPremiumAd = (ad: AD | DealAd): boolean => {
 
 // Helper function to check if ad has exchange available
 const hasExchangeAvailable = (ad: AD | DealAd): boolean => {
-  if ('_id' in ad) {
+  if ("_id" in ad) {
     const adObj = ad as AD;
     return Boolean(
       adObj.upForExchange ||
-      adObj.isExchangable ||
-      adObj.exchanged ||
-      adObj.exchangeWith // If exchangeWith exists, exchange is available
+        adObj.isExchangable ||
+        adObj.exchanged ||
+        adObj.exchangeWith // If exchangeWith exists, exchange is available
     );
   }
-  if ('id' in ad) {
+  if ("id" in ad) {
     const dealAd = ad as DealAd;
     return Boolean(
-      dealAd.isExchangeable ||
-      dealAd.exchanged ||
-      dealAd.exchangeWith // If exchangeWith exists, exchange is available
+      dealAd.isExchangeable || dealAd.exchanged || dealAd.exchangeWith // If exchangeWith exists, exchange is available
     );
   }
   return false;
@@ -114,7 +112,10 @@ export default function ExchangeDeals({
   const { t, locale } = useLocale();
   // Transform and filter exchange ads from categoryTreeWithExchangeAds
   const transformedAdsByCategory = useMemo(() => {
-    if (!categoryTreeWithExchangeAds || categoryTreeWithExchangeAds.length === 0) {
+    if (
+      !categoryTreeWithExchangeAds ||
+      categoryTreeWithExchangeAds.length === 0
+    ) {
       return {};
     }
 
@@ -122,8 +123,8 @@ export default function ExchangeDeals({
 
     categoryTreeWithExchangeAds.forEach((category) => {
       if (category.ads && category.ads.length > 0) {
-        const categoryName = category.name.toLowerCase().replace(/\s+/g, '-');
-        
+        const categoryName = category.name.toLowerCase().replace(/\s+/g, "-");
+
         // Filter ads: must be premium OR have exchange available
         // categoryTreeWithExchangeAds should contain AD[] type
         const filteredAds = (category.ads as AD[]).filter((ad) => {
@@ -145,31 +146,36 @@ export default function ExchangeDeals({
 
   // Get category names for tabs
   const categories = useMemo(() => {
-    if (!categoryTreeWithExchangeAds || categoryTreeWithExchangeAds.length === 0) {
+    if (
+      !categoryTreeWithExchangeAds ||
+      categoryTreeWithExchangeAds.length === 0
+    ) {
       return [];
     }
 
-    const isArabic = locale === 'ar';
+    const isArabic = locale === "ar";
 
     return categoryTreeWithExchangeAds
       .filter((category) => {
         // Only show categories that have filtered ads
-        const categoryName = category.name.toLowerCase().replace(/\s+/g, '-');
+        const categoryName = category.name.toLowerCase().replace(/\s+/g, "-");
         const ads = transformedAdsByCategory[categoryName] || [];
         return ads.length > 0;
       })
       .map((category) => {
-        const name = isArabic ? (category.nameAr || category.name) : category.name;
+        const name = isArabic
+          ? category.nameAr || category.name
+          : category.name;
         return {
           id: category._id,
           name,
-          value: category.name.toLowerCase().replace(/\s+/g, '-'), // Keep original name for value to maintain consistency
+          value: category.name.toLowerCase().replace(/\s+/g, "-"), // Keep original name for value to maintain consistency
         };
       });
   }, [categoryTreeWithExchangeAds, transformedAdsByCategory, locale]);
 
   // Get default tab value
-  const defaultTab = categories.length > 0 ? categories[0].value : '';
+  const defaultTab = categories.length > 0 ? categories[0].value : "";
 
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
@@ -208,9 +214,9 @@ export default function ExchangeDeals({
         background:
           "radial-gradient(circle,rgba(55, 231, 182, 1) 0%, rgba(46, 31, 148, 1) 100%)",
       }}
-      className={`bg-[#B7FBE9] rounded-lg max-w-[1180px] mx-auto py-5 ${className}`}
+      className={`bg-[#B7FBE9] xl:rounded-lg max-w-[1180px] mx-auto py-5 ${className}`}
     >
-      <div className="w-full mx-auto px-5">
+      <div className="w-full mx-auto pl-5">
         {/* Header with Timer */}
         <motion.div
           variants={headerVariants}
@@ -243,16 +249,18 @@ export default function ExchangeDeals({
               </Typography>
             </div>
           ) : categories.length > 0 ? (
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="flex items-center justify-start w-full bg-transparent gap-3">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
+              <TabsList className="flex items-center justify-start w-full bg-transparent gap-3 overflow-x-auto scrollbar-hide">
                 {categories.map((category, index) => (
                   <TabsTrigger
                     key={category.id}
                     value={category.value}
-                    className={`data-[state=active]:bg-teal data-[state=active]:text-white data-[state=active]:shadow-sm w-fit ${
-                      index === 0 
-                        ? 'data-[state=active]:bg-teal' 
-                        : 'data-[state=active]:bg-purple bg-white'
+                    className={`data-[state=active]:bg-teal hover:data-[state=inactive]:bg-teal w-fit ${
+                      index === 0 && "data-[state=active]:bg-teal"
                     }`}
                   >
                     {category.name}
@@ -262,10 +270,15 @@ export default function ExchangeDeals({
 
               {/* Dynamic Tab Content */}
               {categories.map((category) => {
-                const categoryAds = transformedAdsByCategory[category.value] || [];
-                
+                const categoryAds =
+                  transformedAdsByCategory[category.value] || [];
+
                 return (
-                  <TabsContent key={category.id} value={category.value} className="mt-4">
+                  <TabsContent
+                    key={category.id}
+                    value={category.value}
+                    className="mt-4"
+                  >
                     <motion.div
                       variants={contentVariants}
                       initial="hidden"

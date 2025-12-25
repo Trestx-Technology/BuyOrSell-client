@@ -7,7 +7,6 @@ import { useLocale } from "@/hooks/useLocale";
 import { Button } from "@/components/ui/button";
 import AdsFilter from "../_components/ads-filter";
 import ListingCard from "@/components/global/listing-card";
-import CuratedCarsCollection from "../_components/CuratedCarsCollection";
 import { Typography } from "@/components/typography";
 import { Bell, ChevronLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";

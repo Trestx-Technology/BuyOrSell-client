@@ -74,8 +74,10 @@ const CategorySkeleton = () => (
   </div>
 );
 
-
-const PopularCategories = ({ popularCategories = [], isLoading = false }: PopularCategoriesProps) => {
+const PopularCategories = ({
+  popularCategories = [],
+  isLoading = false,
+}: PopularCategoriesProps) => {
   const { t, locale } = useLocale();
   const [showAllCategories, setShowAllCategories] = useState(false);
 
@@ -83,25 +85,32 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
   const isMobile = useMediaQuery("(max-width: 500px)");
 
   // Transform API data to match CategoryCard interface
-  const categoryData: CategoryCard[] = popularCategories?.map((popularCategory: PopularCategory, index: number) => {
-    const { category, activeAdsCount } = popularCategory;
+  const categoryData: CategoryCard[] =
+    popularCategories?.map(
+      (popularCategory: PopularCategory, index: number) => {
+        const { category, activeAdsCount } = popularCategory;
 
-    // Use Arabic values if locale is Arabic, otherwise use default
-    const isArabic = locale === 'ar';
-    const name = isArabic ? (category.nameAr || category.name) : category.name;
-    const description = isArabic
-      ? (category.descAr || category.desc || `${name} category`)
-      : (category.desc || `${category.name} category`);
+        // Use Arabic values if locale is Arabic, otherwise use default
+        const isArabic = locale === "ar";
+        const name = isArabic
+          ? category.nameAr || category.name
+          : category.name;
+        const description = isArabic
+          ? category.descAr || category.desc || `${name} category`
+          : category.desc || `${category.name} category`;
 
-    return {
-      id: index + 1,
-      name,
-      icon: category.icon,
-      description,
-      activeAds: `${activeAdsCount.toLocaleString()} ${t.home.popularCategories.activeAds}`,
-      href: `/categories/${category.name}`,
-    };
-  }) || [];
+        return {
+          id: index + 1,
+          name,
+          icon: category.icon,
+          description,
+          activeAds: `${activeAdsCount.toLocaleString()} ${
+            t.home.popularCategories.activeAds
+          }`,
+          href: `/categories/${category.name}`,
+        };
+      }
+    ) || [];
 
   // Get categories to display based on mobile state and toggle
   const getDisplayCategories = () => {
@@ -124,7 +133,7 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="w-full max-w-[1180px] mx-auto px-4 xl:px-0 mt-16 sm:mt-5"
+      className="w-full max-w-[1180px] px-4 xl:px-0 mx-auto mt-8 sm:mt-5"
     >
       {/* Section Title */}
       <motion.h2
@@ -137,7 +146,7 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
       {/* Categories Grid */}
       <div
         className={cn(
-          "grid grid-cols-3 md:grid-cols-3 xl:grid-cols-5 gap-4",
+          "grid grid-cols-3 md:grid-cols-3 xl:grid-cols-5 gap-2",
           showAllCategories && "overflow-y-auto"
         )}
       >
@@ -159,17 +168,13 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
                   damping: 22,
                   delay: 0.3 + index * 0.06, // Staggered delay for each category
                 }}
-               
                 className="transition-all duration-300 ease-out"
                 style={{
                   willChange: "transform, opacity",
                   contain: "layout style paint",
                 }}
               >
-                <Link
-                  href={category.href}
-                  className="bg-white w-full md:border border-[#F5EBFF] rounded-md shadow-purple/20 hover:shadow-purple/30 block relative hover:bg-purple/10 transition-all duration-300 group"
-                >
+                <div className="bg-white w-full md:border border-[#F5EBFF] rounded-md shadow-purple/20 hover:shadow-purple/30 block relative hover:bg-purple/10 transition-all duration-300 group">
                   {/* Category Content */}
                   <div className="px-2 py-1 min-h-[130px]">
                     {/* Icon and Name Section */}
@@ -196,26 +201,28 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
                     </div>
 
                     {/* Description */}
-                    <p className="text-xs text-[#667085] text-center font-inter leading-tight line-clamp-2 md:block hidden">
+                    <p className="text-xs text-[#667085] text-center font-inter leading-tight line-clamp-2 md:block hidden truncate">
                       {category.description}
                     </p>
                   </div>
 
                   {/* Bottom Section with Active Ads and Arrow */}
-                  <Typography
-                    variant="xs-black-inter"
-                    className="hidden items-center text-xs justify-center gap-1 text-purple text-center hover:underline p-2.5 w-full border-t group-hover:border-purple/20 font-medium md:flex"
-                  >
-                    {category.activeAds}
-                    <ArrowRight className="w-4 h-4" />
-                  </Typography>
-                </Link>
+                  <Link href={category.href}>
+                    <Typography
+                      variant="xs-black-inter"
+                      className="hidden items-center text-xs justify-center gap-1 text-purple text-center hover:underline p-2.5 w-full border-t group-hover:border-purple/20 font-medium md:flex"
+                    >
+                      {category.activeAds}
+                      <ArrowRight className="w-4 h-4" />
+                    </Typography>
+                  </Link>
+                </div>
               </motion.div>
             ))}
       </div>
 
       {/* Toggle Button - Only show on mobile or when there are more categories to show */}
-      {(isMobile || categoryData.length > 9) && (
+      {/* {(isMobile || categoryData.length > 9) && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -241,10 +248,12 @@ const PopularCategories = ({ popularCategories = [], isLoading = false }: Popula
             className="flex sm:hidden w-full text-sm mt-2"
             onClick={handleToggleCategories}
           >
-            {showAllCategories ? t.home.popularCategories.showLess : t.home.popularCategories.viewAll}
+            {showAllCategories
+              ? t.home.popularCategories.showLess
+              : t.home.popularCategories.viewAll}
           </Button>
         </motion.div>
-      )}
+      )} */}
     </motion.section>
   );
 };

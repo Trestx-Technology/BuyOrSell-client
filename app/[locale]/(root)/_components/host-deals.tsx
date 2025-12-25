@@ -87,22 +87,24 @@ export default function HostDeals({
       return [];
     }
 
-    const isArabic = locale === 'ar';
+    const isArabic = locale === "ar";
 
     return categoryTreeWithDealAds
       .filter((category) => category.ads && category.ads.length > 0)
       .map((category) => {
-        const name = isArabic ? (category.nameAr || category.name) : category.name;
+        const name = isArabic
+          ? category.nameAr || category.name
+          : category.name;
         return {
           id: category._id,
           name,
-          value: category.name.toLowerCase().replace(/\s+/g, '-'), // Keep original name for value to maintain consistency
+          value: category.name.toLowerCase().replace(/\s+/g, "-"), // Keep original name for value to maintain consistency
         };
       });
   }, [categoryTreeWithDealAds, locale]);
 
   // Get default tab value
-  const defaultTab = categories.length > 0 ? categories[0].value : '';
+  const defaultTab = categories.length > 0 ? categories[0].value : "";
 
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
@@ -117,7 +119,8 @@ export default function HostDeals({
   // Get active category and its ads
   const activeCategory = useMemo(() => {
     return categoryTreeWithDealAds.find(
-      (category) => category.name.toLowerCase().replace(/\s+/g, '-') === activeTab
+      (category) =>
+        category.name.toLowerCase().replace(/\s+/g, "-") === activeTab
     );
   }, [categoryTreeWithDealAds, activeTab]);
 
@@ -126,21 +129,21 @@ export default function HostDeals({
   const mapAdToCardProps = (ad: any) => {
     // Get location from address (use Arabic if locale is Arabic)
     const getLocation = (): string => {
-      const isArabic = locale === 'ar';
+      const isArabic = locale === "ar";
       const address = isArabic ? ad.addressAr || ad.address : ad.address;
 
-      if (!address) return "Location not specified";
+      if (!address) return t.ad.sellerInfo.locationNotSpecified;
       const { state, city } = address;
       if (city && state) return `${city}, ${state}`;
       if (city) return city;
       if (state) return state;
-      return "Location not specified";
+      return t.ad.sellerInfo.locationNotSpecified;
     };
 
     // Get title (use Arabic if locale is Arabic)
     const getTitle = (): string => {
-      const isArabic = locale === 'ar';
-      return isArabic ? (ad.titleAr || ad.title) : ad.title;
+      const isArabic = locale === "ar";
+      return isArabic ? ad.titleAr || ad.title : ad.title;
     };
 
     return {
@@ -155,15 +158,19 @@ export default function HostDeals({
       isExchange: ad.exchanged || ad.isExchangeable || false,
       postedTime: formatDate(ad.createdAt),
       dealValidThrough: ad.dealValidThru || ad.dealValidThrough || null,
-      discountText: ad.dealPercentage ? `FLAT ${Math.round(ad.dealPercentage)}% OFF` : undefined,
+      discountText: ad.dealPercentage
+        ? `FLAT ${Math.round(ad.dealPercentage)}% OFF`
+        : undefined,
       showDiscountBadge: !!ad.dealPercentage,
       showTimer: !!(ad.dealValidThru || ad.dealValidThrough),
-      seller: ad.owner ? {
-        name: ad.owner.name,
-        firstName: ad.owner.firstName,
-        lastName: ad.owner.lastName,
-        image: ad.owner.image || null,
-      } : undefined,
+      seller: ad.owner
+        ? {
+            name: ad.owner.name,
+            firstName: ad.owner.firstName,
+            lastName: ad.owner.lastName,
+            image: ad.owner.image || null,
+          }
+        : undefined,
     };
   };
 
@@ -182,18 +189,18 @@ export default function HostDeals({
   // Calculate earliest deal validity for main timer
   const earliestDealValidity = useMemo(() => {
     if (!activeCategory?.ads) return null;
-    
+
     const validDeals = activeCategory.ads
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((ad: any) => ad.dealValidThru || ad.dealValidThrough)
       .filter(Boolean) as string[];
-    
+
     if (validDeals.length === 0) return null;
-    
+
     const sortedDeals = validDeals.sort((a, b) => {
       return new Date(a).getTime() - new Date(b).getTime();
     });
-    
+
     return sortedDeals[0];
   }, [activeCategory]);
 
@@ -242,9 +249,9 @@ export default function HostDeals({
         background:
           "radial-gradient(circle, rgba(180, 207, 199, 1) 0%, rgba(132, 75, 143, 1) 100%)",
       }}
-      className={`bg-[#B7FBE9] rounded-lg max-w-[1180px] mx-auto py-5 ${className}`}
+      className={`bg-[#B7FBE9] lg:rounded-lg  max-w-[1180px] mx-auto py-5 ${className}`}
     >
-      <div className="w-full mx-auto px-5">
+      <div className="w-full mx-auto">
         {/* Header with Timer */}
         <motion.div
           variants={headerVariants}
@@ -253,13 +260,13 @@ export default function HostDeals({
           viewport={{ once: true, margin: "-100px" }}
           className="flex items-center justify-between mb-4"
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 px-5">
             {/* Hot Deals Title */}
             <Typography
               variant="lg-black-inter"
               className="text-lg font-medium text-white"
             >
-              Hot Deals
+              {t.home.hostDeals.title}
             </Typography>
 
             {/* Main Timer */}
@@ -283,27 +290,23 @@ export default function HostDeals({
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="mb-4"
+          className="mb-4 pl-5"
         >
           {isLoading ? (
             <div className="flex items-center justify-center py-10">
               <Typography variant="body" className="text-white">
-                Loading hot deals...
+                {t.home.hostDeals.loading}
               </Typography>
             </div>
           ) : categories.length > 0 ? (
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="flex items-center justify-start w-full bg-transparent gap-3">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
+              <TabsList className="flex items-center justify-start w-full bg-transparent gap-3 overflow-x-auto scrollbar-hide">
                 {categories.map((category, index) => (
-                  <TabsTrigger
-                    key={category.id}
-                    value={category.value}
-                    className={`data-[state=active]:bg-teal data-[state=active]:text-white data-[state=active]:shadow-sm w-fit ${
-                      index === 0 
-                        ? 'data-[state=active]:bg-teal' 
-                        : 'data-[state=active]:bg-purple bg-white'
-                    }`}
-                  >
+                  <TabsTrigger key={category.id} value={category.value}>
                     {category.name}
                   </TabsTrigger>
                 ))}
@@ -312,12 +315,18 @@ export default function HostDeals({
               {/* Dynamic Tab Content */}
               {categories.map((category) => {
                 const categoryData = categoryTreeWithDealAds.find(
-                  (cat) => cat.name.toLowerCase().replace(/\s+/g, '-') === category.value
+                  (cat) =>
+                    cat.name.toLowerCase().replace(/\s+/g, "-") ===
+                    category.value
                 );
                 const categoryAds = categoryData?.ads || [];
-                
+
                 return (
-                  <TabsContent key={category.id} value={category.value} className="mt-4">
+                  <TabsContent
+                    key={category.id}
+                    value={category.value}
+                    className="mt-4"
+                  >
                     <motion.div
                       variants={contentVariants}
                       initial="hidden"
@@ -360,13 +369,13 @@ export default function HostDeals({
                         ) : (
                           <div className="flex items-center justify-center py-10">
                             <Typography variant="body" className="text-white">
-                              No deals available for this category
+                              {t.home.hostDeals.noDealsAvailableForThisCategory}
                             </Typography>
                           </div>
                         )}
                       </div>
 
-                      {/* Sponsored Banner */}
+                      {/* Sponsored Banner
                       <div className="hidden lg:block relative max-w-[352px] w-full h-[290px] bg-gray-200 rounded-lg overflow-hidden">
                         <Image
                           src="https://images.unsplash.com/photo-1629581678313-36cf745a9af9?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -380,10 +389,10 @@ export default function HostDeals({
                             variant="xs-black-inter"
                             className="text-black text-sm font-medium"
                           >
-                            Sponsored
+                            {t.home.hostDeals.sponsored}
                           </Typography>
                         </div>
-                      </div>
+                      </div> */}
                     </motion.div>
                   </TabsContent>
                 );

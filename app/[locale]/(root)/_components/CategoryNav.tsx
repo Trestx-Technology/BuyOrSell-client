@@ -37,6 +37,8 @@ import { SearchAnimated } from "@/components/global/ai-search-bar";
 import { useRouter } from "nextjs-toploader/app";
 import { useLocale } from "@/hooks/useLocale";
 import { Typography } from "@/components/typography";
+import SearchHistoryPopover from "../../user/search-history/_components/SearchHistoryPopover";
+import NotificationsPopover from "../../user/notifications/_components/NotificationsPopover";
 
 // ============================================================================
 // ANIMATION VARIANTS
@@ -158,7 +160,7 @@ interface SubcategoryPanelProps {
 
 /**
  * CategoryButton Component
- * 
+ *
  * Renders a single category button in the main navigation bar.
  * Changes appearance when active (dropdown is open).
  */
@@ -185,14 +187,14 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
 
 /**
  * SubcategoryPanel Component
- * 
+ *
  * Displays the right panel showing children of a hovered subcategory.
  * Shows only up to level 2 (children of subcategories).
- * 
+ *
  * Structure:
  * 1. Subcategory (section header with "View all" link)
  * 2. Child categories (displayed in a flat 2-column grid)
- * 
+ *
  * Categories without children are rendered as clickable links.
  * All children are displayed at the same level (no nesting beyond level 2).
  */
@@ -204,8 +206,9 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
     <div className="w-full lg:w-[400px] flex-1 bg-purple/10 overflow-y-auto">
       <div className="flex flex-col w-full">
         {subcategories.map((subcategory) => {
-          const hasChildren = subcategory.children && subcategory.children.length > 0;
-          
+          const hasChildren =
+            subcategory.children && subcategory.children.length > 0;
+
           return (
             <motion.div
               key={subcategory._id}
@@ -217,7 +220,9 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                   {/* Subcategory Header with "View all" link */}
                   <div className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300">
                     <Typography variant="xs-bold" className="text-gray-600">
-                      {locale === 'ar' ? (subcategory.nameAr || subcategory.name) : subcategory.name}
+                      {locale === "ar"
+                        ? subcategory.nameAr || subcategory.name
+                        : subcategory.name}
                     </Typography>
                     {/* "View all" link appears on hover */}
                     <div className="ml-auto group-hover:block hidden">
@@ -225,59 +230,67 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                         href={`/categories/${subcategory._id}`}
                         className="text-purple text-xs hover:text-purple/80 flex items-center gap-1"
                       >
-                        <Typography variant="xs-regular-inter" className="text-xs">
+                        <Typography
+                          variant="xs-regular-inter"
+                          className="text-xs"
+                        >
                           {t.home.categoryNav.viewAll}
                         </Typography>
                         <ArrowRight className="w-4 h-4" />
                       </Link>
                     </div>
                   </div>
-                
-                {/* Children Grid - 2 columns, flat display (only level 2, no grandchildren) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 px-5 py-2.5">
-                  {subcategory.children.map((child) => {
-                    const childName = locale === 'ar' ? (child.nameAr || child.name) : child.name;
-                    return (
-                      <motion.div key={child._id} variants={itemVariants}>
-                        {/* Display child as a simple link - don't show grandchildren (level 3) */}
-                        <Link
-                          href={`/categories/${subcategory._id}/${child._id}`}
-                          className="text-sm text-grey-blue hover:text-purple hover:underline cursor-pointer transition-colors"
-                        >
-                          {childName}
-                        </Link>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </>
-            ) : (
-              /* Subcategory without children - render as clickable link */
-              <Link
-                href={`/categories/${subcategory._id}`}
-                className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 hover:bg-purple/10 hover:text-purple transition-colors"
-              >
-                <Typography variant="xs-bold">
-                  {locale === 'ar' ? (subcategory.nameAr || subcategory.name) : subcategory.name}
-                </Typography>
-              </Link>
-            )}
-          </motion.div>
-        );
-      })}
+
+                  {/* Children Grid - 2 columns, flat display (only level 2, no grandchildren) */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 px-5 py-2.5">
+                    {subcategory.children.map((child) => {
+                      const childName =
+                        locale === "ar"
+                          ? child.nameAr || child.name
+                          : child.name;
+                      return (
+                        <motion.div key={child._id} variants={itemVariants}>
+                          {/* Display child as a simple link - don't show grandchildren (level 3) */}
+                          <Link
+                            href={`/categories/${subcategory._id}/${child._id}`}
+                            className="text-sm text-grey-blue hover:text-purple hover:underline cursor-pointer transition-colors"
+                          >
+                            {childName}
+                          </Link>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : (
+                /* Subcategory without children - render as clickable link */
+                <Link
+                  href={`/categories/${subcategory._id}`}
+                  className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 hover:bg-purple/10 hover:text-purple transition-colors"
+                >
+                  <Typography variant="xs-bold">
+                    {locale === "ar"
+                      ? subcategory.nameAr || subcategory.name
+                      : subcategory.name}
+                  </Typography>
+                </Link>
+              )}
+            </motion.div>
+          );
+        })}
+      </div>
     </div>
-  </div>
   );
 };
 
 /**
  * CategoryDropdown Component
- * 
+ *
  * The main dropdown that appears when hovering over a category button.
  * Contains two panels:
  * - Left panel: Shows subcategories of the hovered main category
  * - Right panel: Shows children of the hovered subcategory (via SubcategoryPanel)
- * 
+ *
  * Also handles the "Other Categories" special case with a flat list layout.
  */
 const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
@@ -310,26 +323,34 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                ============================================================ */
             <motion.div className="bg-white rounded-xl rounded-tl-none shadow-lg border border-gray-200 overflow-hidden max-h-[500px]">
               <div className="w-full max-w-md overflow-y-auto scrollbar-hide">
-              {/* Added a check for jobs to redirect to "/Jobs" */}
-                    {categoryData.map((category) => {
-                      const categoryName = locale === 'ar' ? (category.nameAr || category.name) : category.name;
-                      const displayName = categoryName === "Jobs" ? "Job" : categoryName;
-                      return (
-                        <motion.div
-                          key={category._id}
-                          variants={itemVariants}
-                          className="flex items-center justify-between p-3 hover:bg-purple/10 cursor-pointer transition-colors group"
-                          onClick={() => onCategoryHover(category)}
-                        >
-                          <Link
-                            href={category.name.toLowerCase()==="job"? `/jobs`: `/categories/${category.name}`}
-                            className="text-gray-600 group-hover:text-purple text-xs w-full"
-                          >
-                            {displayName}
-                          </Link>
-                        </motion.div>
-                      );
-                    })}
+                {/* Added a check for jobs to redirect to "/Jobs" */}
+                {categoryData.map((category) => {
+                  const categoryName =
+                    locale === "ar"
+                      ? category.nameAr || category.name
+                      : category.name;
+                  const displayName =
+                    categoryName === "Jobs" ? "Job" : categoryName;
+                  return (
+                    <motion.div
+                      key={category._id}
+                      variants={itemVariants}
+                      className="flex items-center justify-between p-3 hover:bg-purple/10 cursor-pointer transition-colors group"
+                      onClick={() => onCategoryHover(category)}
+                    >
+                      <Link
+                        href={
+                          category.name.toLowerCase() === "job"
+                            ? `/jobs`
+                            : `/categories/${category.name}`
+                        }
+                        className="text-gray-600 group-hover:text-purple text-xs w-full"
+                      >
+                        {displayName}
+                      </Link>
+                    </motion.div>
+                  );
+                })}
               </div>
             </motion.div>
           ) : (
@@ -346,9 +367,10 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
               */}
               <div className="w-60 border-r border-gray-300 overflow-y-auto">
                 {categoryData.map((category) => {
-                  const hasChildren = category.children && category.children.length > 0;
+                  const hasChildren =
+                    category.children && category.children.length > 0;
                   const isActive = activeCategory?._id === category._id;
-                  
+
                   // If category has no children, make it a clickable link
                   if (!hasChildren) {
                     return (
@@ -371,13 +393,15 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                               isActive && "text-purple font-semibold"
                             )}
                           >
-                            {locale === 'ar' ? (category.nameAr || category.name) : category.name}
+                            {locale === "ar"
+                              ? category.nameAr || category.name
+                              : category.name}
                           </Typography>
                         </Link>
                       </motion.div>
                     );
                   }
-                  
+
                   // If category has children, use hover behavior to show them
                   return (
                     <motion.div
@@ -396,7 +420,9 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                           isActive && "text-purple font-semibold"
                         )}
                       >
-                        {locale === 'ar' ? (category.nameAr || category.name) : category.name}
+                        {locale === "ar"
+                          ? category.nameAr || category.name
+                          : category.name}
                       </Typography>
                       {/* Chevron indicates if this subcategory is active */}
                       {isActive ? (
@@ -415,11 +441,11 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                   Only shows when a subcategory with children is hovered.
                   Displays the children in a structured layout with nested support.
               */}
-              {activeCategory && activeCategory.children && activeCategory.children.length > 0 && (
-                <SubcategoryPanel
-                  subcategories={activeCategory.children}
-                />
-              )}
+              {activeCategory &&
+                activeCategory.children &&
+                activeCategory.children.length > 0 && (
+                  <SubcategoryPanel subcategories={activeCategory.children} />
+                )}
             </motion.div>
           )}
         </motion.div>
@@ -434,9 +460,9 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
 
 /**
  * CategoryNav Component
- * 
+ *
  * Main category navigation component with hierarchical dropdown menus.
- * 
+ *
  * Features:
  * - Shows 6 main categories + "Other" dropdown
  * - Two-panel dropdown system (subcategories on left, children on right)
@@ -444,7 +470,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
  * - Responsive design (mobile shows search, desktop shows full nav)
  * - Smooth animations using Framer Motion
  * - Clickable links for categories without children
- * 
+ *
  * State Management:
  * - activeCategoryType: Which main category button is hovered (opens dropdown)
  * - activeCategory: Which subcategory in left panel is hovered (shows right panel)
@@ -458,13 +484,17 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
    * Tracks which subcategory in the left panel is currently hovered.
    * When set, the right panel shows that subcategory's children.
    */
-  const [activeCategory, setActiveCategory] = useState<SubCategory | null>(null);
+  const [activeCategory, setActiveCategory] = useState<SubCategory | null>(
+    null
+  );
 
   /**
    * Tracks which main category button is currently hovered.
    * When set, the dropdown opens showing that category's subcategories.
    */
-  const [activeCategoryType, setActiveCategoryType] = useState<string | null>(null);
+  const [activeCategoryType, setActiveCategoryType] = useState<string | null>(
+    null
+  );
 
   // ========================================================================
   // HOOKS & DATA FETCHING
@@ -485,24 +515,24 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   // ========================================================================
   // CONSTANTS
   // ========================================================================
-  
+
   // Number of main categories to show before "Other" dropdown
   const VISIBLE_CATEGORIES_COUNT = 6;
 
   // ========================================================================
   // DATA TRANSFORMATION
   // ========================================================================
-  
+
   /**
    * Transform API data to match component's expected structure
    * Maps category objects to { type: id, label: name } format
    */
   const transformedCategories: { type: string; label: string }[] =
     categoriesData?.map((category: SubCategory) => {
-      const isArabic = locale === 'ar';
+      const isArabic = locale === "ar";
       return {
         type: category._id,
-        label: isArabic ? (category.nameAr || category.name) : category.name,
+        label: isArabic ? category.nameAr || category.name : category.name,
       };
     }) || [];
 
@@ -518,7 +548,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   // ========================================================================
   // EVENT HANDLERS
   // ========================================================================
-  
+
   /**
    * Handles hover over a subcategory in the left panel.
    * Sets it as active to show its children in the right panel.
@@ -565,27 +595,27 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   // ========================================================================
   // DATA GETTERS
   // ========================================================================
-  
+
   /**
    * Gets the subcategories to display in the left panel.
-   * 
+   *
    * Flow:
    * 1. User hovers over main category (e.g., "Electronics")
    * 2. This function returns that category's children (subcategories)
    * 3. Subcategories are shown in the left panel
    * 4. User hovers over a subcategory (e.g., "Mobile & Tablets")
    * 5. Right panel shows that subcategory's children
-   * 
+   *
    * @returns Array of subcategories for the currently hovered main category
    */
   const getCurrentCategoryData = (): SubCategory[] => {
     if (!activeCategoryType || !categoriesData) return [];
-    
+
     // Special case: "Other" category shows remaining categories
     if (activeCategoryType === "other") {
       return categoriesData.slice(VISIBLE_CATEGORIES_COUNT);
     }
-    
+
     // Find the main category and return its children (subcategories)
     const mainCategory = categoriesData.find(
       (category: SubCategory) => category._id === activeCategoryType
@@ -596,7 +626,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   // ========================================================================
   // LOADING COMPONENT
   // ========================================================================
-  
+
   /**
    * Loading skeleton for category buttons
    */
@@ -613,7 +643,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   // ========================================================================
   // RENDER
   // ========================================================================
-  
+
   return (
     <motion.div
       className={cn("relative md:bg-purple", className)}
@@ -742,69 +772,9 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     delay: 0.1,
                   }}
                 >
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button className="min-w-6 min-[1080px]:block hidden p-1 rounded transition-colors cursor-pointer">
-                        <Image
-                          src={
-                            "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/mystery.svg"
-                          }
-                          alt="mystery"
-                          className="size-6 hover:scale-110 transition-all duration-300"
-                          width={24}
-                          height={24}
-                        />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80 p-4" align="end">
-                      <div className="space-y-4">
-                        {/* Header */}
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-medium text-gray-900">
-                            My Searches
-                          </h3>
-                          <button className="text-xs text-purple-600 hover:text-purple-700 font-medium">
-                            Clear All
-                          </button>
-                        </div>
-
-                        {/* Search Items */}
-                        <div className="space-y-3">
-                          {Array.from({ length: 5 }).map((_, index) => {
-                            return (
-                              <div
-                                className="flex items-center justify-between p-3 bg-gray-100 rounded-lg"
-                                key={index}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <Clock className="w-4 h-4 text-gray-400" />
-                                  <div>
-                                    <p className="text-sm font-medium text-gray-900">
-                                      iphone 16
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                      156 result . 2 hours ago
-                                    </p>
-                                  </div>
-                                </div>
-                                <button className="p-1 hover:bg-gray-200 rounded">
-                                  <X className="w-3 h-3 text-gray-400" />
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        <div className="flex justify-center">
-                          <button className="text-xs text-purple-600 hover:text-purple-700 font-medium mx-auto">
-                            Clear All
-                          </button>
-                        </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                  <SearchHistoryPopover />
                 </motion.div>
-                
+
                 {/* Help Icon */}
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -838,7 +808,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     </TooltipContent>
                   </Tooltip>
                 </motion.div>
-                
+
                 {/* Messages Icon */}
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -872,7 +842,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     </TooltipContent>
                   </Tooltip>
                 </motion.div>
-                
+
                 {/* Favorites Icon */}
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -898,7 +868,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     </TooltipContent>
                   </Tooltip>
                 </motion.div>
-                
+
                 {/* Notifications Icon */}
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -910,109 +880,9 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     delay: 0.3,
                   }}
                 >
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button className="min-w-6 min-[1080px]:block hidden p-1 rounded hover:bg-white/10 transition-colors">
-                        <Bell className="size-6 hover:scale-110 transition-all duration-300 text-white" />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80 p-4" align="end">
-                      <div className="space-y-4">
-                        {/* Header */}
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-medium text-gray-900">
-                            Notifications
-                          </h3>
-                          <button className="text-xs text-purple-600 hover:text-purple-700 font-medium">
-                            Mark All as Read
-                          </button>
-                        </div>
-
-                        {/* Notification Items */}
-                        <div className="space-y-3">
-                          {/* Notification Item 1 - Job Match */}
-                          <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                            <Briefcase className="w-5 h-5 text-purple mt-0.5" />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <p className="text-sm font-semibold text-gray-900">
-                                  New Job Match
-                                </p>
-                                <div className="w-2 h-2 bg-purple rounded-full"></div>
-                              </div>
-                              <p className="text-xs text-gray-600 leading-relaxed">
-                                Senior React Developer at Techcorp matches your
-                                profile
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1">
-                                2 minutes ago
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Notification Item 2 - Message */}
-                          <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                            <MessageCircle className="w-5 h-5 text-purple mt-0.5" />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <p className="text-sm font-semibold text-gray-900">
-                                  New Message
-                                </p>
-                                <div className="w-2 h-2 bg-purple rounded-full"></div>
-                              </div>
-                              <p className="text-xs text-gray-600 leading-relaxed">
-                                Senior React Developer at Techcorp matches your
-                                profile
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1">
-                                2 minutes ago
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Notification Item 3 - Read Message */}
-                          <div className="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg">
-                            <MessageCircle className="w-5 h-5 text-purple mt-0.5" />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <p className="text-sm font-semibold text-gray-900">
-                                  New Message
-                                </p>
-                              </div>
-                              <p className="text-xs text-gray-600 leading-relaxed">
-                                Senior React Developer at Techcorp matches your
-                                profile
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1">
-                                2 minutes ago
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Notification Item 4 - Read Message */}
-                          <div className="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg">
-                            <MessageCircle className="w-5 h-5 text-purple mt-0.5" />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <p className="text-sm font-semibold text-gray-900">
-                                  New Message
-                                </p>
-                              </div>
-                              <p className="text-xs text-gray-600 leading-relaxed">
-                                Senior React Developer at Techcorp matches your
-                                profile
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1">
-                                2 minutes ago
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                  <NotificationsPopover />
                 </motion.div>
-                
+
                 {/* Map View Button */}
                 <motion.div
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
