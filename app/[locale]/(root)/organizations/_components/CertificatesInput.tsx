@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Plus, X, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TextInput } from "../../post-ad/details/_components/TextInput";
-import { FormField } from "../../post-ad/details/_components/FormField";
+import { TextInput } from "@/app/(root)/post-ad/details/_components/TextInput";
+import { FormField } from "@/app/(root)/post-ad/details/_components/FormField";
 import { DatePicker } from "./DatePicker";
 import { SingleImageUpload, SingleImageItem } from "./SingleImageUpload";
 

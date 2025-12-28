@@ -1,20 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  useUpdateOrganization,
+  useCreateOrganization,
   useMyOrganization,
-  useOrganizationById,
 } from "@/hooks/useOrganizations";
-import { UpdateOrganizationPayload } from "@/interfaces/organization.types";
+import { CreateOrganizationPayload } from "@/interfaces/organization.types";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { FormField } from "../../post-ad/details/_components/FormField";
-import { TextInput } from "../../post-ad/details/_components/TextInput";
-import { SelectInput } from "../../post-ad/details/_components/SelectInput";
+import { FormField } from "@/app/(root)/post-ad/details/_components/FormField";
+import { TextInput } from "@/app/(root)/post-ad/details/_components/TextInput";
+import { SelectInput } from "@/app/(root)/post-ad/details/_components/SelectInput";
 import { DatePicker } from "../_components/DatePicker";
 import {
   SingleImageUpload,
@@ -30,42 +28,30 @@ import Image from "next/image";
 import { useAuthStore } from "@/stores/authStore";
 import { Organization } from "@/interfaces/organization.types";
 import {
-  OrganizationType,
   ORGANIZATION_TYPE_OPTIONS,
   ORGANIZATION_STATUS_CONFIG,
   OrganizationStatus,
 } from "@/constants/enums";
 import { useEmirates } from "@/hooks/useLocations";
+import { useRouter } from "nextjs-toploader/app";
 import {
   organizationSchema,
   type OrganizationFormData,
 } from "@/schemas/organization.schema";
-import { useLocale } from "@/hooks/useLocale";
 import { OrganizationFormSkeleton } from "../_components/OrganizationFormSkeleton";
+import { useLocale } from "@/hooks/useLocale";
 
-const EditOrganizationPage = () => {
+const NewOrganizationPage = () => {
   const router = useRouter();
-  const params = useParams();
-  const organizationId = params.id as string;
   const { session } = useAuthStore((state) => state);
-  const updateOrganizationMutation = useUpdateOrganization();
+  const createOrganizationMutation = useCreateOrganization();
   const { data: organizationsData, isLoading: isLoadingOrgs } =
     useMyOrganization();
   const organizations = organizationsData?.data || [];
-
-  const {
-    data: organizationData,
-    isLoading: isLoadingOrg,
-    error: orgError,
-  } = useOrganizationById(organizationId);
-  // useOrganizationById returns an object directly in data, not an array
-  // The API response structure is { data: Organization } not { data: Organization[] }
-  const organization = organizationData?.data as Organization | undefined;
   const { data: emirates = [], isLoading: isLoadingEmirates } = useEmirates();
-  const { locale } = useLocale();
   const [logoImage, setLogoImage] = useState<SingleImageItem | null>(null);
+  const { locale, t, localePath } = useLocale();
 
-  // Transform emirates array to SelectInput format
   const emirateOptions = emirates.map((emirate) => ({
     value: emirate.emirate, // Use English name as value for consistency
     label: locale === "ar" ? emirate.emirateAr : emirate.emirate, // Show localized label
@@ -74,7 +60,6 @@ const EditOrganizationPage = () => {
   const {
     control,
     handleSubmit,
-    reset,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<OrganizationFormData>({
@@ -113,137 +98,14 @@ const EditOrganizationPage = () => {
     }
   }, [logoImage, setValue]);
 
-  // Populate form when organization data is loaded
-  useEffect(() => {
-    if (organization && !isLoadingEmirates && emirates.length > 0) {
-      // Set logo image if exists
-      if (organization.logoUrl) {
-        setLogoImage({
-          id: "logo",
-          url: organization.logoUrl,
-          presignedUrl: organization.logoUrl,
-        });
-      }
-
-      // Transform business hours from API format to form format
-      const businessHours =
-        organization.businessHours?.map((bh) => ({
-          day:
-            typeof bh.day === "string" ? parseInt(bh.day) : (bh.day as number),
-          open: bh.open,
-          close: bh.close,
-          closed: bh.isClosed || false,
-          allDay: false, // API doesn't have allDay, default to false
-        })) || [];
-
-      // Transform certificates from API format to form format
-      const certificates =
-        organization.certificates?.map((cert) => ({
-          name: cert.name,
-          issuer: cert.issuedBy,
-          issuedOn: cert.issueDate,
-          expiresOn: cert.expiryDate || "",
-          fileId: "",
-          url: cert.certificateUrl || "",
-        })) || [];
-
-      // Ensure organization type matches enum value exactly
-      const orgType = organization.type?.toUpperCase();
-      const validType =
-        orgType &&
-        Object.values(OrganizationType).includes(orgType as OrganizationType)
-          ? (orgType as OrganizationType)
-          : undefined;
-
-      // Ensure emirate value matches one of the available options (case-insensitive match)
-      const validEmirate = organization.emirate
-        ? emirates.find(
-            (e) =>
-              e.emirate.toLowerCase() === organization.emirate?.toLowerCase()
-          )?.emirate || ""
-        : "";
-
-      reset({
-        type: validType,
-        country: organization.country || "AE",
-        emirate: validEmirate,
-        tradeLicenseNumber: organization.tradeLicenseNumber || "",
-        tradeLicenseExpiry: organization.tradeLicenseExpiry || "",
-        trn: organization.trn || "",
-        legalName: organization.legalName || "",
-        tradeName: organization.tradeName || "",
-        reraNumber: organization.reraNumber || "",
-        addressLine1: organization.addressLine1 || "",
-        addressLine2: organization.addressLine2 || "",
-        city: organization.city || "",
-        poBox: organization.poBox || "",
-        contactName: organization.contactName || "",
-        contactEmail: organization.contactEmail || "",
-        contactPhone: organization.contactPhone || "",
-        website: organization.website || "",
-        logoUrl: organization.logoUrl || "",
-        businessHours,
-        certificates,
-        languages: organization.languages || [],
-        brands: organization.brands || [],
-        dealershipCodes: organization.dealershipCodes || [],
-      });
-    }
-  }, [organization, reset, emirates, isLoadingEmirates]);
-
-  // Set SelectInput values after options are available and form is reset
-  // This ensures the Select component recognizes the values
-  useEffect(() => {
-    if (organization && !isLoadingEmirates && emirates.length > 0) {
-      // Ensure organization type matches enum value exactly
-      const orgType = organization.type?.toUpperCase();
-      const validType =
-        orgType &&
-        Object.values(OrganizationType).includes(orgType as OrganizationType)
-          ? (orgType as OrganizationType)
-          : undefined;
-
-      // Ensure emirate value matches one of the available options (case-insensitive match)
-      const validEmirate = organization.emirate
-        ? emirates.find(
-            (e) =>
-              e.emirate.toLowerCase() === organization.emirate?.toLowerCase()
-          )?.emirate || ""
-        : "";
-
-      // Use setTimeout to ensure Select components have rendered with options
-      const timer = setTimeout(() => {
-        if (validType) {
-          setValue("type", validType, {
-            shouldValidate: false,
-            shouldDirty: false,
-          });
-        }
-        if (validEmirate) {
-          setValue("emirate", validEmirate, {
-            shouldValidate: false,
-            shouldDirty: false,
-          });
-        }
-      }, 0);
-
-      return () => clearTimeout(timer);
-    }
-  }, [organization, setValue, emirates, isLoadingEmirates]);
-
   const onSubmit = async (data: OrganizationFormData) => {
     try {
       if (!session?.user?._id) {
-        toast.error("Please log in to update an organization");
+        toast.error(t.organizations.errors.pleaseLoginToCreate);
         return;
       }
 
-      if (!organizationId) {
-        toast.error("Organization ID is missing");
-        return;
-      }
-
-      const payload: UpdateOrganizationPayload = {
+      const payload: CreateOrganizationPayload = {
         type: data.type,
         country: data.country,
         emirate: data.emirate,
@@ -289,19 +151,21 @@ const EditOrganizationPage = () => {
             : undefined,
       };
 
-      await updateOrganizationMutation.mutateAsync({
-        id: organizationId,
-        data: payload,
-      });
-
-      toast.success("Organization updated successfully!");
-      router.push("/organizations");
+      await createOrganizationMutation.mutateAsync(payload);
+      toast.success(t.organizations.errors.organizationCreatedSuccess);
+      router.push(localePath("/organizations/my"));
     } catch (error: unknown) {
       const errorMessage =
         (error as { response?: { data?: { message?: string } } })?.response
-          ?.data?.message || "Failed to update organization";
+          ?.data?.message || t.organizations.errors.failedToCreate;
       toast.error(errorMessage);
     }
+  };
+
+  // Get organization type display
+  const getOrganizationType = (type: string | undefined): string => {
+    if (!type) return "ORGANIZATION";
+    return type.toUpperCase();
   };
 
   // Format location
@@ -331,35 +195,9 @@ const EditOrganizationPage = () => {
     );
   };
 
-  if (isLoadingOrg) {
+  // Show skeleton while emirates are loading
+  if (isLoadingEmirates) {
     return <OrganizationFormSkeleton />;
-  }
-
-  if (orgError || !organization) {
-    return (
-      <div className="max-w-[1200px] mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <Typography
-            variant="lg-black-inter"
-            className="text-2xl font-semibold text-[#1D2939] mb-2"
-          >
-            Organization not found
-          </Typography>
-          <Typography
-            variant="sm-regular-inter"
-            className="text-sm text-[#8A8A8A] mb-4"
-          >
-            The organization you&apos;re looking for doesn&apos;t exist or you
-            don&apos;t have permission to view it.
-          </Typography>
-          <Link href="/organizations">
-            <Button variant="filled" size="sm">
-              Back to Organizations
-            </Button>
-          </Link>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -367,25 +205,25 @@ const EditOrganizationPage = () => {
       {/* Header */}
       <div className="mb-6">
         <Link
-          href="/organizations"
+          href={localePath("/organizations/my")}
           className="inline-flex items-center gap-2 text-purple hover:text-purple/80 mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
           <Typography variant="sm-regular-inter" className="text-sm">
-            Back to Organizations
+            {t.organizations.form.backToOrganizations}
           </Typography>
         </Link>
         <Typography
-          variant="md-black-inter"
-          className="text-xl font-semibold text-[#1D2939] mb-2"
+          variant="lg-black-inter"
+          className="text-2xl font-semibold text-[#1D2939] mb-2"
         >
-          Edit Organization
+          {t.organizations.form.createNewOrganization}
         </Typography>
         <Typography
           variant="sm-regular-inter"
           className="text-sm text-[#8A8A8A]"
         >
-          Update the details of your organization
+          {t.organizations.form.fillDetailsToCreate}
         </Typography>
       </div>
 
@@ -402,12 +240,12 @@ const EditOrganizationPage = () => {
                 variant="md-semibold-inter"
                 className="text-lg font-semibold text-[#1D2939] mb-4"
               >
-                Basic Information
+                {t.organizations.form.basicInformation}
               </Typography>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
-                    label="Organization Type"
+                    label={t.organizations.form.organizationType}
                     htmlFor="type"
                     required
                     error={errors.type?.message}
@@ -420,14 +258,16 @@ const EditOrganizationPage = () => {
                           value={field.value}
                           onChange={field.onChange}
                           options={ORGANIZATION_TYPE_OPTIONS}
-                          placeholder="Select organization type"
+                          placeholder={
+                            t.organizations.form.selectOrganizationType
+                          }
                         />
                       )}
                     />
                   </FormField>
 
                   <FormField
-                    label="Country"
+                    label={t.organizations.form.country}
                     htmlFor="country"
                     required
                     error={errors.country?.message}
@@ -439,7 +279,7 @@ const EditOrganizationPage = () => {
                         <TextInput
                           value={field.value}
                           onChange={field.onChange}
-                          placeholder="Country"
+                          placeholder={t.organizations.form.country}
                           disabled
                         />
                       )}
@@ -448,7 +288,7 @@ const EditOrganizationPage = () => {
                 </div>
 
                 <FormField
-                  label="Emirate"
+                  label={t.organizations.form.emirate}
                   htmlFor="emirate"
                   required
                   error={errors.emirate?.message}
@@ -463,8 +303,8 @@ const EditOrganizationPage = () => {
                         options={emirateOptions}
                         placeholder={
                           isLoadingEmirates
-                            ? "Loading emirates..."
-                            : "Select emirate"
+                            ? t.organizations.form.loadingEmirates
+                            : t.organizations.form.selectEmirate
                         }
                         disabled={isLoadingEmirates}
                       />
@@ -474,7 +314,7 @@ const EditOrganizationPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
-                    label="Legal Name"
+                    label={t.organizations.form.legalName}
                     htmlFor="legalName"
                     required
                     error={errors.legalName?.message}
@@ -486,14 +326,14 @@ const EditOrganizationPage = () => {
                         <TextInput
                           value={field.value}
                           onChange={field.onChange}
-                          placeholder="Enter legal name"
+                          placeholder={t.organizations.form.enterLegalName}
                         />
                       )}
                     />
                   </FormField>
 
                   <FormField
-                    label="Trade Name"
+                    label={t.organizations.form.tradeName}
                     htmlFor="tradeName"
                     required
                     error={errors.tradeName?.message}
@@ -505,7 +345,7 @@ const EditOrganizationPage = () => {
                         <TextInput
                           value={field.value}
                           onChange={field.onChange}
-                          placeholder="Enter trade name"
+                          placeholder={t.organizations.form.enterTradeName}
                         />
                       )}
                     />
@@ -520,12 +360,12 @@ const EditOrganizationPage = () => {
                 variant="md-semibold-inter"
                 className="text-lg font-semibold text-[#1D2939] mb-4"
               >
-                License Information
+                {t.organizations.form.licenseInformation}
               </Typography>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
-                    label="Trade License Number"
+                    label={t.organizations.form.tradeLicenseNumber}
                     htmlFor="tradeLicenseNumber"
                     required
                     error={errors.tradeLicenseNumber?.message}
@@ -537,14 +377,16 @@ const EditOrganizationPage = () => {
                         <TextInput
                           value={field.value}
                           onChange={field.onChange}
-                          placeholder="Enter trade license number"
+                          placeholder={
+                            t.organizations.form.enterTradeLicenseNumber
+                          }
                         />
                       )}
                     />
                   </FormField>
 
                   <FormField
-                    label="Trade License Expiry"
+                    label={t.organizations.form.tradeLicenseExpiry}
                     htmlFor="tradeLicenseExpiry"
                     required
                     error={errors.tradeLicenseExpiry?.message}
@@ -556,7 +398,7 @@ const EditOrganizationPage = () => {
                         <DatePicker
                           value={field.value}
                           onChange={field.onChange}
-                          placeholder="Select expiry date"
+                          placeholder={t.organizations.form.selectExpiryDate}
                         />
                       )}
                     />
@@ -565,7 +407,7 @@ const EditOrganizationPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
-                    label="TRN"
+                    label={t.organizations.form.trn}
                     htmlFor="trn"
                     required
                     error={errors.trn?.message}
@@ -577,14 +419,14 @@ const EditOrganizationPage = () => {
                         <TextInput
                           value={field.value}
                           onChange={field.onChange}
-                          placeholder="Enter TRN"
+                          placeholder={t.organizations.form.enterTRN}
                         />
                       )}
                     />
                   </FormField>
 
                   <FormField
-                    label="RERA Number"
+                    label={t.organizations.form.reraNumber}
                     htmlFor="reraNumber"
                     error={errors.reraNumber?.message}
                   >
@@ -595,7 +437,7 @@ const EditOrganizationPage = () => {
                         <TextInput
                           value={field.value || ""}
                           onChange={field.onChange}
-                          placeholder="Enter RERA number (optional)"
+                          placeholder={t.organizations.form.enterRERANumber}
                         />
                       )}
                     />
@@ -610,11 +452,11 @@ const EditOrganizationPage = () => {
                 variant="md-semibold-inter"
                 className="text-lg font-semibold text-[#1D2939] mb-4"
               >
-                Address Information
+                {t.organizations.form.addressInformation}
               </Typography>
               <div className="space-y-4">
                 <FormField
-                  label="Address Line 1"
+                  label={t.organizations.form.addressLine1}
                   htmlFor="addressLine1"
                   required
                   error={errors.addressLine1?.message}
@@ -626,14 +468,14 @@ const EditOrganizationPage = () => {
                       <TextInput
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Enter address line 1"
+                        placeholder={t.organizations.form.enterAddressLine1}
                       />
                     )}
                   />
                 </FormField>
 
                 <FormField
-                  label="Address Line 2"
+                  label={t.organizations.form.addressLine2}
                   htmlFor="addressLine2"
                   error={errors.addressLine2?.message}
                 >
@@ -644,7 +486,7 @@ const EditOrganizationPage = () => {
                       <TextInput
                         value={field.value || ""}
                         onChange={field.onChange}
-                        placeholder="Enter address line 2 (optional)"
+                        placeholder={t.organizations.form.enterAddressLine2}
                       />
                     )}
                   />
@@ -652,7 +494,7 @@ const EditOrganizationPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
-                    label="City"
+                    label={t.organizations.form.city}
                     htmlFor="city"
                     required
                     error={errors.city?.message}
@@ -664,14 +506,14 @@ const EditOrganizationPage = () => {
                         <TextInput
                           value={field.value}
                           onChange={field.onChange}
-                          placeholder="Enter city"
+                          placeholder={t.organizations.form.enterCity}
                         />
                       )}
                     />
                   </FormField>
 
                   <FormField
-                    label="PO Box"
+                    label={t.organizations.form.poBox}
                     htmlFor="poBox"
                     error={errors.poBox?.message}
                   >
@@ -682,7 +524,7 @@ const EditOrganizationPage = () => {
                         <TextInput
                           value={field.value || ""}
                           onChange={field.onChange}
-                          placeholder="Enter PO Box (optional)"
+                          placeholder={t.organizations.form.enterPOBox}
                         />
                       )}
                     />
@@ -697,11 +539,11 @@ const EditOrganizationPage = () => {
                 variant="md-semibold-inter"
                 className="text-lg font-semibold text-[#1D2939] mb-4"
               >
-                Contact Information
+                {t.organizations.form.contactInformation}
               </Typography>
               <div className="space-y-4">
                 <FormField
-                  label="Contact Name"
+                  label={t.organizations.form.contactName}
                   htmlFor="contactName"
                   required
                   error={errors.contactName?.message}
@@ -713,7 +555,7 @@ const EditOrganizationPage = () => {
                       <TextInput
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Enter contact name"
+                        placeholder={t.organizations.form.enterContactName}
                       />
                     )}
                   />
@@ -721,7 +563,7 @@ const EditOrganizationPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
-                    label="Contact Email"
+                    label={t.organizations.form.contactEmail}
                     htmlFor="contactEmail"
                     required
                     error={errors.contactEmail?.message}
@@ -733,7 +575,7 @@ const EditOrganizationPage = () => {
                         <TextInput
                           value={field.value}
                           onChange={field.onChange}
-                          placeholder="Enter contact email"
+                          placeholder={t.organizations.form.enterContactEmail}
                           type="email"
                         />
                       )}
@@ -741,7 +583,7 @@ const EditOrganizationPage = () => {
                   </FormField>
 
                   <FormField
-                    label="Contact Phone"
+                    label={t.organizations.form.contactPhone}
                     htmlFor="contactPhone"
                     required
                     error={errors.contactPhone?.message}
@@ -753,7 +595,7 @@ const EditOrganizationPage = () => {
                         <TextInput
                           value={field.value}
                           onChange={field.onChange}
-                          placeholder="Enter contact phone"
+                          placeholder={t.organizations.form.enterContactPhone}
                           type="tel"
                         />
                       )}
@@ -762,7 +604,7 @@ const EditOrganizationPage = () => {
                 </div>
 
                 <FormField
-                  label="Website"
+                  label={t.organizations.form.website}
                   htmlFor="website"
                   error={errors.website?.message}
                 >
@@ -773,7 +615,7 @@ const EditOrganizationPage = () => {
                       <TextInput
                         value={field.value || ""}
                         onChange={field.onChange}
-                        placeholder="Enter website URL (optional)"
+                        placeholder={t.organizations.form.enterWebsiteURL}
                         type="url"
                       />
                     )}
@@ -788,12 +630,12 @@ const EditOrganizationPage = () => {
                 variant="md-semibold-inter"
                 className="text-lg font-semibold text-[#1D2939] mb-4"
               >
-                Additional Information
+                {t.organizations.form.additionalInformation}
               </Typography>
               <div className="space-y-6">
                 {/* Logo Upload */}
                 <FormField
-                  label="Organization Logo"
+                  label={t.organizations.form.organizationLogo}
                   htmlFor="logoUrl"
                   error={errors.logoUrl?.message}
                 >
@@ -802,13 +644,13 @@ const EditOrganizationPage = () => {
                     onImageChange={setLogoImage}
                     maxFileSize={5}
                     acceptedFileTypes={["image/jpeg", "image/png", "image/gif"]}
-                    label="Upload Logo"
+                    label={t.organizations.form.uploadLogo}
                   />
                 </FormField>
 
                 {/* Business Hours */}
                 <FormField
-                  label="Business Hours"
+                  label={t.organizations.form.businessHours}
                   htmlFor="businessHours"
                   error={errors.businessHours?.message}
                 >
@@ -826,7 +668,7 @@ const EditOrganizationPage = () => {
 
                 {/* Certificates */}
                 <FormField
-                  label="Certificates"
+                  label={t.organizations.form.certificates}
                   htmlFor="certificates"
                   error={errors.certificates?.message}
                 >
@@ -844,7 +686,7 @@ const EditOrganizationPage = () => {
 
                 {/* Languages */}
                 <FormField
-                  label="Languages"
+                  label={t.organizations.form.languages}
                   htmlFor="languages"
                   error={errors.languages?.message}
                 >
@@ -855,7 +697,7 @@ const EditOrganizationPage = () => {
                       <ChipsInput
                         value={field.value || []}
                         onChange={field.onChange}
-                        placeholder="Add languages (comma-separated)"
+                        placeholder={t.organizations.form.addLanguages}
                         allowDuplicates={false}
                       />
                     )}
@@ -864,7 +706,7 @@ const EditOrganizationPage = () => {
 
                 {/* Brands */}
                 <FormField
-                  label="Brands"
+                  label={t.organizations.form.brands}
                   htmlFor="brands"
                   error={errors.brands?.message}
                 >
@@ -875,7 +717,7 @@ const EditOrganizationPage = () => {
                       <ChipsInput
                         value={field.value || []}
                         onChange={field.onChange}
-                        placeholder="Add brands (comma-separated)"
+                        placeholder={t.organizations.form.addBrands}
                         allowDuplicates={false}
                       />
                     )}
@@ -884,7 +726,7 @@ const EditOrganizationPage = () => {
 
                 {/* Dealership Codes */}
                 <FormField
-                  label="Dealership Codes"
+                  label={t.organizations.form.dealershipCodes}
                   htmlFor="dealershipCodes"
                   error={errors.dealershipCodes?.message}
                 >
@@ -895,7 +737,7 @@ const EditOrganizationPage = () => {
                       <ChipsInput
                         value={field.value || []}
                         onChange={field.onChange}
-                        placeholder="Add dealership codes (comma-separated)"
+                        placeholder={t.organizations.form.addDealershipCodes}
                         allowDuplicates={false}
                       />
                     )}
@@ -912,11 +754,13 @@ const EditOrganizationPage = () => {
                 size="sm"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Updating..." : "Update Organization"}
+                {isSubmitting
+                  ? t.organizations.form.creating
+                  : t.organizations.form.createOrganization}
               </Button>
-              <Link href="/organizations">
+              <Link href={localePath("/organizations/my")}>
                 <Button type="button" variant="outline" size="sm">
-                  Cancel
+                  {t.organizations.form.cancel}
                 </Button>
               </Link>
             </div>
@@ -931,11 +775,11 @@ const EditOrganizationPage = () => {
                 variant="md-semibold-inter"
                 className="text-base font-semibold text-[#1D2939]"
               >
-                My Organizations
+                {t.organizations.form.myOrganizations}
               </Typography>
-              <Link href="/organizations">
+              <Link href={localePath("/organizations/my")}>
                 <Button variant="ghost" size="sm" className="text-purple">
-                  View All
+                  {t.organizations.form.viewAll}
                 </Button>
               </Link>
             </div>
@@ -956,7 +800,7 @@ const EditOrganizationPage = () => {
                   variant="xs-regular-inter"
                   className="text-xs text-[#8A8A8A]"
                 >
-                  No organizations yet
+                  {t.organizations.form.noOrganizationsYet}
                 </Typography>
               </div>
             ) : (
@@ -997,16 +841,19 @@ const EditOrganizationPage = () => {
                         variant="xs-regular-inter"
                         className="text-xs text-[#8A8A8A] truncate"
                       >
-                        {org.type} • {getLocation(org)}
+                        {getOrganizationType(org.type)} • {getLocation(org)}
                       </Typography>
                     </div>
                     {getStatusBadge(org.status)}
                   </div>
                 ))}
                 {organizations.length > 5 && (
-                  <Link href="/organizations">
+                  <Link href={localePath("/organizations/my")}>
                     <Button variant="outline" size="sm" className="w-full mt-2">
-                      View All ({organizations.length})
+                      {t.organizations.form.viewAllCount.replace(
+                        "{count}",
+                        organizations.length.toString()
+                      )}
                     </Button>
                   </Link>
                 )}
@@ -1019,4 +866,4 @@ const EditOrganizationPage = () => {
   );
 };
 
-export default EditOrganizationPage;
+export default NewOrganizationPage;
