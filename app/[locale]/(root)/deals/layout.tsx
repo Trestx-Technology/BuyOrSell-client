@@ -15,14 +15,6 @@ const DealsRootLayout = ({ children }: { children: React.ReactNode }) => {
         minHeight: "100vh",
       }}
     >
-      {/* Emerald Radial Glow Background */}
-      {/* <div
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `radial-gradient(circle 500px at 50% 300px, rgba(16,185,129,0.35), transparent)`,
-        }}
-      />  */}
-
       <Navbar className="hidden sm:flex" />
       <CategoryNav className="hidden sm:block" />
       <section className="w-full max-w-[1280px] mx-auto">{children}</section>
@@ -31,3 +23,4 @@ const DealsRootLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default DealsRootLayout;
+

@@ -99,14 +99,30 @@ export const transformAdToListingCard = (ad: AD, locale?: Locale): ListingCardPr
 
   const extraFields = normalizeExtraFields();
 
-  // Calculate discount if deal is active
-  const discountPercentage = ad.deal && extraFields.discountedPercent
-    ? Number(extraFields.discountedPercent)
-    : undefined;
+  // Calculate discount - prioritize discountedPrice, then discountedPercent from extraFields
+  let currentPrice = ad.price;
+  let originalPrice: number | undefined = undefined;
+  let discountPercentage: number | undefined = undefined;
 
-  const originalPrice = discountPercentage && ad.price
-    ? Math.round(ad.price / (1 - discountPercentage / 100))
-    : undefined;
+  if (ad.discountedPrice !== null && ad.discountedPrice !== undefined && ad.discountedPrice < ad.price) {
+    // discountedPrice is available and is less than price
+    currentPrice = ad.discountedPrice;
+    originalPrice = ad.price;
+    // Calculate discount percentage
+    discountPercentage = Math.round(((ad.price - ad.discountedPrice) / ad.price) * 100);
+  } else {
+    // Try to get discount from extraFields
+    const discountedPercent = ad.deal && extraFields.discountedPercent
+      ? Number(extraFields.discountedPercent)
+      : undefined;
+
+    if (discountedPercent && discountedPercent > 0 && ad.price) {
+      // Calculate original price from discount percentage
+      originalPrice = Math.round(ad.price / (1 - discountedPercent / 100));
+      currentPrice = ad.price; // price is already the discounted price
+      discountPercentage = Math.round(discountedPercent);
+    }
+  }
 
   // Check for exchange availability - these are top-level fields, not in extraFields
   const isExchange = Boolean(
@@ -154,7 +170,7 @@ export const transformAdToListingCard = (ad: AD, locale?: Locale): ListingCardPr
   return {
     id: ad._id,
     title: isArabic && ad.titleAr ? ad.titleAr : ad.title,
-    price: ad.price,
+    price: currentPrice,
     originalPrice,
     discount: discountPercentage,
     isAddedInCollection: ad.isAddedInCollection,

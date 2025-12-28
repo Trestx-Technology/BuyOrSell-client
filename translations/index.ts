@@ -50,6 +50,7 @@ import { categoriesTranslations } from "./categories";
 import { userTranslations } from "./user";
 import { organizationTranslations } from "./organizations";
 import { sellerTranslations } from "./seller";
+import { dealsTranslations } from "./deals";
 import type { Translations } from "./types";
 import { DEFAULT_LOCALE } from "../validations/utils";
 
@@ -66,6 +67,7 @@ const translationRegistry = {
   user: userTranslations,
   organizations: organizationTranslations,
   seller: sellerTranslations,
+  deals: dealsTranslations,
 } as const;
 
 /**
@@ -129,6 +131,7 @@ export { categoriesTranslations } from "./categories";
 export { userTranslations } from "./user";
 export { organizationTranslations } from "./organizations";
 export { sellerTranslations } from "./seller";
+export { dealsTranslations } from "./deals";
 
 // Export types
 export type { Translations } from "./types";

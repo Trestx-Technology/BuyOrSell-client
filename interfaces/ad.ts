@@ -116,6 +116,8 @@ export type AD = {
     _id?: string;
   };
   exchanged?: boolean; // Whether item has been exchanged
+  discountedPrice?: number; // Discounted price when deal is active
+  dealValidThru?: string; // ISO 8601 date string for deal validity
   createdAt: string;
   updatedAt: string;
   __v: number;
