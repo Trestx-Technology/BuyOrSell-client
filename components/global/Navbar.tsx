@@ -3,11 +3,7 @@
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  ChevronDown,
-  Bell,
-  LogOut,
-} from "lucide-react";
+import { ChevronDown, Bell, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -28,7 +24,7 @@ import {
 } from "@/components/ui/popover";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
-import { logout as LogoutAPI } from '@/app/api/auth/auth.services';
+import { logout as LogoutAPI } from "@/app/api/auth/auth.services";
 import { toast } from "sonner";
 import { useEmirates } from "@/hooks/useLocations";
 import { createUrlParamHandler } from "@/utils/url-params";
@@ -45,7 +41,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
   const { isAuthenticated, session, clearSession } = useAuthStore();
   const user = session.user;
   const { data: emirates, isLoading: isLoadingEmirates } = useEmirates();
-  const { t,locale } = useLocale();
+  const { t, locale } = useLocale();
 
   // Initialize city from URL query parameter
   useQueryParam(searchParams, "emirate", setCity);
@@ -69,7 +65,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
     } finally {
       // Always clear Zustand store state and redirect, even if API call failed
       await clearSession();
-      
+
       toast.success("Logged out successfully");
       router.push("/");
       router.refresh();
@@ -82,50 +78,50 @@ const NavbarContent = ({ className }: { className?: string }) => {
         className={cn(
           "flex max-w-[1080px] gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between overflow-visible",
           className,
-          locale === 'ar' ? 'flex-row-reverse' : 'flex-row'
+          locale === "ar" ? "flex-row-reverse" : "flex-row"
         )}
       >
         <div className="flex items-center gap-2">
           {/*-------------- Side Menu for mobile devices---------- */}
-            <SideMenu
-              user={
-                user
-                  ? {
-                      name: `${user.firstName} ${user.lastName}`,
-                      email: user.email,
-                      avatar: "/images/ai-prompt/add-image.png",
-                      isVerified: user.emailVerified,
-                    }
-                  : undefined
-              }
-              trigger={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  iconPosition="center"
-                  className="bg-[#F2F4F7] rounded-full size-8 border-[#E7E7E7] hover:bg-transparent md:hidden"
-                  icon={
-                    <Image
-                      src={ICONS.ui.hamburger}
-                      width={18}
-                      height={18}
-                      alt="Hamburger Menu"
-                    />
+          <SideMenu
+            user={
+              user
+                ? {
+                    name: `${user.firstName} ${user.lastName}`,
+                    email: user.email,
+                    avatar: "/images/ai-prompt/add-image.png",
+                    isVerified: user.emailVerified,
                   }
-                />
-              }
-              isLoggedIn={isAuthenticated}
-          />
-          
-          {/*-------------- Logo and Brand Name---------- */}
-            <Link href="/" className="flex items-center">
-              <Image
-                src={ICONS.logo.main}
-                alt="BuyOrSell Logo"
-                width={156}
-                height={49}
+                : undefined
+            }
+            trigger={
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                iconPosition="center"
+                className="bg-[#F2F4F7] rounded-full size-8 border-[#E7E7E7] hover:bg-transparent md:hidden"
+                icon={
+                  <Image
+                    src={ICONS.ui.hamburger}
+                    width={18}
+                    height={18}
+                    alt="Hamburger Menu"
+                  />
+                }
               />
-            </Link>
+            }
+            isLoggedIn={isAuthenticated}
+          />
+
+          {/*-------------- Logo and Brand Name---------- */}
+          <Link href="/" className="flex items-center">
+            <Image
+              src={ICONS.logo.main}
+              alt="BuyOrSell Logo"
+              width={156}
+              height={49}
+            />
+          </Link>
         </div>
 
         {/*-------------- Center Section - Location and Search---------- */}
@@ -139,42 +135,42 @@ const NavbarContent = ({ className }: { className?: string }) => {
           />
 
           {/*---------- Location Selector for desktop devices---------- */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  icon={<ChevronDown className="-ml-3" />}
-                  iconPosition="right"
-                  className="py-2 text-xs text-secondary-40 hover:text-purple transition-colors whitespace-nowrap border-0 px-0 shadow-none data-[state=open]:text-purple focus:outline-none focus:ring-0 hover:bg-transparent"
-                >
-                  {city || "UAE"}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-fit text-xs max-h-[300px] overflow-y-auto"
-                align="start"
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                icon={<ChevronDown className="-ml-3" />}
+                iconPosition="right"
+                className="py-2 text-xs text-secondary-40 hover:text-purple transition-colors whitespace-nowrap border-0 px-0 shadow-none data-[state=open]:text-purple focus:outline-none focus:ring-0 hover:bg-transparent"
               >
-                <DropdownMenuItem onClick={() => handleCityChange("")}>
-                  All Cities (UAE)
+                {city || "UAE"}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="w-fit text-xs max-h-[300px] overflow-y-auto"
+              align="start"
+            >
+              <DropdownMenuItem onClick={() => handleCityChange("")}>
+                All Cities (UAE)
               </DropdownMenuItem>
               {/* TODO: fix this */}
-                {isLoadingEmirates ? (
-                  Array.from({ length: 5 }).map((_, i) => (
+              {isLoadingEmirates
+                ? Array.from({ length: 5 }).map((_, i) => (
                     <DropdownMenuItem key={i}>
                       <div className="animate-pulse bg-gray-300 h-5 w-full rounded-sm"></div>
                     </DropdownMenuItem>
                   ))
-                ) : (
-                  emirates?.map((emirate) => {
+                : emirates?.map((emirate) => {
                     // Extract emirate properties
                     const emirateName = emirate.emirate;
                     const emirateNameAr = emirate.emirateAr;
-                    
+
                     // Display Arabic if locale is ar, otherwise English
-                    const displayName = locale === 'ar' ? emirateNameAr : emirateName;
+                    const displayName =
+                      locale === "ar" ? emirateNameAr : emirateName;
                     // Use English name for URL/state (consistent identifier)
                     const emirateValue = emirateName;
-                    
+
                     return (
                       <DropdownMenuItem
                         key={emirateName}
@@ -189,10 +185,9 @@ const NavbarContent = ({ className }: { className?: string }) => {
                         {displayName}
                       </DropdownMenuItem>
                     );
-                  })
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  })}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <div className="hidden md:flex flex-1">
             <SearchAnimated />
@@ -365,7 +360,9 @@ const NavbarContent = ({ className }: { className?: string }) => {
             className="px-4 text-xs font-medium text-white h-10"
           >
             <span className="hidden lg:block">{t.home.navbar.placeAd}</span>
-            <span className="block lg:hidden">{t.home.navbar.placeAdShort}</span>
+            <span className="block lg:hidden">
+              {t.home.navbar.placeAdShort}
+            </span>
           </Button>
         </div>
       </nav>
