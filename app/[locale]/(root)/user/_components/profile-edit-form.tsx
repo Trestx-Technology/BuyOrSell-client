@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { MapPin, StarIcon, CameraIcon } from "lucide-react";
 import Image from "next/image";
-import { FormField } from "@/app/(root)/post-ad/details/_components/FormField";
+import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 import OTPVerificationDialog from "./otp-verification-dialog";
 
 interface ProfileFormData {

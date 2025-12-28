@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { Typography } from "@/components/typography";
-import SortAndViewControls from "@/app/(root)/post-ad/_components/SortAndViewControls";
+import SortAndViewControls from "@/app/[locale]/(root)/post-ad/_components/SortAndViewControls";
 import { ProductExtraFields, AD } from "@/interfaces/ad";
 import ListingCard from "@/components/global/listing-card";
 import { useLocale } from "@/hooks/useLocale";

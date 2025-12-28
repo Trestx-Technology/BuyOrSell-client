@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { FormField } from "@/app/(root)/post-ad/details/_components/FormField";
+import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 import { useLocale } from "@/hooks/useLocale";
 import { useEmirates } from "@/hooks/useLocations";
 

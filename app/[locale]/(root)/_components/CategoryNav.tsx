@@ -571,6 +571,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
  * - activeCategory: Which subcategory in left panel is hovered (shows right panel)
  */
 const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
+  const { localePath } = useLocale();
   // ========================================================================
   // STATE MANAGEMENT
   // ========================================================================
@@ -920,7 +921,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link
-                        href="/chat"
+                        href={localePath("/chat")}
                         className="min-w-6 min-[1080px]:block hidden"
                       >
                         <Image
