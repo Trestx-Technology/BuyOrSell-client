@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   ChevronLeft,
@@ -12,39 +12,48 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
+import { useLocale } from "@/hooks/useLocale";
+import { toast } from "sonner";
+import { useSubmitRating } from "@/hooks/useRateUs";
 
 const RateUsPage = () => {
+  const { t, localePath } = useLocale();
+  const submitRatingMutation = useSubmitRating();
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [selectedFeedback, setSelectedFeedback] = useState<string[]>([]);
+  const [title, setTitle] = useState("");
   const [comments, setComments] = useState("");
 
-  const feedbackOptions = [
-    {
-      id: "easy-to-use",
-      label: "Easy to Use",
-      icon: ThumbsUp,
-      color: "text-green-500",
-    },
-    {
-      id: "user-friendly",
-      label: "User Friendly",
-      icon: Heart,
-      color: "text-red-500",
-    },
-    {
-      id: "fast-reliable",
-      label: "Fast & Reliable",
-      icon: Star,
-      color: "text-yellow-500",
-    },
-    {
-      id: "would-recommend",
-      label: "Would Recommend",
-      icon: MessageCircle,
-      color: "text-purple-500",
-    },
-  ];
+  const feedbackOptions = useMemo(
+    () => [
+      {
+        id: "easy-to-use",
+        label: t.rateUs.feedbackOptions.easyToUse,
+        icon: ThumbsUp,
+        color: "text-green-500",
+      },
+      {
+        id: "user-friendly",
+        label: t.rateUs.feedbackOptions.userFriendly,
+        icon: Heart,
+        color: "text-red-500",
+      },
+      {
+        id: "fast-reliable",
+        label: t.rateUs.feedbackOptions.fastReliable,
+        icon: Star,
+        color: "text-yellow-500",
+      },
+      {
+        id: "would-recommend",
+        label: t.rateUs.feedbackOptions.wouldRecommend,
+        icon: MessageCircle,
+        color: "text-purple-500",
+      },
+    ],
+    [t]
+  );
 
   const handleFeedbackToggle = (feedbackId: string) => {
     setSelectedFeedback((prev) =>
@@ -54,25 +63,31 @@ const RateUsPage = () => {
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (rating === 0) {
-      alert("Please select a star rating");
+      toast.error(t.rateUs.selectRating);
       return;
     }
 
-    const ratingData = {
-      rating,
-      feedback: selectedFeedback,
-      comments,
-    };
+    try {
+      await submitRatingMutation.mutateAsync({
+        rating,
+        title: title.trim() || t.rateUs.title,
+        comment: comments.trim(),
+      });
 
-    console.log("Submitting rating:", ratingData);
-    alert("Thank you for your feedback! Your rating has been submitted.");
+      toast.success(`${t.rateUs.thankYouFeedback} ${t.rateUs.ratingSubmitted}`);
 
-    // Reset form
-    setRating(0);
-    setSelectedFeedback([]);
-    setComments("");
+      // Reset form
+      setRating(0);
+      setHoverRating(0);
+      setSelectedFeedback([]);
+      setTitle("");
+      setComments("");
+    } catch (error) {
+      console.error("Error submitting rating:", error);
+      toast.error("Failed to submit rating. Please try again later.");
+    }
   };
 
   return (
@@ -88,7 +103,7 @@ const RateUsPage = () => {
           onClick={() => window.history.back()}
         />
         <Typography variant="lg-semibold" className="text-dark-blue">
-          Rate Us
+          {t.rateUs.title}
         </Typography>
       </div>
 
@@ -96,17 +111,17 @@ const RateUsPage = () => {
         {/* Desktop Breadcrumbs */}
         <div className="hidden sm:flex items-center gap-2">
           <Link
-            href="/?login=true"
+            href={localePath("/")}
             className="text-gray-400 font-semibold text-sm hover:text-purple"
           >
             Home
           </Link>
           <ChevronsRight className="size-6 text-purple" />
           <Link
-            href="/rate-us"
+            href={localePath("/rate-us")}
             className="text-purple-600 font-semibold text-sm"
           >
-            Rate Us
+            {t.rateUs.title}
           </Link>
         </div>
 
@@ -114,7 +129,9 @@ const RateUsPage = () => {
         <div className="sm:bg-white sm:rounded-2xl border-0 sm:border border-gray-200 sm:shadow-sm max-w-2xl w-full mx-auto">
           {/* Header */}
           <div className="hidden sm:block text-center py-6">
-            <h2 className="text-xl font-semibold text-gray-900">Rate Us</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              {t.rateUs.title}
+            </h2>
           </div>
 
           <div className="px-6 sm:px-6">
@@ -122,16 +139,16 @@ const RateUsPage = () => {
             <div className="text-center py-8">
               <div className="mb-4">
                 <span className="inline-block bg-red-100 text-red-600 text-sm font-medium px-3 py-1 rounded-full">
-                  Tap to rate
+                  {t.rateUs.tapToRate}
                 </span>
               </div>
 
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  How was your experience?
+                  {t.rateUs.howWasExperience}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  Your feedback helps us improve
+                  {t.rateUs.feedbackHelps}
                 </p>
               </div>
 
@@ -158,9 +175,9 @@ const RateUsPage = () => {
             </div>
 
             {/* Quick Feedback */}
-            <div className="mb-8">
+            {/* <div className="mb-8">
               <h4 className="text-sm font-semibold text-gray-900 text-center mb-4">
-                Quick Feedback
+                {t.rateUs.quickFeedback}
               </h4>
 
               <div className="grid grid-cols-2 gap-3">
@@ -186,18 +203,33 @@ const RateUsPage = () => {
                   );
                 })}
               </div>
+            </div> */}
+
+            {/* Title Section */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Title (optional)
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter a title for your feedback"
+                maxLength={100}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm"
+              />
             </div>
 
             {/* Comments Section */}
             <div className="mb-8">
               <label className="block text-sm font-semibold text-gray-900 mb-2">
-                Tell us more (optional)
+                {t.rateUs.tellUsMore}
               </label>
               <div className="relative">
                 <textarea
                   value={comments}
                   onChange={(e) => setComments(e.target.value)}
-                  placeholder="Share your thoughts about our platform..."
+                  placeholder={t.rateUs.tellUsMorePlaceholder}
                   rows={4}
                   maxLength={200}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm resize-none"
@@ -212,9 +244,12 @@ const RateUsPage = () => {
             <div className="pb-6">
               <Button
                 onClick={handleSubmit}
-                className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 text-base font-medium transition-colors"
+                disabled={submitRatingMutation.isPending}
+                className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 text-base font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit Rating
+                {submitRatingMutation.isPending
+                  ? "Submitting..."
+                  : t.rateUs.submitRating}
               </Button>
             </div>
           </div>

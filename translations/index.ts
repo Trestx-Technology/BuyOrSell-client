@@ -52,6 +52,7 @@ import { organizationTranslations } from "./organizations";
 import { sellerTranslations } from "./seller";
 import { dealsTranslations } from "./deals";
 import { plansTranslations } from "./plans";
+import { rateUsTranslations } from "./rate-us";
 import type { Translations } from "./types";
 import { DEFAULT_LOCALE } from "../validations/utils";
 
@@ -70,6 +71,7 @@ const translationRegistry = {
   seller: sellerTranslations,
   deals: dealsTranslations,
   plans: plansTranslations,
+  rateUs: rateUsTranslations,
 } as const;
 
 /**
@@ -135,6 +137,7 @@ export { organizationTranslations } from "./organizations";
 export { sellerTranslations } from "./seller";
 export { dealsTranslations } from "./deals";
 export { plansTranslations } from "./plans";
+export { rateUsTranslations } from "./rate-us";
 
 // Export types
 export type { Translations } from "./types";
