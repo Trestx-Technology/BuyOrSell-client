@@ -37,8 +37,8 @@ import { SearchAnimated } from "@/components/global/ai-search-bar";
 import { useRouter } from "nextjs-toploader/app";
 import { useLocale } from "@/hooks/useLocale";
 import { Typography } from "@/components/typography";
-import SearchHistoryPopover from "../../user/search-history/_components/SearchHistoryPopover";
-import NotificationsPopover from "../../user/notifications/_components/NotificationsPopover";
+import SearchHistoryPopover from "../user/search-history/_components/SearchHistoryPopover";
+import NotificationsPopover from "../user/notifications/_components/NotificationsPopover";
 
 // ============================================================================
 // ANIMATION VARIANTS

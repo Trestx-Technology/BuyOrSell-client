@@ -239,7 +239,7 @@ export default function SellerListings({
               }
             : undefined;
 
-          // Calculate discount info from extraFields
+          // Calculate discount info - prioritize discountedPrice, then discountedPercent from extraFields
           const extraFieldsObj = Array.isArray(ad.extraFields)
             ? ad.extraFields.reduce((acc, field) => {
                 if (
@@ -254,21 +254,38 @@ export default function SellerListings({
               }, {} as Record<string, any>)
             : (ad.extraFields as Record<string, any>) || {};
 
-          const discountPercentage = extraFieldsObj.discountedPercent
-            ? Number(extraFieldsObj.discountedPercent)
-            : undefined;
+          // Use discountedPrice if available (this is the actual discounted price)
+          // If discountedPrice exists, price is the original price
+          let currentPrice = ad.price;
+          let originalPrice: number | undefined = undefined;
+          let discountPercentage: number | undefined = undefined;
 
-          const originalPrice =
-            discountPercentage && ad.price
-              ? Math.round(ad.price / (1 - discountPercentage / 100))
+          if (ad.discountedPrice !== null && ad.discountedPrice !== undefined && ad.discountedPrice < ad.price) {
+            // discountedPrice is available and is less than price
+            currentPrice = ad.discountedPrice;
+            originalPrice = ad.price;
+            // Calculate discount percentage
+            discountPercentage = Math.round(((ad.price - ad.discountedPrice) / ad.price) * 100);
+          } else {
+            // Try to get discount from extraFields
+            const discountedPercent = extraFieldsObj.discountedPercent
+              ? Number(extraFieldsObj.discountedPercent)
               : undefined;
+
+            if (discountedPercent && discountedPercent > 0 && ad.price) {
+              // Calculate original price from discount percentage
+              originalPrice = Math.round(ad.price / (1 - discountedPercent / 100));
+              currentPrice = ad.price; // price is already the discounted price
+              discountPercentage = Math.round(discountedPercent);
+            }
+          }
 
           return (
             <ListingCard
               key={ad._id}
               id={ad._id}
               title={ad.title}
-              price={ad.price}
+              price={currentPrice}
               originalPrice={originalPrice}
               discount={discountPercentage}
               location={locationString}

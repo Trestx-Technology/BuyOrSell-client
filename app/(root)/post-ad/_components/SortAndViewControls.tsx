@@ -88,7 +88,8 @@ const SortAndViewControls: React.FC<SortAndViewControlsProps> = ({
             onClick={() => handleViewChange("grid")}
             disabled={disabled}
           />
-          <Button
+          {/* TODO: Add list view toggle back in */}
+          {/* <Button
             icon={<Menu />}
             iconPosition="left"
             variant={viewMode === "list" ? "primary" : "ghost"}
@@ -100,7 +101,7 @@ const SortAndViewControls: React.FC<SortAndViewControlsProps> = ({
             )}
             onClick={() => handleViewChange("list")}
             disabled={disabled}
-          />
+          /> */}
         </div>
       )}
 
