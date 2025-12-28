@@ -11,6 +11,7 @@ import { SearchHistoryTranslations } from "../search-history/types";
 import { NotificationsTranslations } from "../notifications/types";
 import { FavoritesTranslations } from "../favorites/types";
 import { CategoriesTranslations } from "../categories/types";
+import { UserTranslations } from "../user/types";
 export type { CommonTranslations } from "../common/types";
 
 // Re-export commonly used types
@@ -31,4 +32,5 @@ export type Translations = {
   notifications: NotificationsTranslations;
   favorites: FavoritesTranslations;
   categories: CategoriesTranslations;
+  user: UserTranslations;
 };

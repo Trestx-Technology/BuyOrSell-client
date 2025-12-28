@@ -47,6 +47,7 @@ import { searchHistoryTranslations } from "./search-history";
 import { notificationsTranslations } from "./notifications";
 import { favoritesTranslations } from "./favorites";
 import { categoriesTranslations } from "./categories";
+import { userTranslations } from "./user";
 import type { Translations } from "./types";
 import { DEFAULT_LOCALE } from "../validations/utils";
 
@@ -60,6 +61,7 @@ const translationRegistry = {
   notifications: notificationsTranslations,
   favorites: favoritesTranslations,
   categories: categoriesTranslations,
+  user: userTranslations,
 } as const;
 
 /**
@@ -120,6 +122,7 @@ export { searchHistoryTranslations } from "./search-history";
 export { notificationsTranslations } from "./notifications";
 export { favoritesTranslations } from "./favorites";
 export { categoriesTranslations } from "./categories";
+export { userTranslations } from "./user";
 
 // Export types
 export type { Translations } from "./types";

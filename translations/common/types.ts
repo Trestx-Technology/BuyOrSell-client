@@ -18,4 +18,12 @@ export type CommonTranslations = {
   sort: string;
   showMore: string;
   showLess: string;
+  noInternet: {
+    title: string;
+    description: string;
+    tryAgain: string;
+    checkingConnection: string;
+    goToHome: string;
+    connectionRestored: string;
+  };
 };

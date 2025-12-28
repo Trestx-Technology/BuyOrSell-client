@@ -19,6 +19,15 @@ export const commonTranslations = createTranslationNamespace<CommonTranslations>
     sort: 'Sort',
     showMore: 'Show more',
     showLess: 'Show less',
+    noInternet: {
+      title: 'No Internet Connection',
+      description:
+        "It looks like you're having trouble connecting to the internet. Please check your connection and try again.",
+      tryAgain: 'Try Again',
+      checkingConnection: 'Checking Connection...',
+      goToHome: 'Go to Home',
+      connectionRestored: 'Connection restored! Redirecting...',
+    },
   },
   'nl-NL': {
     viewAll: 'Alles bekijken',
@@ -37,6 +46,15 @@ export const commonTranslations = createTranslationNamespace<CommonTranslations>
     sort: 'Sorteren',
     showMore: 'Meer tonen',
     showLess: 'Minder tonen',
+    noInternet: {
+      title: 'Geen Internetverbinding',
+      description:
+        'Het lijkt erop dat u problemen heeft met het verbinden met internet. Controleer uw verbinding en probeer het opnieuw.',
+      tryAgain: 'Probeer Opnieuw',
+      checkingConnection: 'Verbinding Controleren...',
+      goToHome: 'Ga naar Home',
+      connectionRestored: 'Verbinding hersteld! Doorverwijzen...',
+    },
   },
   'nl': {
     viewAll: 'Alles bekijken',
@@ -55,6 +73,15 @@ export const commonTranslations = createTranslationNamespace<CommonTranslations>
     sort: 'Sorteren',
     showMore: 'Meer tonen',
     showLess: 'Minder tonen',
+    noInternet: {
+      title: 'Geen Internetverbinding',
+      description:
+        'Het lijkt erop dat u problemen heeft met het verbinden met internet. Controleer uw verbinding en probeer het opnieuw.',
+      tryAgain: 'Probeer Opnieuw',
+      checkingConnection: 'Verbinding Controleren...',
+      goToHome: 'Ga naar Home',
+      connectionRestored: 'Verbinding hersteld! Doorverwijzen...',
+    },
   },
   'ar': {
     viewAll: 'عرض الكل',
@@ -73,5 +100,14 @@ export const commonTranslations = createTranslationNamespace<CommonTranslations>
     sort: 'ترتيب',
     showMore: 'عرض المزيد',
     showLess: 'عرض أقل',
+    noInternet: {
+      title: 'لا يوجد اتصال بالإنترنت',
+      description:
+        'يبدو أنك تواجه مشكلة في الاتصال بالإنترنت. يرجى التحقق من اتصالك والمحاولة مرة أخرى.',
+      tryAgain: 'حاول مرة أخرى',
+      checkingConnection: 'جارٍ التحقق من الاتصال...',
+      goToHome: 'الذهاب إلى الصفحة الرئيسية',
+      connectionRestored: 'تم استعادة الاتصال! جاري إعادة التوجيه...',
+    },
   },
 });
