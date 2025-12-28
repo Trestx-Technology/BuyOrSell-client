@@ -28,7 +28,7 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
   className = "",
 }) => {
   // TODO: add Skeleton
-  const { t } = useLocale();
+  const { t, localePath } = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const session = useAuthStore((state) => state.session);
@@ -126,7 +126,7 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
 
           <div className="flex justify-center">
             <Link
-              href="/user/search-history"
+              href={localePath("/user/search-history")}
               className="text-xs text-purple-600 hover:text-purple-700 font-medium mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
             >
               View All

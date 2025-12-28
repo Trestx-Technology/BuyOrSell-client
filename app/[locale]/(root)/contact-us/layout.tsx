@@ -2,7 +2,7 @@ import Navbar from "@/components/global/Navbar";
 import React from "react";
 import CategoryNav from "@/app/[locale]/(root)/_components/CategoryNav";
 
-const UserLayout = ({ children }: { children: React.ReactNode }) => {
+const ContactUsLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <main className="bg-[#F9FAFC]">
       <Navbar className="hidden sm:flex" />
@@ -12,4 +12,5 @@ const UserLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default UserLayout;
+export default ContactUsLayout;
+

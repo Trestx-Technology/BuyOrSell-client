@@ -12,14 +12,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
 import Link from "next/link";
+import { useLocale } from "@/hooks/useLocale";
+import { useRouter } from "next/navigation";
+import { useSubmitContactForm } from "@/hooks/useContactUs";
+import { toast } from "sonner";
 
 const ContactUsPage = () => {
+  const { localePath } = useLocale();
+  const router = useRouter();
+  const submitContactMutation = useSubmitContactForm();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     category: "",
     subject: "",
     message: "",
+    orderId: "",
   });
 
   const handleInputChange =
@@ -35,34 +44,53 @@ const ContactUsPage = () => {
       }));
     };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Basic validation
     if (!formData.name || !formData.email || !formData.message) {
-      alert("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       return;
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      alert("Please enter a valid email address");
+      toast.error("Please enter a valid email address");
       return;
     }
 
-    // Here you would typically make an API call to send the message
-    console.log("Sending contact message:", formData);
-    alert("Thank you for your message! We'll get back to you soon.");
+    try {
+      await submitContactMutation.mutateAsync({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        category: formData.category || undefined,
+        subject: formData.subject || undefined,
+        message: formData.message,
+        orderId: formData.orderId || undefined,
+      });
 
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      category: "",
-      subject: "",
-      message: "",
-    });
+      toast.success("Thank you for your message! We'll get back to you soon.");
+
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        category: "",
+        subject: "",
+        message: "",
+        orderId: "",
+      });
+    } catch (error) {
+      console.error("Error submitting contact form:", error);
+      toast.error("Failed to send message. Please try again later.");
+    }
+  };
+
+  const handleBack = () => {
+    router.push(localePath("/"));
   };
 
   return (
@@ -74,6 +102,7 @@ const ContactUsPage = () => {
           iconPosition="center"
           size={"icon-sm"}
           className="absolute left-4 text-purple"
+          onClick={handleBack}
         />
         <Typography variant="lg-semibold" className="text-dark-blue">
           Contact us
@@ -82,14 +111,14 @@ const ContactUsPage = () => {
       <div className="sm:px-4 xl:px-0 flex flex-col gap-5 sm:py-8">
         <div className="hidden sm:flex items-center gap-2">
           <Link
-            href={"/?login=true"}
+            href={localePath("/")}
             className="text-gray-400 font-semibold text-sm hover:text-purple"
           >
             Home
           </Link>
           <ChevronsRight className="size-6 text-purple" />
           <Link
-            href={"/contact-us"}
+            href={localePath("/contact-us")}
             className="text-purple-600 font-semibold text-sm"
           >
             Contact us
@@ -192,6 +221,20 @@ const ContactUsPage = () => {
                       />
                     </div>
 
+                    {/* Phone */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 mb-2">
+                        Phone
+                      </label>
+                      <input
+                        type="tel"
+                        value={formData.phone}
+                        onChange={handleInputChange("phone")}
+                        placeholder="+12025550123"
+                        className="w-full px-4 py-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm"
+                      />
+                    </div>
+
                     {/* Category */}
                     <div>
                       <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -228,6 +271,20 @@ const ContactUsPage = () => {
                       />
                     </div>
 
+                    {/* Order ID */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-900 mb-2">
+                        Order ID
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.orderId}
+                        onChange={handleInputChange("orderId")}
+                        placeholder="Order ID (if applicable)"
+                        className="w-full px-4 py-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm"
+                      />
+                    </div>
+
                     {/* Message */}
                     <div>
                       <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -247,9 +304,12 @@ const ContactUsPage = () => {
                     <div className="pt-4">
                       <Button
                         type="submit"
-                        className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 text-base font-medium transition-colors"
+                        disabled={submitContactMutation.isPending}
+                        className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 text-base font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Send Message
+                        {submitContactMutation.isPending
+                          ? "Sending..."
+                          : "Send Message"}
                       </Button>
                     </div>
                   </form>
