@@ -15,6 +15,7 @@ import { UserTranslations } from "../user/types";
 import { OrganizationTranslations } from "../organizations/types";
 import { SellerTranslations } from "../seller/types";
 import { DealsTranslations } from "../deals/types";
+import { PlansTranslations } from "../plans/types";
 export type { CommonTranslations } from "../common/types";
 
 // Re-export commonly used types
@@ -39,4 +40,5 @@ export type Translations = {
   organizations: OrganizationTranslations;
   seller: SellerTranslations;
   deals: DealsTranslations;
+  plans: PlansTranslations;
 };

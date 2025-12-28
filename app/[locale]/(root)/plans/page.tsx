@@ -1,72 +1,53 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Check, Star, X, Award } from "lucide-react";
+import { useLocale } from "@/hooks/useLocale";
 
 export default function PlansPage() {
+  const { t } = useLocale();
   const [isYearly, setIsYearly] = useState(false);
 
-  const plans = [
-    {
-      name: "Basic",
-      icon: Star,
-      price: isYearly ? "Đ19" : "Đ19",
-      originalPrice: "Đ29",
-      description: "For solo entrepreneurs",
-      features: [
-        "2% 3rd-party payment providers",
-        "10 inventory locations",
-        "24/7 chat support",
-        "Localized global selling (3 markets)",
-        "POS Lite",
-      ],
-      buttonText: "Start 7-day free trial",
-      isPopular: false,
-      isPremium: false,
-    },
-    {
-      name: "Advanced",
-      icon: X,
-      price: isYearly ? "Đ299" : "Đ299",
-      originalPrice: "Đ399",
-      description: "As your business scales",
-      features: [
-        "0.6% 3rd-party payment providers",
-        "Custom reports and analytics",
-        "10 inventory locations",
-        "Enhanced 24/7 chat support",
-        "Localized global selling (3 markets) + add markets for $59 USD/mo each",
-        "15 additional staff accounts",
-        "10x checkout capacity",
-        "POS Lite",
-      ],
-      buttonText: "Start 7-day free trial",
-      isPopular: false,
-      isPremium: false,
-    },
-    {
-      name: "Premium",
-      icon: Award,
-      price: isYearly ? "Đ2,299" : "Đ2,299",
-      originalPrice: "Đ129",
-      description: "For more complex businesses",
-      features: [
-        "Competitive rates for high-volume merchants",
-        "Custom reports and analytics",
-        "Priority 24/7 phone support",
-        "Localized global selling (50 markets)",
-        "Unlimited staff accounts",
-        "Fully customizable checkout with 40x capacity",
-        "200 POS Pro",
-        "Sell wholesale/B2B",
-      ],
-      buttonText: "Start 7-day free trial",
-      isPopular: true,
-      isPremium: true,
-    },
-  ];
+  const plans = useMemo(
+    () => [
+      {
+        name: t.plans.plans.basic.name,
+        icon: Star,
+        price: isYearly ? "Đ19" : "Đ19",
+        originalPrice: "Đ29",
+        description: t.plans.plans.basic.description,
+        features: t.plans.plans.basic.features,
+        buttonText: t.plans.plans.basic.buttonText,
+        isPopular: false,
+        isPremium: false,
+      },
+      {
+        name: t.plans.plans.advanced.name,
+        icon: X,
+        price: isYearly ? "Đ299" : "Đ299",
+        originalPrice: "Đ399",
+        description: t.plans.plans.advanced.description,
+        features: t.plans.plans.advanced.features,
+        buttonText: t.plans.plans.advanced.buttonText,
+        isPopular: false,
+        isPremium: false,
+      },
+      {
+        name: t.plans.plans.premium.name,
+        icon: Award,
+        price: isYearly ? "Đ2,299" : "Đ2,299",
+        originalPrice: "Đ129",
+        description: t.plans.plans.premium.description,
+        features: t.plans.plans.premium.features,
+        buttonText: t.plans.plans.premium.buttonText,
+        isPopular: true,
+        isPremium: true,
+      },
+    ],
+    [t, isYearly]
+  );
 
   return (
     <div className="min-h-screen bg-white">
@@ -75,17 +56,17 @@ export default function PlansPage() {
         <div className="text-center mb-16">
           {/* Plans and pricing badge */}
           <div className="inline-block bg-black text-white px-3 py-1 rounded-lg text-sm font-medium mb-6">
-            Plans and pricing
+            {t.plans.badge}
           </div>
 
           <Typography variant="5xl-bold" className="text-black mb-4">
-            Transparent pricing for all.
+            {t.plans.title}
           </Typography>
           <Typography
             variant="lg-regular"
             className="text-gray-600 max-w-2xl mx-auto mb-8"
           >
-            Choose the best plan for your business. Change plans as you grow.
+            {t.plans.subtitle}
           </Typography>
 
           {/* Monthly/Yearly Toggle */}
@@ -99,7 +80,7 @@ export default function PlansPage() {
                     : "text-gray-600 hover:text-black"
                 }`}
               >
-                Monthly
+                {t.plans.monthly}
               </button>
               <button
                 onClick={() => setIsYearly(true)}
@@ -109,7 +90,7 @@ export default function PlansPage() {
                     : "text-gray-600 hover:text-black"
                 }`}
               >
-                Yearly
+                {t.plans.yearly}
               </button>
             </div>
           </div>
@@ -168,7 +149,7 @@ export default function PlansPage() {
                         plan.isPremium ? "text-purple-200" : "text-gray-500"
                       }
                     >
-                      /per month
+                      {t.plans.perMonth}
                     </Typography>
                   </div>
                   <Typography
