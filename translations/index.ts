@@ -48,6 +48,8 @@ import { notificationsTranslations } from "./notifications";
 import { favoritesTranslations } from "./favorites";
 import { categoriesTranslations } from "./categories";
 import { userTranslations } from "./user";
+import { organizationTranslations } from "./organizations";
+import { sellerTranslations } from "./seller";
 import type { Translations } from "./types";
 import { DEFAULT_LOCALE } from "../validations/utils";
 
@@ -62,6 +64,8 @@ const translationRegistry = {
   favorites: favoritesTranslations,
   categories: categoriesTranslations,
   user: userTranslations,
+  organizations: organizationTranslations,
+  seller: sellerTranslations,
 } as const;
 
 /**
@@ -123,6 +127,8 @@ export { notificationsTranslations } from "./notifications";
 export { favoritesTranslations } from "./favorites";
 export { categoriesTranslations } from "./categories";
 export { userTranslations } from "./user";
+export { organizationTranslations } from "./organizations";
+export { sellerTranslations } from "./seller";
 
 // Export types
 export type { Translations } from "./types";
