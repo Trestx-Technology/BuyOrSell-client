@@ -18,6 +18,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [, setMapTimeout] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   // Extract location data from ad
   const getLocationAddress = (): string => {
@@ -106,14 +107,20 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
     return () => clearTimeout(timeout);
   }, []); // Empty dependency array - only run once
 
-  // Initialize map - only when not loading and Google Maps is available
+  // Initialize map - only when not loading, Google Maps is available, and showMap is true
   useEffect(() => {
     console.log("Map init effect triggered:", {
       hasGoogle: !!window.google,
       hasMapRef: !!mapRef.current,
       isLoading,
+      showMap,
       apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY ? "Present" : "Missing",
     });
+
+    if (!showMap) {
+      console.log("Map not requested yet");
+      return;
+    }
 
     if (!window.google || !window.google.maps) {
       console.log("Google Maps not ready yet");
@@ -190,12 +197,10 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]); // Only re-initialize when loading state changes
+  }, [isLoading, showMap]); // Re-initialize when loading state or showMap changes
 
   const handleViewInMap = () => {
-    // Open Google Maps in new tab
-    const url = `https://www.google.com/maps?q=${locationData.coordinates.lat},${locationData.coordinates.lng}`;
-    window.open(url, "_blank");
+    setShowMap(true);
   };
 
   // Show loading state
@@ -312,8 +317,53 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
     );
   }
 
+  // Show button initially, map only when clicked
+  if (!showMap) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+        <Typography
+          variant="h3"
+          className="text-base font-semibold text-dark-blue mb-4"
+        >
+          Product Location
+        </Typography>
+
+        {/* Map Preview with Blur */}
+        <div className="relative bg-gray-100 rounded-lg overflow-hidden mb-4">
+          <div className="w-full h-[390px] rounded-lg flex items-center justify-center relative">
+            {/* Blurred map background */}
+            <div
+              className="absolute inset-0 bg-cover bg-center filter blur-sm"
+              style={{
+                backgroundImage: `url(https://maps.googleapis.com/maps/api/staticmap?center=${locationData.coordinates.lat},${locationData.coordinates.lng}&zoom=12&size=600x400&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY})`,
+              }}
+            />
+            {/* Button overlay */}
+            <div className="relative z-10">
+              <Button
+                onClick={handleViewInMap}
+                size="default"
+                icon={<MapPin className="size-4 -mr-2" />}
+                iconPosition="left"
+                className="bg-white text-purple-600 border border-gray-300 hover:bg-gray-50 flex items-center gap-2 shadow-md"
+              >
+                View in Map
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Location Details */}
+        <div className="flex items-center gap-2 text-gray-600">
+          <MapPin className="h-4 w-4 text-purple-600" />
+          <span className="text-sm">{locationData.address}</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className=" bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
       <Typography
         variant="h3"
         className="text-base font-semibold text-dark-blue mb-4"
@@ -328,25 +378,13 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
           className="w-full h-[390px] rounded-lg"
           style={{ minHeight: "390px" }}
         />
-
-        {/* Map Action Button */}
-        {/* <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-          <Button
-            onClick={handleViewInMap}
-            size="sm"
-            className="bg-white text-purple-600 border border-gray-300 hover:bg-gray-50 flex items-center gap-2 shadow-md"
-          >
-            <MapPin className="h-4 w-4" />
-            View in Map
-          </Button>
-        </div> */}
       </div>
 
       {/* Location Details */}
-      {/* <div className="flex items-center gap-2 text-gray-600">
+      <div className="flex items-center gap-2 text-gray-600 mt-4">
         <MapPin className="h-4 w-4 text-purple-600" />
         <span className="text-sm">{locationData.address}</span>
-      </div> */}
+      </div>
     </div>
   );
 };

@@ -7,10 +7,6 @@ import { Phone } from "lucide-react";
 import { FaWhatsapp, FaMapMarkerAlt } from "react-icons/fa";
 import { MdMessage } from "react-icons/md";
 import { GoClockFill } from "react-icons/go";
-import { IoCalendarNumber } from "react-icons/io5";
-import { PiGaugeFill } from "react-icons/pi";
-import { BsFuelPumpFill } from "react-icons/bs";
-import { IoIosFlash } from "react-icons/io";
 import Image from "next/image";
 import { ICONS } from "@/constants/icons";
 import { useRouter } from "nextjs-toploader/app";
@@ -29,15 +25,15 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
   const router = useRouter();
   const { session, isAuthenticated } = useAuthStore((state) => state);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Check if current user is the owner or organization owner
   const isOwner = useMemo(() => {
     if (!session.user?._id) return false;
-    
+
     const currentUserId = session.user._id;
     const adOwnerId = typeof ad.owner === "string" ? ad.owner : ad.owner?._id;
     const orgOwnerId = ad.organization?.owner;
-    
+
     return currentUserId === adOwnerId || currentUserId === orgOwnerId;
   }, [session.user?._id, ad.owner, ad.organization?.owner]);
 
@@ -54,23 +50,66 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
 
   // Extract extraFields for specifications
   const extraFields = normalizeExtraFieldsToArray(ad.extraFields || []);
-  const getFieldValue = (fieldName: string): string => {
-    const field = extraFields.find(
-      (f) => f.name?.toLowerCase().includes(fieldName.toLowerCase())
-    );
-    if (field) {
-      if (Array.isArray(field.value)) {
-        return field.value.join(", ");
-      }
-      return String(field.value || "");
-    }
-    return "";
-  };
 
-  const year = getFieldValue("year") || "";
-  const mileage = getFieldValue("mileage") || getFieldValue("km") || "";
-  const fuelType = getFieldValue("fuel") || getFieldValue("fuelType") || "";
-  const transmission = getFieldValue("transmission") || "";
+  // Get specifications with single values only (not arrays) and filter out boolean fields
+  const specifications = useMemo(() => {
+    return extraFields
+      .filter((field) => {
+        // Only include fields with single values (not arrays)
+        if (Array.isArray(field.value)) {
+          return false;
+        }
+        // Filter out boolean fields
+        if (field.type === "bool" || typeof field.value === "boolean") {
+          return false;
+        }
+        // Filter out empty/null values
+        if (
+          field.value === null ||
+          field.value === undefined ||
+          field.value === ""
+        ) {
+          return false;
+        }
+        return true;
+      })
+      .map((field) => ({
+        name: field.name,
+        value: String(field.value),
+        icon: field.icon,
+      }));
+  }, [extraFields]);
+
+  // Calculate discount and prices
+  const getDiscountInfo = useMemo(() => {
+    // Check for discount in extraFields (discountedPercent field)
+    const discountPercentField = extraFields.find(
+      (f) =>
+        f.name?.toLowerCase().includes("discountedpercent") ||
+        f.name?.toLowerCase().includes("discount")
+    );
+
+    if (discountPercentField && ad.deal) {
+      const discountPercentage = Number(discountPercentField.value) || 0;
+      if (discountPercentage > 0 && ad.price) {
+        const originalPrice = Math.round(
+          ad.price / (1 - discountPercentage / 100)
+        );
+        return {
+          currentPrice: ad.price,
+          originalPrice: originalPrice,
+          discountPercentage: Math.round(discountPercentage),
+        };
+      }
+    }
+
+    // No discount - show regular price
+    return {
+      currentPrice: ad.price,
+      originalPrice: undefined,
+      discountPercentage: undefined,
+    };
+  }, [ad.price, ad.deal, extraFields]);
 
   const handleCall = () => {
     if (ad.contactPhoneNumber) {
@@ -99,7 +138,7 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
     try {
       // Find or create chat
       const chatId = await findOrCreateAdChat(ad, session.user);
-      
+
       // Navigate to chat page with the chat ID
       router.push(`/chat?chatId=${chatId}&type=ad`);
     } catch (error) {
@@ -125,10 +164,34 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
     }).format(amount);
   };
 
+  // Check if there's any content to render
+  const hasTitle = !!ad.title;
+  const hasSpecifications = specifications.length > 0;
+  const hasPrice = !!getDiscountInfo.currentPrice;
+  const hasDiscount = !!(
+    getDiscountInfo.originalPrice && getDiscountInfo.discountPercentage
+  );
+  const hasLocation = !!location;
+  const hasCreatedAt = !!ad.createdAt;
+  const hasLocationOrTime = hasLocation || hasCreatedAt;
+  const hasContactActions =
+    !isOwner && (ad.contactPhoneNumber || ad.owner?._id);
+  const hasAnyContent =
+    hasTitle ||
+    hasSpecifications ||
+    hasPrice ||
+    hasLocationOrTime ||
+    hasContactActions;
+
+  // Don't render if there's no content at all
+  if (!hasAnyContent) {
+    return null;
+  }
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
       {/* Title */}
-      {ad.title && (
+      {hasTitle && (
         <Typography
           variant="h2"
           className="text-lg font-semibold text-dark-blue mb-4"
@@ -138,80 +201,91 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
       )}
 
       {/* Specifications */}
-      {(year || mileage || fuelType || transmission) && (
+      {hasSpecifications && (
         <div className="flex items-center gap-4 mb-4 flex-wrap">
-          {year && (
-            <div className="flex items-center gap-1 whitespace-nowrap">
-              <IoCalendarNumber />
+          {specifications.map((spec) => (
+            <div
+              key={spec.name}
+              className="flex items-center gap-1 whitespace-nowrap"
+            >
+              {spec.icon ? (
+                <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
+                  <Image
+                    src={spec.icon}
+                    alt={spec.name}
+                    width={16}
+                    height={16}
+                    className="w-4 h-4 object-contain"
+                  />
+                </div>
+              ) : null}
               <Typography variant="body-small" className="text-black text-xs">
-                {year}
+                {spec.value}
               </Typography>
             </div>
-          )}
-          {mileage && (
-            <div className="flex items-center gap-1 whitespace-nowrap">
-              <PiGaugeFill className="h-4 w-4 text-green-600" />
-              <Typography variant="body-small" className="text-black text-xs">
-                {mileage}
-              </Typography>
-            </div>
-          )}
-          {fuelType && (
-            <div className="flex items-center gap-1 whitespace-nowrap">
-              <BsFuelPumpFill className="h-4 w-4 text-red-600" />
-              <Typography variant="body-small" className="text-black text-xs">
-                {fuelType}
-              </Typography>
-            </div>
-          )}
-          {transmission && (
-            <div className="flex items-center gap-1 whitespace-nowrap">
-              <IoIosFlash className="h-4 w-4 text-yellow-600" />
-              <Typography variant="body-small" className="text-black text-xs">
-                {transmission}
-              </Typography>
-            </div>
-          )}
+          ))}
         </div>
       )}
 
       {/* Price Section */}
-      {ad.price && (
-        <div className="flex items-center justify-start gap-2 mb-6">
+      {hasPrice && (
+        <div className="flex items-center justify-start gap-2 mb-6 flex-wrap">
           <div className="flex items-center gap-1">
             <Image src={ICONS.currency.aed} alt="AED" width={24} height={24} />
             <span className="text-2xl font-bold text-purple-600">
-              {formatPrice(ad.price)}
+              {formatPrice(getDiscountInfo.currentPrice)}
             </span>
           </div>
+          {hasDiscount && getDiscountInfo.originalPrice && (
+            <>
+              <span className="text-lg text-grey-blue line-through">
+                {formatPrice(getDiscountInfo.originalPrice)}
+              </span>
+              {getDiscountInfo.discountPercentage && (
+                <span className="text-sm font-semibold text-teal">
+                  {getDiscountInfo.discountPercentage}% OFF
+                </span>
+              )}
+            </>
+          )}
         </div>
       )}
 
       {/* Location and Time */}
-      <div className="flex items-center justify-between mb-4">
-        {location && (
-          <div className="flex items-center gap-1.5">
-            <FaMapMarkerAlt className="size-4" fill="#1D2939" stroke="1" />
-            <Typography variant="body-small" className="text-grey-blue text-xs">
-              {location}
-            </Typography>
-          </div>
-        )}
-        {ad.createdAt && (
-          <div className="flex items-center gap-1.5">
-            <GoClockFill className="size-4" fill="#1D2939" stroke="1" />
-            <Typography variant="body-small" className="text-grey-blue text-xs">
-              {postedTime}
-            </Typography>
-          </div>
-        )}
-      </div>
+      {hasLocationOrTime && (
+        <div className="flex items-center justify-between mb-4">
+          {hasLocation && (
+            <div className="flex items-center gap-1.5">
+              <FaMapMarkerAlt className="size-4" fill="#1D2939" stroke="1" />
+              <Typography
+                variant="body-small"
+                className="text-grey-blue text-xs"
+              >
+                {location}
+              </Typography>
+            </div>
+          )}
+          {hasCreatedAt && (
+            <div className="flex items-center gap-1.5">
+              <GoClockFill className="size-4" fill="#1D2939" stroke="1" />
+              <Typography
+                variant="body-small"
+                className="text-grey-blue text-xs"
+              >
+                {postedTime}
+              </Typography>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Divider Line */}
-      <div className="border-b border-dashed border-gray-300 mb-4"></div>
+      {/* Divider Line - Only show if there's content above and below */}
+      {hasContactActions && (
+        <div className="border-b border-dashed border-gray-300 mb-4"></div>
+      )}
 
       {/* Contact Actions - Only show if user is not the owner */}
-      {!isOwner && (
+      {hasContactActions && (
         <div className="space-y-3">
           {/* Call Button */}
           {ad.contactPhoneNumber && (
@@ -251,7 +325,10 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
               onClick={handleWhatsApp}
               variant="outline"
               icon={
-                <FaWhatsapp className="h-5 w-5 -mr-2 fill-green-500" stroke="0" />
+                <FaWhatsapp
+                  className="h-5 w-5 -mr-2 fill-green-500"
+                  stroke="0"
+                />
               }
               iconPosition="center"
               className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-12"
@@ -262,7 +339,10 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
 
           {/* Show message if no contact options available */}
           {!ad.contactPhoneNumber && !ad.owner?._id && (
-            <Typography variant="body-small" className="text-grey-blue text-center py-2">
+            <Typography
+              variant="body-small"
+              className="text-grey-blue text-center py-2"
+            >
               Contact information not available
             </Typography>
           )}
@@ -273,4 +353,3 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
 };
 
 export default ProductInfoCard;
-

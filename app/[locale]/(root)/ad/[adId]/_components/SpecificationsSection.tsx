@@ -14,15 +14,23 @@ interface SpecificationsSectionProps {
   ad: AD;
 }
 
-const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({ ad }) => {
+const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
+  ad,
+}) => {
   // Extract specifications from extraFields
   const extraFields = normalizeExtraFieldsToArray(ad.extraFields || []);
-  
+
   // Filter out boolean fields and create specifications object
   const specifications: Record<string, string> = {};
   extraFields.forEach((field) => {
-    if (field.type !== "bool" && field.value !== null && field.value !== undefined) {
-      const fieldName = field.name.charAt(0).toUpperCase() + field.name.slice(1).replace(/([A-Z])/g, " $1");
+    if (
+      field.type !== "bool" &&
+      field.value !== null &&
+      field.value !== undefined
+    ) {
+      const fieldName =
+        field.name.charAt(0).toUpperCase() +
+        field.name.slice(1).replace(/([A-Z])/g, " $1");
       if (Array.isArray(field.value)) {
         specifications[fieldName] = field.value.join(", ");
       } else {
@@ -35,7 +43,10 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({ ad }) => 
 
   // Check if value should be truncated and shown in popover
   const shouldTruncate = (value: string) => {
-    return value.length > 50 || value.includes(", ") && value.split(", ").length > 3;
+    return (
+      value.length > 50 ||
+      (value.includes(", ") && value.split(", ").length > 3)
+    );
   };
 
   const truncateValue = (value: string, maxLength: number = 50) => {
@@ -51,7 +62,7 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({ ad }) => 
       return (
         <Popover key={index}>
           <PopoverTrigger asChild>
-            <div className="flex justify-between items-center group border-gray-100 w-full p-2 rounded cursor-pointer hover:text-purple hover:bg-purple/10 transition-colors">
+            <div className="flex justify-between items-start group border-gray-100 w-full p-2 rounded cursor-pointer hover:text-purple hover:bg-purple/10 transition-colors">
               <span className="text-sm text-grey-blue">{key}</span>
               <span className="text-sm font-semibold text-dark-blue max-w-1/2 text-right group-hover:text-purple">
                 {displayValue}
@@ -66,7 +77,10 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({ ad }) => 
               >
                 {key}
               </Typography>
-              <Typography variant="body-small" className="text-grey-blue whitespace-pre-wrap break-words">
+              <Typography
+                variant="body-small"
+                className="text-grey-blue whitespace-pre-wrap break-words"
+              >
                 {value}
               </Typography>
             </div>
@@ -78,7 +92,7 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({ ad }) => 
     return (
       <div
         key={index}
-        className="flex justify-between items-center border-gray-100 w-full p-2 rounded"
+        className="flex justify-between items-start border-gray-100 w-full p-2 rounded"
       >
         <span className="text-sm text-grey-blue">{key}</span>
         <span className="text-sm font-semibold text-dark-blue max-w-1/2 text-right">

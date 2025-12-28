@@ -116,7 +116,7 @@ export default function AdDetailPage() {
 
             <ProductInfoTabs
               onTabChange={(tab) => setActiveTab(tab)}
-              initialTab="reviews"
+              initialTab="description"
             />
             <div className="space-y-6 relative">
               {/* Reorder sections based on active tab with smooth animations */}
@@ -140,7 +140,7 @@ export default function AdDetailPage() {
             <ProductInfoCard ad={ad} />
 
             {/* Seller Information */}
-            <SellerInfo ad={ad} />
+            {/* <SellerInfo ad={ad} /> */}
 
             {/* Safety Features */}
             <SafetyFeatures ad={ad} />
@@ -161,7 +161,7 @@ export default function AdDetailPage() {
 
             <ProductInfoTabs
               onTabChange={(tab) => setActiveTab(tab)}
-              initialTab="reviews"
+              initialTab="description"
             />
 
             {/* Reorder sections based on active tab with smooth animations */}

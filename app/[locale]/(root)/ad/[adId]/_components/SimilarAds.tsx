@@ -76,10 +76,10 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({ adId }) => {
         titleClassName="text-md font-semibold"
         title={t.ad.similarAds.title}
         breakpoints={{
-          mobile: 1,
-          tablet: 2,
-          desktop: 2,
-          wide: 3,
+          mobile: 2,
+          tablet: 3,
+          desktop: 4,
+          wide: 5,
         }}
       >
         {transformedAds.map((ad) => (
