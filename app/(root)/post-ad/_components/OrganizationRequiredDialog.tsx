@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useLocale } from "@/hooks/useLocale";
 
 interface OrganizationRequiredDialogProps {
   isOpen: boolean;
@@ -21,29 +22,28 @@ export default function OrganizationRequiredDialog({
   onClose,
 }: OrganizationRequiredDialogProps) {
   const router = useRouter();
+  const { localePath, t } = useLocale();
 
   const handleCreateOrganization = () => {
     onClose();
-    router.push("/organizations/new");
+    router.push(localePath("/organizations/new"));
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Organization Required</DialogTitle>
+          <DialogTitle>{t.organizations.dialog.organizationRequired}</DialogTitle>
           <DialogDescription className="pt-2">
-            To proceed with posting a job, you need to create an organization
-            first. Jobs can only be posted by organizations, not as an
-            individual.
+            {t.organizations.dialog.organizationRequiredDescription}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex gap-2 sm:gap-0">
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t.organizations.form.cancel}
           </Button>
           <Button variant="primary" onClick={handleCreateOrganization}>
-            Create Organization
+            {t.organizations.form.createOrganization}
           </Button>
         </DialogFooter>
       </DialogContent>
