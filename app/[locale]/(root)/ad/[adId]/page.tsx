@@ -140,10 +140,10 @@ export default function AdDetailPage() {
             <ProductInfoCard ad={ad} />
 
             {/* Seller Information */}
-            {/* <SellerInfo ad={ad} /> */}
+            <SellerInfo ad={ad} />
 
             {/* Safety Features */}
-            <SafetyFeatures ad={ad} />
+            {/* <SafetyFeatures ad={ad} /> */}
 
             {/* Contact Actions */}
             {/* <ContactActions ad={ad} /> */}

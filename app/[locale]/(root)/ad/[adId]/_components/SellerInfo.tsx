@@ -8,13 +8,14 @@ import Link from "next/link";
 import { AD } from "@/interfaces/ad";
 import { format } from "date-fns";
 import { useLocale } from "@/hooks/useLocale";
+import { ICONS } from "@/constants/icons";
 
 interface SellerInfoProps {
   ad: AD;
 }
 
 const SellerInfo: React.FC<SellerInfoProps> = ({ ad }) => {
-  const { t } = useLocale();
+  const { t, localePath } = useLocale();
 
   // Extract seller data from ad
   const sellerName =
@@ -51,10 +52,18 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ ad }) => {
 
   const sellerId = ad.organization?._id || ad.owner?._id || "";
 
+  // Determine the correct seller route based on seller type
+  const sellerRoute = isOrganization
+    ? `/seller/org/${sellerId}`
+    : `/seller/user/${sellerId}`;
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm relative">
       {sellerId && (
-        <Link href={`/seller/${sellerId}`} className="absolute inset-0"></Link>
+        <Link
+          href={localePath(sellerRoute)}
+          className="absolute inset-0"
+        ></Link>
       )}
       <Typography
         variant="h3"
@@ -88,7 +97,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ ad }) => {
             {sellerName}
             {isVerified && (
               <Image
-                src={"/verified-seller.svg"}
+                src={ICONS.auth.verified}
                 alt="verified"
                 width={21}
                 height={21}

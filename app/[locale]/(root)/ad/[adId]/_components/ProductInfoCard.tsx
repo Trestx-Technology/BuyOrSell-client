@@ -217,7 +217,8 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
       {/* Specifications */}
       {hasSpecifications && (
         <div className="flex items-center gap-4 mb-4 flex-wrap">
-          {specifications.map((spec) => (
+          {/* Show first 4 specifications */}
+          {specifications.slice(0, 4).map((spec) => (
             <div
               key={spec.name}
               className="flex items-center gap-1 whitespace-nowrap"
@@ -238,6 +239,61 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
               </Typography>
             </div>
           ))}
+
+          {/* Show popover with remaining specifications if more than 4 */}
+          {specifications.length > 4 && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="flex items-center gap-1 whitespace-nowrap text-xs text-purple-600 hover:text-purple-700 font-medium">
+                  +{specifications.length - 4} more
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-80 max-h-96 overflow-y-auto"
+                align="start"
+              >
+                <div className="space-y-2">
+                  <Typography
+                    variant="h3"
+                    className="text-sm font-semibold text-dark-blue mb-3"
+                  >
+                    All Specifications
+                  </Typography>
+                  <div className="space-y-3">
+                    {specifications.map((spec) => (
+                      <div key={spec.name} className="flex items-center gap-2">
+                        {spec.icon ? (
+                          <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
+                            <Image
+                              src={spec.icon}
+                              alt={spec.name}
+                              width={16}
+                              height={16}
+                              className="w-4 h-4 object-contain"
+                            />
+                          </div>
+                        ) : null}
+                        <div className="flex-1">
+                          <Typography
+                            variant="body-small"
+                            className="text-xs text-grey-blue"
+                          >
+                            {spec.name}
+                          </Typography>
+                          <Typography
+                            variant="body-small"
+                            className="text-sm text-dark-blue font-medium"
+                          >
+                            {spec.value}
+                          </Typography>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
       )}
 

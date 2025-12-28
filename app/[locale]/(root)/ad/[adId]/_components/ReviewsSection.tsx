@@ -31,7 +31,18 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
 
   const { t } = useLocale();
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isAuthenticated, session } = useAuthStore((state) => state);
+
+  // Check if current user is the owner of the ad
+  const isOwner = useMemo(() => {
+    if (!session.user?._id) return false;
+
+    const currentUserId = session.user._id;
+    const adOwnerId = typeof ad.owner === "string" ? ad.owner : ad.owner?._id;
+    const orgOwnerId = ad.organization?.owner;
+
+    return currentUserId === adOwnerId || currentUserId === orgOwnerId;
+  }, [session.user?._id, ad.owner, ad.organization?.owner]);
 
   const adId = ad._id;
 
@@ -129,6 +140,10 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
       setIsLoginDialogOpen(true);
       return;
     }
+    if (isOwner) {
+      // This shouldn't happen since the button is hidden, but add safety check
+      return;
+    }
     setIsReviewDialogOpen(true);
   };
 
@@ -172,28 +187,30 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
         User Reviews & Rating
       </Typography>
 
-      {/* Rate This Seller Section */}
-      <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-        <Typography
-          variant="body-small"
-          className="text-dark-blue font-semibold mb-3"
-        >
-          Rate this seller
-        </Typography>
-
-        <Button
-          onClick={handleOpenReviewDialog}
-          className="w-full sm:w-auto bg-purple hover:bg-purple/90 text-white"
-        >
-          Write a Review
-        </Button>
-
-        {!isAuthenticated && (
-          <Typography variant="body-small" className="text-gray-500 mt-2">
-            Please log in to leave a review
+      {/* Rate This Seller Section - Only show if user is not the owner */}
+      {!isOwner && (
+        <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+          <Typography
+            variant="body-small"
+            className="text-dark-blue font-semibold mb-3"
+          >
+            Rate this seller
           </Typography>
-        )}
-      </div>
+
+          <Button
+            onClick={handleOpenReviewDialog}
+            className="w-full sm:w-auto bg-purple hover:bg-purple/90 text-white"
+          >
+            Write a Review
+          </Button>
+
+          {!isAuthenticated && (
+            <Typography variant="body-small" className="text-gray-500 mt-2">
+              Please log in to leave a review
+            </Typography>
+          )}
+        </div>
+      )}
 
       {/* Overall Rating Section */}
       <div className="flex items-start justify-start gap-2 mb-6">
