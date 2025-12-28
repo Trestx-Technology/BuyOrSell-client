@@ -6,21 +6,24 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import AddressCard from "../_components/address-card";
 import { RadioGroup } from "@/components/ui/radio-group";
+import { useLocale } from "@/hooks/useLocale";
 
 const AddressPage = () => {
+  const { t, localePath } = useLocale();
+
   // Mock address data - replace with actual data from API
   const addresses = [
     {
       id: "1",
       type: "home" as const,
-      label: "Home",
+      label: t.user.address.home,
       address: `Fishing Harbour, 2b Street, Umm Suqeim, Dubai, United Arab Emirates`,
       isPrimary: true,
     },
     {
       id: "2",
       type: "office" as const,
-      label: "Office",
+      label: t.user.address.office,
       address:
         "Fishing Harbour, 2b Street, Umm Suqeim, Dubai, United Arab Emirates",
       isPrimary: false,
@@ -35,15 +38,15 @@ const AddressPage = () => {
   return (
     <div className="bg-gray-50 py-8">
       <Link
-        href={"/user/address"}
+        href={localePath("/user/address")}
         className="text-purple-600 font-semibold text-sm"
       >
-        My Address
+        {t.user.address.myAddress}
       </Link>
 
       <div className="bg-white mx-auto w-full max-w-2xl shadow p-4 rounded-lg my-8">
         <h3 className="text-md font-semibold text-gray-900 font-poppins text-center">
-          My Addresses
+          {t.user.address.myAddresses}
         </h3>
         {/* Address Cards */}
         <RadioGroup defaultValue="home">
@@ -60,14 +63,14 @@ const AddressPage = () => {
 
         {/* Add More Address Button */}
         <div className="flex justify-center">
-          <Link href="/user/address/new" className="w-full">
+          <Link href={localePath("/user/address/new")} className="w-full">
             <Button
               variant={"outlined"}
               icon={<PlusCircle className="w-5 h-5 -mr-2" />}
               iconPosition="center"
               className="w-full px-6 py-3 rounded-lg font-medium"
             >
-              Add More Address
+              {t.user.address.addMoreAddress}
             </Button>
           </Link>
         </div>
@@ -77,3 +80,4 @@ const AddressPage = () => {
 };
 
 export default AddressPage;
+

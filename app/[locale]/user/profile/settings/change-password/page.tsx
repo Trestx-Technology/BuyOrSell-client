@@ -5,8 +5,13 @@ import Link from "next/link";
 import { ChevronLeft, ChevronsRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
+import { useLocale } from "@/hooks/useLocale";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const ChangePasswordPage = () => {
+  const { t, localePath } = useLocale();
+  const router = useRouter();
   const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -38,103 +43,94 @@ const ChangePasswordPage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Basic validation
     if (
       !formData.currentPassword ||
       !formData.newPassword ||
       !formData.confirmPassword
     ) {
-      alert("Please fill in all fields");
+      toast.error(t.user.changePassword.fillAllFields);
       return;
     }
 
     if (formData.newPassword !== formData.confirmPassword) {
-      alert("New passwords don't match");
+      toast.error(t.user.changePassword.passwordsDontMatch);
       return;
     }
 
     if (formData.newPassword.length < 8) {
-      alert("Password must be at least 8 characters long");
+      toast.error(t.user.changePassword.passwordTooShort);
       return;
     }
 
-    // Here you would typically make an API call to change the password
     console.log("Changing password:", formData);
-    alert("Password changed successfully!");
+    toast.success(t.user.changePassword.passwordChangedSuccess);
   };
 
   return (
     <div className="w-full">
-      {/* Mobile Header */}
-      <div className="flex justify-center sm:hidden border sticky top-0 z-10 py-4 shadow-sm">
+      <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
         <Button
           variant="ghost"
           icon={<ChevronLeft className="h-4 w-4 -mr-2" />}
           iconPosition="center"
           size="icon-sm"
           className="absolute left-4 text-purple"
-          onClick={() => window.history.back()}
+          onClick={() => router.back()}
         />
         <Typography variant="lg-semibold" className="text-dark-blue">
-          Change Password
+          {t.user.changePassword.pageTitle}
         </Typography>
       </div>
 
       <div className="sm:px-4 xl:px-0 flex flex-col gap-5 sm:py-8">
-        {/* Desktop Breadcrumbs */}
         <div className="hidden sm:flex items-center gap-2">
           <Link
-            href="/user/profile"
+            href={localePath("/user/profile")}
             className="text-gray-400 font-semibold text-sm hover:text-purple"
           >
-            My Profile
+            {t.user.profile.myProfile}
           </Link>
           <ChevronsRight className="size-6 text-purple" />
           <Link
-            href="/user/profile/settings"
+            href={localePath("/user/profile/settings")}
             className="text-gray-400 font-semibold text-sm hover:text-purple"
           >
-            Settings
+            {t.user.settings.settings}
           </Link>
           <ChevronsRight className="size-6 text-purple" />
           <span className="text-purple-600 font-semibold text-sm">
-            Change Password
+            {t.user.changePassword.changePassword}
           </span>
         </div>
 
-        {/* Settings Card */}
         <div className="sm:bg-white sm:rounded-2xl border-0 sm:border border-gray-200 sm:shadow-sm max-w-2xl w-full mx-auto mt-4">
-          {/* Header */}
           <div className="hidden sm:block text-center py-6">
             <h2 className="text-xl font-semibold text-gray-900">
-              Change Password
+              {t.user.changePassword.changePassword}
             </h2>
           </div>
 
           <div className="px-6 sm:px-6">
-            {/* Security Notice */}
             <div className="bg-gray-50 rounded-xl p-4 mb-6">
               <h3 className="text-sm font-semibold text-gray-900 mb-2">
-                Keep Your Account Secure
+                {t.user.changePassword.keepAccountSecure}
               </h3>
               <p className="text-xs text-gray-600 leading-relaxed">
-                Choose a strong password that you haven&apos;t used elsewhere.
-                We&apos;ll never share your password with anyone.
+                {t.user.changePassword.securityNotice}
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Current Password */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Current Password
+                  {t.user.changePassword.currentPassword}
                 </label>
                 <div className="relative">
                   <input
                     type={showPasswords.current ? "text" : "password"}
                     value={formData.currentPassword}
                     onChange={handleInputChange("currentPassword")}
-                    placeholder="Enter your current password"
+                    placeholder={t.user.changePassword.enterCurrentPassword}
                     className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                   />
                   <button
@@ -151,17 +147,16 @@ const ChangePasswordPage = () => {
                 </div>
               </div>
 
-              {/* New Password */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  New Password
+                  {t.user.changePassword.newPassword}
                 </label>
                 <div className="relative">
                   <input
                     type={showPasswords.new ? "text" : "password"}
                     value={formData.newPassword}
                     onChange={handleInputChange("newPassword")}
-                    placeholder="Enter your new password"
+                    placeholder={t.user.changePassword.enterNewPassword}
                     className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                   />
                   <button
@@ -178,17 +173,16 @@ const ChangePasswordPage = () => {
                 </div>
               </div>
 
-              {/* Confirm New Password */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Confirm New Password
+                  {t.user.changePassword.confirmPassword}
                 </label>
                 <div className="relative">
                   <input
                     type={showPasswords.confirm ? "text" : "password"}
                     value={formData.confirmPassword}
                     onChange={handleInputChange("confirmPassword")}
-                    placeholder="Confirm your new password"
+                    placeholder={t.user.changePassword.confirmNewPassword}
                     className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
                   />
                   <button
@@ -205,27 +199,25 @@ const ChangePasswordPage = () => {
                 </div>
               </div>
 
-              {/* Security Tips */}
               <div className="bg-gray-50 rounded-xl p-4">
                 <h3 className="text-sm font-medium text-gray-900 mb-3">
-                  Security Tips
+                  {t.user.changePassword.securityTips}
                 </h3>
                 <ul className="space-y-1 text-xs text-gray-600">
-                  <li>• Use a unique password for this account</li>
-                  <li>• Don&apos;t share your password with anyone</li>
-                  <li>• Consider using a password manager</li>
-                  <li>• Change your password regularly</li>
+                  <li>• {t.user.changePassword.securityTip1}</li>
+                  <li>• {t.user.changePassword.securityTip2}</li>
+                  <li>• {t.user.changePassword.securityTip3}</li>
+                  <li>• {t.user.changePassword.securityTip4}</li>
                 </ul>
               </div>
             </form>
 
-            {/* Change Password Button */}
             <div className="mt-6 mb-6">
               <Button
                 onClick={handleSubmit}
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 text-base font-medium"
               >
-                Change Password
+                {t.user.changePassword.changePassword}
               </Button>
             </div>
           </div>
@@ -236,3 +228,4 @@ const ChangePasswordPage = () => {
 };
 
 export default ChangePasswordPage;
+

@@ -32,7 +32,6 @@ export default function OTPVerificationDialog({
 }: OTPVerificationDialogProps) {
   const [otp, setOtp] = useState("");
 
-  // Mask the phone number for display
   const maskedPhoneNumber = phoneNumber.replace(
     /(\d{4})(\d{3})(\d{3})(\d{1})/,
     "$1*****$4"
@@ -44,7 +43,6 @@ export default function OTPVerificationDialog({
     }
   };
 
-  // Reset OTP when dialog opens
   useEffect(() => {
     if (isOpen) {
       setOtp("");
@@ -74,7 +72,6 @@ export default function OTPVerificationDialog({
           </div>
         </DialogHeader>
 
-        {/* OTP Input Fields */}
         <div className="flex justify-center">
           <InputOTP
             maxLength={6}
@@ -93,7 +90,6 @@ export default function OTPVerificationDialog({
           </InputOTP>
         </div>
 
-        {/* Submit Button */}
         <Button
           onClick={handleSubmit}
           disabled={!isOtpComplete || isLoading}
@@ -107,3 +103,4 @@ export default function OTPVerificationDialog({
     </Dialog>
   );
 }
+

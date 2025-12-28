@@ -1,9 +1,10 @@
-import { axiosInstance } from '@/services/axios-api-client';
-import { userQueries } from './index';
+import { axiosInstance } from "@/services/axios-api-client";
+import { userQueries } from "./index";
 import type {
   CreateUserPayload,
   UpdateUserPayload,
   UserResponse,
+  ProfileResponse,
   UsersListResponse,
   SendEmailOtpResponse,
   SendPhoneOtpResponse,
@@ -14,7 +15,7 @@ import type {
   BlockUserPayload,
   AssignRolePayload,
   BlockHistoryResponse,
-} from '@/interfaces/user.types';
+} from "@/interfaces/user.types";
 
 // Get all users
 export const findAllUsers = async (params?: {
@@ -24,92 +25,94 @@ export const findAllUsers = async (params?: {
 }): Promise<UsersListResponse> => {
   const response = await axiosInstance.get<UsersListResponse>(
     userQueries.findAllUsers.endpoint,
-    { params },
+    { params }
   );
   return response.data;
 };
 
 // Create user
 export const createUser = async (
-  data: CreateUserPayload,
+  data: CreateUserPayload
 ): Promise<UserResponse> => {
   const response = await axiosInstance.post<UserResponse>(
     userQueries.createUser.endpoint,
-    data,
+    data
   );
   return response.data;
 };
 
 // Send email OTP
-export const sendEmailOtp = async (
-  data: { email: string },
-): Promise<SendEmailOtpResponse> => {
+export const sendEmailOtp = async (data: {
+  email: string;
+}): Promise<SendEmailOtpResponse> => {
   const response = await axiosInstance.post<SendEmailOtpResponse>(
     userQueries.sendEmailOtp.endpoint,
-    data,
+    data
   );
   return response.data;
 };
 
 // Send phone OTP
-export const sendPhoneOtp = async (
-  data: { phoneNumber: string },
-): Promise<SendPhoneOtpResponse> => {
+export const sendPhoneOtp = async (data: {
+  phoneNumber: string;
+}): Promise<SendPhoneOtpResponse> => {
   const response = await axiosInstance.post<SendPhoneOtpResponse>(
     userQueries.sendPhoneOtp.endpoint,
-    data,
+    data
   );
   return response.data;
 };
 
 // Send login email OTP
-export const sendLoginEmailOtp = async (
-  data: { email: string },
-): Promise<SendEmailOtpResponse> => {
+export const sendLoginEmailOtp = async (data: {
+  email: string;
+}): Promise<SendEmailOtpResponse> => {
   const response = await axiosInstance.post<SendEmailOtpResponse>(
     userQueries.sendLoginEmailOtp.endpoint,
-    data,
+    data
   );
   return response.data;
 };
 
 // Send login phone OTP
-export const sendLoginPhoneOtp = async (
-  data: { phoneNumber: string },
-): Promise<SendPhoneOtpResponse> => {
+export const sendLoginPhoneOtp = async (data: {
+  phoneNumber: string;
+}): Promise<SendPhoneOtpResponse> => {
   const response = await axiosInstance.post<SendPhoneOtpResponse>(
     userQueries.sendLoginPhoneOtp.endpoint,
-    data,
+    data
   );
   return response.data;
 };
 
 // Verify email OTP
-export const verifyEmailOtp = async (
-  data: { email: string; otp: string },
-): Promise<VerifyEmailResponse> => {
+export const verifyEmailOtp = async (data: {
+  email: string;
+  otp: string;
+}): Promise<VerifyEmailResponse> => {
   const response = await axiosInstance.post<VerifyEmailResponse>(
     userQueries.verifyEmailOtp.endpoint,
-    data,
+    data
   );
   return response.data;
 };
 
 // Verify phone OTP
-export const verifyPhoneOtp = async (
-  data: { phone: string; otp: string },
-): Promise<VerifyPhoneResponse> => {
+export const verifyPhoneOtp = async (data: {
+  phone: string;
+  otp: string;
+}): Promise<VerifyPhoneResponse> => {
   const response = await axiosInstance.post<VerifyPhoneResponse>(
     userQueries.verifyPhoneOtp.endpoint,
-    data,
+    data
   );
   return response.data;
 };
 
 // Get user profile
-export const getProfile = async (): Promise<UserResponse> => {
-  const response = await axiosInstance.get<UserResponse>(
-    userQueries.getProfile.endpoint,
+export const getProfile = async (): Promise<ProfileResponse> => {
+  const response = await axiosInstance.get<ProfileResponse>(
+    userQueries.getProfile.endpoint
   );
   return response.data;
 };
@@ -117,11 +120,11 @@ export const getProfile = async (): Promise<UserResponse> => {
 // Add user type
 export const addUserType = async (
   id: string,
-  data: AddUserTypePayload,
+  data: AddUserTypePayload
 ): Promise<UserResponse> => {
   const response = await axiosInstance.post<UserResponse>(
     userQueries.addUserType(id).endpoint,
-    data,
+    data
   );
   return response.data;
 };
@@ -129,11 +132,11 @@ export const addUserType = async (
 // Update user type
 export const updateUserType = async (
   id: string,
-  data: AddUserTypePayload,
+  data: AddUserTypePayload
 ): Promise<UserResponse> => {
   const response = await axiosInstance.put<UserResponse>(
     userQueries.updateUserType(id).endpoint,
-    data,
+    data
   );
   return response.data;
 };
@@ -141,11 +144,11 @@ export const updateUserType = async (
 // Update user type (deprecated)
 export const updateUserTypeDeprecated = async (
   id: string,
-  data: AddUserTypePayload,
+  data: AddUserTypePayload
 ): Promise<UserResponse> => {
   const response = await axiosInstance.put<UserResponse>(
     userQueries.updateUserTypeDeprecated(id).endpoint,
-    data,
+    data
   );
   return response.data;
 };
@@ -153,7 +156,7 @@ export const updateUserTypeDeprecated = async (
 // Get user by ID
 export const getUserById = async (id: string): Promise<UserResponse> => {
   const response = await axiosInstance.get<UserResponse>(
-    userQueries.getUserById(id).endpoint,
+    userQueries.getUserById(id).endpoint
   );
   return response.data;
 };
@@ -161,23 +164,25 @@ export const getUserById = async (id: string): Promise<UserResponse> => {
 // Update user
 export const updateUser = async (
   id: string,
-  data: UpdateUserPayload,
+  data: UpdateUserPayload
 ): Promise<UserResponse> => {
   const response = await axiosInstance.put<UserResponse>(
     userQueries.updateUser(id).endpoint,
-    data,
+    data
   );
   return response.data;
 };
 
 // Delete user
-export const deleteUser = async (id: string): Promise<{
+export const deleteUser = async (
+  id: string
+): Promise<{
   statusCode: number;
   timestamp: string;
   message?: string;
 }> => {
   const response = await axiosInstance.delete(
-    userQueries.deleteUser(id).endpoint,
+    userQueries.deleteUser(id).endpoint
   );
   return response.data;
 };
@@ -189,22 +194,22 @@ export const findAllUsersWithAdsCount = async (
     filter?: string;
     page?: number;
     limit?: number;
-  },
+  }
 ): Promise<UsersListResponse> => {
   const response = await axiosInstance.get<UsersListResponse>(
     userQueries.findAllUsersWithAdsCount(minCount).endpoint,
-    { params },
+    { params }
   );
   return response.data;
 };
 
 // Update my Emarati status
 export const updateMyEmarati = async (
-  data: UpdateEmaratiPayload,
+  data: UpdateEmaratiPayload
 ): Promise<UserResponse> => {
   const response = await axiosInstance.put<UserResponse>(
     userQueries.updateMyEmarati.endpoint,
-    data,
+    data
   );
   return response.data;
 };
@@ -212,11 +217,11 @@ export const updateMyEmarati = async (
 // Admin update Emarati status
 export const adminUpdateEmarati = async (
   id: string,
-  data: UpdateEmaratiPayload,
+  data: UpdateEmaratiPayload
 ): Promise<UserResponse> => {
   const response = await axiosInstance.put<UserResponse>(
     userQueries.adminUpdateEmarati(id).endpoint,
-    data,
+    data
   );
   return response.data;
 };
@@ -224,7 +229,7 @@ export const adminUpdateEmarati = async (
 // Block user
 export const blockUser = async (
   id: string,
-  data: BlockUserPayload,
+  data: BlockUserPayload
 ): Promise<{
   statusCode: number;
   timestamp: string;
@@ -233,7 +238,7 @@ export const blockUser = async (
 }> => {
   const response = await axiosInstance.post(
     userQueries.blockUser(id).endpoint,
-    data,
+    data
   );
   return response.data;
 };
@@ -241,22 +246,21 @@ export const blockUser = async (
 // Assign role
 export const assignRole = async (
   id: string,
-  data: AssignRolePayload,
+  data: AssignRolePayload
 ): Promise<UserResponse> => {
   const response = await axiosInstance.put<UserResponse>(
     userQueries.assignRole(id).endpoint,
-    data,
+    data
   );
   return response.data;
 };
 
 // Get block history
 export const getBlockHistory = async (
-  id: string,
+  id: string
 ): Promise<BlockHistoryResponse> => {
   const response = await axiosInstance.get<BlockHistoryResponse>(
-    userQueries.getBlockHistory(id).endpoint,
+    userQueries.getBlockHistory(id).endpoint
   );
   return response.data;
 };
-

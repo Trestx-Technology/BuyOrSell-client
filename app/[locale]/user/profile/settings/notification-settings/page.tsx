@@ -5,8 +5,13 @@ import Link from "next/link";
 import { ArrowLeft, ChevronLeft, ChevronsRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
+import { useLocale } from "@/hooks/useLocale";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const NotificationSettingsPage = () => {
+  const { t, localePath } = useLocale();
+  const router = useRouter();
   const [notifications, setNotifications] = useState({
     push: true,
     marketing: false,
@@ -22,13 +27,11 @@ const NotificationSettingsPage = () => {
 
   const handleSave = () => {
     console.log("Saving notification settings:", notifications);
-    // Here you would typically make an API call to save the settings
-    alert("Notification settings saved successfully!");
+    toast.success(t.user.notificationSettings.settingsSaved);
   };
 
   return (
     <div className="w-full">
-      {/* Mobile Header */}
       <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
         <Button
           variant="ghost"
@@ -36,53 +39,49 @@ const NotificationSettingsPage = () => {
           iconPosition="center"
           size="icon-sm"
           className="absolute left-4 text-purple"
-          onClick={() => window.history.back()}
+          onClick={() => router.back()}
         />
         <Typography variant="lg-semibold" className="text-dark-blue">
-          Notification Settings
+          {t.user.notificationSettings.pageTitle}
         </Typography>
       </div>
 
       <div className="sm:px-4 xl:px-0 flex flex-col gap-5 sm:py-8">
-        {/* Desktop Breadcrumbs */}
         <div className="hidden sm:flex items-center gap-2">
           <Link
-            href="/user/profile"
+            href={localePath("/user/profile")}
             className="text-gray-400 font-semibold text-sm hover:text-purple"
           >
-            My Profile
+            {t.user.profile.myProfile}
           </Link>
           <ChevronsRight className="size-6 text-purple" />
           <Link
-            href="/user/profile/settings"
+            href={localePath("/user/profile/settings")}
             className="text-gray-400 font-semibold text-sm hover:text-purple"
           >
-            Settings
+            {t.user.settings.settings}
           </Link>
           <ChevronsRight className="size-6 text-purple" />
           <span className="text-purple-600 font-semibold text-sm">
-            Notification Settings
+            {t.user.notificationSettings.notificationSettings}
           </span>
         </div>
 
-        {/* Settings Card */}
         <div className="sm:bg-white sm:rounded-2xl border-0 sm:border border-gray-200 sm:shadow-sm max-w-2xl w-full mx-auto">
-          {/* Header */}
           <div className="hidden sm:block text-center py-6">
             <h2 className="text-xl font-semibold text-gray-900">
-              Notification Settings
+              {t.user.notificationSettings.notificationSettings}
             </h2>
           </div>
 
           <div className="border-t border-gray-200">
-            {/* Push Notifications */}
             <div className="flex items-center justify-between py-4 px-6">
               <div>
                 <h3 className="text-sm font-medium text-gray-900">
-                  Push Notifications
+                  {t.user.notificationSettings.pushNotifications}
                 </h3>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Enable Or Disable All
+                  {t.user.notificationSettings.enableOrDisableAll}
                 </p>
               </div>
               <button
@@ -100,14 +99,13 @@ const NotificationSettingsPage = () => {
             </div>
             <div className="border-b border-gray-200 mx-6" />
 
-            {/* Marketing Emails */}
             <div className="flex items-center justify-between py-4 px-6">
               <div>
                 <h3 className="text-sm font-medium text-gray-900">
-                  Marketing Emails
+                  {t.user.notificationSettings.marketingEmails}
                 </h3>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Tips, features, and product updates
+                  {t.user.notificationSettings.marketingEmailsDescription}
                 </p>
               </div>
               <button
@@ -125,14 +123,13 @@ const NotificationSettingsPage = () => {
             </div>
             <div className="border-b border-gray-200 mx-6" />
 
-            {/* SMS Notifications */}
             <div className="flex items-center justify-between py-4 px-6">
               <div>
                 <h3 className="text-sm font-medium text-gray-900">
-                  SMS Notifications
+                  {t.user.notificationSettings.smsNotifications}
                 </h3>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Important alerts via text message
+                  {t.user.notificationSettings.smsNotificationsDescription}
                 </p>
               </div>
               <button
@@ -150,13 +147,12 @@ const NotificationSettingsPage = () => {
             </div>
           </div>
 
-          {/* Save Button */}
           <div className="p-6">
             <Button
               onClick={handleSave}
               className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 text-base font-medium"
             >
-              Save Changes
+              {t.user.notificationSettings.saveChanges}
             </Button>
           </div>
         </div>
@@ -166,3 +162,4 @@ const NotificationSettingsPage = () => {
 };
 
 export default NotificationSettingsPage;
+

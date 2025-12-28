@@ -13,7 +13,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { FormField } from "../../post-ad/details/_components/FormField";
+import { FormField } from "@/app/(root)/post-ad/details/_components/FormField";
+import { useLocale } from "@/hooks/useLocale";
+import { useEmirates } from "@/hooks/useLocations";
 
 interface AddressFormData {
   emirates: string;
@@ -34,6 +36,8 @@ export default function AddAddressForm({
   onSubmit,
   isLoading = false,
 }: AddAddressFormProps) {
+  const { t, locale } = useLocale();
+  const { data: emirates = [] } = useEmirates();
   const [formData, setFormData] = useState<AddressFormData>({
     emirates: "Dubai",
     city: "",
@@ -51,7 +55,6 @@ export default function AddAddressForm({
     value: string | boolean
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
@@ -92,16 +95,20 @@ export default function AddAddressForm({
     onSubmit?.(formData);
   };
 
+  const emirateOptions = emirates.map((emirate) => ({
+    value: emirate.emirate,
+    label: locale === "ar" ? emirate.emirateAr : emirate.emirate,
+  }));
+
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 max-w-2xl w-full mx-auto">
-      {/* Header */}
       <div className="text-center mb-8">
-        <h2 className="text-xl font-semibold text-gray-900">Address Details</h2>
+        <h2 className="text-xl font-semibold text-gray-900">
+          {t.user.address.addressDetails}
+        </h2>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Address Type Selection */}
         <div className="space-y-3">
           <RadioGroup
             value={formData.addressType}
@@ -112,35 +119,25 @@ export default function AddAddressForm({
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="home" id="home" />
-              <Label
-                htmlFor="home"
-                className="text-sm font-medium cursor-pointer"
-              >
-                Home
+              <Label htmlFor="home" className="text-sm font-medium cursor-pointer">
+                {t.user.address.home}
               </Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="office" id="office" />
-              <Label
-                htmlFor="office"
-                className="text-sm font-medium cursor-pointer"
-              >
-                Office
+              <Label htmlFor="office" className="text-sm font-medium cursor-pointer">
+                {t.user.address.office}
               </Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="other" id="other" />
-              <Label
-                htmlFor="other"
-                className="text-sm font-medium cursor-pointer"
-              >
-                Other
+              <Label htmlFor="other" className="text-sm font-medium cursor-pointer">
+                {t.user.address.other}
               </Label>
             </div>
           </RadioGroup>
         </div>
 
-        {/* Emirates Dropdown */}
         <FormField label="Emirates">
           <Select
             value={formData.emirates}
@@ -150,18 +147,15 @@ export default function AddAddressForm({
               <SelectValue placeholder="Select emirates" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Dubai">Dubai</SelectItem>
-              <SelectItem value="Abu Dhabi">Abu Dhabi</SelectItem>
-              <SelectItem value="Sharjah">Sharjah</SelectItem>
-              <SelectItem value="Ajman">Ajman</SelectItem>
-              <SelectItem value="Ras Al Khaimah">Ras Al Khaimah</SelectItem>
-              <SelectItem value="Fujairah">Fujairah</SelectItem>
-              <SelectItem value="Umm Al Quwain">Umm Al Quwain</SelectItem>
+              {emirateOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </FormField>
 
-        {/* City Input */}
         <FormField label="City">
           <Input
             value={formData.city}
@@ -172,7 +166,6 @@ export default function AddAddressForm({
           />
         </FormField>
 
-        {/* Area Input */}
         <FormField label="Area">
           <Input
             value={formData.area}
@@ -183,7 +176,6 @@ export default function AddAddressForm({
           />
         </FormField>
 
-        {/* Pincode Input */}
         <FormField label="Pincode">
           <Input
             value={formData.pincode}
@@ -195,7 +187,6 @@ export default function AddAddressForm({
           />
         </FormField>
 
-        {/* Street Input */}
         <FormField label="Street">
           <Input
             value={formData.street}
@@ -206,7 +197,6 @@ export default function AddAddressForm({
           />
         </FormField>
 
-        {/* Set as Primary Checkbox */}
         <div className="flex items-center space-x-3">
           <Checkbox
             id="primary"
@@ -215,15 +205,11 @@ export default function AddAddressForm({
               handleInputChange("isPrimary", !!checked)
             }
           />
-          <Label
-            htmlFor="primary"
-            className="text-sm font-medium text-gray-900 cursor-pointer"
-          >
-            Set as primary address
+          <Label htmlFor="primary" className="text-sm font-medium text-gray-900 cursor-pointer">
+            Set as {t.user.address.primary.toLowerCase()} address
           </Label>
         </div>
 
-        {/* Submit Button */}
         <div className="pt-4">
           <Button
             type="submit"
@@ -237,3 +223,4 @@ export default function AddAddressForm({
     </div>
   );
 }
+

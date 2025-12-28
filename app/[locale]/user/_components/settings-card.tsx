@@ -11,7 +11,10 @@ import {
   Trash2,
   LogOut,
   ChevronRight,
+  User,
+  MapPin,
 } from "lucide-react";
+import { useLocale } from "@/hooks/useLocale";
 
 interface SettingsItemProps {
   icon: React.ReactNode;
@@ -40,7 +43,9 @@ function SettingsItem({
       >
         <div className="flex items-center gap-4">
           <div
-            className={`p-2 rounded-lg ${danger ? "bg-red-100" : "bg-gray-100"}`}
+            className={`p-2 rounded-lg ${
+              danger ? "bg-red-100" : "bg-gray-100"
+            }`}
           >
             <div className={danger ? "text-red-600" : "text-gray-600"}>
               {icon}
@@ -48,12 +53,16 @@ function SettingsItem({
           </div>
           <div>
             <h3
-              className={`text-sm font-medium ${danger ? "text-red-900" : "text-gray-900"}`}
+              className={`text-sm font-medium ${
+                danger ? "text-red-900" : "text-gray-900"
+              }`}
             >
               {title}
             </h3>
             <p
-              className={`text-xs ${danger ? "text-red-600" : "text-gray-500"} leading-relaxed`}
+              className={`text-xs ${
+                danger ? "text-red-600" : "text-gray-500"
+              } leading-relaxed`}
             >
               {description}
             </p>
@@ -72,14 +81,23 @@ function SettingsItem({
 
 export default function SettingsCard() {
   const router = useRouter();
+  const { t, localePath } = useLocale();
   const [darkMode, setDarkMode] = useState(false);
 
+  const handleMyProfile = () => {
+    router.push(localePath("/user/profile"));
+  };
+
+  const handleAddress = () => {
+    router.push(localePath("/user/address"));
+  };
+
   const handleNotificationSettings = () => {
-    router.push("/user/profile/settings/notification-settings");
+    router.push(localePath("/user/profile/settings/notification-settings"));
   };
 
   const handleChangePassword = () => {
-    router.push("/user/profile/settings/change-password");
+    router.push(localePath("/user/profile/settings/change-password"));
   };
 
   const handleAccountReports = () => {
@@ -87,7 +105,7 @@ export default function SettingsCard() {
   };
 
   const handleBlockedUsers = () => {
-    router.push("/user/profile/settings/blocked-users");
+    router.push(localePath("/user/profile/settings/blocked-users"));
   };
 
   const handleDeleteAccount = () => {
@@ -108,29 +126,41 @@ export default function SettingsCard() {
 
   return (
     <div className="sm:bg-white sm:rounded-2xl border-0 sm:border border-gray-200 sm:shadow-sm max-w-2xl w-full mx-auto">
-      {/* Header */}
       <div className="hidden sm:block text-center py-6">
-        <h2 className="text-xl font-semibold text-gray-900">Settings</h2>
+        <h2 className="text-xl font-semibold text-gray-900">
+          {t.user.settings.settings}
+        </h2>
       </div>
 
       <div className="border-t border-gray-200">
-        {/* Notification Settings */}
+        <SettingsItem
+          icon={<User className="w-5 h-5" />}
+          title={t.user.profile.myProfile}
+          description={t.user.profile.editProfile}
+          onClick={handleMyProfile}
+        />
+
+        <SettingsItem
+          icon={<MapPin className="w-5 h-5" />}
+          title={t.user.address.myAddress}
+          description={t.user.address.myAddresses}
+          onClick={handleAddress}
+        />
+
         <SettingsItem
           icon={<Bell className="w-5 h-5" />}
-          title="Change Notification Settings"
+          title={t.user.settings.notificationSettings}
           description="Manage notification preferences"
           onClick={handleNotificationSettings}
         />
 
-        {/* Change Password */}
         <SettingsItem
           icon={<Lock className="w-5 h-5" />}
-          title="Change Password"
+          title={t.user.settings.changePassword}
           description="Update your account password"
           onClick={handleChangePassword}
         />
 
-        {/* Account Reports */}
         <SettingsItem
           icon={<FileText className="w-5 h-5" />}
           title="Account Reports"
@@ -138,15 +168,13 @@ export default function SettingsCard() {
           onClick={handleAccountReports}
         />
 
-        {/* Blocked Users */}
         <SettingsItem
           icon={<UserX className="w-5 h-5" />}
-          title="Blocked Users"
+          title={t.user.settings.blockedUsers}
           description="Manage blocked users list"
           onClick={handleBlockedUsers}
         />
 
-        {/* Dark Mode Toggle */}
         <div className="flex items-center justify-between py-4 px-6">
           <div className="flex items-center gap-4">
             <div className="p-2 rounded-lg bg-gray-100">
@@ -174,7 +202,6 @@ export default function SettingsCard() {
         </div>
         <div className="border-b border-gray-200 mx-6" />
 
-        {/* Delete Account */}
         <SettingsItem
           icon={<Trash2 className="w-5 h-5" />}
           title="Delete Account"
@@ -183,7 +210,6 @@ export default function SettingsCard() {
           danger={true}
         />
 
-        {/* Logout */}
         <SettingsItem
           icon={<LogOut className="w-5 h-5" />}
           title="Logout"

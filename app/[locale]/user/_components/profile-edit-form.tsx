@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { MapPin, StarIcon, CameraIcon } from "lucide-react";
 import Image from "next/image";
-import { FormField } from "../../post-ad/details/_components/FormField";
+import { FormField } from "@/app/(root)/post-ad/details/_components/FormField";
 import OTPVerificationDialog from "./otp-verification-dialog";
 
 interface ProfileFormData {
@@ -49,7 +49,6 @@ export default function ProfileEditForm({
 
   const handleInputChange = (field: keyof ProfileFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
@@ -81,10 +80,8 @@ export default function ProfileEditForm({
   const handleOTPVerify = async (otp: string) => {
     setIsVerifyingOTP(true);
     try {
-      // Simulate OTP verification API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // For demo purposes, accept any 4-digit OTP
       if (otp.length === 4) {
         setShowOTPDialog(false);
         alert(
@@ -113,9 +110,7 @@ export default function ProfileEditForm({
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 max-w-xl w-full mx-auto">
-      {/* Profile Content */}
       <div className="flex flex-col items-center space-y-2">
-        {/* Avatar */}
         <div className="relative">
           <div className="w-22 h-22 rounded-full border-4 border-purple-100 overflow-hidden">
             <Image
@@ -129,7 +124,6 @@ export default function ProfileEditForm({
           </div>
         </div>
 
-        {/* Name and Verification */}
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-poppins font-semibold text-gray-900">
             Sammer
@@ -143,22 +137,17 @@ export default function ProfileEditForm({
           />
         </div>
 
-        {/* Join Date */}
         <p className="text-xs text-gray-500 text-center -mt-2">
           Joined on 25 july 2025
         </p>
 
-        {/* Rating */}
         <div className="flex items-center gap-1">
           <StarIcon className="w-4 h-4 fill-yellow-500 text-yellow-500" />
           <span className="text-sm font-medium text-gray-900">4.8/5</span>
         </div>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6 mt-3">
-        {/* Name Field */}
-
         <div>
           <FormField label="Name">
             <Input
@@ -171,7 +160,6 @@ export default function ProfileEditForm({
           </FormField>
         </div>
 
-        {/* Mobile Number Field */}
         <FormField label="Mobile Number">
           <div className="flex items-center gap-3">
             <Input
@@ -204,7 +192,6 @@ export default function ProfileEditForm({
           </div>
         </FormField>
 
-        {/* Email Field */}
         <FormField label="Email">
           <Input
             type="email"
@@ -216,7 +203,6 @@ export default function ProfileEditForm({
           />
         </FormField>
 
-        {/* Password Field */}
         <FormField label="Password">
           <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
             <span className="text-sm text-gray-500 flex-1">**********</span>
@@ -232,7 +218,6 @@ export default function ProfileEditForm({
           </div>
         </FormField>
 
-        {/* Gender Field */}
         <FormField label="Gender">
           <Select
             value={formData.gender}
@@ -249,7 +234,6 @@ export default function ProfileEditForm({
           </Select>
         </FormField>
 
-        {/* Address Field */}
         <FormField label="Address">
           <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
             <MapPin className="w-6 h-6 fill-dark-blue text-white" />
@@ -268,7 +252,6 @@ export default function ProfileEditForm({
           </div>
         </FormField>
 
-        {/* Submit Button */}
         <div className="pt-4">
           <Button
             type="submit"
@@ -280,7 +263,6 @@ export default function ProfileEditForm({
         </div>
       </form>
 
-      {/* OTP Verification Dialog */}
       <OTPVerificationDialog
         isOpen={showOTPDialog}
         onClose={() => setShowOTPDialog(false)}
@@ -291,3 +273,4 @@ export default function ProfileEditForm({
     </div>
   );
 }
+

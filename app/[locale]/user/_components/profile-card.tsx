@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { EditIcon, StarIcon } from "lucide-react";
 import Image from "next/image";
+import { useLocale } from "@/hooks/useLocale";
 
 interface ProfileCardProps {
   name: string;
@@ -21,6 +22,8 @@ export default function ProfileCard({
   isVerified = true,
   onEdit,
 }: ProfileCardProps) {
+  const { t } = useLocale();
+
   return (
     <div className="bg-white rounded-2xl p-6 relative shadow-sm border border-gray-100">
       {/* Edit Button */}
@@ -32,7 +35,7 @@ export default function ProfileCard({
         size={"icon-sm"}
         iconPosition="left"
       >
-        Edit
+        {t.user.profile.editProfile}
       </Button>
 
       {/* Profile Content */}
@@ -67,7 +70,7 @@ export default function ProfileCard({
 
         {/* Join Date */}
         <p className="text-xs text-gray-500 text-center -mt-2">
-          Joined on {joinDate}
+          {t.user.profile.joinDate} {joinDate}
         </p>
 
         {/* Rating */}
@@ -81,3 +84,4 @@ export default function ProfileCard({
     </div>
   );
 }
+

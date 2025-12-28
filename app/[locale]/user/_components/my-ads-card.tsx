@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   ChevronRight,
   MapPin,
- 
   Pencil,
   MoreVertical,
 } from "lucide-react";
@@ -16,6 +15,13 @@ import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { useLocale } from "@/hooks/useLocale";
+
+export interface FieldWithIcon {
+  name: string;
+  value: string | number | boolean | string[] | null;
+  icon?: string;
+}
 
 export interface MyAdCardProps {
   id: string;
@@ -26,12 +32,7 @@ export interface MyAdCardProps {
   currency?: string;
   location: string;
   images: string[];
-  specifications: {
-    transmission?: string;
-    fuelType?: string;
-    mileage?: string;
-    year?: number;
-  };
+  extraFields?: FieldWithIcon[];
   postedTime: string;
   views?: number;
   isPremium?: boolean;
@@ -53,12 +54,14 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
   currency = "AED",
   location,
   images,
+  extraFields = [],
   postedTime,
   views = 0,
   isPremium = false,
   onClick,
   className,
 }) => {
+  const { t, localePath } = useLocale();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -106,10 +109,9 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
     >
-      <Link href={"/ad/123"} className="absolute inset-0 "></Link>
+      <Link href={localePath(`/ad/${id}`)} className="absolute inset-0 "></Link>
       <div className="p-0">
         {/* Image Section */}
-        {/* Main Image */}
         <div className="relative aspect-[3/3] sm:aspect-[4/3] bg-primary w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
           {images.length > 0 ? (
             <div className="relative w-full h-full overflow-hidden">
@@ -145,7 +147,6 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             </div>
           )}
 
-          {/* Premium Badge */}
           {isPremium && (
             <div className="absolute top-3 left-3">
               <Image
@@ -157,7 +158,6 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             </div>
           )}
 
-          {/* Views Counter */}
           <div className="absolute bottom-3 right-3">
             <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
               <Eye className="size-3 sm:size-5 text-white" />
@@ -167,7 +167,6 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             </div>
           </div>
 
-          {/* Navigation Arrows */}
           {images.length > 1 && isHovered && (
             <div>
               <Button
@@ -199,7 +198,6 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             </div>
           )}
 
-          {/* Image Dots Indicator */}
           {images.length > 1 && (
             <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1">
               {images.map((_, index) => (
@@ -225,7 +223,6 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="hidden absolute top-3 right-0 sm:flex gap-0">
             <Button
               variant={"ghost"}
@@ -236,9 +233,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
           </div>
         </div>
 
-        {/* Content Section */}
         <div className="pt-2 space-y-3">
-          {/* Price Section */}
           <div className="flex items-center gap-1 px-2.5">
             <Image src={ICONS.currency.aed} alt="AED" width={16} height={16} />
             <span className="text-md font-bold text-purple">
@@ -256,7 +251,6 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             )}
           </div>
 
-          {/* Title */}
           <Typography
             variant="h3"
             className="text-sm font-semibold text-dark-blue leading-tight px-2.5 line-clamp-1"
@@ -264,7 +258,6 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             {title}
           </Typography>
 
-          {/* Location */}
           <div className="flex items-center gap-1 px-2.5">
             <MapPin
               size={22}
@@ -279,10 +272,50 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             </Typography>
           </div>
 
-          {/* Dynamic Specs - First row (max 2 specs) */}
+          {/* Dynamic Specs - Grid with 2 columns */}
+          <div className="min-h-10">
+            {extraFields.length > 0 && (
+              <div className="hidden sm:grid grid-cols-2 gap-2 px-2.5">
+                {extraFields.map((field) => {
+                  const displayValue = Array.isArray(field.value)
+                    ? field.value.join(", ")
+                    : typeof field.value === "boolean"
+                    ? field.value
+                      ? "Yes"
+                      : "No"
+                    : String(field.value);
+
+                  return (
+                    <div
+                      key={field.name}
+                      className="flex items-center gap-1 min-w-0"
+                    >
+                      {field.icon && (
+                        <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
+                          <Image
+                            src={field.icon}
+                            alt={field.name}
+                            width={16}
+                            height={16}
+                            className="w-4 h-4 object-contain"
+                          />
+                        </div>
+                      )}
+                      <Typography
+                        variant="body-small"
+                        className="text-xs text-[#667085] truncate min-w-0 flex-1"
+                      >
+                        {displayValue}
+                      </Typography>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           <Badge className="mx-2 h-7 bg-success-100">Approved</Badge>
 
-          {/* Time ago */}
           <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-center justify-between">
             {postedTime}
             <Button
@@ -291,7 +324,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
               className="px-2 text-xs"
               iconPosition="left"
             >
-              Edit
+              {t.user.profileEdit.editProfile}
             </Button>
           </div>
         </div>
@@ -301,3 +334,4 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
 };
 
 export default MyAdCard;
+
