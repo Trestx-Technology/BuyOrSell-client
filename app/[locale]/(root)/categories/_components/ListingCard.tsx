@@ -24,6 +24,7 @@ import { Typography } from "@/components/typography";
 import { FaWhatsapp } from "react-icons/fa";
 import Link from "next/link";
 import { ProductExtraFields } from "@/interfaces/ad";
+import { getSpecifications } from "@/utils/normalize-extra-fields";
 
 export interface ListingCardProps {
   id: string;
@@ -68,26 +69,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
   showSeller,
   showSocials,
 }) => {
-  // Ensure extraFields exists
-  const safeExtraFields = extraFields || {};
-
-  // Helper function to get field value from extraFields
-  const getFieldValue = (fieldName: string): string | number | undefined => {
-    if (!safeExtraFields) return undefined;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const value = (safeExtraFields as Record<string, any>)[fieldName];
-    if (value === undefined || value === null) return undefined;
-    if (typeof value === "string" || typeof value === "number") return value;
-    if (Array.isArray(value)) return value.join(", ");
-    if (typeof value === "boolean") return value ? "Yes" : "No";
-    return String(value);
-  };
-
-  // Extract commonly used fields - try multiple field name variations
-  const transmission = getFieldValue("Transmission Type") || getFieldValue("transmission") || getFieldValue("Transmission");
-  const fuelType = getFieldValue("Fule Type") || getFieldValue("Fuel Type") || getFieldValue("fuelType") || getFieldValue("fuel");
-  const mileage = getFieldValue("Mileage") || getFieldValue("mileage");
-  const year = getFieldValue("Year") || getFieldValue("year");
+  // Get specifications from extraFields (limit to 4 for display)
+  const specifications = getSpecifications(extraFields, 4);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -217,7 +200,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           </div>
 
           {/* Navigation Arrows */}
-          {images.length > 1 && isHovered && (
+          {images.length > 1 && (
             <div>
               <Button
                 size="sm"
@@ -230,7 +213,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 }`}
                 onClick={handlePreviousImage}
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4 text-slate-700" />
               </Button>
               <Button
                 size="sm"
@@ -243,7 +226,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 }`}
                 onClick={handleNextImage}
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4 text-slate-700" />
               </Button>
             </div>
           )}
@@ -277,20 +260,25 @@ const ListingCard: React.FC<ListingCardProps> = ({
           {/* Action Buttons */}
           <div className="hidden absolute top-3 right-3 sm:flex gap-0">
             <button
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer"
+              className="h-8 w-8 opacity-100 hover:scale-125 transition-all cursor-pointer rounded-full flex items-center justify-center"
               onClick={handleShare}
             >
-              <Share2 size={22} stroke="white" />
+              <Share2
+                size={22}
+                className="fill-white stroke-slate-400"
+                strokeWidth={1}
+              />
             </button>
             <button
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer"
+              className="h-8 w-8 opacity-100 hover:scale-125 transition-all cursor-pointer rounded-full flex items-center justify-center"
               onClick={handleFavorite}
             >
               <Heart
                 size={24}
-                className={` stroke-0 ${
-                  isFavorite ? "fill-red-500 text-red-500" : "fill-white"
+                className={`fill-white stroke-slate-400 ${
+                  isFavorite ? "fill-red-500" : ""
                 }`}
+                strokeWidth={1}
               />
             </button>
           </div>
@@ -340,56 +328,68 @@ const ListingCard: React.FC<ListingCardProps> = ({
           </div>
 
           {/* Dynamic Specs - First row (max 2 specs) */}
-          <div className="hidden sm:flex items-center gap-4 px-2.5">
-            {transmission && (
-              <div className="w-full flex items-center gap-1">
-                <Zap className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(transmission)}
-                </Typography>
-              </div>
-            )}
-            {fuelType && (
-              <div className="w-full flex items-center gap-1">
-                <Fuel className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(fuelType)}
-                </Typography>
-              </div>
-            )}
-          </div>
+          {specifications.length > 0 && (
+            <div className="hidden sm:flex items-center gap-4 px-2.5">
+              {specifications
+                .slice(0, 2)
+                .map((spec: { name: string; value: string; icon?: string }) => (
+                  <div
+                    key={spec.name}
+                    className="w-full flex items-center gap-1"
+                  >
+                    {spec.icon ? (
+                      <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
+                        <Image
+                          src={spec.icon}
+                          alt={spec.name}
+                          width={16}
+                          height={16}
+                          className="w-4 h-4 object-contain"
+                        />
+                      </div>
+                    ) : null}
+                    <Typography
+                      variant="body-small"
+                      className="text-xs text-[#667085] truncate"
+                    >
+                      {spec.value}
+                    </Typography>
+                  </div>
+                ))}
+            </div>
+          )}
 
           {/* Dynamic Specs - Second row (max 2 specs) */}
-          <div className="hidden sm:flex items-center gap-4 px-2.5">
-            {mileage && (
-              <div className="w-full flex items-center gap-1">
-                <Gauge className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(mileage)}
-                </Typography>
-              </div>
-            )}
-            {year && (
-              <div className="w-full flex items-center gap-1">
-                <Calendar className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(year)}
-                </Typography>
-              </div>
-            )}
-          </div>
+          {specifications.length > 2 && (
+            <div className="hidden sm:flex items-center gap-4 px-2.5">
+              {specifications
+                .slice(2, 4)
+                .map((spec: { name: string; value: string; icon?: string }) => (
+                  <div
+                    key={spec.name}
+                    className="w-full flex items-center gap-1"
+                  >
+                    {spec.icon ? (
+                      <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
+                        <Image
+                          src={spec.icon}
+                          alt={spec.name}
+                          width={16}
+                          height={16}
+                          className="w-4 h-4 object-contain"
+                        />
+                      </div>
+                    ) : null}
+                    <Typography
+                      variant="body-small"
+                      className="text-xs text-[#667085] truncate"
+                    >
+                      {spec.value}
+                    </Typography>
+                  </div>
+                ))}
+            </div>
+          )}
 
           {/* Time ago */}
           <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-start justify-between">

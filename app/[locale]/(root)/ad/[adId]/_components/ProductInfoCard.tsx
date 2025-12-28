@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
-import { Phone } from "lucide-react";
+import { Phone, Info } from "lucide-react";
 import { FaWhatsapp, FaMapMarkerAlt } from "react-icons/fa";
 import { MdMessage } from "react-icons/md";
 import { GoClockFill } from "react-icons/go";
@@ -12,10 +12,18 @@ import { ICONS } from "@/constants/icons";
 import { useRouter } from "nextjs-toploader/app";
 import { AD } from "@/interfaces/ad";
 import { formatDistanceToNow } from "date-fns";
-import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
+import {
+  getSpecifications,
+  normalizeExtraFieldsToArray,
+} from "@/utils/normalize-extra-fields";
 import { useAuthStore } from "@/stores/authStore";
 import { findOrCreateAdChat } from "@/lib/firebase/chat.utils";
 import { toast } from "sonner";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface ProductInfoCardProps {
   ad: AD;
@@ -48,43 +56,19 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
     addSuffix: true,
   });
 
-  // Extract extraFields for specifications
+  // Extract extraFields for discount calculation
   const extraFields = normalizeExtraFieldsToArray(ad.extraFields || []);
 
-  // Get specifications with single values only (not arrays) and filter out boolean fields
+  // Get specifications from extraFields using utility function
   const specifications = useMemo(() => {
-    return extraFields
-      .filter((field) => {
-        // Only include fields with single values (not arrays)
-        if (Array.isArray(field.value)) {
-          return false;
-        }
-        // Filter out boolean fields
-        if (field.type === "bool" || typeof field.value === "boolean") {
-          return false;
-        }
-        // Filter out empty/null values
-        if (
-          field.value === null ||
-          field.value === undefined ||
-          field.value === ""
-        ) {
-          return false;
-        }
-        return true;
-      })
-      .map((field) => ({
-        name: field.name,
-        value: String(field.value),
-        icon: field.icon,
-      }));
-  }, [extraFields]);
+    return getSpecifications(ad.extraFields);
+  }, [ad.extraFields]);
 
   // Calculate discount and prices
   const getDiscountInfo = useMemo(() => {
     // Check for discount in extraFields (discountedPercent field)
     const discountPercentField = extraFields.find(
-      (f) =>
+      (f: { name?: string; value: unknown }) =>
         f.name?.toLowerCase().includes("discountedpercent") ||
         f.name?.toLowerCase().includes("discount")
     );
@@ -192,12 +176,42 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
       {/* Title */}
       {hasTitle && (
-        <Typography
-          variant="h2"
-          className="text-lg font-semibold text-dark-blue mb-4"
-        >
-          {ad.title}
-        </Typography>
+        <div className="flex items-start gap-2 mb-4">
+          <Typography
+            variant="h2"
+            className="text-lg font-semibold text-dark-blue line-clamp-2 flex-1"
+          >
+            {ad.title}
+          </Typography>
+          {ad.title.length > 50 && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="flex-shrink-0 mt-1 p-1 rounded hover:bg-gray-100 transition-colors">
+                  <Info className="h-4 w-4 text-grey-blue" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-80 max-h-96 overflow-y-auto"
+                align="start"
+              >
+                <div className="space-y-2">
+                  <Typography
+                    variant="h3"
+                    className="text-sm font-semibold text-dark-blue mb-2"
+                  >
+                    Full Title
+                  </Typography>
+                  <Typography
+                    variant="body-small"
+                    className="text-grey-blue whitespace-pre-wrap break-words"
+                  >
+                    {ad.title}
+                  </Typography>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
+        </div>
       )}
 
       {/* Specifications */}
