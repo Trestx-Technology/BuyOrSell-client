@@ -2,7 +2,15 @@
 
 export interface Organization {
   _id: string;
-  owner: string;
+  owner:
+    | string
+    | {
+        _id: string;
+        firstName: string;
+        lastName: string;
+        phoneNo: string;
+        email: string;
+      };
   type: string;
   country: string;
   emirate: string;
@@ -11,34 +19,58 @@ export interface Organization {
   trn: string;
   legalName: string;
   tradeName: string;
+  legalNameAr?: string;
+  tradeNameAr?: string;
   reraNumber?: string;
   addressLine1: string;
   addressLine2?: string;
   city: string;
   poBox?: string | null;
+  addressLine1Ar?: string;
+  addressLine2Ar?: string;
+  cityAr?: string;
   contactName: string;
   contactEmail: string;
   contactPhone: string;
+  contactNameAr?: string;
   website?: string;
   logoUrl?: string;
   coverImageUrl?: string;
   locations?: OrganizationLocation[];
+  locationsAr?: OrganizationLocation[];
   tags?: string[];
+  tagsAr?: string[];
   verified?: boolean;
   brands?: string[];
+  brandsAr?: string[];
   dealershipCodes?: string[];
   languages?: string[];
   businessHours?: BusinessHours[];
   certificates?: Certificate[];
   documents?: Document[];
-  status?: 'active' | 'inactive' | 'pending' | 'suspended';
+  status?:
+    | "active"
+    | "inactive"
+    | "pending"
+    | "suspended"
+    | "APPROVED"
+    | "DRAFT"
+    | "REJECTED";
   blocked?: boolean;
   blockedReason?: string[];
   ratingAvg?: number;
   ratingCount?: number;
   followersCount?: number;
+  isFollowing?: boolean;
+  totalAds?: number;
+  activeAds?: number;
+  expiredAds?: number;
+  totalJobsPosted?: number;
+  featuredJobs?: any[];
+  latestJobs?: any[];
   createdAt: string;
   updatedAt: string;
+  __v?: number;
 }
 
 export interface OrganizationLocation {
@@ -102,20 +134,21 @@ export interface CreateOrganizationPayload {
   contactPhone: string;
   website?: string;
   logoUrl?: string;
-  locations?: Omit<OrganizationLocation, '_id'>[];
+  locations?: Omit<OrganizationLocation, "_id">[];
   tags?: string[];
   brands?: string[];
   dealershipCodes?: string[];
   languages?: string[];
   businessHours?: BusinessHours[];
-  certificates?: Omit<Certificate, '_id'>[];
+  certificates?: Omit<Certificate, "_id">[];
 }
 
-export interface UpdateOrganizationPayload extends Partial<CreateOrganizationPayload> {
+export interface UpdateOrganizationPayload
+  extends Partial<CreateOrganizationPayload> {
   logoUrl?: string;
   coverImageUrl?: string;
-  certificates?: Omit<Certificate, '_id'>[];
-  documents?: Omit<Document, '_id'>[];
+  certificates?: Omit<Certificate, "_id">[];
+  documents?: Omit<Document, "_id">[];
 }
 
 export interface OrganizationResponse {
@@ -144,7 +177,6 @@ export interface OrganizationsListResponse {
   timestamp: string;
 }
 
-
 export interface VerifyOrganizationPayload {
   verified: boolean;
   verifiedBy?: string;
@@ -167,4 +199,3 @@ export interface UploadImageResponse {
   };
   timestamp: string;
 }
-
