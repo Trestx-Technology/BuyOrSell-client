@@ -2,12 +2,13 @@
 
 import React from "react";
 import { useParams } from "next/navigation";
-import SellerHeader from "./_components/SellerHeader";
-import SellerReviews from "./_components/SellerReviews";
-import SellerInfo from "./_components/SellerInfo";
-import SellerListings from "./_components/SellerListings";
-import SellerListingsMobileHeader from "./_components/SellerListingsMobileHeader";
+
 import Image from "next/image";
+import SellerListingsMobileHeader from "@/app/[locale]/(root)/seller/_components/SellerListingsMobileHeader";
+import SellerInfo from "@/app/[locale]/(root)/seller/_components/SellerInfo";
+import SellerReviews from "@/app/[locale]/(root)/seller/_components/SellerReviews";
+import SellerListings from "@/app/[locale]/(root)/seller/_components/SellerListings";
+import SellerHeader from "@/app/[locale]/(root)/seller/_components/SellerHeader";
 
 const SellerDetailPage: React.FC = () => {
   const params = useParams();

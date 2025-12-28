@@ -9,25 +9,51 @@ import { MdMessage } from "react-icons/md";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { MdCalendarToday } from "react-icons/md";
 import Image from "next/image";
+import { useLocale } from "@/hooks/useLocale";
+import { ICONS } from "@/constants/icons";
+import { Organization } from "@/interfaces/organization.types";
+import { User } from "@/interfaces/user.types";
+import { format } from "date-fns";
+import { formatDate } from "@/utils/format-date";
 
 interface SellerHeaderProps {
   sellerId: string;
+  organization?: Organization;
+  user?: User;
 }
 
-const SellerHeader: React.FC<SellerHeaderProps> = () => {
-  // Mock data - replace with actual API call
-  const sellerData = {
-    name: "Premium Auto Dealer",
-    avatar: "/volkswagen.png",
-    rating: 4.8,
-    reviewCount: 127,
-    location: "Dubai, UAE",
-    memberSince: "2020",
-    isVerified: true,
-    isTopRated: true,
-    bannerImage:
-      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/seller-banner.png",
-  };
+const SellerHeader: React.FC<SellerHeaderProps> = ({ organization, user }) => {
+  const { t } = useLocale();
+
+  // Determine seller data from organization or user
+  const isOrganization = !!organization;
+  const sellerName = organization
+    ? organization.tradeName || organization.legalName
+    : user
+    ? `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+      user.name ||
+      "Seller"
+    : "Seller";
+
+  const avatar = organization?.logoUrl || user?.image || "/volkswagen.png";
+  const rating = organization?.ratingAvg || 0;
+  const reviewCount = organization?.ratingCount || 0;
+  const location = organization
+    ? `${organization.city || ""}, ${organization.country || "AE"}`.replace(
+        /^,\s*|,\s*$/g,
+        ""
+      )
+    : "Location not specified";
+  const memberSince = organization?.createdAt
+    ? format(new Date(organization.createdAt), "yyyy")
+    : user?.createdAt
+    ? format(new Date(user.createdAt), "yyyy")
+    : "N/A";
+  const isVerified = organization?.verified || user?.isVerified || false;
+  const isTopRated = (rating >= 4.5 && reviewCount >= 10) || false;
+  const bannerImage =
+    organization?.coverImageUrl ||
+    "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/seller-banner.png";
 
   const handleCall = () => {
     console.log("Call seller");
@@ -97,7 +123,7 @@ const SellerHeader: React.FC<SellerHeaderProps> = () => {
       {/* Banner Image */}
       <div className="relative rounded-t-2xl h-40 overflow-hidden">
         <Image
-          src={sellerData.bannerImage}
+          src={bannerImage}
           alt="Seller banner"
           fill
           className="object-cover"
@@ -106,15 +132,15 @@ const SellerHeader: React.FC<SellerHeaderProps> = () => {
 
       {/* Main Content Card */}
       <div className="relative bg-white border border-gray-200 shadow-sm p-6 rounded-b-2xl">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
           {/* Seller Info Section */}
           <div className="flex items-center gap-4">
             {/* Avatar */}
             <div className="relative">
               <div className="w-30 h-30 rounded-full bg-gray-200 overflow-hidden">
                 <Image
-                  src={sellerData.avatar}
-                  alt={sellerData.name}
+                  src={avatar}
+                  alt={sellerName}
                   width={120}
                   height={120}
                   className="w-full h-full object-cover"
@@ -130,13 +156,13 @@ const SellerHeader: React.FC<SellerHeaderProps> = () => {
                   variant="h2"
                   className="text-xl font-semibold text-dark-blue"
                 >
-                  {sellerData.name}
+                  {sellerName}
                 </Typography>
 
                 {/* Verified Badge */}
-                {sellerData.isVerified && (
+                {isVerified && (
                   <Image
-                    src={"/verified-seller.svg"}
+                    src={ICONS.auth.verified}
                     alt="Verified"
                     width={21}
                     height={21}
@@ -144,10 +170,10 @@ const SellerHeader: React.FC<SellerHeaderProps> = () => {
                 )}
 
                 {/* Top Rated Badge */}
-                {sellerData.isTopRated && (
+                {isTopRated && (
                   <div className="flex items-center text-sm font-medium h-10 gap-1 px-4 py-1 text-purple bg-purple/10 rounded-lg">
                     <BookmarkCheck size={18} />
-                    Top Rated
+                    {t.seller.header.topRated}
                   </div>
                 )}
               </div>
@@ -155,20 +181,26 @@ const SellerHeader: React.FC<SellerHeaderProps> = () => {
               {/* Rating, Location, Member Since */}
               <div className="flex flex-col sm:flex-row flex-wrap gap-4 whitespace-nowrap">
                 {/* Rating */}
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    {renderStars(sellerData.rating)}
+                {rating > 0 && (
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {renderStars(rating)}
+                    </div>
+                    <Typography
+                      variant="body"
+                      className="text-sm text-dark-blue"
+                    >
+                      {rating.toFixed(1)} ({reviewCount}{" "}
+                      {t.seller.header.reviews})
+                    </Typography>
                   </div>
-                  <Typography variant="body" className="text-sm text-dark-blue">
-                    {sellerData.rating} ({sellerData.reviewCount} reviews)
-                  </Typography>
-                </div>
+                )}
 
                 {/* Location */}
                 <div className="flex items-center gap-1">
                   <FaMapMarkerAlt className="w-4 h-4 text-grey-blue" />
                   <Typography variant="body" className="text-sm text-dark-blue">
-                    {sellerData.location}
+                    {location}
                   </Typography>
                 </div>
 
@@ -176,7 +208,9 @@ const SellerHeader: React.FC<SellerHeaderProps> = () => {
                 <div className="flex items-center gap-1">
                   <MdCalendarToday className="w-4 h-4 text-grey-blue" />
                   <Typography variant="body" className="text-sm text-dark-blue">
-                    Member since {sellerData.memberSince}
+                    {t.seller.header.memberSince}{" "}
+                    {organization?.createdAt &&
+                      formatDate(organization?.createdAt)}
                   </Typography>
                 </div>
               </div>
@@ -193,7 +227,7 @@ const SellerHeader: React.FC<SellerHeaderProps> = () => {
               iconPosition="center"
               className="w-full"
             >
-              Call Seller
+              {t.seller.header.callSeller}
             </Button>
 
             {/* Message and WhatsApp Buttons */}
@@ -207,7 +241,7 @@ const SellerHeader: React.FC<SellerHeaderProps> = () => {
                 iconPosition="left"
                 className="flex-1 border-gray-300 text-dark-blue hover:bg-gray-50 text-sm"
               >
-                Message
+                {t.seller.header.message}
               </Button>
 
               {/* WhatsApp Button */}
@@ -220,7 +254,7 @@ const SellerHeader: React.FC<SellerHeaderProps> = () => {
                 iconPosition="left"
                 className="flex-1 border-gray-300 text-dark-blue hover:bg-gray-50 text-sm"
               >
-                WhatsApp
+                {t.seller.header.whatsapp}
               </Button>
             </div>
           </div>
