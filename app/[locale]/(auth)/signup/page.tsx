@@ -26,7 +26,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { useSignUp } from "@/hooks/useAuth";
 import { useSendPhoneOtp, useVerifyPhoneOtp } from "@/hooks/useUsers";
 import { useAuthStore } from "@/stores/authStore";
-import OTPVerificationDialog from "@/app/(root)/user/_components/otp-verification-dialog";
+import OTPVerificationDialog from "@/app/[locale]/(root)/user/_components/otp-verification-dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { calculatePasswordStrength } from "@/utils/password-strength";
