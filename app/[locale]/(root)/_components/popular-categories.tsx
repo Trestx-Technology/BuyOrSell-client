@@ -174,7 +174,10 @@ const PopularCategories = ({
                   contain: "layout style paint",
                 }}
               >
-                <div className="bg-white w-full md:border border-[#F5EBFF] rounded-md shadow-purple/20 hover:shadow-purple/30 block relative hover:bg-purple/10 transition-all duration-300 group">
+                <Link
+                  href={category.href}
+                  className="bg-white w-full md:border border-[#F5EBFF] rounded-md shadow-purple/20 hover:shadow-purple/30 block relative hover:bg-purple/10 transition-all duration-300 group"
+                >
                   {/* Category Content */}
                   <div className="px-2 py-1 min-h-[130px]">
                     {/* Icon and Name Section */}
@@ -207,7 +210,7 @@ const PopularCategories = ({
                   </div>
 
                   {/* Bottom Section with Active Ads and Arrow */}
-                  <Link href={category.href}>
+                  <div className="flex items-center justify-center">
                     <Typography
                       variant="xs-black-inter"
                       className="hidden items-center text-xs justify-center gap-1 text-purple text-center hover:underline p-2.5 w-full border-t group-hover:border-purple/20 font-medium md:flex"
@@ -215,8 +218,8 @@ const PopularCategories = ({
                       {category.activeAds}
                       <ArrowRight className="w-4 h-4" />
                     </Typography>
-                  </Link>
-                </div>
+                  </div>
+                </Link>
               </motion.div>
             ))}
       </div>

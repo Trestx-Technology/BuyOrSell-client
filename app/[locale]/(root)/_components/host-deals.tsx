@@ -11,63 +11,14 @@ import { motion } from "framer-motion";
 import { CategoryTreeWithAds } from "@/interfaces/home.types";
 import { formatDate } from "@/utils/format-date";
 import { useLocale } from "@/hooks/useLocale";
-
-// Framer Motion animation variants - using improved patterns from AI search bar
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const headerVariants = {
-  hidden: { opacity: 0, y: 25, scale: 0.98 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 22,
-      delay: 0.1,
-    },
-  },
-};
-
-const tabsVariants = {
-  hidden: { opacity: 0, y: 15, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 22,
-      delay: 0.3,
-    },
-  },
-};
-
-const contentVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 22,
-      delay: 0.5,
-    },
-  },
-};
+import { ListingCardSkeleton } from "@/components/global/listing-card-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  containerVariants,
+  headerVariants,
+  tabsVariants,
+  contentVariants,
+} from "@/utils/animation-variants";
 
 interface HostDealsProps {
   className?: string;
@@ -186,44 +137,70 @@ export default function HostDeals({
     });
   };
 
-  // Calculate earliest deal validity for main timer
-  const earliestDealValidity = useMemo(() => {
-    if (!activeCategory?.ads) return null;
+  // Find the biggest deal (highest discount percentage) from all ads across all categories
+  const biggestDealValidity = useMemo(() => {
+    if (!categoryTreeWithDealAds || categoryTreeWithDealAds.length === 0) {
+      return null;
+    }
 
-    const validDeals = activeCategory.ads
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((ad: any) => ad.dealValidThru || ad.dealValidThrough)
-      .filter(Boolean) as string[];
-
-    if (validDeals.length === 0) return null;
-
-    const sortedDeals = validDeals.sort((a, b) => {
-      return new Date(a).getTime() - new Date(b).getTime();
+    // Collect all ads from all categories
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const allAds: any[] = [];
+    categoryTreeWithDealAds.forEach((category) => {
+      if (category.ads && category.ads.length > 0) {
+        allAds.push(...category.ads);
+      }
     });
 
-    return sortedDeals[0];
-  }, [activeCategory]);
+    if (allAds.length === 0) return null;
+
+    // Find the ad with the highest discount percentage
+    const biggestDeal = allAds.reduce((biggest, current) => {
+      const currentDiscount = current.dealPercentage || 0;
+      const biggestDiscount = biggest.dealPercentage || 0;
+      return currentDiscount > biggestDiscount ? current : biggest;
+    });
+
+    // Return the validity date of the biggest deal
+    return biggestDeal.dealValidThru || biggestDeal.dealValidThrough || null;
+  }, [categoryTreeWithDealAds]);
 
   // Main timer state
   const [mainTimer, setMainTimer] = useState<string>("");
 
   // Update main timer
   useEffect(() => {
-    if (!earliestDealValidity) {
+    if (!biggestDealValidity) {
       setMainTimer("");
       return;
     }
 
     const updateTimer = () => {
       const now = new Date().getTime();
-      const end = new Date(earliestDealValidity).getTime();
+      const end = new Date(biggestDealValidity).getTime();
       const distance = end - now;
 
       if (distance > 0) {
-        const hours = Math.floor(distance / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        setMainTimer(`${hours}h ${minutes}m ${seconds}s remaining`);
+        const totalSeconds = Math.floor(distance / 1000);
+        const totalMinutes = Math.floor(totalSeconds / 60);
+        const totalHours = Math.floor(totalMinutes / 60);
+        const days = Math.floor(totalHours / 24);
+        const hours = totalHours % 24;
+        const minutes = totalMinutes % 60;
+
+        // Format based on remaining time for better readability
+        let timeString = "";
+        if (days > 0) {
+          // Show days and hours (e.g., "5d 12h remaining")
+          timeString = `${days}d ${hours}h remaining`;
+        } else if (totalHours > 0) {
+          // Show hours and minutes (e.g., "12h 30m remaining")
+          timeString = `${totalHours}h ${minutes}m remaining`;
+        } else {
+          // Show minutes only (e.g., "30m remaining")
+          timeString = `${totalMinutes}m remaining`;
+        }
+        setMainTimer(timeString);
       } else {
         setMainTimer("EXPIRED");
       }
@@ -232,7 +209,7 @@ export default function HostDeals({
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  }, [earliestDealValidity]);
+  }, [biggestDealValidity]);
 
   // Don't render if no categories
   if (!isLoading && categories.length === 0) {
@@ -293,11 +270,35 @@ export default function HostDeals({
           className="mb-4 pl-5"
         >
           {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <Typography variant="body" className="text-white">
-                {t.home.hostDeals.loading}
-              </Typography>
-            </div>
+            <>
+              {/* Skeleton Tabs */}
+              <div className="flex items-center justify-start w-full bg-transparent gap-3 overflow-x-auto scrollbar-hide mb-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Skeleton key={index} className="h-10 w-24 rounded-md" />
+                ))}
+              </div>
+
+              {/* Skeleton Cards Carousel */}
+              <div className="flex-1 overflow-hidden">
+                <CardsCarousel title="" showNavigation={true}>
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className="flex-[0_0_auto] max-w-[190px] w-full"
+                    >
+                      <ListingCardSkeleton
+                        showTimer={true}
+                        showDiscountBadge={true}
+                        showImageCounter={true}
+                        showSeller={true}
+                        showExtraFields={true}
+                        className="w-full"
+                      />
+                    </div>
+                  ))}
+                </CardsCarousel>
+              </div>
+            </>
           ) : categories.length > 0 ? (
             <Tabs
               value={activeTab}
@@ -352,7 +353,7 @@ export default function HostDeals({
                                     damping: 22,
                                     delay: 0.6 + index * 0.08,
                                   }}
-                                  className="flex-[0_0_auto] max-w-[170px] w-full"
+                                  className="flex-[0_0_auto] max-w-[190px] w-full"
                                 >
                                   <HotDealsListingCard
                                     {...deal}
