@@ -1,10 +1,10 @@
 export interface User {
   _id: string;
-  name: string;
+  name?: string;
   firstName?: string;
   lastName?: string;
   email: string;
-  phoneNo: string;
+  phoneNo?: string;
   countryCode?: string;
   age?: number;
   image?: string;
@@ -14,7 +14,9 @@ export interface User {
   role?: {
     _id?: string;
     name?: string;
+    nameAr?: string;
     description?: string;
+    descriptionAr?: string;
     permissions?: Record<string, unknown>;
     createdAt?: string;
     updatedAt?: string;
@@ -43,10 +45,16 @@ export interface User {
   appleDeviceId?: string;
   isEmarati?: boolean;
   emaratiDetails?: string;
-  emaratiStatus?: "PENDING" | "VERIFIED" | "REJECTED";
+  emaratiStatus?: "PENDING" | "VERIFIED" | "REJECTED" | "NOT_SET";
   blockedReason?: string[];
+  recentlyViewed?: Array<{
+    adId: string;
+    viewedAt: string;
+    _id: string;
+  }>;
   createdAt?: string;
   updatedAt?: string;
+  __v?: number;
 }
 
 export interface CreateUserPayload {
@@ -120,6 +128,39 @@ export interface UserResponse {
   timestamp: string;
   message?: string;
   data: User;
+}
+
+export interface AdsCountWithCategory {
+  _id: string[];
+  adsCountInCategory: number;
+  activeAdsCountInCategory: number;
+}
+
+export interface ProfileResponseData {
+  user: User;
+  adsCount: number;
+  defaultFreeAddCount: number;
+  usedFreeAddCount: number;
+  remainingFreeAddCount: number;
+  defaultVehicleAdsCount: number;
+  vehicleAdsCount: number;
+  remainingVehicleAdsCount: number;
+  activeVehicleAdsCount: number;
+  defaultRealEstateAdsCount: number;
+  realEstateAdsCount: number;
+  remainingRealEstateAdsCount: number;
+  activeRealEstateAdsCount: number;
+  totalActiveAdsCount: number;
+  activeSubscription: unknown[];
+  expiredSubscription: unknown[];
+  adsCountWithCategory: AdsCountWithCategory[];
+}
+
+export interface ProfileResponse {
+  statusCode: number;
+  timestamp: string;
+  message?: string;
+  data: ProfileResponseData;
 }
 
 export interface UsersListResponse {
@@ -204,4 +245,3 @@ export interface BlockHistoryResponse {
   message?: string;
   data: BlockHistory[];
 }
-

@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getAdReviews,
   getOrganizationReviews,
+  getReviews,
+  getAverageRating,
 } from "@/app/api/review/review.services";
 import {
   createAdReview,
@@ -10,6 +12,7 @@ import {
 import {
   ReviewsResponse,
   CreateReviewResponse,
+  AverageRatingResponse,
 } from "@/interfaces/review.types";
 import { reviewQueries } from "@/app/api/review/index";
 
@@ -46,6 +49,35 @@ export const useOrganizationReviews = (
     ],
     queryFn: () => getOrganizationReviews(organizationId, params),
     enabled: !!organizationId,
+  });
+};
+
+// Get reviews for a user
+export const useUserReviews = (
+  userId: string,
+  params?: {
+    page?: number;
+    limit?: number;
+    sortBy?: "latest" | "oldest" | "highest" | "lowest";
+  },
+  enabled: boolean = true
+) => {
+  return useQuery<ReviewsResponse, Error>({
+    queryKey: [...reviewQueries.getReviews("User", userId).Key, params],
+    queryFn: () => getReviews("User", userId, params),
+    enabled: enabled && !!userId,
+  });
+};
+
+// Get average rating for a user
+export const useUserAverageRating = (
+  userId: string,
+  enabled: boolean = true
+) => {
+  return useQuery<AverageRatingResponse, Error>({
+    queryKey: [...reviewQueries.getAverageRating("User", userId).Key],
+    queryFn: () => getAverageRating("User", userId),
+    enabled: enabled && !!userId,
   });
 };
 

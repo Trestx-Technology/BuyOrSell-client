@@ -21,11 +21,12 @@ import {
   blockUser,
   assignRole,
   getBlockHistory,
-} from '@/app/api/user/user.services';
+} from "@/app/api/user/user.services";
 import {
   CreateUserPayload,
   UpdateUserPayload,
   UserResponse,
+  ProfileResponse,
   UsersListResponse,
   SendEmailOtpResponse,
   SendPhoneOtpResponse,
@@ -36,8 +37,8 @@ import {
   BlockUserPayload,
   AssignRolePayload,
   BlockHistoryResponse,
-} from '@/interfaces/user.types';
-import { userQueries } from '@/app/api/user/index';
+} from "@/interfaces/user.types";
+import { userQueries } from "@/app/api/user/index";
 
 // ============================================================================
 // QUERY HOOKS
@@ -63,7 +64,7 @@ export const useGetUserById = (id: string) => {
 };
 
 export const useGetProfile = () => {
-  return useQuery<UserResponse, Error>({
+  return useQuery<ProfileResponse, Error>({
     queryKey: userQueries.getProfile.Key,
     queryFn: () => getProfile(),
   });
@@ -340,4 +341,3 @@ export const useAssignRole = () => {
     },
   });
 };
-
