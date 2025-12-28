@@ -1,24 +1,36 @@
 import { Metadata } from "next";
 import JobHomeComponent from "./_components/job-home-component";
 import { getTranslations } from "@/translations";
-import { getLocale } from "@/lib/i18n/server";
+import { type Locale, locales, defaultLocale } from "@/lib/i18n/config";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
+interface JobsPageProps {
+  params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({
+  params,
+}: JobsPageProps): Promise<Metadata> {
+  const { locale: localeParam } = await params;
+  const locale = (
+    locales.includes(localeParam as Locale)
+      ? (localeParam as Locale)
+      : defaultLocale
+  ) as Locale;
   const t = getTranslations(locale);
-  
+
   return {
     title: t.jobs.title,
     description: t.jobs.description,
-  keywords: [
-    "jobs UAE",
-    "career opportunities",
-    "job search",
-    "employment UAE",
-    "job listings",
-    "career success",
-  ],
-};
+    keywords: [
+      "jobs UAE",
+      "career opportunities",
+      "job search",
+      "employment UAE",
+      "job listings",
+      "career success",
+    ],
+  };
+}
 
 export default function JobsHomePage() {
   return (

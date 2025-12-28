@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Typography } from "@/components/typography";
-import JobCard from "@/app/(root)/jobs/my-profile/_components/job-card";
+import JobCard from "@/app/[locale]/(root)/jobs/my-profile/_components/job-card";
 import { useAds } from "@/hooks/useAds";
 import { AD } from "@/interfaces/ad";
 import { transformAdToJobCard } from "@/utils/transform-ad-to-job-card";

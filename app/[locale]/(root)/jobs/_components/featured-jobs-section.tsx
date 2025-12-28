@@ -3,10 +3,10 @@
 import React from "react";
 import Link from "next/link";
 import { Typography } from "@/components/typography";
-import JobCard from "@/app/(root)/jobs/my-profile/_components/job-card";
+import JobCard from "@/app/[locale]/(root)/jobs/my-profile/_components/job-card";
 import { JobData } from "@/interfaces/job.types";
 import { transformJobDataToJobCard } from "@/utils/transform-job-data-to-job-card";
-import JobsSectionTitle from "@/app/(root)/jobs/_components/jobs-section-title";
+import JobsSectionTitle from "@/app/[locale]/(root)/jobs/_components/jobs-section-title";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface FeaturedJobsSectionProps {
