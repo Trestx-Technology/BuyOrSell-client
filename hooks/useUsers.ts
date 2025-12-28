@@ -55,11 +55,11 @@ export const useFindAllUsers = (params?: {
   });
 };
 
-export const useGetUserById = (id: string) => {
+export const useGetUserById = (id: string, options?: { enabled?: boolean }) => {
   return useQuery<UserResponse, Error>({
     queryKey: [...userQueries.getUserById(id).Key],
     queryFn: () => getUserById(id),
-    enabled: !!id,
+    enabled: options?.enabled !== undefined ? options.enabled : !!id,
   });
 };
 
