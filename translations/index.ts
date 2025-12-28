@@ -53,6 +53,10 @@ import { sellerTranslations } from "./seller";
 import { dealsTranslations } from "./deals";
 import { plansTranslations } from "./plans";
 import { rateUsTranslations } from "./rate-us";
+import { aiAdPostTranslations } from "./ai-ad-post";
+import { chatTranslations } from "./chat";
+import { jobsTranslations } from "./jobs";
+import { mapViewTranslations } from "./map-view";
 import type { Translations } from "./types";
 import { DEFAULT_LOCALE } from "../validations/utils";
 
@@ -72,6 +76,10 @@ const translationRegistry = {
   deals: dealsTranslations,
   plans: plansTranslations,
   rateUs: rateUsTranslations,
+  aiAdPost: aiAdPostTranslations,
+  chat: chatTranslations,
+  jobs: jobsTranslations,
+  mapView: mapViewTranslations,
 } as const;
 
 /**
@@ -138,6 +146,10 @@ export { sellerTranslations } from "./seller";
 export { dealsTranslations } from "./deals";
 export { plansTranslations } from "./plans";
 export { rateUsTranslations } from "./rate-us";
+export { aiAdPostTranslations } from "./ai-ad-post";
+export { chatTranslations } from "./chat";
+export { jobsTranslations } from "./jobs";
+export { mapViewTranslations } from "./map-view";
 
 // Export types
 export type { Translations } from "./types";

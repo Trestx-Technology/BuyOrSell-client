@@ -17,6 +17,10 @@ import { SellerTranslations } from "../seller/types";
 import { DealsTranslations } from "../deals/types";
 import { PlansTranslations } from "../plans/types";
 import { RateUsTranslations } from "../rate-us/types";
+import { AIAdPostTranslations } from "../ai-ad-post/types";
+import { ChatTranslations } from "../chat/types";
+import { JobsTranslations } from "../jobs/types";
+import { MapViewTranslations } from "../map-view/types";
 export type { CommonTranslations } from "../common/types";
 
 // Re-export commonly used types
@@ -43,4 +47,8 @@ export type Translations = {
   deals: DealsTranslations;
   plans: PlansTranslations;
   rateUs: RateUsTranslations;
+  aiAdPost: AIAdPostTranslations;
+  chat: ChatTranslations;
+  jobs: JobsTranslations;
+  mapView: MapViewTranslations;
 };

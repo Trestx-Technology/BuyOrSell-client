@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Plus, X, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { SelectInput } from "@/app/(root)/post-ad/details/_components/SelectInput";
-import { FormField } from "@/app/(root)/post-ad/details/_components/FormField";
+import { SelectInput } from "@/app/[locale]/(root)/post-ad/details/_components/SelectInput";
+import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 
 export interface BusinessHour {
   day: number; // 1-7 (Monday-Sunday)

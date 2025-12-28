@@ -9,7 +9,7 @@ import HotDealsListingCard from "@/components/global/hot-deals-listing-card";
 import AdCard from "@/app/[locale]/(root)/categories/_components/AdCard";
 import SortAndViewControls, {
   ViewMode,
-} from "@/app/(root)/post-ad/_components/SortAndViewControls";
+} from "@/app/[locale]/(root)/post-ad/_components/SortAndViewControls";
 import React, { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/hooks/useLocale";

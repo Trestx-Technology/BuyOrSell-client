@@ -2,8 +2,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import { Search, SlidersHorizontal } from "lucide-react";
+import {
+  Search,
+  MapPin,
+  SlidersHorizontal,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -25,7 +28,6 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 import { cn } from "@/lib/utils";
-import { NaturalLanguageCalendar } from "@/components/ui/natural-language-calendar";
 
 export interface FilterOption {
   value: string;
@@ -41,55 +43,39 @@ export interface FilterConfig {
   min?: number;
   max?: number;
   step?: number;
-  isStatic?: boolean; // If true, shows outside dialog; if false, shows inside dialog
 }
 
-export interface AdsFilterProps {
+export interface JobsFilterProps {
+  searchQuery: string;
+  onSearchChange: (query: string) => void;
+  searchPlaceholder?: string;
+  locationQuery: string;
+  onLocationChange: (query: string) => void;
+  locationPlaceholder?: string;
   filters: Record<string, any>;
   onFilterChange: (key: string, value: any) => void;
   onClearFilters: () => void;
-  config?: FilterConfig[]; // Legacy support - will be split into staticFilters and dynamicFilters
-  staticFilters?: FilterConfig[]; // Filters to show outside dialog
-  dynamicFilters?: FilterConfig[]; // Filters to show inside dialog
-  searchQuery?: string;
-  onSearchChange?: (query: string) => void;
-  searchPlaceholder?: string;
+  config: FilterConfig[];
   className?: string;
 }
 
-const AdsFilter = ({
+export default function JobsFilter({
+  searchQuery,
+  onSearchChange,
+  searchPlaceholder = "Search jobs...",
+  locationQuery,
+  onLocationChange,
+  locationPlaceholder = "Dubai",
   filters,
   onFilterChange,
   onClearFilters,
   config,
-  staticFilters,
-  dynamicFilters,
-  searchQuery = "",
-  onSearchChange,
-  searchPlaceholder = "Search...",
   className,
-}: AdsFilterProps) => {
+}: JobsFilterProps) {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
-  // Use debounced value hook for search input
-  const [localSearchQuery, setLocalSearchQuery] = useDebouncedValue(
-    searchQuery,
-    (value) => {
-      if (onSearchChange) {
-        onSearchChange(value);
-      }
-    },
-    500 // 500ms debounce delay
-  );
-
-  // Separate static and dynamic filters
-  const staticFilterConfigs =
-    staticFilters || (config || []).filter((f) => f.isStatic !== false);
-  const dynamicFilterConfigs =
-    dynamicFilters || (config || []).filter((f) => f.isStatic === false);
-
   const activeFilters = Object.entries(filters).filter(
-    ([, value]) =>
+    ([_, value]) =>
       value && value !== "" && (Array.isArray(value) ? value.length > 0 : true)
   );
 
@@ -216,19 +202,6 @@ const AdsFilter = ({
           </FormField>
         );
 
-      case "calendar":
-        return (
-          <FormField label={filterConfig.label} required={false}>
-            <div className="min-w-40">
-              <NaturalLanguageCalendar
-                value={value || ""}
-                onChange={(newValue) => onFilterChange(key, newValue)}
-                placeholder={placeholder || "Tomorrow"}
-              />
-            </div>
-          </FormField>
-        );
-
       default:
         return null;
     }
@@ -241,33 +214,42 @@ const AdsFilter = ({
         className
       )}
     >
-      <CardContent className=" p-0">
+      <CardContent className="p-0">
+        {/* Search Inputs */}
         <div className="border-b p-4 hidden sm:block">
-          {/* Search Bar */}
-          {onSearchChange && (
+          <div className="flex gap-3">
             <Input
               leftIcon={<Search className="h-4 w-4" />}
               placeholder={searchPlaceholder}
-              value={localSearchQuery}
-              onChange={(e) => setLocalSearchQuery(e.target.value)}
-              className="pl-10 bg-gray-100 border-0"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="pl-10 bg-gray-100 border-0 flex-1"
             />
-          )}
+            <Input
+              leftIcon={<MapPin className="h-4 w-4" />}
+              placeholder={locationPlaceholder}
+              value={locationQuery}
+              onChange={(e) => onLocationChange(e.target.value)}
+              className="pl-10 bg-gray-100 border-0 flex-1"
+            />
+          </div>
         </div>
 
-        {/* Filter Controls - Static Filters Outside Dialog */}
+        {/* Filter Controls */}
         <div className="min-w-full flex items-end gap-3 pb-4 sm:p-4 border-b sm:border-none whitespace-nowrap overflow-x-auto scrollbar-hide relative">
-          {staticFilterConfigs.map((filterConfig) => (
-            <div key={filterConfig.key} className="min-w-40 shrink-0">
+          {config.map((filterConfig) => (
+            <div key={filterConfig.key} className="w-40 shrink-0">
               {renderFilterControl(filterConfig)}
             </div>
           ))}
 
-          {/* Advanced Filters Dialog - Dynamic Filters Inside */}
+          {/* Advanced Filters Dialog */}
           <Dialog open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
             <DialogTrigger asChild>
               <Button
-                icon={<SlidersHorizontal className="h-4 w-4 -mr-3 sm:-mr-2" />}
+                icon={
+                  <SlidersHorizontal className="h-4 w-4 -mr-3 sm:-mr-2" />
+                }
                 iconPosition="left"
                 className="w-40 border-purple-200 sticky top-0 right-0"
               >
@@ -279,17 +261,11 @@ const AdsFilter = ({
                 <DialogTitle>Advanced Filters</DialogTitle>
               </DialogHeader>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                {dynamicFilterConfigs.length > 0 ? (
-                  dynamicFilterConfigs.map((filterConfig) => (
-                    <div key={filterConfig.key} className="space-y-2">
-                      {renderFilterControl(filterConfig)}
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center text-gray-500 py-8">
-                    No additional filters available
+                {config.map((filterConfig) => (
+                  <div key={filterConfig.key} className="space-y-2">
+                    {renderFilterControl(filterConfig)}
                   </div>
-                )}
+                ))}
               </div>
               <div className="flex justify-end gap-2 pt-4 border-t">
                 <Button variant="outline" onClick={onClearFilters}>
@@ -308,10 +284,7 @@ const AdsFilter = ({
           <div className="flex items-center border-t p-2">
             <div className="flex flex-wrap gap-2">
               {activeFilters.map(([key, value]) => {
-                const filterConfig = [
-                  ...staticFilterConfigs,
-                  ...dynamicFilterConfigs,
-                ].find((c) => c.key === key);
+                const filterConfig = config.find((c) => c.key === key);
                 const displayValue = Array.isArray(value)
                   ? value.join(", ")
                   : value;
@@ -351,6 +324,5 @@ const AdsFilter = ({
       </CardContent>
     </Card>
   );
-};
+}
 
-export default AdsFilter;

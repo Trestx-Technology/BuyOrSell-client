@@ -14,7 +14,7 @@ import { useGetCollectionById } from "@/hooks/useCollections";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import SortAndViewControls, {
   ViewMode,
-} from "@/app/(root)/post-ad/_components/SortAndViewControls";
+} from "@/app/[locale]/(root)/post-ad/_components/SortAndViewControls";
 import Image from "next/image";
 import HorizontalListingCard from "../../categories/_components/desktop-horizontal-list-card";
 import MobileHorizontalListViewCard from "../../categories/_components/MobileHorizontalListViewCard";

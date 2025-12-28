@@ -10,9 +10,9 @@ import {
 import { CreateOrganizationPayload } from "@/interfaces/organization.types";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { FormField } from "@/app/(root)/post-ad/details/_components/FormField";
-import { TextInput } from "@/app/(root)/post-ad/details/_components/TextInput";
-import { SelectInput } from "@/app/(root)/post-ad/details/_components/SelectInput";
+import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
+import { TextInput } from "@/app/[locale]/(root)/post-ad/details/_components/TextInput";
+import { SelectInput } from "@/app/[locale]/(root)/post-ad/details/_components/SelectInput";
 import { DatePicker } from "../_components/DatePicker";
 import {
   SingleImageUpload,

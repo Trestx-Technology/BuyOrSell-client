@@ -12,7 +12,7 @@ import { Bell, ChevronLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import SortAndViewControls, {
   ViewMode,
-} from "@/app/(root)/post-ad/_components/SortAndViewControls";
+} from "@/app/[locale]/(root)/post-ad/_components/SortAndViewControls";
 import { cn } from "@/lib/utils";
 import HorizontalListingCard from "../_components/desktop-horizontal-list-card";
 import MobileHorizontalListViewCard from "../_components/MobileHorizontalListViewCard";
