@@ -11,6 +11,7 @@ import { jwtDecode } from "jwt-decode";
 import { useAuthStore } from "@/stores/authStore";
 import { AUTH_TOKEN_NAMES } from "@/constants/auth.constants";
 import { CookieService } from "@/services/cookie-service";
+import { isPublicEndpoint } from "@/constants/routes.constants";
 
 // ============================================================================
 // TYPES
@@ -207,6 +208,22 @@ axiosInstance.interceptors.request.use(
   async (
     config: InternalAxiosRequestConfig
   ): Promise<InternalAxiosRequestConfig> => {
+    // CRITICAL FIX: Skip all token logic for public endpoints
+    if (isPublicEndpoint(config.url)) {
+      console.debug("Skipping auth for public endpoint:", config.url);
+
+      // Still add emirate parameter if needed
+      if (typeof window !== "undefined") {
+        const urlParams = new URLSearchParams(window.location.search);
+        const emirate = urlParams.get("emirate");
+        if (emirate && !config.params?.emirate) {
+          config.params = { ...config.params, emirate };
+        }
+      }
+
+      return config;
+    }
+
     const token = LocalStorageService.get<string>(
       AUTH_TOKEN_NAMES.ACCESS_TOKEN
     );
@@ -255,7 +272,6 @@ axiosInstance.interceptors.request.use(
       }
 
       if (!refreshPromise) {
-        // Start refresh with timeout protection
         refreshPromise = Promise.race([
           callRefreshTokenAPI(refreshToken)
             .then(
@@ -268,7 +284,6 @@ axiosInstance.interceptors.request.use(
                   user?: unknown;
                 };
               }) => {
-                // Response structure from refreshToken: { statusCode, timestamp, data: { accessToken, refreshToken, user } }
                 const responseData = res?.data;
                 const newToken = responseData?.accessToken;
                 const newRefresh = responseData?.refreshToken;
@@ -294,10 +309,9 @@ axiosInstance.interceptors.request.use(
                   );
                 }
 
-                // Update cookie with new access token using client-side CookieService
                 try {
                   const maxAge =
-                    Number(process.env.NEXT_PUBLIC_COOKIE_MAX_AGE) || 86400; // Default to 24 hours
+                    Number(process.env.NEXT_PUBLIC_COOKIE_MAX_AGE) || 86400;
                   CookieService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, newToken, {
                     maxAge,
                     path: "/",
@@ -309,12 +323,9 @@ axiosInstance.interceptors.request.use(
                     "Failed to update cookie after token refresh",
                     cookieError
                   );
-                  // Don't throw - token refresh succeeded, cookie update failure is non-critical
                 }
 
-                // Reset redirect flag on successful refresh
                 isRedirecting = false;
-
                 return newToken;
               }
             )
@@ -330,17 +341,14 @@ axiosInstance.interceptors.request.use(
           ),
         ])
           .catch((err: Error) => {
-            // Clear refresh promise immediately on error to prevent hanging
             refreshPromise = null;
             console.error("Refresh token flow failed", err, {
               message: err.message,
             });
-            // On refresh failure, clear and redirect; propagate rejection to callers
             void handleLogoutAndRedirect();
             throw err;
           })
           .finally(() => {
-            // Ensure promise is cleared even if there's an unexpected error
             refreshPromise = null;
           });
       }
@@ -367,13 +375,9 @@ axiosInstance.interceptors.request.use(
       const emirate = urlParams.get("emirate");
 
       if (emirate) {
-        // Initialize params if not already present
         if (!config.params) {
           config.params = {};
         }
-
-        // Only add emirate if it's not already set in the request params
-        // This allows explicit overrides if needed
         if (!config.params.emirate) {
           config.params.emirate = emirate;
         }
@@ -397,8 +401,11 @@ axiosInstance.interceptors.response.use(
     const status = error.response?.status;
     const errorCode = error.code;
 
-    // Special handling for authentication
-    // Don't show errors on login page
+    // Get the request URL to check if it's a public endpoint
+    const requestUrl = error.config?.url;
+    const isPublic = isPublicEndpoint(requestUrl);
+
+    // Don't show errors or redirect on login page
     if (
       typeof window !== "undefined" &&
       window.location.pathname === "/login"
@@ -406,9 +413,8 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Handle network errors and timeouts that could cause infinite loops
+    // Handle network errors and timeouts
     if (!error.response) {
-      // Network error - check if it's a timeout or connection issue
       if (
         errorCode === "ECONNABORTED" ||
         errorCode === "ETIMEDOUT" ||
@@ -417,16 +423,13 @@ axiosInstance.interceptors.response.use(
         error.message?.includes("timeout") ||
         error.message?.includes("Network Error")
       ) {
-        // Clear any pending refresh promise to prevent loops
         refreshPromise = null;
 
-        // Check if we're already on the no-internet page to prevent redirect loops
         if (typeof window !== "undefined") {
           const pathname = window.location.pathname;
           const isNoInternetPage = pathname.includes("/no-internet");
 
           if (!isNoInternetPage) {
-            // Extract locale from current pathname or use default
             const locales = ["en-US", "nl-NL", "nl", "ar"];
             const pathSegments = pathname.split("/").filter(Boolean);
             const currentLocale =
@@ -434,7 +437,6 @@ axiosInstance.interceptors.response.use(
                 ? pathSegments[0]
                 : "en-US";
 
-            // Redirect to locale-aware no-internet page
             window.location.href = `/${currentLocale}/no-internet`;
             return Promise.reject(error);
           }
@@ -442,8 +444,8 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    if (status === 401) {
-      // Prevent multiple redirects
+    // CRITICAL FIX: Only redirect to login for 401 on protected endpoints
+    if (status === 401 && !isPublic) {
       if (!isRedirecting) {
         void handleLogoutAndRedirect();
         toast.error("Session expired. Please log in again.");
@@ -451,10 +453,15 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // For 401 on public endpoints, just return the error without redirecting
+    if (status === 401 && isPublic) {
+      console.warn("401 error on public endpoint:", requestUrl);
+      return Promise.reject(error);
+    }
+
     // Handle all other errors using the error handler
     const errorResponse = ApiErrorHandler.handle(error);
 
-    // Display toast notification with the error message (but not for network errors that redirect)
     if (
       typeof window !== "undefined" &&
       !window.location.pathname.includes("/no-internet")
@@ -462,9 +469,6 @@ axiosInstance.interceptors.response.use(
       toast.error(errorResponse.message);
     }
 
-    // Return a rejected promise with the structured error object
-    // This allows consumers to handle errors gracefully while still
-    // maintaining the error flow with Promise.reject
     return Promise.reject(errorResponse);
   }
 );
