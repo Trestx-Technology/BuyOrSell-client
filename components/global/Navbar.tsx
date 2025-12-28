@@ -18,7 +18,7 @@ import {
 
 import SideMenu from "./SideMenu";
 import { SearchAnimated } from "./ai-search-bar";
-import PostAdDialog from "../../app/(root)/post-ad/_components/PostAdDialog";
+import PostAdDialog from "@/app/[locale]/(root)/post-ad/_components/PostAdDialog";
 import { ICONS } from "@/constants/icons";
 import { cn } from "@/lib/utils";
 import {
