@@ -421,13 +421,23 @@ axiosInstance.interceptors.response.use(
         refreshPromise = null;
 
         // Check if we're already on the no-internet page to prevent redirect loops
-        if (
-          typeof window !== "undefined" &&
-          window.location.pathname !== "/no-internet"
-        ) {
-          // Redirect to no-internet page for connection issues
-          window.location.href = "/no-internet";
-          return Promise.reject(error);
+        if (typeof window !== "undefined") {
+          const pathname = window.location.pathname;
+          const isNoInternetPage = pathname.includes("/no-internet");
+
+          if (!isNoInternetPage) {
+            // Extract locale from current pathname or use default
+            const locales = ["en-US", "nl-NL", "nl", "ar"];
+            const pathSegments = pathname.split("/").filter(Boolean);
+            const currentLocale =
+              pathSegments[0] && locales.includes(pathSegments[0])
+                ? pathSegments[0]
+                : "en-US";
+
+            // Redirect to locale-aware no-internet page
+            window.location.href = `/${currentLocale}/no-internet`;
+            return Promise.reject(error);
+          }
         }
       }
     }
@@ -447,7 +457,7 @@ axiosInstance.interceptors.response.use(
     // Display toast notification with the error message (but not for network errors that redirect)
     if (
       typeof window !== "undefined" &&
-      window.location.pathname !== "/no-internet"
+      !window.location.pathname.includes("/no-internet")
     ) {
       toast.error(errorResponse.message);
     }
