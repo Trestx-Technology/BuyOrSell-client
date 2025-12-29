@@ -13,15 +13,15 @@ interface CandidateResumeProps {
 }
 
 export default function CandidateResume({ jobseeker, onDownload }: CandidateResumeProps) {
-  if (!jobseeker.resumeUrl) {
+  if (!jobseeker.resumeFileUrl) {
     return null;
   }
 
   const handleDownload = () => {
     if (onDownload) {
       onDownload();
-    } else if (jobseeker.resumeUrl) {
-      window.open(jobseeker.resumeUrl, "_blank");
+    } else if (jobseeker.resumeFileUrl) {
+      window.open(jobseeker.resumeFileUrl, "_blank");
     }
   };
 
@@ -33,12 +33,12 @@ export default function CandidateResume({ jobseeker, onDownload }: CandidateResu
       <div className="flex items-center justify-between">
         <div>
           <Typography variant="body-small" className="text-dark-blue mb-1">
-            {jobseeker.resumeUrl.split("/").pop() || "Resume"}
+            {jobseeker.resumeFileUrl.split("/").pop() || "Resume"}
           </Typography>
           <Typography variant="caption" className="text-grey-blue">
             Uploaded on{" "}
-            {jobseeker.lastUpdated
-              ? format(new Date(jobseeker.lastUpdated), "MMM d, yyyy")
+            {jobseeker.updatedAt
+              ? format(new Date(jobseeker.updatedAt), "MMM d, yyyy")
               : "Sep 20, 2020"}
           </Typography>
         </div>

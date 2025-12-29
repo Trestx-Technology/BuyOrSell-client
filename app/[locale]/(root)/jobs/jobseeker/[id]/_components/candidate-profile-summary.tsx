@@ -9,7 +9,7 @@ interface CandidateProfileSummaryProps {
 }
 
 export default function CandidateProfileSummary({ jobseeker }: CandidateProfileSummaryProps) {
-  if (!jobseeker.bio) {
+  if (!jobseeker.summary) {
     return null;
   }
 
@@ -19,7 +19,7 @@ export default function CandidateProfileSummary({ jobseeker }: CandidateProfileS
         Profile Summary
       </Typography>
       <Typography variant="body-large" className="text-[#8A8A8A] text-base leading-relaxed whitespace-pre-line">
-        {jobseeker.bio}
+        {jobseeker.summary}
       </Typography>
     </div>
   );

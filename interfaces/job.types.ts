@@ -1,8 +1,8 @@
 // Job-related TypeScript interfaces
 
-import { User } from './user.types';
-import { Organization } from './organization.types';
-import { AD } from './ad';
+import { User } from "./user.types";
+import { Organization } from "./organization.types";
+import { AD } from "./ad";
 
 export interface Professional {
   _id: string;
@@ -22,7 +22,7 @@ export interface JobApplicant {
   userId: string;
   jobId: string;
   user?: User;
-  status: 'pending' | 'reviewed' | 'shortlisted' | 'rejected' | 'accepted';
+  status: "pending" | "reviewed" | "shortlisted" | "rejected" | "accepted";
   appliedAt: string;
   coverLetter?: string;
   resumeUrl?: string;
@@ -40,7 +40,7 @@ export interface JobApplication {
   _id: string;
   jobId: string;
   userId: string;
-  status: 'pending' | 'reviewed' | 'shortlisted' | 'rejected' | 'accepted';
+  status: "pending" | "reviewed" | "shortlisted" | "rejected" | "accepted";
   appliedAt: string;
   coverLetter?: string;
   resumeUrl?: string;
@@ -54,104 +54,191 @@ export interface JobApplication {
 }
 
 // Jobseeker Profile - extended user profile for jobseekers
-export interface JobseekerProfile extends User {
-  // Professional information
-  professionalTitle?: string;
-  currentCompany?: string;
-  bio?: string;
-  resumeUrl?: string;
-  
-  // Work experience
-  workExperience?: WorkExperience[];
-  
-  // Education
-  education?: Education[];
-  
-  // Skills and certifications
-  skills?: Skill[];
-  certifications?: Certification[];
-  
-  // Portfolio
-  portfolio?: PortfolioItem[];
-  
-  // Languages
-  languages?: Array<{
-    name: string;
-    proficiency: string;
-    read?: boolean;
-    write?: boolean;
-    speak?: boolean;
-  }>;
-  
-  // Job preferences
-  jobPreferences?: {
-    jobType?: string[];
-    workMode?: string[];
-    salaryRange?: {
-      min: number;
-      max: number;
-    };
-    preferredLocations?: string[];
-    industries?: string[];
-  };
-  
-  // Statistics
-  profileCompletion?: number;
-  lastUpdated?: string;
+export interface JobseekerProfile {
+  _id: string;
+  userId: string;
+  name: string;
+  nameAr?: string;
+  headline: string;
+  headlineAr?: string;
+  skills: string[];
+  skillsAr?: string[];
+  experienceYears: number;
+  education?: string;
+  isFresher: boolean;
+  workStatus: string;
+  workStatusAr?: string;
+  location: string;
+  locationAr?: string;
+  contactEmail: string;
+  contactPhone: string;
+  desiredRoles: string[];
+  desiredRolesAr?: string[];
+  availability?: string;
+  noticePeriodDays?: number;
+  salaryExpectationMin?: number;
+  salaryExpectationMax?: number;
+  currentCtc?: number;
+  expectedCtc?: number;
+  ctcCurrency?: string;
+  preferredJobTypes: string[];
+  preferredJobTypesAr?: string[];
+  preferredShifts: string[];
+  preferredShiftsAr?: string[];
+  preferredLocations: string[];
+  preferredLocationsAr?: string[];
+  keywords: string[];
+  keywordsAr?: string[];
+  visibility: string;
+  summary?: string;
+  summaryAr?: string;
+  blocked: boolean;
+  banned: boolean;
+  links: string[];
+  experiences: JobseekerExperience[];
+  educations: JobseekerEducation[];
+  projects: JobseekerProject[];
+  certifications: JobseekerCertification[];
+  languages: JobseekerLanguage[];
+  awards: JobseekerAward[];
+  publications: JobseekerPublication[];
+  photoUrl?: string;
+  resumeFileUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+  __v?: number;
 }
 
-export interface WorkExperience {
-  _id?: string;
+// Jobseeker Experience (Work Experience)
+export interface JobseekerExperience {
+  _id: string;
+  title: string;
+  titleAr?: string;
   company: string;
-  position: string;
   startDate: string;
   endDate?: string;
-  current: boolean;
-  description?: string;
+  isCurrent: boolean;
   location?: string;
+  description?: string;
+  url?: string;
+  employmentType?: string;
+  department?: string;
+  jobType?: string;
+  noticePeriodDays?: number;
+  currentCtc?: number;
+  ctcCurrency?: string;
+  servingNotice?: boolean;
+  lastWorkingDay?: string | null;
+  skills: string[];
+  skillsAr?: string[];
+}
+
+// Legacy alias for backward compatibility
+export interface WorkExperience extends JobseekerExperience {
+  position?: string;
+  current?: boolean;
   achievements?: string[];
 }
 
-export interface Education {
-  _id?: string;
-  institution: string;
+// Jobseeker Education
+export interface JobseekerEducation {
+  _id: string;
   degree: string;
+  degreeAr?: string;
   fieldOfStudy?: string;
+  fieldOfStudyAr?: string;
+  institution: string;
+  institutionAr?: string;
   startDate: string;
   endDate?: string;
-  current: boolean;
   grade?: string;
   description?: string;
+  courseType?: string;
+  scoreType?: string;
+  score?: number;
+  yearOfPassing?: number;
+  isCurrent: boolean;
 }
 
-export interface Skill {
-  _id?: string;
-  name: string;
-  level?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-  yearsOfExperience?: number;
+// Legacy alias for backward compatibility
+export interface Education extends JobseekerEducation {
+  current?: boolean;
 }
 
-export interface Certification {
-  _id?: string;
+// Jobseeker Project
+export interface JobseekerProject {
+  _id: string;
   name: string;
-  issuingOrganization: string;
-  issueDate: string;
-  expiryDate?: string;
-  credentialId?: string;
-  credentialUrl?: string;
-}
-
-export interface PortfolioItem {
-  _id?: string;
-  name: string;
+  nameAr?: string;
   role?: string;
+  roleAr?: string;
   startDate?: string;
   endDate?: string;
   url?: string;
   description?: string;
-  techStack?: string[];
+  techStack: string[];
+  techStackAr?: string[];
   projectType?: string;
   teamSize?: number;
+}
+
+// Legacy alias for backward compatibility
+export interface PortfolioItem extends JobseekerProject {}
+
+// Jobseeker Language
+export interface JobseekerLanguage {
+  _id: string;
+  name: string;
+  proficiency: string;
+  readLevel: number;
+  writeLevel: number;
+  speakLevel: number;
+}
+
+// Jobseeker Certification
+export interface JobseekerCertification {
+  _id: string;
+  name: string;
+  nameAr?: string;
+  issuingOrganization?: string;
+  issueDate?: string;
+  expiryDate?: string;
+  credentialId?: string;
+  credentialUrl?: string;
+  description?: string;
+}
+
+// Legacy alias for backward compatibility
+export interface Certification extends JobseekerCertification {}
+
+// Jobseeker Award
+export interface JobseekerAward {
+  _id: string;
+  title: string;
+  titleAr?: string;
+  issuer?: string;
+  issueDate?: string;
+  description?: string;
+  url?: string;
+}
+
+// Jobseeker Publication
+export interface JobseekerPublication {
+  _id: string;
+  title: string;
+  titleAr?: string;
+  publisher?: string;
+  publicationDate?: string;
+  description?: string;
+  url?: string;
+}
+
+// Legacy Skill type (skills are now just string arrays in the profile)
+export interface Skill {
+  _id?: string;
+  name: string;
+  level?: "beginner" | "intermediate" | "advanced" | "expert";
+  yearsOfExperience?: number;
 }
 
 // Employer Profile - extended organization profile for employers
@@ -160,7 +247,7 @@ export interface EmployerProfile extends Organization {
   totalJobsPosted?: number;
   activeJobs?: number;
   totalApplicants?: number;
-  
+
   // Company culture
   companySize?: string;
   industry?: string;
@@ -168,12 +255,12 @@ export interface EmployerProfile extends Organization {
   companyDescription?: string;
   benefits?: string[];
   culture?: string[];
-  
+
   // Reviews and ratings
   reviews?: EmployerReview[];
   averageRating?: number;
   totalReviews?: number;
-  
+
   // Statistics
   totalEmployees?: number;
   openPositions?: number;
@@ -190,7 +277,7 @@ export interface EmployerReview {
   pros?: string[];
   cons?: string[];
   jobTitle?: string;
-  employmentStatus?: 'current' | 'former';
+  employmentStatus?: "current" | "former";
   createdAt: string;
   updatedAt: string;
 }
@@ -221,7 +308,7 @@ export interface JobData {
 
 // Helper type to transform AD to JobData
 export type JobAd = AD & {
-  adType: 'JOB';
+  adType: "JOB";
 };
 
 // ============================================================================
@@ -232,7 +319,34 @@ export interface JobseekerProfileResponse {
   statusCode: number;
   timestamp: string;
   message?: string;
-  data: JobseekerProfile;
+  data: {
+    profile: JobseekerProfile;
+    profileCompletionPercentage?: number;
+    appliedJobsCount?: number;
+    savedJobsCount?: number;
+    isConnected?: boolean;
+    connectionStatus?: string | null;
+    connectionDirection?: string | null;
+    requestId?: string | null;
+    similarJobs?: {
+      page: number;
+      limit: number;
+      total: number;
+      items: JobData[];
+      profileMatched?: {
+        desiredRoles?: string[];
+        skills?: string[];
+        preferredLocations?: string[];
+        preferredJobTypes?: string[];
+      };
+    };
+    featuredJobs?: {
+      page: number;
+      limit: number;
+      total: number;
+      items: JobData[];
+    };
+  };
 }
 
 export interface WorkExperienceResponse {
@@ -373,7 +487,8 @@ export interface CreateWorkExperiencePayload {
   achievements?: string[];
 }
 
-export interface UpdateWorkExperiencePayload extends Partial<CreateWorkExperiencePayload> {
+export interface UpdateWorkExperiencePayload
+  extends Partial<CreateWorkExperiencePayload> {
   _id?: string;
 }
 
@@ -388,13 +503,14 @@ export interface CreateEducationPayload {
   description?: string;
 }
 
-export interface UpdateEducationPayload extends Partial<CreateEducationPayload> {
+export interface UpdateEducationPayload
+  extends Partial<CreateEducationPayload> {
   _id?: string;
 }
 
 export interface CreateSkillPayload {
   name: string;
-  level?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  level?: "beginner" | "intermediate" | "advanced" | "expert";
   yearsOfExperience?: number;
 }
 
@@ -411,7 +527,8 @@ export interface CreateCertificationPayload {
   credentialUrl?: string;
 }
 
-export interface UpdateCertificationPayload extends Partial<CreateCertificationPayload> {
+export interface UpdateCertificationPayload
+  extends Partial<CreateCertificationPayload> {
   _id?: string;
 }
 
@@ -427,7 +544,8 @@ export interface CreatePortfolioItemPayload {
   teamSize?: number;
 }
 
-export interface UpdatePortfolioItemPayload extends Partial<CreatePortfolioItemPayload> {
+export interface UpdatePortfolioItemPayload
+  extends Partial<CreatePortfolioItemPayload> {
   _id?: string;
 }
 
@@ -455,14 +573,14 @@ export interface RejectApplicationPayload {
 }
 
 export interface UpdateApplicationStatusPayload {
-  status: 'pending' | 'reviewed' | 'shortlisted' | 'rejected' | 'accepted';
+  status: "pending" | "reviewed" | "shortlisted" | "rejected" | "accepted";
   note?: string;
 }
 
 export interface SimilarJobsParams {
   page?: number;
   limit?: number;
-  status?: 'active' | 'archived';
+  status?: "active" | "archived";
   excludeApplied?: boolean;
 }
 
@@ -542,12 +660,12 @@ export interface UpdateJobPayload extends Partial<CreateJobPayload> {
 }
 
 export interface UpdateJobStatusPayload {
-  status: 'live' | 'closed' | 'draft' | 'pending' | 'rejected';
+  status: "live" | "closed" | "draft" | "pending" | "rejected";
   reason?: string;
 }
 
 export interface UpdateApplicantStatusPayload {
-  status: 'pending' | 'reviewed' | 'shortlisted' | 'rejected' | 'accepted';
+  status: "pending" | "reviewed" | "shortlisted" | "rejected" | "accepted";
   notes?: string;
 }
 
@@ -566,7 +684,7 @@ export interface JobFilters {
   isFeatured?: boolean;
   status?: string;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export interface JobSearchParams {
@@ -643,6 +761,5 @@ export interface JobHomeResponse {
 
 export interface JobHomeParams {
   userId?: string;
-  device?: 'mobile' | 'desktop';
+  device?: "mobile" | "desktop";
 }
-

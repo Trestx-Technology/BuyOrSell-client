@@ -7,6 +7,18 @@ export type AdSearchType = {
   category: string;
 };
 
+export interface KeywordSearchResult {
+  adCount: number;
+  name: string;
+  category: string;
+}
+
+export interface GetKeywordSearchResponse {
+  statusCode: number;
+  timestamp: string;
+  data: KeywordSearchResult[];
+}
+
 export interface GetAdSearchResponseType {
   statusCode: number;
   timestamp: string;
@@ -79,6 +91,7 @@ export type AD = {
   videoUrl?: string;
   blurredImages?: string[]; // optional if not always present
   tags: any[];
+  tagsAr?: string[]; // Arabic tags
   category: AdCategory | AdCategoryWithoutParent; // accepts both structures
   brand: AdBrand | string | null; // some responses have brand as object, others as string or null
   owner: AdOwner | null; // Owner can be null
@@ -87,6 +100,7 @@ export type AD = {
   featuredStatus?: string; // present in some APIs
   isFeatured?: boolean;
   isAddedInCollection?: boolean;
+  collectionIds?: string[]; // Array of collection IDs the ad belongs to
   status: AdStatus;
   connectionTypes: ("call" | "chat" | "whatsapp")[]; // Array of connection types
   topChoice: boolean;
@@ -94,10 +108,7 @@ export type AD = {
   validity?: string; // Validity date for the ad
   location?: AdLocation | string; // can be string address or object with country/city/state/area
   address?: AdLocation; // Alternative location field name
-  addressAr?: {
-    state: string;
-    city: string;
-  }; // Arabic address
+  addressAr?: AdLocation; // Arabic address (full structure matching AdLocation)
   relatedCategories: string[];
   subscriptionId?: string;
   documents?: Document[];
@@ -118,6 +129,11 @@ export type AD = {
   exchanged?: boolean; // Whether item has been exchanged
   discountedPrice?: number; // Discounted price when deal is active
   dealValidThru?: string; // ISO 8601 date string for deal validity
+  dealValidThrough?: string; // Alternative field name for deal validity
+  dealPercentage?: number; // Discount percentage (calculated or provided)
+  slug?: string; // URL slug for the ad
+  slugAr?: string; // Arabic URL slug for the ad
+  searchTokens?: string[]; // Search tokens for the ad
   createdAt: string;
   updatedAt: string;
   __v: number;

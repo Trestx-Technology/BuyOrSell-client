@@ -64,7 +64,7 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
       try {
         const response = await uploadResumeMutation.mutateAsync(file);
         if (response?.data?.resumeUrl) {
-          setValue("resumeUrl", response.data.resumeUrl);
+          setValue("resumeFileUrl", response.data.resumeUrl);
         }
       } catch (error) {
         console.error("Error uploading resume:", error);
@@ -174,12 +174,17 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
                 }}
                 disabled={uploadResumeMutation.isPending}
               >
-                {uploadResumeMutation.isPending ? "Uploading..." : "Upload resume"}
+                {uploadResumeMutation.isPending
+                  ? "Uploading..."
+                  : "Upload resume"}
               </Button>
             </div>
           </div>
           {resumeFile && (
-            <Typography variant="caption" className="text-success-100 mt-3 block">
+            <Typography
+              variant="caption"
+              className="text-success-100 mt-3 block"
+            >
               {resumeFile.name}
             </Typography>
           )}
@@ -194,7 +199,7 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
           placeholder="Your Full Name"
         />
         <Input
-          {...register("email")}
+          {...register("contactEmail")}
           label="Email"
           placeholder="your.email@example.com"
           type="email"
@@ -203,7 +208,9 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
 
       {/* Work Status */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-dark-blue">Work Status</label>
+        <label className="text-sm font-medium text-dark-blue">
+          Work Status
+        </label>
         <RadioGroup
           value={workStatus}
           onValueChange={setWorkStatus}
@@ -211,13 +218,19 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
         >
           <div className="flex items-center gap-2">
             <RadioGroupItem value="fresher" id="fresher" />
-            <label htmlFor="fresher" className="text-sm text-dark-blue cursor-pointer">
+            <label
+              htmlFor="fresher"
+              className="text-sm text-dark-blue cursor-pointer"
+            >
               Fresher
             </label>
           </div>
           <div className="flex items-center gap-2">
             <RadioGroupItem value="experienced" id="experienced" />
-            <label htmlFor="experienced" className="text-sm text-dark-blue cursor-pointer">
+            <label
+              htmlFor="experienced"
+              className="text-sm text-dark-blue cursor-pointer"
+            >
               Experienced
             </label>
           </div>
@@ -227,7 +240,9 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
       {/* Experience - Two Columns */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-dark-blue">Experience</label>
+          <label className="text-sm font-medium text-dark-blue">
+            Experience
+          </label>
           <Select value={experienceYears} onValueChange={setExperienceYears}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="In Years" />
@@ -242,7 +257,9 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
           </Select>
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-dark-blue opacity-0">Experience</label>
+          <label className="text-sm font-medium text-dark-blue opacity-0">
+            Experience
+          </label>
           <Select value={experienceMonths} onValueChange={setExperienceMonths}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="In Months" />
@@ -273,7 +290,9 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
 
       {/* Salary Breakdown - Dropdown */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-dark-blue">Salary Breakdown</label>
+        <label className="text-sm font-medium text-dark-blue">
+          Salary Breakdown
+        </label>
         <Select value={salaryBreakdown} onValueChange={setSalaryBreakdown}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select salary breakdown" />
@@ -298,13 +317,19 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
         >
           <div className="flex items-center gap-2">
             <RadioGroupItem value="uae" id="uae" />
-            <label htmlFor="uae" className="text-sm text-dark-blue cursor-pointer">
+            <label
+              htmlFor="uae"
+              className="text-sm text-dark-blue cursor-pointer"
+            >
               In UAE
             </label>
           </div>
           <div className="flex items-center gap-2">
             <RadioGroupItem value="abroad" id="abroad" />
-            <label htmlFor="abroad" className="text-sm text-dark-blue cursor-pointer">
+            <label
+              htmlFor="abroad"
+              className="text-sm text-dark-blue cursor-pointer"
+            >
               Abroad
             </label>
           </div>
@@ -314,7 +339,9 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
       {/* Mobile Number */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-dark-blue">Mobile Number</label>
+          <label className="text-sm font-medium text-dark-blue">
+            Mobile Number
+          </label>
           <Button
             type="button"
             variant="ghost"
@@ -332,13 +359,12 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
         </Typography>
         {isEditingMobile ? (
           <Input
-            {...register("phoneNo")}
-            defaultValue="+91 9811962973"
+            {...register("contactPhone")}
             type="tel"
           />
         ) : (
           <Typography variant="body-small" className="text-purple">
-            +91 9811962973
+            {form.getValues("contactPhone")}
           </Typography>
         )}
       </div>
@@ -346,7 +372,9 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
       {/* Email Address */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-dark-blue">Email Address</label>
+          <label className="text-sm font-medium text-dark-blue">
+            Email Address
+          </label>
           <Button
             type="button"
             variant="ghost"
@@ -364,20 +392,21 @@ export default function BasicDetails({ form }: BasicDetailsProps) {
         </Typography>
         {isEditingEmail ? (
           <Input
-            {...register("email")}
-            defaultValue="98sameerkhan.sk@gmail.com"
+              {...register("contactEmail")}
             type="email"
           />
         ) : (
           <Typography variant="body-small" className="text-purple">
-            98sameerkhan.sk@gmail.com
+            {form.getValues("contactEmail")}
           </Typography>
         )}
       </div>
 
       {/* Notice Period */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-dark-blue">Notice Period</label>
+        <label className="text-sm font-medium text-dark-blue">
+          Notice Period
+        </label>
         <Typography variant="caption" className="text-grey-blue mb-3 block">
           Lets recruiters know your availability to join.
         </Typography>

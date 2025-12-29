@@ -12,10 +12,10 @@ interface JobseekerAboutProps {
   isEditMode?: boolean;
 }
 
-export default function JobseekerAbout({ 
-  jobseeker, 
-  form, 
-  isEditMode = false 
+export default function JobseekerAbout({
+  jobseeker,
+  form,
+  isEditMode = false,
 }: JobseekerAboutProps) {
   if (isEditMode && form) {
     const { register } = form;
@@ -28,7 +28,7 @@ export default function JobseekerAbout({
           About
         </Typography>
         <Textarea
-          {...register("bio")}
+          {...register("summary")}
           placeholder="Tell us about yourself, your experience, and what makes you unique..."
           className="min-h-[150px]"
         />
@@ -37,7 +37,7 @@ export default function JobseekerAbout({
   }
 
   // View Mode
-  if (!jobseeker?.bio) {
+  if (!jobseeker?.summary) {
     return null;
   }
 
@@ -53,9 +53,8 @@ export default function JobseekerAbout({
         variant="body-large"
         className="text-[#8A8A8A] text-base leading-relaxed whitespace-pre-line"
       >
-        {jobseeker.bio}
+        {jobseeker.summary}
       </Typography>
     </div>
   );
 }
-

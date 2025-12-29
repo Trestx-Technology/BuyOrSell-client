@@ -16,20 +16,22 @@ export default function CandidateSkills({ jobseeker }: CandidateSkillsProps) {
 
   return (
     <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
-      <Typography variant="h2" className="text-dark-blue font-bold text-2xl mb-4">
+      <Typography
+        variant="h2"
+        className="text-dark-blue font-bold text-2xl mb-4"
+      >
         Key Skills
       </Typography>
       <div className="flex flex-wrap gap-3">
         {jobseeker.skills.map((skill, index) => (
           <Badge
-            key={skill._id || index}
+            key={skill || index}
             className="bg-purple text-white px-4 py-2 rounded-full text-sm font-medium"
           >
-            {skill.name}
+            {skill}
           </Badge>
         ))}
       </div>
     </div>
   );
 }
-

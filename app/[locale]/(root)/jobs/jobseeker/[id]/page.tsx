@@ -17,60 +17,7 @@ import CandidateEducation from "./_components/candidate-education";
 import CandidateSkills from "./_components/candidate-skills";
 import CandidateProfileSummary from "./_components/candidate-profile-summary";
 import CandidateLanguages from "./_components/candidate-languages";
-
-// Dummy data matching Figma design
-const dummyJobseeker: JobseekerProfile = {
-  _id: "dummy-id",
-  name: "Sameer Khan",
-  email: "98sameerkhanshg@gmail.com",
-  phoneNo: "0811962973",
-  isVerified: true,
-  professionalTitle: "UI/UX Designer",
-  currentCompany: "EDGE Networks",
-  bio: "Experienced UI/UX Designer with a passion for creating intuitive and engaging user experiences. Specialized in designing digital products that are both beautiful and functional. Strong background in user research, wireframing, prototyping, and design systems. Proven track record of delivering high-quality designs that improve user satisfaction and business metrics.",
-  resumeUrl: "sameer.UX Designer.pdf",
-  workExperience: [
-    {
-      _id: "exp-1",
-      company: "BuyOrSell",
-      position: "UI/UX Designer",
-      startDate: "2020-07-01",
-      endDate: undefined,
-      current: true,
-      description: "Led the design of multiple web and mobile applications, collaborating closely with product managers and developers. Conducted user research and usability testing to inform design decisions. Created comprehensive design systems and component libraries. Improved user engagement metrics by 40% through iterative design improvements.",
-      location: "Dubai, UAE",
-    },
-  ],
-  education: [
-    {
-      _id: "edu-1",
-      institution: "University of Delhi",
-      degree: "Masters in Commerce",
-      fieldOfStudy: "Commerce",
-      startDate: "2018-01-01",
-      endDate: "2020-12-31",
-      current: false,
-      grade: "M.COM",
-      description: "Specialized in Business Administration and Commerce",
-    },
-  ],
-  skills: [
-    { _id: "skill-1", name: "UI Design" },
-    { _id: "skill-2", name: "Figma" },
-    { _id: "skill-3", name: "Adobe XD" },
-    { _id: "skill-4", name: "Prototyping" },
-    { _id: "skill-5", name: "Wireframing" },
-    { _id: "skill-6", name: "User Research" },
-    { _id: "skill-7", name: "Design Systems" },
-    { _id: "skill-8", name: "HTML" },
-    { _id: "skill-9", name: "CSS" },
-    { _id: "skill-10", name: "JavaScript" },
-    { _id: "skill-11", name: "User Interface" },
-    { _id: "skill-12", name: "User Experience" },
-  ],
-  profileCompletion: 85,
-  lastUpdated: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-};
+import { useGetJobseekerProfileById } from "@/hooks/useJobseeker";
 
 export default function JobseekerProfilePage() {
   const params = useParams();
@@ -78,8 +25,12 @@ export default function JobseekerProfilePage() {
   const jobseekerId = params.id as string;
 
   // API call commented out - using dummy data for now
-  // const { data: profileData, isLoading, error } = useGetJobseekerProfileById(jobseekerId);
-  // const jobseeker = profileData?.data;
+  const {
+    data: profileData,
+    isLoading,
+    error,
+  } = useGetJobseekerProfileById(jobseekerId);
+  const jobseeker = profileData?.data;
 
   // useEffect(() => {
   //   if (error) {
@@ -109,8 +60,6 @@ export default function JobseekerProfilePage() {
   // }, [error, profileData, router]);
 
   // Using dummy data
-  const jobseeker = dummyJobseeker;
-  const isLoading = false;
 
   const handleShortlist = () => {
     // TODO: Implement shortlist functionality
@@ -123,8 +72,8 @@ export default function JobseekerProfilePage() {
   };
 
   const handleDownloadResume = () => {
-    if (jobseeker?.resumeUrl) {
-      window.open(jobseeker.resumeUrl, "_blank");
+    if (jobseeker?.profile.resumeFileUrl) {
+      window.open(jobseeker.profile.resumeFileUrl, "_blank");
     }
   };
 
@@ -144,7 +93,10 @@ export default function JobseekerProfilePage() {
       <main className="min-h-screen bg-[#F2F4F7]">
         <div className="max-w-[1280px] mx-auto px-4 py-8">
           <div className="bg-white border border-[#E2E2E2] rounded-2xl p-8 text-center">
-            <Typography variant="h1" className="text-dark-blue font-bold text-2xl mb-2">
+            <Typography
+              variant="h1"
+              className="text-dark-blue font-bold text-2xl mb-2"
+            >
               Profile Not Found
             </Typography>
             <Typography variant="body-small" className="text-[#8A8A8A]">
@@ -179,28 +131,31 @@ export default function JobseekerProfilePage() {
       <div className="max-w-[1280px] mx-auto px-4 py-8">
         {/* Candidate Header */}
         <CandidateHeader
-          jobseeker={jobseeker}
+          jobseeker={jobseeker.profile}
           onShortlist={handleShortlist}
           onReject={handleReject}
         />
 
         {/* Basic Information */}
-        <CandidateBasicInfo jobseeker={jobseeker} />
+        <CandidateBasicInfo jobseeker={jobseeker.profile} />
 
         {/* Resume */}
-        <CandidateResume jobseeker={jobseeker} onDownload={handleDownloadResume} />
+        <CandidateResume
+          jobseeker={jobseeker.profile}
+          onDownload={handleDownloadResume}
+        />
 
         {/* Employment */}
-        <CandidateEmployment jobseeker={jobseeker} />
+        <CandidateEmployment jobseeker={jobseeker.profile} />
 
         {/* Education */}
-        <CandidateEducation jobseeker={jobseeker} />
+        <CandidateEducation jobseeker={jobseeker.profile} />
 
         {/* Key Skills */}
-        <CandidateSkills jobseeker={jobseeker} />
+        <CandidateSkills jobseeker={jobseeker.profile} />
 
         {/* Profile Summary */}
-        <CandidateProfileSummary jobseeker={jobseeker} />
+        <CandidateProfileSummary jobseeker={jobseeker.profile} />
 
         {/* Language Details */}
         <CandidateLanguages />

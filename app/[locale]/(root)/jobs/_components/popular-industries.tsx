@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { Typography } from "@/components/typography";
 import { Badge } from "@/components/ui/badge";
 import JobsSectionTitle from "./jobs-section-title";
+import { useJobSubcategories } from "@/hooks/useCategories";
+import { useLocale } from "@/hooks/useLocale";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -33,19 +35,33 @@ const itemVariants = {
   },
 };
 
-interface PopularIndustriesProps {
-  industries?: Array<{
-    id?: string;
-    name?: string;
-    jobCount?: number;
-    logoUrl?: string;
-    [key: string]: unknown;
-  }>;
-}
+export default function PopularIndustries() {
+  const { localePath } = useLocale();
+  const { data: jobSubcategories, isLoading } = useJobSubcategories({
+    adType: "job",
+  });
 
-export default function PopularIndustries({ industries }: PopularIndustriesProps = {}) {
+  // Show loading skeleton
+  if (isLoading) {
+    return (
+      <section className="w-full bg-[#F2F4F7] py-8">
+        <div className="max-w-[1080px] mx-auto px-4">
+          <JobsSectionTitle>Popular Industries</JobsSectionTitle>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div
+                key={index}
+                className="bg-white w-[200px] h-[180px] rounded-2xl animate-pulse"
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   // Only use API data, no fallback
-  if (!industries || industries.length === 0) {
+  if (!jobSubcategories || jobSubcategories.length === 0) {
     return null;
   }
 
@@ -61,12 +77,12 @@ export default function PopularIndustries({ industries }: PopularIndustriesProps
         <JobsSectionTitle>Popular Industries</JobsSectionTitle>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-          {industries.map((industry, index) => {
-            const industryId = industry.id || String(index);
+          {jobSubcategories.map((industry) => {
+            const industryId = industry._id;
             const industryName = industry.name || "";
-            const jobCount = industry.jobCount || 0;
-            const logoUrl = industry.logoUrl;
-            const href = `/jobs/listing?industry=${industryId}`;
+            const jobCount = industry.adCount || 0;
+            const logoUrl = industry.icon;
+            const href = localePath(`/jobs/listing?industry=${industryId}`);
 
             return (
               <motion.div key={industryId} variants={itemVariants}>
@@ -114,4 +130,3 @@ export default function PopularIndustries({ industries }: PopularIndustriesProps
     </motion.section>
   );
 }
-

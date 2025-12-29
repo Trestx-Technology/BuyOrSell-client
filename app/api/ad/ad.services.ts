@@ -10,6 +10,7 @@ import {
   AdStatus,
   AdFilters,
   AdFilterPayload,
+  GetKeywordSearchResponse,
 } from '@/interfaces/ad';
 
 // Get all ads with optional filters
@@ -140,6 +141,22 @@ export const searchAds = async (params: {
   const response = await axiosInstance.get<GetAdSearchResponseType>(
     adQueries.searchAds.endpoint,
     { params },
+  );
+  return response.data;
+};
+
+// Get ads by keyword
+export const getAdsByKeyword = async (
+  keyword: string,
+  params?: {
+    userId?: string;
+    page?: number;
+    limit?: number;
+  }
+): Promise<GetKeywordSearchResponse> => {
+  const response = await axiosInstance.get<GetKeywordSearchResponse>(
+    adQueries.adsByKeyword(keyword, params).endpoint,
+    { params: { userId: params?.userId } },
   );
   return response.data;
 };

@@ -12,7 +12,6 @@ import {
   ImageOffIcon,
   ImageIcon,
   Eye,
-  Repeat,
 } from "lucide-react";
 import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
@@ -25,6 +24,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { PriceDisplay } from "@/components/global/price-display";
+import {
+  SpecificationsDisplay,
+  Specification,
+} from "@/components/global/specifications-display";
+import { getSpecifications } from "@/utils/normalize-extra-fields";
+import { useMemo } from "react";
 
 export interface HotDealsListingCardProps {
   id: string;
@@ -95,56 +101,15 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   timerTextColor = "text-white",
   dealValidThrough,
 }) => {
-  // Normalize extraFields: handle both array and object formats, preserving icon info
-  interface FieldWithIcon {
-    name: string;
-    value: string | number | boolean | string[] | null;
-    icon?: string;
-  }
-
-  const normalizeExtraFields = (): FieldWithIcon[] => {
-    if (!extraFields) return [];
-
-    // If it's an array, use it directly (preserves icon info)
-    if (Array.isArray(extraFields)) {
-      return extraFields
-        .filter(
-          (field) =>
-            field &&
-            typeof field === "object" &&
-            "name" in field &&
-            "value" in field
-        )
-        .map((field) => ({
-          name: field.name,
-          value: field.value,
-          icon: field.icon,
-        }))
-        .filter(
-          (field) =>
-            field.value !== null &&
-            field.value !== undefined &&
-            field.value !== ""
-        );
-    }
-
-    // If it's an object, convert to array format (no icon info available)
-    const fields: FieldWithIcon[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Object.entries(extraFields as Record<string, any>).forEach(
-      ([name, value]) => {
-        if (value !== null && value !== undefined && value !== "") {
-          fields.push({ name, value });
-        }
-      }
-    );
-    return fields;
-  };
-
-  const extraFieldsList = normalizeExtraFields();
-
-  // Get first 4 fields for display (2 per row)
-  const displayFields = extraFieldsList.slice(0, 4);
+  // Dynamically extract specifications from extraFields
+  const specifications = useMemo((): Specification[] => {
+    const specsFromFields = getSpecifications(extraFields, 4);
+    return specsFromFields.map((spec) => ({
+      name: spec.name,
+      value: spec.value,
+      icon: spec.icon,
+    }));
+  }, [extraFields]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -163,10 +128,25 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
       const distance = end - now;
 
       if (distance > 0) {
-        const hours = Math.floor(distance / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+        const totalSeconds = Math.floor(distance / 1000);
+        const totalMinutes = Math.floor(totalSeconds / 60);
+        const totalHours = Math.floor(totalMinutes / 60);
+        const days = Math.floor(totalHours / 24);
+        const hours = totalHours % 24;
+        const minutes = totalMinutes % 60;
+        const seconds = totalSeconds % 60;
+
+        // Format based on remaining time for better readability
+        if (days > 0) {
+          // Show days and hours (e.g., "5d 12h")
+          setTimeLeft(`${days}d ${hours}h`);
+        } else if (totalHours > 0) {
+          // Show hours and minutes (e.g., "12h 30m")
+          setTimeLeft(`${totalHours}h ${minutes}m`);
+        } else {
+          // Show minutes and seconds (e.g., "30m 45s")
+          setTimeLeft(`${totalMinutes}m ${seconds}s`);
+        }
       } else {
         setTimeLeft("EXPIRED");
       }
@@ -215,17 +195,9 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
     onClick?.(id);
   };
 
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
   return (
     <div
-      className={`w-full max-w-[170px] overflow-hidden rounded-2xl border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
+      className={`w-full overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
@@ -280,12 +252,6 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
               />
             </div>
           )}
-          {isExchange && (
-            <Badge className="absolute h-8 bg-[#FE9800] top-3 left-12">
-              <Repeat size={22} />
-              Exchange Available
-            </Badge>
-          )}
 
           {/* Image Counter */}
           {images?.length > 0 && (
@@ -312,7 +278,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
           )}
 
           {/* Navigation Arrows */}
-          {images.length > 1 && isHovered && (
+          {images.length > 1 && (
             <div>
               <Button
                 size="sm"
@@ -325,7 +291,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
                 }`}
                 onClick={handlePreviousImage}
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4 text-slate-700" />
               </Button>
               <Button
                 size="sm"
@@ -338,14 +304,14 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
                 }`}
                 onClick={handleNextImage}
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4 text-slate-700" />
               </Button>
             </div>
           )}
 
           {/* Image Dots Indicator */}
           {images.length > 1 && (
-            <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100">
+            <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1">
               {images.map((_, index) => (
                 <button
                   key={index}
@@ -372,20 +338,25 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
           {/* Action Buttons */}
           <div className="hidden absolute top-3 right-3 sm:flex gap-0">
             <button
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer"
+              className="h-8 w-8 opacity-100 hover:scale-125 transition-all cursor-pointer rounded-full flex items-center justify-center"
               onClick={handleShare}
             >
-              <Share2 size={22} stroke="white" />
+              <Share2
+                size={22}
+                className="fill-white stroke-slate-400"
+                strokeWidth={1}
+              />
             </button>
             <button
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer"
+              className="h-8 w-8 opacity-100 hover:scale-125 transition-all cursor-pointer rounded-full flex items-center justify-center"
               onClick={handleFavorite}
             >
               <Heart
                 size={24}
-                className={` stroke-0 ${
-                  isFavorite ? "fill-red-500 text-red-500" : "fill-white"
+                className={`fill-white stroke-slate-400 ${
+                  isFavorite ? "fill-red-500" : ""
                 }`}
+                strokeWidth={1}
               />
             </button>
           </div>
@@ -413,21 +384,18 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
         {/* Content Section */}
         <div className="pt-2 space-y-3">
           {/* Price Section */}
-          <div className="flex items-center gap-1 px-2.5">
-            <Image src={ICONS.currency.aed} alt="AED" width={16} height={16} />
-            <span className="text-md font-bold text-purple">
-              {formatPrice(price).replace("AED", "").trim()}
-            </span>
-            {originalPrice && (
-              <span className="text-md text-grey-blue line-through text-sm">
-                {formatPrice(originalPrice).replace("AED", "").trim()}
-              </span>
-            )}
-            {discount && (
-              <span className="text-md text-teal text-sm font-semibold">
-                {Math.round(discount)}%
-              </span>
-            )}
+          <div className="px-2.5">
+            <PriceDisplay
+              price={price}
+              originalPrice={originalPrice}
+              discountPercentage={discount}
+              currencyIconWidth={16}
+              currencyIconHeight={16}
+              className="gap-1"
+              currentPriceClassName="text-md font-bold text-purple"
+              originalPriceClassName="text-md text-grey-blue line-through text-sm"
+              discountBadgeClassName="text-md text-teal text-sm font-semibold"
+            />
           </div>
 
           {/* Title */}
@@ -453,43 +421,17 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
             </Typography>
           </div>
 
-          {/* Dynamic Specs - Grid with 2 columns */}
-          {displayFields.length > 0 && (
-            <div className="hidden sm:grid grid-cols-2 gap-2 px-2.5">
-              {displayFields.map((field) => {
-                const displayValue = Array.isArray(field.value)
-                  ? field.value.join(", ")
-                  : typeof field.value === "boolean"
-                  ? field.value
-                    ? "Yes"
-                    : "No"
-                  : String(field.value);
-
-                return (
-                  <div
-                    key={field.name}
-                    className="flex items-center gap-1 min-w-0"
-                  >
-                    {field.icon && (
-                      <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
-                        <Image
-                          src={field.icon}
-                          alt={field.name}
-                          width={16}
-                          height={16}
-                          className="w-4 h-4 object-contain"
-                        />
-                      </div>
-                    )}
-                    <Typography
-                      variant="body-small"
-                      className="text-xs text-[#667085] truncate min-w-0 flex-1"
-                    >
-                      {displayValue}
-                    </Typography>
-                  </div>
-                );
-              })}
+          {/* Dynamic Specs */}
+          {specifications.length > 0 && (
+            <div className="hidden sm:block px-2.5">
+              <SpecificationsDisplay
+                specifications={specifications}
+                maxVisible={4}
+                showPopover={false}
+                truncate
+                className="grid grid-cols-2 gap-2"
+                itemClassName="text-[#667085]"
+              />
             </div>
           )}
 

@@ -13,7 +13,9 @@ import StatsSection from "./stats-section";
 export default function JobsContent() {
   const router = useRouter();
   const { data: profileData, isLoading, error } = useGetJobseekerProfile();
-  const profile = profileData?.data;
+  const profile = profileData?.data?.profile;
+  const featuredJobs = profileData?.data?.featuredJobs;
+  const similarJobs = profileData?.data?.similarJobs;
 
   useEffect(() => {
     // Don't redirect while loading
@@ -23,7 +25,7 @@ export default function JobsContent() {
     if (error) {
       const errorMessage = error.message?.toLowerCase() || "";
       const statusCode = (error as { status?: number })?.status;
-      
+
       if (
         statusCode === 404 ||
         errorMessage.includes("not found") ||
@@ -34,7 +36,7 @@ export default function JobsContent() {
         return;
       }
     }
-    
+
     // Also check response message
     if (profileData?.message) {
       const message = profileData.message.toLowerCase();
@@ -60,25 +62,18 @@ export default function JobsContent() {
       <JobsHero />
 
       {/* Profile/Category Section */}
-      <JobsProfileSection 
-        profile={profile}
-        isLoading={isLoading}
-      />
-      
+      <JobsProfileSection profile={profile} isLoading={isLoading} />
+
       {/*Stats Section  */}
-      <StatsSection 
-        profile={profile}
-        isLoading={isLoading}
-      />
+      <StatsSection profile={profile} isLoading={isLoading} />
 
       {/* Featured Jobs Section */}
-      <FeaturedJobs />
-      
+      <FeaturedJobs featuredJobs={featuredJobs} isLoading={isLoading} />
+
       {/* Similar Jobs Section */}
-      <SimilarJobs />
-      
+      <SimilarJobs similarJobs={similarJobs} isLoading={isLoading} />
+
       <Footer />
     </main>
   );
 }
-

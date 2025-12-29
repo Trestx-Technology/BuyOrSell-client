@@ -16,14 +16,16 @@ import {
   getSpecifications,
   normalizeExtraFieldsToArray,
 } from "@/utils/normalize-extra-fields";
+import { PriceDisplay } from "@/components/global/price-display";
+import { SpecificationsDisplay } from "@/components/global/specifications-display";
 import { useAuthStore } from "@/stores/authStore";
-import { findOrCreateAdChat } from "@/lib/firebase/chat.utils";
-import { toast } from "sonner";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { findOrCreateAdChat } from "@/lib/firebase/chat.utils";
+import { toast } from "sonner";
 
 interface ProductInfoCardProps {
   ad: AD;
@@ -56,44 +58,10 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
     addSuffix: true,
   });
 
-  // Extract extraFields for discount calculation
-  const extraFields = normalizeExtraFieldsToArray(ad.extraFields || []);
-
   // Get specifications from extraFields using utility function
   const specifications = useMemo(() => {
     return getSpecifications(ad.extraFields);
   }, [ad.extraFields]);
-
-  // Calculate discount and prices
-  const getDiscountInfo = useMemo(() => {
-    // Check for discount in extraFields (discountedPercent field)
-    const discountPercentField = extraFields.find(
-      (f: { name?: string; value: unknown }) =>
-        f.name?.toLowerCase().includes("discountedpercent") ||
-        f.name?.toLowerCase().includes("discount")
-    );
-
-    if (discountPercentField && ad.deal) {
-      const discountPercentage = Number(discountPercentField.value) || 0;
-      if (discountPercentage > 0 && ad.price) {
-        const originalPrice = Math.round(
-          ad.price / (1 - discountPercentage / 100)
-        );
-        return {
-          currentPrice: ad.price,
-          originalPrice: originalPrice,
-          discountPercentage: Math.round(discountPercentage),
-        };
-      }
-    }
-
-    // No discount - show regular price
-    return {
-      currentPrice: ad.price,
-      originalPrice: undefined,
-      discountPercentage: undefined,
-    };
-  }, [ad.price, ad.deal, extraFields]);
 
   const handleCall = () => {
     if (ad.contactPhoneNumber) {
@@ -142,19 +110,10 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
     }
   };
 
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("en-AE", {
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
   // Check if there's any content to render
   const hasTitle = !!ad.title;
   const hasSpecifications = specifications.length > 0;
-  const hasPrice = !!getDiscountInfo.currentPrice;
-  const hasDiscount = !!(
-    getDiscountInfo.originalPrice && getDiscountInfo.discountPercentage
-  );
+  const hasPrice = !!ad.price;
   const hasLocation = !!location;
   const hasCreatedAt = !!ad.createdAt;
   const hasLocationOrTime = hasLocation || hasCreatedAt;
@@ -216,108 +175,19 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
 
       {/* Specifications */}
       {hasSpecifications && (
-        <div className="flex items-center gap-4 mb-4 flex-wrap">
-          {/* Show first 4 specifications */}
-          {specifications.slice(0, 4).map((spec) => (
-            <div
-              key={spec.name}
-              className="flex items-center gap-1 whitespace-nowrap"
-            >
-              {spec.icon ? (
-                <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
-                  <Image
-                    src={spec.icon}
-                    alt={spec.name}
-                    width={16}
-                    height={16}
-                    className="w-4 h-4 object-contain"
-                  />
-                </div>
-              ) : null}
-              <Typography variant="body-small" className="text-black text-xs">
-                {spec.value}
-              </Typography>
-            </div>
-          ))}
-
-          {/* Show popover with remaining specifications if more than 4 */}
-          {specifications.length > 4 && (
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="flex items-center gap-1 whitespace-nowrap text-xs text-purple-600 hover:text-purple-700 font-medium">
-                  +{specifications.length - 4} more
-                </button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-80 max-h-96 overflow-y-auto"
-                align="start"
-              >
-                <div className="space-y-2">
-                  <Typography
-                    variant="h3"
-                    className="text-sm font-semibold text-dark-blue mb-3"
-                  >
-                    All Specifications
-                  </Typography>
-                  <div className="space-y-3">
-                    {specifications.map((spec) => (
-                      <div key={spec.name} className="flex items-center gap-2">
-                        {spec.icon ? (
-                          <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
-                            <Image
-                              src={spec.icon}
-                              alt={spec.name}
-                              width={16}
-                              height={16}
-                              className="w-4 h-4 object-contain"
-                            />
-                          </div>
-                        ) : null}
-                        <div className="flex-1">
-                          <Typography
-                            variant="body-small"
-                            className="text-xs text-grey-blue"
-                          >
-                            {spec.name}
-                          </Typography>
-                          <Typography
-                            variant="body-small"
-                            className="text-sm text-dark-blue font-medium"
-                          >
-                            {spec.value}
-                          </Typography>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-          )}
+        <div className="mb-4">
+          <SpecificationsDisplay
+            specifications={specifications}
+            maxVisible={4}
+            showPopover={true}
+          />
         </div>
       )}
 
       {/* Price Section */}
       {hasPrice && (
-        <div className="flex items-center justify-start gap-2 mb-6 flex-wrap">
-          <div className="flex items-center gap-1">
-            <Image src={ICONS.currency.aed} alt="AED" width={24} height={24} />
-            <span className="text-2xl font-bold text-purple-600">
-              {formatPrice(getDiscountInfo.currentPrice)}
-            </span>
-          </div>
-          {hasDiscount && getDiscountInfo.originalPrice && (
-            <>
-              <span className="text-lg text-grey-blue line-through">
-                {formatPrice(getDiscountInfo.originalPrice)}
-              </span>
-              {getDiscountInfo.discountPercentage && (
-                <span className="text-sm font-semibold text-teal">
-                  {getDiscountInfo.discountPercentage}% OFF
-                </span>
-              )}
-            </>
-          )}
+        <div className="mb-6">
+          <PriceDisplay ad={ad} />
         </div>
       )}
 

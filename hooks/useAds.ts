@@ -14,6 +14,7 @@ import {
   uploadAdImages,
   filterAds,
   getSimilarAds,
+  getAdsByKeyword,
 } from "@/app/api/ad/ad.services";
 import {
   PostAdPayload,
@@ -25,6 +26,7 @@ import {
   AdStatus,
   AdFilters,
   AdFilterPayload,
+  GetKeywordSearchResponse,
 } from "@/interfaces/ad";
 import { adQueries } from "@/app/api/ad/index";
 
@@ -221,6 +223,22 @@ export const useFilterAds = (
     queryKey: [...adQueries.filterAds.Key, payload, page, limit],
     queryFn: () => filterAds(payload, page, limit),
     enabled: enabled && Object.keys(payload).length > 0, // Only run if enabled and payload has at least one filter
+  });
+};
+
+// Get ads by keyword
+export const useAdsByKeyword = (
+  keyword: string,
+  params?: {
+    userId?: string;
+    page?: number;
+    limit?: number;
+  }
+) => {
+  return useQuery<GetKeywordSearchResponse, Error>({
+    queryKey: [...adQueries.adsByKeyword(keyword, params).Key],
+    queryFn: () => getAdsByKeyword(keyword, params),
+    enabled: !!keyword && keyword.trim() !== "",
   });
 };
 

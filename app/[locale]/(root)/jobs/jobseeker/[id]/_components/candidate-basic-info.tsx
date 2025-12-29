@@ -10,10 +10,12 @@ interface CandidateBasicInfoProps {
   jobseeker: JobseekerProfile;
 }
 
-export default function CandidateBasicInfo({ jobseeker }: CandidateBasicInfoProps) {
+export default function CandidateBasicInfo({
+  jobseeker,
+}: CandidateBasicInfoProps) {
   // Calculate experience years from work experience
   const getExperienceYears = () => {
-    if (!jobseeker.workExperience || jobseeker.workExperience.length === 0) {
+    if (!jobseeker.experiences || jobseeker.experiences.length === 0) {
       return "0";
     }
     // Simple calculation - can be improved
@@ -22,7 +24,10 @@ export default function CandidateBasicInfo({ jobseeker }: CandidateBasicInfoProp
 
   return (
     <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
-      <Typography variant="h2" className="text-dark-blue font-bold text-2xl mb-6">
+      <Typography
+        variant="h2"
+        className="text-dark-blue font-bold text-2xl mb-6"
+      >
         Basic Information
       </Typography>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -48,7 +53,7 @@ export default function CandidateBasicInfo({ jobseeker }: CandidateBasicInfoProp
             </Typography>
           </div>
         </div>
-        {jobseeker.phoneNo && (
+        {jobseeker.contactPhone && (
           <div className="flex items-center gap-3">
             <Phone className="w-5 h-5 text-purple flex-shrink-0" />
             <div>
@@ -56,7 +61,7 @@ export default function CandidateBasicInfo({ jobseeker }: CandidateBasicInfoProp
                 Phone Number
               </Typography>
               <Typography variant="body-small" className="text-dark-blue">
-                {jobseeker.phoneNo}
+                {jobseeker.contactPhone}
               </Typography>
             </div>
           </div>
@@ -72,7 +77,7 @@ export default function CandidateBasicInfo({ jobseeker }: CandidateBasicInfoProp
             </Typography>
           </div>
         </div>
-        {jobseeker.email && (
+        {jobseeker.contactEmail && (
           <div className="flex items-center gap-3">
             <Mail className="w-5 h-5 text-purple flex-shrink-0" />
             <div>
@@ -80,7 +85,7 @@ export default function CandidateBasicInfo({ jobseeker }: CandidateBasicInfoProp
                 Email
               </Typography>
               <Typography variant="body-small" className="text-dark-blue">
-                {jobseeker.email}
+                {jobseeker.contactEmail}
               </Typography>
             </div>
           </div>
@@ -92,8 +97,8 @@ export default function CandidateBasicInfo({ jobseeker }: CandidateBasicInfoProp
               Profile last updated
             </Typography>
             <Typography variant="body-small" className="text-dark-blue">
-              {jobseeker.lastUpdated
-                ? format(new Date(jobseeker.lastUpdated), "MMM d, yyyy")
+              {jobseeker.updatedAt
+                ? format(new Date(jobseeker.updatedAt), "MMM d, yyyy")
                 : "7 days ago"}
             </Typography>
           </div>
@@ -102,4 +107,3 @@ export default function CandidateBasicInfo({ jobseeker }: CandidateBasicInfoProp
     </div>
   );
 }
-

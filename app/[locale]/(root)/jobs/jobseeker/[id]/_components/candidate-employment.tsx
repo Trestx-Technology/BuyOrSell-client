@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Typography } from "@/components/typography";
-import { JobseekerProfile } from "@/interfaces/job.types";
+import { JobseekerExperience, JobseekerProfile } from "@/interfaces/job.types";
 import { MapPin } from "lucide-react";
 import { format } from "date-fns";
 
@@ -11,7 +11,7 @@ interface CandidateEmploymentProps {
 }
 
 export default function CandidateEmployment({ jobseeker }: CandidateEmploymentProps) {
-  if (!jobseeker.workExperience || jobseeker.workExperience.length === 0) {
+  if (!jobseeker.experiences || jobseeker.experiences.length === 0) {
     return null;
   }
 
@@ -21,19 +21,19 @@ export default function CandidateEmployment({ jobseeker }: CandidateEmploymentPr
         Employment
       </Typography>
       <div className="space-y-6">
-        {jobseeker.workExperience.map((exp, index) => (
+        {jobseeker.experiences.map((exp: JobseekerExperience, index: number) => (
           <div key={exp._id || index} className="border-b border-[#E2E2E2] last:border-0 pb-6 last:pb-0">
             <div className="flex items-start justify-between mb-2">
               <div>
                 <Typography variant="h3" className="text-dark-blue font-semibold text-lg mb-1">
-                  {exp.position}
+                  {exp.title}
                 </Typography>
                 <Typography variant="body-small" className="text-purple mb-1">
                   {exp.company}
                 </Typography>
                 <Typography variant="caption" className="text-grey-blue">
                   {format(new Date(exp.startDate), "MMMM yyyy")} -{" "}
-                  {exp.current
+                  {exp.isCurrent
                     ? "Present"
                     : exp.endDate
                       ? format(new Date(exp.endDate), "MMMM yyyy")

@@ -12,9 +12,18 @@ import {
   uploadExcel,
   downloadExcelTemplate,
   getCategoriesWithFilter,
-} from '@/app/api/categories/categories.services';
-import { categoriesQueries } from '@/app/api/categories/index';
-import { SubCategory, CategoriesApiResponse, CategoryApiResponse, CategoryTreeResponse, CategoryTreeAdsResponse } from "@/interfaces/categories.types";
+  getJobSubcategories,
+} from "@/app/api/categories/categories.services";
+import { categoriesQueries } from "@/app/api/categories/index";
+import {
+  SubCategory,
+  CategoriesApiResponse,
+  CategoryApiResponse,
+  CategoryTreeResponse,
+  CategoryTreeAdsResponse,
+  JobSubcategoriesApiResponse,
+  JobSubcategory,
+} from "@/interfaces/categories.types";
 
 // Query Hooks
 
@@ -72,7 +81,7 @@ export const useCategoryFields = () => {
     queryFn: getCategoryFields,
   });
 };
-  
+
 export const useCategoryById = (id: string) => {
   return useQuery<CategoryApiResponse, Error>({
     queryKey: [...categoriesQueries.categoryById(id).Key],
@@ -86,16 +95,16 @@ export const useCategoryById = (id: string) => {
 export const useCreateCategory = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<
-    CategoriesApiResponse,
-    Error,
-    Record<string, unknown>
-  >({
+  return useMutation<CategoriesApiResponse, Error, Record<string, unknown>>({
     mutationFn: createCategory,
     onSuccess: () => {
       // Invalidate and refetch categories
-      queryClient.invalidateQueries({ queryKey: categoriesQueries.categories.Key });
-      queryClient.invalidateQueries({ queryKey: categoriesQueries.categoriesTree.Key });
+      queryClient.invalidateQueries({
+        queryKey: categoriesQueries.categories.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: categoriesQueries.categoriesTree.Key,
+      });
     },
   });
 };
@@ -111,12 +120,16 @@ export const useUpdateCategory = () => {
     mutationFn: ({ id, data }) => updateCategory(id, data),
     onSuccess: () => {
       // Invalidate and refetch categories
-      queryClient.invalidateQueries({ queryKey: categoriesQueries.categories.Key });
-      queryClient.invalidateQueries({ queryKey: categoriesQueries.categoriesTree.Key });
+      queryClient.invalidateQueries({
+        queryKey: categoriesQueries.categories.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: categoriesQueries.categoriesTree.Key,
+      });
       // Invalidate all category by id queries (prefix match)
-      queryClient.invalidateQueries({ 
-        queryKey: ['category'],
-        exact: false 
+      queryClient.invalidateQueries({
+        queryKey: ["category"],
+        exact: false,
       });
     },
   });
@@ -129,8 +142,12 @@ export const useDeleteCategory = () => {
     mutationFn: deleteCategory,
     onSuccess: () => {
       // Invalidate and refetch categories
-      queryClient.invalidateQueries({ queryKey: categoriesQueries.categories.Key });
-      queryClient.invalidateQueries({ queryKey: categoriesQueries.categoriesTree.Key });
+      queryClient.invalidateQueries({
+        queryKey: categoriesQueries.categories.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: categoriesQueries.categoriesTree.Key,
+      });
     },
   });
 };
@@ -142,12 +159,16 @@ export const useDeleteCategoryFromTree = () => {
     mutationFn: deleteCategoryFromTree,
     onSuccess: () => {
       // Invalidate and refetch categories
-      queryClient.invalidateQueries({ queryKey: categoriesQueries.categories.Key });
-      queryClient.invalidateQueries({ queryKey: categoriesQueries.categoriesTree.Key });
+      queryClient.invalidateQueries({
+        queryKey: categoriesQueries.categories.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: categoriesQueries.categoriesTree.Key,
+      });
       // Invalidate all category tree queries (prefix match)
-      queryClient.invalidateQueries({ 
-        queryKey: ['category', 'tree'],
-        exact: false 
+      queryClient.invalidateQueries({
+        queryKey: ["category", "tree"],
+        exact: false,
       });
     },
   });
@@ -160,8 +181,12 @@ export const useUploadExcel = () => {
     mutationFn: uploadExcel,
     onSuccess: () => {
       // Invalidate and refetch categories
-      queryClient.invalidateQueries({ queryKey: categoriesQueries.categories.Key });
-      queryClient.invalidateQueries({ queryKey: categoriesQueries.categoriesTree.Key });
+      queryClient.invalidateQueries({
+        queryKey: categoriesQueries.categories.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: categoriesQueries.categoriesTree.Key,
+      });
     },
   });
 };
@@ -169,5 +194,16 @@ export const useUploadExcel = () => {
 export const useDownloadExcelTemplate = () => {
   return useMutation<Blob, Error, void>({
     mutationFn: downloadExcelTemplate,
+  });
+};
+
+export const useJobSubcategories = (params?: {
+  parentCategoryId?: string;
+  adType?: string;
+}) => {
+  return useQuery<JobSubcategoriesApiResponse, Error, JobSubcategory[]>({
+    queryKey: [...categoriesQueries.jobSubcategories(params).Key],
+    queryFn: () => getJobSubcategories(params),
+    select: (data: JobSubcategoriesApiResponse) => data.data,
   });
 };

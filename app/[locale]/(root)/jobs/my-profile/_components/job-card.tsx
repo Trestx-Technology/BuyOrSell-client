@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import Link from "next/link";
 import { ICONS } from "@/constants/icons";
+import { useLocale } from "@/hooks/useLocale";
 export interface JobCardProps {
   id: string;
   title: string;
@@ -38,6 +39,8 @@ export default function JobCard({
   onFavorite,
   onShare,
 }: JobCardProps) {
+  const { localePath } = useLocale();
+
   return (
     <div className="bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full max-w-[256px] h-[335px] relative">
       {/* Header with Badge and Actions */}
@@ -158,7 +161,7 @@ export default function JobCard({
 
       {/* Action Button */}
       <Link
-        href={`/jobs/${id}`}
+        href={localePath(`/jobs/${id}`)}
         className="block absolute bottom-4 left-4 right-4"
       >
         <Button size={"sm"} className="w-full uppercase font-medium text-xs">

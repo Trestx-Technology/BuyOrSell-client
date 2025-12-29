@@ -6,12 +6,12 @@ import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Education } from "@/interfaces/job.types";
+import type { JobseekerEducation } from "@/interfaces/job.types";
 import { UseFormReturn, useFieldArray, Control } from "react-hook-form";
 import { JobseekerProfile } from "@/interfaces/job.types";
 
 interface JobseekerEducationProps {
-  education?: Education[];
+  education?: JobseekerEducation[];
   form?: UseFormReturn<JobseekerProfile>;
   isEditMode?: boolean;
 }
@@ -24,7 +24,7 @@ export default function JobseekerEducation({
   // Call hooks unconditionally at the top level
   const { fields, append, remove } = useFieldArray({
     control: (form?.control || {}) as Control<JobseekerProfile>,
-    name: "education",
+    name: "educations",
   });
 
   if (isEditMode && form) {
@@ -46,7 +46,7 @@ export default function JobseekerEducation({
                 institution: "",
                 degree: "",
                 startDate: "",
-                current: false,
+                isCurrent: false,
               })
             }
             variant="outline"
@@ -80,7 +80,7 @@ export default function JobseekerEducation({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  {...register(`education.${index}.degree`)}
+                  {...register(`educations.${index}.degree`)}
                   label="Degree"
                   placeholder="e.g., Bachelor of Science"
                   isRequired

@@ -4,56 +4,51 @@ import { Typography } from "@/components/typography";
 import JobCard from "./job-card";
 import Link from "next/link";
 import JobsSectionTitle from "../../_components/jobs-section-title";
+import { JobData } from "@/interfaces/job.types";
+import { formatDistanceToNow } from "date-fns";
 
-// Mock data - replace with actual API data
-const similarJobs = [
-  {
-    id: "5",
-    title: "UI UX Designer",
-    company: "MyPcot Private Limited",
-    experience: "1 to 4 years",
-    salaryMin: 40000,
-    salaryMax: 42000,
-    location: "Dubai, UAE",
-    jobType: "Full time",
-    postedTime: "1hr ago",
-  },
-  {
-    id: "6",
-    title: "UI UX Designer",
-    company: "MyPcot Private Limited",
-    experience: "1 to 4 years",
-    salaryMin: 40000,
-    salaryMax: 42000,
-    location: "Dubai, UAE",
-    jobType: "Full time",
-    postedTime: "1hr ago",
-  },
-  {
-    id: "7",
-    title: "UI UX Designer",
-    company: "MyPcot Private Limited",
-    experience: "1 to 4 years",
-    salaryMin: 40000,
-    salaryMax: 42000,
-    location: "Dubai, UAE",
-    jobType: "Full time",
-    postedTime: "1hr ago",
-  },
-  {
-    id: "8",
-    title: "UI UX Designer",
-    company: "MyPcot Private Limited",
-    experience: "1 to 4 years",
-    salaryMin: 40000,
-    salaryMax: 42000,
-    location: "Dubai, UAE",
-    jobType: "Full time",
-    postedTime: "1hr ago",
-  },
-];
+interface SimilarJobsProps {
+  similarJobs?: {
+    page: number;
+    limit: number;
+    total: number;
+    items: JobData[];
+    profileMatched?: {
+      desiredRoles?: string[];
+      skills?: string[];
+      preferredLocations?: string[];
+      preferredJobTypes?: string[];
+    };
+  };
+  isLoading?: boolean;
+}
 
-export default function SimilarJobs() {
+export default function SimilarJobs({
+  similarJobs: similarJobsData,
+  isLoading,
+}: SimilarJobsProps) {
+  const jobs = similarJobsData?.items || [];
+
+  if (isLoading) {
+    return (
+      <section className="w-full bg-white py-8 px-4 lg:px-[100px]">
+        <div className="max-w-[1080px] mx-auto">
+          <div className="flex flex-wrap gap-5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-gray-200 rounded-lg w-[256px] h-[300px] animate-pulse"
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (jobs.length === 0) {
+    return null;
+  }
   return (
     <section className="w-full bg-white py-8 px-4 lg:px-[100px]">
       <div className="max-w-[1080px] mx-auto">
@@ -73,9 +68,33 @@ export default function SimilarJobs() {
 
           {/* Jobs Grid */}
           <div className="flex flex-wrap gap-5">
-            {similarJobs.map((job) => (
-              <JobCard key={job.id} onShare={() => {}} onFavorite={() => {}} {...job} />
-            ))}
+            {jobs.map((job) => {
+              const jobCardProps = {
+                id: job._id,
+                title: job.title,
+                company: job.organization?.tradeName || job.company || "",
+                experience: job.experience || "",
+                salaryMin: job.salaryMin || 0,
+                salaryMax: job.salaryMax || 0,
+                location:
+                  typeof job.location === "string"
+                    ? job.location
+                    : `${job.location?.city || ""} ${job.location?.state || ""}`.trim() ||
+                      "",
+                jobType: job.jobType || "",
+                postedTime: job.postedAt
+                  ? formatDistanceToNow(new Date(job.postedAt), { addSuffix: true })
+                  : "",
+              };
+              return (
+                <JobCard
+                  key={job._id}
+                  onShare={() => {}}
+                  onFavorite={() => {}}
+                  {...jobCardProps}
+                />
+              );
+            })}
           </div>
         </div>
       </div>

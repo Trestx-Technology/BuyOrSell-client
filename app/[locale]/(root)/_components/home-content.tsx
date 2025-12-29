@@ -12,12 +12,13 @@ import { Footer } from "@/components/global/footer";
 import ExchangeDeals from "./exchange-deals";
 import { useHome } from "@/hooks/useHome";
 import CategoryTabbedCarousel from "@/components/global/category-tabbed-carousel";
+import JobsTabbedCarousel from "@/components/global/jobs-tabbed-carousel";
 import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "nextjs-toploader/app";
 
 export function HomeContent() {
   const { data: homeData, isLoading } = useHome();
-  const { locale, t } = useLocale();
+  const { locale, t, localePath } = useLocale();
   const isArabic = locale === "ar";
   const router = useRouter();
   return (
@@ -98,6 +99,14 @@ export function HomeContent() {
             const topValue = calculateTop(i);
             const zIndexValue = calculateZIndex(i);
 
+            // Check if category is "job" (case-insensitive)
+            const isJobCategory =
+              category.category?.toLowerCase() === "job" ||
+              category.category?.toLowerCase() === "jobs" ||
+              (isArabic &&
+                (category.categoryAr?.toLowerCase() === "وظائف" ||
+                  category.categoryAr?.toLowerCase() === "وظيفة"));
+
             return (
               <div
                 key={`trending-category-ads-${i}`}
@@ -107,23 +116,47 @@ export function HomeContent() {
                   zIndex: zIndexValue,
                 }}
               >
-                <CategoryTabbedCarousel
-                  categoryData={{
-                    ...category,
-                    category:
-                      isArabic && category.categoryAr
-                        ? category.categoryAr
-                        : category.category,
-                  }}
-                  isLoading={isLoading}
-                  showNavigation={false}
-                  showViewAll={true}
-                  viewAllText={t.common.viewAll}
-                  onViewAll={(categoryName) =>
-                    router.push(`/categories/${categoryName}`)
-                  }
-                  onTabChange={(tabId) => console.log("Tab changed to:", tabId)}
-                />
+                {isJobCategory ? (
+                  <JobsTabbedCarousel
+                    categoryData={{
+                      ...category,
+                      category:
+                        isArabic && category.categoryAr
+                          ? category.categoryAr
+                          : category.category,
+                    }}
+                    isLoading={isLoading}
+                    showNavigation={false}
+                    showViewAll={true}
+                    viewAllText={t.common.viewAll}
+                    onViewAll={(categoryName) =>
+                      router.push(localePath("/jobs/listing"))
+                    }
+                    onTabChange={(tabId) =>
+                      console.log("Tab changed to:", tabId)
+                    }
+                  />
+                ) : (
+                  <CategoryTabbedCarousel
+                    categoryData={{
+                      ...category,
+                      category:
+                        isArabic && category.categoryAr
+                          ? category.categoryAr
+                          : category.category,
+                    }}
+                    isLoading={isLoading}
+                    showNavigation={false}
+                    showViewAll={true}
+                    viewAllText={t.common.viewAll}
+                    onViewAll={(categoryName) =>
+                      router.push(`/categories/${categoryName}`)
+                    }
+                    onTabChange={(tabId) =>
+                      console.log("Tab changed to:", tabId)
+                    }
+                  />
+                )}
               </div>
             );
           })}

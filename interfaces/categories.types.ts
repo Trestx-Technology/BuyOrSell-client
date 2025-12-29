@@ -138,3 +138,23 @@ export interface CategoryTreeAdsResponse {
     [key: string]: unknown; // For any other fields
   };
 }
+
+// Job Subcategory interface (used in /categories/job-subcategories)
+export interface JobSubcategory {
+  _id: string;
+  name: string;
+  nameAr?: string;
+  desc: string;
+  descAr?: string;
+  icon?: string | null;
+  image?: string | null;
+  bgColor?: string | null;
+  adCount: number;
+}
+
+// Response from /categories/job-subcategories
+export interface JobSubcategoriesApiResponse {
+  statusCode: number;
+  timestamp: string;
+  data: JobSubcategory[];
+}

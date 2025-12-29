@@ -2,7 +2,14 @@
 
 import React from "react";
 import Image from "next/image";
-import { Mail, Phone, Rocket, Briefcase, Clock, DollarSign } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  Rocket,
+  Briefcase,
+  Clock,
+  DollarSign,
+} from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { JobseekerProfile } from "@/interfaces/job.types";
@@ -20,37 +27,55 @@ export default function CandidateHeader({
   onShortlist,
   onReject,
 }: CandidateHeaderProps) {
-  const profileName = jobseeker.name || `${jobseeker.firstName || ""} ${jobseeker.lastName || ""}`.trim() || "User";
-  const initials = profileName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "SK";
-  const professionalTitle = jobseeker.professionalTitle || "";
-  const currentCompany = jobseeker.currentCompany || "";
-  const phoneNo = jobseeker.phoneNo || "";
-  const email = jobseeker.email || "";
-  
+  const profileName = jobseeker.name || "User";
+  const initials =
+    profileName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "SK";
+  const professionalTitle = jobseeker.headline || "";
+  const currentCompany = jobseeker.experiences[0]?.company || "";
+
   // Get job preferences
-  const jobType = jobseeker.jobPreferences?.jobType?.[0] || "";
-  
+  const jobType = jobseeker.preferredJobTypes?.[0] || "";
+
   // Calculate experience from work experience
   let experience = "";
-  if (jobseeker.workExperience && jobseeker.workExperience.length > 0) {
-    const firstExp = jobseeker.workExperience[0];
+  if (jobseeker.experiences && jobseeker.experiences.length > 0) {
+    const firstExp = jobseeker.experiences[0];
     if (firstExp.startDate) {
       const startDate = new Date(firstExp.startDate);
-      const endDate = firstExp.endDate ? new Date(firstExp.endDate) : (firstExp.current ? new Date() : null);
+      const endDate = firstExp.endDate
+        ? new Date(firstExp.endDate)
+        : firstExp.isCurrent
+        ? new Date()
+        : null;
       if (endDate) {
-        const yearsDiff = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
+        const yearsDiff =
+          (endDate.getTime() - startDate.getTime()) /
+          (1000 * 60 * 60 * 24 * 365);
         experience = `${Math.floor(yearsDiff)} years`;
       }
     }
   }
-  
-  const salaryRange = jobseeker.jobPreferences?.salaryRange;
+
+  const salaryRange =
+    jobseeker.salaryExpectationMin && jobseeker.salaryExpectationMax
+      ? {
+          min: jobseeker.salaryExpectationMin,
+          max: jobseeker.salaryExpectationMax,
+        }
+      : undefined;
   const salaryMin = salaryRange?.min || 0;
   const salaryMax = salaryRange?.max || 0;
   const availability = "Immediately";
-  
-  const lastUpdated = jobseeker.updatedAt || jobseeker.lastUpdated
-    ? formatDistanceToNow(new Date(jobseeker.updatedAt || jobseeker.lastUpdated || new Date()), { addSuffix: true })
+
+  const lastUpdated = jobseeker.updatedAt
+    ? formatDistanceToNow(new Date(jobseeker.updatedAt || new Date()), {
+        addSuffix: true,
+      })
     : "";
 
   return (
@@ -59,9 +84,9 @@ export default function CandidateHeader({
       <div className="relative size-[170px] mx-auto md:mx-0 flex-shrink-0">
         <div className="absolute inset-0 rounded-full border-[3px] border-[#37E7B6] p-2">
           <div className="w-full h-full rounded-full border-[5px] border-[#F5EBFF] flex items-center justify-center bg-gradient-to-br from-purple/10 to-purple/5 overflow-hidden">
-            {jobseeker.image ? (
+            {jobseeker.photoUrl ? (
               <Image
-                src={jobseeker.image}
+                src={jobseeker.photoUrl}
                 alt={profileName}
                 width={170}
                 height={170}
@@ -69,7 +94,9 @@ export default function CandidateHeader({
               />
             ) : (
               <div className="w-full h-full rounded-full bg-purple flex items-center justify-center">
-                <span className="text-white font-semibold text-2xl">{initials}</span>
+                <span className="text-white font-semibold text-2xl">
+                  {initials}
+                </span>
               </div>
             )}
           </div>
@@ -86,14 +113,15 @@ export default function CandidateHeader({
               {profileName}
             </Typography>
 
-            {jobseeker.isVerified && (
-              <Image
-                src={ICONS.auth.verified}
-                alt="verified"
-                width={20}
-                height={20}
-              />
-            )}
+            {/* TODO: Add verified icon */}
+            {/* {jobseeker.verified && ( */}
+            <Image
+              src={ICONS.auth.verified}
+              alt="verified"
+              width={20}
+              height={20}
+            />
+            {/* )} */}
           </div>
           {professionalTitle && (
             <Typography
@@ -126,14 +154,14 @@ export default function CandidateHeader({
               </Typography>
             </div>
           )}
-          {phoneNo && (
+          {jobseeker.contactPhone && (
             <div className="flex items-center gap-1.5">
               <Phone className="w-5 h-5 text-grey-blue" />
               <Typography
                 variant="body-small"
                 className="text-dark-blue text-sm"
               >
-                {phoneNo}
+                {jobseeker.contactPhone}
               </Typography>
             </div>
           )}
@@ -150,14 +178,14 @@ export default function CandidateHeader({
             </div>
           )}
 
-          {email && (
+          {jobseeker.contactEmail && (
             <div className="flex items-center gap-1.5">
               <Mail className="w-5 h-5 text-grey-blue" />
               <Typography
                 variant="body-small"
                 className="text-dark-blue text-sm"
               >
-                {email}
+                {jobseeker.contactEmail}
               </Typography>
             </div>
           )}

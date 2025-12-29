@@ -5,6 +5,7 @@ import {
   CategoryApiResponse,
   CategoryTreeResponse,
   CategoryTreeAdsResponse,
+  JobSubcategoriesApiResponse,
 } from '@/interfaces/categories.types';
 
 export const getCategoriesWithFilter = async (params?: {
@@ -129,6 +130,17 @@ export const uploadExcel = async (
         'Content-Type': 'multipart/form-data',
       },
     },
+  );
+  return response.data;
+};
+
+export const getJobSubcategories = async (params?: {
+  parentCategoryId?: string;
+  adType?: string;
+}): Promise<JobSubcategoriesApiResponse> => {
+  const response = await axiosInstance.get<JobSubcategoriesApiResponse>(
+    categoriesQueries.jobSubcategories(params).endpoint,
+    { params },
   );
   return response.data;
 };

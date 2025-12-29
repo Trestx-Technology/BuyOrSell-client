@@ -44,6 +44,7 @@ export interface FilterConfig {
   isStatic?: boolean; // If true, shows outside dialog; if false, shows inside dialog
 }
 
+// TODO: manage different types of filters and there dynamic state
 export interface AdsFilterProps {
   filters: Record<string, any>;
   onFilterChange: (key: string, value: any) => void;
@@ -155,7 +156,7 @@ const AdsFilter = ({
       case "multiselect":
         return (
           <FormField label={filterConfig.label} required={false}>
-            <div className="w-40">
+            <div className="w-full">
               <Select
                 value=""
                 onValueChange={(newValue) => {
@@ -165,7 +166,7 @@ const AdsFilter = ({
                   }
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder={placeholder} />
                 </SelectTrigger>
                 <SelectContent>
@@ -274,14 +275,14 @@ const AdsFilter = ({
                 <span className="sm:block hidden">More Filters</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-full overflow-y-auto max-h-[80vh]">
               <DialogHeader>
                 <DialogTitle>Advanced Filters</DialogTitle>
               </DialogHeader>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 w-full">
                 {dynamicFilterConfigs.length > 0 ? (
                   dynamicFilterConfigs.map((filterConfig) => (
-                    <div key={filterConfig.key} className="space-y-2">
+                    <div key={filterConfig.key} className="space-y-2 w-full">
                       {renderFilterControl(filterConfig)}
                     </div>
                   ))

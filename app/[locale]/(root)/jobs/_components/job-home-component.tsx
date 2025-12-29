@@ -29,18 +29,16 @@ export default function JobHomeComponent() {
       <JobsHero />
 
       {/* Popular Industries Section */}
-      <PopularIndustries 
-        industries={homeData?.popularIndustries}
-      />
+      <PopularIndustries />
 
       {/* Connect Professionals Section */}
-      <ConnectProfessionals 
+      <ConnectProfessionals
         professionals={homeData?.professionals}
         isLoading={isLoading}
       />
 
       {/* Companies to follow */}
-      <CompaniesToFollow 
+      <CompaniesToFollow
         companies={homeData?.companiesToFollow}
         isLoading={isLoading}
       />
@@ -49,26 +47,25 @@ export default function JobHomeComponent() {
       <JobsCTASection />
 
       {/* Featured Jobs Section */}
-      <FeaturedJobsSection 
+      <FeaturedJobsSection
         jobs={homeData?.featuredJobs?.jobs}
         isLoading={isLoading}
       />
 
       {/* Recent Jobs Section */}
-      <LatestJobsSection 
+      <LatestJobsSection
         jobs={homeData?.latestJobs?.jobs}
         isLoading={isLoading}
       />
 
       {/* Emiratis Support Section */}
-      <EmiratisSupport/>
+      <EmiratisSupport />
 
       {/* Top Employers Section */}
-      <TopEmployersSection 
+      <TopEmployersSection
         employers={homeData?.topEmployers}
         isLoading={isLoading}
       />
     </>
   );
 }
-

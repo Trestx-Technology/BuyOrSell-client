@@ -290,30 +290,42 @@ export default function ExchangeDeals({
                       <div className="flex-1 overflow-hidden">
                         {categoryAds.length > 0 ? (
                           <CardsCarousel title="" showNavigation={true}>
-                            {categoryAds.map((ad, index) => (
-                              <motion.div
-                                key={ad.id}
-                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                                viewport={{ once: true, margin: "-100px" }}
-                                transition={{
-                                  type: "spring" as const,
-                                  stiffness: 300,
-                                  damping: 22,
-                                  delay: 0.6 + index * 0.08,
-                                }}
-                                className="flex-[0_0_auto] max-w-[220px] w-full"
-                              >
-                                <ListingCard
-                                  {...ad}
-                                  isFavorite={favorites.has(ad.id)}
-                                  onFavorite={handleFavoriteToggle}
-                                  showSeller={true}
-                                  showSocials={true}
-                                  className="w-full"
-                                />
-                              </motion.div>
-                            ))}
+                            {categoryAds.map((ad, index) => {
+                              const isFavorite = favorites.has(ad.id);
+                              // Override isAddedInCollection with local favorite state to ensure it takes precedence
+                              const cardProps: ListingCardProps = {
+                                ...ad,
+                                isFavorite,
+                                isAddedInCollection: isFavorite
+                                  ? true
+                                  : ad.isAddedInCollection === true
+                                  ? true
+                                  : false, // Explicitly set to false when not favorited to override API
+                              };
+                              return (
+                                <motion.div
+                                  key={ad.id}
+                                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                                  viewport={{ once: true, margin: "-100px" }}
+                                  transition={{
+                                    type: "spring" as const,
+                                    stiffness: 300,
+                                    damping: 22,
+                                    delay: 0.6 + index * 0.08,
+                                  }}
+                                  className="flex-[0_0_auto] max-w-[220px] w-full"
+                                >
+                                  <ListingCard
+                                    {...cardProps}
+                                    onFavorite={handleFavoriteToggle}
+                                    showSeller={true}
+                                    showSocials={true}
+                                    className="w-full"
+                                  />
+                                </motion.div>
+                              );
+                            })}
                           </CardsCarousel>
                         ) : (
                           <div className="flex items-center justify-center py-10">

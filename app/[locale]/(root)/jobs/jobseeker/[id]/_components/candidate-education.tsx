@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Typography } from "@/components/typography";
-import { JobseekerProfile } from "@/interfaces/job.types";
+import { JobseekerEducation, JobseekerProfile } from "@/interfaces/job.types";
 import { format } from "date-fns";
 
 interface CandidateEducationProps {
@@ -20,7 +20,7 @@ export default function CandidateEducation({ jobseeker }: CandidateEducationProp
         Education
       </Typography>
       <div className="space-y-6">
-        {jobseeker.education.map((edu, index) => (
+        {jobseeker.educations?.map((edu: JobseekerEducation, index: number  ) => (
           <div key={edu._id || index}>
             <Typography variant="h3" className="text-dark-blue font-semibold text-lg mb-1">
               {edu.degree}
@@ -32,7 +32,7 @@ export default function CandidateEducation({ jobseeker }: CandidateEducationProp
             <div className="flex items-center gap-4 text-sm text-grey-blue">
               <span>
                 {format(new Date(edu.startDate), "yyyy")} -{" "}
-                {edu.current
+                {edu.isCurrent
                   ? "Present"
                   : edu.endDate
                     ? format(new Date(edu.endDate), "yyyy")

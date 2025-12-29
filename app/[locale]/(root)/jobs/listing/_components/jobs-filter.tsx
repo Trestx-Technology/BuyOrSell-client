@@ -1,12 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
-import {
-  Search,
-  MapPin,
-  SlidersHorizontal,
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, MapPin, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,6 +24,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 import { cn } from "@/lib/utils";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
 export interface FilterOption {
   value: string;
@@ -73,6 +70,29 @@ export default function JobsFilter({
   className,
 }: JobsFilterProps) {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+
+  // Debounced search input
+  const [localSearchQuery, setLocalSearchQuery] = useDebouncedValue(
+    searchQuery,
+    (value) => onSearchChange(value),
+    500
+  );
+
+  // Debounced location input
+  const [localLocationQuery, setLocalLocationQuery] = useDebouncedValue(
+    locationQuery,
+    (value) => onLocationChange(value),
+    500
+  );
+
+  // Sync local state with props when they change externally
+  useEffect(() => {
+    setLocalSearchQuery(searchQuery);
+  }, [searchQuery, setLocalSearchQuery]);
+
+  useEffect(() => {
+    setLocalLocationQuery(locationQuery);
+  }, [locationQuery, setLocalLocationQuery]);
 
   const activeFilters = Object.entries(filters).filter(
     ([_, value]) =>
@@ -221,15 +241,15 @@ export default function JobsFilter({
             <Input
               leftIcon={<Search className="h-4 w-4" />}
               placeholder={searchPlaceholder}
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
+              value={localSearchQuery}
+              onChange={(e) => setLocalSearchQuery(e.target.value)}
               className="pl-10 bg-gray-100 border-0 flex-1"
             />
             <Input
               leftIcon={<MapPin className="h-4 w-4" />}
               placeholder={locationPlaceholder}
-              value={locationQuery}
-              onChange={(e) => onLocationChange(e.target.value)}
+              value={localLocationQuery}
+              onChange={(e) => setLocalLocationQuery(e.target.value)}
               className="pl-10 bg-gray-100 border-0 flex-1"
             />
           </div>
@@ -247,9 +267,7 @@ export default function JobsFilter({
           <Dialog open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
             <DialogTrigger asChild>
               <Button
-                icon={
-                  <SlidersHorizontal className="h-4 w-4 -mr-3 sm:-mr-2" />
-                }
+                icon={<SlidersHorizontal className="h-4 w-4 -mr-3 sm:-mr-2" />}
                 iconPosition="left"
                 className="w-40 border-purple-200 sticky top-0 right-0"
               >
@@ -325,4 +343,3 @@ export default function JobsFilter({
     </Card>
   );
 }
-

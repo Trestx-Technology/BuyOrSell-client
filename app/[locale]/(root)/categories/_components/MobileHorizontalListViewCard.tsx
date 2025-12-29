@@ -5,10 +5,6 @@ import Image from "next/image";
 import {
   Eye,
   MapPin,
-  Calendar,
-  Gauge,
-  Zap,
-  Fuel,
   ImageIcon,
   Phone,
   MessageSquareText,
@@ -22,6 +18,13 @@ import { Typography } from "@/components/typography";
 import { FaWhatsapp } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { ProductExtraFields } from "@/interfaces/ad";
+import { PriceDisplay } from "@/components/global/price-display";
+import {
+  SpecificationsDisplay,
+  Specification,
+} from "@/components/global/specifications-display";
+import { useMemo } from "react";
+import { getSpecifications } from "@/utils/normalize-extra-fields";
 
 export interface MobileHorizontalListViewCardProps {
   id: string;
@@ -82,40 +85,16 @@ const MobileHorizontalListViewCard: React.FC<
   onClick,
   className,
 }) => {
-  // Ensure extraFields exists and normalize to object format
-  const safeExtraFields = (() => {
-    if (!extraFields) return {};
-    // If it's already an object, return it
-    if (!Array.isArray(extraFields)) {
-      return extraFields as Record<string, string | number | boolean | string[] | null>;
-    }
-    // If it's an array, convert to object
-    const flatFields: Record<string, string | number | boolean | string[] | null> = {};
-    extraFields.forEach((field) => {
-      if (field && typeof field === 'object' && 'name' in field && 'value' in field) {
-        flatFields[field.name] = field.value;
-      }
-    });
-    return flatFields;
-  })();
+  // Dynamically extract specifications from extraFields
+  const specifications = useMemo((): Specification[] => {
+    const specsFromFields = getSpecifications(extraFields, 4); // Limit to 4 for display
+    return specsFromFields.map((spec) => ({
+      name: spec.name,
+      value: spec.value,
+      icon: spec.icon, // Use icon from extraFields if available
+    }));
+  }, [extraFields]);
 
-  // Helper function to get field value from extraFields
-  const getFieldValue = (fieldName: string): string | number | undefined => {
-    if (!safeExtraFields) return undefined;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const value = (safeExtraFields as Record<string, any>)[fieldName];
-    if (value === undefined || value === null) return undefined;
-    if (typeof value === "string" || typeof value === "number") return value;
-    if (Array.isArray(value)) return value.join(", ");
-    if (typeof value === "boolean") return value ? "Yes" : "No";
-    return String(value);
-  };
-
-  // Extract commonly used fields - try multiple field name variations
-  const transmission = getFieldValue("Transmission Type") || getFieldValue("transmission") || getFieldValue("Transmission");
-  const fuelType = getFieldValue("Fule Type") || getFieldValue("Fuel Type") || getFieldValue("fuelType") || getFieldValue("fuel");
-  const mileage = getFieldValue("Mileage") || getFieldValue("mileage");
-  const year = getFieldValue("Year") || getFieldValue("year");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
@@ -141,7 +120,9 @@ const MobileHorizontalListViewCard: React.FC<
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
       setTimeLeft(
-        `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+        `${hours.toString().padStart(2, "0")}:${minutes
+          .toString()
+          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
       );
     };
 
@@ -172,14 +153,6 @@ const MobileHorizontalListViewCard: React.FC<
     setTimeout(() => {
       setIsTransitioning(false);
     }, 300);
-  };
-
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-    }).format(amount);
   };
 
   return (
@@ -307,22 +280,17 @@ const MobileHorizontalListViewCard: React.FC<
         {/* Ad Metadata - Right Side */}
         <div className="space-y-2 flex-1">
           {/* Price Section */}
-          <div className="flex items-center gap-1">
-            <Image src={ICONS.currency.aed} alt="AED" width={16} height={16} />
-            <span className="text-md font-bold text-purple">
-              {formatPrice(price).replace("AED", "").trim()}
-            </span>
-            {originalPrice && (
-              <span className="text-md text-grey-blue line-through text-sm">
-                {formatPrice(originalPrice).replace("AED", "").trim()}
-              </span>
-            )}
-            {discount && (
-              <span className="text-md text-grey-blue text-sm font-semibold">
-                {discount}%
-              </span>
-            )}
-          </div>
+          <PriceDisplay
+            price={price}
+            originalPrice={originalPrice}
+            discountPercentage={discount}
+            currencyIconWidth={16}
+            currencyIconHeight={16}
+            className="gap-1"
+            currentPriceClassName="text-md font-bold text-purple"
+            originalPriceClassName="text-md text-grey-blue line-through text-sm"
+            discountBadgeClassName="text-md text-grey-blue text-sm font-semibold"
+          />
 
           {/* Title */}
           <Typography
@@ -347,55 +315,16 @@ const MobileHorizontalListViewCard: React.FC<
             </Typography>
           </div>
 
-          {/* Specifications Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-            {transmission && (
-              <div className="flex items-center gap-1">
-                <Zap className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(transmission)}
-                </Typography>
-              </div>
-            )}
-            {fuelType && (
-              <div className=" flex items-center gap-1">
-                <Fuel className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(fuelType)}
-                </Typography>
-              </div>
-            )}
-
-            {mileage && (
-              <div className="flex items-center gap-1">
-                <Gauge className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(mileage)}
-                </Typography>
-              </div>
-            )}
-
-            {year && (
-              <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(year)}
-                </Typography>
-              </div>
-            )}
-          </div>
+          {/* Specifications */}
+          {specifications.length > 0 && (
+            <SpecificationsDisplay
+              specifications={specifications}
+              maxVisible={4}
+              showPopover={false}
+              className="grid grid-cols-2 lg:grid-cols-4 gap-2"
+              itemClassName="text-[#667085]"
+            />
+          )}
         </div>
       </div>
 
@@ -422,7 +351,8 @@ const MobileHorizontalListViewCard: React.FC<
               variant="body-small"
               className="text-xs text-[#667085] truncate"
             >
-              By {seller?.type || "Seller"}{postedTime ? ` • ${postedTime}` : ""}
+              By {seller?.type || "Seller"}
+              {postedTime ? ` • ${postedTime}` : ""}
             </Typography>
           </div>
         </div>

@@ -19,6 +19,8 @@ import {
   tabsVariants,
   contentVariants,
 } from "@/utils/animation-variants";
+import { HotDealsListingCardProps } from "@/components/global/hot-deals-listing-card";
+import { AD } from "@/interfaces/ad";
 
 interface HostDealsProps {
   className?: string;
@@ -32,52 +34,10 @@ export default function HostDeals({
   isLoading = false,
 }: HostDealsProps) {
   const { t, locale } = useLocale();
-  // Get category names for tabs
-  const categories = useMemo(() => {
-    if (!categoryTreeWithDealAds || categoryTreeWithDealAds.length === 0) {
-      return [];
-    }
-
-    const isArabic = locale === "ar";
-
-    return categoryTreeWithDealAds
-      .filter((category) => category.ads && category.ads.length > 0)
-      .map((category) => {
-        const name = isArabic
-          ? category.nameAr || category.name
-          : category.name;
-        return {
-          id: category._id,
-          name,
-          value: category.name.toLowerCase().replace(/\s+/g, "-"), // Keep original name for value to maintain consistency
-        };
-      });
-  }, [categoryTreeWithDealAds, locale]);
-
-  // Get default tab value
-  const defaultTab = categories.length > 0 ? categories[0].value : "";
-
-  const [activeTab, setActiveTab] = useState(defaultTab);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
-
-  // Update active tab when categories change
-  useEffect(() => {
-    if (defaultTab && !activeTab) {
-      setActiveTab(defaultTab);
-    }
-  }, [defaultTab, activeTab]);
-
-  // Get active category and its ads
-  const activeCategory = useMemo(() => {
-    return categoryTreeWithDealAds.find(
-      (category) =>
-        category.name.toLowerCase().replace(/\s+/g, "-") === activeTab
-    );
-  }, [categoryTreeWithDealAds, activeTab]);
 
   // Simple mapper function to transform API ad to component props
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mapAdToCardProps = (ad: any) => {
+  const mapAdToCardProps = (ad: any): HotDealsListingCardProps => {
     // Get location from address (use Arabic if locale is Arabic)
     const getLocation = (): string => {
       const isArabic = locale === "ar";
@@ -124,6 +84,68 @@ export default function HostDeals({
         : undefined,
     };
   };
+
+  // Transform and filter deal ads from categoryTreeWithDealAds
+  const transformedAdsByCategory = useMemo(() => {
+    if (!categoryTreeWithDealAds || categoryTreeWithDealAds.length === 0) {
+      return {};
+    }
+
+    const adsByCategory: Record<string, HotDealsListingCardProps[]> = {};
+
+    categoryTreeWithDealAds.forEach((category) => {
+      if (category.ads && category.ads.length > 0) {
+        const categoryName = category.name.toLowerCase().replace(/\s+/g, "-");
+
+        // Transform all ads for this category
+        adsByCategory[categoryName] = (category.ads as AD[]).map((ad) =>
+          mapAdToCardProps(ad)
+        );
+      }
+    });
+
+    return adsByCategory;
+  }, [categoryTreeWithDealAds, locale, t]);
+
+  // Get category names for tabs
+  const categories = useMemo(() => {
+    if (!categoryTreeWithDealAds || categoryTreeWithDealAds.length === 0) {
+      return [];
+    }
+
+    const isArabic = locale === "ar";
+
+    return categoryTreeWithDealAds
+      .filter((category) => {
+        // Only show categories that have transformed ads
+        const categoryName = category.name.toLowerCase().replace(/\s+/g, "-");
+        const ads = transformedAdsByCategory[categoryName] || [];
+        return ads.length > 0;
+      })
+      .map((category) => {
+        const name = isArabic
+          ? category.nameAr || category.name
+          : category.name;
+        return {
+          id: category._id,
+          name,
+          value: category.name.toLowerCase().replace(/\s+/g, "-"), // Keep original name for value to maintain consistency
+        };
+      });
+  }, [categoryTreeWithDealAds, transformedAdsByCategory, locale]);
+
+  // Get default tab value
+  const defaultTab = categories.length > 0 ? categories[0].value : "";
+
+  const [activeTab, setActiveTab] = useState(defaultTab);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+
+  // Update active tab when categories change
+  useEffect(() => {
+    if (defaultTab && !activeTab) {
+      setActiveTab(defaultTab);
+    }
+  }, [defaultTab, activeTab]);
 
   const handleFavoriteToggle = (id: string) => {
     setFavorites((prev) => {
@@ -315,12 +337,8 @@ export default function HostDeals({
 
               {/* Dynamic Tab Content */}
               {categories.map((category) => {
-                const categoryData = categoryTreeWithDealAds.find(
-                  (cat) =>
-                    cat.name.toLowerCase().replace(/\s+/g, "-") ===
-                    category.value
-                );
-                const categoryAds = categoryData?.ads || [];
+                const categoryAds =
+                  transformedAdsByCategory[category.value] || [];
 
                 return (
                   <TabsContent
@@ -339,33 +357,30 @@ export default function HostDeals({
                       <div className="flex-1 overflow-hidden">
                         {categoryAds.length > 0 ? (
                           <CardsCarousel title="" showNavigation={true}>
-                            {categoryAds.map((ad, index) => {
-                              const deal = mapAdToCardProps(ad);
-                              return (
-                                <motion.div
-                                  key={deal.id}
-                                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                                  viewport={{ once: true, margin: "-100px" }}
-                                  transition={{
-                                    type: "spring" as const,
-                                    stiffness: 300,
-                                    damping: 22,
-                                    delay: 0.6 + index * 0.08,
-                                  }}
-                                  className="flex-[0_0_auto] max-w-[190px] w-full"
-                                >
-                                  <HotDealsListingCard
-                                    {...deal}
-                                    isFavorite={favorites.has(deal.id)}
-                                    onFavorite={handleFavoriteToggle}
-                                    showSeller={true}
-                                    showSocials={true}
-                                    className="w-full"
-                                  />
-                                </motion.div>
-                              );
-                            })}
+                            {categoryAds.map((deal, index) => (
+                              <motion.div
+                                key={deal.id}
+                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                                viewport={{ once: true, margin: "-100px" }}
+                                transition={{
+                                  type: "spring" as const,
+                                  stiffness: 300,
+                                  damping: 22,
+                                  delay: 0.6 + index * 0.08,
+                                }}
+                                className="flex-[0_0_auto] max-w-[190px] w-full"
+                              >
+                                <HotDealsListingCard
+                                  {...deal}
+                                  isFavorite={favorites.has(deal.id)}
+                                  onFavorite={handleFavoriteToggle}
+                                  showSeller={true}
+                                  showSocials={true}
+                                  className="w-full"
+                                />
+                              </motion.div>
+                            ))}
                           </CardsCarousel>
                         ) : (
                           <div className="flex items-center justify-center py-10">

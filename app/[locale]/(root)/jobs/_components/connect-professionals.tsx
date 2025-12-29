@@ -8,10 +8,16 @@ import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import JobsSectionTitle from "./jobs-section-title";
-import { Check } from "lucide-react";
-import { useMyConnections, useSendConnectionRequest, useRemoveConnection } from "@/hooks/useConnections";
+import { Check, MapPin } from "lucide-react";
+import {
+  useSendConnectionRequest,
+  useRemoveConnection,
+  useAcceptConnectionRequest,
+  useCancelConnectionRequest,
+} from "@/hooks/useConnections";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
+import { containerVariants, itemVariants } from "@/utils/animation-variants";
 
 // Professional/Jobseeker interface matching API response
 export interface Professional {
@@ -25,31 +31,6 @@ export interface Professional {
   image?: string;
   isVerified?: boolean;
 }
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 22,
-    },
-  },
-};
 
 interface ProfessionalCardProps {
   professional: Professional;
@@ -94,45 +75,24 @@ function ProfessionalCard({
       </div>
 
       {/* Name */}
-      <Link 
-        href={`/jobs/jobseeker/${_id}`}
-        className="text-center"
-      >
+      <Link href={`/jobs/jobseeker/${_id}`} className="text-center">
         <Typography
           variant="h3"
-          className="text-dark-blue font-bold text-lg text-center group-hover:text-purple transition-colors cursor-pointer"
+          className="line-clamp-1 text-dark-blue font-bold text-lg text-center group-hover:text-purple transition-colors cursor-pointer"
         >
           {name}
         </Typography>
       </Link>
 
-
       {/* Location */}
       <div className="flex items-center gap-1.5">
-        <svg
-          className="w-4 h-4 text-grey-blue"
-          fill="none"
+        <MapPin
+          size={16}
           stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-        </svg>
-        <Typography
-          variant="body-small"
-          className="text-grey-blue text-sm"
-        >
-          {location}
+          className="w-4 h-4 text-grey-blue"
+        />
+        <Typography variant="body-small" className="text-grey-blue text-sm">
+          {location || "Not Specified"}
         </Typography>
       </div>
 
@@ -150,11 +110,11 @@ function ProfessionalCard({
 
       {/* Connect Button */}
       <Button
-        onClick={() => onConnect?.(_id)}
+        onClick={() => onConnect?.(professional.userId)}
         className="w-full rounded-lg py-2.5 font-semibold transition-all"
         variant={isConnected ? "outline" : "primary"}
         width="full"
-        icon={isConnected && <Check className="w-4 h-4" /> }
+        icon={isConnected && <Check className="w-4 h-4" />}
         iconPosition="left"
       >
         {isConnected ? "Connected" : "Connect"}
@@ -168,9 +128,9 @@ interface ConnectProfessionalsProps {
   isLoading?: boolean;
 }
 
-export default function ConnectProfessionals({ 
-  professionals: professionalsProp, 
-  isLoading: isLoadingProp 
+export default function ConnectProfessionals({
+  professionals: professionalsProp,
+  isLoading: isLoadingProp,
 }: ConnectProfessionalsProps = {}) {
   // Only use API data, no fallback
   const professionals = professionalsProp || [];
@@ -180,54 +140,31 @@ export default function ConnectProfessionals({
   const { session } = useAuthStore();
   const currentUserId = session?.user?._id;
 
-  // Fetch user's connections
-  const { data: connectionsData } = useMyConnections('ACCEPTED');
+  // Mutation hooks - only call APIs when user clicks connect
   const sendRequestMutation = useSendConnectionRequest();
-  const removeConnectionMutation = useRemoveConnection();
-
-  // Create a map of connected user IDs for quick lookup
-  // Only include the OTHER user in the connection (not the current user)
-  const connectedUserIds = useMemo(() => {
-    const connectedSet = new Set<string>();
-    if (connectionsData?.data?.items && currentUserId) {
-      connectionsData.data.items.forEach((connection) => {
-        // If current user is the sender, the connected user is the receiver
-        if (connection.fromUserId === currentUserId && connection.toUserId) {
-          connectedSet.add(connection.toUserId);
-        }
-        // If current user is the receiver, the connected user is the sender
-        if (connection.toUserId === currentUserId && connection.fromUserId) {
-          connectedSet.add(connection.fromUserId);
-        }
-      });
-    }
-    return connectedSet;
-  }, [connectionsData, currentUserId]);
+  
 
   const handleConnect = async (userId: string) => {
-    const isConnected = connectedUserIds.has(userId);
-    
+    if (!currentUserId) {
+      toast.error("Please log in to connect with professionals");
+      return;
+    }
+
+    // Find the professional to check current connection status
+    const professional = professionals.find((p) => p.userId === userId);
+    const isConnected = professional?.userId === currentUserId;
+
     if (isConnected) {
-      // Find the connection ID to remove
-      const connection = connectionsData?.data?.items?.find(
-        (conn) => conn.fromUserId === userId || conn.toUserId === userId
-      );
-      
-      if (connection) {
-        try {
-          await removeConnectionMutation.mutateAsync(connection.id);
-          toast.success('Connection removed successfully');
-        } catch {
-          toast.error('Failed to remove connection');
-        }
-      }
+      // TODO: Need connection ID to remove - will need to fetch when needed
+      // For now, show error that this needs to be implemented
+      toast.error("Remove connection functionality needs connection ID");
     } else {
-      // Send connection request
+      // Send new connection request
       try {
         await sendRequestMutation.mutateAsync({ receiverId: userId });
-        toast.success('Connection request sent');
-      } catch {
-        toast.error('Failed to send connection request');
+        toast.success("Connection request sent");
+      } catch (error) {
+        toast.error("Failed to send connection request");
       }
     }
   };
@@ -290,22 +227,24 @@ export default function ConnectProfessionals({
 
         {/* Professionals Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
-          {professionals.slice(0, 4).map((professional) => (
-            <motion.div
-              key={professional._id}
-              variants={itemVariants}
-              className="w-full"
-            >
-              <ProfessionalCard
-                professional={professional}
-                onConnect={handleConnect}
-                isConnected={connectedUserIds.has(professional.userId)}
-              />
-            </motion.div>
-          ))}
+          {professionals.slice(0, 4).map((professional) => {
+            const isConnected = professional.userId === currentUserId;
+            return (
+              <motion.div
+                key={professional._id}
+                variants={itemVariants}
+                className="w-full"
+              >
+                <ProfessionalCard
+                  professional={professional}
+                  onConnect={handleConnect}
+                  isConnected={isConnected}
+                />
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </motion.section>
   );
 }
-

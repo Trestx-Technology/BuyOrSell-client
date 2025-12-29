@@ -9,10 +9,6 @@ import {
   ChevronLeft,
   ChevronRight,
   MapPin,
-  Calendar,
-  Gauge,
-  Zap,
-  Fuel,
   ImageIcon,
   CircleUser,
   Clock,
@@ -20,6 +16,13 @@ import {
 import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
 import { ProductExtraFields } from "@/interfaces/ad";
+import { PriceDisplay } from "@/components/global/price-display";
+import {
+  SpecificationsDisplay,
+  Specification,
+} from "@/components/global/specifications-display";
+import { useMemo } from "react";
+import { getSpecifications } from "@/utils/normalize-extra-fields";
 
 export interface HorizontalListingCardProps {
   id: string;
@@ -84,42 +87,17 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
   onClick,
   className,
 }) => {
-  // Ensure extraFields exists and normalize to object format
-  const safeExtraFields = (() => {
-    if (!extraFields) return {};
-    // If it's already an object, return it
-    if (!Array.isArray(extraFields)) {
-      return extraFields as Record<string, string | number | boolean | string[] | null>;
-    }
-    // If it's an array, convert to object
-    const flatFields: Record<string, string | number | boolean | string[] | null> = {};
-    extraFields.forEach((field) => {
-      if (field && typeof field === 'object' && 'name' in field && 'value' in field) {
-        flatFields[field.name] = field.value;
-      }
-    });
-    return flatFields;
-  })();
+  // Dynamically extract specifications from extraFields
+  const specifications = useMemo((): Specification[] => {
+    const specsFromFields = getSpecifications(extraFields, 4); // Limit to 4 for display
+    return specsFromFields.map((spec) => ({
+      name: spec.name,
+      value: spec.value,
+      icon: spec.icon, // Use icon from extraFields if available
+    }));
+  }, [extraFields]);
 
-  // Helper function to get field value from extraFields
-  const getFieldValue = (fieldName: string): string | number | undefined => {
-    if (!safeExtraFields) return undefined;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const value = (safeExtraFields as Record<string, any>)[fieldName];
-    if (value === undefined || value === null) return undefined;
-    if (typeof value === "string" || typeof value === "number") return value;
-    if (Array.isArray(value)) return value.join(", ");
-    if (typeof value === "boolean") return value ? "Yes" : "No";
-    return String(value);
-  };
-
-  // Extract commonly used fields - try multiple field name variations
-  const transmission = getFieldValue("Transmission Type") || getFieldValue("transmission") || getFieldValue("Transmission");
-  const fuelType = getFieldValue("Fule Type") || getFieldValue("Fuel Type") || getFieldValue("fuelType") || getFieldValue("fuel");
-  const mileage = getFieldValue("Mileage") || getFieldValue("mileage");
-  const year = getFieldValue("Year") || getFieldValue("year");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
 
@@ -144,7 +122,9 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
       setTimeLeft(
-        `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+        `${hours.toString().padStart(2, "0")}:${minutes
+          .toString()
+          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
       );
     };
 
@@ -187,20 +167,10 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
     onClick?.(id);
   };
 
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
   return (
     <div
       role="button"
       className={`overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
     >
       <div className="flex h-[157px]">
@@ -241,7 +211,7 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
           )}
 
           {/* Premium Badge */}
-          {!showDiscountBadge && isPremium && (
+          {isPremium && (
             <div className="absolute top-2 left-2">
               <Image
                 src={"/premium.svg"}
@@ -272,14 +242,15 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
           )}
           {/* Favorite Button */}
           <button
-            className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 hover:scale-125 transition-all cursor-pointer"
+            className="absolute top-2 text-slate-700 right-2 h-8 w-8 hover:scale-125 transition-all cursor-pointer"
             onClick={handleFavorite}
           >
             <Heart
               size={22}
-              stroke="white"
               className={` ${
-                isFavorite ? "fill-red-500 text-red-500" : "fill-white"
+                isFavorite
+                  ? "fill-red-500 text-red-500"
+                  : "text-slate-300 fill-white stroke-1"
               }`}
             />
           </button>
@@ -305,13 +276,13 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
           )}
 
           {/* Navigation Arrows */}
-          {images.length > 1 && isHovered && (
+          {images.length > 1 && (
             <>
               <Button
                 size="sm"
                 variant="secondary"
                 disabled={isTransitioning}
-                className={`absolute left-1 top-1/2 transform -translate-y-1/2 h-6 w-6 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity opacity-0 group-hover:opacity-100`}
+                className={`absolute left-1 top-1/2 transform -translate-y-1/2 h-6 w-6 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity`}
                 onClick={handlePreviousImage}
               >
                 <ChevronLeft className="h-3 w-3" />
@@ -320,7 +291,7 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
                 size="sm"
                 variant="secondary"
                 disabled={isTransitioning}
-                className={`absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity opacity-0 group-hover:opacity-100`}
+                className={`absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity`}
                 onClick={handleNextImage}
               >
                 <ChevronRight className="h-3 w-3" />
@@ -367,76 +338,29 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
 
           {/* Price Section */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Image
-                src={ICONS.currency.aed}
-                alt="AED"
-                width={16}
-                height={16}
-              />
-              <span className="text-sm font-bold text-purple">
-                {formatPrice(price).replace("AED", "").trim()}
-              </span>
-              {originalPrice && (
-                <span className="text-sm text-grey-blue line-through">
-                  {formatPrice(originalPrice).replace("AED", "").trim()}
-                </span>
-              )}
-              {discount && (
-                <span className="text-sm text-teal font-bold">{discount}%</span>
-              )}
-            </div>
+            <PriceDisplay
+              price={price}
+              originalPrice={originalPrice}
+              discountPercentage={discount}
+              currencyIconWidth={16}
+              currencyIconHeight={16}
+              className="gap-2"
+              currentPriceClassName="text-sm font-bold text-purple"
+              originalPriceClassName="text-sm text-grey-blue line-through"
+              discountBadgeClassName="text-sm text-teal font-bold"
+            />
           </div>
 
-          {/* Specifications Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-            {transmission && (
-              <div className="flex items-center gap-1">
-                <Zap className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(transmission)}
-                </Typography>
-              </div>
-            )}
-            {fuelType && (
-              <div className=" flex items-center gap-1">
-                <Fuel className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(fuelType)}
-                </Typography>
-              </div>
-            )}
-
-            {mileage && (
-              <div className="flex items-center gap-1">
-                <Gauge className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(mileage)}
-                </Typography>
-              </div>
-            )}
-
-            {year && (
-              <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4 text-[#667085]" />
-                <Typography
-                  variant="body-small"
-                  className="text-xs text-[#667085] truncate"
-                >
-                  {String(year)}
-                </Typography>
-              </div>
-            )}
-          </div>
+          {/* Specifications */}
+          {specifications.length > 0 && (
+            <SpecificationsDisplay
+              specifications={specifications}
+              maxVisible={4}
+              showPopover={false}
+              className="grid grid-cols-2 lg:grid-cols-4 gap-2"
+              itemClassName="text-[#667085]"
+            />
+          )}
 
           {/* Location */}
           <div className="flex items-center gap-1">
@@ -477,8 +401,8 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
               <span className="text-xs text-grey-blue">{postedTime}</span>
             </div>
           </div>
-          <Button 
-            size={"default"} 
+          <Button
+            size={"default"}
             className="max-w-[117px]"
             onClick={(e) => {
               e.stopPropagation();

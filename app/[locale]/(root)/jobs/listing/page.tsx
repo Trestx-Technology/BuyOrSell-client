@@ -10,7 +10,12 @@ import { Bell, ChevronLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import JobsFilter from "./_components/jobs-filter";
 import { useAds, useFilterAds, useAdById } from "@/hooks/useAds";
-import { AD, AdFilterPayload, AdFilters, ProductExtraField } from "@/interfaces/ad";
+import {
+  AD,
+  AdFilterPayload,
+  AdFilters,
+  ProductExtraField,
+} from "@/interfaces/ad";
 import { formatDistanceToNow } from "date-fns";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
 import JobListingCard from "./_components/job-listing-card";
@@ -18,77 +23,9 @@ import JobHeaderCard from "./_components/job-header-card";
 import JobDetailContent from "./_components/job-detail-content";
 import Disclaimer from "./_components/disclaimer";
 import Pagination from "@/components/global/pagination";
+import { defaultJobFilters } from "@/constants/job.constants";
 
 const ITEMS_PER_PAGE = 12;
-
-// Default filter configuration for jobs
-const defaultJobFilters: FilterConfig[] = [
-  {
-    key: "location",
-    label: "Location",
-    type: "select",
-    options: [
-      { value: "dubai", label: "Dubai" },
-      { value: "abu-dhabi", label: "Abu Dhabi" },
-      { value: "sharjah", label: "Sharjah" },
-      { value: "ajman", label: "Ajman" },
-      { value: "ras-al-khaimah", label: "Ras Al Khaimah" },
-      { value: "fujairah", label: "Fujairah" },
-      { value: "umm-al-quwain", label: "Umm Al Quwain" },
-    ],
-    placeholder: "Dubai",
-  },
-  {
-    key: "salary",
-    label: "Salary Range",
-    type: "select",
-    options: [
-      { value: "under-10k", label: "Under 10,000" },
-      { value: "10k-20k", label: "10,000 - 20,000" },
-      { value: "20k-30k", label: "20,000 - 30,000" },
-      { value: "30k-50k", label: "30,000 - 50,000" },
-      { value: "50k-100k", label: "50,000 - 100,000" },
-      { value: "over-100k", label: "Over 100,000" },
-    ],
-    placeholder: "Select Salary Range",
-  },
-  {
-    key: "jobType",
-    label: "Job Type",
-    type: "select",
-    options: [
-      { value: "full-time", label: "Full Time" },
-      { value: "part-time", label: "Part Time" },
-      { value: "contract", label: "Contract" },
-      { value: "temporary", label: "Temporary" },
-      { value: "internship", label: "Internship" },
-    ],
-    placeholder: "Any Type",
-  },
-  {
-    key: "workMode",
-    label: "Work Mode",
-    type: "select",
-    options: [
-      { value: "remote", label: "Remote" },
-      { value: "on-site", label: "On-Site" },
-      { value: "hybrid", label: "Hybrid" },
-    ],
-    placeholder: "Any Mode",
-  },
-  {
-    key: "experience",
-    label: "Experience",
-    type: "select",
-    options: [
-      { value: "entry", label: "Entry Level" },
-      { value: "mid", label: "Mid Level" },
-      { value: "senior", label: "Senior Level" },
-      { value: "executive", label: "Executive" },
-    ],
-    placeholder: "Any Experience",
-  },
-];
 
 // Helper function to safely get string value from filter
 const getFilterString = (value: string | string[] | undefined): string => {
@@ -98,9 +35,10 @@ const getFilterString = (value: string | string[] | undefined): string => {
 
 export default function JobsListingPage() {
   const searchParams = useSearchParams();
-  const urlQuery = searchParams.get("query") || searchParams.get("search") || "";
+  const urlQuery =
+    searchParams.get("query") || searchParams.get("search") || "";
   const urlLocation = searchParams.get("location") || "";
-  
+
   const [searchQuery, setSearchQuery] = useState(urlQuery);
   const [locationQuery, setLocationQuery] = useState(urlLocation);
   const [filters, setFilters] = useState<Record<string, string | string[]>>({
@@ -111,7 +49,9 @@ export default function JobsListingPage() {
     experience: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [savedExtraFields, setSavedExtraFields] = useState<ProductExtraField[]>([]);
+  const [savedExtraFields, setSavedExtraFields] = useState<ProductExtraField[]>(
+    []
+  );
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
   // Initialize search query and location from URL params
@@ -157,10 +97,16 @@ export default function JobsListingPage() {
             experience: getFilterString(prevFilters.experience),
           };
           normalized.forEach((field) => {
-            if (field.optionalArray && Array.isArray(field.optionalArray) && field.optionalArray.length > 0) {
+            if (
+              field.optionalArray &&
+              Array.isArray(field.optionalArray) &&
+              field.optionalArray.length > 0
+            ) {
               // Only add if not already in default filters
               if (!newFilters[field.name]) {
-                newFilters[field.name] = getFilterString(prevFilters[field.name]);
+                newFilters[field.name] = getFilterString(
+                  prevFilters[field.name]
+                );
               }
             }
           });
@@ -172,9 +118,12 @@ export default function JobsListingPage() {
 
   // Generate dynamic filter config from extraFields
   const dynamicFilterConfig = useMemo(() => {
-    const extraFields = savedExtraFields.length > 0 
-      ? savedExtraFields 
-      : (firstJob?.extraFields ? normalizeExtraFieldsToArray(firstJob.extraFields) : []);
+    const extraFields =
+      savedExtraFields.length > 0
+        ? savedExtraFields
+        : firstJob?.extraFields
+        ? normalizeExtraFieldsToArray(firstJob.extraFields)
+        : [];
 
     const dynamicFilters: FilterConfig[] = extraFields
       .filter((field) => {
@@ -183,18 +132,22 @@ export default function JobsListingPage() {
           field.optionalArray &&
           Array.isArray(field.optionalArray) &&
           field.optionalArray.length > 0 &&
-          field.type !== 'bool'
+          field.type !== "bool"
         );
       })
       .map((field) => {
         const options = field.optionalArray!.map((value) => ({
           value: String(value),
-          label: String(value).charAt(0).toUpperCase() + String(value).slice(1).replace(/-/g, " "),
+          label:
+            String(value).charAt(0).toUpperCase() +
+            String(value).slice(1).replace(/-/g, " "),
         }));
 
         return {
           key: field.name,
-          label: field.name.charAt(0).toUpperCase() + field.name.slice(1).replace(/([A-Z])/g, " $1"),
+          label:
+            field.name.charAt(0).toUpperCase() +
+            field.name.slice(1).replace(/([A-Z])/g, " $1"),
           type: "select" as const,
           options,
           placeholder: `Select ${field.name}`,
@@ -208,8 +161,7 @@ export default function JobsListingPage() {
   // Check if any filters are active
   const hasActiveFilters = useMemo(() => {
     return !!(
-      searchQuery ||
-      Object.values(filters).some((value) => value !== "")
+      searchQuery || Object.values(filters).some((value) => value !== "")
     );
   }, [searchQuery, filters]);
 
@@ -244,7 +196,7 @@ export default function JobsListingPage() {
     if (searchQuery) payload.search = searchQuery;
     const locationFilter = getFilterString(filters.location) || locationQuery;
     if (locationFilter) payload.city = locationFilter;
-    
+
     // Parse salary range
     const salaryFilter = getFilterString(filters.salary);
     if (salaryFilter) {
@@ -268,7 +220,10 @@ export default function JobsListingPage() {
     }
 
     // Add default job filters to extraFields
-    const extraFieldsFilters: Record<string, string | string[] | number | boolean> = {};
+    const extraFieldsFilters: Record<
+      string,
+      string | string[] | number | boolean
+    > = {};
     const jobTypeFilter = getFilterString(filters.jobType);
     if (jobTypeFilter) extraFieldsFilters.jobType = jobTypeFilter;
     const workModeFilter = getFilterString(filters.workMode);
@@ -279,7 +234,12 @@ export default function JobsListingPage() {
     // Add dynamic extraFields filters (from first job's extraFields)
     Object.entries(filters).forEach(([key, value]) => {
       // Skip default filters that are already handled
-      if (!["location", "salary", "jobType", "workMode", "experience"].includes(key) && value) {
+      if (
+        !["location", "salary", "jobType", "workMode", "experience"].includes(
+          key
+        ) &&
+        value
+      ) {
         extraFieldsFilters[key] = value;
       }
     });
@@ -299,8 +259,11 @@ export default function JobsListingPage() {
       getFilterString(filters.jobType) ||
       getFilterString(filters.workMode) ||
       getFilterString(filters.experience) ||
-      Object.entries(filters).some(([key, value]) => 
-        !["location", "salary", "jobType", "workMode", "experience"].includes(key) && value
+      Object.entries(filters).some(
+        ([key, value]) =>
+          !["location", "salary", "jobType", "workMode", "experience"].includes(
+            key
+          ) && value
       )
     );
   }, [filters]);
@@ -314,15 +277,18 @@ export default function JobsListingPage() {
   );
 
   const { data: regularAdsData, isLoading: isRegularLoading } = useAds(
-    !hasComplexFilters && !hasActiveFilters
-      ? adsParams
-      : undefined
+    !hasComplexFilters && !hasActiveFilters ? adsParams : undefined
   );
 
-  const adsData = (hasComplexFilters || hasActiveFilters) ? filterAdsData : regularAdsData;
-  const isLoading = (hasComplexFilters || hasActiveFilters) ? isFilterLoading : isRegularLoading;
+  const adsData =
+    hasComplexFilters || hasActiveFilters ? filterAdsData : regularAdsData;
+  const isLoading =
+    hasComplexFilters || hasActiveFilters ? isFilterLoading : isRegularLoading;
 
-  const jobs = useMemo(() => (adsData?.data?.adds || []) as AD[], [adsData?.data?.adds]);
+  const jobs = useMemo(
+    () => (adsData?.data?.adds || []) as AD[],
+    [adsData?.data?.adds]
+  );
   const totalItems = adsData?.data?.total || jobs.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
@@ -334,9 +300,11 @@ export default function JobsListingPage() {
   }, [jobs.length, selectedJobId, jobs]);
 
   // Fetch job details by ID using API
-  const { data: jobResponse, isLoading: isJobLoading, error: jobError } = useAdById(
-    selectedJobId || ""
-  );
+  const {
+    data: jobResponse,
+    isLoading: isJobLoading,
+    error: jobError,
+  } = useAdById(selectedJobId || "");
   const selectedJob = jobResponse?.data;
 
   const handleFilterChange = (key: string, value: string | string[]) => {
@@ -359,7 +327,11 @@ export default function JobsListingPage() {
     // Clear all dynamic filters from extraFields
     dynamicFilterConfig.forEach((config) => {
       // Skip default filters
-      if (!["location", "salary", "jobType", "workMode", "experience"].includes(config.key)) {
+      if (
+        !["location", "salary", "jobType", "workMode", "experience"].includes(
+          config.key
+        )
+      ) {
         clearedFilters[config.key] = "";
       }
     });
@@ -376,30 +348,33 @@ export default function JobsListingPage() {
   };
 
   // Helper function to extract salary from AD extraFields
-  const getSalaryFromAd = useCallback((ad: AD, type: "min" | "max"): number | null => {
-    if (!ad.extraFields) return null;
-    
-    const extraFields = Array.isArray(ad.extraFields)
-      ? ad.extraFields
-      : Object.entries(ad.extraFields).map(([name, value]) => ({
-          name,
-          value,
-        }));
+  const getSalaryFromAd = useCallback(
+    (ad: AD, type: "min" | "max"): number | null => {
+      if (!ad.extraFields) return null;
 
-    const salaryField = extraFields.find(
-      (field) =>
-        field.name?.toLowerCase().includes("salary") &&
-        (type === "min"
-          ? field.name?.toLowerCase().includes("min")
-          : field.name?.toLowerCase().includes("max"))
-    );
+      const extraFields = Array.isArray(ad.extraFields)
+        ? ad.extraFields
+        : Object.entries(ad.extraFields).map(([name, value]) => ({
+            name,
+            value,
+          }));
 
-    if (salaryField && typeof salaryField.value === "number") {
-      return salaryField.value;
-    }
+      const salaryField = extraFields.find(
+        (field) =>
+          field.name?.toLowerCase().includes("salary") &&
+          (type === "min"
+            ? field.name?.toLowerCase().includes("min")
+            : field.name?.toLowerCase().includes("max"))
+      );
 
-    return null;
-  }, []);
+      if (salaryField && typeof salaryField.value === "number") {
+        return salaryField.value;
+      }
+
+      return null;
+    },
+    []
+  );
 
   // Transform AD to JobCard props
   const transformAdToJobCardProps = (ad: AD) => {
@@ -416,8 +391,8 @@ export default function JobsListingPage() {
         }));
 
     const getFieldValue = (fieldName: string): string => {
-      const field = extraFields.find(
-        (f) => f.name?.toLowerCase().includes(fieldName.toLowerCase())
+      const field = extraFields.find((f) =>
+        f.name?.toLowerCase().includes(fieldName.toLowerCase())
       );
       if (field) {
         if (Array.isArray(field.value)) {
@@ -428,7 +403,8 @@ export default function JobsListingPage() {
       return "";
     };
 
-    const jobType = getFieldValue("jobType") || getFieldValue("job type") || "Not specified";
+    const jobType =
+      getFieldValue("jobType") || getFieldValue("job type") || "Not specified";
     const experience = getFieldValue("experience") || "Not specified";
 
     // Extract salary from extraFields or use price
@@ -496,7 +472,7 @@ export default function JobsListingPage() {
       </div>
 
       <div className="w-full mx-auto py-6">
-        <div className="hidden sm:block mb-6 "  >
+        <div className="hidden sm:block mb-6 ">
           <Breadcrumbs items={breadcrumbItems} showSelectCategoryLink={false} />
         </div>
 
@@ -561,36 +537,40 @@ export default function JobsListingPage() {
                 </div>
 
                 {/* Right Column - Job Detail View */}
-                  {selectedJobId && (
-                    <div className="space-y-6">
-                      {isJobLoading ? (
-                        <div className="text-center py-12">
-                          <Typography variant="body" className="text-gray-500">
-                            Loading job details...
-                          </Typography>
-                        </div>
-                      ) : jobError || !selectedJob ? (
-                        <div className="text-center py-12">
-                          <Typography variant="body" className="text-red-500">
-                            {jobError ? "Failed to load job details" : "Job not found"}
-                          </Typography>
-                        </div>
-                      ) : selectedJob ? (
-                        <>
-                          <JobHeaderCard
-                            job={selectedJob}
-                            transformAdToJobCardProps={transformAdToJobCardProps}
-                            onFavorite={(id: string) => console.log("Favorited:", id)}
-                            onShare={(id: string) => console.log("Shared:", id)}
-                            isFavorite={false}
-                          />
-                          <JobDetailContent job={selectedJob} />
-                          <Disclaimer />
-                        </>
-                      ) : null}
-                    </div>
-                  )}
-                </div>
+                {selectedJobId && (
+                  <div className="space-y-6">
+                    {isJobLoading ? (
+                      <div className="text-center py-12">
+                        <Typography variant="body" className="text-gray-500">
+                          Loading job details...
+                        </Typography>
+                      </div>
+                    ) : jobError || !selectedJob ? (
+                      <div className="text-center py-12">
+                        <Typography variant="body" className="text-red-500">
+                          {jobError
+                            ? "Failed to load job details"
+                            : "Job not found"}
+                        </Typography>
+                      </div>
+                    ) : selectedJob ? (
+                      <>
+                        <JobHeaderCard
+                          job={selectedJob}
+                          transformAdToJobCardProps={transformAdToJobCardProps}
+                          onFavorite={(id: string) =>
+                            console.log("Favorited:", id)
+                          }
+                          onShare={(id: string) => console.log("Shared:", id)}
+                          isFavorite={false}
+                        />
+                        <JobDetailContent job={selectedJob} />
+                        <Disclaimer />
+                      </>
+                    ) : null}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -598,4 +578,3 @@ export default function JobsListingPage() {
     </div>
   );
 }
-

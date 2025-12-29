@@ -30,7 +30,7 @@ const ProductInfoTabs: React.FC<ProductInfoTabsProps> = ({
     { id: "specifications" as TabType, label: t.ad.tabs.specifications },
     { id: "location" as TabType, label: t.ad.tabs.location },
     { id: "reviews" as TabType, label: t.ad.tabs.reviews },
-    { id: "similar-cars" as TabType, label: t.ad.tabs.similarCars },
+    // { id: "similar-cars" as TabType, label: t.ad.tabs.similarCars },
   ];
 
   const handleTabClick = (tabId: TabType) => {
@@ -49,14 +49,22 @@ const ProductInfoTabs: React.FC<ProductInfoTabsProps> = ({
           onClick={() => handleTabClick(tab.id)}
           className={`
               py-2 rounded-none h-12 cursor-pointer transition-all duration-200 flex items-center justify-center whitespace-nowrap flex-shrink-0
-              ${activeTab === tab.id ? "text-purple border-b-2 border-purple" : ""}
+              ${
+                activeTab === tab.id
+                  ? "text-purple border-b-2 border-purple"
+                  : ""
+              }
             `}
         >
           <Typography
             variant="body-small"
             className={`
                 text-xs font-medium uppercase hover:text-purple
-                ${activeTab === tab.id ? "text-purple font-semibold" : "text-dark-blue"}
+                ${
+                  activeTab === tab.id
+                    ? "text-purple font-semibold"
+                    : "text-dark-blue"
+                }
               `}
           >
             {tab.label}

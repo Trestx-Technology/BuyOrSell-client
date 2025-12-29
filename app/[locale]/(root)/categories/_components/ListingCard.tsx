@@ -25,6 +25,11 @@ import { FaWhatsapp } from "react-icons/fa";
 import Link from "next/link";
 import { ProductExtraFields } from "@/interfaces/ad";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
+import {
+  SpecificationsDisplay,
+  Specification,
+} from "@/components/global/specifications-display";
+import { useMemo } from "react";
 
 export interface ListingCardProps {
   id: string;
@@ -69,8 +74,15 @@ const ListingCard: React.FC<ListingCardProps> = ({
   showSeller,
   showSocials,
 }) => {
-  // Get specifications from extraFields (limit to 4 for display)
-  const specifications = getSpecifications(extraFields, 4);
+  // Get specifications from extraFields and transform to Specification[] format
+  const specifications = useMemo((): Specification[] => {
+    const specsFromFields = getSpecifications(extraFields, 4);
+    return specsFromFields.map((spec) => ({
+      name: spec.name,
+      value: spec.value,
+      icon: spec.icon,
+    }));
+  }, [extraFields]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -327,67 +339,17 @@ const ListingCard: React.FC<ListingCardProps> = ({
             </Typography>
           </div>
 
-          {/* Dynamic Specs - First row (max 2 specs) */}
+          {/* Dynamic Specs */}
           {specifications.length > 0 && (
-            <div className="hidden sm:flex items-center gap-4 px-2.5">
-              {specifications
-                .slice(0, 2)
-                .map((spec: { name: string; value: string; icon?: string }) => (
-                  <div
-                    key={spec.name}
-                    className="w-full flex items-center gap-1"
-                  >
-                    {spec.icon ? (
-                      <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
-                        <Image
-                          src={spec.icon}
-                          alt={spec.name}
-                          width={16}
-                          height={16}
-                          className="w-4 h-4 object-contain"
-                        />
-                      </div>
-                    ) : null}
-                    <Typography
-                      variant="body-small"
-                      className="text-xs text-[#667085] truncate"
-                    >
-                      {spec.value}
-                    </Typography>
-                  </div>
-                ))}
-            </div>
-          )}
-
-          {/* Dynamic Specs - Second row (max 2 specs) */}
-          {specifications.length > 2 && (
-            <div className="hidden sm:flex items-center gap-4 px-2.5">
-              {specifications
-                .slice(2, 4)
-                .map((spec: { name: string; value: string; icon?: string }) => (
-                  <div
-                    key={spec.name}
-                    className="w-full flex items-center gap-1"
-                  >
-                    {spec.icon ? (
-                      <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
-                        <Image
-                          src={spec.icon}
-                          alt={spec.name}
-                          width={16}
-                          height={16}
-                          className="w-4 h-4 object-contain"
-                        />
-                      </div>
-                    ) : null}
-                    <Typography
-                      variant="body-small"
-                      className="text-xs text-[#667085] truncate"
-                    >
-                      {spec.value}
-                    </Typography>
-                  </div>
-                ))}
+            <div className="hidden sm:block px-2.5">
+              <SpecificationsDisplay
+                specifications={specifications}
+                maxVisible={4}
+                showPopover={false}
+                className="flex flex-wrap items-center gap-4"
+                itemClassName="text-[#667085]"
+                truncate={true}
+              />
             </div>
           )}
 

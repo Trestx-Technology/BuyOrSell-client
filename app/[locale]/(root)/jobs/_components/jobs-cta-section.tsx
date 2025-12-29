@@ -50,10 +50,8 @@ function CTACard({
   return (
     <motion.div
       variants={cardVariants}
-      className={`w-[530px] p-6 h-[202px] rounded-2xl border-[0.5px] border-[#E2E2E2] shadow-[0px_2.67px_7.11px_0px_rgba(48,150,137,0.08)] ${
-        isJobSeekers
-          ? "bg-[#F2F4F7]"
-          : "bg-purple"
+      className={`max-w-[530px] w-full p-6 h-[202px] rounded-2xl border-[0.5px] border-[#E2E2E2] shadow-[0px_2.67px_7.11px_0px_rgba(48,150,137,0.08)] ${
+        isJobSeekers ? "bg-[#F2F4F7]" : "bg-purple"
       } relative overflow-hidden`}
     >
       {/* Title - positioned at x:26, y:30.5 */}
@@ -67,7 +65,7 @@ function CTACard({
           {title}
         </Typography>
 
-      {/* Description - positioned at x:26, y:62.5 */}
+        {/* Description - positioned at x:26, y:62.5 */}
         <Typography
           variant="body-small"
           className={`text-xs font-normal leading-[1.5] ${
@@ -105,7 +103,7 @@ export default function JobsCTASection() {
       viewport={{ once: true, margin: "-100px" }}
       className="w-full bg-white"
     >
-      <div className="w-full flex items-center justify-center gap-6 py-10 px-[100px] flex-wrap">
+      <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 py-10">
         <CTACard
           title="For Job Seekers"
           description="Finding jobs on BuyOrSell is easier than ever. Download the mobile apps to your smartphone device and enjoy for free!"
@@ -124,4 +122,3 @@ export default function JobsCTASection() {
     </motion.section>
   );
 }
-

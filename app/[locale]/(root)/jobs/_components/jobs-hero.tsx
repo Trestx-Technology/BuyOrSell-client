@@ -16,7 +16,9 @@ import { useRouter } from "next/navigation";
 
 export default function JobsHero() {
   const router = useRouter();
-  const [searchType, setSearchType] = useState<"job" | "candidate">("candidate");
+  const [searchType, setSearchType] = useState<"job" | "candidate">(
+    "candidate"
+  );
   const [jobTitle, setJobTitle] = useState("");
   const [location, setLocation] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -38,7 +40,7 @@ export default function JobsHero() {
     } else {
       router.push(`/jobs/jobseeker?${params.toString()}`);
     }
-    
+
     // Reset loading state after navigation
     setTimeout(() => setIsSearching(false), 500);
   };
@@ -131,7 +133,7 @@ export default function JobsHero() {
               {/* Search Button */}
               <Button
                 onClick={handleSearch}
-                disabled={isSearching || !jobTitle.trim()}
+                disabled={isSearching}
                 icon={
                   isSearching ? (
                     <Loader2 className="w-[24.22px] h-[24.22px] animate-spin" />
@@ -146,8 +148,8 @@ export default function JobsHero() {
                   {isSearching
                     ? "Searching..."
                     : searchType === "job"
-                      ? "Search Job"
-                      : "Search Candidate"}
+                    ? "Search Job"
+                    : "Search Candidate"}
                 </span>
               </Button>
             </div>
@@ -157,4 +159,3 @@ export default function JobsHero() {
     </section>
   );
 }
-
