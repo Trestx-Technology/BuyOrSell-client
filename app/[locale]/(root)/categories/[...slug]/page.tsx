@@ -22,6 +22,8 @@ import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { AdFilters, AD } from "@/interfaces/ad";
 import { FilterConfig } from "../_components/ads-filter";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
+import { Container1280 } from "@/components/layouts/container-1280";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -558,7 +560,7 @@ export default function CategoryListingPage() {
   const totalPages = Math.ceil(totalAds / ITEMS_PER_PAGE);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Container1080>
       {/* Mobile Header */}
       <div className="w-full bg-purple sm:hidden p-4 space-y-4">
         <div className="flex items-center justify-between">
@@ -740,6 +742,6 @@ export default function CategoryListingPage() {
           />
         )}
       </div>
-    </div>
+    </Container1080>
   );
 }

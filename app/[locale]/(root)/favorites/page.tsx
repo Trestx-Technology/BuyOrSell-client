@@ -13,6 +13,7 @@ import { AD } from "@/interfaces/ad";
 import { useGetMyCollections } from "@/hooks/useCollections";
 import { useQueryClient } from "@tanstack/react-query";
 import { collectionsQueries } from "@/app/api/collections/index";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 export default function FavoritesPage() {
   const { t } = useLocale();
@@ -105,7 +106,7 @@ export default function FavoritesPage() {
   const isLoading = isLoadingCollections;
 
   return (
-    <div className="w-full space-y-8 sm:py-4">
+    <Container1080 className="py-8 flex flex-col">
       {/* Header */}
       <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
         <Button
@@ -301,6 +302,6 @@ export default function FavoritesPage() {
           </div>
         </div> */}
       </div>
-    </div>
+    </Container1080>
   );
 }

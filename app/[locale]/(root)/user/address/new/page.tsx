@@ -5,12 +5,13 @@ import Link from "next/link";
 import React from "react";
 import AddAddressForm from "../../_components/add-address-form";
 import { useLocale } from "@/hooks/useLocale";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 const page = () => {
   const { t, localePath } = useLocale();
 
   return (
-    <div className="min-h-screen w-full bg-gray-50 flex flex-col gap-5 py-8">
+    <Container1080 className="min-h-fit py-8 space-y-6">
       <div className="flex items-center gap-2">
         <Link
           href={localePath("/user/address")}
@@ -27,9 +28,8 @@ const page = () => {
         </Link>
       </div>
       <AddAddressForm />
-    </div>
+    </Container1080>
   );
 };
 
 export default page;
-

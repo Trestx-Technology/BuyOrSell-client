@@ -22,6 +22,7 @@ import { defaultJobseekerFilters } from "@/constants/job.constants";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useJobSubcategories } from "@/hooks/useCategories";
 import { useGetAllSkills } from "@/hooks/useSkills";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -331,7 +332,7 @@ export default function JobseekersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Container1080>
       {/* Mobile Header */}
       <div className="w-full bg-purple sm:hidden p-4 space-y-4">
         <div className="flex items-center justify-between">
@@ -452,6 +453,6 @@ export default function JobseekersPage() {
           />
         )}
       </div>
-    </div>
+    </Container1080>
   );
 }

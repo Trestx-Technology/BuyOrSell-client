@@ -10,6 +10,7 @@ import SellerListingsMobileHeader from "../../_components/SellerListingsMobileHe
 import Image from "next/image";
 import { useOrganizationById } from "@/hooks/useOrganizations";
 import { Typography } from "@/components/typography";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 const OrganizationSellerPage: React.FC = () => {
   const { id } = useParams();
@@ -59,7 +60,7 @@ const OrganizationSellerPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-[#F9FAFC] relative">
+    <Container1080 className="relative">
       <div className="pb-6 md:py-6">
         {/* Seller Header */}
         <div className="hidden sm:block">
@@ -113,7 +114,7 @@ const OrganizationSellerPage: React.FC = () => {
           />
         </div>
       </div>
-    </div>
+    </Container1080>
   );
 };
 

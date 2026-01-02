@@ -9,6 +9,7 @@ import { Typography } from "@/components/typography";
 import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 interface ProfileFormData {
   name: string;
@@ -44,7 +45,7 @@ const ProfileEditPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-50">
+    <Container1080>
       <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
         <Button
           variant={"ghost"}
@@ -82,9 +83,8 @@ const ProfileEditPage = () => {
           isLoading={isLoading}
         />
       </div>
-    </div>
+    </Container1080>
   );
 };
 
 export default ProfileEditPage;
-

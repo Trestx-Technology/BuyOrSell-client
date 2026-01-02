@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useAds } from "@/hooks/useAds";
 import { AD } from "@/interfaces/ad";
 import { formatDistanceToNow } from "date-fns";
+import { Container1280 } from "@/components/layouts/container-1280";
 
 export default function HotDealsPage() {
   const { t, localePath } = useLocale();
@@ -119,7 +120,7 @@ export default function HotDealsPage() {
   };
 
   return (
-    <>
+    <Container1280 className="flex flex-col">
       <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
         <Button
           variant={"ghost"}
@@ -430,6 +431,6 @@ export default function HotDealsPage() {
           </div>
         </div>
       </div>
-    </>
+    </Container1280>
   );
 }

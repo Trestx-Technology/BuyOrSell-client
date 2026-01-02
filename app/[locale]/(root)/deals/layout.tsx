@@ -15,12 +15,9 @@ const DealsRootLayout = ({ children }: { children: React.ReactNode }) => {
         minHeight: "100vh",
       }}
     >
-      <Navbar className="hidden sm:flex" />
-      <CategoryNav className="hidden sm:block" />
-      <section className="w-full max-w-[1280px] mx-auto">{children}</section>
+      {children}
     </main>
   );
 };
 
 export default DealsRootLayout;
-

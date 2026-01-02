@@ -6,6 +6,7 @@ import { ChatSidebar } from "./_components/ChatSidebar";
 import { ChatHeader } from "./_components/ChatHeader";
 import { MessagesList } from "./_components/MessagesList";
 import { MessageInput } from "./_components/MessageInput";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 // Mock chat data
 const mockChats = [
@@ -168,32 +169,29 @@ export default function ChatPage() {
       setIsTyping(true);
 
       // Simulate a response after 1-2 seconds
-      setTimeout(
-        () => {
-          setIsTyping(false);
+      setTimeout(() => {
+        setIsTyping(false);
 
-          const responses = [
-            "Thanks for your message!",
-            "I'll get back to you soon.",
-            "Let me check that for you.",
-            "That sounds good!",
-            "I understand. Let me help you with that.",
-          ];
+        const responses = [
+          "Thanks for your message!",
+          "I'll get back to you soon.",
+          "Let me check that for you.",
+          "That sounds good!",
+          "I understand. Let me help you with that.",
+        ];
 
-          const randomResponse =
-            responses[Math.floor(Math.random() * responses.length)];
-          const responseMessage = {
-            id: (Date.now() + 1).toString(),
-            text: randomResponse,
-            time: getCurrentTime(),
-            isFromUser: false,
-            isRead: true,
-          };
+        const randomResponse =
+          responses[Math.floor(Math.random() * responses.length)];
+        const responseMessage = {
+          id: (Date.now() + 1).toString(),
+          text: randomResponse,
+          time: getCurrentTime(),
+          isFromUser: false,
+          isRead: true,
+        };
 
-          setMessages((prev) => [...prev, responseMessage]);
-        },
-        1000 + Math.random() * 1000
-      );
+        setMessages((prev) => [...prev, responseMessage]);
+      }, 1000 + Math.random() * 1000);
     }
   };
 
@@ -230,7 +228,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-full flex relative">
+    <Container1080 className="h-full flex relative">
       {/* Full Width Sidebar - When no chat is selected */}
       {!currentChat && (
         <div className="w-full flex h-full bg-white">
@@ -314,6 +312,6 @@ export default function ChatPage() {
           </div>
         </>
       )}
-    </div>
+    </Container1080>
   );
 }

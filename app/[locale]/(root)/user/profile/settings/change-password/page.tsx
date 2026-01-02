@@ -8,6 +8,7 @@ import { Typography } from "@/components/typography";
 import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 const ChangePasswordPage = () => {
   const { t, localePath } = useLocale();
@@ -67,7 +68,7 @@ const ChangePasswordPage = () => {
   };
 
   return (
-    <div className="w-full">
+    <Container1080 className="min-h-fit">
       <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
         <Button
           variant="ghost"
@@ -223,9 +224,8 @@ const ChangePasswordPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Container1080>
   );
 };
 
 export default ChangePasswordPage;
-

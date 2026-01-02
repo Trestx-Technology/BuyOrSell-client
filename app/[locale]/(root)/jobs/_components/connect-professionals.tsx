@@ -118,7 +118,6 @@ export default function ConnectProfessionals({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="w-full max-w-[1080px] mx-auto bg-white py-12"
     >
       <div className="max-w-[1080px] mx-auto px-4">
         {/* Header */}

@@ -2,11 +2,17 @@
 
 import React, { useState } from "react";
 import { useLocale } from "@/hooks/useLocale";
-import { useGetNotifications, useMarkNotificationRead, useDeleteNotification, useMarkAllNotificationsRead } from "@/hooks/useNotifications";
+import {
+  useGetNotifications,
+  useMarkNotificationRead,
+  useDeleteNotification,
+  useMarkAllNotificationsRead,
+} from "@/hooks/useNotifications";
 import { ErrorCard } from "@/components/ui/error-card";
 import { Table } from "@/components/table/table";
 import { useNotificationsColumns } from "./_components/column";
 import { Clock } from "lucide-react";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 export default function NotificationsPage() {
   const { t } = useLocale();
@@ -55,7 +61,8 @@ export default function NotificationsPage() {
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple mx-auto mb-4"></div>
             <p className="text-gray-600">
-              {t.notifications?.loadingNotifications || "Loading notifications..."}
+              {t.notifications?.loadingNotifications ||
+                "Loading notifications..."}
             </p>
           </div>
         </div>
@@ -68,8 +75,13 @@ export default function NotificationsPage() {
       <div className="max-w-[1080px] mx-auto px-4 py-8">
         <ErrorCard
           variant="error"
-          title={t.notifications?.failedToLoad || "Failed to load notifications"}
-          description={t.notifications?.failedToLoadDescription || "Unable to fetch notifications. Please try again later."}
+          title={
+            t.notifications?.failedToLoad || "Failed to load notifications"
+          }
+          description={
+            t.notifications?.failedToLoadDescription ||
+            "Unable to fetch notifications. Please try again later."
+          }
           className="max-w-md mx-auto"
         />
       </div>
@@ -77,14 +89,15 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="max-w-[1080px] mx-auto space-y-5 p-5">
+    <Container1080 className="min-h-fit py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">
             {t.notifications?.pageTitle || "Notifications"}
           </h1>
           <p className="text-sm text-gray-600">
-            {t.notifications?.pageDescription || "View and manage your notifications"}
+            {t.notifications?.pageDescription ||
+              "View and manage your notifications"}
           </p>
         </div>
         {notifications?.data && notifications.data.length > 0 && (
@@ -110,7 +123,6 @@ export default function NotificationsPage() {
         showPagination={true}
         rowCount={notifications?.total || 0}
       />
-    </div>
+    </Container1080>
   );
 }
-

@@ -15,6 +15,7 @@ import { Typography } from "@/components/typography";
 import { useLocale } from "@/hooks/useLocale";
 import { toast } from "sonner";
 import { useSubmitRating } from "@/hooks/useRateUs";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 const RateUsPage = () => {
   const { t, localePath } = useLocale();
@@ -24,44 +25,6 @@ const RateUsPage = () => {
   const [selectedFeedback, setSelectedFeedback] = useState<string[]>([]);
   const [title, setTitle] = useState("");
   const [comments, setComments] = useState("");
-
-  const feedbackOptions = useMemo(
-    () => [
-      {
-        id: "easy-to-use",
-        label: t.rateUs.feedbackOptions.easyToUse,
-        icon: ThumbsUp,
-        color: "text-green-500",
-      },
-      {
-        id: "user-friendly",
-        label: t.rateUs.feedbackOptions.userFriendly,
-        icon: Heart,
-        color: "text-red-500",
-      },
-      {
-        id: "fast-reliable",
-        label: t.rateUs.feedbackOptions.fastReliable,
-        icon: Star,
-        color: "text-yellow-500",
-      },
-      {
-        id: "would-recommend",
-        label: t.rateUs.feedbackOptions.wouldRecommend,
-        icon: MessageCircle,
-        color: "text-purple-500",
-      },
-    ],
-    [t]
-  );
-
-  const handleFeedbackToggle = (feedbackId: string) => {
-    setSelectedFeedback((prev) =>
-      prev.includes(feedbackId)
-        ? prev.filter((id) => id !== feedbackId)
-        : [...prev, feedbackId]
-    );
-  };
 
   const handleSubmit = async () => {
     if (rating === 0) {
@@ -91,7 +54,7 @@ const RateUsPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-50">
+    <Container1080>
       {/* Mobile Header */}
       <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
         <Button
@@ -255,7 +218,7 @@ const RateUsPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Container1080>
   );
 };
 

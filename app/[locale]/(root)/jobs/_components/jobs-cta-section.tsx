@@ -101,9 +101,8 @@ export default function JobsCTASection() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="w-full bg-white"
     >
-      <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 py-10">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-6">
         <CTACard
           title="For Job Seekers"
           description="Finding jobs on BuyOrSell is easier than ever. Download the mobile apps to your smartphone device and enjoy for free!"

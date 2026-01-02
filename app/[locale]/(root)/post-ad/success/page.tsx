@@ -3,13 +3,16 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AdPostStatusDialog from "../_components/ad-post-status-dialog";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 export default function PostAdSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isDialogOpen, setIsDialogOpen] = useState(true);
-  
-  const status = (searchParams.get("status") as "success" | "error" | "pending") || "success";
+
+  const status =
+    (searchParams.get("status") as "success" | "error" | "pending") ||
+    "success";
   const title = searchParams.get("title") || undefined;
   const message = searchParams.get("message") || undefined;
 
@@ -24,7 +27,7 @@ export default function PostAdSuccessPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <Container1080>
       <AdPostStatusDialog
         isOpen={isDialogOpen}
         onClose={handleClose}
@@ -33,7 +36,6 @@ export default function PostAdSuccessPage() {
         message={message}
         onConfirm={handleConfirm}
       />
-    </div>
+    </Container1080>
   );
 }
-

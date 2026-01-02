@@ -20,6 +20,7 @@ import AdDetailSkeleton from "./_components/AdDetailSkeleton";
 import { ErrorCard } from "@/components/ui/error-card";
 import { useLocale } from "@/hooks/useLocale";
 import AdCard from "../../categories/_components/AdCard";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 export default function AdDetailPage() {
   const { adId } = useParams();
@@ -102,7 +103,7 @@ export default function AdDetailPage() {
   }
 
   return (
-    <div className=" w-full min-h-[500px]">
+    <Container1080>
       {/* Header with Back, Share, Save */}
       <Header ad={ad} />
 
@@ -193,6 +194,6 @@ export default function AdDetailPage() {
         {/* Similar Ads */}
         <SimilarAds adId={adId as string} />
       </div>
-    </div>
+    </Container1080>
   );
 }

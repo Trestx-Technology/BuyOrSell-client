@@ -16,6 +16,7 @@ import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "next/navigation";
 import { useSubmitContactForm } from "@/hooks/useContactUs";
 import { toast } from "sonner";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 const ContactUsPage = () => {
   const { localePath } = useLocale();
@@ -94,7 +95,7 @@ const ContactUsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-grey-50">
+    <Container1080 className="bg-grey-50">
       <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
         <Button
           variant={"ghost"}
@@ -330,7 +331,7 @@ const ContactUsPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Container1080>
   );
 };
 

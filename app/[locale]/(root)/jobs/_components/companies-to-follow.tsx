@@ -93,7 +93,7 @@ export default function CompaniesToFollow({
 
   if (isLoading) {
     return (
-      <section className="w-full bg-white py-8">
+      <section className="w-full py-8">
         <div className="max-w-[1280px] mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -118,14 +118,13 @@ export default function CompaniesToFollow({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="w-full bg-white py-8"
     >
       <div className="max-w-[1080px] mx-auto px-4">
         <div className="py-8 space-y-4">
           {/* Header */}
           <div className="flex justify-between items-center gap-[35.56px] max-w-[1080px] mx-auto w-full">
             <JobsSectionTitle>Organizations to Follow</JobsSectionTitle>
-            <Link href="/jobs/employers">
+            <Link href="/jobs/organization">
               <Typography
                 variant="body-large"
                 className="text-purple font-semibold text-base hover:underline"

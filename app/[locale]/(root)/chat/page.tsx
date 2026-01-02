@@ -12,32 +12,49 @@ import { toast } from "sonner";
 import { useLocale } from "@/hooks/useLocale";
 
 // Dynamic imports with SSR disabled for all chat components
-const ChatSidebar = dynamic(() => import("./_components/ChatSidebar").then(mod => ({ default: mod.ChatSidebar })), {
-  ssr: false,
-});
+const ChatSidebar = dynamic(
+  () =>
+    import("./_components/ChatSidebar").then((mod) => ({
+      default: mod.ChatSidebar,
+    })),
+  {
+    ssr: false,
+  }
+);
 
-const ChatArea = dynamic(() => import("./_components/ChatArea").then(mod => ({ default: mod.ChatArea })), {
-  ssr: false,
-});
+const ChatArea = dynamic(
+  () =>
+    import("./_components/ChatArea").then((mod) => ({ default: mod.ChatArea })),
+  {
+    ssr: false,
+  }
+);
 
 // Import types (not components, so regular import is fine)
 import type { ChatType } from "./_components/ChatTypeSelector";
 import type { Chat } from "./_components/ChatSidebar";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 export default function ChatPage() {
   const { t, localePath } = useLocale();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { session, isAuthenticated } = useAuthStore((state) => state);
-  
+
   const [chats, setChats] = useState<FirebaseChat[]>([]);
-  const [currentChatData, setCurrentChatData] = useState<FirebaseChat | null>(null);
+  const [currentChatData, setCurrentChatData] = useState<FirebaseChat | null>(
+    null
+  );
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [chatType, setChatType] = useState<ChatType>("ad");
-  const [onlineStatus, setOnlineStatus] = useState<{ [userId: string]: boolean }>({});
-  const [typingStatus, setTypingStatus] = useState<{ [userId: string]: boolean }>({});
+  const [onlineStatus, setOnlineStatus] = useState<{
+    [userId: string]: boolean;
+  }>({});
+  const [typingStatus, setTypingStatus] = useState<{
+    [userId: string]: boolean;
+  }>({});
   const [isOtherUserOnline, setIsOtherUserOnline] = useState(false);
 
   // Get chat type and chatId from URL
@@ -88,7 +105,7 @@ export default function ChatPage() {
     const loadChat = async () => {
       try {
         const chatData = await ChatService.getChat(urlChatId);
-        
+
         if (!chatData) {
           toast.error(t.chat.chatNotFound);
           router.push(localePath("/chat"));
@@ -120,13 +137,18 @@ export default function ChatPage() {
   useEffect(() => {
     if (!urlChatId) return;
 
-    const unsubscribe = ChatService.subscribeToMessages(urlChatId, (newMessages) => {
-      setMessages(newMessages);
-      // Mark chat as read when new messages arrive
-      if (session.user?._id) {
-        ChatService.markChatAsRead(urlChatId, session.user._id).catch(console.error);
+    const unsubscribe = ChatService.subscribeToMessages(
+      urlChatId,
+      (newMessages) => {
+        setMessages(newMessages);
+        // Mark chat as read when new messages arrive
+        if (session.user?._id) {
+          ChatService.markChatAsRead(urlChatId, session.user._id).catch(
+            console.error
+          );
+        }
       }
-    });
+    );
 
     return () => unsubscribe();
   }, [urlChatId, session.user?._id]);
@@ -135,9 +157,12 @@ export default function ChatPage() {
   useEffect(() => {
     if (!urlChatId) return;
 
-    const unsubscribe = ChatService.subscribeToTypingStatus(urlChatId, (typing) => {
-      setTypingStatus(typing);
-    });
+    const unsubscribe = ChatService.subscribeToTypingStatus(
+      urlChatId,
+      (typing) => {
+        setTypingStatus(typing);
+      }
+    );
 
     return () => unsubscribe();
   }, [urlChatId]);
@@ -146,32 +171,44 @@ export default function ChatPage() {
   useEffect(() => {
     if (!currentChatData || !session.user?._id) return;
 
-    const otherParticipantId = currentChatData.participants.find(id => id !== session.user?._id);
+    const otherParticipantId = currentChatData.participants.find(
+      (id) => id !== session.user?._id
+    );
     if (!otherParticipantId) return;
 
-    const unsubscribe = ChatService.subscribeToOnlineStatus(otherParticipantId, (isOnline) => {
-      setIsOtherUserOnline(isOnline);
-    });
+    const unsubscribe = ChatService.subscribeToOnlineStatus(
+      otherParticipantId,
+      (isOnline) => {
+        setIsOtherUserOnline(isOnline);
+      }
+    );
 
     return () => unsubscribe();
   }, [currentChatData, session.user?._id]);
 
   // Helper function to format timestamp
-  const formatTimestamp = (timestamp: Date | { toDate?: () => Date } | string | number | undefined): string => {
+  const formatTimestamp = (
+    timestamp: Date | { toDate?: () => Date } | string | number | undefined
+  ): string => {
     if (!timestamp) return "";
-    
+
     let date: Date;
-    
+
     if (timestamp instanceof Date) {
       date = timestamp;
-    } else if (typeof timestamp === "object" && timestamp !== null && "toDate" in timestamp && typeof timestamp.toDate === "function") {
+    } else if (
+      typeof timestamp === "object" &&
+      timestamp !== null &&
+      "toDate" in timestamp &&
+      typeof timestamp.toDate === "function"
+    ) {
       date = timestamp.toDate();
     } else if (typeof timestamp === "string" || typeof timestamp === "number") {
       date = new Date(timestamp);
     } else {
       return "";
     }
-    
+
     if (isNaN(date.getTime())) return "";
 
     const now = new Date();
@@ -263,7 +300,9 @@ export default function ChatPage() {
         time: formatTimestamp(firebaseChat.lastMessage.timestamp),
         unreadCount: firebaseChat.unreadCount[userId] || 0,
         isVerified: otherParticipant.isVerified,
-        isOnline: otherParticipantId ? (onlineStatus[otherParticipantId] || false) : false,
+        isOnline: otherParticipantId
+          ? onlineStatus[otherParticipantId] || false
+          : false,
         chatType: firebaseChat.chatType,
         ad: firebaseChat.ad,
         organisation: firebaseChat.organisation,
@@ -304,7 +343,11 @@ export default function ChatPage() {
   const handleMessageChange = async (value: string) => {
     setMessage(value);
     if (session.user?._id && urlChatId) {
-      await ChatService.setTypingStatus(urlChatId, session.user._id, !!value.trim());
+      await ChatService.setTypingStatus(
+        urlChatId,
+        session.user._id,
+        !!value.trim()
+      );
     }
   };
 
@@ -371,7 +414,7 @@ export default function ChatPage() {
   // Show loading state
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="h-dvh flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
           <p className="text-gray-500">{t.chat.loadingChats}</p>
@@ -383,7 +426,7 @@ export default function ChatPage() {
   // Show login prompt if not authenticated
   if (!isAuthenticated || !session.user) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="h-dvh flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-500 mb-4">{t.chat.pleaseLogin}</p>
           <button
@@ -398,12 +441,14 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="h-full flex relative">
+    <Container1080 className="flex relative">
       {/* Sidebar - Always visible on desktop, full width on mobile when no chat selected */}
       <div
         className={cn(
           "border-r border-gray-200 flex flex-col h-full bg-white",
-          urlChatId ? "hidden sm:flex sm:w-80 lg:w-96" : "flex w-full sm:w-80 sm:flex lg:w-96"
+          urlChatId
+            ? "hidden sm:flex sm:w-80 lg:w-96"
+            : "flex w-full sm:w-80 sm:flex lg:w-96"
         )}
       >
         <ChatSidebar
@@ -430,6 +475,6 @@ export default function ChatPage() {
         onMoreOptions={handleMoreOptions}
         onBackToSidebar={handleBackToSidebar}
       />
-    </div>
+    </Container1080>
   );
 }

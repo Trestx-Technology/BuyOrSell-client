@@ -8,6 +8,7 @@ import { Typography } from "@/components/typography";
 import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 interface BlockedUser {
   id: string;
@@ -110,7 +111,7 @@ const BlockedUsersPage = () => {
   };
 
   return (
-    <div className="w-full">
+    <Container1080 className="min-h-fit">
       <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
         <Button
           variant="ghost"
@@ -198,7 +199,8 @@ const BlockedUsersPage = () => {
                     variant="outline"
                     className="text-red-600 border-red-300 hover:bg-red-50"
                   >
-                    {t.user.blockedUsers.unblockSelected} ({selectedUsers.length})
+                    {t.user.blockedUsers.unblockSelected} (
+                    {selectedUsers.length})
                   </Button>
                 )}
               </div>
@@ -246,8 +248,12 @@ const BlockedUsersPage = () => {
                           </button>
                         </div>
 
-                        <p className="text-sm text-gray-700 mb-1">{user.email}</p>
-                        <p className="text-xs text-gray-500 mb-2">{user.company}</p>
+                        <p className="text-sm text-gray-700 mb-1">
+                          {user.email}
+                        </p>
+                        <p className="text-xs text-gray-500 mb-2">
+                          {user.company}
+                        </p>
 
                         <div className="flex items-center justify-between">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">
@@ -266,9 +272,8 @@ const BlockedUsersPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Container1080>
   );
 };
 
 export default BlockedUsersPage;
-

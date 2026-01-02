@@ -71,7 +71,6 @@ export default function PopularIndustries() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="w-full bg-[#F2F4F7] py-8"
     >
       <div className="max-w-[1080px] mx-auto px-4">
         <JobsSectionTitle>Popular Industries</JobsSectionTitle>

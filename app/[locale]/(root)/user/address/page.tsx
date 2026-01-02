@@ -7,6 +7,7 @@ import Link from "next/link";
 import AddressCard from "../_components/address-card";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { useLocale } from "@/hooks/useLocale";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 const AddressPage = () => {
   const { t, localePath } = useLocale();
@@ -36,7 +37,7 @@ const AddressPage = () => {
   };
 
   return (
-    <div className="bg-gray-50 py-8">
+    <Container1080 className="min-h-fit py-8">
       <Link
         href={localePath("/user/address")}
         className="text-purple-600 font-semibold text-sm"
@@ -75,9 +76,8 @@ const AddressPage = () => {
           </Link>
         </div>
       </div>
-    </div>
+    </Container1080>
   );
 };
 
 export default AddressPage;
-

@@ -1,14 +1,11 @@
 "use client";
 
-import CategoryNav from "./CategoryNav";
 import { HomeCarousel } from "./home-carousel";
 import CategoriesCarousel from "./categories-carousel";
 import PopularCategories from "./popular-categories";
 import RecentViews from "./recent-views";
 import HostDeals from "./host-deals";
 import FloatingChatCTA from "@/components/global/flowting-ai-cta";
-import Navbar from "@/components/global/Navbar";
-import { Footer } from "@/components/global/footer";
 import ExchangeDeals from "./exchange-deals";
 import { useHome } from "@/hooks/useHome";
 import CategoryTabbedCarousel from "@/components/global/category-tabbed-carousel";
@@ -22,12 +19,7 @@ export function HomeContent() {
   const isArabic = locale === "ar";
   const router = useRouter();
   return (
-    <main className="min-h-dvh relative">
-      <div className="sticky top-0 z-50">
-        <Navbar />
-        <CategoryNav />
-      </div>
-
+    <>
       <div className="max-w-[1280px] mx-auto">
         {/* Promotional Banners with Sponsored Banner */}
         <HomeCarousel />
@@ -167,7 +159,6 @@ export function HomeContent() {
         {/* Footer */}
         <FloatingChatCTA />
       </div>
-      <Footer />
-    </main>
+    </>
   );
 }

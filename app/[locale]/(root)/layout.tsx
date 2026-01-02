@@ -1,7 +1,8 @@
 import React from "react";
+import { MainLayoutWrapper } from "@/components/layouts/main-layout-wrapper";
 
 const HomeLayout = ({ children }: { children: React.ReactNode }) => {
-  return <main className="w-full mx-auto min-h-[650px]">{children}</main>;
+  return <MainLayoutWrapper>{children}</MainLayoutWrapper>;
 };
 
 export default HomeLayout;

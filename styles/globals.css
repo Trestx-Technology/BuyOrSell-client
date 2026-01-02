@@ -128,6 +128,8 @@
       --letter-spacing-wide: var(--letter-spacing-wide);
       --letter-spacing-wider: var(--letter-spacing-wider);
       --letter-spacing-widest: var(--letter-spacing-widest);
+      --max-width-1080: 1080px;
+      --max-width-1280: 1280px;
       --animate-background-position-spin: background-position-spin 3000ms infinite alternate;
 
       @keyframes background-position-spin {
@@ -264,6 +266,21 @@
       .m-custom-60 {
             margin: var(--spacing-60);
       }
+
+      /* Container Utilities */
+      .container-1080 {
+            width: 100%;
+            max-width: 1080px;
+            margin-left: auto;
+            margin-right: auto;
+      }
+
+      .container-1280 {
+            width: 100%;
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+      }
 }
 
 /* CSS Animations for Staggering Effects */
@@ -389,6 +406,7 @@
             opacity: 0;
             transform: translateY(10px);
       }
+
       to {
             opacity: 1;
             transform: translateY(0);

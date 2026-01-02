@@ -11,6 +11,7 @@ import Image from "next/image";
 import { useGetUserById } from "@/hooks/useUsers";
 import { Typography } from "@/components/typography";
 import { User } from "@/interfaces/user.types";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 const UserSellerPage: React.FC = () => {
   const { id } = useParams();
@@ -60,7 +61,7 @@ const UserSellerPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-[#F9FAFC] relative">
+    <Container1080 className="relative">
       <div className="pb-6 md:py-6">
         {/* Seller Header */}
         <div className="hidden sm:block">
@@ -105,7 +106,7 @@ const UserSellerPage: React.FC = () => {
           />
         </div>
       </div>
-    </div>
+    </Container1080>
   );
 };
 

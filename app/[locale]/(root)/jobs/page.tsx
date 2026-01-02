@@ -1,41 +1,49 @@
-import { Metadata } from "next";
-import JobHomeComponent from "./_components/job-home-component";
-import { getTranslations } from "@/translations";
-import { type Locale, locales, defaultLocale } from "@/lib/i18n/config";
-
-interface JobsPageProps {
-  params: Promise<{ locale: string }>;
-}
-
-export async function generateMetadata({
-  params,
-}: JobsPageProps): Promise<Metadata> {
-  const { locale: localeParam } = await params;
-  const locale = (
-    locales.includes(localeParam as Locale)
-      ? (localeParam as Locale)
-      : defaultLocale
-  ) as Locale;
-  const t = getTranslations(locale);
-
-  return {
-    title: t.jobs.title,
-    description: t.jobs.description,
-    keywords: [
-      "jobs UAE",
-      "career opportunities",
-      "job search",
-      "employment UAE",
-      "job listings",
-      "career success",
-    ],
-  };
-}
+import JobsHero from "./_components/jobs-hero";
+import PopularIndustries from "./_components/popular-industries";
+import ConnectProfessionals from "./_components/connect-professionals";
+import CompaniesToFollow from "./_components/companies-to-follow";
+import JobsCTASection from "./_components/jobs-cta-section";
+import EmiratisSupport from "./_components/emiratis-support";
+import { Container1280 } from "@/components/layouts/container-1280";
 
 export default function JobsHomePage() {
   return (
-    <main className="bg-white">
-      <JobHomeComponent />
-    </main>
+    <Container1280 className="flex flex-col gap-12">
+      {/* Hero Section */}
+      <JobsHero />
+
+      {/* Popular Industries Section */}
+      <PopularIndustries />
+
+      {/* Connect Professionals Section */}
+      <ConnectProfessionals />
+
+      {/* Companies to follow */}
+      <CompaniesToFollow />
+
+      {/* Jobs CTA Section */}
+      <JobsCTASection />
+
+      {/* Featured Jobs Section */}
+      {/* <FeaturedJobsSection
+        jobs={homeData?.featuredJobs?.jobs}
+        isLoading={isLoading}
+      /> */}
+
+      {/* Recent Jobs Section */}
+      {/* <LatestJobsSection
+        jobs={homeData?.latestJobs?.jobs}
+        isLoading={isLoading}
+      /> */}
+
+      {/* Emiratis Support Section */}
+      <EmiratisSupport />
+
+      {/* Top Employers Section */}
+      {/* <TopEmployersSection
+        employers={homeData?.topEmployers}
+        isLoading={isLoading}
+      /> */}
+    </Container1280>
   );
 }

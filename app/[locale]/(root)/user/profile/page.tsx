@@ -16,6 +16,7 @@ import { useUserAverageRating, useUserReviews } from "@/hooks/useReviews";
 import { AD } from "@/interfaces/ad";
 import { formatDate } from "@/utils/format-date";
 import { MyAdCardProps, FieldWithIcon } from "../_components/my-ads-card";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 // Transform AD to MyAdCard props
 const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
@@ -157,9 +158,11 @@ const ProfilePage = () => {
   } = useUserAverageRating(user?._id || "", !!user?._id);
 
   // Fetch user reviews to get total ratings count
-  const {
-    data: reviewsResponse,
-  } = useUserReviews(user?._id || "", { limit: 1 }, !!user?._id);
+  const { data: reviewsResponse } = useUserReviews(
+    user?._id || "",
+    { limit: 1 },
+    !!user?._id
+  );
 
   // Fetch user's ads
   const {
@@ -203,7 +206,7 @@ const ProfilePage = () => {
 
   // Get average rating from API (defaults to 0 if not available)
   const averageRating = averageRatingResponse?.data ?? 0;
-  
+
   // Get total ratings count from reviews API
   const totalRatings =
     reviewsResponse?.data?.total ||
@@ -221,7 +224,7 @@ const ProfilePage = () => {
   const transformedAds = ads.map((ad) => transformAdToMyAdCard(ad, locale));
 
   return (
-    <div className="w-full bg-gray-50">
+    <Container1080>
       <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
         <Button
           variant={"ghost"}
@@ -330,7 +333,7 @@ const ProfilePage = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </Container1080>
   );
 };
 

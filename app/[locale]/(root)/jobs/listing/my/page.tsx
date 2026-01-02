@@ -14,6 +14,7 @@ import Disclaimer from "../_components/disclaimer";
 import Pagination from "@/components/global/pagination";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -241,113 +242,114 @@ export default function MyJobsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="w-full mx-auto py-6">
-        <div className="hidden sm:block mb-6">
-          <Breadcrumbs items={breadcrumbItems} showSelectCategoryLink={false} />
+    <Container1080 className="py-6 space-y-6">
+      <Breadcrumbs
+        className="hidden sm:flex"
+        showHomeIcon={false}
+        items={breadcrumbItems}
+        showSelectCategoryLink={false}
+      />
+
+      {/* Page Header */}
+      <div className="flex items-center justify-between mb-6">
+        <Typography variant="md-black-inter" className="font-semibold">
+          My Jobs ({jobs.length})
+        </Typography>
+
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={() => {
+            console.log("");
+          }}
+          icon={<PlusIcon />}
+          iconPosition="left"
+        >
+          Create Job
+        </Button>
+      </div>
+
+      {/* Jobs Listing Layout - Two Column View */}
+      {isLoading ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg">Loading jobs...</p>
         </div>
-
-        {/* Page Header */}
-        <div className="flex items-center justify-between mb-6">
-          <Typography variant="md-black-inter" className="font-semibold">
-            My Jobs ({jobs.length})
-          </Typography>
-
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => {
-              console.log("");
-            }}
-            icon={<PlusIcon />}
-            iconPosition="left"
-          >
-            Create Job
-          </Button>
+      ) : jobs.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg">No jobs found.</p>
         </div>
+      ) : (
+        <div className="bg-[#F9FAFC] min-h-screen">
+          <div className="max-w-[1080px] mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-[256px_1fr] gap-[19px]">
+              {/* Left Column - Job Listings Sidebar */}
+              <div className="space-y-[19px]">
+                {jobs.map((job) => (
+                  <JobListingCard
+                    key={job._id}
+                    job={job}
+                    isSelected={selectedJobId === job._id}
+                    onClick={() => setSelectedJobId(job._id)}
+                    transformAdToJobCardProps={transformAdToJobCardProps}
+                  />
+                ))}
 
-        {/* Jobs Listing Layout - Two Column View */}
-        {isLoading ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">Loading jobs...</p>
-          </div>
-        ) : jobs.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No jobs found.</p>
-          </div>
-        ) : (
-          <div className="bg-[#F9FAFC] min-h-screen">
-            <div className="max-w-[1080px] mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-[256px_1fr] gap-[19px]">
-                {/* Left Column - Job Listings Sidebar */}
-                <div className="space-y-[19px]">
-                  {jobs.map((job) => (
-                    <JobListingCard
-                      key={job._id}
-                      job={job}
-                      isSelected={selectedJobId === job._id}
-                      onClick={() => setSelectedJobId(job._id)}
-                      transformAdToJobCardProps={transformAdToJobCardProps}
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="bg-white rounded-xl p-4">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      isLoading={false}
                     />
-                  ))}
-
-                  {/* Pagination */}
-                  {totalPages > 1 && (
-                    <div className="bg-white rounded-xl p-4">
-                      <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                        isLoading={false}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Right Column - Job Detail View */}
-                {selectedJobId && (
-                  <div className="space-y-6">
-                    {isJobLoading ? (
-                      <div className="text-center py-12">
-                        <Typography variant="body" className="text-gray-500">
-                          Loading job details...
-                        </Typography>
-                      </div>
-                    ) : jobError || !selectedJob ? (
-                      <div className="text-center py-12">
-                        <Typography variant="body" className="text-red-500">
-                          {jobError
-                            ? "Failed to load job details"
-                            : "Job not found"}
-                        </Typography>
-                      </div>
-                    ) : selectedJob ? (
-                      <>
-                        <JobHeaderCard
-                          job={selectedJob}
-                          logo={selectedJob?.organization?.logoUrl}
-                          onFavorite={(id: string) =>
-                            console.log("Favorited:", id)
-                          }
-                          onApply={(jobId: string) => {
-                            console.log("Apply to job:", jobId);
-                            // Handle apply logic in parent component
-                          }}
-                          isFavorite={false}
-                          isApplied={false}
-                          isApplying={false}
-                        />
-                        <JobDetailContent job={selectedJob} />
-                        <Disclaimer />
-                      </>
-                    ) : null}
                   </div>
                 )}
               </div>
+
+              {/* Right Column - Job Detail View */}
+              {selectedJobId && (
+                <div className="space-y-6">
+                  {isJobLoading ? (
+                    <div className="text-center py-12">
+                      <Typography variant="body" className="text-gray-500">
+                        Loading job details...
+                      </Typography>
+                    </div>
+                  ) : jobError || !selectedJob ? (
+                    <div className="text-center py-12">
+                      <Typography variant="body" className="text-red-500">
+                        {jobError
+                          ? "Failed to load job details"
+                          : "Job not found"}
+                      </Typography>
+                    </div>
+                  ) : selectedJob ? (
+                    <>
+                      <JobHeaderCard
+                        job={selectedJob}
+                        logo={selectedJob?.organization?.logoUrl}
+                        onFavorite={(id: string) =>
+                          console.log("Favorited:", id)
+                        }
+                        onApply={(jobId: string) => {
+                          console.log("Apply to job:", jobId);
+                          // Handle apply logic in parent component
+                        }}
+                        isFavorite={false}
+                        isApplied={false}
+                        isApplying={false}
+                      />
+                      <JobDetailContent job={selectedJob} />
+                      <Disclaimer />
+                    </>
+                  ) : null}
+                </div>
+              )}
             </div>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </Container1080>
   );
 }

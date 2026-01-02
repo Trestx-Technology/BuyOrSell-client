@@ -8,13 +8,14 @@ import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "next/navigation";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 const SettingsPage = () => {
   const { t, localePath } = useLocale();
   const router = useRouter();
 
   return (
-    <div className="w-full">
+    <Container1080>
       <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
         <Button
           variant={"ghost"}
@@ -46,9 +47,8 @@ const SettingsPage = () => {
         </div>
         <SettingsCard />
       </div>
-    </div>
+    </Container1080>
   );
 };
 
 export default SettingsPage;
-
