@@ -469,7 +469,7 @@ const formSchemas = {
 };
 
 export default function DynamicFormPage() {
-  const { currentStep, activeCategory } = useAdPostingStore((state)=>state);
+  const { currentStep, activeCategory } = useAdPostingStore((state) => state);
   // const router = useRouter();
   const [images, setImages] = useState<ImageItem[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -481,10 +481,7 @@ export default function DynamicFormPage() {
   } | null>(null);
 
   const formSchema =
-    formSchemas[activeCategory as keyof typeof formSchemas] ||
-    formSchemas.cars;
-
- 
+    formSchemas[activeCategory as keyof typeof formSchemas] || formSchemas.cars;
 
   const handleInputChange = (field: string, value: any) => {
     // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -727,7 +724,7 @@ export default function DynamicFormPage() {
           </div>
 
           {/* Right Column - Image Upload Area */}
-          <div className="sticky top-0 bg-gray-100 hidden md:flex flex-1 p-6 w-1/3 max-h-[800px] rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+          <div className="sticky top-0 bg-gray-100 hidden md:flex flex-1 p-6 w-1/3 max-h-[800px] rounded-lg border-2 border-dashed border-gray-300  items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
@@ -750,16 +747,10 @@ export default function DynamicFormPage() {
       </div>
       <footer className="w-full bg-white sticky  bottom-0 left-0 right-0 max-w-[1080px] mx-auto md:border-t px-5 py-5">
         <div className="flex w-full justify-between max-w-[888px] mx-auto gap-3">
-          <Button
-            className="w-full"
-            variant={"outline"}
-          >
+          <Button className="w-full" variant={"outline"}>
             Back
           </Button>
-          <Button
-            className="w-full"
-            variant={"primary"}
-          >
+          <Button className="w-full" variant={"primary"}>
             Next
           </Button>
         </div>

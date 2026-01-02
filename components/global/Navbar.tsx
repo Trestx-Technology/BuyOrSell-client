@@ -328,7 +328,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
 
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-red-50 hover:text-red-700 transition-colors text-gray-700 hover:text-red-700 w-full"
+                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-red-50  transition-colors text-gray-700 hover:text-red-700 w-full"
                   >
                     <LogOut className="w-6 h-6" />
                     {t.home.navbar.signOut}
