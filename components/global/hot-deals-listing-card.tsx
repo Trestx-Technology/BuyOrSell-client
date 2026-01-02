@@ -392,9 +392,9 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
               currencyIconWidth={16}
               currencyIconHeight={16}
               className="gap-1"
-              currentPriceClassName="text-md font-bold text-purple"
-              originalPriceClassName="text-md text-grey-blue line-through text-sm"
-              discountBadgeClassName="text-md text-teal text-sm font-semibold"
+              currentPriceClassName="text-sm font-bold text-purple"
+              originalPriceClassName="text-xs text-grey-blue line-through text-sm"
+              discountBadgeClassName="text-xs text-teal text-sm font-semibold"
             />
           </div>
 

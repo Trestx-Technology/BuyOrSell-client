@@ -103,8 +103,6 @@ export function PriceDisplay({
     };
   }, [ad, price, originalPrice, propDiscountPercentage]);
 
-  console.log("discountInfo: ", discountInfo);
-
   const {
     currentPrice,
     originalPrice: discountOriginalPrice,

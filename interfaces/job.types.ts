@@ -22,8 +22,8 @@ export interface JobApplicant {
   userId: string;
   jobId: string;
   user?: User;
-  status: "pending" | "reviewed" | "shortlisted" | "rejected" | "accepted";
-  appliedAt: string;
+  status: "pending" | "reviewed" | "shortlisted" | "rejected" | "accepted" | "applied" | "hired";
+  appliedAt?: string;
   coverLetter?: string;
   resumeUrl?: string;
   experience?: string;
@@ -33,6 +33,27 @@ export interface JobApplicant {
   notes?: string;
   createdAt: string;
   updatedAt: string;
+  applicantProfileId?: {
+    _id: string;
+    userId: string;
+    name?: string;
+    headline?: string;
+    skills?: string[];
+    experienceYears?: number;
+    linkedinUrl?: string;
+    [key: string]: unknown;
+  };
+  job?: {
+    _id: string;
+    title: string;
+    owner?: {
+      _id: string | null;
+      name: string | null;
+      email: string | null;
+      phoneNumber: string | null;
+    };
+    organization?: unknown;
+  };
 }
 
 // Job Application - the application data structure
@@ -51,6 +72,14 @@ export interface JobApplication {
   notes?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+// Jobseeker Link
+export interface JobseekerLink {
+  _id: string;
+  label: string;
+  labelAr?: string;
+  url: string;
 }
 
 // Jobseeker Profile - extended user profile for jobseekers
@@ -75,6 +104,7 @@ export interface JobseekerProfile {
   desiredRoles: string[];
   desiredRolesAr?: string[];
   availability?: string;
+  availabilityAr?: string;
   noticePeriodDays?: number;
   salaryExpectationMin?: number;
   salaryExpectationMax?: number;
@@ -94,7 +124,9 @@ export interface JobseekerProfile {
   summaryAr?: string;
   blocked: boolean;
   banned: boolean;
-  links: string[];
+  bannedReason?: string;
+  blockedReason?: string;
+  links: JobseekerLink[];
   experiences: JobseekerExperience[];
   educations: JobseekerEducation[];
   projects: JobseekerProject[];
@@ -104,6 +136,14 @@ export interface JobseekerProfile {
   publications: JobseekerPublication[];
   photoUrl?: string;
   resumeFileUrl?: string;
+  resumeText?: string;
+  linkedinUrl?: string;
+  websiteUrl?: string;
+  githubUrl?: string;
+  twitterUrl?: string;
+  portfolioUrl?: string;
+  isConnected?: boolean;
+  connectionStatus?: string | null;
   createdAt: string;
   updatedAt: string;
   __v?: number;
@@ -200,11 +240,14 @@ export interface JobseekerCertification {
   _id: string;
   name: string;
   nameAr?: string;
+  issuer?: string;
+  issuerAr?: string;
   issuingOrganization?: string;
   issueDate?: string;
   expiryDate?: string;
   credentialId?: string;
   credentialUrl?: string;
+  url?: string;
   description?: string;
 }
 
@@ -216,9 +259,13 @@ export interface JobseekerAward {
   _id: string;
   title: string;
   titleAr?: string;
+  organization?: string;
+  organizationAr?: string;
   issuer?: string;
+  date?: string;
   issueDate?: string;
   description?: string;
+  descriptionAr?: string;
   url?: string;
 }
 
@@ -228,8 +275,11 @@ export interface JobseekerPublication {
   title: string;
   titleAr?: string;
   publisher?: string;
+  publisherAr?: string;
+  date?: string;
   publicationDate?: string;
   description?: string;
+  descriptionAr?: string;
   url?: string;
 }
 
@@ -466,6 +516,19 @@ export interface DeleteResponse {
   message?: string;
 }
 
+// Jobseeker Profiles Search Response
+export interface JobseekerProfilesListResponse {
+  statusCode: number;
+  timestamp: string;
+  message?: string;
+  data: {
+    page: number;
+    limit: number;
+    total: number;
+    items: JobseekerProfile[];
+  };
+}
+
 // ============================================================================
 // API PAYLOAD TYPES
 // ============================================================================
@@ -616,7 +679,12 @@ export interface JobApplicantsListResponse {
   statusCode: number;
   timestamp: string;
   message?: string;
-  data: JobApplicant[];
+  data: {
+    page: number;
+    limit: number;
+    total: number;
+    items: JobApplicant[];
+  };
   pagination?: {
     page: number;
     limit: number;

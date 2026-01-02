@@ -1,0 +1,101 @@
+"use client";
+
+import React, { useState } from "react";
+import { useGetJobApplicants } from "@/hooks/useJobApplications";
+import {
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+  ResponsiveModalDescription,
+} from "@/components/ui/responsive-modal";
+import { Button } from "@/components/ui/button";
+import { Typography } from "@/components/typography";
+import ApplicantsPreview from "./applicants-preview";
+import JobApplicantCard from "./job-applicant-card";
+import { useRouter } from "nextjs-toploader/app";
+
+interface JobApplicantsModalProps {
+  jobId: string;
+  trigger?: React.ReactNode;
+}
+
+export default function JobApplicantsModal({
+  jobId,
+  trigger,
+}: JobApplicantsModalProps) {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const { data: applicantsData, isLoading } = useGetJobApplicants(
+    jobId,
+    undefined
+  );
+
+  const applicants = applicantsData?.data?.items || [];
+  const pagination = applicantsData?.data;
+
+  // Get avatars from applicants
+  const avatars = applicants.slice(0, 3).map((applicant) => {
+    const profileName = applicant.applicantProfileId?.name || "Unknown User";
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      profileName
+    )}&background=random`;
+  });
+
+  const totalCount = pagination?.total || applicants.length;
+
+  const defaultTrigger = (
+    <ApplicantsPreview
+      avatars={avatars}
+      count={totalCount}
+      onViewClick={() => setOpen(true)}
+    />
+  );
+
+  return (
+    <>
+      {trigger || defaultTrigger}
+      <ResponsiveModal open={open} onOpenChange={setOpen}>
+        <ResponsiveModalContent className="w-full sm:max-w-[95vw] lg:max-w-5xl max-h-[90vh] overflow-y-auto">
+          <ResponsiveModalHeader>
+            <ResponsiveModalTitle>Job Applicants</ResponsiveModalTitle>
+            <ResponsiveModalDescription>
+              View and manage applicants for this job posting
+            </ResponsiveModalDescription>
+          </ResponsiveModalHeader>
+
+          <div className="space-y-4 py-4">
+            {isLoading ? (
+              <div className="text-center py-12">
+                <Typography variant="body" className="text-gray-500">
+                  Loading applicants...
+                </Typography>
+              </div>
+            ) : applicants.length === 0 ? (
+              <div className="text-center py-12">
+                <Typography variant="body" className="text-gray-500">
+                  No applicants yet
+                </Typography>
+              </div>
+            ) : (
+              <div className="space-y-4 w-full">
+                {applicants.map((applicant) => (
+                  <JobApplicantCard
+                    key={applicant._id}
+                    applicant={applicant}
+                    jobId={jobId}
+                    onViewProfile={() =>
+                      router.push(
+                        `/jobs/jobseeker/${applicant.applicantProfileId?._id}`
+                      )
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
+    </>
+  );
+}

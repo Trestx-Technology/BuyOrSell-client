@@ -1,4 +1,4 @@
-import { JobCardProps } from "@/app/(root)/jobs/my-profile/_components/job-card";
+import { JobCardProps } from "@/app/[locale]/(root)/jobs/my-profile/_components/job-card";
 import { AD } from "@/interfaces/ad";
 
 /**

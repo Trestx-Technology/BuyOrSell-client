@@ -22,9 +22,11 @@ export function HomeContent() {
   const isArabic = locale === "ar";
   const router = useRouter();
   return (
-    <main className="min-h-screen">
-      <Navbar />
-      <CategoryNav />
+    <main className="min-h-dvh relative">
+      <div className="sticky top-0 z-50">
+        <Navbar />
+        <CategoryNav />
+      </div>
 
       <div className="max-w-[1280px] mx-auto">
         {/* Promotional Banners with Sponsored Banner */}

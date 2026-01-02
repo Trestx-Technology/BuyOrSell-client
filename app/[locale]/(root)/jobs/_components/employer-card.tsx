@@ -6,7 +6,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Typography } from "@/components/typography";
-import { FcGoogle } from "react-icons/fc";
+import { UI_ICONS } from "@/constants/icons";
 
 interface EmployerCardProps {
   logo: string;
@@ -18,6 +18,7 @@ interface EmployerCardProps {
   onWishlist?: () => void;
   isFollowing?: boolean;
   isWishlisted?: boolean;
+  href?: string; // Optional custom href for navigation
 }
 
 export function EmployerCard({
@@ -30,6 +31,7 @@ export function EmployerCard({
   onWishlist,
   isFollowing = false,
   isWishlisted = false,
+  href,
 }: EmployerCardProps) {
   const [localWishlisted, setLocalWishlisted] = useState(isWishlisted);
 
@@ -50,25 +52,20 @@ export function EmployerCard({
       {/* Header with Logo and Wishlist */}
       <div className="flex items-center justify-between">
         <div className="size-[32px] rounded-lg">
-          {logo ? (
-            // <Image
-            //   src={logo}
-            //   alt={`${name} logo`}
-            //   width={64}
-            //   height={64}
-            //   className="h-full w-full object-contain"
-            // />
-            <FcGoogle
-              size={64}
-              className="h-full w-full object-contain"
-            />
-          ) : (
-            <div className="h-full w-full bg-gray-100 rounded flex items-center justify-center">
-              <span className="text-gray-600 font-bold text-lg">
-                {name.charAt(0).toUpperCase()}
-              </span>
-            </div>
-          )}
+          <Image
+            src={logo || UI_ICONS.company}
+            alt={`${name} logo`}
+            width={32}
+            height={32}
+            className="h-full w-full object-contain rounded-lg"
+            onError={(e) => {
+              // Fallback to company icon if logo fails to load
+              const target = e.target as HTMLImageElement;
+              if (target.src !== UI_ICONS.company) {
+                target.src = UI_ICONS.company;
+              }
+            }}
+          />
         </div>
         <button
           onClick={handleWishlist}
@@ -88,10 +85,10 @@ export function EmployerCard({
 
       {/* Company Info */}
       <div className="mb-2">
-        <Link href={`/jobs/employer/${employerId}`}>
+        <Link href={href || `/jobs/employer/${employerId}`}>
           <Typography
             variant="h3"
-            className="text-xl font-bold text-gray-900 hover:text-purple transition-colors cursor-pointer"
+            className="text-xl font-bold text-gray-900 hover:text-purple transition-colors cursor-pointer truncate"
           >
             {name}
           </Typography>
@@ -119,4 +116,3 @@ export function EmployerCard({
     </div>
   );
 }
-

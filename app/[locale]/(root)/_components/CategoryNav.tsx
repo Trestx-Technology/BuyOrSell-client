@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -48,74 +48,79 @@ import NotificationsPopover from "../user/notifications/_components/Notification
 
 /**
  * Container animation for the main category buttons
- * Staggers children appearance for smooth sequential reveal
+ * Optimized for faster initial load - reduced delays
  */
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.3, // Increased delay for smoother transition after loading
+      staggerChildren: 0.03,
+      delayChildren: 0.05, // Reduced from 0.3 for faster load
     },
   },
 };
 
 /**
  * Individual item animation (category buttons, dropdown items)
- * Spring animation for natural feel
+ * Optimized spring animation - faster and smoother
  */
 const itemVariants = {
-  hidden: { opacity: 0, y: 15, scale: 0.95 },
+  hidden: { opacity: 0, y: 8 },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 22,
+      type: "tween" as const,
+      duration: 0.2,
+      ease: [0.4, 0, 0.2, 1] as const,
     },
   },
 };
 
 /**
  * Dropdown container animation
- * Smooth fade and slide up effect
+ * Faster, simpler animation using transforms for better performance
  */
 const dropdownVariants = {
   hidden: {
     opacity: 0,
-    y: 10,
-    scale: 0.98,
+    y: 5,
   },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: {
       type: "tween" as const,
-      duration: 0.35,
-      staggerChildren: 0.08,
-      delayChildren: 0.1,
+      duration: 0.2,
+      ease: [0.4, 0, 0.2, 1] as const,
+      staggerChildren: 0.02,
+      delayChildren: 0.05,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: 5,
+    transition: {
+      duration: 0.15,
+      ease: [0.4, 0, 1, 1] as const,
     },
   },
 };
 
 /**
  * Subcategory panel animation
- * Horizontal slide from left with scale effect
+ * Simplified horizontal slide - faster transition
  */
 const subcategoryVariants = {
-  hidden: { opacity: 0, x: -10, scale: 0.95 },
+  hidden: { opacity: 0, x: -5 },
   visible: {
     opacity: 1,
     x: 0,
-    scale: 1,
     transition: {
-      type: "spring" as const,
-      stiffness: 280,
-      damping: 20,
+      type: "tween" as const,
+      duration: 0.2,
+      ease: [0.4, 0, 0.2, 1] as const,
     },
   },
 };
@@ -161,8 +166,14 @@ interface SubcategoryPanelProps {
 // ============================================================================
 
 /**
+ * Memoized category URL cache to avoid repeated recursive searches
+ * This significantly improves performance when building URLs
+ */
+const categoryUrlCache = new Map<string, string>();
+
+/**
  * Builds a category URL path including parent name if parent exists
- * Recursively searches through all categories and their children to find parent
+ * Optimized with memoization to prevent repeated expensive recursive searches
  * @param category - The category/subcategory to build URL for
  * @param allCategories - All main categories to search for parent (including nested children)
  * @returns URL path like "/categories/parentName/categoryName" or "/categories/categoryName"
@@ -171,6 +182,12 @@ const buildCategoryUrl = (
   category: SubCategory,
   allCategories: SubCategory[]
 ): string => {
+  // Check cache first
+  const cacheKey = `${category._id}-${category.name}`;
+  if (categoryUrlCache.has(cacheKey)) {
+    return categoryUrlCache.get(cacheKey)!;
+  }
+
   // Helper function to recursively search for a category by ID
   const findCategoryById = (
     categories: SubCategory[],
@@ -241,7 +258,11 @@ const buildCategoryUrl = (
 
   // Build the full path
   const pathNames = buildPathRecursive(category, allCategories);
-  return `/categories/${pathNames.join("/")}`;
+  const url = `/categories/${pathNames.join("/")}`;
+
+  // Cache the result
+  categoryUrlCache.set(cacheKey, url);
+  return url;
 };
 
 // ============================================================================
@@ -402,12 +423,13 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
           variants={dropdownVariants}
           initial="hidden"
           animate="visible"
-          exit="hidden"
+          exit="exit"
           onMouseLeave={onMouseLeave}
           onMouseEnter={() => {
             // Keep dropdown open when hovering over it
             // This prevents premature closing when moving from button to dropdown
           }}
+          style={{ willChange: "opacity, transform" }}
         >
           {isOtherCategory ? (
             /* ============================================================
@@ -592,6 +614,10 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
     null
   );
 
+  // Refs for debouncing hover events
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // ========================================================================
   // HOOKS & DATA FETCHING
   // ========================================================================
@@ -648,45 +674,75 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   /**
    * Handles hover over a subcategory in the left panel.
    * Sets it as active to show its children in the right panel.
+   * Optimized with immediate update for better responsiveness.
    */
-  const handleCategoryHover = (category: SubCategory | null) => {
+  const handleCategoryHover = useCallback((category: SubCategory | null) => {
+    // Clear any pending timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    // Immediate update for better UX
     setActiveCategory(category);
-  };
+  }, []);
 
   /**
    * Handles mouse leaving the entire category navigation area.
    * Resets all dropdown states to close all dropdowns.
    */
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
+    // Clear any pending timeouts
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+      leaveTimeoutRef.current = null;
+    }
     setActiveCategory(null);
     setActiveCategoryType(null);
-  };
+  }, []);
 
   /**
    * Handles hover over a main category button.
    * Opens the dropdown and resets active subcategory (user must choose).
+   * Optimized with immediate update.
    */
-  const handleCategoryTypeHover = (categoryType: string) => {
+  const handleCategoryTypeHover = useCallback((categoryType: string) => {
+    // Clear any pending timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    // Immediate update for better responsiveness
     setActiveCategoryType(categoryType);
     // Don't auto-select the first subcategory - let user choose
     setActiveCategory(null);
-  };
+  }, []);
 
   /**
    * Handles mouse leaving a category button.
    * Uses a small delay to allow smooth transition to dropdown.
    * Only resets if not hovering over the dropdown itself.
    */
-  const handleCategoryButtonLeave = () => {
-    // Small delay to allow moving to dropdown
-    setTimeout(() => {
+  const handleCategoryButtonLeave = useCallback(() => {
+    // Clear existing timeout
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+    }
+    // Small delay to allow moving to dropdown - reduced from 150ms to 100ms
+    leaveTimeoutRef.current = setTimeout(() => {
       // Only reset if we're not hovering over the dropdown
-      if (!activeCategoryType) {
-        setActiveCategory(null);
-        setActiveCategoryType(null);
-      }
-    }, 150);
-  };
+      setActiveCategoryType((prev) => {
+        if (!prev) {
+          setActiveCategory(null);
+          return null;
+        }
+        return prev;
+      });
+    }, 100);
+  }, []);
 
   // ========================================================================
   // DATA GETTERS
@@ -703,8 +759,9 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
    * 5. Right panel shows that subcategory's children
    *
    * @returns Array of subcategories for the currently hovered main category
+   * Memoized for performance
    */
-  const getCurrentCategoryData = (): SubCategory[] => {
+  const getCurrentCategoryData = useMemo((): SubCategory[] => {
     if (!activeCategoryType || !categoriesData) return [];
 
     // Special case: "Other" category shows remaining categories
@@ -717,7 +774,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
       (category: SubCategory) => category._id === activeCategoryType
     );
     return mainCategory?.children || [];
-  };
+  }, [activeCategoryType, categoriesData]);
 
   // ========================================================================
   // LOADING COMPONENT
@@ -744,9 +801,9 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
     <motion.div
       className={cn("relative md:bg-purple", className)}
       initial={{ opacity: 0 }}
-      whileInView={{ opacity: categoriesLoading ? 0 : 1 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.5, delay: 0.2 }}
+      animate={{ opacity: categoriesLoading ? 0 : 1 }}
+      transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+      style={{ willChange: "opacity" }}
     >
       <div className="max-w-[1080px] mx-auto px-4 xl:px-0">
         <nav
@@ -796,7 +853,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                   <CategoryDropdown
                     isVisible={activeCategoryType === type}
                     onMouseLeave={handleMouseLeave}
-                    categoryData={getCurrentCategoryData()}
+                    categoryData={getCurrentCategoryData}
                     activeCategory={activeCategory}
                     onCategoryHover={handleCategoryHover}
                     allCategories={categoriesData || []}
@@ -818,7 +875,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                   <CategoryDropdown
                     isVisible={activeCategoryType === "other"}
                     onMouseLeave={handleMouseLeave}
-                    categoryData={getCurrentCategoryData()}
+                    categoryData={getCurrentCategoryData}
                     activeCategory={activeCategory}
                     onCategoryHover={handleCategoryHover}
                     isOtherCategory={true}

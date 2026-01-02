@@ -152,7 +152,7 @@ export const useSendEmailOtp = () => {
 };
 
 export const useSendPhoneOtp = () => {
-  return useMutation<SendPhoneOtpResponse, Error, { phoneNumber: string }>({
+  return useMutation<SendPhoneOtpResponse, Error, { phoneNo: string }>({
     mutationFn: sendPhoneOtp,
     mutationKey: userQueries.sendPhoneOtp.Key,
   });
@@ -195,7 +195,7 @@ export const useVerifyPhoneOtp = () => {
   return useMutation<
     VerifyPhoneResponse,
     Error,
-    { phone: string; otp: string }
+    { phoneNo: string; otp: string }
   >({
     mutationFn: verifyPhoneOtp,
     onSuccess: () => {

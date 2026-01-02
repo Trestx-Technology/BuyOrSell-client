@@ -1,51 +1,84 @@
 export const organizationQueries = {
-  findAllOrganizations: {
-    Key: ['organizations'],
-    endpoint: '/organizations',
-  },
+  findAllOrganizations: (params?: {
+    search?: string;
+    type?: string;
+    emirate?: string;
+    verified?: boolean;
+    status?: string;
+    page?: number;
+    limit?: number;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+  }) => ({
+    Key: ["organizations", params],
+    endpoint: "/organizations",
+  }),
   createOrganization: {
-    Key: ['organization', 'create'],
-    endpoint: '/organizations',
+    Key: ["organization", "create"],
+    endpoint: "/organizations",
   },
   getOrganizationById: (id: string) => ({
-    Key: ['organization', id],
+    Key: ["organization", id],
     endpoint: `/organizations/${id}`,
   }),
   updateOrganization: (id: string) => ({
-    Key: ['organization', id, 'update'],
+    Key: ["organization", id, "update"],
     endpoint: `/organizations/${id}`,
   }),
   deleteOrganization: (id: string) => ({
-    Key: ['organization', id, 'delete'],
+    Key: ["organization", id, "delete"],
     endpoint: `/organizations/${id}`,
   }),
   getMyOrganization: {
-    Key: ['organization', 'me'],
-    endpoint: '/organizations/me',
+    Key: ["organization", "me"],
+    endpoint: "/organizations/me",
   },
   updateMyOrganization: {
-    Key: ['organization', 'me', 'update'],
-    endpoint: '/organizations/me',
+    Key: ["organization", "me", "update"],
+    endpoint: "/organizations/me",
   },
-  verifyOrganization: (id: string) => ({
-    Key: ['organization', id, 'verify'],
-    endpoint: `/organizations/${id}/verify`,
+  approveOrganization: (id: string) => ({
+    Key: ["organization", id, "approve"],
+    endpoint: `/organizations/${id}/approve`,
+  }),
+  rejectOrganization: (id: string) => ({
+    Key: ["organization", id, "reject"],
+    endpoint: `/organizations/${id}/reject`,
+  }),
+  submitOrganization: (id: string) => ({
+    Key: ["organization", id, "submit"],
+    endpoint: `/organizations/${id}/submit`,
   }),
   blockOrganization: (id: string) => ({
-    Key: ['organization', id, 'block'],
+    Key: ["organization", id, "block"],
     endpoint: `/organizations/${id}/block`,
   }),
-  unblockOrganization: (id: string) => ({
-    Key: ['organization', id, 'unblock'],
-    endpoint: `/organizations/${id}/unblock`,
+  getBlockHistory: (id: string) => ({
+    Key: ["organization", id, "block-history"],
+    endpoint: `/organizations/${id}/block-history`,
   }),
-  uploadLogo: {
-    Key: ['organization', 'logo', 'upload'],
-    endpoint: '/organizations/logo',
+  followOrganization: (id: string) => ({
+    Key: ["organization", id, "follow"],
+    endpoint: `/organizations/${id}/follow`,
+  }),
+  unfollowOrganization: (id: string) => ({
+    Key: ["organization", id, "unfollow"],
+    endpoint: `/organizations/${id}/follow`,
+  }),
+  getFollowers: (id: string, params?: { page?: number; limit?: number }) => ({
+    Key: ["organization", id, "followers", params],
+    endpoint: `/organizations/${id}/followers`,
+  }),
+  getFollowersCount: (id: string) => ({
+    Key: ["organization", id, "followers", "count"],
+    endpoint: `/organizations/${id}/followers/count`,
+  }),
+  bulkApproveOrganizations: {
+    Key: ["organizations", "bulk", "approve"],
+    endpoint: "/organizations/bulk/approve",
   },
-  uploadCoverImage: {
-    Key: ['organization', 'cover', 'upload'],
-    endpoint: '/organizations/cover',
+  bulkRejectOrganizations: {
+    Key: ["organizations", "bulk", "reject"],
+    endpoint: "/organizations/bulk/reject",
   },
 };
-

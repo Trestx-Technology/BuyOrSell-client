@@ -49,7 +49,7 @@ export default function FeaturedJobs({
         <div className="flex flex-col gap-6">
           {/* Header */}
           <div className="flex justify-between items-center w-full">
-           <JobsSectionTitle>Featured Jobs</JobsSectionTitle>
+            <JobsSectionTitle>Featured Jobs</JobsSectionTitle>
             <Link href="/jobs/featured">
               <Typography
                 variant="body-large"
@@ -70,14 +70,12 @@ export default function FeaturedJobs({
                 experience: job.experience || "",
                 salaryMin: job.salaryMin || 0,
                 salaryMax: job.salaryMax || 0,
-                location:
-                  typeof job.location === "string"
-                    ? job.location
-                    : `${job.location?.city || ""} ${job.location?.state || ""}`.trim() ||
-                      "",
+                location: job.location || "",
                 jobType: job.jobType || "",
                 postedTime: job.postedAt
-                  ? formatDistanceToNow(new Date(job.postedAt), { addSuffix: true })
+                  ? formatDistanceToNow(new Date(job.postedAt), {
+                      addSuffix: true,
+                    })
                   : "",
               };
               return (
@@ -95,4 +93,3 @@ export default function FeaturedJobs({
     </section>
   );
 }
-

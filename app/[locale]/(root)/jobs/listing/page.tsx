@@ -16,6 +16,7 @@ import {
   AdFilters,
   ProductExtraField,
 } from "@/interfaces/ad";
+import { JobData } from "@/interfaces/job.types";
 import { formatDistanceToNow } from "date-fns";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
 import JobListingCard from "./_components/job-listing-card";
@@ -376,7 +377,80 @@ export default function JobsListingPage() {
     []
   );
 
-  // Transform AD to JobCard props
+  // Transform AD to JobData
+  const transformAdToJobData = (ad: AD): JobData => {
+    const extraFields = Array.isArray(ad.extraFields)
+      ? ad.extraFields
+      : Object.entries(ad.extraFields || {}).map(([name, value]) => ({
+          name,
+          value,
+        }));
+
+    const getFieldValue = (fieldName: string): string => {
+      const field = extraFields.find((f) =>
+        f.name?.toLowerCase().includes(fieldName.toLowerCase())
+      );
+      if (field) {
+        if (Array.isArray(field.value)) {
+          return field.value.join(", ");
+        }
+        return String(field.value || "");
+      }
+      return "";
+    };
+
+    const getSalaryFromAd = (type: "min" | "max"): number | undefined => {
+      const salaryField = extraFields.find(
+        (field) =>
+          field.name?.toLowerCase().includes("salary") &&
+          (type === "min"
+            ? field.name?.toLowerCase().includes("min")
+            : field.name?.toLowerCase().includes("max"))
+      );
+      if (salaryField && typeof salaryField.value === "number") {
+        return salaryField.value;
+      }
+      return type === "min" ? ad.price : ad.price;
+    };
+
+    return {
+      _id: ad._id,
+      title: ad.title || "",
+      description: ad.description || "",
+      company: ad.organization?.tradeName || ad.organization?.legalName || "",
+      organization: ad.organization as JobData["organization"],
+      location:
+        typeof ad.location === "string"
+          ? ad.location
+          : ad.location?.city || ad.address?.city || "",
+      jobType: getFieldValue("jobType") || getFieldValue("job type") || "",
+      workMode: getFieldValue("workMode") || getFieldValue("work mode") || "",
+      experience: getFieldValue("experience") || "",
+      salaryMin: getSalaryFromAd("min"),
+      salaryMax: getSalaryFromAd("max"),
+      skills: getFieldValue("skills")
+        ? getFieldValue("skills")
+            .split(/[,;]/)
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [],
+      benefits: getFieldValue("benefits")
+        ? getFieldValue("benefits")
+            .split(/[,;]/)
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [],
+      postedAt: ad.createdAt,
+      expiresAt: (ad as { expiresAt?: string }).expiresAt,
+      isFeatured: ad.isFeatured,
+      views: ad.views,
+      applicationsCount: undefined,
+      status: ad.status || "active",
+      extraFields: ad.extraFields as Record<string, unknown>,
+    };
+  };
+
+  // Transform AD to JobCard props (kept for backward compatibility with other components)
   const transformAdToJobCardProps = (ad: AD) => {
     const postedTime = formatDistanceToNow(new Date(ad.createdAt), {
       addSuffix: true,
@@ -557,12 +631,17 @@ export default function JobsListingPage() {
                       <>
                         <JobHeaderCard
                           job={selectedJob}
-                          transformAdToJobCardProps={transformAdToJobCardProps}
+                          logo={selectedJob.organization?.logoUrl}
                           onFavorite={(id: string) =>
                             console.log("Favorited:", id)
                           }
-                          onShare={(id: string) => console.log("Shared:", id)}
+                          onApply={(jobId: string) => {
+                            console.log("Apply to job:", jobId);
+                            // Handle apply logic in parent component
+                          }}
                           isFavorite={false}
+                          isApplied={selectedJob.isApplied ?? false}
+                          isApplying={false}
                         />
                         <JobDetailContent job={selectedJob} />
                         <Disclaimer />

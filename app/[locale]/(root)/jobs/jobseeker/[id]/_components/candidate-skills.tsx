@@ -26,7 +26,7 @@ export default function CandidateSkills({ jobseeker }: CandidateSkillsProps) {
         {jobseeker.skills.map((skill, index) => (
           <Badge
             key={skill || index}
-            className="bg-purple text-white px-4 py-2 rounded-full text-sm font-medium"
+            className="bg-purple/10 text-purple px-4 py-1 rounded-full text-xs font-medium"
           >
             {skill}
           </Badge>

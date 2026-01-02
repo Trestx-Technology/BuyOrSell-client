@@ -81,7 +81,7 @@ export default function PopularIndustries() {
             const industryId = industry._id;
             const industryName = industry.name || "";
             const jobCount = industry.adCount || 0;
-            const logoUrl = industry.icon;
+            const logoUrl = industry.icon || industry.mobileImage;
             const href = localePath(`/jobs/listing?industry=${industryId}`);
 
             return (
@@ -112,13 +112,13 @@ export default function PopularIndustries() {
                   {/* Industry Name */}
                   <Typography
                     variant="body-large"
-                    className="text-dark-blue font-semibold text-xl text-center group-hover:text-purple transition-colors line-clamp-1"
+                    className="text-dark-blue font-semibold text-lg truncate max-w-[150px] text-center group-hover:text-purple transition-colors line-clamp-1"
                   >
                     {industryName}
                   </Typography>
 
                   {/* Job Count Badge */}
-                  <Badge className="bg-purple/20 text-purple px-4 py-1.5 rounded-full text-sm font-medium">
+                  <Badge className="bg-purple/10 text-purple px-4 py-1 capitalize rounded-md text-sm font-medium">
                     {jobCount.toLocaleString()} jobs
                   </Badge>
                 </Link>

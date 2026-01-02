@@ -5,23 +5,29 @@ import type {
   UpdateOrganizationPayload,
   OrganizationResponse,
   OrganizationsListResponse,
-  VerifyOrganizationPayload,
   BlockOrganizationPayload,
-  UploadImageResponse,
   OrganizationByIdResponse,
+  BlockHistoryItem,
+  FollowersListResponse,
+  FollowersCountResponse,
+  BulkApprovePayload,
+  BulkRejectPayload,
 } from '@/interfaces/organization.types';
 
-// Get all organizations
+// Get all organizations with pagination, search and sorting
 export const findAllOrganizations = async (params?: {
-  filter?: string;
-  page?: number;
-  limit?: number;
+  search?: string;
   type?: string;
   emirate?: string;
   verified?: boolean;
+  status?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
 }): Promise<OrganizationsListResponse> => {
   const response = await axiosInstance.get<OrganizationsListResponse>(
-    organizationQueries.findAllOrganizations.endpoint,
+    organizationQueries.findAllOrganizations(params).endpoint,
     { params },
   );
   return response.data;
@@ -91,19 +97,39 @@ export const updateMyOrganization = async (
   return response.data;
 };
 
-// Verify organization
-export const verifyOrganization = async (
+// Approve organization (Admin only)
+export const approveOrganization = async (
   id: string,
-  data: VerifyOrganizationPayload,
 ): Promise<OrganizationResponse> => {
-  const response = await axiosInstance.put<OrganizationResponse>(
-    organizationQueries.verifyOrganization(id).endpoint,
+  const response = await axiosInstance.post<OrganizationResponse>(
+    organizationQueries.approveOrganization(id).endpoint,
+  );
+  return response.data;
+};
+
+// Reject organization (Admin only)
+export const rejectOrganization = async (
+  id: string,
+  data?: { rejectionReason?: string },
+): Promise<OrganizationResponse> => {
+  const response = await axiosInstance.post<OrganizationResponse>(
+    organizationQueries.rejectOrganization(id).endpoint,
     data,
   );
   return response.data;
 };
 
-// Block organization
+// Submit organization for review
+export const submitOrganization = async (
+  id: string,
+): Promise<OrganizationResponse> => {
+  const response = await axiosInstance.post<OrganizationResponse>(
+    organizationQueries.submitOrganization(id).endpoint,
+  );
+  return response.data;
+};
+
+// Block or unblock organization (admin only)
 export const blockOrganization = async (
   id: string,
   data: BlockOrganizationPayload,
@@ -115,51 +141,99 @@ export const blockOrganization = async (
   return response.data;
 };
 
-// Unblock organization
-export const unblockOrganization = async (
+// Get block history for an organization (admin only)
+export const getBlockHistory = async (
+  id: string,
+): Promise<{
+  statusCode: number;
+  message: string;
+  data: BlockHistoryItem[];
+  timestamp: string;
+}> => {
+  const response = await axiosInstance.get<{
+    statusCode: number;
+    message: string;
+    data: BlockHistoryItem[];
+    timestamp: string;
+  }>(organizationQueries.getBlockHistory(id).endpoint);
+  return response.data;
+};
+
+// Follow an organization
+export const followOrganization = async (
   id: string,
 ): Promise<OrganizationResponse> => {
   const response = await axiosInstance.post<OrganizationResponse>(
-    organizationQueries.unblockOrganization(id).endpoint,
+    organizationQueries.followOrganization(id).endpoint,
   );
   return response.data;
 };
 
-// Upload logo
-export const uploadLogo = async (
-  file: File,
-): Promise<UploadImageResponse> => {
-  const formData = new FormData();
-  formData.append('logo', file);
-  
-  const response = await axiosInstance.post<UploadImageResponse>(
-    organizationQueries.uploadLogo.endpoint,
-    formData,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    },
+// Unfollow an organization
+export const unfollowOrganization = async (
+  id: string,
+): Promise<OrganizationResponse> => {
+  const response = await axiosInstance.delete<OrganizationResponse>(
+    organizationQueries.unfollowOrganization(id).endpoint,
   );
   return response.data;
 };
 
-// Upload cover image
-export const uploadCoverImage = async (
-  file: File,
-): Promise<UploadImageResponse> => {
-  const formData = new FormData();
-  formData.append('cover', file);
-  
-  const response = await axiosInstance.post<UploadImageResponse>(
-    organizationQueries.uploadCoverImage.endpoint,
-    formData,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    },
+// Get organization followers list with pagination
+export const getFollowers = async (
+  id: string,
+  params?: { page?: number; limit?: number },
+): Promise<FollowersListResponse> => {
+  const response = await axiosInstance.get<FollowersListResponse>(
+    organizationQueries.getFollowers(id, params).endpoint,
+    { params },
   );
+  return response.data;
+};
+
+// Get organization followers count
+export const getFollowersCount = async (
+  id: string,
+): Promise<FollowersCountResponse> => {
+  const response = await axiosInstance.get<FollowersCountResponse>(
+    organizationQueries.getFollowersCount(id).endpoint,
+  );
+  return response.data;
+};
+
+// Bulk approve submitted organizations (Admin only)
+export const bulkApproveOrganizations = async (
+  data: BulkApprovePayload,
+): Promise<{
+  statusCode: number;
+  message: string;
+  data: { approved: number; failed: number };
+  timestamp: string;
+}> => {
+  const response = await axiosInstance.post<{
+    statusCode: number;
+    message: string;
+    data: { approved: number; failed: number };
+    timestamp: string;
+  }>(organizationQueries.bulkApproveOrganizations.endpoint, data);
+  return response.data;
+};
+
+// Bulk reject submitted organizations (Admin only)
+export const bulkRejectOrganizations = async (
+  data: BulkRejectPayload,
+): Promise<{
+  statusCode: number;
+  message: string;
+  data: { rejected: number; failed: number };
+  timestamp: string;
+}> => {
+  const response = await axiosInstance.post<{
+    statusCode: number;
+    message: string;
+    data: { rejected: number; failed: number };
+    timestamp: string;
+  }>(organizationQueries.bulkRejectOrganizations.endpoint, data);
   return response.data;
 };
 

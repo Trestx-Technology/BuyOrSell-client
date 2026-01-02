@@ -62,6 +62,7 @@ export interface Organization {
   ratingCount?: number;
   followersCount?: number;
   isFollowing?: boolean;
+  isSaved?: boolean;
   totalAds?: number;
   activeAds?: number;
   expiredAds?: number;
@@ -168,11 +169,13 @@ export interface OrganizationsListResponse {
   statusCode: number;
   message: string;
   data: {
-    organizations: Organization[];
+    items: Organization[];
     total: number;
     page: number;
     limit: number;
     totalPages: number;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
   };
   timestamp: string;
 }
@@ -185,9 +188,57 @@ export interface VerifyOrganizationPayload {
 
 export interface BlockOrganizationPayload {
   blocked: boolean;
-  blockedReason: string[];
+  blockedReason?: string[];
+}
+
+export interface BlockHistoryItem {
+  _id: string;
+  blocked: boolean;
+  blockedReason?: string[];
   blockedBy?: string;
-  blockNotes?: string;
+  blockedAt: string;
+  unblockedAt?: string;
+}
+
+export interface OrganizationFollower {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNo?: string;
+  profileImage?: string;
+  followedAt: string;
+}
+
+export interface FollowersListResponse {
+  statusCode: number;
+  message: string;
+  data: {
+    followers: OrganizationFollower[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  timestamp: string;
+}
+
+export interface FollowersCountResponse {
+  statusCode: number;
+  message: string;
+  data: {
+    count: number;
+  };
+  timestamp: string;
+}
+
+export interface BulkApprovePayload {
+  organizationIds: string[];
+}
+
+export interface BulkRejectPayload {
+  organizationIds: string[];
+  rejectionReason?: string;
 }
 
 export interface UploadImageResponse {

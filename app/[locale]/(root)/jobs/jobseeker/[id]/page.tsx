@@ -22,15 +22,19 @@ import { useGetJobseekerProfileById } from "@/hooks/useJobseeker";
 export default function JobseekerProfilePage() {
   const params = useParams();
   const router = useRouter();
-  const jobseekerId = params.id as string;
+  const userId = params.id as string;
 
-  // API call commented out - using dummy data for now
+  // Fetch jobseeker profile by user ID
   const {
     data: profileData,
     isLoading,
     error,
-  } = useGetJobseekerProfileById(jobseekerId);
-  const jobseeker = profileData?.data;
+  } = useGetJobseekerProfileById(userId);
+
+  // Extract profile from response data
+  // API response structure: { statusCode, timestamp, data: JobseekerProfile }
+  // The profile is directly in data (not nested under data.profile)
+  const jobseekerProfile = profileData?.data as JobseekerProfile | undefined;
 
   // useEffect(() => {
   //   if (error) {
@@ -63,17 +67,27 @@ export default function JobseekerProfilePage() {
 
   const handleShortlist = () => {
     // TODO: Implement shortlist functionality
-    console.log("Shortlist jobseeker:", jobseekerId);
+    console.log("Shortlist jobseeker:", userId);
   };
 
   const handleReject = () => {
     // TODO: Implement reject functionality
-    console.log("Reject jobseeker:", jobseekerId);
+    console.log("Reject jobseeker:", userId);
+  };
+
+  const handleChat = () => {
+    // TODO: Implement chat functionality
+    console.log("Chat with jobseeker:", userId);
+  };
+
+  const handleReport = () => {
+    // TODO: Implement report functionality
+    console.log("Report jobseeker:", userId);
   };
 
   const handleDownloadResume = () => {
-    if (jobseeker?.profile.resumeFileUrl) {
-      window.open(jobseeker.profile.resumeFileUrl, "_blank");
+    if (jobseekerProfile?.resumeFileUrl) {
+      window.open(jobseekerProfile.resumeFileUrl, "_blank");
     }
   };
 
@@ -83,12 +97,11 @@ export default function JobseekerProfilePage() {
         <div className="max-w-[1280px] mx-auto px-4 py-8">
           <div className="bg-gray-200 rounded-2xl h-96 animate-pulse" />
         </div>
-        <Footer />
       </main>
     );
   }
 
-  if (!jobseeker) {
+  if (!jobseekerProfile) {
     return (
       <main className="min-h-screen bg-[#F2F4F7]">
         <div className="max-w-[1280px] mx-auto px-4 py-8">
@@ -100,11 +113,10 @@ export default function JobseekerProfilePage() {
               Profile Not Found
             </Typography>
             <Typography variant="body-small" className="text-[#8A8A8A]">
-              Redirecting to create profile...
+              {error ? "Failed to load profile" : "Profile not found"}
             </Typography>
           </div>
         </div>
-        <Footer />
       </main>
     );
   }
@@ -131,37 +143,37 @@ export default function JobseekerProfilePage() {
       <div className="max-w-[1280px] mx-auto px-4 py-8">
         {/* Candidate Header */}
         <CandidateHeader
-          jobseeker={jobseeker.profile}
-          onShortlist={handleShortlist}
-          onReject={handleReject}
+          jobseeker={jobseekerProfile}
+          onChat={handleChat}
+          onReport={handleReport}
+          // onShortlist={handleShortlist}
+          // onReject={handleReject}
         />
 
         {/* Basic Information */}
-        <CandidateBasicInfo jobseeker={jobseeker.profile} />
+        <CandidateBasicInfo jobseeker={jobseekerProfile} />
 
         {/* Resume */}
         <CandidateResume
-          jobseeker={jobseeker.profile}
+          jobseeker={jobseekerProfile}
           onDownload={handleDownloadResume}
         />
 
         {/* Employment */}
-        <CandidateEmployment jobseeker={jobseeker.profile} />
+        <CandidateEmployment jobseeker={jobseekerProfile} />
 
         {/* Education */}
-        <CandidateEducation jobseeker={jobseeker.profile} />
+        <CandidateEducation jobseeker={jobseekerProfile} />
 
         {/* Key Skills */}
-        <CandidateSkills jobseeker={jobseeker.profile} />
+        <CandidateSkills jobseeker={jobseekerProfile} />
 
         {/* Profile Summary */}
-        <CandidateProfileSummary jobseeker={jobseeker.profile} />
+        <CandidateProfileSummary jobseeker={jobseekerProfile} />
 
         {/* Language Details */}
-        <CandidateLanguages />
+        <CandidateLanguages languages={jobseekerProfile.languages} />
       </div>
-
-      <Footer />
     </main>
   );
 }

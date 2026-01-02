@@ -94,13 +94,7 @@ export default function JobsListingLayout({
           <div className="space-y-6">
             {selectedJob && (
               <>
-                <JobHeaderCard
-                  job={selectedJob}
-                  transformAdToJobCardProps={transformAdToJobCardProps}
-                  onFavorite={onFavorite}
-                  onShare={onShare}
-                  isFavorite={false}
-                />
+                <JobHeaderCard job={selectedJob} />
                 <JobDetailContent job={selectedJob} />
               </>
             )}

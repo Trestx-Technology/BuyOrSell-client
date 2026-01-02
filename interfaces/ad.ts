@@ -134,6 +134,9 @@ export type AD = {
   slug?: string; // URL slug for the ad
   slugAr?: string; // Arabic URL slug for the ad
   searchTokens?: string[]; // Search tokens for the ad
+  isSaved?: boolean; // Whether the current user has saved this job/ad
+  isApplied?: boolean; // Whether the current user has applied to this job
+  savedJobId?: string; // ID of the saved job record (if saved)
   createdAt: string;
   updatedAt: string;
   __v: number;

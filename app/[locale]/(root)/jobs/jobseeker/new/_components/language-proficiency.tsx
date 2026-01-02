@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import { UseFormReturn, useFieldArray, Control } from "react-hook-form";
+import React, { useEffect, useCallback } from "react";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -11,28 +13,68 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { JobseekerProfile } from "@/interfaces/job.types";
-import { Plus, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Plus, Trash2 } from "lucide-react";
+import {
+  useGetJobseekerProfile,
+  useReplaceLanguagesByUserId,
+} from "@/hooks/useJobseeker";
+import {
+  languagesFormSchema,
+  type LanguagesFormSchemaType,
+} from "@/schemas/jobseeker.schema";
+import { toast } from "sonner";
+import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 
-interface LanguageProficiencyProps {
-  form: UseFormReturn<JobseekerProfile>;
-}
+type LanguageFormData = {
+  languages?: Array<{
+    _id?: string;
+    name?: string;
+    proficiency?: string;
+    readLevel?: number;
+    writeLevel?: number;
+    speakLevel?: number;
+  }>;
+};
 
-export default function LanguageProficiency({ form }: LanguageProficiencyProps) {
-  const { watch, setValue } = form;
+export default function LanguageProficiency() {
+  const { data: profileData, isLoading: isLoadingProfile } =
+    useGetJobseekerProfile();
+  const { mutate: replaceLanguages, isPending: isSubmitting } =
+    useReplaceLanguagesByUserId();
+
+  const form = useForm<LanguageFormData>({
+    resolver: zodResolver(languagesFormSchema),
+    defaultValues: {
+      languages: [],
+    },
+  });
+
+  const { handleSubmit, control, formState, register } = form;
+  const { errors } = formState;
   const { fields, append, remove } = useFieldArray({
-    control: form.control as Control<JobseekerProfile>,
+    control,
     name: "languages",
   });
 
-  const [currentLanguage, setCurrentLanguage] = useState<string>("");
-  const [currentProficiency, setCurrentProficiency] = useState<string>("");
-  const [currentSkills, setCurrentSkills] = useState({
-    read: false,
-    write: false,
-    speak: false,
-  });
+  // Load initial data from profile
+  useEffect(() => {
+    if (profileData?.data?.profile && !isLoadingProfile) {
+      const profile = profileData.data.profile;
+      const languages = profile.languages || [];
+      const formLanguages = languages.map((lang) => ({
+        _id: lang._id,
+        name: lang.name,
+        proficiency: lang.proficiency,
+        readLevel: lang.readLevel,
+        writeLevel: lang.writeLevel,
+        speakLevel: lang.speakLevel,
+      }));
+
+      form.reset({
+        languages: formLanguages,
+      });
+    }
+  }, [profileData, isLoadingProfile, form]);
 
   const languageOptions = [
     "English",
@@ -52,166 +94,244 @@ export default function LanguageProficiency({ form }: LanguageProficiencyProps) 
   const proficiencyLevels = [
     { value: "basic", label: "Basic" },
     { value: "conversational", label: "Conversational" },
+    { value: "intermediate", label: "Intermediate" },
+    { value: "advanced", label: "Advanced" },
     { value: "fluent", label: "Fluent" },
     { value: "native", label: "Native" },
   ];
 
-  const handleAddLanguage = () => {
-    if (currentLanguage && currentProficiency) {
-      append({
-        name: currentLanguage,
-        proficiency: currentProficiency,
-        read: currentSkills.read,
-        write: currentSkills.write,
-        speak: currentSkills.speak,
-      });
-      setCurrentLanguage("");
-      setCurrentProficiency("");
-      setCurrentSkills({ read: false, write: false, speak: false });
-    }
-  };
+  const onSubmit = useCallback(
+    (data: LanguageFormData) => {
+      const userId = profileData?.data?.profile?.userId;
+      if (!userId) {
+        toast.error("User ID not found");
+        return;
+      }
 
-  const toggleSkill = (skill: "read" | "write" | "speak") => {
-    setCurrentSkills((prev) => ({
-      ...prev,
-      [skill]: !prev[skill],
-    }));
-  };
+      const languages = (data.languages || []).map((lang) => {
+        const language: Record<string, unknown> = {
+          ...(lang._id && { _id: lang._id }),
+          name: lang.name || "",
+          proficiency: lang.proficiency || "",
+        };
+
+        if (lang.readLevel !== undefined) language.readLevel = lang.readLevel;
+        if (lang.writeLevel !== undefined)
+          language.writeLevel = lang.writeLevel;
+        if (lang.speakLevel !== undefined)
+          language.speakLevel = lang.speakLevel;
+
+        return language;
+      });
+
+      replaceLanguages(
+        { userId, data: languages },
+        {
+          onSuccess: () => {
+            toast.success("Languages updated successfully");
+          },
+          onError: (error: unknown) => {
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "Failed to update languages";
+            toast.error(errorMessage);
+          },
+        }
+      );
+    },
+    [replaceLanguages, profileData]
+  );
 
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 space-y-6">
-      <Typography
-        variant="h2"
-        className="text-dark-blue font-bold text-2xl"
-      >
-        Language Proficiency
-      </Typography>
-
-      {/* Add Language Form */}
-      <div className="border border-[#E2E2E2] rounded-lg p-6 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-dark-blue">Language</label>
-            <Select value={currentLanguage} onValueChange={setCurrentLanguage}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select language" />
-              </SelectTrigger>
-              <SelectContent>
-                {languageOptions.map((lang) => (
-                  <SelectItem key={lang} value={lang}>
-                    {lang}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-dark-blue">Proficiency Level</label>
-            <Select value={currentProficiency} onValueChange={setCurrentProficiency}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select proficiency" />
-              </SelectTrigger>
-              <SelectContent>
-                {proficiencyLevels.map((level) => (
-                  <SelectItem key={level.value} value={level.value}>
-                    {level.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 space-y-6">
+        <div className="flex justify-between items-center">
+          <Typography
+            variant="h2"
+            className="text-dark-blue font-bold text-2xl"
+          >
+            Language Proficiency
+          </Typography>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-dark-blue">Skills</label>
-          <div className="flex flex-wrap gap-4">
-            {(["read", "write", "speak"] as const).map((skill) => (
-              <button
-                key={skill}
-                type="button"
-                onClick={() => toggleSkill(skill)}
-                className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize",
-                  currentSkills[skill]
-                    ? "bg-purple text-white"
-                    : "bg-[#F2F4F7] text-dark-blue hover:bg-grey-blue/20 border border-transparent"
-                )}
+        <div className="flex gap-2 mb-6">
+          <Button
+            type="button"
+            variant="primary"
+            icon={<Plus className="w-4 h-4" />}
+            iconPosition="left"
+            onClick={() =>
+              append({
+                name: "",
+                proficiency: "",
+                readLevel: 0,
+                writeLevel: 0,
+                speakLevel: 0,
+              })
+            }
+          >
+            Add Language
+          </Button>
+          <Button type="submit" disabled={isSubmitting || isLoadingProfile}>
+            {isSubmitting ? "Saving..." : "Save"}
+          </Button>
+        </div>
+
+        <div className="space-y-6">
+          {fields.map((field, index) => {
+            return (
+              <div
+                key={field.id}
+                className="border border-[#E2E2E2] rounded-lg p-6 space-y-4"
               >
-                {skill}
-              </button>
-            ))}
-          </div>
-        </div>
+                <div className="flex justify-between items-center">
+                  <Typography
+                    variant="body-large"
+                    className="text-dark-blue font-semibold"
+                  >
+                    Language {index + 1}
+                  </Typography>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => remove(index)}
+                    className="text-error-100 hover:text-error-100"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
 
-        <Button
-          type="button"
-          variant="primary"
-          onClick={handleAddLanguage}
-          icon={<Plus className="w-4 h-4" />}
-          iconPosition="left"
-          disabled={!currentLanguage || !currentProficiency}
-        >
-          Add Language
-        </Button>
-      </div>
-
-      {/* Languages List */}
-      <div className="space-y-4">
-        {fields.map((field, index) => {
-          const lang = watch(`languages.${index}`);
-          return (
-            <div
-              key={field.id}
-              className="border border-[#E2E2E2] rounded-lg p-4 flex items-center justify-between"
-            >
-              <div className="flex-1">
-                <Typography variant="body-large" className="text-dark-blue font-semibold mb-1">
-                  {lang?.name || ""}
-                </Typography>
-                <Typography variant="body-small" className="text-grey-blue mb-2">
-                  {proficiencyLevels.find((l) => l.value === lang?.proficiency)?.label}
-                </Typography>
-                <div className="flex flex-wrap gap-2">
-                  {lang?.read && (
-                    <span className="px-2 py-1 bg-purple/20 text-purple rounded text-xs">
-                      Read
-                    </span>
-                  )}
-                  {lang?.write && (
-                    <span className="px-2 py-1 bg-purple/20 text-purple rounded text-xs">
-                      Write
-                    </span>
-                  )}
-                  {lang?.speak && (
-                    <span className="px-2 py-1 bg-purple/20 text-purple rounded text-xs">
-                      Speak
-                    </span>
-                  )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    label="Language"
+                    error={
+                      errors.languages?.[index]?.name?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Controller
+                      name={`languages.${index}.name`}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value || ""}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select language" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {languageOptions.map((lang) => (
+                              <SelectItem key={lang} value={lang}>
+                                {lang}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </FormField>
+                  <FormField
+                    label="Proficiency Level"
+                    error={
+                      errors.languages?.[index]?.proficiency?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Controller
+                      name={`languages.${index}.proficiency`}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value || ""}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select proficiency" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {proficiencyLevels.map((level) => (
+                              <SelectItem key={level.value} value={level.value}>
+                                {level.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </FormField>
+                  <FormField
+                    label="Read Level (0-10)"
+                    error={
+                      errors.languages?.[index]?.readLevel?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Input
+                      {...register(`languages.${index}.readLevel`, {
+                        valueAsNumber: true,
+                      })}
+                      type="number"
+                      min="0"
+                      max="10"
+                      placeholder="e.g., 9"
+                    />
+                  </FormField>
+                  <FormField
+                    label="Write Level (0-10)"
+                    error={
+                      errors.languages?.[index]?.writeLevel?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Input
+                      {...register(`languages.${index}.writeLevel`, {
+                        valueAsNumber: true,
+                      })}
+                      type="number"
+                      min="0"
+                      max="10"
+                      placeholder="e.g., 8"
+                    />
+                  </FormField>
+                  <FormField
+                    label="Speak Level (0-10)"
+                    error={
+                      errors.languages?.[index]?.speakLevel?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Input
+                      {...register(`languages.${index}.speakLevel`, {
+                        valueAsNumber: true,
+                      })}
+                      type="number"
+                      min="0"
+                      max="10"
+                      placeholder="e.g., 9"
+                    />
+                  </FormField>
                 </div>
               </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => remove(index)}
-                className="text-error-100 hover:text-error-100"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          );
-        })}
+            );
+          })}
 
-        {fields.length === 0 && (
-          <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg">
-            <Typography variant="body-small" className="text-grey-blue">
-              No languages added yet. Add your language proficiency above.
-            </Typography>
-          </div>
-        )}
+          {fields.length === 0 && (
+            <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg">
+              <Typography variant="body-small" className="text-grey-blue">
+                No languages added yet. Add your language proficiency above.
+              </Typography>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </form>
   );
 }
-

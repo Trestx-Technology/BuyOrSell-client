@@ -94,7 +94,7 @@ export interface SubCategory {
 export interface CategoriesApiResponse {
   statusCode: number;
   timestamp: string;
-  data: SubCategory[]
+  data: SubCategory[];
 }
 
 export interface CategoryApiResponse {
@@ -148,6 +148,7 @@ export interface JobSubcategory {
   descAr?: string;
   icon?: string | null;
   image?: string | null;
+  mobileImage?: string | null;
   bgColor?: string | null;
   adCount: number;
 }

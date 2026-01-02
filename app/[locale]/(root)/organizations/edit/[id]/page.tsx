@@ -872,10 +872,13 @@ const EditOrganizationPage = () => {
                     control={control}
                     render={({ field }) => (
                       <ChipsInput
+                        options={[
+                          { value: "en", label: "English" },
+                          { value: "ar", label: "Arabic" },
+                        ]}
                         value={field.value || []}
                         onChange={field.onChange}
                         placeholder={t.organizations.form.addLanguages}
-                        allowDuplicates={false}
                       />
                     )}
                   />
@@ -892,10 +895,10 @@ const EditOrganizationPage = () => {
                     control={control}
                     render={({ field }) => (
                       <ChipsInput
+                        options={[]}
                         value={field.value || []}
                         onChange={field.onChange}
                         placeholder={t.organizations.form.addBrands}
-                        allowDuplicates={false}
                       />
                     )}
                   />
@@ -912,10 +915,10 @@ const EditOrganizationPage = () => {
                     control={control}
                     render={({ field }) => (
                       <ChipsInput
+                        options={[]}
                         value={field.value || []}
                         onChange={field.onChange}
                         placeholder={t.organizations.form.addDealershipCodes}
-                        allowDuplicates={false}
                       />
                     )}
                   />

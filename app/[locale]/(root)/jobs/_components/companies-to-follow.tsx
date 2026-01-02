@@ -1,67 +1,81 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Typography } from "@/components/typography";
 import JobsSectionTitle from "./jobs-section-title";
-import { Organization } from "@/interfaces/organization.types";
 import { EmployerCard } from "./employer-card";
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 22,
-    },
-  },
-};
+import {
+  useOrganizations,
+  useFollowOrganization,
+  useUnfollowOrganization,
+} from "@/hooks/useOrganizations";
+import { Organization } from "@/interfaces/organization.types";
+import { useQueryClient } from "@tanstack/react-query";
+import { organizationQueries } from "@/app/api/organization";
+import { containerVariants, itemVariants } from "@/utils/animation-variants";
+import { useAuthStore } from "@/stores/authStore";
+import { useLocale } from "@/hooks/useLocale";
 
 interface CompaniesToFollowProps {
-  companies?: Organization[];
-  isLoading?: boolean;
+  limit?: number;
 }
 
-export default function CompaniesToFollow({ 
-  companies: companiesProp, 
-  isLoading: isLoadingProp 
+export default function CompaniesToFollow({
+  limit = 4,
 }: CompaniesToFollowProps = {}) {
-  const [followingEmployers, setFollowingEmployers] = React.useState<
-    Set<string>
-  >(new Set());
   const [wishlistedEmployers, setWishlistedEmployers] = React.useState<
     Set<string>
   >(new Set());
+  const queryClient = useQueryClient();
+  const { localePath } = useLocale();
+  const { session } = useAuthStore((state) => state);
+  const currentUserId = session.user?._id;
 
-  // Only use API data, no fallback
-  const employers = companiesProp || [];
-  const isLoading = isLoadingProp ?? false;
+  // Fetch organizations using search API
+  const { data: organizationsData, isLoading } = useOrganizations({
+    limit: limit,
+    page: 1,
+  });
 
-  const handleFollow = (employerId: string) => {
-    setFollowingEmployers((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(employerId)) {
-        newSet.delete(employerId);
-      } else {
-        newSet.add(employerId);
+  const followOrganization = useFollowOrganization();
+  const unfollowOrganization = useUnfollowOrganization();
+
+  const organizations = organizationsData?.data?.items || [];
+
+  // Check if user is owner and get navigation href
+  const getOrganizationHref = useMemo(() => {
+    return (organization: Organization): string => {
+      // Check if current user is the owner
+      const ownerId =
+        typeof organization.owner === "string"
+          ? organization.owner
+          : organization.owner?._id;
+
+      if (currentUserId && ownerId === currentUserId) {
+        // User is the owner, redirect to organization page
+        return localePath(`/jobs/organization/${organization._id}`);
       }
-      return newSet;
+      // Not the owner, use default employer page
+      return localePath(`/jobs/employer/${organization._id}`);
+    };
+  }, [currentUserId, localePath]);
+
+  const handleFollow = (organization: Organization) => {
+    const mutation = organization.isFollowing
+      ? unfollowOrganization
+      : followOrganization;
+
+    mutation.mutate(organization._id, {
+      onSuccess: () => {
+        // Invalidate search query to refresh the list with updated follow status
+        queryClient.invalidateQueries({
+          queryKey: organizationQueries.findAllOrganizations({ limit, page: 1 })
+            .Key,
+        });
+      },
     });
-    // TODO: Implement API call to follow/unfollow employer
   };
 
   const handleWishlist = (employerId: string) => {
@@ -94,7 +108,7 @@ export default function CompaniesToFollow({
     );
   }
 
-  if (employers.length === 0) {
+  if (!isLoading && organizations.length === 0) {
     return null;
   }
 
@@ -110,7 +124,7 @@ export default function CompaniesToFollow({
         <div className="py-8 space-y-4">
           {/* Header */}
           <div className="flex justify-between items-center gap-[35.56px] max-w-[1080px] mx-auto w-full">
-            <JobsSectionTitle>Companies to Follow</JobsSectionTitle>
+            <JobsSectionTitle>Organizations to Follow</JobsSectionTitle>
             <Link href="/jobs/employers">
               <Typography
                 variant="body-large"
@@ -121,24 +135,25 @@ export default function CompaniesToFollow({
             </Link>
           </div>
 
-          {/* Employers Grid */}
+          {/* Organizations Grid */}
           <div className="flex gap-5 justify-start w-full">
-            {employers.slice(0, 4).map((employer) => (
+            {organizations.slice(0, limit).map((organization) => (
               <motion.div
-                key={employer._id}
+                key={organization._id}
                 variants={itemVariants}
                 className="w-full max-w-[256px]"
               >
                 <EmployerCard
-                  logo={employer.logoUrl || ""}
-                  name={employer.tradeName || employer.legalName}
-                  category={employer.type || "Company"}
-                  followers={employer.followersCount || 0}
-                  employerId={employer._id}
-                  onFollow={() => handleFollow(employer._id)}
-                  onWishlist={() => handleWishlist(employer._id)}
-                  isFollowing={followingEmployers.has(employer._id)}
-                  isWishlisted={wishlistedEmployers.has(employer._id)}
+                  logo={organization.logoUrl || ""}
+                  name={organization.tradeName || organization.legalName}
+                  category={organization.type || "Organization"}
+                  followers={organization.followersCount || 0}
+                  employerId={organization._id}
+                  href={getOrganizationHref(organization)}
+                  onFollow={() => handleFollow(organization)}
+                  onWishlist={() => handleWishlist(organization._id)}
+                  isFollowing={organization.isFollowing || false}
+                  isWishlisted={wishlistedEmployers.has(organization._id)}
                 />
               </motion.div>
             ))}

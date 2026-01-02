@@ -24,7 +24,6 @@ import {
   CheckCircle,
   ImageOffIcon,
 } from "lucide-react";
-import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
 import { FaWhatsapp } from "react-icons/fa";
 import Link from "next/link";
@@ -45,6 +44,7 @@ import {
 } from "@/components/global/specifications-display";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
 import { useMemo } from "react";
+import { PriceDisplay } from "./price-display";
 
 export interface ListingCardProps {
   id: string;
@@ -174,14 +174,6 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
   const handleCardClick = () => {
     onClick?.(id);
-  };
-
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-    }).format(amount);
   };
 
   return (
@@ -368,20 +360,17 @@ const ListingCard: React.FC<ListingCardProps> = ({
         <div className="pt-2 space-y-3">
           {/* Price Section */}
           <div className="flex items-center gap-1 px-2.5">
-            <Image src={ICONS.currency.aed} alt="AED" width={16} height={16} />
-            <span className="text-md font-bold text-purple">
-              {formatPrice(price).replace("AED", "").trim()}
-            </span>
-            {originalPrice && (
-              <span className="text-md text-grey-blue line-through text-sm">
-                {formatPrice(originalPrice).replace("AED", "").trim()}
-              </span>
-            )}
-            {discount && (
-              <span className="text-md text-teal text-sm font-semibold">
-                {discount}%
-              </span>
-            )}
+            <PriceDisplay
+              price={price}
+              originalPrice={originalPrice}
+              discountPercentage={discount}
+              currencyIconWidth={16}
+              currencyIconHeight={16}
+              className="gap-1"
+              currentPriceClassName="text-sm font-bold text-purple"
+              originalPriceClassName="text-xs text-grey-blue line-through text-sm"
+              discountBadgeClassName="text-xs text-teal text-sm font-semibold"
+            />
           </div>
 
           {/* Title */}

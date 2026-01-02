@@ -20,12 +20,16 @@ interface CandidateHeaderProps {
   jobseeker: JobseekerProfile;
   onShortlist?: () => void;
   onReject?: () => void;
+  onChat?: () => void;
+  onReport?: () => void;
 }
 
 export default function CandidateHeader({
   jobseeker,
   onShortlist,
   onReject,
+  onChat,
+  onReport,
 }: CandidateHeaderProps) {
   const profileName = jobseeker.name || "User";
   const initials =
@@ -36,14 +40,18 @@ export default function CandidateHeader({
       .toUpperCase()
       .slice(0, 2) || "SK";
   const professionalTitle = jobseeker.headline || "";
-  const currentCompany = jobseeker.experiences[0]?.company || "";
+  const currentCompany = jobseeker.experiences?.[0]?.company || "";
 
   // Get job preferences
   const jobType = jobseeker.preferredJobTypes?.[0] || "";
 
-  // Calculate experience from work experience
+  // Use experienceYears directly from profile, or calculate from experiences
   let experience = "";
-  if (jobseeker.experiences && jobseeker.experiences.length > 0) {
+  if (jobseeker.experienceYears) {
+    experience = `${jobseeker.experienceYears} ${
+      jobseeker.experienceYears === 1 ? "year" : "years"
+    }`;
+  } else if (jobseeker.experiences && jobseeker.experiences.length > 0) {
     const firstExp = jobseeker.experiences[0];
     if (firstExp.startDate) {
       const startDate = new Date(firstExp.startDate);
@@ -56,21 +64,21 @@ export default function CandidateHeader({
         const yearsDiff =
           (endDate.getTime() - startDate.getTime()) /
           (1000 * 60 * 60 * 24 * 365);
-        experience = `${Math.floor(yearsDiff)} years`;
+        experience = `${Math.floor(yearsDiff)} ${
+          Math.floor(yearsDiff) === 1 ? "year" : "years"
+        }`;
       }
     }
   }
 
-  const salaryRange =
-    jobseeker.salaryExpectationMin && jobseeker.salaryExpectationMax
-      ? {
-          min: jobseeker.salaryExpectationMin,
-          max: jobseeker.salaryExpectationMax,
-        }
-      : undefined;
-  const salaryMin = salaryRange?.min || 0;
-  const salaryMax = salaryRange?.max || 0;
-  const availability = "Immediately";
+  const salaryMin = jobseeker.salaryExpectationMin || 0;
+  const salaryMax = jobseeker.salaryExpectationMax || 0;
+  const ctcCurrency = jobseeker.ctcCurrency || "AED";
+  const availability =
+    jobseeker.availability ||
+    (jobseeker.noticePeriodDays
+      ? `${jobseeker.noticePeriodDays} days notice`
+      : "Immediately");
 
   const lastUpdated = jobseeker.updatedAt
     ? formatDistanceToNow(new Date(jobseeker.updatedAt || new Date()), {
@@ -193,7 +201,7 @@ export default function CandidateHeader({
             <div className="flex items-center gap-1.5">
               <DollarSign className="w-5 h-5 text-dark-blue" />
               <div className="flex items-center gap-1">
-                <span className="text-[12px]">AED</span>
+                <span className="text-[12px]">{ctcCurrency}</span>
                 <Typography
                   variant="body-small"
                   className="text-dark-blue text-sm font-medium"
@@ -203,7 +211,7 @@ export default function CandidateHeader({
                 {salaryMax > salaryMin && (
                   <>
                     <span className="text-dark-blue">-</span>
-                    <span className="text-[12px]">AED</span>
+                    <span className="text-[12px]">{ctcCurrency}</span>
                     <Typography
                       variant="body-small"
                       className="text-dark-blue text-sm font-medium"
@@ -232,6 +240,25 @@ export default function CandidateHeader({
 
       {/* Action Buttons */}
       <div className="flex flex-col gap-3 absolute top-5 right-4">
+        {onChat && (
+          <Button
+            onClick={onChat}
+            className="bg-purple text-white hover:bg-purple/90"
+            size="sm"
+          >
+            Chat With Applicant
+          </Button>
+        )}
+        {onReport && (
+          <Button
+            onClick={onReport}
+            variant="outline"
+            className="bg-white text-dark-blue border border-gray-300 hover:bg-gray-50"
+            size="sm"
+          >
+            Report
+          </Button>
+        )}
         {onShortlist && (
           <Button
             onClick={onShortlist}

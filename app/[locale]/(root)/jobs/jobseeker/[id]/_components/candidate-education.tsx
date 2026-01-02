@@ -10,7 +10,7 @@ interface CandidateEducationProps {
 }
 
 export default function CandidateEducation({ jobseeker }: CandidateEducationProps) {
-  if (!jobseeker.education || jobseeker.education.length === 0) {
+  if (!jobseeker.educations || jobseeker.educations.length === 0) {
     return null;
   }
 

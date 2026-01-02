@@ -186,7 +186,6 @@ export function BannerCarousel({
               <Image
                 src={slide.image}
                 alt={slide.title || slide.titleAr || "Banner"}
-                unoptimized
                 width={1200}
                 height={400}
                 className={`rounded-xl md:rounded-none h-[190px] sm:h-full w-full object-cover object-right md:object-center ${imageClassName}`}

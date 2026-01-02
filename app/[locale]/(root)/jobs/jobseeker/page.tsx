@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
@@ -14,87 +14,16 @@ import SortAndViewControls, {
   ViewMode,
 } from "@/app/[locale]/(root)/post-ad/_components/SortAndViewControls";
 import { cn } from "@/lib/utils";
-import { useAds, useFilterAds } from "@/hooks/useAds";
-import {
-  AD,
-  AdFilterPayload,
-  AdFilters,
-  ProductExtraField,
-} from "@/interfaces/ad";
+import { useSearchJobseekerProfiles } from "@/hooks/useJobseeker";
+import { JobseekerProfile } from "@/interfaces/job.types";
 import { formatDistanceToNow } from "date-fns";
 import Pagination from "@/components/global/pagination";
-import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
+import { defaultJobseekerFilters } from "@/constants/job.constants";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { useJobSubcategories } from "@/hooks/useCategories";
+import { useGetAllSkills } from "@/hooks/useSkills";
 
 const ITEMS_PER_PAGE = 12;
-
-// Default filter configuration for jobseekers (similar to jobs)
-const defaultJobseekerFilters: FilterConfig[] = [
-  {
-    key: "location",
-    label: "Location",
-    type: "select",
-    options: [
-      { value: "dubai", label: "Dubai" },
-      { value: "abu-dhabi", label: "Abu Dhabi" },
-      { value: "sharjah", label: "Sharjah" },
-      { value: "ajman", label: "Ajman" },
-      { value: "ras-al-khaimah", label: "Ras Al Khaimah" },
-      { value: "fujairah", label: "Fujairah" },
-      { value: "umm-al-quwain", label: "Umm Al Quwain" },
-    ],
-    placeholder: "Dubai",
-  },
-  {
-    key: "salary",
-    label: "Salary Range",
-    type: "select",
-    options: [
-      { value: "under-10k", label: "Under 10,000" },
-      { value: "10k-20k", label: "10,000 - 20,000" },
-      { value: "20k-30k", label: "20,000 - 30,000" },
-      { value: "30k-50k", label: "30,000 - 50,000" },
-      { value: "50k-100k", label: "50,000 - 100,000" },
-      { value: "over-100k", label: "Over 100,000" },
-    ],
-    placeholder: "Select Salary Range",
-  },
-  {
-    key: "jobType",
-    label: "Job Type",
-    type: "select",
-    options: [
-      { value: "full-time", label: "Full Time" },
-      { value: "part-time", label: "Part Time" },
-      { value: "contract", label: "Contract" },
-      { value: "temporary", label: "Temporary" },
-      { value: "internship", label: "Internship" },
-    ],
-    placeholder: "Any Type",
-  },
-  {
-    key: "workMode",
-    label: "Work Mode",
-    type: "select",
-    options: [
-      { value: "remote", label: "Remote" },
-      { value: "on-site", label: "On-Site" },
-      { value: "hybrid", label: "Hybrid" },
-    ],
-    placeholder: "Any Mode",
-  },
-  {
-    key: "experience",
-    label: "Experience",
-    type: "select",
-    options: [
-      { value: "entry", label: "Entry Level" },
-      { value: "mid", label: "Mid Level" },
-      { value: "senior", label: "Senior Level" },
-      { value: "executive", label: "Executive" },
-    ],
-    placeholder: "Any Experience",
-  },
-];
 
 // Helper function to safely get string value from filter
 const getFilterString = (value: string | string[] | undefined): string => {
@@ -108,40 +37,37 @@ export default function JobseekersPage() {
     searchParams.get("query") || searchParams.get("search") || "";
   const urlLocation = searchParams.get("location") || "";
 
-  const [searchQuery, setSearchQuery] = useState(urlQuery);
   const [locationQuery, setLocationQuery] = useState(urlLocation);
   const [filters, setFilters] = useState<Record<string, string | string[]>>({
     location: urlLocation,
-    salary: "",
-    jobType: "",
-    workMode: "",
-    experience: "",
+    skills: [],
+    desiredRoles: [],
+    minExp: "",
+    maxExp: "",
+    industryId: "",
   });
   const [view, setView] = useState<ViewMode>("grid");
   const [currentPage, setCurrentPage] = useState(1);
-  const [savedExtraFields, setSavedExtraFields] = useState<ProductExtraField[]>(
-    []
+
+  // Debounced search query - searchQuery is the debounced value used for API calls
+  const [searchQuery, setSearchQuery] = useState(urlQuery);
+  const [localSearchQuery, setLocalSearchQuery] = useDebouncedValue(
+    searchQuery,
+    (value) => setSearchQuery(value),
+    500
   );
 
   // Initialize search query and location from URL params
   useEffect(() => {
     if (urlQuery) {
       setSearchQuery(urlQuery);
+      setLocalSearchQuery(urlQuery);
     }
     if (urlLocation) {
       setLocationQuery(urlLocation);
       setFilters((prev) => ({ ...prev, location: urlLocation }));
     }
-  }, [urlQuery, urlLocation]);
-
-  // Initial fetch to get extraFields structure
-  const { data: initialAdsData } = useAds({
-    adType: "JOB",
-    limit: 1,
-    page: 1,
-  });
-
-  const firstJob = initialAdsData?.data?.adds?.[0] as AD | undefined;
+  }, [urlQuery, urlLocation, setLocalSearchQuery]);
 
   const categoryName = "Jobseekers";
 
@@ -155,193 +81,160 @@ export default function JobseekersPage() {
     },
   ];
 
-  // Get extraFields from first job and save them
-  useEffect(() => {
-    if (firstJob?.extraFields) {
-      const normalized = normalizeExtraFieldsToArray(firstJob.extraFields);
-      if (normalized.length > 0) {
-        setSavedExtraFields(normalized);
-        // Initialize filter state for dynamic extraFields (preserve existing default filters)
-        setFilters((prevFilters) => {
-          const newFilters: Record<string, string | string[]> = {
-            location: getFilterString(prevFilters.location),
-            salary: getFilterString(prevFilters.salary),
-            jobType: getFilterString(prevFilters.jobType),
-            workMode: getFilterString(prevFilters.workMode),
-            experience: getFilterString(prevFilters.experience),
-          };
-          normalized.forEach((field) => {
-            if (
-              field.optionalArray &&
-              Array.isArray(field.optionalArray) &&
-              field.optionalArray.length > 0
-            ) {
-              // Only add if not already in default filters
-              if (!newFilters[field.name]) {
-                newFilters[field.name] = getFilterString(
-                  prevFilters[field.name]
-                );
-              }
-            }
-          });
-          return newFilters;
-        });
-      }
-    }
-  }, [firstJob]);
+  // Fetch industries for filter
+  const { data: industriesData } = useJobSubcategories({
+    adType: "job",
+  });
 
-  // Generate dynamic filter config from extraFields
-  const dynamicFilterConfig = useMemo(() => {
-    const extraFields =
-      savedExtraFields.length > 0
-        ? savedExtraFields
-        : firstJob?.extraFields
-        ? normalizeExtraFieldsToArray(firstJob.extraFields)
-        : [];
+  // Fetch skills for filter
+  const { data: skillsData } = useGetAllSkills({
+    limit: 1000, // Get a large number of skills
+  });
 
-    const dynamicFilters: FilterConfig[] = extraFields
-      .filter((field) => {
-        // Only include fields that have optionalArray and are not boolean type
-        return (
-          field.optionalArray &&
-          Array.isArray(field.optionalArray) &&
-          field.optionalArray.length > 0 &&
-          field.type !== "bool"
-        );
-      })
-      .map((field) => {
-        const options = field.optionalArray!.map((value) => ({
-          value: String(value),
-          label:
-            String(value).charAt(0).toUpperCase() +
-            String(value).slice(1).replace(/-/g, " "),
-        }));
+  // Build filter config with additional filters for jobseeker search
+  const filterConfig = useMemo(() => {
+    const industryOptions =
+      industriesData?.map((industry) => ({
+        value: industry._id,
+        label: industry.name || "",
+      })) || [];
 
-        return {
-          key: field.name,
-          label:
-            field.name.charAt(0).toUpperCase() +
-            field.name.slice(1).replace(/([A-Z])/g, " $1"),
-          type: "select" as const,
-          options,
-          placeholder: `Select ${field.name}`,
-        };
-      });
+    const skillOptions =
+      skillsData?.data?.items?.map((skill) => ({
+        value: skill.name, // Use skill name as value for API
+        label: skill.name,
+      })) || [];
 
-    // Combine default filters with dynamic filters from extraFields
-    return [...defaultJobseekerFilters, ...dynamicFilters];
-  }, [savedExtraFields, firstJob]);
+    // Mark first 5 filters as static (visible outside), rest go in dialog
+    return [
+      // First 5 filters - visible outside
+      {
+        ...defaultJobseekerFilters[0], // location
+        isStatic: true,
+      },
+      {
+        key: "minExp",
+        label: "Min Experience",
+        type: "select" as const,
+        options: Array.from({ length: 21 }, (_, i) => ({
+          value: String(i),
+          label: `${i} ${i === 1 ? "year" : "years"}`,
+        })),
+        placeholder: "Min Years",
+        isStatic: true,
+      },
+      {
+        key: "maxExp",
+        label: "Max Experience",
+        type: "select" as const,
+        options: Array.from({ length: 21 }, (_, i) => ({
+          value: String(i),
+          label: `${i} ${i === 1 ? "year" : "years"}`,
+        })),
+        placeholder: "Max Years",
+        isStatic: true,
+      },
+      {
+        key: "industryId",
+        label: "Industry",
+        type: "select" as const,
+        options: industryOptions,
+        placeholder: "Select Industry",
+        isStatic: true,
+      },
+      {
+        key: "skills",
+        label: "Skills",
+        type: "multiselect" as const,
+        options: skillOptions,
+        placeholder: "Select Skills",
+        isStatic: true,
+      },
+      // Rest of filters - go in dialog
+      {
+        key: "desiredRoles",
+        label: "Desired Roles",
+        type: "multiselect" as const,
+        options: [], // Will be populated dynamically or from API
+        placeholder: "Select Roles",
+        isStatic: false,
+      },
+      ...defaultJobseekerFilters.slice(1).map((filter) => ({
+        ...filter,
+        isStatic: false,
+      })),
+    ];
+  }, [industriesData, skillsData]);
 
-  // Check if any filters are active
-  const hasActiveFilters = useMemo(() => {
-    return !!(
-      searchQuery || Object.values(filters).some((value) => value !== "")
-    );
-  }, [searchQuery, filters]);
-
-  // Build filter payload for API
-  const filterPayload = useMemo((): AdFilterPayload => {
-    const payload: AdFilterPayload = {
-      adType: "JOB",
-    };
-
-    if (searchQuery) payload.search = searchQuery;
-    const locationFilter = getFilterString(filters.location);
-    if (locationFilter) payload.city = locationFilter;
-
-    // Parse salary range
-    const salaryFilter = getFilterString(filters.salary);
-    if (salaryFilter) {
-      if (salaryFilter === "under-10k") {
-        payload.priceTo = 10000;
-      } else if (salaryFilter === "10k-20k") {
-        payload.priceFrom = 10000;
-        payload.priceTo = 20000;
-      } else if (salaryFilter === "20k-30k") {
-        payload.priceFrom = 20000;
-        payload.priceTo = 30000;
-      } else if (salaryFilter === "30k-50k") {
-        payload.priceFrom = 30000;
-        payload.priceTo = 50000;
-      } else if (salaryFilter === "50k-100k") {
-        payload.priceFrom = 50000;
-        payload.priceTo = 100000;
-      } else if (salaryFilter === "over-100k") {
-        payload.priceFrom = 100000;
-      }
-    }
-
-    // Add default job filters to extraFields
-    const extraFieldsFilters: Record<
-      string,
-      string | string[] | number | boolean
-    > = {};
-    const jobTypeFilter = getFilterString(filters.jobType);
-    if (jobTypeFilter) extraFieldsFilters.jobType = jobTypeFilter;
-    const workModeFilter = getFilterString(filters.workMode);
-    if (workModeFilter) extraFieldsFilters.workMode = workModeFilter;
-    const experienceFilter = getFilterString(filters.experience);
-    if (experienceFilter) extraFieldsFilters.experience = experienceFilter;
-
-    // Add dynamic extraFields filters (from first job's extraFields)
-    Object.entries(filters).forEach(([key, value]) => {
-      // Skip default filters that are already handled
-      if (
-        !["location", "salary", "jobType", "workMode", "experience"].includes(
-          key
-        ) &&
-        value
-      ) {
-        extraFieldsFilters[key] = value;
-      }
-    });
-
-    if (Object.keys(extraFieldsFilters).length > 0) {
-      payload.extraFields = extraFieldsFilters;
-    }
-
-    return payload;
-  }, [searchQuery, filters, currentPage]);
-
-  // Build API params for useAds - always use adType: "JOB"
-  const adsParams = useMemo(() => {
-    const params: AdFilters = {
-      adType: "JOB",
+  // Build API params for jobseeker search
+  const searchParams_api = useMemo(() => {
+    const params: Record<string, unknown> = {
       page: currentPage,
       limit: ITEMS_PER_PAGE,
+      onlyUnblocked: true,
+      onlyUnbanned: true,
     };
 
-    // Add search query if present
+    // Add search query if present (use debounced value)
     if (searchQuery) {
-      params.search = searchQuery;
+      params.q = searchQuery;
     }
 
-    // Add location if present
+    // Add location filter
     const locationFilter = getFilterString(filters.location) || locationQuery;
     if (locationFilter) {
       params.location = locationFilter;
     }
 
+    // Add skills filter (array)
+    if (
+      filters.skills &&
+      Array.isArray(filters.skills) &&
+      filters.skills.length > 0
+    ) {
+      params.skills = filters.skills.filter(
+        (s): s is string => typeof s === "string"
+      );
+    }
+
+    // Add desiredRoles filter (array)
+    if (
+      filters.desiredRoles &&
+      Array.isArray(filters.desiredRoles) &&
+      filters.desiredRoles.length > 0
+    ) {
+      params.desiredRoles = filters.desiredRoles.filter(
+        (r): r is string => typeof r === "string"
+      );
+    }
+
+    // Add minExp filter
+    const minExp = getFilterString(filters.minExp);
+    if (minExp) {
+      params.minExp = Number.parseInt(minExp, 10);
+    }
+
+    // Add maxExp filter
+    const maxExp = getFilterString(filters.maxExp);
+    if (maxExp) {
+      params.maxExp = Number.parseInt(maxExp, 10);
+    }
+
+    // Add industryId filter
+    const industryId = getFilterString(filters.industryId);
+    if (industryId) {
+      params.industryId = industryId;
+    }
+
     return params;
   }, [searchQuery, locationQuery, filters, currentPage]);
 
-  // Fetch jobseekers using ads API with adType: "JOB"
-  const { data: filterAdsData, isLoading: isFilterLoading } = useFilterAds(
-    filterPayload,
-    currentPage,
-    ITEMS_PER_PAGE,
-    hasActiveFilters
-  );
+  // Fetch jobseekers using jobseeker search API
+  const { data: jobseekersData, isLoading } =
+    useSearchJobseekerProfiles(searchParams_api);
 
-  const { data: regularAdsData, isLoading: isRegularLoading } = useAds(
-    hasActiveFilters ? undefined : adsParams
-  );
-
-  const adsData = hasActiveFilters ? filterAdsData : regularAdsData;
-  const isLoading = hasActiveFilters ? isFilterLoading : isRegularLoading;
-
-  const jobseekers = (adsData?.data?.adds || []) as AD[];
-  const totalItems = adsData?.data?.total || jobseekers.length;
+  const jobseekers = (jobseekersData?.data?.items || []) as JobseekerProfile[];
+  const totalItems = jobseekersData?.data?.total || jobseekers.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
   const handleFilterChange = (key: string, value: string | string[]) => {
@@ -356,24 +249,15 @@ export default function JobseekersPage() {
   const clearFilters = () => {
     const clearedFilters: Record<string, string | string[]> = {
       location: "",
-      salary: "",
-      jobType: "",
-      workMode: "",
-      experience: "",
+      skills: [],
+      desiredRoles: [],
+      minExp: "",
+      maxExp: "",
+      industryId: "",
     };
-    // Clear all dynamic filters from extraFields
-    dynamicFilterConfig.forEach((config) => {
-      // Skip default filters
-      if (
-        !["location", "salary", "jobType", "workMode", "experience"].includes(
-          config.key
-        )
-      ) {
-        clearedFilters[config.key] = "";
-      }
-    });
     setFilters(clearedFilters);
     setSearchQuery("");
+    setLocalSearchQuery("");
     setLocationQuery("");
     setCurrentPage(1);
   };
@@ -384,94 +268,53 @@ export default function JobseekersPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Helper function to extract salary from AD extraFields
-  const getSalaryFromAd = useCallback(
-    (ad: AD, type: "min" | "max"): number | null => {
-      if (!ad.extraFields) return null;
-
-      const extraFields = Array.isArray(ad.extraFields)
-        ? ad.extraFields
-        : Object.entries(ad.extraFields).map(([name, value]) => ({
-            name,
-            value,
-          }));
-
-      const salaryField = extraFields.find(
-        (field) =>
-          field.name?.toLowerCase().includes("salary") &&
-          (type === "min"
-            ? field.name?.toLowerCase().includes("min")
-            : field.name?.toLowerCase().includes("max"))
-      );
-
-      if (salaryField && typeof salaryField.value === "number") {
-        return salaryField.value;
-      }
-
-      return null;
-    },
-    []
-  );
-
-  // Transform AD to ApplicantCard props
-  const transformAdToApplicantCardProps = (ad: AD) => {
-    const postedTime = formatDistanceToNow(new Date(ad.createdAt), {
+  // Transform JobseekerProfile to ApplicantCard props
+  const transformJobseekerToApplicantCardProps = (
+    profile: JobseekerProfile
+  ) => {
+    const postedTime = formatDistanceToNow(new Date(profile.createdAt), {
       addSuffix: true,
     });
 
-    // Extract job fields from extraFields
-    const extraFields = Array.isArray(ad.extraFields)
-      ? ad.extraFields
-      : Object.entries(ad.extraFields || {}).map(([name, value]) => ({
-          name,
-          value,
-        }));
-
-    const getFieldValue = (fieldName: string): string => {
-      const field = extraFields.find((f) =>
-        f.name?.toLowerCase().includes(fieldName.toLowerCase())
-      );
-      if (field) {
-        if (Array.isArray(field.value)) {
-          return field.value.join(", ");
-        }
-        return String(field.value || "");
-      }
-      return "";
-    };
-
-    const jobType =
-      getFieldValue("jobType") || getFieldValue("job type") || "Not specified";
-    const experience = getFieldValue("experience") || "Not specified";
-    const role =
-      getFieldValue("role") ||
-      getFieldValue("position") ||
-      ad.title ||
-      "Not specified";
-
-    // Extract salary from extraFields or use price
-    const salaryMin = getSalaryFromAd(ad, "min") || ad.price || 0;
-    const salaryMax = getSalaryFromAd(ad, "max") || ad.price || 0;
-
-    // Get location
+    // Get location from preferredLocations or location field
     const location =
-      typeof ad.location === "string"
-        ? ad.location
-        : ad.location?.city || ad.address?.city || "Location not specified";
+      profile.preferredLocations && profile.preferredLocations.length > 0
+        ? profile.preferredLocations[0]
+        : profile.location || "Not specified";
 
-    // Get jobseeker name (from owner or title)
-    const name =
-      (ad.owner?.firstName && ad.owner?.lastName
-        ? `${ad.owner.firstName} ${ad.owner.lastName}`
-        : ad.title) || "Jobseeker";
+    // Get job type from preferredJobTypes
+    const jobType =
+      profile.preferredJobTypes && profile.preferredJobTypes.length > 0
+        ? profile.preferredJobTypes[0]
+        : "Not specified";
 
-    // Get company name
+    // Get experience years
+    const experience = profile.experienceYears
+      ? `${profile.experienceYears} ${
+          profile.experienceYears === 1 ? "year" : "years"
+        }`
+      : profile.isFresher
+      ? "Fresher"
+      : "Not specified";
+
+    // Get role/headline
+    const role =
+      profile.headline || profile.desiredRoles?.[0] || "Professional";
+
+    // Get company from current experience if available
     const company =
-      ad.organization?.tradeName || ad.organization?.legalName || "Company";
+      profile.experiences && profile.experiences.length > 0
+        ? profile.experiences[0].company
+        : "Not specified";
+
+    // Get salary expectations
+    const salaryMin = profile.salaryExpectationMin || 0;
+    const salaryMax =
+      profile.salaryExpectationMax || profile.salaryExpectationMin || 0;
 
     return {
-      id: ad._id,
-      name,
+      id: profile._id,
+      name: profile.name,
       role,
       company,
       experience,
@@ -480,7 +323,7 @@ export default function JobseekersPage() {
       location,
       jobType,
       postedTime,
-      logo: ad.organization?.logoUrl,
+      logo: profile.photoUrl,
       isFavorite: false,
       onFavorite: (id: string) => console.log("Favorited:", id),
       onShare: (id: string) => console.log("Shared:", id),
@@ -510,8 +353,8 @@ export default function JobseekersPage() {
         <Input
           leftIcon={<Search className="h-4 w-4" />}
           placeholder={"Search jobseekers..."}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={localSearchQuery}
+          onChange={(e) => setLocalSearchQuery(e.target.value)}
           className="pl-10 bg-gray-100 border-0"
         />
       </div>
@@ -542,8 +385,8 @@ export default function JobseekersPage() {
 
         {/* Jobseekers Filters */}
         <JobsFilter
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          searchQuery={localSearchQuery}
+          onSearchChange={setLocalSearchQuery}
           searchPlaceholder={`Search ${categoryName}...`}
           locationQuery={locationQuery}
           onLocationChange={handleLocationChange}
@@ -551,7 +394,7 @@ export default function JobseekersPage() {
           filters={filters}
           onFilterChange={handleFilterChange}
           onClearFilters={clearFilters}
-          config={dynamicFilterConfig}
+          config={filterConfig}
           className="mb-4"
         />
 
@@ -583,7 +426,7 @@ export default function JobseekersPage() {
               {jobseekers.map((jobseeker) => (
                 <ApplicantCard
                   key={jobseeker._id}
-                  {...transformAdToApplicantCardProps(jobseeker)}
+                  {...transformJobseekerToApplicantCardProps(jobseeker)}
                 />
               ))}
             </div>

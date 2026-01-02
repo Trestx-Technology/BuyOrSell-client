@@ -1,149 +1,480 @@
 "use client";
 
-import React from "react";
-import { UseFormReturn, useFieldArray, Control } from "react-hook-form";
+import React, { useEffect, useCallback, useMemo } from "react";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { JobseekerProfile } from "@/interfaces/job.types";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
+import { SelectableTabsInput } from "@/app/[locale]/(root)/post-ad/details/_components/SelectableTabsInput";
+import {
+  useGetJobseekerProfile,
+  useReplaceEducationsByUserId,
+} from "@/hooks/useJobseeker";
+import { educationFormSchema, type EducationFormSchemaType } from "@/schemas/jobseeker.schema";
+import { DatePicker } from "@/components/global/date-picker";
+import { toast } from "sonner";
+import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
+import { CreateEducationPayload } from "@/interfaces/job.types";
 
-interface EducationFormProps {
-  form: UseFormReturn<JobseekerProfile>;
-}
+type EducationFormData = {
+  education?: Array<{
+    _id?: string;
+    institution?: string;
+    degree?: string;
+    fieldOfStudy?: string;
+    startDate?: string;
+    endDate?: string;
+    current?: boolean;
+    grade?: string;
+    description?: string;
+    courseType?: string;
+    scoreType?: string;
+    score?: number;
+    yearOfPassing?: number;
+  }>;
+};
 
-export default function EducationForm({ form }: EducationFormProps) {
-  const { register, watch, setValue } = form;
+export default function EducationForm() {
+  const { data: profileData, isLoading: isLoadingProfile } = useGetJobseekerProfile();
+  const { mutate: replaceEducations, isPending: isSubmitting } =
+    useReplaceEducationsByUserId();
+
+  const form = useForm<EducationFormData>({
+    resolver: zodResolver(educationFormSchema),
+    defaultValues: {
+      education: [],
+    },
+  });
+
+  const { register, watch, handleSubmit, control, formState, setValue } = form;
+  const { errors } = formState;
   const { fields, append, remove } = useFieldArray({
-    control: form.control as Control<JobseekerProfile>,
+    control,
     name: "education",
   });
 
+  // Helper function to convert Date to ISO string (YYYY-MM-DD)
+  const formatDateToISO = (date: Date | undefined): string => {
+    if (!date) return "";
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  // Helper function to parse ISO string to Date
+  const parseDateFromISO = (dateString: string | undefined): Date | undefined => {
+    if (!dateString) return undefined;
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? undefined : date;
+  };
+
+  // Load initial data from profile
+  useEffect(() => {
+    if (profileData?.data?.profile && !isLoadingProfile) {
+      const profile = profileData.data.profile;
+      const educations = profile.educations || [];
+      const education = educations.map((edu) => ({
+        _id: edu._id,
+        institution: edu.institution,
+        degree: edu.degree,
+        fieldOfStudy: edu.fieldOfStudy,
+        startDate: edu.startDate,
+        endDate: edu.endDate,
+        current: edu.isCurrent,
+        grade: edu.grade,
+        description: edu.description,
+        courseType: edu.courseType,
+        scoreType: edu.scoreType,
+        score: edu.score,
+        yearOfPassing: edu.yearOfPassing,
+      }));
+
+      form.reset({
+        education,
+      });
+    }
+  }, [profileData, isLoadingProfile, form]);
+
+  const onSubmit = useCallback(
+    (data: EducationFormData) => {
+      const userId = profileData?.data?.profile?.userId;
+      if (!userId) {
+        toast.error("User ID not found");
+        return;
+      }
+
+      const educations = (data.education || []).map((edu) => {
+        const education: Record<string, unknown> = {
+          ...(edu._id && { _id: edu._id }),
+          institution: edu.institution || "",
+          degree: edu.degree || "",
+          startDate: edu.startDate || "",
+          isCurrent: edu.current || false,
+        };
+
+        if (edu.fieldOfStudy) education.fieldOfStudy = edu.fieldOfStudy;
+        if (edu.endDate) education.endDate = edu.endDate;
+        if (edu.grade) education.grade = edu.grade;
+        if (edu.description) education.description = edu.description;
+        if (edu.courseType) education.courseType = edu.courseType;
+        if (edu.scoreType) education.scoreType = edu.scoreType;
+        if (edu.score !== undefined) education.score = edu.score;
+        if (edu.yearOfPassing !== undefined)
+          education.yearOfPassing = edu.yearOfPassing;
+
+        return education as unknown as CreateEducationPayload;
+      });
+
+      replaceEducations(
+        { userId, data: educations },
+        {
+          onSuccess: () => {
+            toast.success("Education updated successfully");
+          },
+          onError: (error: unknown) => {
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "Failed to update education";
+            toast.error(errorMessage);
+          },
+        }
+      );
+    },
+    [replaceEducations, profileData]
+  );
+
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 space-y-6">
-      <div className="flex justify-between items-center">
-        <Typography
-          variant="h2"
-          className="text-dark-blue font-bold text-2xl"
-        >
-          Education
-        </Typography>
-        <Button
-          type="button"
-          variant="primary"
-          icon={<Plus className="w-4 h-4" />}
-          iconPosition="left"
-          onClick={() =>
-            append({
-              institution: "",
-              degree: "",
-              startDate: "",
-              current: false,
-            })
-          }
-        >
-          Add Education
-        </Button>
-      </div>
-
-      <div className="space-y-6">
-        {fields.map((field, index) => {
-          const isCurrent = watch(`education.${index}.current`);
-          return (
-            <div
-              key={field.id}
-              className="border border-[#E2E2E2] rounded-lg p-6 space-y-4"
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 space-y-6">
+        <div className="flex justify-between items-center">
+          <Typography
+            variant="h2"
+            className="text-dark-blue font-bold text-2xl"
+          >
+            Education
+          </Typography>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="primary"
+              icon={<Plus className="w-4 h-4" />}
+              iconPosition="left"
+              onClick={() =>
+                append({
+                  institution: "",
+                  degree: "",
+                  startDate: "",
+                  current: false,
+                })
+              }
             >
-              <div className="flex justify-between items-center">
-                <Typography variant="body-large" className="text-dark-blue font-semibold">
-                  Education {index + 1}
-                </Typography>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => remove(index)}
-                  className="text-error-100 hover:text-error-100"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Input
-                  {...register(`education.${index}.institution`)}
-                  label="Institution"
-                  placeholder="University/School Name"
-                />
-                <Input
-                  {...register(`education.${index}.degree`)}
-                  label="Degree"
-                  placeholder="e.g., Bachelor of Science"
-                />
-                <Input
-                  {...register(`education.${index}.fieldOfStudy`)}
-                  label="Field of Study"
-                  placeholder="e.g., Computer Science"
-                />
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-dark-blue">Grade</label>
-                  <Input
-                    {...register(`education.${index}.grade`)}
-                    placeholder="e.g., 3.8 GPA or First Class"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-dark-blue">Start Date</label>
-                  <Input
-                    {...register(`education.${index}.startDate`)}
-                    type="date"
-                  />
-                </div>
-                {!isCurrent && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-dark-blue">End Date</label>
-                    <Input
-                      {...register(`education.${index}.endDate`)}
-                      type="date"
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <input
-                  {...register(`education.${index}.current`)}
-                  type="checkbox"
-                  id={`current-edu-${index}`}
-                  className="w-4 h-4 rounded border-gray-300 text-purple focus:ring-purple"
-                />
-                <label htmlFor={`current-edu-${index}`} className="text-sm text-dark-blue cursor-pointer">
-                  Currently studying here
-                </label>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-dark-blue">Description</label>
-                <Textarea
-                  {...register(`education.${index}.description`)}
-                  placeholder="Additional details about your education..."
-                  className="min-h-[100px]"
-                />
-              </div>
-            </div>
-          );
-        })}
-
-        {fields.length === 0 && (
-          <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg">
-            <Typography variant="body-small" className="text-grey-blue">
-              No education added yet. Click &quot;Add Education&quot; to get started.
-            </Typography>
+              Add Education
+            </Button>
+            <Button type="submit" disabled={isSubmitting || isLoadingProfile}>
+              {isSubmitting ? "Saving..." : "Save"}
+            </Button>
           </div>
-        )}
+        </div>
+
+        <div className="space-y-6">
+          {fields.map((field, index) => {
+            const isCurrent = watch(`education.${index}.current`);
+            return (
+              <div
+                key={field.id}
+                className="border border-[#E2E2E2] rounded-lg p-6 space-y-4"
+              >
+                <div className="flex justify-between items-center">
+                  <Typography variant="body-large" className="text-dark-blue font-semibold">
+                    Education {index + 1}
+                  </Typography>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => remove(index)}
+                    className="text-error-100 hover:text-error-100"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    label="Institution"
+                    error={
+                      errors.education?.[index]?.institution?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Input
+                      {...register(`education.${index}.institution`)}
+                      placeholder="University/School Name"
+                    />
+                  </FormField>
+                  <FormField
+                    label="Degree"
+                    error={
+                      errors.education?.[index]?.degree?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Input
+                      {...register(`education.${index}.degree`)}
+                      placeholder="e.g., Bachelor of Science"
+                    />
+                  </FormField>
+                  <FormField
+                    label="Field of Study"
+                    error={
+                      errors.education?.[index]?.fieldOfStudy?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Input
+                      {...register(`education.${index}.fieldOfStudy`)}
+                      placeholder="e.g., Computer Science"
+                    />
+                  </FormField>
+                  <FormField
+                    label="Course Type"
+                    error={
+                      errors.education?.[index]?.courseType?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Controller
+                      name={`education.${index}.courseType`}
+                      control={control}
+                      render={({ field }) => (
+                        <SelectableTabsInput
+                          value={
+                            typeof field.value === "string" ? field.value : ""
+                          }
+                          onChange={(val) => field.onChange(val || undefined)}
+                          options={[
+                            { value: "full-time", label: "Full-time" },
+                            { value: "part-time", label: "Part-time" },
+                            { value: "online", label: "Online" },
+                            { value: "distance", label: "Distance" },
+                          ]}
+                        />
+                      )}
+                    />
+                  </FormField>
+                  <FormField
+                    label="Start Date"
+                    error={
+                      errors.education?.[index]?.startDate?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Controller
+                      name={`education.${index}.startDate`}
+                      control={control}
+                      render={({ field }) => {
+                        const dateValue = parseDateFromISO(field.value);
+                        return (
+                          <DatePicker
+                            value={dateValue}
+                            onChange={(date) => {
+                              field.onChange(formatDateToISO(date));
+                            }}
+                            placeholder="Select start date"
+                          />
+                        );
+                      }}
+                    />
+                  </FormField>
+                  <FormField label="Current">
+                    <Controller
+                      name={`education.${index}.current`}
+                      control={control}
+                      render={({ field }) => (
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`current-edu-${index}`}
+                            checked={field.value || false}
+                            onCheckedChange={(checked) => {
+                              const isChecked = checked === true;
+                              field.onChange(isChecked);
+                              // Clear endDate when current is true
+                              if (isChecked) {
+                                setValue(`education.${index}.endDate`, undefined);
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={`current-edu-${index}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            Currently studying here
+                          </label>
+                        </div>
+                      )}
+                    />
+                  </FormField>
+                  {!isCurrent && (
+                    <FormField
+                      label="End Date"
+                      error={
+                        errors.education?.[index]?.endDate?.message as
+                          | string
+                          | undefined
+                      }
+                    >
+                      <Controller
+                        name={`education.${index}.endDate`}
+                        control={control}
+                        render={({ field }) => {
+                          const dateValue = parseDateFromISO(field.value);
+                          const startDateValue = parseDateFromISO(
+                            watch(`education.${index}.startDate`)
+                          );
+                          return (
+                            <DatePicker
+                              value={dateValue}
+                              onChange={(date) => {
+                                field.onChange(formatDateToISO(date));
+                              }}
+                              placeholder="Select end date"
+                              minDate={startDateValue}
+                            />
+                          );
+                        }}
+                      />
+                    </FormField>
+                  )}
+                  <FormField
+                    label="Grade"
+                    error={
+                      errors.education?.[index]?.grade?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Input
+                      {...register(`education.${index}.grade`)}
+                      placeholder="e.g., 8.7 CGPA or First Class"
+                    />
+                  </FormField>
+                  <FormField
+                    label="Score Type"
+                    error={
+                      errors.education?.[index]?.scoreType?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Controller
+                      name={`education.${index}.scoreType`}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value || ""}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select score type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="cgpa">CGPA</SelectItem>
+                            <SelectItem value="gpa">GPA</SelectItem>
+                            <SelectItem value="percentage">Percentage</SelectItem>
+                            <SelectItem value="grade">Grade</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </FormField>
+                  <FormField
+                    label="Score"
+                    error={
+                      errors.education?.[index]?.score?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Input
+                      {...register(`education.${index}.score`, {
+                        valueAsNumber: true,
+                      })}
+                      type="number"
+                      step="0.01"
+                      placeholder="e.g., 8.7"
+                    />
+                  </FormField>
+                  <FormField
+                    label="Year of Passing"
+                    error={
+                      errors.education?.[index]?.yearOfPassing?.message as
+                        | string
+                        | undefined
+                    }
+                  >
+                    <Input
+                      {...register(`education.${index}.yearOfPassing`, {
+                        valueAsNumber: true,
+                      })}
+                      type="number"
+                      min="1900"
+                      max="2100"
+                      placeholder="e.g., 2021"
+                    />
+                  </FormField>
+                </div>
+
+                <FormField
+                  label="Description"
+                  error={
+                    errors.education?.[index]?.description?.message as
+                      | string
+                      | undefined
+                  }
+                >
+                  <Controller
+                    name={`education.${index}.description`}
+                    control={control}
+                    render={({ field }) => (
+                      <Textarea
+                        {...field}
+                        placeholder="Additional details about your education..."
+                        className="min-h-[100px]"
+                      />
+                    )}
+                  />
+                </FormField>
+              </div>
+            );
+          })}
+
+          {fields.length === 0 && (
+            <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg">
+              <Typography variant="body-small" className="text-grey-blue">
+                No education added yet. Click &quot;Add Education&quot; to get started.
+              </Typography>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </form>
   );
 }
-

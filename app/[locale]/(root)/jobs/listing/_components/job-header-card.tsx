@@ -1,91 +1,164 @@
 "use client";
 
-import React, { useMemo } from "react";
-import {
-  Briefcase,
-  Clock,
-  MapPin,
-  Share2,
-  Heart,
-} from "lucide-react";
+import React from "react";
+import { Briefcase, Clock, MapPin, Share2, Heart } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { AD } from "@/interfaces/ad";
 import { FaMoneyBillWave } from "react-icons/fa";
 import { toast } from "sonner";
-import { useApplyToJob, useGetMyApplications } from "@/hooks/useJobApplications";
+import { useAuthStore } from "@/stores/authStore";
+import JobApplicantsModal from "./job-applicants-modal";
+import ShareJobDialog from "./share-job-dialog";
+import { AD } from "@/interfaces/ad";
+import {
+  useSaveJob,
+  useDeleteSavedJobByJobAndSeeker,
+} from "@/hooks/useSavedJobs";
 import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 
 export interface JobHeaderCardProps {
   job: AD;
-  transformAdToJobCardProps: (ad: AD) => {
-    id: string;
-    title: string;
-    company: string;
-    experience: string;
-    salaryMin: number;
-    salaryMax: number;
-    location: string;
-    jobType: string;
-    postedTime: string;
-    logo?: string;
-  };
   onFavorite?: (id: string) => void;
-  onShare?: (id: string) => void;
+  onApply?: (jobId: string) => void;
   isFavorite?: boolean;
+  isApplied?: boolean;
+  isApplying?: boolean;
+  logo?: string;
 }
 
 export default function JobHeaderCard({
   job,
-  transformAdToJobCardProps,
   onFavorite,
-  onShare,
+  onApply,
   isFavorite = false,
+  isApplied = false,
+  isApplying = false,
+  logo,
 }: JobHeaderCardProps) {
-  const jobProps = transformAdToJobCardProps(job);
+  const { session } = useAuthStore();
+  const currentUserId = session.user?._id;
+  const isJobOwner =
+    job.owner?._id === currentUserId ||
+    job.organization?.owner === currentUserId;
 
-  // Get current user's jobseeker profile
-  const { data: profileData } = useGetJobseekerProfile();
-  // The API returns { data: { profile: { _id: ... } } } - structure differs from interface
-  const applicantProfileId = 
-    (profileData?.data as { profile?: { _id?: string } })?.profile?._id;
+  // Get jobseeker profile to get jobSeekerId
+  const { data: jobseekerProfile } = useGetJobseekerProfile();
+  const jobSeekerId = jobseekerProfile?.data?.profile?.userId;
 
-  // Get user's applications to check if job is already applied
-  const { data: applicationsData } = useGetMyApplications();
-  
-  // Check if current job has been applied to
-  // API returns { data: { items: [...], page, limit, total } }
-  const isApplied = useMemo(() => {
-    if (!applicationsData?.data?.items) return false;
-    return applicationsData.data.items.some(
-      (application: { jobId: string }) => application.jobId === job._id
+  const isSaved = job.isSaved ?? false;
+  const savedJobId = job.savedJobId;
+
+  // Save/Unsave mutations
+  const { mutate: saveJob, isPending: isSaving } = useSaveJob();
+  const { mutate: deleteSavedJob, isPending: isDeleting } =
+    useDeleteSavedJobByJobAndSeeker();
+
+  // Extract extraFields
+  const extraFields = Array.isArray(job.extraFields)
+    ? job.extraFields
+    : Object.entries(job.extraFields || {}).map(([name, value]) => ({
+        name,
+        value,
+      }));
+
+  const getFieldValue = (fieldName: string): string => {
+    const field = extraFields.find((f) =>
+      f.name?.toLowerCase().includes(fieldName.toLowerCase())
     );
-  }, [applicationsData, job._id]);
+    if (field) {
+      if (Array.isArray(field.value)) {
+        return field.value.join(", ");
+      }
+      return String(field.value || "");
+    }
+    return "";
+  };
 
-  // Apply to job mutation
-  const applyToJobMutation = useApplyToJob();
+  const getSalaryFromAd = (type: "min" | "max"): number | undefined => {
+    const salaryField = extraFields.find(
+      (field) =>
+        field.name?.toLowerCase().includes("salary") &&
+        (type === "min"
+          ? field.name?.toLowerCase().includes("min")
+          : field.name?.toLowerCase().includes("max"))
+    );
+    if (salaryField && typeof salaryField.value === "number") {
+      return salaryField.value;
+    }
+    return type === "min" ? job.price : job.price;
+  };
 
-  const handleApply = async () => {
-    if (!applicantProfileId) {
+  const companyName =
+    job.organization?.tradeName || job.organization?.legalName || "Company";
+  const companyLogo = logo || job.organization?.logoUrl;
+  const jobType = getFieldValue("jobType") || getFieldValue("job type") || "";
+  const experience = getFieldValue("experience") || "";
+  const salaryMin = getSalaryFromAd("min");
+  const salaryMax = getSalaryFromAd("max");
+  const location =
+    typeof job.location === "string"
+      ? job.location
+      : job.location?.city || job.address?.city || "";
+
+  const handleApply = () => {
+    if (onApply) {
+      onApply(job._id);
+    } else {
+      toast.info("Apply functionality not available");
+    }
+  };
+
+  const handleSaveToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (!jobSeekerId) {
       toast.error("Please create a jobseeker profile first");
       return;
     }
 
-    try {
-      await applyToJobMutation.mutateAsync({
-        jobId: job._id,
-        payload: {
-          applicantProfileId,
+    if (isSaved && savedJobId) {
+      // Unsave the job
+      deleteSavedJob(
+        {
+          jobSeekerId,
+          jobId: job._id,
         },
-      });
-      toast.success("Application submitted successfully!");
-    } catch (error: unknown) {
-      const errorMessage = 
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        "Failed to submit application";
-      toast.error(errorMessage);
+        {
+          onSuccess: () => {
+            toast.success("Job removed from saved jobs");
+          },
+          onError: (error) => {
+            toast.error(
+              error instanceof Error ? error.message : "Failed to unsave job"
+            );
+          },
+        }
+      );
+    } else {
+      // Save the job
+      saveJob(
+        {
+          jobSeekerId,
+          jobId: job._id,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Job saved successfully");
+          },
+          onError: (error) => {
+            toast.error(
+              error instanceof Error ? error.message : "Failed to save job"
+            );
+          },
+        }
+      );
+    }
+
+    // Call onFavorite if provided (for backward compatibility)
+    if (onFavorite) {
+      onFavorite(job._id);
     }
   };
 
@@ -93,24 +166,27 @@ export default function JobHeaderCard({
     <div className="bg-white rounded-2xl border border-[#E2E2E2] p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] relative">
       {/* Share and Save Buttons - Top Right */}
       <div className="absolute top-4 right-4 flex items-center gap-4">
-        {onShare && (
+        <ShareJobDialog
+          job={job}
+          trigger={
+            <button className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity">
+              <Share2 className="w-5 h-5 text-grey-blue" />
+              <span className="text-xs text-grey-blue font-medium">Share</span>
+            </button>
+          }
+        />
+        {!isJobOwner && (
           <button
-            onClick={() => onShare(job._id)}
-            className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity"
-          >
-            <Share2 className="w-5 h-5 text-grey-blue" />
-            <span className="text-xs text-grey-blue font-medium">Share</span>
-          </button>
-        )}
-        {onFavorite && (
-          <button
-            onClick={() => onFavorite(job._id)}
-            className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity"
+            onClick={handleSaveToggle}
+            disabled={isSaving || isDeleting || !jobSeekerId}
+            className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Heart
               className={cn(
                 "w-5 h-5",
-                isFavorite ? "fill-red-500 text-red-500" : "text-grey-blue"
+                isSaved || isFavorite
+                  ? "fill-red-500 text-red-500"
+                  : "text-grey-blue"
               )}
               strokeWidth={1.5}
             />
@@ -120,14 +196,7 @@ export default function JobHeaderCard({
       </div>
 
       <div className="flex gap-2">
-        {jobProps.logo ? (
-          // <Image
-          //   src={jobProps.logo}
-          //   alt={jobProps.company}
-          //   width={48}
-          //   height={48}
-          //   className="rounded-lg flex-shrink-0"
-          // />
+        {companyLogo ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="48"
@@ -142,43 +211,41 @@ export default function JobHeaderCard({
         ) : (
           <div className="w-12 h-12 rounded-lg bg-purple flex items-center justify-center flex-shrink-0">
             <span className="text-white text-lg font-semibold">
-              {jobProps.company.charAt(0)}
+              {companyName.charAt(0)}
             </span>
           </div>
         )}
         <div className="space-y-4">
           {/* Job Title and Company Section */}
-          <div className="flex items-start gap-4">
-            {/* Company Logo */}
-
+          <div className="flex items-center gap-4">
             {/* Job Title and Company Info */}
-            <div className="flex-1">
+            <div className="">
               <Typography
                 variant="h1"
                 className="text-black font-semibold text-[28.56px] leading-tight mb-2"
               >
-                {jobProps.title}
+                {job.title}
               </Typography>
               <div className="flex items-center gap-2 flex-wrap">
                 <Typography
                   variant="body-small"
                   className="text-purple text-sm underline"
                 >
-                  {jobProps.company}
+                  {companyName}
                 </Typography>
-                {/* Job Type Badges */}
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge className="bg-purple/20 text-purple px-[10.67px] py-[7.11px] rounded-full text-xs font-semibold">
-                Full Time
-              </Badge>
-              <Badge className="bg-[#FDF3E5] text-[#FB9002] px-[10.67px] py-[7.11px] rounded-full text-xs font-semibold">
-                Urgent
-              </Badge>
-              <Badge className="bg-[#E4FFF9] text-[#00732F] px-[10.67px] py-[7.11px] rounded-full text-xs font-semibold">
-                Part time
-              </Badge>
+              {jobType && (
+                <Badge className="bg-purple/20 text-purple px-[10.67px] py-[7.11px] rounded-full text-xs font-semibold">
+                  {jobType}
+                </Badge>
+              )}
+              {job.isFeatured && (
+                <Badge className="bg-[#FDF3E5] text-[#FB9002] px-[10.67px] py-[7.11px] rounded-full text-xs font-semibold">
+                  Featured
+                </Badge>
+              )}
             </div>
           </div>
 
@@ -190,7 +257,7 @@ export default function JobHeaderCard({
                 variant="body-small"
                 className="text-[#1D2939] text-xs font-medium"
               >
-                {jobProps.experience}
+                {experience || "Not specified"}
               </Typography>
             </div>
             <div className="flex items-center gap-2">
@@ -199,7 +266,7 @@ export default function JobHeaderCard({
                 variant="body-small"
                 className="text-[#1D2939] text-xs font-medium"
               >
-                {jobProps.jobType}
+                {jobType || "Not specified"}
               </Typography>
             </div>
             <div className="flex items-center gap-2">
@@ -209,13 +276,13 @@ export default function JobHeaderCard({
                   variant="body-small"
                   className="text-dark-blue text-sm font-medium"
                 >
-                  {jobProps.salaryMin.toLocaleString()}-
+                  {salaryMin?.toLocaleString() || "0"}-
                 </Typography>
                 <Typography
                   variant="body-small"
                   className="text-dark-blue text-sm font-medium"
                 >
-                  {jobProps.salaryMax.toLocaleString()}
+                  {salaryMax?.toLocaleString() || "Not specified"}
                 </Typography>
               </div>
             </div>
@@ -225,28 +292,39 @@ export default function JobHeaderCard({
                 variant="body-small"
                 className="text-[#1D2939] text-xs font-medium"
               >
-                {jobProps.location}
+                {location || "Location not specified"}
               </Typography>
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
-            <Button variant="outline" size={"lg"} className="px-4 py-2" onClick={()=> toast.info("Work in progress")}>
-              Chat with employer
-            </Button>
-            <Button 
-              variant={isApplied ? "outline" : "filled"} 
-              size={"lg"} 
-              onClick={handleApply}
-              disabled={applyToJobMutation.isPending || !applicantProfileId || isApplied}
-            >
-              {applyToJobMutation.isPending 
-                ? "Applying..." 
-                : isApplied 
-                  ? "Applied" 
-                  : "Apply Now"}
-            </Button>
+            {isJobOwner ? (
+              <JobApplicantsModal jobId={job._id} />
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  size={"lg"}
+                  className="px-4 py-2"
+                  onClick={() => toast.info("Work in progress")}
+                >
+                  Chat with employer
+                </Button>
+                <Button
+                  variant={isApplied ? "outline" : "filled"}
+                  size={"lg"}
+                  onClick={handleApply}
+                  disabled={isApplying || isApplied}
+                >
+                  {isApplying
+                    ? "Applying..."
+                    : isApplied
+                    ? "Applied"
+                    : "Apply Now"}
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

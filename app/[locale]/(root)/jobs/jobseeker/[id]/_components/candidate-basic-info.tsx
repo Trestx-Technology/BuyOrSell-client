@@ -13,14 +13,20 @@ interface CandidateBasicInfoProps {
 export default function CandidateBasicInfo({
   jobseeker,
 }: CandidateBasicInfoProps) {
-  // Calculate experience years from work experience
+  // Get experience years from profile
   const getExperienceYears = () => {
-    if (!jobseeker.experiences || jobseeker.experiences.length === 0) {
-      return "0";
+    if (jobseeker.experienceYears) {
+      return jobseeker.experienceYears.toString();
     }
-    // Simple calculation - can be improved
-    return "1 to 4";
+    return "0";
   };
+
+  // Get availability from profile
+  const availability =
+    jobseeker.availability ||
+    (jobseeker.noticePeriodDays
+      ? `${jobseeker.noticePeriodDays} days notice`
+      : "Immediately");
 
   return (
     <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
@@ -73,7 +79,7 @@ export default function CandidateBasicInfo({
               Availability
             </Typography>
             <Typography variant="body-small" className="text-dark-blue">
-              Immediately
+              {availability}
             </Typography>
           </div>
         </div>

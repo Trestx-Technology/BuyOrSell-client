@@ -2,11 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Search,
-  MapPin,
-  SlidersHorizontal,
-} from "lucide-react";
+import { Search, MapPin, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -164,30 +160,6 @@ export default function JobsFilter({
                   ))}
                 </SelectContent>
               </Select>
-              {Array.isArray(value) && value.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {value.map((selectedValue) => (
-                    <Badge
-                      key={selectedValue}
-                      variant="secondary"
-                      className="text-xs"
-                    >
-                      {selectedValue}
-                      <button
-                        onClick={() => {
-                          const newValues = value.filter(
-                            (v) => v !== selectedValue
-                          );
-                          onFilterChange(key, newValues);
-                        }}
-                        className="ml-1 hover:text-red-500"
-                      >
-                        ×
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
             </div>
           </FormField>
         );
@@ -252,90 +224,93 @@ export default function JobsFilter({
 
         {/* Filter Controls */}
         <div className="min-w-full flex items-end gap-3 pb-4 sm:p-4 border-b sm:border-none whitespace-nowrap overflow-x-auto scrollbar-hide relative">
-            {config.map((filterConfig) => (
+          {/* Static Filters - Show first 5 filters outside */}
+          {config
+            .filter((filterConfig) => filterConfig.isStatic !== false)
+            .slice(0, 5)
+            .map((filterConfig) => (
               <div key={filterConfig.key} className="w-40 shrink-0">
                 {renderFilterControl(filterConfig)}
               </div>
             ))}
 
-            {/* Advanced Filters Dialog */}
-            <Dialog open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  icon={
-                    <SlidersHorizontal className="h-4 w-4 -mr-3 sm:-mr-2" />
-                  }
-                  iconPosition="left"
-                  className="w-40 border-purple-200 sticky top-0 right-0"
-                >
-                  <span className="sm:block hidden">More Filters</span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Advanced Filters</DialogTitle>
-                </DialogHeader>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                  {config.map((filterConfig) => (
-                    <div key={filterConfig.key} className="space-y-2">
-                      {renderFilterControl(filterConfig)}
-                    </div>
-                  ))}
-                </div>
-                <div className="flex justify-end gap-2 pt-4 border-t">
-                  <Button variant="outline" onClick={onClearFilters}>
-                    Clear All
-                  </Button>
-                  <Button onClick={() => setIsAdvancedOpen(false)}>
-                    Apply Filters
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          {/* Active Filters */}
-          {activeFilters.length > 0 && (
-            <div className="flex items-center border-t p-2">
-              <div className="flex flex-wrap gap-2">
-                {activeFilters.map(([key, value]) => {
-                  const filterConfig = config.find((c) => c.key === key);
-                  const displayValue = Array.isArray(value)
-                    ? value.join(", ")
-                    : value;
-
-                  return (
-                    <Badge
-                      key={key}
-                      variant="secondary"
-                      className="bg-purple-100 text-purple-700"
-                    >
-                      {filterConfig?.label}: {displayValue}
-                      <button
-                        onClick={() =>
-                          onFilterChange(
-                            key,
-                            filterConfig?.type === "multiselect" ? [] : ""
-                          )
-                        }
-                        className="ml-2 hover:text-purple-900"
-                      >
-                        ×
-                      </button>
-                    </Badge>
-                  );
-                })}
-              </div>
+          {/* Advanced Filters Dialog */}
+          <Dialog open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
+            <DialogTrigger asChild>
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClearFilters}
-                className="text-gray-500 h-6"
+                icon={<SlidersHorizontal className="h-4 w-4 -mr-3 sm:-mr-2" />}
+                iconPosition="left"
+                className="w-40 border-purple-200 sticky top-0 right-0"
               >
-                Clear all
+                <span className="sm:block hidden">More Filters</span>
               </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Advanced Filters</DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                {/* Show all filters in dialog, including those already visible */}
+                {config.map((filterConfig) => (
+                  <div key={filterConfig.key} className="space-y-2">
+                    {renderFilterControl(filterConfig)}
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button variant="outline" onClick={onClearFilters}>
+                  Clear All
+                </Button>
+                <Button onClick={() => setIsAdvancedOpen(false)}>
+                  Apply Filters
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Active Filters */}
+        {activeFilters.length > 0 && (
+          <div className="flex items-center border-t p-2">
+            <div className="flex flex-wrap gap-2">
+              {activeFilters.map(([key, value]) => {
+                const filterConfig = config.find((c) => c.key === key);
+                const displayValue = Array.isArray(value)
+                  ? value.join(", ")
+                  : value;
+
+                return (
+                  <Badge
+                    key={key}
+                    variant="secondary"
+                    className="bg-purple-100 text-purple-700"
+                  >
+                    {filterConfig?.label}: {displayValue}
+                    <button
+                      onClick={() =>
+                        onFilterChange(
+                          key,
+                          filterConfig?.type === "multiselect" ? [] : ""
+                        )
+                      }
+                      className="ml-2 hover:text-purple-900"
+                    >
+                      ×
+                    </button>
+                  </Badge>
+                );
+              })}
             </div>
-          )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClearFilters}
+              className="text-gray-500 h-6"
+            >
+              Clear all
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -64,14 +64,26 @@ export function SpecificationsDisplay({
             truncate && "w-full truncate"
           )}
         >
-          <div className="flex-shrink-0 flex items-center justify-center">
-            <Image
-              src={(spec.icon as string) || UI_ICONS.fallback}
-              alt={spec.name}
-              width={22}
-              height={22}
-              className="object-contain opacity-65"
-            />
+          <div className="flex-shrink-0 flex items-center justify-center w-[22px] h-[22px]">
+            {typeof spec.icon === "string" ? (
+              <Image
+                src={spec.icon || UI_ICONS.fallback}
+                alt={spec.name}
+                width={22}
+                height={22}
+                className="object-contain opacity-65"
+              />
+            ) : spec.icon ? (
+              <div className="opacity-65">{spec.icon}</div>
+            ) : (
+              <Image
+                src={UI_ICONS.fallback}
+                alt={spec.name}
+                width={22}
+                height={22}
+                className="object-contain opacity-65"
+              />
+            )}
           </div>
           <Typography
             variant="body-small"

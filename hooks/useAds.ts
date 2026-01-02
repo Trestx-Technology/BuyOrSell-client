@@ -116,11 +116,7 @@ export const useFeaturedAds = (params?: {
 };
 
 // Get my ads (current user's ads)
-export const useMyAds = (params?: {
-  page?: number;
-  limit?: number;
-  status?: "live" | "rejected" | "pending";
-}) => {
+export const useMyAds = (params?: AdFilters) => {
   return useQuery<GetLiveAdsResponse, Error>({
     queryKey: [...adQueries.myAds.Key, params],
     queryFn: () => getMyAds(params),

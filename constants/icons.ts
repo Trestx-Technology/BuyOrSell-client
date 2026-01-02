@@ -26,6 +26,7 @@ export const UI_ICONS = {
   menWalking: `${S3_BASE_URL}/icons/man-going-for-walk.svg`,
   finishLine: `${S3_BASE_URL}/icons/finish-line.svg`,
   fallback: `/assets/fallback.png`,
+  company: `/assets/company.png`,
 } as const;
 
 // ============================================================================

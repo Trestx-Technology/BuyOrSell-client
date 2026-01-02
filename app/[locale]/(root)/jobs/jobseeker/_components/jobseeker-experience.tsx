@@ -24,7 +24,7 @@ export default function JobseekerExperience({
   // Call hooks unconditionally at the top level
   const { fields, append, remove } = useFieldArray({
     control: (form?.control || {}) as Control<JobseekerProfile>,
-    name: "workExperience",
+    name: "experiences",
   });
 
   if (isEditMode && form) {
@@ -43,10 +43,12 @@ export default function JobseekerExperience({
             type="button"
             onClick={() =>
               append({
+                _id: `temp-${Date.now()}`,
                 company: "",
-                position: "",
+                title: "",
                 startDate: "",
-                current: false,
+                isCurrent: false,
+                skills: [],
               })
             }
             variant="outline"
@@ -64,7 +66,10 @@ export default function JobseekerExperience({
               className="border border-[#E2E2E2] rounded-lg p-4 space-y-4"
             >
               <div className="flex justify-between items-center">
-                <Typography variant="h3" className="text-dark-blue font-semibold">
+                <Typography
+                  variant="h3"
+                  className="text-dark-blue font-semibold"
+                >
                   Experience {index + 1}
                 </Typography>
                 <Button
@@ -80,47 +85,50 @@ export default function JobseekerExperience({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  {...register(`workExperience.${index}.position`)}
+                  {...register(`experiences.${index}.title`)}
                   label="Position"
                   placeholder="e.g., Software Engineer"
                   isRequired
                 />
                 <Input
-                  {...register(`workExperience.${index}.company`)}
+                  {...register(`experiences.${index}.company`)}
                   label="Company"
                   placeholder="Company Name"
                   isRequired
                 />
                 <Input
-                  {...register(`workExperience.${index}.location`)}
+                  {...register(`experiences.${index}.location`)}
                   label="Location"
                   placeholder="City, Country"
                 />
                 <Input
-                  {...register(`workExperience.${index}.startDate`)}
+                  {...register(`experiences.${index}.startDate`)}
                   label="Start Date"
                   type="date"
                   isRequired
                 />
                 <Input
-                  {...register(`workExperience.${index}.endDate`)}
+                  {...register(`experiences.${index}.endDate`)}
                   label="End Date"
                   type="date"
                 />
                 <div className="flex items-center gap-2">
                   <input
-                    {...register(`workExperience.${index}.current`)}
+                    {...register(`experiences.${index}.isCurrent`)}
                     type="checkbox"
                     id={`current-${index}`}
                     className="w-4 h-4"
                   />
-                  <label htmlFor={`current-${index}`} className="text-sm text-dark-blue">
+                  <label
+                    htmlFor={`current-${index}`}
+                    className="text-sm text-dark-blue"
+                  >
                     Currently working here
                   </label>
                 </div>
               </div>
               <Textarea
-                {...register(`workExperience.${index}.description`)}
+                {...register(`experiences.${index}.description`)}
                 placeholder="Describe your role and responsibilities..."
                 className="min-h-[100px]"
               />
@@ -128,7 +136,8 @@ export default function JobseekerExperience({
           ))}
           {fields.length === 0 && (
             <div className="text-center py-8 text-[#8A8A8A]">
-              No work experience added yet. Click &quot;Add Experience&quot; to get started.
+              No work experience added yet. Click &quot;Add Experience&quot; to
+              get started.
             </div>
           )}
         </div>
@@ -137,7 +146,7 @@ export default function JobseekerExperience({
   }
 
   // View Mode
-  if (!experiences || experiences.length === 0) {
+  if (!experiences || experiences?.length === 0) {
     return null;
   }
 
@@ -155,9 +164,7 @@ export default function JobseekerExperience({
           <div
             key={exp._id || index}
             className={`pb-6 ${
-              index < experiences.length - 1
-                ? "border-b border-[#E2E2E2]"
-                : ""
+              index < experiences.length - 1 ? "border-b border-[#E2E2E2]" : ""
             }`}
           >
             <div className="flex flex-col md:flex-row gap-4">
@@ -171,7 +178,7 @@ export default function JobseekerExperience({
                   variant="h3"
                   className="text-dark-blue font-semibold text-xl mb-1"
                 >
-                  {exp.position}
+                  {exp.title}
                 </Typography>
                 <Typography
                   variant="body-large"
@@ -202,7 +209,7 @@ export default function JobseekerExperience({
                         year: "numeric",
                       })}{" "}
                       -{" "}
-                      {exp.current
+                      {exp.isCurrent
                         ? "Present"
                         : exp.endDate
                         ? new Date(exp.endDate).toLocaleDateString("en-US", {
@@ -231,10 +238,7 @@ export default function JobseekerExperience({
                     </Typography>
                     <ul className="list-disc list-inside space-y-1">
                       {exp.achievements.map((achievement, i) => (
-                        <li
-                          key={i}
-                          className="text-[#8A8A8A] text-sm"
-                        >
+                        <li key={i} className="text-[#8A8A8A] text-sm">
                           {achievement}
                         </li>
                       ))}
@@ -249,4 +253,3 @@ export default function JobseekerExperience({
     </div>
   );
 }
-

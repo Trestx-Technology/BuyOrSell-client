@@ -82,7 +82,7 @@ const Signup = () => {
     const fullPhoneNumber = `${selectedCountryCode}${cleanedPhoneNumber}`;
 
     try {
-      await sendPhoneOtpMutation.mutateAsync({ phoneNumber: fullPhoneNumber });
+      await sendPhoneOtpMutation.mutateAsync({ phoneNo: fullPhoneNumber });
       toast.success("OTP sent to your phone number");
       setShowOtpDialog(true);
     } catch (error: unknown) {
@@ -104,7 +104,7 @@ const Signup = () => {
     try {
       // Verify OTP
       await verifyPhoneOtpMutation.mutateAsync({
-        phone: fullPhoneNumber,
+        phoneNo: fullPhoneNumber,
         otp: otp,
       });
 

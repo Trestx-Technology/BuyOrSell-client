@@ -1,6 +1,13 @@
 "use client";
 
-import { Briefcase, DollarSign, MapPin, Clock, Share2, Heart } from "lucide-react";
+import {
+  Briefcase,
+  DollarSign,
+  MapPin,
+  Clock,
+  Share2,
+  Heart,
+} from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,9 +49,9 @@ export default function ApplicantCard({
   onShare,
 }: ApplicantCardProps) {
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full max-w-[256px] h-[335px] relative">
+    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full max-w-[256px] space-y-4 relative">
       {/* Header with Badge and Actions */}
-      <div className="flex flex-col gap-[21.33px] mb-4">
+      <div className="flex flex-col gap-[21.33px]">
         <div className="flex justify-between items-start">
           <Badge className="bg-[#F5EBFF] text-purple px-2 py-1.5 rounded-[24px] text-xs font-normal">
             {postedTime}
@@ -78,14 +85,20 @@ export default function ApplicantCard({
           <div className="space-y-2 flex-1">
             <Typography
               variant="h3"
-              className="text-black font-bold text-lg leading-tight "
+              className="text-black font-bold text-lg leading-tight line-clamp-2 "
             >
               {name}
             </Typography>
-            <Typography variant="body-small" className="text-black text-sm">
+            <Typography
+              variant="body-small"
+              className="text-black text-sm line-clamp-2"
+            >
               {role}
             </Typography>
-            <Typography variant="body-small" className="text-[#8A8A8A] text-xs">
+            <Typography
+              variant="body-small"
+              className="text-[#8A8A8A] text-xs line-clamp-1"
+            >
               working in {company}
             </Typography>
           </div>
@@ -108,7 +121,7 @@ export default function ApplicantCard({
       </div>
 
       {/* Applicant Details */}
-      <div className="flex flex-col gap-3 mb-4">
+      <div className="flex flex-col gap-3">
         <div className="flex items-center gap-1.5">
           <Briefcase className="w-5 h-5 text-grey-blue" />
           <Typography
@@ -120,7 +133,12 @@ export default function ApplicantCard({
         </div>
 
         <div className="flex items-center gap-1.5">
-          <Image src={ICONS.currency.aed} alt="dollar sign" width={16} height={16}/>
+          <Image
+            src={ICONS.currency.aed}
+            alt="dollar sign"
+            width={16}
+            height={16}
+          />
           <div className="flex items-center gap-1">
             <span className="text-[9.19px]">AED</span>
             <Typography
@@ -163,12 +181,10 @@ export default function ApplicantCard({
 
       {/* Action Button */}
       <Link
+        className="w-full block uppercase font-medium text-xs bg-purple text-white rounded-lg py-2 px-4 text-center hover:scale-105 transition-all duration-300"
         href={`/jobs/jobseeker/${id}`}
-        className="block absolute bottom-4 left-4 right-4"
       >
-        <Button size={"sm"} className="w-full uppercase font-medium text-xs">
-          View profile
-        </Button>
+        View profile
       </Link>
     </div>
   );

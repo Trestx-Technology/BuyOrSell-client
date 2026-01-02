@@ -55,7 +55,7 @@ export default function SimilarJobs({
         <div className="flex flex-col gap-6">
           {/* Header */}
           <div className="flex justify-between items-center w-full">
-           <JobsSectionTitle>Similar Jobs</JobsSectionTitle>
+            <JobsSectionTitle>Similar Jobs</JobsSectionTitle>
             <Link href="/jobs/similar">
               <Typography
                 variant="body-large"
@@ -76,14 +76,12 @@ export default function SimilarJobs({
                 experience: job.experience || "",
                 salaryMin: job.salaryMin || 0,
                 salaryMax: job.salaryMax || 0,
-                location:
-                  typeof job.location === "string"
-                    ? job.location
-                    : `${job.location?.city || ""} ${job.location?.state || ""}`.trim() ||
-                      "",
+                location: job.location || "",
                 jobType: job.jobType || "",
                 postedTime: job.postedAt
-                  ? formatDistanceToNow(new Date(job.postedAt), { addSuffix: true })
+                  ? formatDistanceToNow(new Date(job.postedAt), {
+                      addSuffix: true,
+                    })
                   : "",
               };
               return (
@@ -101,4 +99,3 @@ export default function SimilarJobs({
     </section>
   );
 }
-

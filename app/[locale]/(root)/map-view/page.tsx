@@ -13,6 +13,7 @@ import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { useSearchParams } from "next/navigation";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
 import { AdFilterPayload, ProductExtraFields } from "@/interfaces/ad";
+import { useLocale } from "@/hooks/useLocale";
 
 const MapView = () => {
   const { t } = useLocale();
@@ -24,7 +25,6 @@ const MapView = () => {
     price: "",
     datePosted: "",
     priceFrom: "",
-    priceTo: "",
     deal: undefined,
     fromDate: "",
     toDate: "",

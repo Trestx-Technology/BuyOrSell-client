@@ -54,7 +54,7 @@ export const sendEmailOtp = async (data: {
 
 // Send phone OTP
 export const sendPhoneOtp = async (data: {
-  phoneNumber: string;
+  phoneNo: string;
 }): Promise<SendPhoneOtpResponse> => {
   const response = await axiosInstance.post<SendPhoneOtpResponse>(
     userQueries.sendPhoneOtp.endpoint,
@@ -99,7 +99,7 @@ export const verifyEmailOtp = async (data: {
 
 // Verify phone OTP
 export const verifyPhoneOtp = async (data: {
-  phone: string;
+  phoneNo: string;
   otp: string;
 }): Promise<VerifyPhoneResponse> => {
   const response = await axiosInstance.post<VerifyPhoneResponse>(

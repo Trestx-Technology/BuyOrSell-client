@@ -43,6 +43,7 @@ export default function JobseekerEducation({
             type="button"
             onClick={() =>
               append({
+                _id: `temp-${Date.now()}`,
                 institution: "",
                 degree: "",
                 startDate: "",
@@ -64,7 +65,10 @@ export default function JobseekerEducation({
               className="border border-[#E2E2E2] rounded-lg p-4 space-y-4"
             >
               <div className="flex justify-between items-center">
-                <Typography variant="h3" className="text-dark-blue font-semibold">
+                <Typography
+                  variant="h3"
+                  className="text-dark-blue font-semibold"
+                >
                   Education {index + 1}
                 </Typography>
                 <Button
@@ -86,46 +90,49 @@ export default function JobseekerEducation({
                   isRequired
                 />
                 <Input
-                  {...register(`education.${index}.institution`)}
+                  {...register(`educations.${index}.institution`)}
                   label="Institution"
                   placeholder="University Name"
                   isRequired
                 />
                 <Input
-                  {...register(`education.${index}.fieldOfStudy`)}
+                  {...register(`educations.${index}.fieldOfStudy`)}
                   label="Field of Study"
                   placeholder="e.g., Computer Science"
                 />
                 <Input
-                  {...register(`education.${index}.startDate`)}
+                  {...register(`educations.${index}.startDate`)}
                   label="Start Date"
                   type="date"
                   isRequired
                 />
                 <Input
-                  {...register(`education.${index}.endDate`)}
+                  {...register(`educations.${index}.endDate`)}
                   label="End Date"
                   type="date"
                 />
                 <Input
-                  {...register(`education.${index}.grade`)}
+                  {...register(`educations.${index}.grade`)}
                   label="Grade/GPA"
                   placeholder="e.g., 3.8/4.0"
                 />
                 <div className="flex items-center gap-2">
                   <input
-                    {...register(`education.${index}.current`)}
+                    {...register(`educations.${index}.isCurrent`)}
                     type="checkbox"
                     id={`edu-current-${index}`}
                     className="w-4 h-4"
                   />
-                  <label htmlFor={`edu-current-${index}`} className="text-sm text-dark-blue">
+                  <label
+                    htmlFor={`edu-current-${index}`}
+                    className="text-sm text-dark-blue"
+                  >
                     Currently studying
                   </label>
                 </div>
               </div>
               <Textarea
-                {...register(`education.${index}.description`)}
+                {...register(`educations.${index}.description`)}
                 placeholder="Additional details about your education..."
                 className="min-h-[100px]"
               />
@@ -133,7 +140,8 @@ export default function JobseekerEducation({
           ))}
           {fields.length === 0 && (
             <div className="text-center py-8 text-[#8A8A8A]">
-              No education added yet. Click &quot;Add Education&quot; to get started.
+              No education added yet. Click &quot;Add Education&quot; to get
+              started.
             </div>
           )}
         </div>
@@ -160,9 +168,7 @@ export default function JobseekerEducation({
           <div
             key={edu._id || index}
             className={`pb-6 ${
-              index < education.length - 1
-                ? "border-b border-[#E2E2E2]"
-                : ""
+              index < education.length - 1 ? "border-b border-[#E2E2E2]" : ""
             }`}
           >
             <div className="flex flex-col md:flex-row gap-4">
@@ -203,7 +209,7 @@ export default function JobseekerEducation({
                       year: "numeric",
                     })}{" "}
                     -{" "}
-                    {edu.current
+                    {edu.isCurrent
                       ? "Present"
                       : edu.endDate
                       ? new Date(edu.endDate).toLocaleDateString("en-US", {
@@ -237,4 +243,3 @@ export default function JobseekerEducation({
     </div>
   );
 }
-
