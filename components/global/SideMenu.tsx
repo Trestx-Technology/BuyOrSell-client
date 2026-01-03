@@ -16,6 +16,12 @@ import { Typography } from "../typography";
 import { usePathname } from "next/navigation";
 import { useMyOrganization } from "@/hooks/useOrganizations";
 import { Organization } from "@/interfaces/organization.types";
+import {
+  SIDE_MENU_ACTIVITY_ITEMS,
+  SIDE_MENU_OTHERS_ITEMS,
+  SideMenuItem,
+} from "@/constants/navigation.constants";
+import { useRouter } from "nextjs-toploader/app";
 
 interface SideMenuProps {
   trigger: React.ReactNode;
@@ -115,28 +121,50 @@ const OrganizationItem: React.FC<OrganizationItemProps> = ({
   };
 
   // Get organization display name
-  const displayName = organization.tradeName || organization.legalName || "Organization";
-  
+  const displayName =
+    organization.tradeName || organization.legalName || "Organization";
+
   // Get organization type - show as-is from API
   const organizationType = organization.type || "ORGANIZATION";
-  
+
   // Get status badge text and color
   const getStatusBadge = () => {
     const status = organization.status?.toLowerCase();
     if (!status) return null;
-    
-    const statusConfig: Record<string, { text: string; bgColor: string; textColor: string }> = {
-      pending: { text: "Draft", bgColor: "bg-[#FFF4E6]", textColor: "text-[#B88230]" },
-      active: { text: "Active", bgColor: "bg-green-100", textColor: "text-green-700" },
-      inactive: { text: "Inactive", bgColor: "bg-gray-100", textColor: "text-gray-700" },
-      suspended: { text: "Suspended", bgColor: "bg-red-100", textColor: "text-red-700" },
+
+    const statusConfig: Record<
+      string,
+      { text: string; bgColor: string; textColor: string }
+    > = {
+      pending: {
+        text: "Draft",
+        bgColor: "bg-[#FFF4E6]",
+        textColor: "text-[#B88230]",
+      },
+      active: {
+        text: "Active",
+        bgColor: "bg-green-100",
+        textColor: "text-green-700",
+      },
+      inactive: {
+        text: "Inactive",
+        bgColor: "bg-gray-100",
+        textColor: "text-gray-700",
+      },
+      suspended: {
+        text: "Suspended",
+        bgColor: "bg-red-100",
+        textColor: "text-red-700",
+      },
     };
-    
+
     const config = statusConfig[status];
     if (!config) return null;
-    
+
     return (
-      <div className={`px-2 py-1 ${config.bgColor} rounded-md flex-shrink-0 mr-4`}>
+      <div
+        className={`px-2 py-1 ${config.bgColor} rounded-md flex-shrink-0 mr-4`}
+      >
         <Typography
           variant="xs-regular-inter"
           className={`text-xs font-medium ${config.textColor}`}
@@ -205,13 +233,14 @@ export const SideMenu: React.FC<SideMenuProps> = ({
 }) => {
   // Fetch current user's organization using /organizations/me endpoint
   const { data: myOrganizationData } = useMyOrganization();
-  
+  const router = useRouter();
+
   const organizations = myOrganizationData?.data ?? [];
 
   return (
     <Sheet>
       <SheetTrigger asChild>{trigger}</SheetTrigger>
-      <SheetContent side="left" className="w-[375px] p-0 gap-0">
+      <SheetContent side="left" className="min-w-[250px] p-0 gap-0">
         <SheetHeader className="p-0">
           {/* Header Section */}
           <div className={`${isLoggedIn ? "bg-purple" : "bg-white"} px-4 py-4`}>
@@ -234,7 +263,11 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    className={`${isLoggedIn ? "text-white hover:bg-white/10" : "text-black hover:bg-gray-100"}`}
+                    className={`${
+                      isLoggedIn
+                        ? "text-white hover:bg-white/10"
+                        : "text-black hover:bg-gray-100"
+                    }`}
                   >
                     <X className="w-5 h-5" />
                   </Button>
@@ -335,7 +368,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                 >
                   My Organizations
                 </Typography>
-                <Link href="/organizations">
+                <Link href="/jobs/organization">
                   <Typography
                     variant="xs-regular-inter"
                     className="text-xs text-purple hover:text-purple/80 cursor-pointer"
@@ -349,8 +382,8 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                   key={org._id}
                   organization={org}
                   onClick={() => {
+                    router.push(`/jobs/organization/${org._id}`);
                     // Navigate to organization details or dashboard
-                    console.log("Organization clicked:", org._id);
                   }}
                 />
               ))}
@@ -372,126 +405,29 @@ export const SideMenu: React.FC<SideMenuProps> = ({
           {/* Activity Section */}
           <div className="py-2">
             <SectionHeader title="Activity" />
-            <MenuItem
-              icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/search.svg"
-              }
-              label="My Searches"
-              href="/searches"
-            />
-
-            <MenuItem
-              icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/my-ads.svg"
-              }
-              label="My Ads"
-              href="/my-ads"
-            />
-
-            <MenuItem
-              icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/favorites.svg"
-              }
-              label="Favourites"
-              href="/favourites"
-            />
-
-            <MenuItem
-              icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/notification-bell.svg"
-              }
-              label="Notifications"
-              href="/notifications"
-            />
-
-            <MenuItem
-              icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/jobs-dashboard.svg"
-              }
-              label="Jobs Dashboard"
-              href="/jobs"
-            />
-
-            <MenuItem
-              icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/offers-packages.svg"
-              }
-              label="Offers & Packages"
-              href="/offers"
-            />
-
-            <MenuItem
-              icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/settings.svg"
-              }
-              label="Settings"
-              href="/settings"
-            />
+            {SIDE_MENU_ACTIVITY_ITEMS.map((item: SideMenuItem) => (
+              <MenuItem
+                key={item.id}
+                icon={item.icon}
+                label={item.label}
+                href={item.href}
+                onClick={item.onClick}
+              />
+            ))}
           </div>
 
           {/* Others Section */}
           <div className="py-2">
             <SectionHeader title="Others" />
-            <MenuItem
-              icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/help-center.svg"
-              }
-              label="Help Center"
-              href="/help"
-            />
-
-            <MenuItem
-              icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/privacy-policy.svg"
-              }
-              label="Privacy Policy"
-              href="/privacy"
-            />
-
-            <MenuItem
-              icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/terms-conditions.svg"
-              }
-              label="Terms & Conditions"
-              href="/terms"
-            />
-
-            <MenuItem
-              icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/contact-us.svg"
-              }
-              label="Contact Us"
-              href="/contact"
-            />
-
-            <MenuItem
-              icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/star-rate.svg"
-              }
-              label="Rate us"
-              href="/rate-us"
-              onClick={() => {
-                // Handle rating logic
-                console.log("Rate us clicked");
-              }}
-            />
-
-            <MenuItem
-              icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/share.svg"
-              }
-              label="Share with Friend"
-              onClick={() => {
-                // Handle sharing logic
-                if (navigator.share) {
-                  navigator.share({
-                    title: "BuyOrSell",
-                    text: "Check out this amazing marketplace app!",
-                    url: window.location.origin,
-                  });
-                }
-              }}
-            />
+            {SIDE_MENU_OTHERS_ITEMS.map((item: SideMenuItem) => (
+              <MenuItem
+                key={item.id}
+                icon={item.icon}
+                label={item.label}
+                href={item.href}
+                onClick={item.onClick}
+              />
+            ))}
           </div>
         </div>
       </SheetContent>

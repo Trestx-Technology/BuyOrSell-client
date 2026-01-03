@@ -132,7 +132,6 @@ const PopularCategories = ({
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-100px" }}
       className="w-full max-w-[1180px] px-4 xl:px-0 mx-auto mt-8 sm:mt-5"
     >
       {/* Section Title */}

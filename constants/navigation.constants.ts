@@ -1,9 +1,5 @@
 import React from "react";
-import {
- 
-  LogOut,
- 
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import { ICONS } from "./icons";
 
 export type NavigationItemType = "link" | "button" | "divider";
@@ -179,5 +175,113 @@ export const JOB_NAVIGATION_ITEMS: NavigationItem[] = [
     iconType: "lucide",
     className: "hover:bg-red-50 hover:text-red-700",
     showDividerBefore: true,
+  },
+];
+
+// SideMenu menu item interface (simpler than NavigationItem, uses labels directly)
+export interface SideMenuItem {
+  id: string;
+  label: string;
+  icon: string;
+  href?: string;
+  onClick?: () => void;
+}
+
+// Activity section menu items for SideMenu
+export const SIDE_MENU_ACTIVITY_ITEMS: SideMenuItem[] = [
+  {
+    id: "my-searches",
+    label: "My Searches",
+    icon: ICONS.navigation.search,
+    href: "/user/search-history",
+  },
+  {
+    id: "my-ads",
+    label: "My Ads",
+    icon: ICONS.navigation.myAds,
+    href: "/user/profile",
+  },
+  {
+    id: "favorites",
+    label: "Favourites",
+    icon: ICONS.navigation.favorites,
+    href: "/favorites",
+  },
+  {
+    id: "notifications",
+    label: "Notifications",
+    icon: ICONS.navigation.notificationBell,
+    href: "/user/notifications",
+  },
+  {
+    id: "jobs-dashboard",
+    label: "Jobs Dashboard",
+    icon: ICONS.navigation.jobsDashboard,
+    href: "/jobs/",
+  },
+  {
+    id: "offers-packages",
+    label: "Offers & Packages",
+    icon: ICONS.navigation.offersPackages,
+    href: "/user/offers",
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    icon: ICONS.navigation.settings,
+    href: "/user/profile/settings",
+  },
+];
+
+// Others section menu items for SideMenu
+export const SIDE_MENU_OTHERS_ITEMS: SideMenuItem[] = [
+  {
+    id: "help-center",
+    label: "Help Center",
+    icon: ICONS.navigation.helpCenter,
+    href: "/help-centre",
+  },
+  {
+    id: "privacy-policy",
+    label: "Privacy Policy",
+    icon: ICONS.navigation.privacyPolicy,
+    href: "/privacy-policy",
+  },
+  {
+    id: "terms-conditions",
+    label: "Terms & Conditions",
+    icon: ICONS.navigation.termsConditions,
+    href: "/terms-conditions",
+  },
+  {
+    id: "contact-us",
+    label: "Contact Us",
+    icon: ICONS.navigation.contactUs,
+    href: "/contact-us",
+  },
+  {
+    id: "rate-us",
+    label: "Rate us",
+    icon: ICONS.navigation.starRate,
+    href: "/rate-us",
+    onClick: () => {
+      // Handle rating logic
+      console.log("Rate us clicked");
+    },
+  },
+  {
+    id: "share",
+    label: "Share with Friend",
+    icon: ICONS.navigation.share,
+    onClick: () => {
+      // Handle sharing logic
+      if (typeof navigator !== "undefined" && navigator.share) {
+        navigator.share({
+          title: "BuyOrSell",
+          text: "Check out this amazing marketplace app!",
+          url: window.location.origin,
+        });
+      }
+    },
   },
 ];

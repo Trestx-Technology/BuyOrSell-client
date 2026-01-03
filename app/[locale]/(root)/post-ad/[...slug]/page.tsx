@@ -14,14 +14,14 @@ import { useLocale } from "@/hooks/useLocale";
 export default function CategoryTraversalPage() {
   const { localePath } = useLocale();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const { 
-    addToCategoryArray, 
-    setActiveCategory, 
-    setStep, 
+  const {
+    addToCategoryArray,
+    setActiveCategory,
+    setStep,
     categoryArray,
-    clearCategoryArray 
-  } = useAdPostingStore((state)=>state);
-  const {slug} = useParams<{ slug: string[] }>();
+    clearCategoryArray,
+  } = useAdPostingStore((state) => state);
+  const { slug } = useParams<{ slug: string[] }>();
   const router = useRouter();
 
   const currentCategoryId = slug?.length > 0 ? slug[slug.length - 1] : null;
@@ -71,10 +71,10 @@ export default function CategoryTraversalPage() {
     if (slug.length > categoryArray.length && mainCategoryTree) {
       // Get category names from the main category tree
       const categoriesFromTree = getCategoryNamesFromTree(slug);
-      
+
       // Clear and rebuild categoryArray with all categories from slug (only those with names)
       clearCategoryArray();
-      
+
       categoriesFromTree
         .filter((category) => category.name) // Only add categories with names
         .forEach((category) => {
@@ -83,13 +83,12 @@ export default function CategoryTraversalPage() {
             name: category.name as string, // Type assertion safe after filter
           });
         });
-      
+
       // Set active category to the last one in slugArray
       setActiveCategory(slug[slug.length - 1]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug?.join(","), mainCategoryTree?._id, clearCategoryArray]);
-  
 
   // Extract children subcategories from the current category
   const childCategories = useMemo(() => {
@@ -113,7 +112,7 @@ export default function CategoryTraversalPage() {
       setStep(3);
       // Redirect to details page with active category ID
       router.push(localePath(`/post-ad/details/${leafCategoryId}`));
-    } 
+    }
   }, [currentCategory, selectedCategory, router, setStep, setActiveCategory]);
 
   // Transform children subcategories for display
@@ -121,17 +120,15 @@ export default function CategoryTraversalPage() {
     if (!childCategories || childCategories.length === 0) return [];
 
     return childCategories.map((category: SubCategory) => {
-        return {
-          id: category._id,
-          name: category.name,
-          icon: category.icon || "",
-          bgColor: category.bgColor || "",
-          hasChildren:
-            category.children && category.children.length > 0,
-          category: category,
-        };
-      }
-    );
+      return {
+        id: category._id,
+        name: category.name,
+        icon: category.icon || "",
+        bgColor: category.bgColor || "",
+        hasChildren: category.children && category.children.length > 0,
+        category: category,
+      };
+    });
   }, [childCategories]);
 
   // Handle category selection - just select, don't navigate or add to array
@@ -174,13 +171,15 @@ export default function CategoryTraversalPage() {
       // Remove last item from categoryArray to go to parent
       const parentCategoryArray = categoryArray.slice(0, -1);
       clearCategoryArray();
-      parentCategoryArray.forEach(cat => addToCategoryArray(cat));
-      
+      parentCategoryArray.forEach((cat) => addToCategoryArray(cat));
+
       // Set active category to the new last item
       if (parentCategoryArray.length > 0) {
-        setActiveCategory(parentCategoryArray[parentCategoryArray.length - 1].id);
+        setActiveCategory(
+          parentCategoryArray[parentCategoryArray.length - 1].id
+        );
       }
-      
+
       // Remove last slug to go to parent
       const parentSlugPath = slug.slice(0, -1);
       router.push(localePath(`/post-ad/${parentSlugPath.join("/")}`));
@@ -262,9 +261,7 @@ export default function CategoryTraversalPage() {
         <div className="flex-1 w-full max-w-[888px] mx-auto mb-5">
           <div className="text-center">
             <p className="text-red-500 mb-2">Failed to load category</p>
-            <p className="text-sm text-gray-500 mb-4">
-              Please try again later
-            </p>
+            <p className="text-sm text-gray-500 mb-4">Please try again later</p>
             <Button
               onClick={() => router.push("/post-ad/select")}
               variant="outline"
@@ -313,7 +310,7 @@ export default function CategoryTraversalPage() {
             ) : (
               <div className="space-y-3">
                 {displayCategories.map((category) => {
-                  const isSelected = selectedCategory === category.id 
+                  const isSelected = selectedCategory === category.id;
 
                   return (
                     <button
@@ -328,7 +325,9 @@ export default function CategoryTraversalPage() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
                           <div
-                            className={`size-[50px] ${category.bgColor || "bg-[#F7F8FA]"} rounded-lg flex items-center justify-center`}
+                            className={`size-[50px] ${
+                              category.bgColor || "bg-[#F7F8FA]"
+                            } rounded-lg flex items-center justify-center`}
                           >
                             {category.icon ? (
                               <Image
@@ -338,7 +337,9 @@ export default function CategoryTraversalPage() {
                                 height={50}
                                 className="object-cover"
                               />
-                            ): <ImageOffIcon className="size-5 text-gray-400"/>}
+                            ) : (
+                              <ImageOffIcon className="size-5 text-gray-400" />
+                            )}
                           </div>
                           <span className="text-lg font-medium text-gray-900">
                             {category.name}
