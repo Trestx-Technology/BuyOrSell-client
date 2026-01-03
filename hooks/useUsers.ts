@@ -18,9 +18,7 @@ import {
   findAllUsersWithAdsCount,
   updateMyEmarati,
   adminUpdateEmarati,
-  blockUser,
   assignRole,
-  getBlockHistory,
 } from "@/app/api/user/user.services";
 import {
   CreateUserPayload,
@@ -34,9 +32,7 @@ import {
   VerifyPhoneResponse,
   AddUserTypePayload,
   UpdateEmaratiPayload,
-  BlockUserPayload,
   AssignRolePayload,
-  BlockHistoryResponse,
 } from "@/interfaces/user.types";
 import { userQueries } from "@/app/api/user/index";
 
@@ -82,14 +78,6 @@ export const useFindAllUsersWithAdsCount = (
     queryKey: [...userQueries.findAllUsersWithAdsCount(minCount).Key, params],
     queryFn: () => findAllUsersWithAdsCount(minCount, params),
     enabled: !!minCount,
-  });
-};
-
-export const useGetBlockHistory = (id: string) => {
-  return useQuery<BlockHistoryResponse, Error>({
-    queryKey: [...userQueries.getBlockHistory(id).Key],
-    queryFn: () => getBlockHistory(id),
-    enabled: !!id,
   });
 };
 
@@ -291,29 +279,6 @@ export const useAdminUpdateEmarati = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: [...userQueries.getUserById(variables.id).Key],
-      });
-      queryClient.invalidateQueries({
-        queryKey: userQueries.findAllUsers.Key,
-      });
-    },
-  });
-};
-
-export const useBlockUser = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation<
-    { statusCode: number; timestamp: string; message?: string; data?: string },
-    Error,
-    { id: string; data: BlockUserPayload }
-  >({
-    mutationFn: ({ id, data }) => blockUser(id, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: [...userQueries.getUserById(variables.id).Key],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [...userQueries.getBlockHistory(variables.id).Key],
       });
       queryClient.invalidateQueries({
         queryKey: userQueries.findAllUsers.Key,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import {
   Bell,
   Lock,
@@ -15,6 +15,10 @@ import {
   MapPin,
 } from "lucide-react";
 import { useLocale } from "@/hooks/useLocale";
+import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
+import { logout as LogoutAPI } from "@/app/api/auth/auth.services";
+import { useAuthStore } from "@/stores/authStore";
+import { toast } from "sonner";
 
 interface SettingsItemProps {
   icon: React.ReactNode;
@@ -82,7 +86,12 @@ function SettingsItem({
 export default function SettingsCard() {
   const router = useRouter();
   const { t, localePath } = useLocale();
+  const { clearSession } = useAuthStore();
   const [darkMode, setDarkMode] = useState(false);
+  const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleMyProfile = () => {
     router.push(localePath("/user/profile"));
@@ -109,18 +118,43 @@ export default function SettingsCard() {
   };
 
   const handleDeleteAccount = () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete your account? This action cannot be undone."
-    );
-    if (confirmed) {
+    setShowDeleteAccountDialog(true);
+  };
+
+  const handleConfirmDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    try {
+      // TODO: Implement delete account API call
       console.log("Delete account");
+      // await deleteAccountAPI();
+      toast.success("Account deleted successfully");
+      // Redirect to home or login page after deletion
+      router.push("/");
+    } catch (error) {
+      console.error("Error deleting account:", error);
+    } finally {
+      setIsDeletingAccount(false);
+      setShowDeleteAccountDialog(false);
     }
   };
 
   const handleLogout = () => {
-    const confirmed = window.confirm("Are you sure you want to sign out?");
-    if (confirmed) {
-      console.log("Logout");
+    setShowLogoutDialog(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await LogoutAPI();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      await clearSession();
+      toast.success("Logged out successfully");
+      router.push("/");
+      router.refresh();
+      setIsLoggingOut(false);
+      setShowLogoutDialog(false);
     }
   };
 
@@ -136,14 +170,14 @@ export default function SettingsCard() {
         <SettingsItem
           icon={<User className="w-5 h-5" />}
           title={t.user.profile.myProfile}
-          description={t.user.profile.editProfile}
+          description={t.user.settings.profileDescription}
           onClick={handleMyProfile}
         />
 
         <SettingsItem
           icon={<MapPin className="w-5 h-5" />}
           title={t.user.address.myAddress}
-          description={t.user.address.myAddresses}
+          description={t.user.settings.addressDescription}
           onClick={handleAddress}
         />
 
@@ -218,6 +252,30 @@ export default function SettingsCard() {
           danger={true}
         />
       </div>
+
+      <WarningConfirmationDialog
+        open={showDeleteAccountDialog}
+        onOpenChange={setShowDeleteAccountDialog}
+        title="Delete Account"
+        description="Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently removed."
+        confirmText="Delete Account"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDeleteAccount}
+        isLoading={isDeletingAccount}
+        confirmVariant="danger"
+      />
+
+      <WarningConfirmationDialog
+        open={showLogoutDialog}
+        onOpenChange={setShowLogoutDialog}
+        title="Sign Out"
+        description="Are you sure you want to sign out of your account?"
+        confirmText="Sign Out"
+        cancelText="Cancel"
+        onConfirm={handleConfirmLogout}
+        isLoading={isLoggingOut}
+        confirmVariant="primary"
+      />
     </div>
   );
 }

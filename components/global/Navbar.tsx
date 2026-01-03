@@ -22,6 +22,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { NavigationMenu } from "./navigation-menu";
+import { JobNavigationMenu } from "./job-navigation-menu";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { logout as LogoutAPI } from "@/app/api/auth/auth.services";
@@ -37,9 +39,9 @@ const NavbarContent = ({ className }: { className?: string }) => {
   const pathname = usePathname();
   const router = useRouter();
   const [city, setCity] = useState("");
-  const [isPostAdDialogOpen, setIsPostAdDialogOpen] = useState(false);
-  const { isAuthenticated, session, clearSession } = useAuthStore();
-  const user = session.user;
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.session.user);
+  const clearSession = useAuthStore((state) => state.clearSession);
   const { data: emirates, isLoading: isLoadingEmirates } = useEmirates();
   const { t, locale } = useLocale();
 
@@ -76,9 +78,9 @@ const NavbarContent = ({ className }: { className?: string }) => {
     <div className="w-full bg-white">
       <nav
         className={cn(
-          "flex max-w-[1080px] gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between overflow-visible",
-          className,
-          locale === "ar" ? "flex-row-reverse" : "flex-row"
+          "flex container-1080 gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between overflow-visible",
+          locale === "ar" ? "flex-row-reverse" : "flex-row",
+          className
         )}
       >
         <div className="flex items-center gap-2">
@@ -89,7 +91,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                 ? {
                     name: `${user.firstName} ${user.lastName}`,
                     email: user.email,
-                    avatar: "/images/ai-prompt/add-image.png",
+                    avatar: user.image || "/images/ai-prompt/add-image.png",
                     isVerified: user.emailVerified,
                   }
                 : undefined
@@ -201,139 +203,57 @@ const NavbarContent = ({ className }: { className?: string }) => {
             <Popover>
               <PopoverTrigger asChild>
                 <button className="flex items-center gap-2 rounded-full p-1 hover:bg-purple-100 transition-colors">
-                  <div className="size-[35px] rounded-full overflow-hidden bg-purple-100 flex items-center justify-center">
-                    {user.firstName && user.lastName ? (
-                      <span className="text-sm font-semibold text-purple">
-                        {user.firstName.charAt(0)}
-                        {user.lastName.charAt(0)}
-                      </span>
-                    ) : (
+                  <div className="size-[35px] rounded-full border-2 border-purple overflow-hidden bg-purple-100 flex items-center justify-center">
+                    {user.image ? (
                       <Image
-                        src={"/images/ai-prompt/add-image.png"}
+                        src={user.image}
                         alt="Profile"
                         className="object-cover w-full h-full"
                         width={35}
                         height={35}
                       />
+                    ) : (
+                      <span className="text-sm font-semibold text-purple">
+                        {user.firstName.charAt(0)}
+                        {user.lastName.charAt(0)}
+                      </span>
                     )}
                   </div>
-                  <ChevronDown className="w-4 h-4 text-gray-500" />
+                  <ChevronDown className="size-5 text-purple" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-50 p-0" align="end">
-                <div className="space-y-1">
-                  <Link
-                    href="/user/profile"
-                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
-                  >
-                    <Image
-                      src={ICONS.navigation.profile}
-                      alt="Profile"
-                      width={24}
-                      height={24}
-                    />
-                    {t.home.navbar.myProfile}
-                  </Link>
-
-                  <Link
-                    href="/jobs/"
-                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
-                  >
-                    <Image
-                      src={ICONS.navigation.jobsDashboard}
-                      alt="Jobs"
-                      width={24}
-                      height={24}
-                    />
-                    {t.home.navbar.jobsDashboard}
-                  </Link>
-
-                  <Link
-                    href="/user/searches"
-                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
-                  >
-                    <Image
-                      src={ICONS.navigation.search}
-                      alt="Searches"
-                      width={24}
-                      height={24}
-                    />
-                    {t.home.navbar.mySearches}
-                  </Link>
-
-                  <Link
-                    href="/user/ads"
-                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
-                  >
-                    <Image
-                      src={ICONS.navigation.myAds}
-                      alt="Ads"
-                      width={24}
-                      height={24}
-                    />
-                    {t.home.navbar.myAds}
-                  </Link>
-
-                  <Link
-                    href="/favorites"
-                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
-                  >
-                    <Image
-                      src={ICONS.navigation.favorites}
-                      alt="Favorites"
-                      width={24}
-                      height={24}
-                    />
-                    {t.home.navbar.favourites}
-                  </Link>
-
-                  <Link
-                    href="/user/notifications"
-                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
-                  >
-                    <Image
-                      src={ICONS.navigation.notificationBell}
-                      alt="Notifications"
-                      width={24}
-                      height={24}
-                    />
-                    {t.home.navbar.notifications}
-                  </Link>
-
-                  <Link
-                    href="/user/offers"
-                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
-                  >
-                    <Image
-                      src={ICONS.navigation.offersPackages}
-                      alt="Offers"
-                      width={24}
-                      height={24}
-                    />
-                    {t.home.navbar.offersPackages}
-                  </Link>
-
-                  <Link
-                    href="/user/profile/settings"
-                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple"
-                  >
-                    <Image
-                      src={ICONS.navigation.settings}
-                      alt="Settings"
-                      width={24}
-                      height={24}
-                    />
-                    {t.home.navbar.settings}
-                  </Link>
-
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-red-50  transition-colors text-gray-700 hover:text-red-700 w-full"
-                  >
-                    <LogOut className="w-6 h-6" />
-                    {t.home.navbar.signOut}
-                  </button>
-                </div>
+                {pathname?.includes("/jobs") ? (
+                  <JobNavigationMenu
+                    onLogout={handleLogout}
+                    translations={{
+                      jobsDashboard:
+                        t.home.navbar.jobsDashboard || "Jobs Dashboard",
+                      jobListings: "Job Listings",
+                      myJobListings: "My Job Listings",
+                      jobseekers: "Jobseekers",
+                      organizations: "Organizations",
+                      myProfile: "My Job Profile",
+                      myOrganization: "My Organization",
+                      signOut: t.home.navbar.signOut,
+                    }}
+                  />
+                ) : (
+                  <NavigationMenu
+                    onLogout={handleLogout}
+                    translations={{
+                      myProfile: t.home.navbar.myProfile,
+                      jobsDashboard: t.home.navbar.jobsDashboard,
+                      mySearches: t.home.navbar.mySearches,
+                      myAds: t.home.navbar.myAds,
+                      favourites: t.home.navbar.favourites,
+                      notifications: t.home.navbar.notifications,
+                      offersPackages: t.home.navbar.offersPackages,
+                      settings: t.home.navbar.settings,
+                      signOut: t.home.navbar.signOut,
+                    }}
+                  />
+                )}
               </PopoverContent>
             </Popover>
           ) : (
@@ -343,35 +263,29 @@ const NavbarContent = ({ className }: { className?: string }) => {
           )}
 
           {/*-------------- Place Ad Button---------- */}
-
-          <Button
-            variant="filled"
-            size="icon-sm"
-            iconPosition="right"
-            onClick={() => setIsPostAdDialogOpen(true)}
-            icon={
-              <Image
-                src={ICONS.ai.aiPurpleBg}
-                alt="AI Logo"
-                width={24}
-                height={24}
-              />
-            }
-            className="px-4 text-xs font-medium text-white h-10"
-          >
-            <span className="hidden lg:block">{t.home.navbar.placeAd}</span>
-            <span className="block lg:hidden">
-              {t.home.navbar.placeAdShort}
-            </span>
-          </Button>
+          <PostAdDialog>
+            <Button
+              variant="filled"
+              size="icon-sm"
+              iconPosition="right"
+              icon={
+                <Image
+                  src={ICONS.ai.aiPurpleBg}
+                  alt="AI Logo"
+                  width={24}
+                  height={24}
+                />
+              }
+              className="px-4 text-xs font-medium text-white h-10"
+            >
+              <span className="hidden lg:block">{t.home.navbar.placeAd}</span>
+              <span className="block lg:hidden">
+                {t.home.navbar.placeAdShort}
+              </span>
+            </Button>
+          </PostAdDialog>
         </div>
       </nav>
-
-      {/*-------------- Post Ad Dialog---------- */}
-      <PostAdDialog
-        isOpen={isPostAdDialogOpen}
-        onClose={() => setIsPostAdDialogOpen(false)}
-      />
     </div>
   );
 };

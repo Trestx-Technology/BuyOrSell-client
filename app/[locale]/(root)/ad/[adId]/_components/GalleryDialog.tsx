@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X, Play, Pause, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
-import { Typography } from "@/components/typography";
 
 export interface MediaItem {
   id: number;
@@ -44,7 +43,9 @@ export default function GalleryDialog({
   }, [mediaItems.length]);
 
   const goToPrevious = useCallback(() => {
-    setSelectedIndex((prev) => (prev - 1 + mediaItems.length) % mediaItems.length);
+    setSelectedIndex(
+      (prev) => (prev - 1 + mediaItems.length) % mediaItems.length
+    );
     setIsPlaying(false);
   }, [mediaItems.length]);
 
@@ -187,45 +188,45 @@ export default function GalleryDialog({
         {mediaItems.length > 1 && (
           <>
             {/* Mobile: Bottom thumbnails */}
-              <div
-                className={cn(
-                  showThumbnails ? "translate-y-0" : "translate-y-full",
+            <div
+              className={cn(
+                showThumbnails ? "translate-y-0" : "translate-y-full",
                 "relative md:hidden p-4 transition-transform duration-300",
-                  "flex items-center justify-center gap-3 overflow-x-auto scrollbar-hide  min-w-full  w-full"
-                )}
-              >
-                {mediaItems.map((item, index) => (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setSelectedIndex(index);
-                      setIsPlaying(false);
-                    }}
-                    className={cn(
-                      "relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200",
-                      selectedIndex === index
-                        ? "border-purple scale-110 shadow-xl"
-                        : "border-purple/30 hover:border-purple/60 opacity-60 hover:opacity-100"
-                    )}
-                  >
-                    <Image
-                      src={item.thumbnail || "/placeholder.svg"}
-                      alt={item.alt}
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover"
-                      unoptimized
-                    />
-                    {item.type === "video" && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                        <Play className="h-5 w-5 text-white" />
-                      </div>
-                    )}
-                  </button>
-                ))}
+                "flex items-center justify-center gap-3 overflow-x-auto scrollbar-hide  min-w-full  w-full"
+              )}
+            >
+              {mediaItems.map((item, index) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setSelectedIndex(index);
+                    setIsPlaying(false);
+                  }}
+                  className={cn(
+                    "relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200",
+                    selectedIndex === index
+                      ? "border-purple scale-110 shadow-xl"
+                      : "border-purple/30 hover:border-purple/60 opacity-60 hover:opacity-100"
+                  )}
+                >
+                  <Image
+                    src={item.thumbnail || "/placeholder.svg"}
+                    alt={item.alt}
+                    width={80}
+                    height={80}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                  {item.type === "video" && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <Play className="h-5 w-5 text-white" />
+                    </div>
+                  )}
+                </button>
+              ))}
               {/* Toggle Thumbnails Button - Mobile only */}
             </div>
-              {/* {mediaItems.length > 1 && (
+            {/* {mediaItems.length > 1 && (
                 <Button
                   size={"icon-sm"}
                   onClick={() => setShowThumbnails(!showThumbnails)}
@@ -277,4 +278,3 @@ export default function GalleryDialog({
     </ResponsiveDialogDrawer>
   );
 }
-

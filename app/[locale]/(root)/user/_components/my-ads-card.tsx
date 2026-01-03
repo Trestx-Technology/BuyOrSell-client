@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,12 +10,18 @@ import {
   MapPin,
   Pencil,
   MoreVertical,
+  Trash2,
 } from "lucide-react";
 import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+
 import { useLocale } from "@/hooks/useLocale";
+import { useDeleteAd } from "@/hooks/useAds";
+import { SpecificationsDisplay } from "@/components/global/specifications-display";
+import { getSpecifications } from "@/utils/normalize-extra-fields";
+import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
 
 export interface FieldWithIcon {
   name: string;
@@ -39,6 +45,7 @@ export interface MyAdCardProps {
   isFavorite?: boolean;
   onFavorite?: (id: string) => void;
   onShare?: (id: string) => void;
+  onDelete?: (id: string) => void;
   onClick?: (id: string) => void;
   className?: string;
   showSeller?: boolean;
@@ -59,12 +66,34 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
   views = 0,
   isPremium = false,
   onClick,
+  onDelete,
   className,
 }) => {
   const { t, localePath } = useLocale();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const deleteAdMutation = useDeleteAd();
+
+  // Convert extraFields to specifications format
+  const specifications = useMemo(() => {
+    if (!extraFields || extraFields.length === 0) return [];
+    // Convert FieldWithIcon[] to ProductExtraFields format for getSpecifications
+    const productExtraFields = extraFields.map((field) => ({
+      name: field.name,
+      value: field.value,
+      icon: field.icon,
+      type: Array.isArray(field.value)
+        ? "checkboxes"
+        : typeof field.value === "boolean"
+        ? "bool"
+        : typeof field.value === "number"
+        ? "number"
+        : "string",
+    }));
+    return getSpecifications(productExtraFields);
+  }, [extraFields]);
 
   const handlePreviousImage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -94,6 +123,19 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
     onClick?.(id);
   };
 
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteAdMutation.mutate(id, {
+      onSuccess: () => {
+        setShowDeleteConfirm(false);
+      },
+    });
+  };
+
   const formatPrice = (amount: number) => {
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
@@ -109,8 +151,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
     >
-      <Link href={localePath(`/ad/${id}`)} className="absolute inset-0 "></Link>
-      <div className="p-0">
+      <div className="p-0 relative">
         {/* Image Section */}
         <div className="relative aspect-[3/3] sm:aspect-[4/3] bg-primary w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
           {images.length > 0 ? (
@@ -222,15 +263,6 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
               ))}
             </div>
           )}
-
-          <div className="hidden absolute top-3 right-0 sm:flex gap-0">
-            <Button
-              variant={"ghost"}
-              className="h-8 w-8 hover:scale-125 transition-all cursor-pointer"
-            >
-              <MoreVertical size={22} stroke="black" />
-            </Button>
-          </div>
         </div>
 
         <div className="pt-2 space-y-3">
@@ -272,52 +304,19 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             </Typography>
           </div>
 
-          {/* Dynamic Specs - Grid with 2 columns */}
-          <div className="min-h-10">
-            {extraFields.length > 0 && (
-              <div className="hidden sm:grid grid-cols-2 gap-2 px-2.5">
-                {extraFields.map((field) => {
-                  const displayValue = Array.isArray(field.value)
-                    ? field.value.join(", ")
-                    : typeof field.value === "boolean"
-                    ? field.value
-                      ? "Yes"
-                      : "No"
-                    : String(field.value);
-
-                  return (
-                    <div
-                      key={field.name}
-                      className="flex items-center gap-1 min-w-0"
-                    >
-                      {field.icon && (
-                        <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
-                          <Image
-                            src={field.icon}
-                            alt={field.name}
-                            width={16}
-                            height={16}
-                            className="w-4 h-4 object-contain"
-                          />
-                        </div>
-                      )}
-                      <Typography
-                        variant="body-small"
-                        className="text-xs text-[#667085] truncate min-w-0 flex-1"
-                      >
-                        {displayValue}
-                      </Typography>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
+          {/* Dynamic Specs */}
+          {specifications.length > 0 && (
+            <SpecificationsDisplay
+              specifications={specifications}
+              maxVisible={4}
+              showPopover={false}
+              itemClassName="text-[#667085]"
+            />
+          )}
+          {/* TODO: Add ad status */}
           <Badge className="mx-2 h-7 bg-success-100">Approved</Badge>
 
           <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-center justify-between">
-            {postedTime}
             <Button
               icon={<Pencil className="-mr-2" />}
               size={"icon-sm"}
@@ -326,12 +325,35 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             >
               {t.user.profileEdit.editProfile}
             </Button>
+            <Button
+              icon={<Trash2 className="-mr-2" />}
+              size={"icon-sm"}
+              className="px-2 text-xs"
+              iconPosition="left"
+              variant={"danger"}
+              onClick={handleDeleteClick}
+              disabled={deleteAdMutation.isPending}
+            >
+              {t.user.profileEdit.deleteAd}
+            </Button>
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <WarningConfirmationDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title="Delete Ad"
+        description="Are you sure you want to delete this ad? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteAdMutation.isPending}
+        confirmVariant="danger"
+      />
     </div>
   );
 };
 
 export default MyAdCard;
-

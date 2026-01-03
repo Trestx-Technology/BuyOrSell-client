@@ -6,7 +6,7 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
     profile: {
       pageTitle: "My Profile",
       myProfile: "My Profile",
-      editProfile: "Edit Profile",
+      editProfile: "Edit",
       myAds: "My Ads",
       myRatings: "My Ratings",
       joinDate: "Joined",
@@ -37,6 +37,7 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
       updating: "Updating...",
       updateSuccess: "Profile updated successfully!",
       updateFailed: "Failed to update profile. Please try again.",
+      deleteAd: "Delete Ad",
     },
     address: {
       pageTitle: "My Address",
@@ -58,6 +59,8 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
       changePassword: "Change Password",
       notificationSettings: "Notification Settings",
       blockedUsers: "Blocked Users",
+      profileDescription: "Edit your profile information",
+      addressDescription: "Manage your saved addresses",
     },
     changePassword: {
       pageTitle: "Change Password",
@@ -121,7 +124,7 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
     profile: {
       pageTitle: "Mijn Profiel",
       myProfile: "Mijn Profiel",
-      editProfile: "Profiel Bewerken",
+      editProfile: "Bewerken",
       myAds: "Mijn Advertenties",
       myRatings: "Mijn Beoordelingen",
       joinDate: "Lid sinds",
@@ -152,6 +155,7 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
       updating: "Bijwerken...",
       updateSuccess: "Profiel succesvol bijgewerkt!",
       updateFailed: "Profiel bijwerken mislukt. Probeer het opnieuw.",
+      deleteAd: "Advertentie Verwijderen",
     },
     address: {
       pageTitle: "Mijn Adres",
@@ -173,6 +177,8 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
       changePassword: "Wachtwoord Wijzigen",
       notificationSettings: "Meldingsinstellingen",
       blockedUsers: "Geblokkeerde Gebruikers",
+      profileDescription: "Bewerk uw profielinformatie",
+      addressDescription: "Beheer uw opgeslagen adressen",
     },
     changePassword: {
       pageTitle: "Wachtwoord Wijzigen",
@@ -237,7 +243,7 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
     profile: {
       pageTitle: "Mijn Profiel",
       myProfile: "Mijn Profiel",
-      editProfile: "Profiel Bewerken",
+      editProfile: "Bewerken",
       myAds: "Mijn Advertenties",
       myRatings: "Mijn Beoordelingen",
       joinDate: "Lid sinds",
@@ -268,6 +274,7 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
       updating: "Bijwerken...",
       updateSuccess: "Profiel succesvol bijgewerkt!",
       updateFailed: "Profiel bijwerken mislukt. Probeer het opnieuw.",
+      deleteAd: "Advertentie Verwijderen",
     },
     address: {
       pageTitle: "Mijn Adres",
@@ -289,6 +296,8 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
       changePassword: "Wachtwoord Wijzigen",
       notificationSettings: "Meldingsinstellingen",
       blockedUsers: "Geblokkeerde Gebruikers",
+      profileDescription: "Bewerk uw profielinformatie",
+      addressDescription: "Beheer uw opgeslagen adressen",
     },
     changePassword: {
       pageTitle: "Wachtwoord Wijzigen",
@@ -378,12 +387,13 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
     },
     profileEdit: {
       pageTitle: "تعديل الملف الشخصي",
-      editProfile: "تعديل الملف الشخصي",
+      editProfile: "تعديل",
       saveChanges: "حفظ التغييرات",
       cancel: "إلغاء",
       updating: "جاري التحديث...",
       updateSuccess: "تم تحديث الملف الشخصي بنجاح!",
       updateFailed: "فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى.",
+      deleteAd: "حذف الإعلان",
     },
     address: {
       pageTitle: "عنواني",
@@ -405,6 +415,8 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
       changePassword: "تغيير كلمة المرور",
       notificationSettings: "إعدادات الإشعارات",
       blockedUsers: "المستخدمون المحظورون",
+      profileDescription: "تعديل معلومات ملفك الشخصي",
+      addressDescription: "إدارة عناوينك المحفوظة",
     },
     changePassword: {
       pageTitle: "تغيير كلمة المرور",

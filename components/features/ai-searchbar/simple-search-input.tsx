@@ -5,11 +5,18 @@ import { motion } from "framer-motion";
 import { SearchIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "nextjs-toploader/app";
-import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useAdsByKeyword } from "@/hooks/useAds";
+import { useAuthStore } from "@/stores/authStore";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { Input } from "@/components/ui/input";
 import { CategoryDropdown } from "./category-dropdown";
-import { KeywordDropdown } from "./keyword-dropdown";
+
+interface SearchResult {
+  adCount: number;
+  name: string;
+  category: string;
+}
 
 interface SimpleSearchInputProps {
   onTrigger: () => void;
@@ -22,74 +29,72 @@ export function SimpleSearchInput({
   onTrigger,
   selectedCategory,
   setSelectedCategory,
-  onSearchQueryChange,
 }: SimpleSearchInputProps) {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = React.useState("");
+  const session = useAuthStore((state) => state.session);
+  const userId = session?.user?._id;
+
+  const [debouncedQuery, setDebouncedQuery] = React.useState("");
   const [selectedIndex, setSelectedIndex] = React.useState(-1);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
-  // Debounce search query for API calls
-  //   React.useEffect(() => {
-  //     const timer = setTimeout(() => {
-  //       setDebouncedSearchQuery(searchQuery);
-  //       onSearchQueryChange?.(searchQuery);
-  //     }, 500);
+  // Use debounced value hook - input uses localValue for immediate updates
+  // The callback receives the debounced value after 500ms delay
+  const [localSearchQuery, setLocalSearchQuery] = useDebouncedValue(
+    "",
+    (value) => {
+      setDebouncedQuery(value);
+    },
+    500
+  );
 
-  //     return () => clearTimeout(timer);
-  //   }, [searchQuery, onSearchQueryChange]);
-
-  // Fetch keyword search results
+  // Fetch keyword search results with debounced query
   const {
     data: keywordData,
     isLoading: isKeywordLoading,
     error: keywordError,
-  } = useAdsByKeyword(debouncedSearchQuery.trim(), {});
+  } = useAdsByKeyword(debouncedQuery.trim(), userId ? { userId } : undefined);
 
-  const keywordResults = keywordData?.data || [];
+  const keywordResults = (keywordData?.data || []) as SearchResult[];
   const hasResults = keywordResults.length > 0;
-  const showNoResults = Boolean(
-    debouncedSearchQuery.trim() &&
-      !isKeywordLoading &&
-      !hasResults &&
-      !keywordError
+  const showDropdown =
+    localSearchQuery.trim().length > 0 &&
+    (isKeywordLoading || hasResults || !!keywordError);
+
+  // Close dropdown when clicking outside
+  useOutsideClick(
+    dropdownRef,
+    () => {
+      setLocalSearchQuery("");
+      setDebouncedQuery("");
+      setSelectedIndex(-1);
+    },
+    !!showDropdown
   );
 
-  // Show dropdown when there's a query and we have results/loading/error
-  const shouldShowDropdown =
-    searchQuery.trim() &&
-    (isKeywordLoading || hasResults || showNoResults || keywordError);
-
-  const handleSearchQueryChange = (value: string) => {
-    setSearchQuery(value);
-    setSelectedIndex(-1);
-  };
-
-  const handleSearch = (query: string) => {
-    if (query.trim()) {
-      // Convert search query to URL-friendly format
-      const searchTerm = query.trim().toLowerCase().replace(/\s+/g, "-");
-      router.push(`/categories/${searchTerm}`);
+  const handleSearch = (category: string) => {
+    if (category.trim()) {
+      router.push(`/categories/${category}`);
     }
   };
 
-  const handleKeywordClick = (keyword: string) => {
-    setSearchQuery(keyword);
-    setDebouncedSearchQuery(keyword);
-    handleSearch(keyword);
+  const handleResultClick = (category: string) => {
+    handleSearch(category);
+    setLocalSearchQuery("");
+    setDebouncedQuery("");
+    setSelectedIndex(-1);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       if (selectedIndex >= 0 && keywordResults[selectedIndex]) {
-        handleKeywordClick(keywordResults[selectedIndex].name);
+        handleResultClick(keywordResults[selectedIndex].category);
       } else {
-        handleSearch(searchQuery);
+        handleSearch(localSearchQuery);
       }
     } else if (event.key === "ArrowDown") {
       event.preventDefault();
-      if (shouldShowDropdown && keywordResults.length > 0) {
+      if (keywordResults.length > 0) {
         setSelectedIndex((prev) =>
           prev < keywordResults.length - 1 ? prev + 1 : prev
         );
@@ -98,10 +103,15 @@ export function SimpleSearchInput({
       event.preventDefault();
       setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
     } else if (event.key === "Escape") {
-      setSearchQuery("");
-      setDebouncedSearchQuery("");
+      setLocalSearchQuery("");
+      setDebouncedQuery("");
       setSelectedIndex(-1);
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalSearchQuery(e.target.value);
+    setSelectedIndex(-1);
   };
 
   return (
@@ -121,7 +131,7 @@ export function SimpleSearchInput({
         className="hidden lg:block h-6 w-px bg-black/10"
         aria-hidden="true"
       />
-      <div className="relative flex-1">
+      <div className="relative flex-1" ref={dropdownRef}>
         <Input
           onRightIconClick={onTrigger}
           leftIcon={<SearchIcon className="size-5 text-gray-400 -ml-2" />}
@@ -136,24 +146,61 @@ export function SimpleSearchInput({
           type="text"
           inputSize="sm"
           placeholder="Search any product.."
-          value={searchQuery}
-          onChange={(e) => handleSearchQueryChange(e.target.value)}
+          value={localSearchQuery}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           className="pl-8 flex-1 block w-full bg-transparent text-xs placeholder-gray-500 focus:outline-none focus:ring-0 border-0"
         />
-        {shouldShowDropdown && (
-          <KeywordDropdown
-            keywordResults={keywordResults}
-            isLoading={isKeywordLoading}
-            showNoResults={showNoResults}
-            hasResults={hasResults}
-            error={keywordError}
-            debouncedSearchQuery={debouncedSearchQuery}
-            selectedIndex={selectedIndex}
-            onKeywordClick={handleKeywordClick}
-            onMouseEnter={setSelectedIndex}
-            dropdownRef={dropdownRef}
-          />
+
+        {showDropdown && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto z-50">
+            {isKeywordLoading ? (
+              <div className="px-4 py-8 text-center">
+                <p className="text-sm text-gray-500">Searching...</p>
+              </div>
+            ) : keywordError ? (
+              <div className="px-4 py-8 text-center">
+                <p className="text-sm text-red-500">Error loading results</p>
+                <p className="text-xs text-gray-400 mt-1">Please try again</p>
+              </div>
+            ) : hasResults ? (
+              <ul className="py-2">
+                {keywordResults.map((result, index) => (
+                  <li
+                    key={index}
+                    className={`relative px-4 py-3 cursor-pointer transition-colors ${
+                      selectedIndex === index
+                        ? "bg-purple/10"
+                        : "hover:bg-purple/10"
+                    }`}
+                    onClick={() => handleResultClick(result.category)}
+                    onMouseEnter={() => setSelectedIndex(index)}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {result.name}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {result.category}
+                        </p>
+                      </div>
+                      <span className="flex-shrink-0 text-xs font-semibold text-purple bg-gray-100 px-2 py-1 rounded">
+                        {result.adCount} {result.adCount === 1 ? "ad" : "ads"}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="px-4 py-8 text-center">
+                <p className="text-sm text-gray-500">No results found</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Try searching for something else
+                </p>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </motion.div>

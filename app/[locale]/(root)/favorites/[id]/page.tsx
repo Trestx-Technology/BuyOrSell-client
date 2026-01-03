@@ -18,6 +18,10 @@ import SortAndViewControls, {
 import Image from "next/image";
 import HorizontalListingCard from "../../categories/_components/desktop-horizontal-list-card";
 import MobileHorizontalListViewCard from "../../categories/_components/MobileHorizontalListViewCard";
+import { Container1080 } from "@/components/layouts/container-1080";
+import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
+import { formatDate } from "@/utils/format-date";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 // Sort options
 
@@ -160,72 +164,50 @@ export default function CollectionDetailPage() {
   }
 
   return (
-    <div className="w-full space-y-8 sm:py-4">
+    <Container1080>
       {/* Mobile Header */}
-      <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
-        <Button
-          variant={"ghost"}
-          icon={<ChevronLeft className="h-4 w-4 -mr-2" />}
-          iconPosition="center"
-          size={"icon-sm"}
-          className="absolute left-4 text-purple"
-          onClick={() => router.back()}
-        />
-        <Typography variant="lg-semibold" className="text-dark-blue">
-          {collection.name}
-        </Typography>
-      </div>
+      <MobileStickyHeader title={collection.name} />
 
-      {/* Desktop Header */}
-      <Button
-        variant={"ghost"}
-        icon={<ChevronLeft className="h-4 w-4 -mr-2" />}
-        iconPosition="center"
-        className="hidden sm:flex text-purple text-sm w-32"
-        onClick={() => router.back()}
-      >
-        {collection.name}
-      </Button>
+      <Breadcrumbs
+        className="px-4 py-8"
+        items={[
+          {
+            label: t.favorites.collection,
+            href: "/favorites",
+            id: "favorites",
+          },
+          {
+            label: collection.name,
+            href: `/favorites/${collectionId}`,
+            id: collectionId,
+            isActive: true,
+          },
+        ]}
+        showHomeIcon={false}
+      />
 
-      <div className="w-full px-4 lg:px-0">
+      <div className="w-full px-4">
         {/* Collection Header */}
-        <div className="mb-8 bg-white md:bg-transparent border md:border-none rounded-xl p-4 md:p-0 shadow-sm md:shadow-none">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex-1">
-              <Typography
-                variant="h2"
-                className="text-gray-900 font-bold text-2xl mb-2"
-              >
-                {collection.name}
-              </Typography>
-              {collection.description && (
-                <Typography variant="body-small" className="text-gray-600 mb-2">
-                  {collection.description}
-                </Typography>
-              )}
-              <Typography variant="body-small" className="text-gray-500">
-                {t.favorites.itemsCount.replace(
-                  "{{count}}",
-                  (collection.count || sortedAds.length).toString()
-                )}
-                {collection.createdAt &&
-                  ` • ${t.favorites.createdAt.replace(
-                    "{{date}}",
-                    new Date(collection.createdAt).toLocaleDateString()
-                  )}`}
-              </Typography>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="p-2"
-              onClick={() => {
-                // TODO: Implement more options (edit, delete, etc.)
-                console.log("More options");
-              }}
+        <div className="hidden md:flex px-4 py-8 bg-white md:bg-transparent border md:border-none rounded-xl p-4 md:p-0">
+          <div className=" flex-1">
+            <Typography
+              variant="h2"
+              className="text-gray-900 font-bold text-2xl mb-2"
             >
-              <MoreHorizontal className="h-5 w-5" />
-            </Button>
+              {collection.name}
+            </Typography>
+            {collection.description && (
+              <Typography variant="body-small" className="text-gray-600 mb-2">
+                {collection.description}
+              </Typography>
+            )}
+            <Typography variant="body-small" className="text-gray-500">
+              {t.favorites.itemsCount.replace(
+                "{{count}}",
+                (collection.count || sortedAds.length).toString()
+              )}
+              {formatDate(collection?.createdAt || "")}
+            </Typography>
           </div>
 
           {/* Collection Cover Image */}
@@ -373,6 +355,6 @@ export default function CollectionDetailPage() {
           </div>
         </div>
       </div>
-    </div>
+    </Container1080>
   );
 }

@@ -48,6 +48,7 @@ export interface FilterConfig {
 export interface AdsFilterProps {
   filters: Record<string, any>;
   onFilterChange: (key: string, value: any) => void;
+  onApplyFilters?: () => void; // Called when Apply Filters button is clicked
   onClearFilters: () => void;
   config?: FilterConfig[]; // Legacy support - will be split into staticFilters and dynamicFilters
   staticFilters?: FilterConfig[]; // Filters to show outside dialog
@@ -61,6 +62,7 @@ export interface AdsFilterProps {
 const AdsFilter = ({
   filters,
   onFilterChange,
+  onApplyFilters,
   onClearFilters,
   config,
   staticFilters,
@@ -134,11 +136,17 @@ const AdsFilter = ({
 
       case "range":
         return (
-          <FormField label={filterConfig.label} required={false}>
+          <FormField
+            label={filterConfig.label}
+            required={false}
+            className="-space-y-2"
+          >
             <div className="w-40">
-              <div className="px-3 py-2 border border-gray-200 rounded-md bg-white">
-                <div className="text-sm text-gray-600 mb-2">
-                  {value ? `${value[0]} - ${value[1]}` : `${min} - ${max}`}
+              <div className="py-2  rounded-md bg-white">
+                <div className="text-xs text-gray-600 mb-2">
+                  {value && Array.isArray(value) && value.length === 2
+                    ? `${value[0].toLocaleString()} - ${value[1].toLocaleString()}`
+                    : `${min.toLocaleString()} - ${max.toLocaleString()}`}
                 </div>
                 <Slider
                   value={value || [min, max]}
@@ -296,7 +304,14 @@ const AdsFilter = ({
                 <Button variant="outline" onClick={onClearFilters}>
                   Clear All
                 </Button>
-                <Button onClick={() => setIsAdvancedOpen(false)}>
+                <Button
+                  onClick={() => {
+                    if (onApplyFilters) {
+                      onApplyFilters();
+                    }
+                    setIsAdvancedOpen(false);
+                  }}
+                >
                   Apply Filters
                 </Button>
               </div>
@@ -313,9 +328,39 @@ const AdsFilter = ({
                   ...staticFilterConfigs,
                   ...dynamicFilterConfigs,
                 ].find((c) => c.key === key);
-                const displayValue = Array.isArray(value)
-                  ? value.join(", ")
-                  : value;
+
+                // Format display value
+                let displayValue: string;
+                if (Array.isArray(value)) {
+                  // Handle range arrays (e.g., price range)
+                  if (
+                    value.length === 2 &&
+                    typeof value[0] === "number" &&
+                    typeof value[1] === "number"
+                  ) {
+                    // Format as price range if it's a numeric range
+                    const isPriceFilter = key === "price";
+                    if (isPriceFilter) {
+                      displayValue = `${value[0].toLocaleString()} - ${value[1].toLocaleString()}`;
+                    } else {
+                      displayValue = `${value[0]} - ${value[1]}`;
+                    }
+                  } else {
+                    displayValue = value.join(", ");
+                  }
+                } else if (value === "true" || value === true) {
+                  displayValue = "YES";
+                } else if (value === "false" || value === false) {
+                  displayValue = "NO";
+                } else {
+                  displayValue = String(value);
+                }
+
+                // Get filter label - use config label, or format the key as fallback
+                const filterLabel =
+                  filterConfig?.label ||
+                  key.charAt(0).toUpperCase() +
+                    key.slice(1).replace(/([A-Z])/g, " $1");
 
                 return (
                   <Badge
@@ -323,7 +368,7 @@ const AdsFilter = ({
                     variant="secondary"
                     className="bg-purple-100 text-purple-700"
                   >
-                    {filterConfig?.label}: {displayValue}
+                    {filterLabel}: {displayValue}
                     <button
                       onClick={() =>
                         onFilterChange(

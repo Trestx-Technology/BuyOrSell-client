@@ -5,7 +5,7 @@ import DrawerWrapper from "@/components/global/drawer-wrapper";
 import { Typography } from "@/components/typography";
 import { Plus, Heart, ImageIcon, Check } from "lucide-react";
 import { Collection } from "./add-to-collection-dialog";
-import NewCollectionDrawer from "./new-collection-drawer";
+import { CreateCollectionDialog } from "./CreateCollectionDialog";
 import {
   useGetMyCollections,
   useGetCollectionsByAd,
@@ -232,20 +232,7 @@ const CollectionDrawer: React.FC<CollectionDrawerProps> = ({
       >
         <div className="space-y-4 p-4">
           {/* Create New Collection - First Item */}
-          <NewCollectionDrawer
-            trigger={
-              <div className="flex items-center gap-3 cursor-pointer transition-colors group">
-                <div className="size-10 bg-purple-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-all">
-                  <Plus className="h-6 w-6 text-white" />
-                </div>
-                <Typography
-                  variant="body-small"
-                  className="font-medium text-dark-blue group-hover:text-purple"
-                >
-                  Create new list
-                </Typography>
-              </div>
-            }
+          <CreateCollectionDialog
             onCollectionCreated={() => {
               // Invalidate queries to refresh collections list
               queryClient.invalidateQueries({
@@ -257,7 +244,19 @@ const CollectionDrawer: React.FC<CollectionDrawerProps> = ({
                 });
               }
             }}
-          ></NewCollectionDrawer>
+          >
+            <div className="flex items-center gap-3 cursor-pointer transition-colors group">
+              <div className="size-10 bg-purple-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-all">
+                <Plus className="h-6 w-6 text-white" />
+              </div>
+              <Typography
+                variant="body-small"
+                className="font-medium text-dark-blue group-hover:text-purple"
+              >
+                Create new list
+              </Typography>
+            </div>
+          </CreateCollectionDialog>
 
           {/* Collections List */}
           <div className="space-y-0">

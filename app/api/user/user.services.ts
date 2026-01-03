@@ -12,9 +12,7 @@ import type {
   VerifyPhoneResponse,
   AddUserTypePayload,
   UpdateEmaratiPayload,
-  BlockUserPayload,
   AssignRolePayload,
-  BlockHistoryResponse,
 } from "@/interfaces/user.types";
 
 // Get all users
@@ -226,23 +224,6 @@ export const adminUpdateEmarati = async (
   return response.data;
 };
 
-// Block user
-export const blockUser = async (
-  id: string,
-  data: BlockUserPayload
-): Promise<{
-  statusCode: number;
-  timestamp: string;
-  message?: string;
-  data?: string;
-}> => {
-  const response = await axiosInstance.post(
-    userQueries.blockUser(id).endpoint,
-    data
-  );
-  return response.data;
-};
-
 // Assign role
 export const assignRole = async (
   id: string,
@@ -251,16 +232,6 @@ export const assignRole = async (
   const response = await axiosInstance.put<UserResponse>(
     userQueries.assignRole(id).endpoint,
     data
-  );
-  return response.data;
-};
-
-// Get block history
-export const getBlockHistory = async (
-  id: string
-): Promise<BlockHistoryResponse> => {
-  const response = await axiosInstance.get<BlockHistoryResponse>(
-    userQueries.getBlockHistory(id).endpoint
   );
   return response.data;
 };

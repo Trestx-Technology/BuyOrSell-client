@@ -58,13 +58,10 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ ad }) => {
     : `/seller/user/${sellerId}`;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm relative">
-      {sellerId && (
-        <Link
-          href={localePath(sellerRoute)}
-          className="absolute inset-0"
-        ></Link>
-      )}
+    <Link
+      href={sellerId ? localePath(sellerRoute) : "#"}
+      className="bg-white group rounded-xl border border-gray-200 p-4 shadow-sm relative block w-full"
+    >
       <Typography
         variant="h3"
         className="text-lg font-semibold text-dark-blue mb-4"
@@ -74,7 +71,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ ad }) => {
 
       {/* Seller Profile */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
+        <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center group-hover:scale-110 transition-all duration-300">
           {hasAvatar ? (
             <Image
               src={avatarUrl}
@@ -147,7 +144,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ ad }) => {
           </div>
         )}
       </div>
-    </div>
+    </Link>
   );
 };
 

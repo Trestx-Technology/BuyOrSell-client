@@ -17,32 +17,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useUserReviews, useUserAverageRating } from "@/hooks/useReviews";
+import { useUserAverageRating } from "@/hooks/useReviews";
 import { useLocale } from "@/hooks/useLocale";
 import { formatDate } from "@/utils/format-date";
-import { Review } from "@/interfaces/review.types";
+import {
+  Review,
+  ReviewsResponseObject,
+  ReviewsResponse,
+} from "@/interfaces/review.types";
+import AllReviewsModal from "./all-reviews-modal";
 
 interface UserReviewsProps {
   userId: string;
+  reviewsData?: ReviewsResponse;
+  isLoadingReviews?: boolean;
+  reviewsError?: Error | null;
+  sortBy?: "latest" | "oldest" | "highest" | "lowest";
+  onSort?: (sortBy: "latest" | "oldest" | "highest" | "lowest") => void;
 }
 
-const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
+const UserReviews: React.FC<UserReviewsProps> = ({
+  userId,
+  reviewsData,
+  isLoadingReviews,
+  reviewsError,
+  sortBy = "latest",
+  onSort,
+}) => {
   const { t } = useLocale();
-  const [sortBy, setSortBy] = useState<
-    "latest" | "oldest" | "highest" | "lowest"
-  >("latest");
   const [isWriteReviewOpen, setIsWriteReviewOpen] = useState(false);
-  const [showAllReviews, setShowAllReviews] = useState(false);
-
-  // Fetch user reviews
-  const {
-    data: reviewsResponse,
-    isLoading: isLoadingReviews,
-    error: reviewsError,
-  } = useUserReviews(userId, {
-    sortBy,
-    limit: 50,
-  });
+  const [isAllReviewsModalOpen, setIsAllReviewsModalOpen] = useState(false);
 
   // Fetch average rating
   const {
@@ -53,24 +57,27 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
 
   // Extract reviews from response
   const reviews = useMemo(() => {
-    if (!reviewsResponse) return [];
-    return reviewsResponse.data?.reviews || reviewsResponse.reviews || [];
-  }, [reviewsResponse]);
+    if (!reviewsData) return [];
+    // Handle case where API returns array directly
+    if (Array.isArray(reviewsData)) {
+      return reviewsData;
+    }
+    // Handle structured response object
+    const responseObj = reviewsData as ReviewsResponseObject;
+    return responseObj.data || [];
+  }, [reviewsData]);
 
   // Get overall rating and total count
-  const overallRating =
-    averageRatingResponse?.data || reviewsResponse?.data?.overallRating || 0;
-  const totalReviews =
-    reviewsResponse?.data?.total ||
-    reviewsResponse?.data?.ratingCount ||
-    reviews.length;
+  const overallRating = averageRatingResponse?.data || 0;
+  const totalReviews = Array.isArray(reviewsData)
+    ? reviewsData.length
+    : (reviewsData as ReviewsResponseObject)?.data?.length || reviews.length;
 
   // Transform Review to display format
   const transformReview = (review: Review) => {
-    const reviewerName = review.reviewerName || review.userName || "Anonymous";
+    const reviewerName = review.reviewerName || "Anonymous";
     const avatar = reviewerName.charAt(0).toUpperCase();
-    const comment = review.comment || review.review || "";
-    const fullComment = review.fullComment || review.review || comment;
+    const reviewText = review.review || "";
     const timeAgo = review.createdAt
       ? formatDate(review.createdAt)
       : "Recently";
@@ -79,55 +86,28 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
       id: review._id,
       userName: reviewerName,
       rating: review.rating,
-      comment: comment.length > 50 ? comment.substring(0, 50) + "..." : comment,
+      comment:
+        reviewText.length > 50
+          ? reviewText.substring(0, 50) + "..."
+          : reviewText,
       timeAgo,
       avatar,
-      fullComment,
+      fullComment: reviewText,
     };
   };
 
   const transformedReviews = reviews.map(transformReview);
 
-  // Sort reviews based on sortBy
-  const sortedReviews = useMemo(() => {
-    const sorted = [...transformedReviews];
-    switch (sortBy) {
-      case "latest":
-        return sorted.sort((a, b) => {
-          const reviewA = reviews.find((r) => r._id === a.id);
-          const reviewB = reviews.find((r) => r._id === b.id);
-          const dateA = reviewA?.createdAt
-            ? new Date(reviewA.createdAt).getTime()
-            : 0;
-          const dateB = reviewB?.createdAt
-            ? new Date(reviewB.createdAt).getTime()
-            : 0;
-          return dateB - dateA;
-        });
-      case "oldest":
-        return sorted.sort((a, b) => {
-          const reviewA = reviews.find((r) => r._id === a.id);
-          const reviewB = reviews.find((r) => r._id === b.id);
-          const dateA = reviewA?.createdAt
-            ? new Date(reviewA.createdAt).getTime()
-            : 0;
-          const dateB = reviewB?.createdAt
-            ? new Date(reviewB.createdAt).getTime()
-            : 0;
-          return dateA - dateB;
-        });
-      case "highest":
-        return sorted.sort((a, b) => b.rating - a.rating);
-      case "lowest":
-        return sorted.sort((a, b) => a.rating - b.rating);
-      default:
-        return sorted;
-    }
-  }, [transformedReviews, sortBy, reviews]);
+  // Display reviews - show first one only
+  const displayReviews = transformedReviews.slice(0, 1);
 
-  const displayReviews = showAllReviews
-    ? sortedReviews
-    : sortedReviews.slice(0, 1);
+  const handleSortChange = (
+    value: "latest" | "oldest" | "highest" | "lowest"
+  ) => {
+    if (onSort) {
+      onSort(value);
+    }
+  };
 
   const renderStars = (rating: number, size: "small" | "large" = "small") => {
     const starSize = size === "large" ? "h-8 w-8" : "h-4 w-4";
@@ -196,7 +176,10 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
                 <Typography variant="sm-regular" className="text-grey-blue">
                   {t.user.profile.overallRating}
                 </Typography>
-                <Typography variant="sm-regular" className="text-grey-blue">
+                <Typography
+                  variant="sm-regular"
+                  className="text-black font-semibold"
+                >
                   {t.user.profile.basedOnReviews.replace(
                     "{count}",
                     totalReviews.toString()
@@ -213,12 +196,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
                 )}
               </Typography>
 
-              <Select
-                value={sortBy}
-                onValueChange={(
-                  value: "latest" | "oldest" | "highest" | "lowest"
-                ) => setSortBy(value)}
-              >
+              <Select value={sortBy} onValueChange={handleSortChange}>
                 <SelectTrigger className="w-fit h-8 border-purple/20 rounded-lg">
                   <SelectValue />
                 </SelectTrigger>
@@ -311,29 +289,26 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
               )}
             </div>
 
-            {sortedReviews.length > 1 && (
+            {transformedReviews.length > 0 && (
               <div className="flex justify-center mt-6">
                 <Button
-                  onClick={() => setShowAllReviews(!showAllReviews)}
+                  onClick={() => setIsAllReviewsModalOpen(true)}
                   variant="ghost"
-                  icon={
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${
-                        showAllReviews ? "rotate-180" : ""
-                      }`}
-                    />
-                  }
-                  iconPosition="center"
                   className="text-purple hover:text-purple/80 flex items-center gap-1"
                 >
-                  {showAllReviews
-                    ? t.user.profile.showLess
-                    : t.user.profile.viewAll}
+                  {t.user.profile.viewAll}
                 </Button>
               </div>
             )}
           </>
         )}
+
+      <AllReviewsModal
+        userId={userId}
+        open={isAllReviewsModalOpen}
+        onOpenChange={setIsAllReviewsModalOpen}
+        initialSortBy={sortBy}
+      />
 
       <Dialog open={isWriteReviewOpen} onOpenChange={setIsWriteReviewOpen}>
         <DialogContent className="max-w-md">

@@ -175,7 +175,6 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
               </ShareDialog>
 
               <CollectionDrawer
-                
                 trigger={
                   <button className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110">
                     <Heart className="h-5 w-5" />
@@ -195,7 +194,9 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
               >
                 <ImagePlusIcon className="h-4 w-4" />
                 <span className="text-xs font-semibold">
-                  {mediaItems.length}{" "}
+                  View all &nbsp;
+                  {mediaItems.length}
+                  &nbsp;
                   {hasVideo && currentImageIndex === 0
                     ? "Media"
                     : mediaItems.length === 1 && hasVideo

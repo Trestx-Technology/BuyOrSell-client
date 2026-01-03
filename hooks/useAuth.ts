@@ -1,12 +1,15 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation } from "@tanstack/react-query";
 import {
   signUp,
   login,
+  changePassword,
   SignUpPayload,
   SignUpResponse,
-} from '@/app/api/auth/auth.services';
-import { loginResponse } from '@/interfaces/auth.types';
-import { authQueries } from '@/app/api/auth/index';
+  ChangePasswordPayload,
+  ChangePasswordResponse,
+} from "@/app/api/auth/auth.services";
+import { loginResponse } from "@/interfaces/auth.types";
+import { authQueries } from "@/app/api/auth/index";
 
 // ============================================================================
 // MUTATION HOOKS
@@ -31,3 +34,9 @@ export const useLogin = () => {
   });
 };
 
+export const useChangePassword = () => {
+  return useMutation<ChangePasswordResponse, Error, ChangePasswordPayload>({
+    mutationFn: changePassword,
+    mutationKey: authQueries.changePassword.Key,
+  });
+};

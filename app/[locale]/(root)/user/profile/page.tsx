@@ -1,13 +1,10 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import ProfileCard from "../_components/profile-card";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MyAdCard from "../_components/my-ads-card";
 import UserReviews from "../_components/user-reviews";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { useLocale } from "@/hooks/useLocale";
 import { useGetProfile } from "@/hooks/useUsers";
@@ -17,6 +14,8 @@ import { AD } from "@/interfaces/ad";
 import { formatDate } from "@/utils/format-date";
 import { MyAdCardProps, FieldWithIcon } from "../_components/my-ads-card";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { useRouter } from "nextjs-toploader/app";
+import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 
 // Transform AD to MyAdCard props
 const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
@@ -141,6 +140,9 @@ const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
 const ProfilePage = () => {
   const router = useRouter();
   const { t, localePath, locale } = useLocale();
+  const [sortBy, setSortBy] = useState<
+    "latest" | "oldest" | "highest" | "lowest"
+  >("latest");
 
   // Fetch user profile
   const {
@@ -158,11 +160,11 @@ const ProfilePage = () => {
   } = useUserAverageRating(user?._id || "", !!user?._id);
 
   // Fetch user reviews to get total ratings count
-  const { data: reviewsResponse } = useUserReviews(
-    user?._id || "",
-    { limit: 1 },
-    !!user?._id
-  );
+  const {
+    data: reviewsResponse,
+    isLoading: isLoadingReviews,
+    error: reviewsError,
+  } = useUserReviews(user?._id || "", { limit: 10, sortBy }, !!user?._id);
 
   // Fetch user's ads
   const {
@@ -208,11 +210,7 @@ const ProfilePage = () => {
   const averageRating = averageRatingResponse?.data ?? 0;
 
   // Get total ratings count from reviews API
-  const totalRatings =
-    reviewsResponse?.data?.total ||
-    reviewsResponse?.data?.ratingCount ||
-    reviewsResponse?.reviews?.length ||
-    0;
+  // Handle case where API returns array directly (for user reviews)
 
   // Transform ads data
   const ads =
@@ -225,24 +223,12 @@ const ProfilePage = () => {
 
   return (
     <Container1080>
-      <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
-        <Button
-          variant={"ghost"}
-          icon={<ChevronLeft className="h-4 w-4 -mr-2" />}
-          iconPosition="center"
-          size={"icon-sm"}
-          className="absolute left-4 text-purple"
-          onClick={() => router.back()}
-        />
-        <Typography variant="lg-semibold" className="text-dark-blue">
-          {t.user.profile.myProfile}
-        </Typography>
-      </div>
+      <MobileStickyHeader title={t.user.profile.myProfile} />
 
       <div className="flex flex-col gap-5 py-8 px-4 xl:px-0">
         <Link
           href={localePath("/user/profile")}
-          className="text-purple-600 font-semibold text-sm"
+          className="text-purple-600 font-semibold text-sm w-fit hover:underline"
         >
           {t.user.profile.myProfile}
         </Link>
@@ -267,8 +253,8 @@ const ProfilePage = () => {
         ) : user ? (
           <ProfileCard
             name={getUserName()}
-            rating={averageRating}
-            totalRatings={totalRatings}
+            rating={averageRating || "No ratings yet"}
+            totalRatings={reviewsResponse?.data?.length || 0}
             joinDate={formatJoinDate(user.createdAt)}
             avatarUrl={user.image || "/images/ai-prompt/add-image.png"}
             isVerified={
@@ -294,7 +280,7 @@ const ProfilePage = () => {
             </TabsTrigger>
           </TabsList>
           <TabsContent
-            className=" w-full grid grid-cols-2 sm:flex flex-wrap gap-3 justify-center"
+            className=" w-full grid grid-cols-2 sm:flex flex-wrap gap-3 justify-center mt-4"
             value="ads"
           >
             {isLoadingAds ? (
@@ -322,14 +308,21 @@ const ProfilePage = () => {
                   {...ad}
                   onFavorite={(id) => console.log("Favorited:", id)}
                   onShare={(id) => console.log("Shared:", id)}
-                  onClick={(id) => console.log("Clicked:", id)}
+                  onClick={(id) => router.push(`/ad/${id}`)}
                   className="min-h-[284px] w-full max-w-[255px]"
                 />
               ))
             )}
           </TabsContent>
           <TabsContent className=" w-full" value="reviews">
-            <UserReviews userId={user?._id || "1"} />
+            <UserReviews
+              userId={user?._id || "1"}
+              reviewsData={reviewsResponse}
+              isLoadingReviews={isLoadingReviews}
+              reviewsError={reviewsError}
+              sortBy={sortBy}
+              onSort={setSortBy}
+            />
           </TabsContent>
         </Tabs>
       </div>

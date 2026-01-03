@@ -3,12 +3,11 @@
 import React from "react";
 import { X, Plus, Heart, Check, ImageIcon } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+} from "@/components/ui/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
 import Image from "next/image";
@@ -33,7 +32,6 @@ export interface AddToCollectionDialogProps {
   onAddToCollection?: (adId: string, collectionId: string) => void;
   onCreateNewCollection?: () => void;
   className?: string;
-  children?: React.ReactElement;
 }
 
 const dummyCollections: Collection[] = [
@@ -71,7 +69,6 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
   onAddToCollection,
   onCreateNewCollection,
   className,
-  children,
 }) => {
   const handleCollectionSelect = (collectionId: string) => {
     // Immediately add the item to the selected collection
@@ -87,17 +84,15 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent
+    <ResponsiveModal open={open} onOpenChange={onOpenChange}>
+      <ResponsiveModalContent
         className={`max-w-md w-[95%] overflow-y-auto max-h-[450px] rounded-lg ${className}`}
-        showCloseButton={false}
       >
-        <DialogHeader className="pb-4">
+        <ResponsiveModalHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-bold text-dark-blue">
+            <ResponsiveModalTitle className="text-xl font-bold text-dark-blue">
               Favorites
-            </DialogTitle>
+            </ResponsiveModalTitle>
             <Button
               variant="ghost"
               size="sm"
@@ -107,9 +102,9 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
               <X className="h-4 w-4" />
             </Button>
           </div>
-        </DialogHeader>
+        </ResponsiveModalHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 px-4 pb-4">
           {/* Create New Collection - First Item */}
           <CreateCollectionDialog onCollectionCreated={handleCreateNew}>
             <div className="flex items-center gap-3 cursor-pointer transition-colors group">
@@ -217,8 +212,8 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
             )}
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveModalContent>
+    </ResponsiveModal>
   );
 };
 

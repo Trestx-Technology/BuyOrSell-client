@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,90 +17,121 @@ import {
 import { Label } from "@/components/ui/label";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 import { useLocale } from "@/hooks/useLocale";
-import { useEmirates } from "@/hooks/useLocations";
-
-interface AddressFormData {
-  emirates: string;
-  city: string;
-  area: string;
-  pincode: string;
-  street: string;
-  addressType: "home" | "office" | "other";
-  isPrimary: boolean;
-}
+import { useEmirates, useCities, useAreas } from "@/hooks/useLocations";
+import { addressSchema, type AddressFormData } from "@/schemas/address.schema";
 
 interface AddAddressFormProps {
   onSubmit?: (data: AddressFormData) => void;
   isLoading?: boolean;
+  initialValues?: Partial<AddressFormData>;
 }
 
 export default function AddAddressForm({
   onSubmit,
   isLoading = false,
+  initialValues,
 }: AddAddressFormProps) {
   const { t, locale } = useLocale();
   const { data: emirates = [] } = useEmirates();
-  const [formData, setFormData] = useState<AddressFormData>({
-    emirates: "Dubai",
-    city: "",
-    area: "",
-    pincode: "",
-    street: "",
-    addressType: "home",
-    isPrimary: false,
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<AddressFormData>({
+    resolver: zodResolver(addressSchema),
+    defaultValues: {
+      emirate: initialValues?.emirate || "",
+      city: initialValues?.city || "",
+      area: initialValues?.area || "",
+      pincode: initialValues?.pincode || "",
+      street: initialValues?.street || "",
+      addressType: initialValues?.addressType || "home",
+      isPrimary: initialValues?.isPrimary || false,
+    },
   });
 
-  const [errors, setErrors] = useState<Partial<AddressFormData>>({});
+  const selectedEmirate = watch("emirate");
+  const { data: citiesData = [] } = useCities({
+    emirate: selectedEmirate || undefined,
+  });
+  const { data: areasData = [] } = useAreas(selectedEmirate || undefined);
 
-  const handleInputChange = (
-    field: keyof AddressFormData,
-    value: string | boolean
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
+  // Track previous emirate to detect changes (not initial set)
+  const previousEmirateRef = useRef<string | null>(null);
+
+  // Update form when initialValues change
+  useEffect(() => {
+    if (initialValues) {
+      reset({
+        emirate: initialValues.emirate || "",
+        city: initialValues.city || "",
+        area: initialValues.area || "",
+        pincode: initialValues.pincode || "",
+        street: initialValues.street || "",
+        addressType: initialValues.addressType || "home",
+        isPrimary: initialValues.isPrimary || false,
+      });
+      // Mark that we've initialized so we don't clear on the first emirate change
+      previousEmirateRef.current = initialValues.emirate || "";
     }
-  };
+  }, [initialValues, reset]);
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<AddressFormData> = {};
-
-    if (!formData.city.trim()) {
-      newErrors.city = "City is required";
+  // Reset city and area when emirate changes (but not during initial load)
+  useEffect(() => {
+    // Only clear city/area if emirate actually changes from one value to another
+    // Skip if this is the first time (previousEmirateRef.current is null) or if it's the same value
+    if (
+      selectedEmirate &&
+      previousEmirateRef.current !== null &&
+      previousEmirateRef.current !== selectedEmirate
+    ) {
+      setValue("city", "");
+      setValue("area", "");
     }
-
-    if (!formData.area.trim()) {
-      newErrors.area = "Area is required";
+    // Update the ref after the effect runs (only if emirate has a value)
+    if (selectedEmirate) {
+      previousEmirateRef.current = selectedEmirate;
     }
-
-    if (!formData.pincode.trim()) {
-      newErrors.pincode = "Pincode is required";
-    } else if (!/^\d{5}$/.test(formData.pincode)) {
-      newErrors.pincode = "Please enter a valid 5-digit pincode";
-    }
-
-    if (!formData.street.trim()) {
-      newErrors.street = "Street is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    onSubmit?.(formData);
-  };
+  }, [selectedEmirate, setValue]);
 
   const emirateOptions = emirates.map((emirate) => ({
     value: emirate.emirate,
     label: locale === "ar" ? emirate.emirateAr : emirate.emirate,
   }));
+
+  // Handle cities - can be string[] or object[] with {city, cityAr}
+  const cityOptions = (
+    citiesData as (string | { city: string; cityAr?: string })[]
+  ).map((city) => {
+    if (typeof city === "string") {
+      return { value: city, label: city };
+    }
+    return {
+      value: city.city,
+      label: locale === "ar" ? city.cityAr || city.city : city.city,
+    };
+  });
+
+  // Handle areas - can be string[] or object[] with {area, areaAr}
+  const areaOptions = (
+    areasData as (string | { area: string; areaAr?: string })[]
+  ).map((area) => {
+    if (typeof area === "string") {
+      return { value: area, label: area };
+    }
+    return {
+      value: area.area,
+      label: locale === "ar" ? area.areaAr || area.area : area.area,
+    };
+  });
+
+  const onSubmitForm = (data: AddressFormData) => {
+    onSubmit?.(data);
+  };
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 max-w-2xl w-full mx-auto">
@@ -108,104 +141,181 @@ export default function AddAddressForm({
         </h2>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6">
         <div className="space-y-3">
-          <RadioGroup
-            value={formData.addressType}
-            onValueChange={(value: "home" | "office" | "other") =>
-              handleInputChange("addressType", value)
-            }
-            className="flex gap-6"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="home" id="home" />
-              <Label htmlFor="home" className="text-sm font-medium cursor-pointer">
-                {t.user.address.home}
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="office" id="office" />
-              <Label htmlFor="office" className="text-sm font-medium cursor-pointer">
-                {t.user.address.office}
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="other" id="other" />
-              <Label htmlFor="other" className="text-sm font-medium cursor-pointer">
-                {t.user.address.other}
-              </Label>
-            </div>
-          </RadioGroup>
+          <Label className="text-sm font-medium text-gray-900">
+            Address Type
+          </Label>
+          {errors.addressType && (
+            <p className="text-sm text-red-600">{errors.addressType.message}</p>
+          )}
+          <Controller
+            name="addressType"
+            control={control}
+            render={({ field }) => (
+              <RadioGroup
+                value={field.value}
+                onValueChange={field.onChange}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="home" id="home" />
+                  <Label
+                    htmlFor="home"
+                    className="text-sm font-medium cursor-pointer"
+                  >
+                    {t.user.address.home}
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="office" id="office" />
+                  <Label
+                    htmlFor="office"
+                    className="text-sm font-medium cursor-pointer"
+                  >
+                    {t.user.address.office}
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="other" id="other" />
+                  <Label
+                    htmlFor="other"
+                    className="text-sm font-medium cursor-pointer"
+                  >
+                    {t.user.address.other}
+                  </Label>
+                </div>
+              </RadioGroup>
+            )}
+          />
         </div>
 
-        <FormField label="Emirates">
-          <Select
-            value={formData.emirates}
-            onValueChange={(value) => handleInputChange("emirates", value)}
-          >
-            <SelectTrigger className="w-full bg-gray-50 border-gray-200">
-              <SelectValue placeholder="Select emirates" />
-            </SelectTrigger>
-            <SelectContent>
-              {emirateOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FormField>
-
-        <FormField label="City">
-          <Input
-            value={formData.city}
-            onChange={(e) => handleInputChange("city", e.target.value)}
-            error={errors.city}
-            placeholder="Enter city name"
-            className="bg-gray-50"
+        <FormField label="Emirates" error={errors.emirate?.message}>
+          <Controller
+            name="emirate"
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className="w-full bg-gray-50 border-gray-200">
+                  <SelectValue placeholder="Select emirates" />
+                </SelectTrigger>
+                <SelectContent>
+                  {emirateOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           />
         </FormField>
 
-        <FormField label="Area">
-          <Input
-            value={formData.area}
-            onChange={(e) => handleInputChange("area", e.target.value)}
-            error={errors.area}
-            placeholder="Enter area name"
-            className="bg-gray-50"
+        <FormField label="City" error={errors.city?.message}>
+          <Controller
+            name="city"
+            control={control}
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={!selectedEmirate}
+              >
+                <SelectTrigger className="w-full bg-gray-50 border-gray-200">
+                  <SelectValue
+                    placeholder={
+                      selectedEmirate ? "Select city" : "Select emirate first"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {cityOptions.map((city) => (
+                    <SelectItem key={city.value} value={city.value}>
+                      {city.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           />
         </FormField>
 
-        <FormField label="Pincode">
-          <Input
-            value={formData.pincode}
-            onChange={(e) => handleInputChange("pincode", e.target.value)}
-            error={errors.pincode}
-            placeholder="00000"
-            className="bg-gray-50"
-            maxLength={5}
+        <FormField label="Area" error={errors.area?.message}>
+          <Controller
+            name="area"
+            control={control}
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={!selectedEmirate}
+              >
+                <SelectTrigger className="w-full bg-gray-50 border-gray-200">
+                  <SelectValue
+                    placeholder={
+                      selectedEmirate ? "Select area" : "Select emirate first"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {areaOptions.map((area) => (
+                    <SelectItem key={area.value} value={area.value}>
+                      {area.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           />
         </FormField>
 
-        <FormField label="Street">
-          <Input
-            value={formData.street}
-            onChange={(e) => handleInputChange("street", e.target.value)}
-            error={errors.street}
-            placeholder="Enter street address"
-            className="bg-gray-50"
+        <FormField label="Pincode" error={errors.pincode?.message}>
+          <Controller
+            name="pincode"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                error={errors.pincode?.message}
+                placeholder="00000"
+                className="bg-gray-50"
+                maxLength={6}
+              />
+            )}
+          />
+        </FormField>
+
+        <FormField label="Street" error={errors.street?.message}>
+          <Controller
+            name="street"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                error={errors.street?.message}
+                placeholder="Enter street address"
+                className="bg-gray-50"
+              />
+            )}
           />
         </FormField>
 
         <div className="flex items-center space-x-3">
-          <Checkbox
-            id="primary"
-            checked={formData.isPrimary}
-            onCheckedChange={(checked) =>
-              handleInputChange("isPrimary", !!checked)
-            }
+          <Controller
+            name="isPrimary"
+            control={control}
+            render={({ field }) => (
+              <Checkbox
+                id="primary"
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            )}
           />
-          <Label htmlFor="primary" className="text-sm font-medium text-gray-900 cursor-pointer">
+          <Label
+            htmlFor="primary"
+            className="text-sm font-medium text-gray-900 cursor-pointer"
+          >
             Set as {t.user.address.primary.toLowerCase()} address
           </Label>
         </div>
@@ -215,6 +325,7 @@ export default function AddAddressForm({
             type="submit"
             className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 text-base font-medium"
             disabled={isLoading}
+            isLoading={isLoading}
           >
             {isLoading ? "Saving..." : "Save Address"}
           </Button>
@@ -223,4 +334,3 @@ export default function AddAddressForm({
     </div>
   );
 }
-

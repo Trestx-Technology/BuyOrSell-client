@@ -77,6 +77,19 @@ export const NAVIGATION_ICONS = {
 } as const;
 
 // ============================================================================
+// JOB NAVIGATION ICONS
+// ============================================================================
+export const JOB_NAVIGATION_ICONS = {
+  jobsDashboard: `${S3_BASE_URL}/icons/jobs-dashboard.svg`,
+  jobListings: `${S3_BASE_URL}/icons/job-seeking.png`,
+  myJobListings: `${S3_BASE_URL}/icons/job (1).png`,
+  jobseekers: `${S3_BASE_URL}/icons/job (1).png`,
+  organizations: `${S3_BASE_URL}/icons/company-building.png`,
+  myJobProfile: `${S3_BASE_URL}/icons/user-profile.png`,
+  myOrganization: `${S3_BASE_URL}/icons/property-budget.png`,
+} as const;
+
+// ============================================================================
 // CATEGORY ICONS
 // ============================================================================
 export const CATEGORY_ICONS = {
@@ -120,6 +133,7 @@ export const ICONS = {
   currency: CURRENCY_ICONS,
   auth: AUTH_ICONS,
   navigation: NAVIGATION_ICONS,
+  jobNavigation: JOB_NAVIGATION_ICONS,
   category: CATEGORY_ICONS,
   banner: BANNER_IMAGES,
 } as const;
@@ -133,6 +147,7 @@ export type AIIcon = keyof typeof AI_ICONS;
 export type CurrencyIcon = keyof typeof CURRENCY_ICONS;
 export type AuthIcon = keyof typeof AUTH_ICONS;
 export type NavigationIcon = keyof typeof NAVIGATION_ICONS;
+export type JobNavigationIcon = keyof typeof JOB_NAVIGATION_ICONS;
 export type CategoryIcon = keyof typeof CATEGORY_ICONS;
 export type BannerImage = keyof typeof BANNER_IMAGES;
 

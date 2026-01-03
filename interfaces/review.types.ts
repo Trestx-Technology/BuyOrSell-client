@@ -8,42 +8,24 @@ export interface Review {
   reviewObject: ReviewObject;
   reviewObjectId: string;
   language?: string;
+  tag?: string;
   reviewerName?: string;
   reviewerEmail?: string;
+  reviewerPhoneNumber?: string;
+  reviewerImage?: string;
   createdAt: string;
   updatedAt: string;
-  __v?: number;
-  // Legacy fields for backward compatibility
-  adId?: string;
-  organizationId?: string;
-  userId?: string;
-  userName?: string;
-  userImage?: string;
-  comment?: string;
-  fullComment?: string;
 }
 
-export interface ReviewsResponse {
+// Structured response format (for ads/organizations)
+export interface ReviewsResponseObject {
   statusCode?: number;
   timestamp?: string;
-  data?: {
-    reviews?: Review[];
-    total?: number;
-    page?: number;
-    limit?: number;
-    totalPages?: number;
-    overallRating?: number;
-    ratingCount?: number;
-  };
-  // Handle case where API returns array directly
-  reviews?: Review[];
-  total?: number;
-  page?: number;
-  limit?: number;
-  totalPages?: number;
-  overallRating?: number;
-  ratingCount?: number;
+  data?: Review[];
 }
+
+// Union type: API can return array directly OR structured object
+export type ReviewsResponse = ReviewsResponseObject;
 
 // Type guard to check if response is an array
 export function isReviewArray(response: any): response is Review[] {

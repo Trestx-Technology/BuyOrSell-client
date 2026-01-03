@@ -22,6 +22,7 @@ import {
   useOrganizationReviews,
   useCreateOrganizationReview,
 } from "@/hooks/useReviews";
+import { Review } from "@/interfaces/review.types";
 import { Organization } from "@/interfaces/organization.types";
 import { formatDistanceToNow } from "date-fns";
 import { useAuthStore } from "@/stores/authStore";
@@ -71,59 +72,50 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({
     limit: 100, // Fetch all reviews, we'll handle pagination in UI
   });
 
-  // Extract review data from response
-  const reviewData = useMemo(() => {
-    // Handle case where data is an array directly
-    let reviews: any[] = [];
-    if (reviewsResponse?.data) {
-      if (Array.isArray(reviewsResponse.data)) {
-        // API returns data as array directly
-        reviews = reviewsResponse.data;
-      } else if (
-        reviewsResponse.data.reviews &&
-        Array.isArray(reviewsResponse.data.reviews)
-      ) {
-        // API returns data as object with reviews array
-        reviews = reviewsResponse.data.reviews;
-      }
-    }
+  // Extract reviews from response
+  const reviews = useMemo(() => {
+    if (!reviewsResponse) return [];
+    // Handle structured response object
+    return reviewsResponse.data || [];
+  }, [reviewsResponse]);
 
-    // Calculate overall rating from reviews if not provided
-    const calculatedRating =
+  // Transform reviews and calculate review data
+  const reviewData = useMemo(() => {
+    // Calculate overall rating from reviews
+    const overallRating =
       reviews.length > 0
         ? reviews.reduce((sum, review) => sum + review.rating, 0) /
           reviews.length
-        : 0;
+        : organization?.ratingAvg || 0;
 
     return {
-      overallRating:
-        reviewsResponse?.data?.overallRating ||
-        (reviewsResponse?.data as any)?.overallRating ||
-        calculatedRating ||
-        organization?.ratingAvg ||
-        0,
-      totalReviews:
-        reviewsResponse?.data?.total ||
-        (reviewsResponse?.data as any)?.total ||
-        (reviewsResponse?.data as any)?.ratingCount ||
-        organization?.ratingCount ||
-        reviews.length,
-      reviews: reviews.map((review) => ({
-        id: review._id,
-        userName: review.reviewerName || review.userName || "Anonymous",
-        rating: review.rating,
-        comment: review.review || review.comment || "",
-        timeAgo: review.createdAt
-          ? formatDistanceToNow(new Date(review.createdAt), { addSuffix: true })
-          : "",
-        avatar: (review.reviewerName ||
-          review.userName ||
-          "A")[0].toUpperCase(),
-        fullComment:
-          review.review || review.fullComment || review.comment || "",
-      })),
+      overallRating,
+      totalReviews: organization?.ratingCount || reviews.length,
+      reviews: reviews.map((review: Review) => {
+        const userName = review.reviewerName || "Anonymous";
+        const initials = userName
+          .split(" ")
+          .map((n: string) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2);
+
+        return {
+          id: review._id,
+          userName,
+          rating: review.rating,
+          comment: review.review || "",
+          timeAgo: review.createdAt
+            ? formatDistanceToNow(new Date(review.createdAt), {
+                addSuffix: true,
+              })
+            : "",
+          avatar: initials || "A",
+          fullComment: review.review || "",
+        };
+      }),
     };
-  }, [reviewsResponse, organization]);
+  }, [reviews, organization]);
 
   const displayReviews = showAllReviews
     ? reviewData.reviews

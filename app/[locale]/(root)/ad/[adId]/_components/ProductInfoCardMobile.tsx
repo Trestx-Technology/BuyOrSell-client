@@ -1,25 +1,52 @@
 "use client";
 
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Typography } from "@/components/typography";
-
-import { FaMapMarkerAlt } from "react-icons/fa";
+import { Button } from "@/components/ui/button";
+import { Phone, Info } from "lucide-react";
+import { FaWhatsapp, FaMapMarkerAlt } from "react-icons/fa";
+import { MdMessage } from "react-icons/md";
 import { GoClockFill } from "react-icons/go";
-import { IoCalendarNumber } from "react-icons/io5";
-import { PiGaugeFill } from "react-icons/pi";
-import { BsFuelPumpFill } from "react-icons/bs";
-import { IoIosFlash } from "react-icons/io";
 import Image from "next/image";
 import { ICONS } from "@/constants/icons";
+import { useRouter } from "nextjs-toploader/app";
 import { AD } from "@/interfaces/ad";
 import { formatDistanceToNow } from "date-fns";
-import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
+import {
+  getSpecifications,
+  normalizeExtraFieldsToArray,
+} from "@/utils/normalize-extra-fields";
+import { PriceDisplay } from "@/components/global/price-display";
+import { SpecificationsDisplay } from "@/components/global/specifications-display";
+import { useAuthStore } from "@/stores/authStore";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { findOrCreateAdChat } from "@/lib/firebase/chat.utils";
+import { toast } from "sonner";
 
 interface ProductInfoCardMobileProps {
   ad: AD;
 }
 
 const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({ ad }) => {
+  const router = useRouter();
+  const { session, isAuthenticated } = useAuthStore((state) => state);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Check if current user is the owner or organization owner
+  const isOwner = useMemo(() => {
+    if (!session.user?._id) return false;
+
+    const currentUserId = session.user._id;
+    const adOwnerId = typeof ad.owner === "string" ? ad.owner : ad.owner?._id;
+    const orgOwnerId = ad.organization?.owner;
+
+    return currentUserId === adOwnerId || currentUserId === orgOwnerId;
+  }, [session.user?._id, ad.owner, ad.organization?.owner]);
+
   // Extract location
   const location =
     typeof ad.location === "string"
@@ -31,154 +58,233 @@ const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({ ad }) => 
     addSuffix: true,
   });
 
-  // Extract extraFields for specifications
-  const extraFields = normalizeExtraFieldsToArray(ad.extraFields || []);
-  const getFieldValue = (fieldName: string): string => {
-    const field = extraFields.find(
-      (f) => f.name?.toLowerCase().includes(fieldName.toLowerCase())
-    );
-    if (field) {
-      if (Array.isArray(field.value)) {
-        return field.value.join(", ");
-      }
-      return String(field.value || "");
+  // Get specifications from extraFields using utility function
+  const specifications = useMemo(() => {
+    return getSpecifications(ad.extraFields);
+  }, [ad.extraFields]);
+
+  const handleCall = () => {
+    if (ad.contactPhoneNumber) {
+      window.location.href = `tel:${ad.contactPhoneNumber}`;
+    } else {
+      console.log("Phone number not available");
     }
-    return "";
   };
 
-  const year = getFieldValue("year") || "";
-  const mileage = getFieldValue("mileage") || getFieldValue("km") || "";
-  const fuelType = getFieldValue("fuel") || getFieldValue("fuelType") || "";
-  const transmission = getFieldValue("transmission") || "";
+  const handleMessage = async () => {
+    // Check if user is authenticated
+    if (!isAuthenticated || !session.user) {
+      toast.error("Please login to send a message");
+      router.push("/login");
+      return;
+    }
 
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("en-AE", {
-      minimumFractionDigits: 0,
-    }).format(amount);
+    // Check if ad has an owner
+    const adOwnerId = typeof ad.owner === "string" ? ad.owner : ad.owner?._id;
+    if (!adOwnerId) {
+      toast.error("Unable to find ad owner");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Find or create chat
+      const chatId = await findOrCreateAdChat(ad, session.user);
+
+      // Navigate to chat page with the chat ID
+      router.push(`/chat?chatId=${chatId}&type=ad`);
+    } catch (error) {
+      console.error("Error creating chat:", error);
+      toast.error("Failed to start conversation. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const handleWhatsApp = () => {
+    if (ad.contactPhoneNumber) {
+      const phoneNumber = ad.contactPhoneNumber.replace(/[^0-9]/g, "");
+      window.open(`https://wa.me/${phoneNumber}`, "_blank");
+    } else {
+      console.log("Phone number not available");
+    }
+  };
+
+  // Check if there's any content to render
+  const hasTitle = !!ad.title;
+  const hasSpecifications = specifications.length > 0;
+  const hasPrice = !!ad.price;
+  const hasLocation = !!location;
+  const hasCreatedAt = !!ad.createdAt;
+  const hasLocationOrTime = hasLocation || hasCreatedAt;
+  const hasContactActions =
+    !isOwner && (ad.contactPhoneNumber || ad.owner?._id);
+  const hasAnyContent =
+    hasTitle ||
+    hasSpecifications ||
+    hasPrice ||
+    hasLocationOrTime ||
+    hasContactActions;
+
+  // Don't render if there's no content at all
+  if (!hasAnyContent) {
+    return null;
+  }
 
   return (
     <div className="w-full bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
-      {/* Header with Title and Premium Badge */}
-      <div className="flex items-start justify-between mb-4">
-        {ad.title && (
-          <div className="flex-1">
-            <Typography
-              variant="h2"
-              className="text-lg font-semibold text-dark-blue mb-1"
-            >
-              {ad.title}
-            </Typography>
-          </div>
-        )}
-        {/* Premium Badge */}
-        {ad.isFeatured && (
-          <div className="lg:hidden block">
-            <Image src={"/premium.svg"} alt="Premium" width={31} height={31} />
-          </div>
-        )}
-      </div>
-
-      {/* Price Section */}
-      {ad.price && (
-        <div className="flex items-center justify-start gap-2 mb-6">
-          <div className="flex items-center gap-1">
-            <Image src={ICONS.currency.aed} alt="AED" width={24} height={24} />
-            <span className="text-2xl font-bold text-purple-600">
-              {formatPrice(ad.price)}
-            </span>
-          </div>
+      {/* Title */}
+      {hasTitle && (
+        <div className="flex items-start gap-2 mb-4">
+          <Typography
+            variant="h2"
+            className="text-lg font-semibold text-dark-blue line-clamp-2 flex-1"
+          >
+            {ad.title}
+          </Typography>
+          {ad.title.length > 50 && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="flex-shrink-0 mt-1 p-1 rounded hover:bg-gray-100 transition-colors">
+                  <Info className="h-4 w-4 text-grey-blue" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-80 max-h-96 overflow-y-auto"
+                align="start"
+              >
+                <div className="space-y-2">
+                  <Typography
+                    variant="h3"
+                    className="text-sm font-semibold text-dark-blue mb-2"
+                  >
+                    Full Title
+                  </Typography>
+                  <Typography
+                    variant="body-small"
+                    className="text-grey-blue whitespace-pre-wrap break-words"
+                  >
+                    {ad.title}
+                  </Typography>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
       )}
 
-      {/* Location and Time Row */}
-      <div className="flex items-center justify-between mb-4">
-        {location && (
-          <div className="flex items-center w-full gap-1.5">
-            <FaMapMarkerAlt className="size-4" fill="#1D2939" stroke="1" />
-            <Typography variant="body-small" className="text-grey-blue text-xs">
-              {location}
+      {/* Specifications */}
+      {hasSpecifications && (
+        <div className="mb-4">
+          <SpecificationsDisplay
+            specifications={specifications}
+            maxVisible={4}
+            showPopover={true}
+          />
+        </div>
+      )}
+
+      {/* Price Section */}
+      {hasPrice && (
+        <div className="mb-6">
+          <PriceDisplay ad={ad} />
+        </div>
+      )}
+
+      {/* Location and Time */}
+      {hasLocationOrTime && (
+        <div className="flex items-center justify-between mb-4">
+          {hasLocation && (
+            <div className="flex items-center gap-1.5">
+              <FaMapMarkerAlt className="size-4" fill="#1D2939" stroke="1" />
+              <Typography
+                variant="body-small"
+                className="text-grey-blue text-xs"
+              >
+                {location}
+              </Typography>
+            </div>
+          )}
+          {hasCreatedAt && (
+            <div className="flex items-center gap-1.5">
+              <GoClockFill className="size-4" fill="#1D2939" stroke="1" />
+              <Typography
+                variant="body-small"
+                className="text-grey-blue text-xs"
+              >
+                {postedTime}
+              </Typography>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Divider Line - Only show if there's content above and below */}
+      {hasContactActions && (
+        <div className="border-b border-dashed border-gray-300 mb-4"></div>
+      )}
+
+      {/* Contact Actions - Only show if user is not the owner */}
+      {hasContactActions && (
+        <div className="space-y-3">
+          {/* Call Button */}
+          {ad.contactPhoneNumber && (
+            <Button
+              onClick={handleCall}
+              variant="primary"
+              icon={<Phone className="h-5 w-5 -mr-2 fill-white" stroke="0" />}
+              iconPosition="center"
+              className="w-full h-12"
+            >
+              Call Seller
+            </Button>
+          )}
+
+          {/* Message Button */}
+          {ad.owner?._id && (
+            <Button
+              onClick={handleMessage}
+              disabled={isLoading}
+              variant="outline"
+              icon={
+                <MdMessage
+                  className="h-5 w-5 -mr-2 fill-dark-blue"
+                  stroke="white"
+                />
+              }
+              iconPosition="center"
+              className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-12 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? "Loading..." : "Send Message"}
+            </Button>
+          )}
+
+          {/* WhatsApp Button */}
+          {ad.contactPhoneNumber && (
+            <Button
+              onClick={handleWhatsApp}
+              variant="outline"
+              icon={
+                <FaWhatsapp
+                  className="h-5 w-5 -mr-2 fill-green-500"
+                  stroke="0"
+                />
+              }
+              iconPosition="center"
+              className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-12"
+            >
+              WhatsApp
+            </Button>
+          )}
+
+          {/* Show message if no contact options available */}
+          {!ad.contactPhoneNumber && !ad.owner?._id && (
+            <Typography
+              variant="body-small"
+              className="text-grey-blue text-center py-2"
+            >
+              Contact information not available
             </Typography>
-          </div>
-        )}
-        {ad.createdAt && (
-          <div className="flex items-center gap-1.5 w-full">
-            <GoClockFill className="size-4" fill="#1D2939" stroke="1" />
-            <Typography variant="body-small" className="text-grey-blue text-xs">
-              {postedTime}
-            </Typography>
-          </div>
-        )}
-      </div>
-
-      {/* Divider Line */}
-      <div className="border-b border-dashed border-gray-300 mb-4"></div>
-
-      {/* Specifications Grid */}
-      {(year || mileage || fuelType || transmission) && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-          {/* Year */}
-          {year && (
-            <div className="flex items-center gap-1.5">
-              <IoCalendarNumber className="h-4 w-4 text-grey-blue" />
-              <Typography variant="body-small" className="text-grey-blue text-xs">
-                Year:
-              </Typography>
-              <Typography
-                variant="body-small"
-                className="text-black text-xs font-medium"
-              >
-                {year}
-              </Typography>
-            </div>
-          )}
-
-          {/* Mileage */}
-          {mileage && (
-            <div className="flex items-center gap-1.5">
-              <PiGaugeFill className="h-4 w-4 text-green-600" />
-              <Typography variant="body-small" className="text-grey-blue text-xs">
-                Mileage:
-              </Typography>
-              <Typography
-                variant="body-small"
-                className="text-black text-xs font-medium"
-              >
-                {mileage}
-              </Typography>
-            </div>
-          )}
-
-          {/* Fuel */}
-          {fuelType && (
-            <div className="flex items-center gap-1.5">
-              <BsFuelPumpFill className="h-4 w-4 text-red-600" />
-              <Typography variant="body-small" className="text-grey-blue text-xs">
-                Fuel:
-              </Typography>
-              <Typography
-                variant="body-small"
-                className="text-black text-xs font-medium"
-              >
-                {fuelType}
-              </Typography>
-            </div>
-          )}
-
-          {/* Transmission */}
-          {transmission && (
-            <div className="flex items-center gap-1.5">
-              <IoIosFlash className="h-4 w-4 text-yellow-600" />
-              <Typography variant="body-small" className="text-grey-blue text-xs">
-                Transmission:
-              </Typography>
-              <Typography
-                variant="body-small"
-                className="text-black text-xs font-medium"
-              >
-                {transmission}
-              </Typography>
-            </div>
           )}
         </div>
       )}
@@ -187,4 +293,3 @@ const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({ ad }) => 
 };
 
 export default ProductInfoCardMobile;
-

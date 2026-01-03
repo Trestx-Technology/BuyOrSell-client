@@ -164,3 +164,24 @@ export const refreshToken = async (
   return response.data;
 };
 
+// Change Password
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordResponse {
+  message: string;
+  statusCode: number;
+  timestamp?: string;
+}
+
+export const changePassword = async (
+  data: ChangePasswordPayload,
+): Promise<ChangePasswordResponse> => {
+  const response = await axiosInstance.patch<ChangePasswordResponse>(
+    authQueries.changePassword.endpoint,
+    data,
+  );
+  return response.data;
+};

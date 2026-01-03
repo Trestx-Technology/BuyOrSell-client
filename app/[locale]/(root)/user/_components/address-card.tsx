@@ -1,4 +1,4 @@
-import { Edit } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ interface AddressCardProps {
   address: string;
   isPrimary?: boolean;
   onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export default function AddressCard({
@@ -19,21 +20,38 @@ export default function AddressCard({
   address,
   isPrimary = false,
   onEdit,
+  onDelete,
 }: AddressCardProps) {
   const { t } = useLocale();
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 relative flex gap-3 items-center">
-      <Button
-        variant="ghost"
-        size="small"
-        onClick={() => onEdit?.(id)}
-        icon={<Edit className="w-4 h-4 -mr-2" />}
-        iconPosition="center"
-        className="absolute top-4 right-6 p-2 h-8 w-8 text-purple hover:text-purple-600 hover:bg-purple-50"
-      >
-        {t.user.address.edit}
-      </Button>
+      <div className="absolute top-4 right-6 flex gap-2">
+        {onEdit && (
+          <Button
+            variant="ghost"
+            size="small"
+            onClick={() => onEdit(id)}
+            icon={<Edit className="w-4 h-4 -mr-2" />}
+            iconPosition="center"
+            className="p-2 w-fit text-purple hover:text-purple-600 hover:bg-purple-50"
+          >
+            <span className="hidden md:block">{t.user.address.edit}</span>
+          </Button>
+        )}
+        {onDelete && (
+          <Button
+            variant="ghost"
+            size="small"
+            onClick={() => onDelete(id)}
+            icon={<Trash2 className="w-4 h-4 -mr-2" />}
+            iconPosition="center"
+            className="p-2 w-fit text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            <span className="hidden md:block">{t.user.address.delete}</span>
+          </Button>
+        )}
+      </div>
       <RadioGroupItem value="home" id="home" />
       <Label htmlFor="home">
         <div className="space-y-1">
@@ -52,4 +70,3 @@ export default function AddressCard({
     </div>
   );
 }
-

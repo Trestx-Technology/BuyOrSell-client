@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { ChevronLeft, X, Upload, Loader2 } from "lucide-react";
+import { ChevronLeft, X, ImageUpIcon, Loader2 } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+} from "@/components/ui/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCreateCollection } from "@/hooks/useCollections";
@@ -108,111 +107,124 @@ export function CreateCollectionDialog({
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={handleDialogClose}>
-      {children && <DialogTrigger>{children}</DialogTrigger>}
-      <DialogContent showCloseButton={false} className="max-w-md">
-        <DialogHeader>
-          <div className="flex items-center justify-between gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleDialogClose(false)}
-              className="p-1"
-            >
-              <ChevronLeft className="size-6" />
-            </Button>
-            <DialogTitle className="text-lg font-semibold text-gray-900">
-              Create List
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleDialogClose(false)}
-              className="p-1"
-            >
-              <X className="size-6" />
-            </Button>
-          </div>
-        </DialogHeader>
+  // Wrap children with click handler to open dialog
+  const triggerElement = children ? (
+    <div onClick={() => setOpen(true)} className="cursor-pointer">
+      {children}
+    </div>
+  ) : null;
 
-        <div className="space-y-6">
-          {/* Collection Image Upload */}
-          <div className="w-full">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageSelect}
-              className="hidden"
-            />
-            <div className="mx-auto size-[100px] rounded border overflow-hidden relative group">
-              {imagePreview || imageUrl ? (
-                <>
-                  <Image
-                    src={imagePreview || imageUrl || ""}
-                    alt="Collection preview"
-                    fill
-                    className="object-cover"
-                  />
-                  {!isUploading && (
-                    <button
-                      onClick={handleRemoveImage}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="size-3" />
-                    </button>
-                  )}
-                </>
-              ) : (
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  className="w-full h-full flex flex-col items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
-                >
-                  {isUploading ? (
-                    <Loader2 className="size-6 animate-spin text-gray-400" />
-                  ) : (
-                    <>
-                      <Upload className="size-6 text-gray-400 mb-1" />
-                      <span className="text-xs text-gray-500">Upload Image</span>
-                    </>
-                  )}
-                </button>
+  return (
+    <>
+      {triggerElement}
+      <ResponsiveModal open={open} onOpenChange={handleDialogClose}>
+        <ResponsiveModalContent className="max-w-md">
+          <ResponsiveModalHeader>
+            <div className="flex items-center justify-between gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleDialogClose(false)}
+                className="p-1"
+              >
+                <ChevronLeft className="size-6" />
+              </Button>
+              <ResponsiveModalTitle className="text-lg font-semibold text-gray-900">
+                Create List
+              </ResponsiveModalTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleDialogClose(false)}
+                className="p-1"
+              >
+                <X className="size-6" />
+              </Button>
+            </div>
+          </ResponsiveModalHeader>
+
+          <div className="space-y-6 px-4 pb-4">
+            {/* Collection Image Upload */}
+            <div className="w-full">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+              <div className="mx-auto size-[150px] rounded-2xl border overflow-hidden relative group">
+                {imagePreview || imageUrl ? (
+                  <>
+                    <Image
+                      src={imagePreview || imageUrl || ""}
+                      alt="Collection preview"
+                      fill
+                      className="object-cover"
+                    />
+                    {!isUploading && (
+                      <button
+                        onClick={handleRemoveImage}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="size-3" />
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="w-full h-full flex rounded-2xl flex-col items-center justify-center bg-gray-50 hover:bg-gray-200 transition-colors disabled:opacity-50"
+                  >
+                    {isUploading ? (
+                      <Loader2 className="size-6 animate-spin text-gray-400" />
+                    ) : (
+                      <>
+                        <ImageUpIcon className="size-8 text-purple mb-1" />
+                        <span className="text-sm text-purple">
+                          Upload Image
+                        </span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+              {isUploading && (
+                <p className="text-xs text-center text-gray-500 mt-2">
+                  Uploading image...
+                </p>
               )}
             </div>
-            {isUploading && (
-              <p className="text-xs text-center text-gray-500 mt-2">
-                Uploading image...
-              </p>
-            )}
-          </div>
 
-          {/* Collection Name Input */}
-          <Input
-            type="text"
-            placeholder="Enter list name"
-            value={collectionName}
-            onChange={(e) => setCollectionName(e.target.value)}
-            className="w-full h-12"
-          />
+            {/* Collection Name Input */}
+            <Input
+              type="text"
+              placeholder="Enter list name"
+              value={collectionName}
+              onChange={(e) => setCollectionName(e.target.value)}
+              className="w-full h-12"
+            />
 
-          {/* Action Buttons */}
-          <div className="flex justify-end">
-            <Button
-              onClick={handleCreateCollection}
-              disabled={
-                !collectionName.trim() ||
-                createCollectionMutation.isPending ||
-                isUploading
-              }
-              className="w-full bg-purple-600 hover:bg-purple-700"
-            >
-              {createCollectionMutation.isPending ? "Creating..." : "Create List"}
-            </Button>
+            {/* Action Buttons */}
+            <div className="flex justify-end">
+              <Button
+                onClick={handleCreateCollection}
+                disabled={
+                  !collectionName.trim() ||
+                  createCollectionMutation.isPending ||
+                  isUploading
+                }
+                className="w-full bg-purple-600 hover:bg-purple-700"
+              >
+                {createCollectionMutation.isPending
+                  ? "Creating..."
+                  : "Create List"}
+              </Button>
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveModalContent>
+      </ResponsiveModal>
+    </>
   );
 }

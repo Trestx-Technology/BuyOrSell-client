@@ -1,20 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
-import { ChevronLeft, ChevronsRight, Search, Check } from "lucide-react";
+import React, { useState, useMemo, useEffect } from "react";
+import { ChevronLeft, Search, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { useGetBlockedUsers, useUnblockUser } from "@/hooks/useUserBlock";
+import { formatDate } from "@/utils/format-date";
+import type { BlockedUser } from "@/interfaces/user-block.types";
+import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
+import { Input } from "@/components/ui/input";
+import { BlockedUserItem } from "./_components/blocked-user-item";
+import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 
-interface BlockedUser {
-  id: string;
+// TODO: search pagination using api
+interface DisplayBlockedUser {
+  id: string; // Block record _id (used for unblocking)
   name: string;
   email: string;
-  company: string;
+  company?: string;
   reason: string;
   blockedDate: string;
 }
@@ -25,39 +33,51 @@ const BlockedUsersPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [isSelectAll, setIsSelectAll] = useState(false);
+  const [showUnblockDialog, setShowUnblockDialog] = useState(false);
+  const [showUnblockSelectedDialog, setShowUnblockSelectedDialog] =
+    useState(false);
+  const [userToUnblock, setUserToUnblock] = useState<string | null>(null);
+  const {
+    data: blockedUsersData,
+    isLoading: isLoadingBlockedUsers,
+    error: blockedUsersError,
+  } = useGetBlockedUsers();
+  const unblockUserMutation = useUnblockUser();
 
-  const [blockedUsers] = useState<BlockedUser[]>([
-    {
-      id: "1",
-      name: "John Smith",
-      email: "john.smith@spamcompany.com",
-      company: "SpamCorp Inc.",
-      reason: "Excessive contact attempts",
-      blockedDate: "10/01/2024",
-    },
-    {
-      id: "2",
-      name: "Sarah Johnson",
-      email: "sarah.j@marketingspam.com",
-      company: "MarketingSpam LLC",
-      reason: "Unsolicited advertising",
-      blockedDate: "09/28/2024",
-    },
-    {
-      id: "3",
-      name: "Mike Davis",
-      email: "mike.davis@fakeleads.com",
-      company: "FakeLeads Co.",
-      reason: "Suspicious activity",
-      blockedDate: "09/15/2024",
-    },
-  ]);
+  // Transform API data to display format
+  const blockedUsers: DisplayBlockedUser[] = useMemo(() => {
+    if (!blockedUsersData?.data) return [];
+
+    return blockedUsersData.data.map((blockRecord: BlockedUser) => {
+      const blockedUser = blockRecord.blocked;
+      const name =
+        blockedUser.firstName && blockedUser.lastName
+          ? `${blockedUser.firstName} ${blockedUser.lastName}`
+          : blockedUser.name || blockedUser.email || "Unknown User";
+      const email = blockedUser.email || "";
+      const company = ""; // Company info not available in API response
+      const reason = blockRecord.reason || "No reason provided";
+      const blockedDate = blockRecord.createdAt
+        ? formatDate(blockRecord.createdAt)
+        : "Unknown date";
+
+      return {
+        id: blockRecord._id, // Use block record _id for unblocking
+        name,
+        email,
+        company,
+        reason,
+        blockedDate,
+      };
+    });
+  }, [blockedUsersData]);
 
   const filteredUsers = blockedUsers.filter(
     (user) =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.company.toLowerCase().includes(searchQuery.toLowerCase())
+      (user.company &&
+        user.company.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const handleSelectUser = (userId: string) => {
@@ -71,18 +91,37 @@ const BlockedUsersPage = () => {
   const handleSelectAll = () => {
     if (isSelectAll) {
       setSelectedUsers([]);
+      setIsSelectAll(false);
     } else {
       setSelectedUsers(filteredUsers.map((user) => user.id));
+      setIsSelectAll(true);
     }
-    setIsSelectAll(!isSelectAll);
   };
 
-  const handleUnblockUser = (userId: string) => {
-    const confirmed = window.confirm(t.user.blockedUsers.confirmUnblock);
-    if (confirmed) {
-      console.log("Unblocking user:", userId);
-      toast.success(t.user.blockedUsers.userUnblocked);
+  // Update isSelectAll when filteredUsers or selectedUsers change
+  useEffect(() => {
+    if (filteredUsers.length > 0) {
+      setIsSelectAll(
+        selectedUsers.length === filteredUsers.length &&
+          filteredUsers.every((user) => selectedUsers.includes(user.id))
+      );
+    } else {
+      setIsSelectAll(false);
     }
+  }, [filteredUsers, selectedUsers]);
+
+  const handleUnblockUser = (userId: string) => {
+    setUserToUnblock(userId);
+    setShowUnblockDialog(true);
+  };
+
+  const handleConfirmUnblock = async () => {
+    if (!userToUnblock) return;
+
+    await unblockUserMutation.mutateAsync(userToUnblock);
+    toast.success(t.user.blockedUsers.userUnblocked);
+    setShowUnblockDialog(false);
+    setUserToUnblock(null);
   };
 
   const handleUnblockSelected = () => {
@@ -90,42 +129,28 @@ const BlockedUsersPage = () => {
       toast.error(t.user.blockedUsers.selectUsersToUnblock);
       return;
     }
+    setShowUnblockSelectedDialog(true);
+  };
 
-    const confirmed = window.confirm(
-      t.user.blockedUsers.confirmUnblockMultiple.replace(
+  const handleConfirmUnblockSelected = async () => {
+    // Unblock all selected users
+    await Promise.all(
+      selectedUsers.map((userId) => unblockUserMutation.mutateAsync(userId))
+    );
+    toast.success(
+      t.user.blockedUsers.usersUnblocked.replace(
         "{count}",
         selectedUsers.length.toString()
       )
     );
-    if (confirmed) {
-      console.log("Unblocking users:", selectedUsers);
-      toast.success(
-        t.user.blockedUsers.usersUnblocked.replace(
-          "{count}",
-          selectedUsers.length.toString()
-        )
-      );
-      setSelectedUsers([]);
-      setIsSelectAll(false);
-    }
+    setSelectedUsers([]);
+    setIsSelectAll(false);
+    setShowUnblockSelectedDialog(false);
   };
 
   return (
-    <Container1080 className="min-h-fit">
-      <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
-        <Button
-          variant="ghost"
-          icon={<ChevronLeft className="h-4 w-4 -mr-2" />}
-          iconPosition="center"
-          size="icon-sm"
-          className="absolute left-4 text-purple"
-          onClick={() => router.back()}
-        />
-        <Typography variant="lg-semibold" className="text-dark-blue">
-          {t.user.blockedUsers.pageTitle}
-        </Typography>
-      </div>
-
+    <Container1080>
+      <MobileStickyHeader title={t.user.blockedUsers.pageTitle} />
       <div className="p-4 bg-gray-100 mb-4 rounded-lg block sm:hidden">
         <h3 className="text-sm text-black font-semibold mb-2 drop-shadow-lg">
           {t.user.blockedUsers.manageBlockedUsers}
@@ -133,25 +158,33 @@ const BlockedUsersPage = () => {
         <p className="text-xs">{t.user.blockedUsers.blockedUsersDescription}</p>
       </div>
 
-      <div className="sm:px-4 xl:px-0 flex flex-col gap-5 sm:py-8">
-        <div className="hidden sm:flex items-center gap-2">
-          <Link
-            href={localePath("/user/profile")}
-            className="text-gray-400 font-semibold text-sm hover:text-purple"
-          >
-            {t.user.profile.myProfile}
-          </Link>
-          <ChevronsRight className="size-6 text-purple" />
-          <Link
-            href={localePath("/user/profile/settings")}
-            className="text-gray-400 font-semibold text-sm hover:text-purple"
-          >
-            {t.user.settings.settings}
-          </Link>
-          <ChevronsRight className="size-6 text-purple" />
-          <span className="text-purple-600 font-semibold text-sm">
-            {t.user.blockedUsers.blockedUsers}
-          </span>
+      <div className="sm:px-4 flex flex-col gap-5 sm:py-8">
+        <div className="flex">
+          <Breadcrumbs
+            items={[
+              {
+                id: "profile",
+                label: t.user.profile.myProfile,
+                href: localePath("/user/profile"),
+              },
+              {
+                id: "settings",
+                label: t.user.settings.settings,
+                href: localePath("/user/profile/settings"),
+              },
+              {
+                id: "blocked-users",
+                label: t.user.blockedUsers.blockedUsers,
+                isActive: true,
+              },
+            ]}
+            showSelectCategoryLink={false}
+            showEllipsis={true}
+            maxItems={3}
+            variant="minimal"
+            showHomeIcon={false}
+            className="text-sm"
+          />
         </div>
 
         <div className="sm:bg-white sm:rounded-2xl border-0 sm:border border-gray-200 sm:shadow-sm max-w-4xl w-full mx-auto">
@@ -161,16 +194,16 @@ const BlockedUsersPage = () => {
             </h2>
           </div>
 
-          <div className="px-6 sm:px-6 mt-4 sm:mt-0">
+          <div className="px-6 sm:px-6 my-4 sm:mt-0">
             <div className="mb-6">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
+                <Input
+                  leftIcon={<Search className="size-5 text-gray-400" />}
                   type="text"
                   placeholder={t.user.blockedUsers.searchBlockedUsers}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm"
+                  className="w-full h-12 bg-white"
                 />
               </div>
             </div>
@@ -207,7 +240,15 @@ const BlockedUsersPage = () => {
             )}
 
             <div className="space-y-4">
-              {filteredUsers.length === 0 ? (
+              {isLoadingBlockedUsers ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">{t.common.loading}</p>
+                </div>
+              ) : blockedUsersError ? (
+                <div className="text-center py-8">
+                  <p className="text-red-500">{t.common.error}</p>
+                </div>
+              ) : filteredUsers.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-500">
                     {searchQuery
@@ -217,61 +258,56 @@ const BlockedUsersPage = () => {
                 </div>
               ) : (
                 filteredUsers.map((user) => (
-                  <div
+                  <BlockedUserItem
                     key={user.id}
-                    className="bg-gray-50 rounded-lg p-4 border border-gray-200"
-                  >
-                    <div className="flex items-start gap-4">
-                      <button
-                        onClick={() => handleSelectUser(user.id)}
-                        className={`w-5 h-5 border-2 rounded flex items-center justify-center transition-colors flex-shrink-0 mt-1 ${
-                          selectedUsers.includes(user.id)
-                            ? "bg-purple-600 border-purple-600"
-                            : "border-gray-300 hover:border-purple-400"
-                        }`}
-                      >
-                        {selectedUsers.includes(user.id) && (
-                          <Check className="w-3 h-3 text-white" />
-                        )}
-                      </button>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-sm font-semibold text-gray-900">
-                            {user.name}
-                          </h3>
-                          <button
-                            onClick={() => handleUnblockUser(user.id)}
-                            className="text-sm text-red-600 hover:text-red-700 font-medium"
-                          >
-                            {t.user.blockedUsers.unblock}
-                          </button>
-                        </div>
-
-                        <p className="text-sm text-gray-700 mb-1">
-                          {user.email}
-                        </p>
-                        <p className="text-xs text-gray-500 mb-2">
-                          {user.company}
-                        </p>
-
-                        <div className="flex items-center justify-between">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">
-                            {user.reason}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {t.user.blockedUsers.blockedOn} {user.blockedDate}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    id={user.id}
+                    name={user.name}
+                    email={user.email}
+                    company={user.company}
+                    reason={user.reason}
+                    blockedDate={user.blockedDate}
+                    isSelected={selectedUsers.includes(user.id)}
+                    onSelect={handleSelectUser}
+                    onUnblock={handleUnblockUser}
+                  />
                 ))
               )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Unblock Single User Dialog */}
+      <WarningConfirmationDialog
+        open={showUnblockDialog}
+        onOpenChange={setShowUnblockDialog}
+        title={t.user.blockedUsers.confirmUnblock}
+        description={t.user.blockedUsers.confirmUnblock}
+        confirmText={t.user.blockedUsers.unblock}
+        cancelText={t.common.cancel}
+        onConfirm={handleConfirmUnblock}
+        isLoading={unblockUserMutation.isPending}
+        confirmVariant="danger"
+      />
+
+      {/* Unblock Selected Users Dialog */}
+      <WarningConfirmationDialog
+        open={showUnblockSelectedDialog}
+        onOpenChange={setShowUnblockSelectedDialog}
+        title={t.user.blockedUsers.confirmUnblockMultiple.replace(
+          "{count}",
+          selectedUsers.length.toString()
+        )}
+        description={t.user.blockedUsers.confirmUnblockMultiple.replace(
+          "{count}",
+          selectedUsers.length.toString()
+        )}
+        confirmText={t.user.blockedUsers.unblockSelected}
+        cancelText={t.common.cancel}
+        onConfirm={handleConfirmUnblockSelected}
+        isLoading={unblockUserMutation.isPending}
+        confirmVariant="danger"
+      />
     </Container1080>
   );
 };

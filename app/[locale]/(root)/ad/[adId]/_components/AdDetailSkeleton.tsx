@@ -2,10 +2,11 @@
 
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 export default function AdDetailSkeleton() {
   return (
-    <div className="w-full min-h-[500px]">
+    <Container1080>
       {/* Header Skeleton */}
       <div className="flex items-center justify-between p-4 mb-6">
         <Skeleton className="h-10 w-10 rounded-full" />
@@ -143,7 +144,10 @@ export default function AdDetailSkeleton() {
             <Skeleton className="w-full h-[400px] rounded-lg" />
             <div className="flex gap-2 mt-4 overflow-x-auto px-4">
               {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-16 flex-shrink-0 rounded-lg" />
+                <Skeleton
+                  key={i}
+                  className="h-16 w-16 flex-shrink-0 rounded-lg"
+                />
               ))}
             </div>
           </div>
@@ -266,7 +270,6 @@ export default function AdDetailSkeleton() {
           </div>
         </div>
       </div>
-    </div>
+    </Container1080>
   );
 }
-

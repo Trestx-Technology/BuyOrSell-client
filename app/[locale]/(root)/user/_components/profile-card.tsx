@@ -5,7 +5,7 @@ import { useLocale } from "@/hooks/useLocale";
 
 interface ProfileCardProps {
   name: string;
-  rating: number;
+  rating: number | string;
   totalRatings?: number;
   joinDate: string;
   avatarUrl?: string;
@@ -31,7 +31,7 @@ export default function ProfileCard({
         variant={"ghost"}
         onClick={onEdit}
         icon={<EditIcon className="-mr-2" />}
-        className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1.5 text-purple-600 rounded-xl hover:bg-purple-200 transition-colors text-sm font-medium"
+        className="absolute top-2 right-0 flex items-center gap-2 px-3 py-1.5 text-purple-600 rounded-xl hover:bg-purple-200 transition-colors text-sm font-medium"
         size={"icon-sm"}
         iconPosition="left"
       >
@@ -62,8 +62,8 @@ export default function ProfileCard({
             <Image
               src={"/verified-seller.svg"}
               alt="verified"
-              width={16}
-              height={16}
+              width={20}
+              height={20}
             />
           )}
         </div>
@@ -77,11 +77,10 @@ export default function ProfileCard({
         <div className="flex items-center gap-1">
           <StarIcon className="w-4 h-4 fill-yellow-500 text-yellow-500" />
           <span className="text-sm font-medium text-gray-900">
-            {rating}/{totalRatings}
+            {typeof rating === "number" ? `${rating}/${totalRatings}` : rating}
           </span>
         </div>
       </div>
     </div>
   );
 }
-

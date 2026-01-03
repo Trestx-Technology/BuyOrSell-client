@@ -1,10 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { MoreHorizontal, Plus, ImageIcon } from "lucide-react";
+import {
+  MoreHorizontal,
+  Plus,
+  ImageIcon,
+  Edit,
+  Trash2,
+  Eye,
+  ImageUpIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useRouter } from "nextjs-toploader/app";
 
 export interface CollectionCardProps {
   id: string;
@@ -13,6 +27,8 @@ export interface CollectionCardProps {
   images: string[];
   isCreateNew?: boolean;
   onMoreOptions?: (id: string) => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
   onClick?: (id: string) => void;
   onCreateNew?: () => void;
   className?: string;
@@ -27,8 +43,12 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
   onMoreOptions,
   onClick,
   onCreateNew,
+  onEdit,
+  onDelete,
   className,
 }) => {
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const router = useRouter();
   const handleCardClick = () => {
     if (isCreateNew) {
       onCreateNew?.();
@@ -40,6 +60,18 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
   const handleMoreOptions = (e: React.MouseEvent) => {
     e.stopPropagation();
     onMoreOptions?.(id);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsPopoverOpen(false);
+    onEdit?.(id);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsPopoverOpen(false);
+    onDelete?.(id);
   };
 
   if (isCreateNew) {
@@ -63,7 +95,6 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
 
   return (
     <div
-      onClick={handleCardClick}
       className={`flex-shrink-0 w-full lg:max-w-64 sm:p-4 sm:bg-white rounded-xl sm:border border-gray-200 sm:shadow-sm sm:hover:shadow-md transition-all duration-300 cursor-pointer group ${className}`}
     >
       {/* Image Grid Section */}
@@ -81,7 +112,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
                 sizes="128px"
               />
             ) : (
-              <ImageIcon className="w-8 h-8 text-gray-400" />
+              <ImageUpIcon className="w-8 h-8 text-gray-400" />
             )}
           </div>
 
@@ -130,16 +161,6 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
           )}
         </div>
 
-        {/* More options button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="absolute top-2 right-2 p-1 h-8 w-8 bg-white/80 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity"
-          onClick={handleMoreOptions}
-        >
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-
         {/* Collection count overlay */}
         <div className="absolute bottom-2 left-2 bg-white rounded px-2 py-1">
           <Typography variant="xs-medium" className="text-black font-medium">
@@ -156,7 +177,55 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
         >
           {name}
         </Typography>
-        <MoreHorizontal size={18} />
+
+        {/* More options button with popover */}
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            className="w-40 p-1"
+            align="end"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col">
+              {onEdit && (
+                <button
+                  onClick={handleEdit}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                >
+                  <Edit className="h-4 w-4" />
+                  <span>Edit</span>
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  onClick={handleDelete}
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span>Delete</span>
+                </button>
+              )}
+
+              <button
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                onClick={handleCardClick}
+              >
+                <Eye className="h-4 w-4" />
+                <span>View</span>
+              </button>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   );

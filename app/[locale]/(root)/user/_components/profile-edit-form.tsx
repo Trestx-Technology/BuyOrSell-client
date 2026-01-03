@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,77 +12,86 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, StarIcon, CameraIcon } from "lucide-react";
+import { MapPin, CameraIcon, Lock } from "lucide-react";
 import Image from "next/image";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 import PhoneNumberWithVerification from "@/components/global/phone-number-with-verification";
 import UploadImageDialog from "./upload-image-dialog";
 import { useGetProfile, useUpdateUser } from "@/hooks/useUsers";
 import { useSendPhoneOtp, useVerifyPhoneOtp } from "@/hooks/useUsers";
+import { useLocale } from "@/hooks/useLocale";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import {
+  profileEditSchema,
+  type ProfileEditFormData,
+} from "@/schemas/profile-edit.schema";
+import type { UpdateUserPayload } from "@/interfaces/user.types";
+import { useRouter } from "nextjs-toploader/app";
+import { useAuthStore } from "@/stores/authStore";
 
-interface ProfileFormData {
-  name: string;
-  email: string;
-  phoneNumber: string;
-  gender: string;
-  address: string;
-  password?: string;
-}
-
-interface ProfileEditFormProps {
-  initialData?: Partial<ProfileFormData>;
-  onSubmit?: (data: ProfileFormData) => void;
-  onCancel?: () => void;
-  isLoading?: boolean;
-}
-
-export default function ProfileEditForm({
-  initialData = {},
-  onSubmit,
-  isLoading = false,
-}: ProfileEditFormProps) {
-  // Get user profile to access original phone number
+export default function ProfileEditForm() {
+  const router = useRouter();
+  const { t, localePath } = useLocale();
   const { data: profileData } = useGetProfile();
-  const originalPhoneNumber = profileData?.data?.user?.phoneNo || "";
-  const originalCountryCode = profileData?.data?.user?.countryCode || "+971";
-
-  const [formData, setFormData] = useState<ProfileFormData>({
-    name: initialData.name || profileData?.data?.user?.firstName || "",
-    email: initialData.email || profileData?.data?.user?.email || "",
-    phoneNumber: initialData.phoneNumber || originalPhoneNumber || "",
-    gender: initialData.gender || profileData?.data?.user?.gender || "Male",
-    address: initialData.address || "Mariana, Dubai",
-    password: "",
-  });
-
-  const [errors, setErrors] = useState<Partial<ProfileFormData>>({});
-  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
-  const [verifiedPhoneNumber, setVerifiedPhoneNumber] = useState<string>("");
-  const [showImageDialog, setShowImageDialog] = useState(false);
-  const [profileImageUrl, setProfileImageUrl] = useState<string | undefined>(
-    profileData?.data?.user?.image
-  );
-
-  const updateUserMutation = useUpdateUser();
-
-  // OTP hooks
   const sendPhoneOtpMutation = useSendPhoneOtp();
   const verifyPhoneOtpMutation = useVerifyPhoneOtp();
 
-  // Get full original phone number with country code
-  const originalFullPhoneNumber = originalPhoneNumber
-    ? originalPhoneNumber.startsWith("+")
-      ? originalPhoneNumber
-      : `${originalCountryCode}${originalPhoneNumber}`
-    : "";
+  const user = profileData?.data?.user;
+  const userId = user?._id;
+  const updateUserSession = useAuthStore((state) => state.updateUser);
 
-  // Check if phone number has changed
-  const phoneNumberChanged =
-    verifiedPhoneNumber && verifiedPhoneNumber !== originalFullPhoneNumber;
+  // Phone verification state
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const [verifiedPhoneNumber, setVerifiedPhoneNumber] = useState("");
+  const [showImageDialog, setShowImageDialog] = useState(false);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | undefined>(
+    user?.image
+  );
 
-  // Initialize verified phone number from original
+  // Initialize verified phone number
+  const originalFullPhoneNumber = useMemo(() => {
+    if (!user?.phoneNo) return "";
+    const countryCode = user.countryCode || "+971";
+    return user.phoneNo.startsWith("+")
+      ? user.phoneNo
+      : `${countryCode}${user.phoneNo}`;
+  }, [user]);
+
+  // React Hook Form setup
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+    setValue,
+  } = useForm<ProfileEditFormData>({
+    resolver: zodResolver(profileEditSchema),
+    defaultValues: {
+      firstName: "",
+      email: "",
+      phoneNo: undefined,
+      gender: "MALE",
+      lastName: "",
+    },
+  });
+
+  // Initialize form data from user profile
+  useEffect(() => {
+    if (user) {
+      reset({
+        firstName: user.firstName || user.name || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        phoneNo: user.phoneNo ? parseInt(user.phoneNo) : undefined,
+        gender:
+          (user.gender?.toUpperCase() as "MALE" | "FEMALE" | "OTHER") || "MALE",
+      });
+      setProfileImageUrl(user.image);
+    }
+  }, [user, reset]);
+
+  // Initialize verified phone number
   useEffect(() => {
     if (originalFullPhoneNumber && !verifiedPhoneNumber) {
       setVerifiedPhoneNumber(originalFullPhoneNumber);
@@ -88,118 +99,105 @@ export default function ProfileEditForm({
     }
   }, [originalFullPhoneNumber, verifiedPhoneNumber]);
 
-  // Update profile image when profile data changes
+  // Update profile image when user data changes
   useEffect(() => {
-    if (profileData?.data?.user?.image) {
-      setProfileImageUrl(profileData.data.user.image);
+    if (user?.image) {
+      setProfileImageUrl(user.image);
     }
-  }, [profileData?.data?.user?.image]);
+  }, [user?.image]);
 
+  // Update phoneNo in form when verified phone number changes
+  useEffect(() => {
+    if (verifiedPhoneNumber) {
+      const phoneWithoutCode = verifiedPhoneNumber.replace(/^\+\d{1,4}/, "");
+      setValue("phoneNo", parseInt(phoneWithoutCode));
+    }
+  }, [verifiedPhoneNumber, setValue]);
+
+  // Display helpers
+  const displayName = useMemo(() => {
+    if (user?.firstName && user?.lastName) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+    return user?.name || user?.firstName || "User";
+  }, [user]);
+
+  const joinedDate = useMemo(() => {
+    return user?.createdAt
+      ? format(new Date(user.createdAt), "dd MMMM yyyy")
+      : null;
+  }, [user?.createdAt]);
+
+  const phoneNumberChanged = useMemo(() => {
+    return (
+      verifiedPhoneNumber && verifiedPhoneNumber !== originalFullPhoneNumber
+    );
+  }, [verifiedPhoneNumber, originalFullPhoneNumber]);
+
+  // Update user mutation with onSuccess callback
+  const updateUserMutation = useUpdateUser();
+
+  // Handlers
   const handleImageUploaded = async (imageUrl: string) => {
     setProfileImageUrl(imageUrl);
-    // Optionally update user profile with new image
-    try {
-      const userId = profileData?.data?.user?._id;
-      if (userId) {
-        await updateUserMutation.mutateAsync({
-          id: userId,
-          data: { image: imageUrl },
-        });
+    if (!userId) return;
+
+    updateUserMutation.mutate(
+      {
+        id: userId,
+        data: { image: imageUrl },
+      },
+      {
+        onSuccess: () => {
+          toast.success(t.user.profileEdit.updateSuccess);
+        },
       }
-    } catch (error) {
-      console.error("Failed to update profile image:", error);
-    }
-  };
-
-  // Get user data for display
-  const user = profileData?.data?.user;
-  const displayName =
-    user?.firstName && user?.lastName
-      ? `${user.firstName} ${user.lastName}`
-      : user?.name || user?.firstName || "User";
-  const joinedDate = user?.createdAt
-    ? format(new Date(user.createdAt), "dd MMMM yyyy")
-    : null;
-
-  const handleInputChange = (field: keyof ProfileFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: Partial<ProfileFormData> = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    if (!verifiedPhoneNumber || !verifiedPhoneNumber.trim()) {
-      newErrors.phoneNumber = "Phone number is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    );
   };
 
   const handleSendOTP = async (phoneNumber: string) => {
-    try {
-      await sendPhoneOtpMutation.mutateAsync({ phoneNo: phoneNumber });
-      toast.success("OTP sent to your phone number");
-    } catch (error: unknown) {
-      console.error("Send OTP error:", error);
-      const errorMessage =
-        (error as { response?: { data?: { message?: string } } })?.response
-          ?.data?.message || "Failed to send OTP. Please try again.";
-      toast.error(errorMessage);
-      throw error;
-    }
+    sendPhoneOtpMutation.mutate(
+      { phoneNo: phoneNumber },
+      {
+        onSuccess: () => {
+          toast.success("OTP sent to your phone number");
+        },
+      }
+    );
   };
 
   const handleVerifyOTP = async (
     phoneNumber: string,
     otp: string
   ): Promise<boolean> => {
-    try {
-      await verifyPhoneOtpMutation.mutateAsync({
-        phoneNo: phoneNumber,
-        otp: otp,
-      });
-      toast.success("Phone number verified successfully!");
-      return true;
-    } catch (error: unknown) {
-      console.error("OTP verification failed:", error);
-      const errorMessage =
-        (error as { response?: { data?: { message?: string } } })?.response
-          ?.data?.message || "Invalid OTP. Please try again.";
-      toast.error(errorMessage);
-      return false;
-    }
+    return new Promise((resolve) => {
+      verifyPhoneOtpMutation.mutate(
+        {
+          phoneNo: phoneNumber,
+          otp: otp,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Phone number verified successfully!");
+            resolve(true);
+          },
+          onError: () => {
+            // Error toast is handled by axios interceptor
+            resolve(false);
+          },
+        }
+      );
+    });
   };
 
   const handlePhoneVerified = (phoneNumber: string) => {
     setVerifiedPhoneNumber(phoneNumber);
     setIsPhoneVerified(true);
-    // Extract just the phone number part (without country code) for form data
-    const phoneWithoutCode = phoneNumber.replace(/^\+\d{1,4}/, "");
-    setFormData((prev) => ({ ...prev, phoneNumber: phoneWithoutCode }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = (data: ProfileEditFormData) => {
+    if (!userId) return;
 
-    if (!validateForm()) {
-      return;
-    }
-
-    // Check if phone number verification is required
     if (phoneNumberChanged && !isPhoneVerified) {
       toast.error(
         "Please verify your new phone number before updating your profile."
@@ -207,17 +205,59 @@ export default function ProfileEditForm({
       return;
     }
 
-    // Use verified phone number in form data
-    const submitData = {
-      ...formData,
-      phoneNumber: verifiedPhoneNumber || formData.phoneNumber,
+    // Extract countryCode and phoneNo separately
+    let phoneNo: string | undefined;
+    let countryCode: string | undefined;
+
+    if (verifiedPhoneNumber) {
+      // Extract country code from verified phone number (format: +971XXXXXXXXX)
+      const countryCodeMatch = verifiedPhoneNumber.match(/^(\+\d{1,4})/);
+      countryCode = countryCodeMatch ? countryCodeMatch[1] : user?.countryCode || "+971";
+      phoneNo = verifiedPhoneNumber.replace(/^\+\d{1,4}/, "");
+    } else if (data.phoneNo) {
+      // Use existing country code if phone number is not verified/changed
+      countryCode = user?.countryCode || "+971";
+      phoneNo = data.phoneNo.toString();
+    }
+
+    // Prepare update payload
+    const updatePayload: UpdateUserPayload = {
+      firstName: data.firstName,
+      email: data.email.trim(),
+      phoneNo: phoneNo,
+      countryCode: countryCode,
+      gender: data.gender,
     };
 
-    onSubmit?.(submitData);
+    updateUserMutation.mutate(
+      {
+        id: userId,
+        data: updatePayload,
+      },
+      {
+        onSuccess: () => {
+          // Update auth session with new data
+          updateUserSession({
+            firstName: data.firstName,
+            email: data.email.trim(),
+          });
+          
+          toast.success(t.user.profileEdit.updateSuccess);
+          router.push(localePath("/user/profile"));
+        },
+      }
+    );
   };
+
+  const handleCancel = () => {
+    router.push(localePath("/user/profile"));
+  };
+
+  const isLoading = updateUserMutation.isPending || isSubmitting;
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 max-w-xl w-full mx-auto">
+      {/* Profile Header */}
       <div className="flex flex-col items-center space-y-2">
         <div className="relative">
           <button
@@ -250,7 +290,6 @@ export default function ProfileEditForm({
           <h2 className="text-lg font-poppins font-semibold text-gray-900">
             {displayName}
           </h2>
-
           {user?.isVerified && (
             <Image
               src={"/verified-seller.svg"}
@@ -266,12 +305,6 @@ export default function ProfileEditForm({
             Joined on {joinedDate}
           </p>
         )}
-
-        {/* Rating - can be added if available in user data */}
-        {/* <div className="flex items-center gap-1">
-          <StarIcon className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-          <span className="text-sm font-medium text-gray-900">4.8/5</span>
-        </div> */}
       </div>
 
       <UploadImageDialog
@@ -281,93 +314,135 @@ export default function ProfileEditForm({
         onImageUploaded={handleImageUploaded}
       />
 
-      <form onSubmit={handleSubmit} className="space-y-6 mt-3">
-        <div>
-          <FormField label="Name">
-            <Input
-              value={formData.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
-              error={errors.name}
-              placeholder="Enter your full name"
-              className="bg-gray-50"
-            />
-          </FormField>
-        </div>
+      {/* Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-3">
+        <FormField label="First Name">
+          <Controller
+            name="firstName"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                error={errors.firstName?.message}
+                placeholder="Enter your first name"
+                className="bg-gray-50"
+              />
+            )}
+          />
+        </FormField>
+        <FormField label="Last Name">
+          <Controller
+            name="lastName"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                error={errors.lastName?.message}
+                placeholder="Enter your last name"
+                className="bg-gray-50"
+              />
+            )}
+          />
+        </FormField>
 
         <PhoneNumberWithVerification
           value={verifiedPhoneNumber || originalFullPhoneNumber}
-          countryCode={originalCountryCode}
+          countryCode={user?.countryCode || "+971"}
           onPhoneVerified={handlePhoneVerified}
           onSendOTP={handleSendOTP}
           onVerifyOTP={handleVerifyOTP}
           label="Mobile Number"
           required
-          error={errors.phoneNumber}
+          error={errors.phoneNo?.message}
           showEditButton={true}
         />
 
         <FormField label="Email">
-          <Input
-            type="email"
-            value={formData.email}
-            onChange={(e) => handleInputChange("email", e.target.value)}
-            error={errors.email}
-            placeholder="Enter your email address"
-            className="bg-gray-50"
-          />
-        </FormField>
-
-        <FormField label="Password">
-          <Input
-            type="password"
-            value={formData.password || ""}
-            onChange={(e) => handleInputChange("password", e.target.value)}
-            error={errors.password}
-            placeholder="Enter new password (leave blank to keep current)"
-            className="bg-gray-50"
+          <Controller
+            name="email"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                type="email"
+                error={errors.email?.message}
+                placeholder="Enter your email address"
+                className="bg-gray-50"
+              />
+            )}
           />
         </FormField>
 
         <FormField label="Gender">
-          <Select
-            value={formData.gender}
-            onValueChange={(value) => handleInputChange("gender", value)}
-          >
-            <SelectTrigger className="bg-gray-50 border-gray-200 w-full">
-              <SelectValue placeholder="Select gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Male">Male</SelectItem>
-              <SelectItem value="Female">Female</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
-            </SelectContent>
-          </Select>
+          <Controller
+            name="gender"
+            control={control}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className="bg-gray-50 border-gray-200 w-full">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MALE">Male</SelectItem>
+                  <SelectItem value="FEMALE">Female</SelectItem>
+                  <SelectItem value="OTHER">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
         </FormField>
 
-        <FormField label="Address">
+        <FormField label="Password">
           <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
-            <MapPin className="w-6 h-6 fill-dark-blue text-white" />
-            <span className="text-sm text-gray-700 flex-1">
-              {formData.address}
+            <Lock className="size-5 text-dark-blue" />
+            <span className="text-sm mt-1 ml-1 text-gray-700 flex-1">
+              ********
             </span>
             <Button
               type="button"
               variant="ghost"
               size="sm"
               className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 px-3 py-1 h-auto"
-              onClick={() => toast.info("Coming soon")}
+              onClick={() =>
+                router.push("/user/profile/settings/change-password")
+              }
             >
               Change
             </Button>
           </div>
         </FormField>
 
-        <div className="pt-4">
+        <FormField label="Address">
+          <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+            <MapPin className="w-6 h-6 fill-dark-blue text-white" />
+            <span className="text-sm text-gray-700 flex-1">Mariana, Dubai</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 px-3 py-1 h-auto"
+              onClick={() => router.push("/user/address")}
+            >
+              Change
+            </Button>
+          </div>
+        </FormField>
+
+        <div className="pt-4 flex gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            className="flex-1"
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
           <Button
             type="submit"
-            variant={"primary"}
+            variant="primary"
             isLoading={isLoading}
-            className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 text-base font-medium"
+            className="flex-1"
             disabled={isLoading || (!!phoneNumberChanged && !isPhoneVerified)}
           >
             {isLoading ? "Updating..." : "Update"}

@@ -227,8 +227,6 @@ export const useAdsByKeyword = (
   keyword: string,
   params?: {
     userId?: string;
-    page?: number;
-    limit?: number;
   }
 ) => {
   return useQuery<GetKeywordSearchResponse, Error>({

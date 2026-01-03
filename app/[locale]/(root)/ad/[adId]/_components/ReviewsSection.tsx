@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AD } from "@/interfaces/ad";
 import { useAdReviews } from "@/hooks/useReviews";
+import { Review } from "@/interfaces/review.types";
 import { useAuthStore } from "@/stores/authStore";
 import { LoginRequiredDialog } from "@/components/auth/login-required-dialog";
 import { useLocale } from "@/hooks/useLocale";
@@ -53,27 +54,20 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
     sortBy,
   });
 
+  // Extract reviews from response
+  const reviews = useMemo(() => {
+    if (!reviewsResponse) return [];
+    // Handle structured response object
+    return reviewsResponse.data || [];
+  }, [reviewsResponse]);
+
   // Transform API reviews to component format
   const transformedReviews = useMemo(() => {
-    // Handle different response structures
-    let reviews: any[] = [];
-
-    if (Array.isArray(reviewsResponse)) {
-      // API returns array directly
-      reviews = reviewsResponse;
-    } else if (Array.isArray(reviewsResponse?.data)) {
-      // API returns { data: [...] }
-      reviews = reviewsResponse.data;
-    } else if (reviewsResponse?.data?.reviews) {
-      // API returns { data: { reviews: [...] } }
-      reviews = reviewsResponse.data.reviews;
-    }
-
     if (!reviews || reviews.length === 0) return [];
 
-    return reviews.map((review) => {
-      // Get user initials for avatar - use reviewerName if available, fallback to userName
-      const userName = review.reviewerName || review.userName || "User";
+    return reviews.map((review: Review) => {
+      // Get user initials for avatar - use reviewerName if available
+      const userName = review.reviewerName || "User";
       const initials = userName
         .split(" ")
         .map((n: string) => n[0])
@@ -86,9 +80,8 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
         ? formatDate(review.createdAt)
         : "Recently";
 
-      // Use review field if available, fallback to comment/fullComment for backward compatibility
-      const reviewText =
-        review.review || review.comment || review.fullComment || "";
+      // Use review field
+      const reviewText = review.review || "";
 
       return {
         id: review._id,
@@ -100,39 +93,16 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
         fullComment: reviewText,
       };
     });
-  }, [reviewsResponse]);
+  }, [reviews]);
 
-  // Get overall rating and total from API response
-  // Handle different response structures
-  let overallRating = 0;
-  let totalReviews = transformedReviews.length;
+  // Calculate overall rating and total from reviews
+  const overallRating = useMemo(() => {
+    if (reviews.length === 0) return 0;
+    const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
+    return sum / reviews.length;
+  }, [reviews]);
 
-  if (Array.isArray(reviewsResponse)) {
-    // If response is array, calculate average from reviews
-    if (transformedReviews.length > 0) {
-      overallRating =
-        transformedReviews.reduce((sum, r) => sum + r.rating, 0) /
-        transformedReviews.length;
-    }
-    totalReviews = transformedReviews.length;
-  } else if (reviewsResponse?.data) {
-    if (Array.isArray(reviewsResponse.data)) {
-      // If data is array, calculate average
-      if (transformedReviews.length > 0) {
-        overallRating =
-          transformedReviews.reduce((sum, r) => sum + r.rating, 0) /
-          transformedReviews.length;
-      }
-      totalReviews = transformedReviews.length;
-    } else {
-      // Standard structure with data.reviews
-      overallRating = reviewsResponse.data.overallRating || 0;
-      totalReviews =
-        reviewsResponse.data.total ||
-        reviewsResponse.data.ratingCount ||
-        transformedReviews.length;
-    }
-  }
+  const totalReviews = reviews.length;
 
   // Handle opening review dialog
   const handleOpenReviewDialog = () => {

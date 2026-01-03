@@ -146,13 +146,14 @@ export const getAdsByKeyword = async (
   keyword: string,
   params?: {
     userId?: string;
-    page?: number;
-    limit?: number;
   }
 ): Promise<GetKeywordSearchResponse> => {
+  const queryParams: Record<string, string> = {};
+  if (params?.userId) queryParams.userId = params.userId;
+
   const response = await axiosInstance.get<GetKeywordSearchResponse>(
     adQueries.adsByKeyword(keyword, params).endpoint,
-    { params: { userId: params?.userId } }
+    { params: Object.keys(queryParams).length > 0 ? queryParams : undefined }
   );
   return response.data;
 };

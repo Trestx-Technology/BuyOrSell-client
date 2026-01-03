@@ -39,6 +39,7 @@ export type UserTranslations = {
     updating: string;
     updateSuccess: string;
     updateFailed: string;
+    deleteAd: string;
   };
 
   // Address
@@ -64,6 +65,8 @@ export type UserTranslations = {
     changePassword: string;
     notificationSettings: string;
     blockedUsers: string;
+    profileDescription: string;
+    addressDescription: string;
   };
 
   // Change Password
