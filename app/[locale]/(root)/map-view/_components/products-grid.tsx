@@ -77,31 +77,11 @@ export default function ProductsGrid({
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className={cn("w-full mx-auto py-4 h-full", className)}
+      className={cn(
+        "w-full mx-auto h-full flex flex-col overflow-y-auto",
+        className
+      )}
     >
-      {/* Header Section */}
-      <div className="mb-2">
-        {showReturnButton && (
-          <motion.button
-            variants={itemVariants}
-            className="flex items-center gap-2 text-[#8B31E1] hover:text-[#7A2BC8] transition-colors cursor-pointer"
-            onClick={() => router.push("/")}
-          >
-            <ChevronLeft className="w-6 h-6" />
-            <span className="text-sm font-medium font-inter">
-              Return to regular search
-            </span>
-          </motion.button>
-        )}
-
-        <motion.h1
-          variants={itemVariants}
-          className="text-md font-normal text-[#1D2939] mt-4 font-inter"
-        >
-          {title}
-        </motion.h1>
-      </div>
-
       {/* Products Grid */}
       {isLoading ? (
         <div
@@ -116,7 +96,10 @@ export default function ProductsGrid({
         </div>
       ) : (
         <div
-          className={cn("grid grid-cols-1 md:grid-cols-2 gap-3", gridClassName)}
+          className={cn(
+            "grid grid-cols-2 gap-3 overflow-y-auto h-full"
+            // gridClassName
+          )}
         >
           {listingCards.length > 0 ? (
             listingCards.map((listingCard) => {

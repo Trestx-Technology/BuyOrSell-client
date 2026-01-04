@@ -12,11 +12,13 @@ import { cn } from "@/lib/utils";
 
 interface JobNavigationMenuProps {
   onLogout: () => void;
+  onClose?: () => void;
   translations: Record<string, string>;
 }
 
 export function JobNavigationMenu({
   onLogout,
+  onClose,
   translations,
 }: JobNavigationMenuProps) {
   const { localePath } = useLocale();
@@ -59,7 +61,14 @@ export function JobNavigationMenu({
       return (
         <button
           key={item.id}
-          onClick={item.id === "sign-out" ? onLogout : item.onClick}
+          onClick={() => {
+            if (item.id === "sign-out") {
+              onLogout();
+            } else if (item.onClick) {
+              item.onClick();
+            }
+            onClose?.();
+          }}
           className={cn(
             className,
             "text-destructive w-full pl-4 cursor-pointer font-semibold"
@@ -72,7 +81,12 @@ export function JobNavigationMenu({
 
     if (item.type === "link" && item.href) {
       return (
-        <Link key={item.id} href={localePath(item.href)} className={className}>
+        <Link
+          key={item.id}
+          href={localePath(item.href)}
+          className={className}
+          onClick={onClose}
+        >
           {content}
         </Link>
       );

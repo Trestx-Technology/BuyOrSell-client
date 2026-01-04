@@ -3,11 +3,7 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import {
-  ChevronDown,
-  MapPin,
-  Calendar as CalendarIcon,
-} from "lucide-react";
+import { ChevronDown, MapPin, Calendar as CalendarIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -71,7 +67,11 @@ export default function MapViewFilter({
 
   // Extract extraFields and use optionalArray for filter options
   const dynamicFilters = useMemo(() => {
-    if (!extraFields || !Array.isArray(extraFields) || extraFields.length === 0) {
+    if (
+      !extraFields ||
+      !Array.isArray(extraFields) ||
+      extraFields.length === 0
+    ) {
       return [];
     }
 
@@ -84,7 +84,7 @@ export default function MapViewFilter({
           field.optionalArray &&
           Array.isArray(field.optionalArray) &&
           field.optionalArray.length > 0 &&
-          field.type !== 'bool'
+          field.type !== "bool"
         );
       })
       .map((field) => ({
@@ -142,7 +142,6 @@ export default function MapViewFilter({
         duration: 0.5,
       },
     },
-    
   };
 
   // Common filter options
@@ -154,7 +153,7 @@ export default function MapViewFilter({
     "2M - 5M",
     "5M+",
   ];
-  
+
   const datePostedOptions = [
     "Any",
     "Last 24 hours",
@@ -171,14 +170,16 @@ export default function MapViewFilter({
     currentValue: string
   ) => {
     const shouldUseTabs = options.length >= 2 && options.length <= 3;
-    const displayOptions = options.filter(opt => opt !== "Any");
+    const displayOptions = options.filter((opt) => opt !== "Any");
     const allOptions = ["Any", ...displayOptions];
-    
+
     if (shouldUseTabs) {
       return (
         <Tabs
           value={currentValue || "Any"}
-          onValueChange={(value) => handleFilterChange(filterKey, value === "Any" ? "" : value)}
+          onValueChange={(value) =>
+            handleFilterChange(filterKey, value === "Any" ? "" : value)
+          }
           className="w-full"
         >
           <TabsList className="flex gap-2 h-10 border border-[#E7E7E7] rounded-lg p-1 bg-transparent">
@@ -217,7 +218,9 @@ export default function MapViewFilter({
           {allOptions.map((option) => (
             <DropdownMenuItem
               key={option}
-              onClick={() => handleFilterChange(filterKey, option === "Any" ? "" : option)}
+              onClick={() =>
+                handleFilterChange(filterKey, option === "Any" ? "" : option)
+              }
               className="cursor-pointer"
             >
               {option}
@@ -236,7 +239,7 @@ export default function MapViewFilter({
   ) => {
     const shouldUseTabs = options.length >= 2 && options.length <= 3;
     const allOptions = ["Any", ...options];
-    
+
     if (shouldUseTabs) {
       return (
         <Tabs
@@ -309,7 +312,7 @@ export default function MapViewFilter({
       initial="hidden"
       animate="visible"
       className={cn(
-        "flex items-center justify-start max-w-[1080px] mx-auto gap-2.5 xl:px-0 px-5 py-2  bg-white scrollbar-hide border-gray-200 overflow-x-auto",
+        "flex items-center justify-start max-w-[1080px] mx-auto gap-2.5 xl:px-0 px-5 py-2 scrollbar-hide border-gray-200 overflow-x-auto",
         className
       )}
     >
@@ -332,7 +335,12 @@ export default function MapViewFilter({
 
       {/* Date Posted Filter */}
       <motion.div variants={itemVariants}>
-        {renderFilter("datePosted", "Date Posted", datePostedOptions, filters.datePosted)}
+        {renderFilter(
+          "datePosted",
+          "Date Posted",
+          datePostedOptions,
+          filters.datePosted
+        )}
       </motion.div>
 
       {/* Price From Input */}
@@ -360,7 +368,9 @@ export default function MapViewFilter({
       {/* Deal Tabs */}
       <motion.div variants={itemVariants}>
         <Tabs
-          value={filters.deal === undefined ? "Any" : filters.deal ? "Yes" : "No"}
+          value={
+            filters.deal === undefined ? "Any" : filters.deal ? "Yes" : "No"
+          }
           onValueChange={(value) => {
             if (value === "Any") {
               handleFilterChange("deal", undefined);
@@ -407,15 +417,22 @@ export default function MapViewFilter({
               icon={<CalendarIcon />}
               iconPosition="left"
             >
-              {filters.fromDate ? format(new Date(filters.fromDate), "MMM dd, yyyy") : "From Date"}
+              {filters.fromDate
+                ? format(new Date(filters.fromDate), "MMM dd, yyyy")
+                : "From Date"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               mode="single"
-              selected={filters.fromDate ? new Date(filters.fromDate) : undefined}
+              selected={
+                filters.fromDate ? new Date(filters.fromDate) : undefined
+              }
               onSelect={(date) => {
-                handleFilterChange("fromDate", date ? format(date, "yyyy-MM-dd") : "");
+                handleFilterChange(
+                  "fromDate",
+                  date ? format(date, "yyyy-MM-dd") : ""
+                );
               }}
               initialFocus
             />
@@ -437,7 +454,9 @@ export default function MapViewFilter({
               icon={<CalendarIcon />}
               iconPosition="left"
             >
-              {filters.toDate ? format(new Date(filters.toDate), "MMM dd, yyyy") : "To Date"}
+              {filters.toDate
+                ? format(new Date(filters.toDate), "MMM dd, yyyy")
+                : "To Date"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -445,7 +464,10 @@ export default function MapViewFilter({
               mode="single"
               selected={filters.toDate ? new Date(filters.toDate) : undefined}
               onSelect={(date) => {
-                handleFilterChange("toDate", date ? format(date, "yyyy-MM-dd") : "");
+                handleFilterChange(
+                  "toDate",
+                  date ? format(date, "yyyy-MM-dd") : ""
+                );
               }}
               initialFocus
             />
@@ -456,7 +478,13 @@ export default function MapViewFilter({
       {/* Is Featured Tabs */}
       <motion.div variants={itemVariants}>
         <Tabs
-          value={filters.isFeatured === undefined ? "Any" : filters.isFeatured ? "Yes" : "No"}
+          value={
+            filters.isFeatured === undefined
+              ? "Any"
+              : filters.isFeatured
+              ? "Yes"
+              : "No"
+          }
           onValueChange={(value) => {
             if (value === "Any") {
               handleFilterChange("isFeatured", undefined);
@@ -492,7 +520,13 @@ export default function MapViewFilter({
       {/* Has Video Tabs */}
       <motion.div variants={itemVariants}>
         <Tabs
-          value={filters.hasVideo === undefined ? "Any" : filters.hasVideo ? "Yes" : "No"}
+          value={
+            filters.hasVideo === undefined
+              ? "Any"
+              : filters.hasVideo
+              ? "Yes"
+              : "No"
+          }
           onValueChange={(value) => {
             if (value === "Any") {
               handleFilterChange("hasVideo", undefined);
@@ -526,15 +560,16 @@ export default function MapViewFilter({
       </motion.div>
 
       {/* Dynamic ExtraFields Filters */}
-      {dynamicFilters.length > 0 && dynamicFilters.map((filter) => (
-        <motion.div key={filter.name} variants={itemVariants}>
-          {renderDynamicFilter(
-            filter.name,
-            filter.options,
-            filters.extraFields?.[filter.name]
-          )}
-        </motion.div>
-      ))}
+      {dynamicFilters.length > 0 &&
+        dynamicFilters.map((filter) => (
+          <motion.div key={filter.name} variants={itemVariants}>
+            {renderDynamicFilter(
+              filter.name,
+              filter.options,
+              filters.extraFields?.[filter.name]
+            )}
+          </motion.div>
+        ))}
 
       {/* Map Toggle Button */}
       <motion.div variants={itemVariants}>

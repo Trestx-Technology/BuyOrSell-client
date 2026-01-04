@@ -293,7 +293,7 @@ export default function CategoryTraversalPage() {
   }
 
   return (
-    <section className="h-full md:h-[420px] md:overflow-y-auto">
+    <section className="relative  h-full overflow-y-auto">
       <div className="flex-1 w-full max-w-[888px] mx-auto mb-5">
         <div className="flex h-full gap-10">
           {/* Left Column - Categories */}
@@ -376,24 +376,22 @@ export default function CategoryTraversalPage() {
           </div>
         </div>
       </div>
-      <footer className="w-full bg-white sticky md:fixed bottom-0 left-0 right-0 max-w-[1080px] mx-auto md:border-t px-5 py-5">
-        <div className="flex w-full justify-between max-w-[888px] mx-auto gap-3">
-          <Button
-            className="w-full"
-            onClick={handleBackClick}
-            variant={"outline"}
-          >
-            Back
-          </Button>
-          <Button
-            className="w-full"
-            onClick={handleNextClick}
-            variant={"primary"}
-            disabled={!selectedCategory}
-          >
-            Next
-          </Button>
-        </div>
+      <footer className="w-full bg-white sticky bottom-0 left-0 right-0 flex justify-between gap-3 p-4">
+        <Button
+          className="w-full"
+          onClick={handleBackClick}
+          variant={"outline"}
+        >
+          Back
+        </Button>
+        <Button
+          className="w-full"
+          onClick={handleNextClick}
+          variant={"primary"}
+          disabled={!selectedCategory}
+        >
+          Next
+        </Button>
       </footer>
     </section>
   );

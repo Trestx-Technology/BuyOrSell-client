@@ -16,7 +16,7 @@ export default function ProgressBar({
   title = "Create Post for your ads",
   showIcons = true,
 }: ProgressBarProps) {
-  const { currentStep } = useAdPostingStore((state)=>state);
+  const { currentStep } = useAdPostingStore((state) => state);
   const [robotPosition, setRobotPosition] = useState(0);
 
   const progressPercentage = (currentStep / totalSteps) * 100;
@@ -41,14 +41,14 @@ export default function ProgressBar({
   }, [currentStep, totalSteps, progressPercentage]);
 
   return (
-    <div className="max-w-[888px] mx-auto flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       {/* Title */}
       <h2 className="text-xs font-semibold text-[#1D2939] text-left">
         {title}
       </h2>
 
       {/* Progress Bar Container */}
-      <div className="w-full max-w-[880px] relative">
+      <div className="w-full relative">
         {/* Background Line */}
         <div className="w-full h-1 bg-[#EDEEF5] rounded-full"></div>
 

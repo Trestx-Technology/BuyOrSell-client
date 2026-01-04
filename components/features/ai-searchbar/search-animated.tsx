@@ -102,7 +102,7 @@ export function SearchAnimated() {
           "w-full bg-transparent rounded-lg rounded-b-none h-full relative"
         )}
         animate={{
-          backgroundColor: isAI ? COLORS.slate900 : "#F2F4F7",
+          backgroundColor: isAI ? COLORS.slate900 : "transparent",
           boxShadow: isAI
             ? "0 0 0 1px rgba(45,212,191,0.35), 0 16px 60px rgba(139,92,246,0.25)"
             : "0 2px 10px rgba(0,0,0,0.06)",

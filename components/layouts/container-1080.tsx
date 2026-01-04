@@ -8,13 +8,6 @@ interface Container1080Props {
 
 export function Container1080({ children, className }: Container1080Props) {
   return (
-    <main
-      className={cn(
-        "container-1080 h-full min-h-[calc(100dvh-100px)]",
-        className
-      )}
-    >
-      {children}
-    </main>
+    <main className={cn("container-1080 h-full", className)}>{children}</main>
   );
 }

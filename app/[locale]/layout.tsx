@@ -1,5 +1,6 @@
-import { type ReactNode } from 'react';
-import { type Locale, locales } from '@/lib/i18n/config';
+import { type ReactNode } from "react";
+import { type Locale, locales } from "@/lib/i18n/config";
+import { Footer } from "@/components/global/footer";
 
 interface LocaleLayoutProps {
   children: ReactNode;
@@ -11,22 +12,24 @@ export default async function LocaleLayout({
   params,
 }: LocaleLayoutProps) {
   const { locale: localeParam } = await params;
-  
+
   // Validate and get locale
-  const locale = (locales.includes(localeParam as Locale) 
-    ? (localeParam as Locale) 
-    : locales[0]) as Locale;
-  
+  const locale = (
+    locales.includes(localeParam as Locale)
+      ? (localeParam as Locale)
+      : locales[0]
+  ) as Locale;
+
   // Determine if RTL (Arabic)
-  const isRTL = locale === 'ar';
-  const lang = locale === 'ar' ? 'ar' : locale.split('-')[0];
+  const isRTL = locale === "ar";
+  const lang = locale === "ar" ? "ar" : locale.split("-")[0];
 
   // This layout wraps locale-specific routes
   // The root layout already provides html/body tags
   return (
-    <div lang={lang} dir={isRTL ? 'rtl' : 'ltr'}>
+    <div lang={lang} dir={isRTL ? "rtl" : "ltr"}>
       {children}
+      <Footer />
     </div>
   );
 }
-

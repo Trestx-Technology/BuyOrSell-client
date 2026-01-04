@@ -44,6 +44,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
   const clearSession = useAuthStore((state) => state.clearSession);
   const { data: emirates, isLoading: isLoadingEmirates } = useEmirates();
   const { t, locale } = useLocale();
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   // Initialize city from URL query parameter
   useQueryParam(searchParams, "emirate", setCity);
@@ -200,7 +201,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
         <div className="hidden md:flex items-center gap-5 ml-2">
           {/*-------------- User Menu---------- */}
           {isAuthenticated && user ? (
-            <Popover>
+            <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
               <PopoverTrigger asChild>
                 <button className="flex items-center gap-2 rounded-full p-1 hover:bg-purple-100 transition-colors">
                   <div className="size-[35px] rounded-full border-2 border-purple overflow-hidden bg-purple-100 flex items-center justify-center">
@@ -226,6 +227,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                 {pathname?.includes("/jobs") ? (
                   <JobNavigationMenu
                     onLogout={handleLogout}
+                    onClose={() => setPopoverOpen(false)}
                     translations={{
                       jobsDashboard:
                         t.home.navbar.jobsDashboard || "Jobs Dashboard",
@@ -241,6 +243,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                 ) : (
                   <NavigationMenu
                     onLogout={handleLogout}
+                    onClose={() => setPopoverOpen(false)}
                     translations={{
                       myProfile: t.home.navbar.myProfile,
                       jobsDashboard: t.home.navbar.jobsDashboard,

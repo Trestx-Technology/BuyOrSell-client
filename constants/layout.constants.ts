@@ -20,6 +20,7 @@ export const PAGES_WITH_NAV: string[] = [
   // "/jobs", // all paths starting with /jobs
   "/",
   "/ad",
+  "/map-view",
 ];
 
 /**

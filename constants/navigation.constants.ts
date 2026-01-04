@@ -40,7 +40,7 @@ export const REGULAR_NAVIGATION_ITEMS: NavigationItem[] = [
   {
     id: "my-searches",
     type: "link",
-    href: "/user/searches",
+    href: "/user/search-history",
     translationKey: "mySearches",
     icon: ICONS.navigation.search,
     iconType: "image",
@@ -49,7 +49,7 @@ export const REGULAR_NAVIGATION_ITEMS: NavigationItem[] = [
   {
     id: "my-ads",
     type: "link",
-    href: "/user/ads",
+    href: "/user/profile",
     translationKey: "myAds",
     icon: ICONS.navigation.myAds,
     iconType: "image",

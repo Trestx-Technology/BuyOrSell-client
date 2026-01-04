@@ -10,11 +10,13 @@ import {
 
 interface NavigationMenuProps {
   onLogout: () => void;
+  onClose?: () => void;
   translations: Record<string, string>;
 }
 
 export function NavigationMenu({
   onLogout,
+  onClose,
   translations,
 }: NavigationMenuProps) {
   const renderNavigationItem = (item: NavigationItem) => {
@@ -55,7 +57,14 @@ export function NavigationMenu({
       return (
         <button
           key={item.id}
-          onClick={item.id === "sign-out" ? onLogout : item.onClick}
+          onClick={() => {
+            if (item.id === "sign-out") {
+              onLogout();
+            } else if (item.onClick) {
+              item.onClick();
+            }
+            onClose?.();
+          }}
           className={className}
         >
           {content}
@@ -65,7 +74,12 @@ export function NavigationMenu({
 
     if (item.type === "link" && item.href) {
       return (
-        <Link key={item.id} href={item.href} className={className}>
+        <Link
+          key={item.id}
+          href={item.href}
+          className={className}
+          onClick={onClose}
+        >
           {content}
         </Link>
       );

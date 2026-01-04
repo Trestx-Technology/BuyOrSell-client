@@ -14,11 +14,12 @@ import { useSearchParams } from "next/navigation";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
 import { AdFilterPayload, ProductExtraFields } from "@/interfaces/ad";
 import { useLocale } from "@/hooks/useLocale";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 const MapView = () => {
   const { t } = useLocale();
-  const searchParams = useSearchParams()
-  const category = searchParams.get("category")
+  const searchParams = useSearchParams();
+  const category = searchParams.get("category");
   const emirate = searchParams.get("emirate");
   const [filters, setFilters] = useState<MapViewFilters>({
     location: "",
@@ -35,7 +36,9 @@ const MapView = () => {
   });
 
   // Store extraFields in state so filters persist even when no ads are found
-  const [savedExtraFields, setSavedExtraFields] = useState<ProductExtraFields>([]);
+  const [savedExtraFields, setSavedExtraFields] = useState<ProductExtraFields>(
+    []
+  );
 
   // Clear saved extraFields when category changes
   useEffect(() => {
@@ -55,7 +58,7 @@ const MapView = () => {
     if (category) payload.category = category;
     if (emirate) payload.neighbourhood = emirate;
     if (filters.location) payload.city = filters.location;
-    
+
     // Price filters - use priceFrom/priceTo if provided, otherwise parse price range
     if (filters.priceFrom) {
       payload.priceFrom = Number(filters.priceFrom);
@@ -63,7 +66,7 @@ const MapView = () => {
     if (filters.priceTo) {
       payload.priceTo = Number(filters.priceTo);
     }
-    
+
     // Handle preset price ranges if priceFrom/priceTo not set
     if (!filters.priceFrom && !filters.priceTo && filters.price) {
       // Parse preset price ranges (e.g., "Under 500K", "500K - 1M")
@@ -83,19 +86,22 @@ const MapView = () => {
       } else if (priceRange.includes("-")) {
         const matches = priceRange.match(/(\d+)\s*[KM]?\s*-\s*(\d+)\s*[KM]?/);
         if (matches) {
-          const from = parseInt(matches[1]) * (priceRange.includes("M") ? 1000000 : 1000);
-          const to = parseInt(matches[2]) * (priceRange.includes("M") ? 1000000 : 1000);
+          const from =
+            parseInt(matches[1]) * (priceRange.includes("M") ? 1000000 : 1000);
+          const to =
+            parseInt(matches[2]) * (priceRange.includes("M") ? 1000000 : 1000);
           payload.priceFrom = from;
           payload.priceTo = to;
         }
       }
     }
-    
+
     // Boolean filters
     if (filters.deal !== undefined) payload.deal = filters.deal;
-    if (filters.isFeatured !== undefined) payload.isFeatured = filters.isFeatured;
+    if (filters.isFeatured !== undefined)
+      payload.isFeatured = filters.isFeatured;
     if (filters.hasVideo !== undefined) payload.hasVideo = filters.hasVideo;
-    
+
     // Date filters
     if (filters.fromDate) {
       payload.fromDate = new Date(filters.fromDate).toISOString();
@@ -103,12 +109,12 @@ const MapView = () => {
     if (filters.toDate) {
       payload.toDate = new Date(filters.toDate).toISOString();
     }
-    
+
     // Handle datePosted filter (convert to fromDate/toDate range)
     if (filters.datePosted && !filters.fromDate && !filters.toDate) {
       const now = new Date();
       let fromDate: Date;
-      
+
       switch (filters.datePosted) {
         case "Last 24 hours":
           fromDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -125,11 +131,11 @@ const MapView = () => {
         default:
           fromDate = new Date(0); // Beginning of time
       }
-      
+
       payload.fromDate = fromDate.toISOString();
       payload.toDate = now.toISOString();
     }
-    
+
     // ExtraFields filters
     if (filters.extraFields && Object.keys(filters.extraFields).length > 0) {
       payload.extraFields = filters.extraFields;
@@ -163,14 +169,16 @@ const MapView = () => {
     50, // limit
     hasActiveFilters
   );
-  
+
   const { data: regularAdsData, isLoading: isRegularLoading } = useAds(
-    hasActiveFilters ? undefined : {
-      limit: 50,
-      page: 1,
-      category: category || "",
-      neighbourhood: emirate || "",
-    }
+    hasActiveFilters
+      ? undefined
+      : {
+          limit: 50,
+          page: 1,
+          category: category || "",
+          neighbourhood: emirate || "",
+        }
   );
 
   // Use filter results if filters are active, otherwise use regular ads
@@ -210,18 +218,24 @@ const MapView = () => {
       let lng = 55.2708;
 
       // Helper function to extract coordinates from AdLocation object
-      const extractCoordinates = (locationData: typeof ad.location | typeof ad.address): void => {
+      const extractCoordinates = (
+        locationData: typeof ad.location | typeof ad.address
+      ): void => {
         if (typeof locationData === "object" && locationData?.coordinates) {
           const coords = locationData.coordinates;
-          
+
           // Check if coordinates is a valid number array (not null)
           if (Array.isArray(coords) && coords.length >= 2) {
             // GeoJSON format is [lng, lat]
             const [lngCoord, latCoord] = coords;
-            
+
             // Validate that both are numbers and not NaN
-            if (typeof lngCoord === "number" && typeof latCoord === "number" && 
-                !isNaN(lngCoord) && !isNaN(latCoord)) {
+            if (
+              typeof lngCoord === "number" &&
+              typeof latCoord === "number" &&
+              !isNaN(lngCoord) &&
+              !isNaN(latCoord)
+            ) {
               lat = latCoord;
               lng = lngCoord;
             }
@@ -231,7 +245,7 @@ const MapView = () => {
 
       // Check location field first, then address field
       extractCoordinates(ad.location);
-      
+
       // If no coordinates found in location, check address field
       if (lat === 25.2048 && lng === 55.2708) {
         extractCoordinates(ad.address);
@@ -241,12 +255,13 @@ const MapView = () => {
       // Do NOT generate random coordinates to prevent markers from moving on refresh
 
       // Get location string for tooltip
-      const locationString = typeof ad.location === "string" 
-        ? ad.location 
-        : ad.location?.address || 
-          (ad.location?.city && ad.location?.state 
-            ? `${ad.location.city}, ${ad.location.state}` 
-            : ad.location?.city || ad.location?.state || "");
+      const locationString =
+        typeof ad.location === "string"
+          ? ad.location
+          : ad.location?.address ||
+            (ad.location?.city && ad.location?.state
+              ? `${ad.location.city}, ${ad.location.state}`
+              : ad.location?.city || ad.location?.state || "");
 
       return {
         id: ad._id,
@@ -274,37 +289,32 @@ const MapView = () => {
   };
 
   return (
-    <section className="w-full relative mb-2">
-      <Navbar />
+    <section className="w-full flex flex-col relative h-full">
       {/* Filter Section */}
-      <div className="w-full border mb-2">
-        <MapViewFilter 
+      <div className="w-full border bg-white">
+        <MapViewFilter
           extraFields={categoryExtraFields}
-          onFilterChange={handleFilterChange} 
+          onFilterChange={handleFilterChange}
         />
       </div>
 
       {/* Main Content */}
-      <div className="flex items-start max-w-[1080px] justify-between mx-auto gap-4 xl:px-0 px-5 relative">
+      <Container1080 className="flex items-start justify-between gap-4 relative p-2 h-[calc(100vh-180px)] overflow-y-auto">
         {/* Products Grid */}
         <ProductsGrid
           ads={ads}
           isLoading={isLoading}
           title={t.mapView.title}
           showReturnButton={true}
-          className={cn(
-            "w-full flex-shrink-0",
-            filters.showMap && "max-w-sm hidden md:block md:overflow-y-auto"
-          )}
+          className={cn(filters.showMap && "max-w-md hidden md:flex")}
           gridClassName={cn(
-            "grid-cols-1 md:grid-cols-2",
-            !filters.showMap && "md:grid-cols-5"
+            !filters.showMap && "md:grid-cols-3 lg:grid-cols-5"
           )}
         />
 
         {/* Map Section */}
         {filters.showMap && (
-          <div className="w-full sticky top-4 h-[calc(100vh-130px)]">
+          <div className="w-full sticky top-4 h-full">
             <Map
               markers={mapMarkers}
               onMarkerClick={handleMarkerClick}
@@ -340,8 +350,7 @@ const MapView = () => {
           showScrollbar={true}
           className="md:hidden "
         />
-      </div>
-      <Footer />
+      </Container1080>
       {/* Horizontal Carousel Slider at Bottom */}
     </section>
   );

@@ -13,6 +13,7 @@ import { Table } from "@/components/table/table";
 import { useNotificationsColumns } from "./_components/column";
 import { Clock } from "lucide-react";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 
 export default function NotificationsPage() {
   const { t } = useLocale();
@@ -89,9 +90,12 @@ export default function NotificationsPage() {
   }
 
   return (
-    <Container1080 className="min-h-fit py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+    <Container1080 className="sm:space-y-6">
+      <MobileStickyHeader
+        title={t.notifications?.pageTitle || "Notifications"}
+      />
+      <div className="flex items-center justify-between p-4 sm:py-8">
+        <div className="hidden sm:block">
           <h1 className="text-xl font-bold text-gray-900 mb-2">
             {t.notifications?.pageTitle || "Notifications"}
           </h1>

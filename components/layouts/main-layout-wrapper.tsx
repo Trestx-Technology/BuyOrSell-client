@@ -59,13 +59,12 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
   }, [isRootPage, shouldShowNav, shouldHideNavOnMobile]);
 
   return (
-    <main className="h-dvh min-h-[600px] relative flex flex-col bg-[#F9FAFC] overflow-y-auto">
+    <main className="min-h-[600px] relative flex flex-col bg-[#F9FAFC]">
       <div className="sticky top-0 z-50">
         <Navbar className={navbarClassName} />
         <CategoryNav className={categoryNavClassName} />
       </div>
-      <div className="w-full mx-auto flex-1">{children}</div>
-      <Footer />
+      <section className="w-full mx-auto flex-grow">{children}</section>
     </main>
   );
 }

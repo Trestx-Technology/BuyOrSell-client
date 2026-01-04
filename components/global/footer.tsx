@@ -45,13 +45,14 @@ export function Footer({ className }: FooterProps) {
   };
 
   return (
-    <footer className={cn("w-full bg-[#8B31E1] text-white", className)}>
+    <footer
+      className={cn("w-full bg-purple text-primary-foreground", className)}
+    >
       <motion.div
         className="w-full bg-black"
         variants={itemVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
       >
         <div className="max-w-[1280px] mx-auto px-5 lg:px-[100px] py-4">
           <button
