@@ -9,31 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import JobsSectionTitle from "./jobs-section-title";
 import { useJobSubcategories } from "@/hooks/useCategories";
 import { useLocale } from "@/hooks/useLocale";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.05,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 22,
-    },
-  },
-};
+import { slugify } from "@/utils/slug-utils";
+import { containerVariants, itemVariants } from "@/utils/animation-variants";
 
 export default function PopularIndustries() {
   const { localePath } = useLocale();
@@ -81,7 +58,7 @@ export default function PopularIndustries() {
             const industryName = industry.name || "";
             const jobCount = industry.adCount || 0;
             const logoUrl = industry.icon || industry.mobileImage;
-            const href = localePath(`/jobs/listing?industry=${industryId}`);
+            const href = localePath(`/jobs/listing/${slugify(industryName)}`);
 
             return (
               <motion.div key={industryId} variants={itemVariants}>

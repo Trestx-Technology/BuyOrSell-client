@@ -5,21 +5,6 @@ import { FilterConfig } from "@/app/[locale]/(root)/categories/_components/ads-f
  */
 export const defaultJobFilters: FilterConfig[] = [
   {
-    key: "location",
-    label: "Location",
-    type: "select",
-    options: [
-      { value: "dubai", label: "Dubai" },
-      { value: "abu-dhabi", label: "Abu Dhabi" },
-      { value: "sharjah", label: "Sharjah" },
-      { value: "ajman", label: "Ajman" },
-      { value: "ras-al-khaimah", label: "Ras Al Khaimah" },
-      { value: "fujairah", label: "Fujairah" },
-      { value: "umm-al-quwain", label: "Umm Al Quwain" },
-    ],
-    placeholder: "Dubai",
-  },
-  {
     key: "salary",
     label: "Salary Range",
     type: "select",
@@ -68,6 +53,18 @@ export const defaultJobFilters: FilterConfig[] = [
       { value: "executive", label: "Executive" },
     ],
     placeholder: "Any Experience",
+  },
+  {
+    key: "fromDate",
+    label: "From Date",
+    type: "calendar",
+    placeholder: "Select start date",
+  },
+  {
+    key: "toDate",
+    label: "To Date",
+    type: "calendar",
+    placeholder: "Select end date",
   },
 ];
 

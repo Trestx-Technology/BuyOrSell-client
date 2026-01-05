@@ -15,14 +15,17 @@ import { ICONS } from "@/constants/icons";
 import Link from "next/link";
 import { JobseekerProfile } from "@/interfaces/job.types";
 import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface JobsProfileSectionProps {
   profile?: JobseekerProfile;
   isLoading?: boolean;
+  profileCompletionPercentage?: number;
 }
 
 export default function JobsProfileSection({
   profile,
+  profileCompletionPercentage,
   isLoading,
 }: JobsProfileSectionProps) {
   if (isLoading) {
@@ -98,26 +101,64 @@ export default function JobsProfileSection({
     <section className="w-full bg-[#F2F4F7] pt-10 px-4 lg:px-[100px]">
       <div className="max-w-[1080px] mx-auto bg-white rounded-2xl p-6 relative flex gap-6">
         {/*------- Profile Image Circle--------- */}
-        <div className="relative size-[170px] mx-auto md:mx-0">
-          <div className="absolute inset-0 rounded-full border-[3px] border-[#37E7B6] p-2">
-            <div className="w-full h-full rounded-full border-[5px] border-[#F5EBFF] flex items-center justify-center bg-gradient-to-br from-purple/10 to-purple/5 overflow-hidden">
-              {profile.photoUrl ? (
-                <Image
-                  src={profile.photoUrl}
-                  alt={profileName}
-                  width={170}
-                  height={170}
-                  className="rounded-full object-cover w-full h-full"
-                />
-              ) : (
-                <div className="w-[32px] h-[32px] rounded-full bg-purple flex items-center justify-center">
-                  <span className="text-white font-semibold text-xs">
-                    {initials}
-                  </span>
-                </div>
-              )}
-            </div>
+        <div className="relative size-[170px] mx-auto md:mx-0 group">
+          <svg
+            className="absolute inset-0 -rotate-235"
+            width="170"
+            height="170"
+          >
+            <circle
+              cx="85"
+              cy="85"
+              r="82"
+              fill="none"
+              stroke="#F5EBFF"
+              strokeWidth="3"
+            />
+            <circle
+              cx="85"
+              cy="85"
+              r="82"
+              fill="none"
+              stroke="#37E7B6"
+              strokeWidth="3"
+              strokeDasharray={`${2 * Math.PI * 82}`}
+              strokeDashoffset={`${
+                2 *
+                Math.PI *
+                82 *
+                (1 - (profileCompletionPercentage || 0) / 100)
+              }`}
+              strokeLinecap="round"
+            />
+          </svg>
+
+          <div className="absolute inset-[3px] rounded-full border-[5px] border-[#F5EBFF] flex items-center justify-center bg-gradient-to-br from-purple/10 to-purple/5 overflow-hidden">
+            {profile.photoUrl ? (
+              <Image
+                src={profile.photoUrl}
+                alt={profileName}
+                width={170}
+                height={170}
+                className="rounded-full object-cover w-full h-full"
+              />
+            ) : (
+              <div className="w-[32px] h-[32px] rounded-full bg-purple flex items-center justify-center">
+                <span className="text-white font-semibold text-xs">
+                  {initials}
+                </span>
+              </div>
+            )}
           </div>
+
+          {profileCompletionPercentage && (
+            <Typography
+              variant="body-small"
+              className="absolute -bottom-6 left-1/2 -translate-x-1/2 font-semibold text-sm text-purple whitespace-nowrap"
+            >
+              {profileCompletionPercentage}% Completed
+            </Typography>
+          )}
         </div>
 
         <div className="flex-1 max-w-xl space-y-6">

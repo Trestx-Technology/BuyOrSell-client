@@ -119,7 +119,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
     "";
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E2E2E2] p-6 space-y-6">
+    <div className="bg-white rounded-2xl border border-[#E2E2E2] p-6 space-y-6 w-full">
       {/* Job Description */}
       {description && (
         <div className="space-y-4">
@@ -127,8 +127,8 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
             Job Description
           </Typography>
           <Typography
-            variant="body-small"
-            className="text-dark-blue text-sm leading-[1.75] whitespace-pre-line"
+            variant="sm-regular-inter"
+            className="text-dark-blue text-sm"
           >
             {description}
           </Typography>

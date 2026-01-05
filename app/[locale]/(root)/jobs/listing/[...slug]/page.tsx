@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { FilterConfig } from "@/app/[locale]/(root)/categories/_components/ads-filter";
 import { Typography } from "@/components/typography";
 import { Bell, ChevronLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import JobsFilter from "./_components/jobs-filter";
+import JobsFilter from "../_components/jobs-filter";
 import { useAds, useFilterAds, useAdById } from "@/hooks/useAds";
 import {
   AD,
@@ -19,36 +19,67 @@ import {
 import { JobData } from "@/interfaces/job.types";
 import { formatDistanceToNow } from "date-fns";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
-import JobListingCard from "./_components/job-listing-card";
-import JobHeaderCard from "./_components/job-header-card";
-import JobDetailContent from "./_components/job-detail-content";
-import Disclaimer from "./_components/disclaimer";
+import JobListingCard from "../_components/job-listing-card";
+import JobHeaderCard from "../_components/job-header-card";
+import MobileJobHeaderCard from "../_components/mobile-job-header-card";
+import JobDetailContent from "../_components/job-detail-content";
+import Disclaimer from "../_components/disclaimer";
 import Pagination from "@/components/global/pagination";
 import { defaultJobFilters } from "@/constants/job.constants";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { useLocale } from "@/hooks/useLocale";
+import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
+import { cn } from "@/lib/utils";
 
 const ITEMS_PER_PAGE = 12;
 
 // Helper function to safely get string value from filter
-const getFilterString = (value: string | string[] | undefined): string => {
+const getFilterString = (
+  value: string | string[] | Date | undefined
+): string => {
   if (!value) return "";
+  if (value instanceof Date) return "";
   return Array.isArray(value) ? value[0] || "" : value;
 };
 
+// Helper function to format label from slug segment
+const formatLabel = (segment: string) =>
+  segment
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
 export default function JobsListingPage() {
+  const { t, locale } = useLocale();
+  const params = useParams();
   const searchParams = useSearchParams();
   const urlQuery =
     searchParams.get("query") || searchParams.get("search") || "";
   const urlLocation = searchParams.get("location") || "";
 
+  // Get category from URL params - use the last slug segment
+  const slugSegments = Array.isArray(params.slug)
+    ? params.slug
+    : params.slug
+    ? [params.slug]
+    : [];
+  const currentCategory = slugSegments[slugSegments.length - 1] || "";
+  const categoryName = currentCategory
+    ? formatLabel(decodeURIComponent(currentCategory))
+    : "Jobs";
+
   const [searchQuery, setSearchQuery] = useState(urlQuery);
   const [locationQuery, setLocationQuery] = useState(urlLocation);
-  const [filters, setFilters] = useState<Record<string, string | string[]>>({
+  const [filters, setFilters] = useState<
+    Record<string, string | string[] | Date>
+  >({
     location: urlLocation,
     salary: "",
     jobType: "",
     workMode: "",
     experience: "",
+    fromDate: undefined as any,
+    toDate: undefined as any,
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [savedExtraFields, setSavedExtraFields] = useState<ProductExtraField[]>(
@@ -67,21 +98,51 @@ export default function JobsListingPage() {
     }
   }, [urlQuery, urlLocation]);
 
-  // Initial fetch to get extraFields structure
-  const { data: initialAdsData } = useAds({
-    adType: "JOB",
-    limit: 1,
-    page: 1,
-  });
+  // Build API filters - include category if present
+  const adsParamsForExtraFields = useMemo(() => {
+    const params: AdFilters = {
+      adType: "JOB",
+      limit: 1,
+      page: 1,
+    };
+    if (currentCategory) {
+      params.category = decodeURIComponent(currentCategory);
+    }
+    return params;
+  }, [currentCategory]);
+
+  // Initial fetch to get extraFields structure (filtered by category if present)
+  const { data: initialAdsData } = useAds(adsParamsForExtraFields);
 
   const firstJob = initialAdsData?.data?.adds?.[0] as AD | undefined;
 
-  const categoryName = "Jobs";
+  // Build breadcrumbs
+  const breadcrumbItems: BreadcrumbItem[] = useMemo(() => {
+    const items: BreadcrumbItem[] = [
+      { id: "jobs", label: "Jobs", href: "/jobs" },
+    ];
 
-  const breadcrumbItems: BreadcrumbItem[] = [
-    { id: "jobs", label: "Jobs", href: "/jobs" },
-    { id: "listing", label: "Listing", href: "/jobs/listing", isActive: true },
-  ];
+    if (slugSegments.length > 0) {
+      items.push(
+        ...slugSegments.map((segment, index) => {
+          const path = slugSegments.slice(0, index + 1).join("/");
+          const href = `/jobs/listing/${path}`;
+
+          return {
+            id: path || `segment-${index}`,
+            label: formatLabel(decodeURIComponent(segment)),
+            href,
+            isActive: index === slugSegments.length - 1,
+          };
+        })
+      );
+    } else {
+      // Mark listing as active if no slug
+      items[items.length - 1].isActive = true;
+    }
+
+    return items;
+  }, [slugSegments]);
 
   // Get extraFields from first job and save them
   useEffect(() => {
@@ -91,12 +152,20 @@ export default function JobsListingPage() {
         setSavedExtraFields(normalized);
         // Initialize filter state for dynamic extraFields (preserve existing default filters)
         setFilters((prevFilters) => {
-          const newFilters: Record<string, string | string[]> = {
+          const newFilters: Record<string, string | string[] | Date> = {
             location: getFilterString(prevFilters.location),
             salary: getFilterString(prevFilters.salary),
             jobType: getFilterString(prevFilters.jobType),
             workMode: getFilterString(prevFilters.workMode),
             experience: getFilterString(prevFilters.experience),
+            fromDate:
+              prevFilters.fromDate instanceof Date
+                ? prevFilters.fromDate
+                : (undefined as any),
+            toDate:
+              prevFilters.toDate instanceof Date
+                ? prevFilters.toDate
+                : (undefined as any),
           };
           normalized.forEach((field) => {
             if (
@@ -175,6 +244,11 @@ export default function JobsListingPage() {
       limit: ITEMS_PER_PAGE,
     };
 
+    // Add category if present
+    if (currentCategory) {
+      params.category = decodeURIComponent(currentCategory);
+    }
+
     // Add search query if present
     if (searchQuery) {
       params.search = searchQuery;
@@ -186,8 +260,16 @@ export default function JobsListingPage() {
       params.location = locationFilter;
     }
 
+    // Add date filters
+    if (filters.fromDate instanceof Date) {
+      params.fromDate = filters.fromDate.toISOString();
+    }
+    if (filters.toDate instanceof Date) {
+      params.toDate = filters.toDate.toISOString();
+    }
+
     return params;
-  }, [searchQuery, locationQuery, filters, currentPage]);
+  }, [currentCategory, searchQuery, locationQuery, filters, currentPage]);
 
   // Build filter payload for useFilterAds when there are extra filters
   const filterPayload = useMemo((): AdFilterPayload => {
@@ -195,9 +277,22 @@ export default function JobsListingPage() {
       adType: "JOB",
     };
 
+    // Add category if present
+    if (currentCategory) {
+      payload.category = decodeURIComponent(currentCategory);
+    }
+
     if (searchQuery) payload.search = searchQuery;
     const locationFilter = getFilterString(filters.location) || locationQuery;
     if (locationFilter) payload.city = locationFilter;
+
+    // Add date filters
+    if (filters.fromDate instanceof Date) {
+      payload.fromDate = filters.fromDate.toISOString();
+    }
+    if (filters.toDate instanceof Date) {
+      payload.toDate = filters.toDate.toISOString();
+    }
 
     // Parse salary range
     const salaryFilter = getFilterString(filters.salary);
@@ -235,12 +330,19 @@ export default function JobsListingPage() {
 
     // Add dynamic extraFields filters (from first job's extraFields)
     Object.entries(filters).forEach(([key, value]) => {
-      // Skip default filters that are already handled
+      // Skip default filters that are already handled (including date filters)
       if (
-        !["location", "salary", "jobType", "workMode", "experience"].includes(
-          key
-        ) &&
-        value
+        ![
+          "location",
+          "salary",
+          "jobType",
+          "workMode",
+          "experience",
+          "fromDate",
+          "toDate",
+        ].includes(key) &&
+        value &&
+        !(value instanceof Date)
       ) {
         extraFieldsFilters[key] = value;
       }
@@ -251,7 +353,7 @@ export default function JobsListingPage() {
     }
 
     return payload;
-  }, [searchQuery, locationQuery, filters, currentPage]);
+  }, [currentCategory, searchQuery, locationQuery, filters, currentPage]);
 
   // Use useAds when only search/location filters (simple case)
   // Use useFilterAds when there are complex filters (salary, jobType, etc.)
@@ -261,11 +363,21 @@ export default function JobsListingPage() {
       getFilterString(filters.jobType) ||
       getFilterString(filters.workMode) ||
       getFilterString(filters.experience) ||
+      filters.fromDate instanceof Date ||
+      filters.toDate instanceof Date ||
       Object.entries(filters).some(
         ([key, value]) =>
-          !["location", "salary", "jobType", "workMode", "experience"].includes(
-            key
-          ) && value
+          ![
+            "location",
+            "salary",
+            "jobType",
+            "workMode",
+            "experience",
+            "fromDate",
+            "toDate",
+          ].includes(key) &&
+          value &&
+          !(value instanceof Date)
       )
     );
   }, [filters]);
@@ -275,17 +387,23 @@ export default function JobsListingPage() {
     filterPayload,
     currentPage,
     ITEMS_PER_PAGE,
-    hasComplexFilters || hasActiveFilters
+    hasComplexFilters || hasActiveFilters || !!currentCategory
   );
 
   const { data: regularAdsData, isLoading: isRegularLoading } = useAds(
-    !hasComplexFilters && !hasActiveFilters ? adsParams : undefined
+    !hasComplexFilters && !hasActiveFilters && !currentCategory
+      ? adsParams
+      : undefined
   );
 
   const adsData =
-    hasComplexFilters || hasActiveFilters ? filterAdsData : regularAdsData;
+    hasComplexFilters || hasActiveFilters || currentCategory
+      ? filterAdsData
+      : regularAdsData;
   const isLoading =
-    hasComplexFilters || hasActiveFilters ? isFilterLoading : isRegularLoading;
+    hasComplexFilters || hasActiveFilters || currentCategory
+      ? isFilterLoading
+      : isRegularLoading;
 
   const jobs = useMemo(
     () => (adsData?.data?.adds || []) as AD[],
@@ -293,13 +411,6 @@ export default function JobsListingPage() {
   );
   const totalItems = adsData?.data?.total || jobs.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-
-  // Set selected job when jobs are loaded
-  useEffect(() => {
-    if (jobs.length > 0 && !selectedJobId) {
-      setSelectedJobId(jobs[0]._id);
-    }
-  }, [jobs.length, selectedJobId, jobs]);
 
   // Fetch job details by ID using API
   const {
@@ -311,28 +422,38 @@ export default function JobsListingPage() {
 
   const handleFilterChange = (key: string, value: string | string[]) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
+    setCurrentPage(1); // Reset to first page when filter changes
   };
 
   const handleLocationChange = (value: string) => {
     setLocationQuery(value);
     setFilters((prev) => ({ ...prev, location: value }));
+    setCurrentPage(1);
   };
 
   const clearFilters = () => {
-    const clearedFilters: Record<string, string | string[]> = {
+    const clearedFilters: Record<string, string | string[] | Date> = {
       location: "",
       salary: "",
       jobType: "",
       workMode: "",
       experience: "",
+      fromDate: undefined as any,
+      toDate: undefined as any,
     };
     // Clear all dynamic filters from extraFields
     dynamicFilterConfig.forEach((config) => {
-      // Skip default filters
+      // Skip default filters (including date filters)
       if (
-        !["location", "salary", "jobType", "workMode", "experience"].includes(
-          config.key
-        )
+        ![
+          "location",
+          "salary",
+          "jobType",
+          "workMode",
+          "experience",
+          "fromDate",
+          "toDate",
+        ].includes(config.key)
       ) {
         clearedFilters[config.key] = "";
       }
@@ -518,41 +639,15 @@ export default function JobsListingPage() {
   };
 
   return (
-    <Container1080 className="py-6 space-y-6">
-      {/* Mobile Header */}
-      <div className="w-full max-w-[1080px] mx-auto bg-purple sm:hidden p-4 space-y-4">
-        <div className="flex items-center justify-between">
-          <Button
-            icon={<ChevronLeft />}
-            iconPosition="left"
-            className="bg-white text-purple w-8 rounded-full"
-            size={"icon-sm"}
-          />
-          <Button
-            icon={<Bell />}
-            iconPosition="left"
-            className="w-8 rounded-full"
-            size={"icon-sm"}
-          />
-        </div>
-
-        {/* Search Bar */}
-        <Input
-          leftIcon={<Search className="h-4 w-4" />}
-          placeholder={"Search jobs..."}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 bg-gray-100 border-0"
-        />
-      </div>
-
-      <div className="w-full mx-auto py-6">
-        <div className="hidden sm:block mb-6 ">
+    <Container1080 className="space-y-6 min-h-dvh">
+      <MobileStickyHeader title={categoryName} />
+      <div className="w-full mx-auto px-4 md:py-6">
+        <div className="hidden md:block mb-6">
           <Breadcrumbs items={breadcrumbItems} showSelectCategoryLink={false} />
         </div>
 
         {/* Page Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between md:mb-6">
           <Typography variant="md-black-inter" className="font-semibold">
             {categoryName} in Dubai ({jobs.length})
           </Typography>
@@ -581,76 +676,96 @@ export default function JobsListingPage() {
         ) : jobs.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">No jobs found.</p>
+            <Button variant="outline" onClick={clearFilters} className="mt-4">
+              Clear Filters
+            </Button>
           </div>
         ) : (
-          <div className="bg-[#F9FAFC] min-h-screen">
-            <div className="max-w-[1080px] mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-[256px_1fr] gap-[19px]">
-                {/* Left Column - Job Listings Sidebar */}
-                <div className="space-y-[19px]">
-                  {jobs.map((job) => (
-                    <JobListingCard
-                      key={job._id}
-                      job={job}
-                      isSelected={selectedJobId === job._id}
-                      onClick={() => setSelectedJobId(job._id)}
-                      transformAdToJobCardProps={transformAdToJobCardProps}
-                    />
-                  ))}
-
-                  {/* Pagination */}
-                  {totalPages > 1 && (
-                    <div className="bg-white rounded-xl p-4">
-                      <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                        isLoading={false}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Right Column - Job Detail View */}
-                {selectedJobId && (
-                  <div className="space-y-6">
-                    {isJobLoading ? (
-                      <div className="text-center py-12">
-                        <Typography variant="body" className="text-gray-500">
-                          Loading job details...
-                        </Typography>
-                      </div>
-                    ) : jobError || !selectedJob ? (
-                      <div className="text-center py-12">
-                        <Typography variant="body" className="text-red-500">
-                          {jobError
-                            ? "Failed to load job details"
-                            : "Job not found"}
-                        </Typography>
-                      </div>
-                    ) : selectedJob ? (
-                      <>
-                        <JobHeaderCard
-                          job={selectedJob}
-                          logo={selectedJob.organization?.logoUrl}
-                          onFavorite={(id: string) =>
-                            console.log("Favorited:", id)
-                          }
-                          onApply={(jobId: string) => {
-                            console.log("Apply to job:", jobId);
-                            // Handle apply logic in parent component
-                          }}
-                          isFavorite={false}
-                          isApplied={selectedJob.isApplied ?? false}
-                          isApplying={false}
-                        />
-                        <JobDetailContent job={selectedJob} />
-                        <Disclaimer />
-                      </>
-                    ) : null}
-                  </div>
-                )}
+          <div className="flex items-start gap-5">
+            {/* Left Column - Job Listings Sidebar */}
+            {/* On md: hide when job is selected, show when no selection. On lg+: always show */}
+            <div
+              className={`space-y-5 w-full sm:w-auto ${
+                selectedJobId ? "hidden md:block" : "flex"
+              }`}
+            >
+              <div
+                className={cn("flex gap-5 flex-wrap", selectedJobId && "block")}
+              >
+                {jobs.map((job) => (
+                  <JobListingCard
+                    key={job._id}
+                    job={job}
+                    isSelected={selectedJobId === job._id}
+                    onClick={() => setSelectedJobId(job._id)}
+                    transformAdToJobCardProps={transformAdToJobCardProps}
+                  />
+                ))}
               </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="bg-white rounded-xl p-4">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    isLoading={false}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Right Column - Job Detail View */}
+            {/* On md: show when job is selected. On lg+: always show when selected */}
+            <div className="space-y-6">
+              {isJobLoading ? (
+                <div className="text-center py-12">
+                  <Typography variant="body" className="text-gray-500">
+                    Loading job details...
+                  </Typography>
+                </div>
+              ) : jobError ? (
+                <div className="text-center py-12">
+                  <Typography variant="body" className="text-red-500">
+                    {jobError ? "Failed to load job details" : "Job not found"}
+                  </Typography>
+                </div>
+              ) : selectedJob ? (
+                <>
+                  {/* Mobile Header Card */}
+                  <MobileJobHeaderCard
+                    job={selectedJob}
+                    logo={selectedJob.organization?.logoUrl}
+                    onFavorite={(id: string) => console.log("Favorited:", id)}
+                    onApply={(jobId: string) => {
+                      console.log("Apply to job:", jobId);
+                      // Handle apply logic in parent component
+                    }}
+                    isFavorite={false}
+                    isApplied={selectedJob.isApplied ?? false}
+                    isApplying={false}
+                    onBack={() => setSelectedJobId(null)}
+                    className="block sm:hidden"
+                  />
+                  {/* Desktop Header Card */}
+                  <JobHeaderCard
+                    className="hidden sm:block"
+                    job={selectedJob}
+                    logo={selectedJob.organization?.logoUrl}
+                    onFavorite={(id: string) => console.log("Favorited:", id)}
+                    onApply={(jobId: string) => {
+                      console.log("Apply to job:", jobId);
+                      // Handle apply logic in parent component
+                    }}
+                    isFavorite={false}
+                    isApplied={selectedJob.isApplied ?? false}
+                    isApplying={false}
+                  />
+                  <JobDetailContent job={selectedJob} />
+                  <Disclaimer />
+                </>
+              ) : null}
             </div>
           </div>
         )}

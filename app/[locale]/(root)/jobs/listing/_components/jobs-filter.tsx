@@ -2,9 +2,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, MapPin, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { LocationAutocomplete } from "./location-autocomplete";
 import {
   Select,
   SelectContent,
@@ -25,6 +26,8 @@ import { Slider } from "@/components/ui/slider";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 import { cn } from "@/lib/utils";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { DatePicker } from "@/components/global/date-picker";
+import { formatDateLocale } from "@/lib/date-utils";
 
 export interface FilterOption {
   value: string;
@@ -69,7 +72,7 @@ export default function JobsFilter({
   config,
   className,
 }: JobsFilterProps) {
-  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  // const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
   // Debounced search input
   const [localSearchQuery, setLocalSearchQuery] = useDebouncedValue(
@@ -78,25 +81,17 @@ export default function JobsFilter({
     500
   );
 
-  // Debounced location input
-  const [localLocationQuery, setLocalLocationQuery] = useDebouncedValue(
-    locationQuery,
-    (value) => onLocationChange(value),
-    500
-  );
-
   // Sync local state with props when they change externally
   useEffect(() => {
     setLocalSearchQuery(searchQuery);
   }, [searchQuery, setLocalSearchQuery]);
 
-  useEffect(() => {
-    setLocalLocationQuery(locationQuery);
-  }, [locationQuery, setLocalLocationQuery]);
-
   const activeFilters = Object.entries(filters).filter(
     ([_, value]) =>
-      value && value !== "" && (Array.isArray(value) ? value.length > 0 : true)
+      value &&
+      value !== "" &&
+      !(value instanceof Date && isNaN(value.getTime())) &&
+      (Array.isArray(value) ? value.length > 0 : true)
   );
 
   const renderFilterControl = (filterConfig: FilterConfig) => {
@@ -115,7 +110,7 @@ export default function JobsFilter({
       case "select":
         return (
           <FormField
-            className="text-sm w-full"
+            className=" text-sm w-full"
             label={filterConfig.label}
             required={false}
           >
@@ -222,6 +217,35 @@ export default function JobsFilter({
           </FormField>
         );
 
+      case "calendar":
+        return (
+          <FormField label={filterConfig.label} required={false}>
+            <div className="w-40">
+              <DatePicker
+                label=""
+                value={
+                  value
+                    ? typeof value === "string"
+                      ? new Date(value)
+                      : value
+                    : undefined
+                }
+                onChange={(date) => onFilterChange(key, date)}
+                placeholder={placeholder}
+                minDate={
+                  key === "toDate" && filters.fromDate
+                    ? typeof filters.fromDate === "string"
+                      ? new Date(filters.fromDate)
+                      : filters.fromDate instanceof Date
+                      ? filters.fromDate
+                      : undefined
+                    : undefined
+                }
+              />
+            </div>
+          </FormField>
+        );
+
       default:
         return null;
     }
@@ -230,33 +254,30 @@ export default function JobsFilter({
   return (
     <Card
       className={cn(
-        "mx-4 lg:mx-0 shadow-none bg-transparent sm:bg-white sm:shadow-sm border border-none sm:border sm:border-[#F5EBFF] rounded-xl",
+        "shadow-none bg-transparent sm:bg-white sm:shadow-sm border border-none sm:border sm:border-[#F5EBFF] rounded-xl",
         className
       )}
     >
       <CardContent className="p-0">
         {/* Search Inputs */}
-        <div className="border-b p-4 hidden sm:block">
-          <div className="flex gap-3">
-            <Input
-              leftIcon={<Search className="h-4 w-4" />}
-              placeholder={searchPlaceholder}
-              value={localSearchQuery}
-              onChange={(e) => setLocalSearchQuery(e.target.value)}
-              className="pl-10 bg-gray-100 border-0 flex-1"
-            />
-            <Input
-              leftIcon={<MapPin className="h-4 w-4" />}
-              placeholder={locationPlaceholder}
-              value={localLocationQuery}
-              onChange={(e) => setLocalLocationQuery(e.target.value)}
-              className="pl-10 bg-gray-100 border-0 flex-1"
-            />
-          </div>
+        <div className="border-b py-4 sm:p-4 space-y-4  block sm:flex gap-3">
+          <Input
+            leftIcon={<Search className="h-4 w-4" />}
+            placeholder={searchPlaceholder}
+            value={localSearchQuery}
+            onChange={(e) => setLocalSearchQuery(e.target.value)}
+            className="pl-10 bg-gray-100 border-0 flex-1"
+          />
+          <LocationAutocomplete
+            value={locationQuery}
+            onChange={onLocationChange}
+            placeholder={locationPlaceholder}
+            className="pl-10 bg-gray-100 border-0 flex-1"
+          />
         </div>
 
         {/* Filter Controls */}
-        <div className="min-w-full flex items-end gap-3 pb-4 sm:p-4 border-b sm:border-none whitespace-nowrap overflow-x-auto scrollbar-hide relative">
+        <div className="min-w-full flex items-end gap-3 py-4 sm:p-4 border-b sm:border-none whitespace-nowrap overflow-x-auto scrollbar-hide relative">
           {config.map((filterConfig) => (
             <div key={filterConfig.key} className="w-40 shrink-0">
               {renderFilterControl(filterConfig)}
@@ -264,7 +285,7 @@ export default function JobsFilter({
           ))}
 
           {/* Advanced Filters Dialog */}
-          <Dialog open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
+          {/* <Dialog open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
             <DialogTrigger asChild>
               <Button
                 icon={<SlidersHorizontal className="h-4 w-4 -mr-3 sm:-mr-2" />}
@@ -294,7 +315,7 @@ export default function JobsFilter({
                 </Button>
               </div>
             </DialogContent>
-          </Dialog>
+          </Dialog> */}
         </div>
 
         {/* Active Filters */}
@@ -305,6 +326,8 @@ export default function JobsFilter({
                 const filterConfig = config.find((c) => c.key === key);
                 const displayValue = Array.isArray(value)
                   ? value.join(", ")
+                  : value instanceof Date
+                  ? formatDateLocale(value)
                   : value;
 
                 return (
@@ -318,7 +341,11 @@ export default function JobsFilter({
                       onClick={() =>
                         onFilterChange(
                           key,
-                          filterConfig?.type === "multiselect" ? [] : ""
+                          filterConfig?.type === "multiselect"
+                            ? []
+                            : filterConfig?.type === "calendar"
+                            ? undefined
+                            : ""
                         )
                       }
                       className="ml-2 hover:text-purple-900"

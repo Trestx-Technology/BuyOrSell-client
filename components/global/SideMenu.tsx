@@ -232,7 +232,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   user,
 }) => {
   // Fetch current user's organization using /organizations/me endpoint
-  const { data: myOrganizationData } = useMyOrganization();
+  const { data: myOrganizationData } = useMyOrganization(!isLoggedIn);
   const router = useRouter();
 
   const organizations = myOrganizationData?.data ?? [];

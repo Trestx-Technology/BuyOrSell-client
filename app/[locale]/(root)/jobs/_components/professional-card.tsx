@@ -14,12 +14,14 @@ interface ProfessionalCardProps {
   professional: JobseekerProfile;
   onConnect?: (userId: string) => void;
   isConnected?: boolean;
+  connectionStatus?: "PENDING" | "ACCEPTED" | "REJECTED" | "APPROVED";
 }
 
 export default function ProfessionalCard({
   professional,
   onConnect,
   isConnected = false,
+  connectionStatus,
 }: ProfessionalCardProps) {
   const {
     skills,
@@ -126,12 +128,25 @@ export default function ProfessionalCard({
 
       {/* Connect Button */}
       <Button
+        disabled={
+          connectionStatus === "PENDING" || connectionStatus === "ACCEPTED"
+        }
         onClick={() => onConnect?.(professional.userId)}
         className="w-full rounded-lg py-2.5 font-semibold transition-all"
-        variant={isConnected ? "outline" : "primary"}
+        variant={
+          connectionStatus === "PENDING" || connectionStatus === "ACCEPTED"
+            ? "outline"
+            : "primary"
+        }
         width="full"
       >
-        {isConnected ? "Connected" : "Connect"}
+        {connectionStatus === "ACCEPTED"
+          ? "Connected"
+          : connectionStatus === "PENDING"
+          ? "Pending"
+          : connectionStatus === "REJECTED"
+          ? "Rejected"
+          : "Connect"}
       </Button>
     </motion.div>
   );

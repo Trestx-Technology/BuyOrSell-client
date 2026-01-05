@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
-import { Search, MapPin, Loader2, Briefcase } from "lucide-react";
+import React, { useState, useMemo, useRef } from "react";
+import { Search, MapPin, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Typography } from "@/components/typography";
@@ -12,17 +12,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAds } from "@/hooks/useAds";
+import { useAdsByKeyword } from "@/hooks/useAds";
 import { useEmirates } from "@/hooks/useLocations";
 import { useRouter } from "next/navigation";
 import { useLocale } from "@/hooks/useLocale";
-import Link from "next/link";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { useOutsideClick } from "@/hooks/useOutsideClick";
 
 export default function JobsHero() {
   const router = useRouter();
   const { localePath } = useLocale();
   const [jobTitle, setJobTitle] = useState("");
-  const [debouncedJobTitle, setDebouncedJobTitle] = useState("");
   const [selectedEmirate, setSelectedEmirate] = useState<string>("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -33,75 +33,47 @@ export default function JobsHero() {
   const { data: emiratesData, isLoading: isLoadingEmirates } = useEmirates();
   const emirates = emiratesData || [];
 
-  // Debounce job title input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedJobTitle(jobTitle);
-    }, 500);
+  // State for debounced value used in API calls
+  const [debouncedJobTitle, setDebouncedJobTitle] = useState("");
 
-    return () => clearTimeout(timer);
-  }, [jobTitle]);
+  // Debounce job title input using useDebouncedValue
+  const [localJobTitle, setLocalJobTitle] = useDebouncedValue(
+    jobTitle,
+    (value) => {
+      // This callback is called after debounce delay
+      setDebouncedJobTitle(value);
+    },
+    500
+  );
 
-  // Fetch jobs with filters
-  const adsFilters = useMemo(() => {
-    const filters: {
-      adType: "JOB";
-      search?: string;
-      location?: string;
-    } = {
-      adType: "JOB",
-    };
+  // Fetch keyword suggestions using useAdsByKeyword
+  const { data: keywordData, isLoading: isLoadingKeywords } = useAdsByKeyword(
+    debouncedJobTitle.trim(),
+    undefined
+  );
 
-    if (debouncedJobTitle && debouncedJobTitle.trim()) {
-      filters.search = debouncedJobTitle.trim();
-    }
-
-    if (selectedEmirate) {
-      filters.location = selectedEmirate;
-    }
-
-    return filters;
-  }, [debouncedJobTitle, selectedEmirate]);
-
-  const { data: jobsData, isLoading: isLoadingJobs } = useAds(adsFilters);
-  const jobs =
-    jobsData?.data?.ads ||
-    jobsData?.data?.adds ||
-    (Array.isArray(jobsData?.data) ? jobsData.data : []) ||
-    [];
-
-  // Limit results to 5 for dropdown
-  const displayJobs = jobs.slice(0, 5);
+  const keywords = keywordData?.data || [];
 
   // Show dropdown when there are results and user is typing
-  useEffect(() => {
-    if (debouncedJobTitle.trim() && displayJobs.length > 0) {
-      setShowDropdown(true);
-    } else {
+  const shouldShowDropdown = useMemo(() => {
+    return (
+      debouncedJobTitle.trim() !== "" && keywords.length > 0 && showDropdown
+    );
+  }, [debouncedJobTitle, keywords.length, showDropdown]);
+
+  // Handle click outside to close dropdown using useOutsideClick
+  useOutsideClick(
+    searchContainerRef,
+    () => {
       setShowDropdown(false);
-    }
-  }, [debouncedJobTitle, displayJobs.length]);
-
-  // Handle click outside to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target as Node)
-      ) {
-        setShowDropdown(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+      setSelectedIndex(-1);
+    },
+    showDropdown
+  );
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!showDropdown || displayJobs.length === 0) {
+    if (!shouldShowDropdown || keywords.length === 0) {
       if (e.key === "Enter") {
         handleSearch();
       }
@@ -112,7 +84,7 @@ export default function JobsHero() {
       case "ArrowDown":
         e.preventDefault();
         setSelectedIndex((prev) =>
-          prev < displayJobs.length - 1 ? prev + 1 : prev
+          prev < keywords.length - 1 ? prev + 1 : prev
         );
         break;
       case "ArrowUp":
@@ -121,8 +93,8 @@ export default function JobsHero() {
         break;
       case "Enter":
         e.preventDefault();
-        if (selectedIndex >= 0 && displayJobs[selectedIndex]) {
-          handleJobClick(displayJobs[selectedIndex]._id);
+        if (selectedIndex >= 0 && keywords[selectedIndex]) {
+          handleKeywordClick(keywords[selectedIndex].name);
         } else {
           handleSearch();
         }
@@ -134,19 +106,26 @@ export default function JobsHero() {
     }
   };
 
-  const handleJobClick = (jobId: string) => {
-    router.push(localePath(`/jobs/${jobId}`));
+  const handleKeywordClick = (keyword: string) => {
+    setJobTitle(keyword);
+    setLocalJobTitle(keyword);
+    setDebouncedJobTitle(keyword);
     setShowDropdown(false);
     setSelectedIndex(-1);
+    handleSearchWithKeyword(keyword);
   };
 
   const handleSearch = () => {
-    if (!jobTitle.trim() && !selectedEmirate) {
+    handleSearchWithKeyword(localJobTitle.trim());
+  };
+
+  const handleSearchWithKeyword = (searchKeyword: string) => {
+    if (!searchKeyword && !selectedEmirate) {
       return;
     }
 
     const params = new URLSearchParams();
-    if (jobTitle.trim()) params.set("query", jobTitle.trim());
+    if (searchKeyword) params.set("query", searchKeyword);
     if (selectedEmirate) params.set("location", selectedEmirate);
 
     router.push(localePath(`/jobs/listing?${params.toString()}`));
@@ -199,23 +178,27 @@ export default function JobsHero() {
                     ref={inputRef}
                     type="text"
                     placeholder="Job Title"
-                    value={jobTitle}
+                    value={localJobTitle}
                     onChange={(e) => {
+                      setLocalJobTitle(e.target.value);
                       setJobTitle(e.target.value);
                       setSelectedIndex(-1);
+                      if (e.target.value.trim()) {
+                        setShowDropdown(true);
+                      }
                     }}
                     onKeyDown={handleKeyDown}
                     onFocus={() => {
-                      if (debouncedJobTitle.trim() && displayJobs.length > 0) {
+                      if (debouncedJobTitle.trim() && keywords.length > 0) {
                         setShowDropdown(true);
                       }
                     }}
                     className="border-0 rounded-none h-[71.11px] px-[17.78px] text-[14.22px] placeholder:text-[#8A8A8A] focus:ring-0"
                   />
-                  {/* Results Dropdown */}
-                  {showDropdown && (
+                  {/* Keyword Suggestions Dropdown */}
+                  {shouldShowDropdown && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-[300px] overflow-y-auto">
-                      {isLoadingJobs ? (
+                      {isLoadingKeywords ? (
                         <div className="p-4 flex items-center justify-center gap-2">
                           <Loader2 className="w-4 h-4 animate-spin text-purple" />
                           <Typography
@@ -225,77 +208,46 @@ export default function JobsHero() {
                             Searching...
                           </Typography>
                         </div>
-                      ) : displayJobs.length > 0 ? (
+                      ) : keywords.length > 0 ? (
                         <>
-                          {displayJobs.map((job, index) => {
-                            const locationStr =
-                              typeof job.location === "string"
-                                ? job.location
-                                : `${job.location?.city || ""} ${
-                                    job.location?.state || ""
-                                  }`.trim() || "Location not specified";
-                            return (
-                              <Link
-                                key={job._id}
-                                href={localePath(
-                                  `/jobs/listing?jobId=${job._id}`
-                                )}
-                                onClick={() => {
-                                  setShowDropdown(false);
-                                  setSelectedIndex(-1);
-                                }}
-                              >
-                                <div
-                                  className={`p-3 hover:bg-purple/5 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors ${
-                                    selectedIndex === index
-                                      ? "bg-purple/10"
-                                      : ""
-                                  }`}
-                                  onMouseEnter={() => setSelectedIndex(index)}
-                                >
-                                  <div className="flex items-start gap-3">
-                                    <Briefcase className="w-4 h-4 text-purple mt-0.5 flex-shrink-0" />
-                                    <div className="flex-1 min-w-0">
-                                      <Typography
-                                        variant="body-large"
-                                        className="font-semibold text-dark-blue line-clamp-1"
-                                      >
-                                        {job.title}
-                                      </Typography>
-                                      {job.organization?.tradeName ||
-                                      job.company ? (
-                                        <Typography
-                                          variant="body-small"
-                                          className="text-gray-600 line-clamp-1"
-                                        >
-                                          {job.organization?.tradeName ||
-                                            job.company}
-                                        </Typography>
-                                      ) : null}
-                                      {locationStr && (
-                                        <div className="flex items-center gap-1 mt-1">
-                                          <MapPin className="w-3 h-3 text-gray-400" />
-                                          <Typography
-                                            variant="body-small"
-                                            className="text-gray-500 text-xs"
-                                          >
-                                            {locationStr}
-                                          </Typography>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
+                          {keywords.slice(0, 5).map((keyword, index) => (
+                            <button
+                              key={`${keyword.name}-${index}`}
+                              onClick={() => handleKeywordClick(keyword.name)}
+                              className={`w-full p-3 hover:bg-purple/5 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors text-left ${
+                                selectedIndex === index ? "bg-purple/10" : ""
+                              }`}
+                              onMouseEnter={() => setSelectedIndex(index)}
+                            >
+                              <div className="flex items-start gap-3">
+                                <Search className="w-4 h-4 text-purple mt-0.5 flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <Typography
+                                    variant="body-large"
+                                    className="font-semibold text-dark-blue line-clamp-1"
+                                  >
+                                    {keyword.name}
+                                  </Typography>
+                                  {keyword.adCount !== undefined && (
+                                    <Typography
+                                      variant="body-small"
+                                      className="text-gray-500 text-xs mt-1"
+                                    >
+                                      {keyword.adCount} job
+                                      {keyword.adCount !== 1 ? "s" : ""} found
+                                    </Typography>
+                                  )}
                                 </div>
-                              </Link>
-                            );
-                          })}
-                          {jobs.length > 5 && (
+                              </div>
+                            </button>
+                          ))}
+                          {keywords.length > 5 && (
                             <div className="p-3 border-t border-gray-200 bg-gray-50">
                               <button
                                 onClick={handleSearch}
                                 className="w-full text-center text-purple font-semibold text-sm hover:underline"
                               >
-                                View all {jobs.length} results
+                                View all results for "{debouncedJobTitle}"
                               </button>
                             </div>
                           )}
@@ -306,7 +258,7 @@ export default function JobsHero() {
                             variant="body-small"
                             className="text-gray-500"
                           >
-                            No jobs found
+                            No suggestions found
                           </Typography>
                         </div>
                       ) : null}
@@ -350,9 +302,9 @@ export default function JobsHero() {
               {/* Search Button */}
               <Button
                 onClick={handleSearch}
-                disabled={isLoadingJobs}
+                disabled={isLoadingKeywords}
                 icon={
-                  isLoadingJobs ? (
+                  isLoadingKeywords ? (
                     <Loader2 className="w-[24.22px] h-[24.22px] animate-spin" />
                   ) : (
                     <Search className="w-[24.22px] h-[24.22px]" />
@@ -362,7 +314,7 @@ export default function JobsHero() {
                 className="bg-purple text-white rounded-none h-[71.11px] px-[24.89px] hover:bg-purple/90 flex items-center gap-[8.89px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="font-semibold text-base">
-                  {isLoadingJobs ? "Searching..." : "Search Job"}
+                  {isLoadingKeywords ? "Searching..." : "Search Job"}
                 </span>
               </Button>
             </div>

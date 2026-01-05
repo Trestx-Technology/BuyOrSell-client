@@ -180,6 +180,13 @@ export default function ConnectProfessionals({
                   professional={professional}
                   onConnect={handleConnect}
                   isConnected={isConnected}
+                  connectionStatus={
+                    profileItem?.connectionStatus as
+                      | "PENDING"
+                      | "ACCEPTED"
+                      | "REJECTED"
+                      | "APPROVED"
+                  }
                 />
               </motion.div>
             );

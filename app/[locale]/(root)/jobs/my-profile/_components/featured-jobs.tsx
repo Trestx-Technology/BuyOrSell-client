@@ -4,24 +4,19 @@ import { Typography } from "@/components/typography";
 import JobCard from "./job-card";
 import Link from "next/link";
 import JobsSectionTitle from "../../_components/jobs-section-title";
-import { JobData } from "@/interfaces/job.types";
-import { formatDistanceToNow } from "date-fns";
+import { useAds } from "@/hooks/useAds";
+import { AD } from "@/interfaces/ad";
+import { transformAdToJobCard } from "@/utils/transform-ad-to-job-card";
 
-interface FeaturedJobsProps {
-  featuredJobs?: {
-    page: number;
-    limit: number;
-    total: number;
-    items: JobData[];
-  };
-  isLoading?: boolean;
-}
+export default function FeaturedJobs() {
+  const { data: adsData, isLoading } = useAds({
+    isFeatured: true,
+    adType: "JOB",
+    limit: 4,
+    page: 1,
+  });
 
-export default function FeaturedJobs({
-  featuredJobs: featuredJobsData,
-  isLoading,
-}: FeaturedJobsProps) {
-  const jobs = featuredJobsData?.items || [];
+  const jobs = (adsData?.data?.adds || adsData?.data?.ads || []) as AD[];
 
   if (isLoading) {
     return (
@@ -63,21 +58,7 @@ export default function FeaturedJobs({
           {/* Jobs Grid */}
           <div className="flex flex-wrap gap-5">
             {jobs.map((job) => {
-              const jobCardProps = {
-                id: job._id,
-                title: job.title,
-                company: job.organization?.tradeName || job.company || "",
-                experience: job.experience || "",
-                salaryMin: job.salaryMin || 0,
-                salaryMax: job.salaryMax || 0,
-                location: job.location || "",
-                jobType: job.jobType || "",
-                postedTime: job.postedAt
-                  ? formatDistanceToNow(new Date(job.postedAt), {
-                      addSuffix: true,
-                    })
-                  : "",
-              };
+              const jobCardProps = transformAdToJobCard(job);
               return (
                 <JobCard
                   key={job._id}

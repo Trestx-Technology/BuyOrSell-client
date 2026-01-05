@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { useGetJobApplicants } from "@/hooks/useJobApplications";
 import {
   ResponsiveModal,
@@ -34,9 +35,22 @@ export default function JobApplicantsModal({
   const applicants = applicantsData?.data?.items || [];
   const pagination = applicantsData?.data;
 
-  // Get avatars from applicants
-  const avatars = applicants.slice(0, 3).map((applicant) => {
-    const profileName = applicant.applicantProfileId?.name || "Unknown User";
+  // Get avatars from applicants - use real profile images if available
+  const avatars: string[] = applicants.slice(0, 3).map((applicant) => {
+    const profile = applicant.applicantProfileId;
+    // Check for photoUrl in the profile (it exists in API response but not in TypeScript interface)
+    const photoUrl =
+      profile && typeof profile === "object" && "photoUrl" in profile
+        ? (profile as { photoUrl?: string }).photoUrl
+        : undefined;
+    const profileName = profile?.name || "Unknown User";
+
+    // Use real photo if available, otherwise fallback to generated avatar
+    if (photoUrl) {
+      return photoUrl;
+    }
+
+    // Fallback to generated avatar if no photo
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(
       profileName
     )}&background=random`;

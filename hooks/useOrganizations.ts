@@ -18,7 +18,7 @@ import {
   getFollowersCount,
   bulkApproveOrganizations,
   bulkRejectOrganizations,
-} from '@/app/api/organization/organization.services';
+} from "@/app/api/organization/organization.services";
 import {
   CreateOrganizationPayload,
   UpdateOrganizationPayload,
@@ -30,9 +30,9 @@ import {
   BulkRejectPayload,
   BlockHistoryItem,
   OrganizationFollower,
-} from '@/interfaces/organization.types';
-import { organizationQueries } from '@/app/api/organization/index';
-import { useAuthStore } from '@/stores/authStore';
+} from "@/interfaces/organization.types";
+import { organizationQueries } from "@/app/api/organization/index";
+import { useAuthStore } from "@/stores/authStore";
 
 // ============================================================================
 // QUERY HOOKS
@@ -66,13 +66,13 @@ export const useOrganizationById = (id: string) => {
 };
 
 // Get my organization
-export const useMyOrganization = () => {
+export const useMyOrganization = (enabled?: boolean) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  
+
   return useQuery<OrganizationResponse, Error>({
     queryKey: [...organizationQueries.getMyOrganization.Key],
     queryFn: () => getMyOrganization(),
-    enabled: isAuthenticated,
+    enabled: isAuthenticated || !enabled,
   });
 };
 
@@ -83,12 +83,14 @@ export const useMyOrganization = () => {
 // Create organization
 export const useCreateOrganization = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<OrganizationResponse, Error, CreateOrganizationPayload>({
     mutationFn: createOrganization,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
-      queryClient.invalidateQueries({ queryKey: organizationQueries.getMyOrganization.Key });
+      queryClient.invalidateQueries({
+        queryKey: organizationQueries.getMyOrganization.Key,
+      });
     },
   });
 };
@@ -96,7 +98,7 @@ export const useCreateOrganization = () => {
 // Update organization
 export const useUpdateOrganization = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<
     OrganizationResponse,
     Error,
@@ -118,11 +120,13 @@ export const useUpdateOrganization = () => {
 // Update my organization
 export const useUpdateMyOrganization = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<OrganizationResponse, Error, UpdateOrganizationPayload>({
     mutationFn: updateMyOrganization,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: organizationQueries.getMyOrganization.Key });
+      queryClient.invalidateQueries({
+        queryKey: organizationQueries.getMyOrganization.Key,
+      });
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
     },
   });
@@ -131,7 +135,7 @@ export const useUpdateMyOrganization = () => {
 // Delete organization
 export const useDeleteOrganization = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<
     { statusCode: number; timestamp: string; message?: string },
     Error,
@@ -140,7 +144,9 @@ export const useDeleteOrganization = () => {
     mutationFn: deleteOrganization,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
-      queryClient.invalidateQueries({ queryKey: organizationQueries.getMyOrganization.Key });
+      queryClient.invalidateQueries({
+        queryKey: organizationQueries.getMyOrganization.Key,
+      });
     },
   });
 };
@@ -148,12 +154,12 @@ export const useDeleteOrganization = () => {
 // Approve organization (Admin only)
 export const useApproveOrganization = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<OrganizationResponse, Error, string>({
     mutationFn: approveOrganization,
     onSuccess: (_, id) => {
-      queryClient.invalidateQueries({ 
-        queryKey: organizationQueries.getOrganizationById(id).Key 
+      queryClient.invalidateQueries({
+        queryKey: organizationQueries.getOrganizationById(id).Key,
       });
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
     },
@@ -163,16 +169,17 @@ export const useApproveOrganization = () => {
 // Reject organization (Admin only)
 export const useRejectOrganization = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<
     OrganizationResponse,
     Error,
     { id: string; rejectionReason?: string }
   >({
-    mutationFn: ({ id, rejectionReason }) => rejectOrganization(id, { rejectionReason }),
+    mutationFn: ({ id, rejectionReason }) =>
+      rejectOrganization(id, { rejectionReason }),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ 
-        queryKey: organizationQueries.getOrganizationById(variables.id).Key 
+      queryClient.invalidateQueries({
+        queryKey: organizationQueries.getOrganizationById(variables.id).Key,
       });
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
     },
@@ -182,14 +189,16 @@ export const useRejectOrganization = () => {
 // Submit organization for review
 export const useSubmitOrganization = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<OrganizationResponse, Error, string>({
     mutationFn: submitOrganization,
     onSuccess: (_, id) => {
-      queryClient.invalidateQueries({ 
-        queryKey: organizationQueries.getOrganizationById(id).Key 
+      queryClient.invalidateQueries({
+        queryKey: organizationQueries.getOrganizationById(id).Key,
       });
-      queryClient.invalidateQueries({ queryKey: organizationQueries.getMyOrganization.Key });
+      queryClient.invalidateQueries({
+        queryKey: organizationQueries.getMyOrganization.Key,
+      });
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
     },
   });
@@ -198,7 +207,7 @@ export const useSubmitOrganization = () => {
 // Block organization
 export const useBlockOrganization = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<
     OrganizationResponse,
     Error,
@@ -206,8 +215,8 @@ export const useBlockOrganization = () => {
   >({
     mutationFn: ({ id, data }) => blockOrganization(id, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ 
-        queryKey: organizationQueries.getOrganizationById(variables.id).Key 
+      queryClient.invalidateQueries({
+        queryKey: organizationQueries.getOrganizationById(variables.id).Key,
       });
       queryClient.invalidateQueries({
         queryKey: organizationQueries.getBlockHistory(variables.id).Key,
@@ -237,7 +246,7 @@ export const useBlockHistory = (id: string) => {
 // Follow an organization
 export const useFollowOrganization = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<OrganizationResponse, Error, string>({
     mutationFn: followOrganization,
     onSuccess: (_, id) => {
@@ -255,7 +264,7 @@ export const useFollowOrganization = () => {
 // Unfollow an organization
 export const useUnfollowOrganization = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<OrganizationResponse, Error, string>({
     mutationFn: unfollowOrganization,
     onSuccess: (_, id) => {
@@ -316,7 +325,7 @@ export const useFollowersCount = (id: string) => {
 // Bulk approve submitted organizations (Admin only)
 export const useBulkApproveOrganizations = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<
     {
       statusCode: number;
@@ -337,7 +346,7 @@ export const useBulkApproveOrganizations = () => {
 // Bulk reject submitted organizations (Admin only)
 export const useBulkRejectOrganizations = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<
     {
       statusCode: number;
@@ -354,4 +363,3 @@ export const useBulkRejectOrganizations = () => {
     },
   });
 };
-

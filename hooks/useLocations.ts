@@ -18,10 +18,10 @@ import { locationQueries } from "@/app/api/location/index";
 // QUERY HOOKS
 // ============================================================================
 
-export const useEmirates = () => {
+export const useEmirates = (params?: { search?: string }) => {
   return useQuery<LocationApiResponse, Error, Emirate[]>({
-    queryKey: locationQueries.emirates.Key,
-    queryFn: getEmirates,
+    queryKey: [...locationQueries.emirates.Key, params],
+    queryFn: () => getEmirates(params),
     select: (data: LocationApiResponse) => {
       // Handle both object array and string array formats
       const rawData = data.data || [];

@@ -17,6 +17,7 @@ import {
   useDeleteSavedJobByJobAndSeeker,
 } from "@/hooks/useSavedJobs";
 import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
+import Image from "next/image";
 
 export interface JobHeaderCardProps {
   job: AD;
@@ -26,6 +27,7 @@ export interface JobHeaderCardProps {
   isApplied?: boolean;
   isApplying?: boolean;
   logo?: string;
+  className?: string;
 }
 
 export default function JobHeaderCard({
@@ -36,6 +38,7 @@ export default function JobHeaderCard({
   isApplied = false,
   isApplying = false,
   logo,
+  className,
 }: JobHeaderCardProps) {
   const { session } = useAuthStore();
   const currentUserId = session.user?._id;
@@ -102,6 +105,80 @@ export default function JobHeaderCard({
       ? job.location
       : job.location?.city || job.address?.city || "";
 
+  // Build map redirect URL
+  const getMapUrl = (): string | null => {
+    // Get location object
+    const locationObj =
+      typeof job.location === "object" ? job.location : job.address;
+
+    if (!locationObj) return null;
+
+    // Detect iOS for Apple Maps (only in browser)
+    const isIOS =
+      typeof window !== "undefined" &&
+      (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+
+    // Check if coordinates are available
+    const coordinates = locationObj.coordinates;
+    if (
+      Array.isArray(coordinates) &&
+      coordinates.length === 2 &&
+      typeof coordinates[0] === "number" &&
+      typeof coordinates[1] === "number"
+    ) {
+      const [lat, lng] = coordinates;
+
+      // Build address label for better map display
+      const addressLabel =
+        locationObj.address ||
+        [locationObj.city, locationObj.state, locationObj.country]
+          .filter(Boolean)
+          .join(", ") ||
+        location ||
+        "";
+
+      if (isIOS) {
+        // Apple Maps URL using coordinates
+        return `https://maps.apple.com/?ll=${lat},${lng}&q=${encodeURIComponent(
+          addressLabel
+        )}`;
+      } else {
+        // Google Maps URL using coordinates
+        return `https://www.google.com/maps?q=${lat},${lng}&hl=en`;
+      }
+    }
+
+    // Fallback: Build address string from all available fields
+    const addressParts: string[] = [];
+    if (locationObj.address) addressParts.push(locationObj.address);
+    if (locationObj.city) addressParts.push(locationObj.city);
+    if (locationObj.state) addressParts.push(locationObj.state);
+    if (locationObj.zipCode) addressParts.push(locationObj.zipCode);
+    if (locationObj.country) addressParts.push(locationObj.country);
+
+    const fullAddress =
+      addressParts.join(", ") ||
+      (typeof job.location === "string" ? job.location : location);
+
+    if (!fullAddress) return null;
+
+    if (isIOS) {
+      // Apple Maps URL using address
+      return `https://maps.apple.com/?q=${encodeURIComponent(fullAddress)}`;
+    } else {
+      // Google Maps URL using address
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        fullAddress
+      )}`;
+    }
+  };
+
+  const mapUrl = React.useMemo(
+    () => getMapUrl(),
+    [job.location, job.address, location]
+  );
+
   const handleApply = () => {
     if (onApply) {
       onApply(job._id);
@@ -129,11 +206,6 @@ export default function JobHeaderCard({
           onSuccess: () => {
             toast.success("Job removed from saved jobs");
           },
-          onError: (error) => {
-            toast.error(
-              error instanceof Error ? error.message : "Failed to unsave job"
-            );
-          },
         }
       );
     } else {
@@ -147,11 +219,6 @@ export default function JobHeaderCard({
           onSuccess: () => {
             toast.success("Job saved successfully");
           },
-          onError: (error) => {
-            toast.error(
-              error instanceof Error ? error.message : "Failed to save job"
-            );
-          },
         }
       );
     }
@@ -163,7 +230,12 @@ export default function JobHeaderCard({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E2E2E2] p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] relative">
+    <div
+      className={cn(
+        "bg-white rounded-2xl border border-[#E2E2E2] p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] relative",
+        className
+      )}
+    >
       {/* Share and Save Buttons - Top Right */}
       <div className="absolute top-4 right-4 flex items-center gap-4">
         <ShareJobDialog
@@ -197,17 +269,13 @@ export default function JobHeaderCard({
 
       <div className="flex gap-2">
         {companyLogo ? (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="text-purple rounded-full"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M12 2a9.96 9.96 0 0 1 6.29 2.226a1 1 0 0 1 .04 1.52l-1.51 1.362a1 1 0 0 1 -1.265 .06a6 6 0 1 0 2.103 6.836l.001 -.004h-3.66a1 1 0 0 1 -.992 -.883l-.007 -.117v-2a1 1 0 0 1 1 -1h6.945a1 1 0 0 1 .994 .89c.04 .367 .061 .737 .061 1.11c0 5.523 -4.477 10 -10 10s-10 -4.477 -10 -10s4.477 -10 10 -10z" />
-          </svg>
+          <Image
+            src={companyLogo}
+            alt={companyName}
+            width={36}
+            height={36}
+            className="rounded-lg object-cover size-16"
+          />
         ) : (
           <div className="w-12 h-12 rounded-lg bg-purple flex items-center justify-center flex-shrink-0">
             <span className="text-white text-lg font-semibold">
@@ -250,7 +318,10 @@ export default function JobHeaderCard({
           </div>
 
           {/* Job Metadata Grid - Two Column Layout */}
-          <div className="flex gap-8">
+          <div
+            className="flex items-center
+           gap-y-4 gap-8 flex-wrap"
+          >
             <div className="flex items-center gap-2">
               <Briefcase className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
               <Typography
@@ -286,15 +357,33 @@ export default function JobHeaderCard({
                 </Typography>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
-              <Typography
-                variant="body-small"
-                className="text-[#1D2939] text-xs font-medium"
+            {location && mapUrl ? (
+              <a
+                href={mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity text-purple"
               >
-                {location || "Location not specified"}
-              </Typography>
-            </div>
+                <MapPin className="w-5 h-5 flex-shrink-0" />
+                <Typography
+                  variant="body-small"
+                  className="text-xs font-medium"
+                >
+                  {location}
+                </Typography>
+              </a>
+            ) : (
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
+                <Typography
+                  variant="body-small"
+                  className="text-[#1D2939] text-xs font-medium"
+                >
+                  {location || "Location not specified"}
+                </Typography>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}

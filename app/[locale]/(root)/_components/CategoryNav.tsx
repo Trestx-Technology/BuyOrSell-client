@@ -6,12 +6,7 @@ import {
   ChevronRight,
   ArrowRight,
   Heart,
-  Bell,
   MapPin,
-  Clock,
-  X,
-  Briefcase,
-  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,11 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
 import Link from "next/link";
 import { useMediaQuery } from "usehooks-ts";
 import { motion, AnimatePresence } from "framer-motion";
@@ -35,95 +26,18 @@ import { SubCategory } from "@/interfaces/categories.types";
 import Image from "next/image";
 import { SearchAnimated } from "@/components/global/ai-search-bar";
 import { useRouter } from "nextjs-toploader/app";
+import { usePathname } from "next/navigation";
 import { useLocale } from "@/hooks/useLocale";
 import { Typography } from "@/components/typography";
 import SearchHistoryPopover from "../user/search-history/_components/SearchHistoryPopover";
 import NotificationsPopover from "../user/notifications/_components/NotificationsPopover";
-
-// ============================================================================
-// ANIMATION VARIANTS
-// ============================================================================
-// Framer Motion animation variants for smooth transitions
-// Using improved patterns from AI search bar for consistency
-
-/**
- * Container animation for the main category buttons
- * Optimized for faster initial load - reduced delays
- */
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.03,
-      delayChildren: 0.05, // Reduced from 0.3 for faster load
-    },
-  },
-};
-
-/**
- * Individual item animation (category buttons, dropdown items)
- * Optimized spring animation - faster and smoother
- */
-const itemVariants = {
-  hidden: { opacity: 0, y: 8 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "tween" as const,
-      duration: 0.2,
-      ease: [0.4, 0, 0.2, 1] as const,
-    },
-  },
-};
-
-/**
- * Dropdown container animation
- * Faster, simpler animation using transforms for better performance
- */
-const dropdownVariants = {
-  hidden: {
-    opacity: 0,
-    y: 5,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "tween" as const,
-      duration: 0.2,
-      ease: [0.4, 0, 0.2, 1] as const,
-      staggerChildren: 0.02,
-      delayChildren: 0.05,
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: 5,
-    transition: {
-      duration: 0.15,
-      ease: [0.4, 0, 1, 1] as const,
-    },
-  },
-};
-
-/**
- * Subcategory panel animation
- * Simplified horizontal slide - faster transition
- */
-const subcategoryVariants = {
-  hidden: { opacity: 0, x: -5 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: {
-      type: "tween" as const,
-      duration: 0.2,
-      ease: [0.4, 0, 0.2, 1] as const,
-    },
-  },
-};
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  fastContainerVariants,
+  fastItemVariants,
+  dropdownVariants,
+  subcategoryVariants,
+} from "@/utils/animation-variants";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -172,11 +86,21 @@ interface SubcategoryPanelProps {
 const categoryUrlCache = new Map<string, string>();
 
 /**
+ * Check if a category name is Jobs/Job (case-insensitive)
+ */
+const isJobsCategoryName = (categoryName: string): boolean => {
+  const name = categoryName.toLowerCase();
+  return name === "jobs" || name === "job";
+};
+
+/**
  * Builds a category URL path including parent name if parent exists
  * Optimized with memoization to prevent repeated expensive recursive searches
+ * For Jobs subcategories, redirects to /jobs/listing/[...slug]
+ * For other categories, uses /categories/[...slug]
  * @param category - The category/subcategory to build URL for
  * @param allCategories - All main categories to search for parent (including nested children)
- * @returns URL path like "/categories/parentName/categoryName" or "/categories/categoryName"
+ * @returns URL path like "/categories/parentName/categoryName" or "/jobs/listing/categoryName"
  */
 const buildCategoryUrl = (
   category: SubCategory,
@@ -227,20 +151,63 @@ const buildCategoryUrl = (
     return null;
   };
 
-  // Helper function to build the full path recursively
-  const buildPathRecursive = (
+  // Helper function to check if category is a Jobs subcategory by checking all parents
+  const isJobsSubcategory = (
     cat: SubCategory,
     categories: SubCategory[]
+  ): boolean => {
+    // Don't check if this category itself is Jobs (that's handled separately)
+    // Only check if it has Jobs as a parent
+
+    // Check parentID
+    if (cat.parentID) {
+      const parent = findCategoryById(categories, cat.parentID);
+      if (parent && isJobsCategoryName(parent.name)) {
+        return true;
+      }
+      // Recursively check parent's parents
+      if (parent && isJobsSubcategory(parent, categories)) {
+        return true;
+      }
+    }
+
+    // Check direct parent
+    const directParent = findDirectParent(categories, cat._id);
+    if (directParent) {
+      if (isJobsCategoryName(directParent.name)) {
+        return true;
+      }
+      // Recursively check parent's parents
+      if (isJobsSubcategory(directParent, categories)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  // Helper function to build the full path recursively (excluding Jobs parent)
+  const buildPathRecursive = (
+    cat: SubCategory,
+    categories: SubCategory[],
+    excludeJobs: boolean = false
   ): string[] => {
-    const path: string[] = [cat.name];
+    const path: string[] = [];
+
+    // If excluding Jobs and this is Jobs category, don't add it to path
+    if (excludeJobs && isJobsCategoryName(cat.name)) {
+      return path;
+    }
+
+    path.push(cat.name);
 
     // First try parentID if it exists
     if (cat.parentID) {
       const parent = findCategoryById(categories, cat.parentID);
       if (parent) {
         // Recursively build parent's path and prepend it
-        const parentPath = buildPathRecursive(parent, categories);
-        return [...parentPath, cat.name];
+        const parentPath = buildPathRecursive(parent, categories, excludeJobs);
+        return [...parentPath, ...path];
       }
     }
 
@@ -248,17 +215,39 @@ const buildCategoryUrl = (
     const directParent = findDirectParent(categories, cat._id);
     if (directParent) {
       // Recursively build parent's path and prepend it
-      const parentPath = buildPathRecursive(directParent, categories);
-      return [...parentPath, cat.name];
+      const parentPath = buildPathRecursive(
+        directParent,
+        categories,
+        excludeJobs
+      );
+      return [...parentPath, ...path];
     }
 
     // No parent found, return just this category
     return path;
   };
 
+  // Check if this is the Jobs category itself
+  const isJobsCat = isJobsCategoryName(category.name);
+
+  // If it's the Jobs category itself, redirect to /jobs
+  if (isJobsCat) {
+    const url = `/jobs`;
+    categoryUrlCache.set(cacheKey, url);
+    return url;
+  }
+
+  // Check if this is a Jobs subcategory (has Jobs as parent)
+  const isJobSub = isJobsSubcategory(category, allCategories);
+
   // Build the full path
-  const pathNames = buildPathRecursive(category, allCategories);
-  const url = `/categories/${pathNames.join("/")}`;
+  const pathNames = buildPathRecursive(category, allCategories, isJobSub);
+
+  // For Jobs subcategories, use /jobs/listing/[...slug]
+  // For other categories, use /categories/[...slug]
+  const url = isJobSub
+    ? `/jobs/listing/${pathNames.join("/")}`
+    : `/categories/${pathNames.join("/")}`;
 
   // Cache the result
   categoryUrlCache.set(cacheKey, url);
@@ -361,7 +350,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                           ? child.nameAr || child.name
                           : child.name;
                       return (
-                        <motion.div key={child._id} variants={itemVariants}>
+                        <motion.div key={child._id} variants={fastItemVariants}>
                           {/* Display child as a simple link - include parent (subcategory) in URL */}
                           <Link
                             href={buildCategoryUrl(child, allCategories)}
@@ -448,7 +437,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                   return (
                     <motion.div
                       key={category._id}
-                      variants={itemVariants}
+                      variants={fastItemVariants}
                       className="flex items-center justify-between p-3 hover:bg-purple/10 cursor-pointer transition-colors group"
                       onClick={() => onCategoryHover(category)}
                     >
@@ -490,7 +479,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                     return (
                       <motion.div
                         key={category._id}
-                        variants={itemVariants}
+                        variants={fastItemVariants}
                         onMouseEnter={() => onCategoryHover(null)}
                       >
                         <Link
@@ -520,7 +509,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
                   return (
                     <motion.div
                       key={category._id}
-                      variants={itemVariants}
+                      variants={fastItemVariants}
                       className={cn(
                         "flex items-center text-xs justify-between p-3 hover:bg-purple/10 hover:text-purple cursor-pointer transition-colors group",
                         isActive && "bg-purple/10 text-purple"
@@ -623,8 +612,9 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   // ========================================================================
 
   // Mobile detection for responsive behavior
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useIsMobile();
   const router = useRouter();
+  const pathname = usePathname();
   const { locale } = useLocale();
 
   // Fetch main categories from API
@@ -641,29 +631,75 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   // Number of main categories to show before "Other" dropdown
   const VISIBLE_CATEGORIES_COUNT = 6;
 
+  const VISIBLE_JOBS_CATEGORIES_COUNT = 5;
+
   // ========================================================================
   // DATA TRANSFORMATION
   // ========================================================================
+
+  /**
+   * Check if we're on the /jobs route
+   */
+  const isJobsPage = pathname?.includes("/jobs");
+
+  /**
+   * Find the Jobs category from the categories data
+   */
+  const jobsCategory = useMemo(() => {
+    if (!categoriesData || !isJobsPage) return null;
+
+    // Search for Jobs/Job category (case-insensitive)
+    const findJobsCategory = (
+      categories: SubCategory[]
+    ): SubCategory | null => {
+      for (const category of categories) {
+        const categoryName = category.name.toLowerCase();
+        if (categoryName === "jobs" || categoryName === "job") {
+          return category;
+        }
+        // Recursively search in children
+        if (category.children && category.children.length > 0) {
+          const found = findJobsCategory(category.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    return findJobsCategory(categoriesData);
+  }, [categoriesData, isJobsPage]);
+
+  /**
+   * Get the categories to display - Jobs subcategories if on /jobs, otherwise main categories
+   */
+  const categoriesToDisplay = useMemo(() => {
+    if (isJobsPage && jobsCategory?.children) {
+      // On /jobs page, show Jobs subcategories
+      return jobsCategory.children;
+    }
+    // Otherwise, show main categories
+    return categoriesData || [];
+  }, [isJobsPage, jobsCategory, categoriesData]);
 
   /**
    * Transform API data to match component's expected structure
    * Maps category objects to { type: id, label: name } format
    */
   const transformedCategories: { type: string; label: string }[] =
-    categoriesData?.map((category: SubCategory) => {
+    categoriesToDisplay.map((category: SubCategory) => {
       const isArabic = locale === "ar";
       return {
         type: category._id,
         label: isArabic ? category.nameAr || category.name : category.name,
       };
-    }) || [];
+    });
 
   /**
    * Split categories into visible (first 6) and "other" (remaining)
    */
   const visibleCategoriesList = transformedCategories.slice(
     0,
-    VISIBLE_CATEGORIES_COUNT
+    isJobsPage ? VISIBLE_JOBS_CATEGORIES_COUNT : VISIBLE_CATEGORIES_COUNT
   );
   const otherCategories = transformedCategories.slice(VISIBLE_CATEGORIES_COUNT);
 
@@ -762,19 +798,21 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
    * Memoized for performance
    */
   const getCurrentCategoryData = useMemo((): SubCategory[] => {
-    if (!activeCategoryType || !categoriesData) return [];
+    if (!activeCategoryType || !categoriesToDisplay) return [];
 
     // Special case: "Other" category shows remaining categories
     if (activeCategoryType === "other") {
-      return categoriesData.slice(VISIBLE_CATEGORIES_COUNT);
+      return categoriesToDisplay.slice(VISIBLE_CATEGORIES_COUNT);
     }
 
-    // Find the main category and return its children (subcategories)
-    const mainCategory = categoriesData.find(
-      (category: SubCategory) => category._id === activeCategoryType
+    // Find the category and return its children (subcategories)
+    // On /jobs page, categoriesToDisplay contains Jobs subcategories
+    // On other pages, categoriesToDisplay contains main categories
+    const category = categoriesToDisplay.find(
+      (cat: SubCategory) => cat._id === activeCategoryType
     );
-    return mainCategory?.children || [];
-  }, [activeCategoryType, categoriesData]);
+    return category?.children || [];
+  }, [activeCategoryType, categoriesToDisplay]);
 
   // ========================================================================
   // LOADING COMPONENT
@@ -830,7 +868,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
             /* Categories List */
             <motion.div
               className="hidden w-full md:flex flex-1 items-center justify-between"
-              variants={containerVariants}
+              variants={fastContainerVariants}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
@@ -839,7 +877,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
               {visibleCategoriesList.map(({ type, label }) => (
                 <motion.div
                   key={type}
-                  variants={itemVariants}
+                  variants={fastItemVariants}
                   className="lg:relative"
                 >
                   <CategoryButton
@@ -863,7 +901,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
 
               {/* "Other" Categories Dropdown */}
               {otherCategories.length > 0 && (
-                <motion.div variants={itemVariants} className="lg:relative">
+                <motion.div variants={fastItemVariants} className="lg:relative">
                   <CategoryButton
                     categoryType="other"
                     label="Other"
@@ -1040,6 +1078,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
 
                 {/* Map View Button */}
                 <motion.div
+                  hidden={isJobsPage}
                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{

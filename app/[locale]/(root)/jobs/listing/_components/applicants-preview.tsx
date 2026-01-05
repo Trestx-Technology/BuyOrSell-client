@@ -14,7 +14,7 @@ const ApplicantsPreview = ({
     "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
     "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop&crop=face",
   ],
-  count = 120,
+  count,
   onViewClick,
 }: ApplicantsPreviewProps) => {
   return (
@@ -37,14 +37,18 @@ const ApplicantsPreview = ({
         ))}
       </div>
 
-      <span className="text-grey-blue text-xs font-medium">+{count}</span>
+      {count && (
+        <span className="text-grey-blue text-xs font-medium">+{count}</span>
+      )}
 
-      <button
-        onClick={onViewClick}
-        className="text-purple text-xs font-semibold hover:text-purple/80 transition-colors cursor-pointer"
-      >
-        View Applicants
-      </button>
+      {count && (
+        <button
+          onClick={onViewClick}
+          className="text-purple text-xs font-semibold hover:text-purple/80 transition-colors cursor-pointer"
+        >
+          View Applicants
+        </button>
+      )}
     </div>
   );
 };

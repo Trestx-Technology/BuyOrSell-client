@@ -8,9 +8,12 @@ import { locationQueries } from './index';
 import { axiosInstance } from '@/services/axios-api-client';
 
 // Get all emirates
-export const getEmirates = async (): Promise<LocationApiResponse> => {
+export const getEmirates = async (
+  params?: { search?: string }
+): Promise<LocationApiResponse> => {
   const response = await axiosInstance.get<LocationApiResponse>(
     locationQueries.emirates.endpoint,
+    { params },
   );
   return response.data;
 };

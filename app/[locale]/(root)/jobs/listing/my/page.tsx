@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Typography } from "@/components/typography";
 import { useMyAds, useAdById } from "@/hooks/useAds";
@@ -9,25 +9,23 @@ import { JobData } from "@/interfaces/job.types";
 import { formatDistanceToNow } from "date-fns";
 import JobListingCard from "../_components/job-listing-card";
 import JobHeaderCard from "../_components/job-header-card";
+import MobileJobHeaderCard from "../_components/mobile-job-header-card";
 import JobDetailContent from "../_components/job-detail-content";
 import Disclaimer from "../_components/disclaimer";
 import Pagination from "@/components/global/pagination";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
+import router from "next/router";
+import { useRouter } from "nextjs-toploader/app";
 
 const ITEMS_PER_PAGE = 12;
-
-// Helper function to safely get string value from filter
-const getFilterString = (value: string | string[] | undefined): string => {
-  if (!value) return "";
-  return Array.isArray(value) ? value[0] || "" : value;
-};
 
 export default function MyJobsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-
+  const router = useRouter();
   // Build API params for useMyAds - always use adType: "JOB"
   const myAdsParams = useMemo<AdFilters>(() => {
     return {
@@ -46,13 +44,6 @@ export default function MyJobsPage() {
   );
   const totalItems = adsData?.data?.total || jobs.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-
-  // Set selected job when jobs are loaded
-  useEffect(() => {
-    if (jobs.length > 0 && !selectedJobId) {
-      setSelectedJobId(jobs[0]._id);
-    }
-  }, [jobs.length, selectedJobId, jobs]);
 
   // Fetch job details by ID using API
   const {
@@ -96,79 +87,6 @@ export default function MyJobsPage() {
     },
     []
   );
-
-  // Transform AD to JobData
-  const transformAdToJobData = (ad: AD): JobData => {
-    const extraFields = Array.isArray(ad.extraFields)
-      ? ad.extraFields
-      : Object.entries(ad.extraFields || {}).map(([name, value]) => ({
-          name,
-          value,
-        }));
-
-    const getFieldValue = (fieldName: string): string => {
-      const field = extraFields.find((f) =>
-        f.name?.toLowerCase().includes(fieldName.toLowerCase())
-      );
-      if (field) {
-        if (Array.isArray(field.value)) {
-          return field.value.join(", ");
-        }
-        return String(field.value || "");
-      }
-      return "";
-    };
-
-    const getSalaryFromAd = (type: "min" | "max"): number | undefined => {
-      const salaryField = extraFields.find(
-        (field) =>
-          field.name?.toLowerCase().includes("salary") &&
-          (type === "min"
-            ? field.name?.toLowerCase().includes("min")
-            : field.name?.toLowerCase().includes("max"))
-      );
-      if (salaryField && typeof salaryField.value === "number") {
-        return salaryField.value;
-      }
-      return type === "min" ? ad.price : ad.price;
-    };
-
-    return {
-      _id: ad._id,
-      title: ad.title || "",
-      description: ad.description || "",
-      company: ad.organization?.tradeName || ad.organization?.legalName || "",
-      organization: ad.organization as JobData["organization"],
-      location:
-        typeof ad.location === "string"
-          ? ad.location
-          : ad.location?.city || ad.address?.city || "",
-      jobType: getFieldValue("jobType") || getFieldValue("job type") || "",
-      workMode: getFieldValue("workMode") || getFieldValue("work mode") || "",
-      experience: getFieldValue("experience") || "",
-      salaryMin: getSalaryFromAd("min"),
-      salaryMax: getSalaryFromAd("max"),
-      skills: getFieldValue("skills")
-        ? getFieldValue("skills")
-            .split(/[,;]/)
-            .map((s) => s.trim())
-            .filter(Boolean)
-        : [],
-      benefits: getFieldValue("benefits")
-        ? getFieldValue("benefits")
-            .split(/[,;]/)
-            .map((s) => s.trim())
-            .filter(Boolean)
-        : [],
-      postedAt: ad.createdAt,
-      expiresAt: (ad as { expiresAt?: string }).expiresAt,
-      isFeatured: ad.isFeatured,
-      views: ad.views,
-      applicationsCount: undefined,
-      status: ad.status || "active",
-      extraFields: ad.extraFields as Record<string, unknown>,
-    };
-  };
 
   // Transform AD to JobCard props (kept for backward compatibility with other components)
   const transformAdToJobCardProps = (ad: AD) => {
@@ -237,119 +155,141 @@ export default function MyJobsPage() {
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { id: "jobs", label: "Jobs", href: "/jobs" },
-    { id: "listing", label: "Listing", href: "/jobs/listing" },
+    // { id: "listing", label: "Listing", href: "/jobs/listing" },
     { id: "my", label: "My Jobs", href: "/jobs/listing/my", isActive: true },
   ];
 
   return (
-    <Container1080 className="py-6 space-y-6">
-      <Breadcrumbs
-        className="hidden sm:flex"
-        showHomeIcon={false}
-        items={breadcrumbItems}
-        showSelectCategoryLink={false}
-      />
+    <Container1080>
+      <MobileStickyHeader title="My Jobs" />
+      <div className="w-full p-4">
+        <Breadcrumbs
+          className="hidden sm:flex"
+          showHomeIcon={true}
+          homeHref="/"
+          homeLabel="Home"
+          items={breadcrumbItems}
+          showSelectCategoryLink={false}
+        />
 
-      {/* Page Header */}
-      <div className="flex items-center justify-between mb-6">
-        <Typography variant="md-black-inter" className="font-semibold">
-          My Jobs ({jobs.length})
-        </Typography>
+        {/* Page Header */}
+        <div className="flex items-center justify-between mt-3 mb-6">
+          <Typography variant="md-black-inter" className="font-semibold">
+            My Jobs ({jobs.length})
+          </Typography>
 
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => {
-            console.log("");
-          }}
-          icon={<PlusIcon />}
-          iconPosition="left"
-        >
-          Create Job
-        </Button>
-      </div>
-
-      {/* Jobs Listing Layout - Two Column View */}
-      {isLoading ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">Loading jobs...</p>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              router.push("/post-ad/");
+            }}
+            icon={<PlusIcon />}
+            iconPosition="left"
+          >
+            Create Job
+          </Button>
         </div>
-      ) : jobs.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No jobs found.</p>
-        </div>
-      ) : (
-        <div className="bg-[#F9FAFC] min-h-screen">
-          <div className="max-w-[1080px] mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-[256px_1fr] gap-[19px]">
-              {/* Left Column - Job Listings Sidebar */}
-              <div className="space-y-[19px]">
-                {jobs.map((job) => (
-                  <JobListingCard
-                    key={job._id}
-                    job={job}
-                    isSelected={selectedJobId === job._id}
-                    onClick={() => setSelectedJobId(job._id)}
-                    transformAdToJobCardProps={transformAdToJobCardProps}
+
+        {/* Jobs Listing Layout - Two Column View */}
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">Loading jobs...</p>
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No jobs found.</p>
+          </div>
+        ) : (
+          <div className="flex items-start gap-5">
+            {/* Left Column - Job Listings Sidebar */}
+            {/* On md: hide when job is selected, show when no selection. On lg+: always show */}
+            <div
+              className={`space-y-5 w-full  gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:min-w-[256px] ${
+                selectedJobId ? "hidden md:block" : ""
+              }`}
+            >
+              {jobs.map((job) => (
+                <JobListingCard
+                  key={job._id}
+                  job={job}
+                  isSelected={selectedJobId === job._id}
+                  onClick={() => setSelectedJobId(job._id)}
+                  transformAdToJobCardProps={transformAdToJobCardProps}
+                />
+              ))}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="bg-white rounded-xl p-4">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    isLoading={false}
                   />
-                ))}
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="bg-white rounded-xl p-4">
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={handlePageChange}
-                      isLoading={false}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Right Column - Job Detail View */}
-              {selectedJobId && (
-                <div className="space-y-6">
-                  {isJobLoading ? (
-                    <div className="text-center py-12">
-                      <Typography variant="body" className="text-gray-500">
-                        Loading job details...
-                      </Typography>
-                    </div>
-                  ) : jobError || !selectedJob ? (
-                    <div className="text-center py-12">
-                      <Typography variant="body" className="text-red-500">
-                        {jobError
-                          ? "Failed to load job details"
-                          : "Job not found"}
-                      </Typography>
-                    </div>
-                  ) : selectedJob ? (
-                    <>
-                      <JobHeaderCard
-                        job={selectedJob}
-                        logo={selectedJob?.organization?.logoUrl}
-                        onFavorite={(id: string) =>
-                          console.log("Favorited:", id)
-                        }
-                        onApply={(jobId: string) => {
-                          console.log("Apply to job:", jobId);
-                          // Handle apply logic in parent component
-                        }}
-                        isFavorite={false}
-                        isApplied={false}
-                        isApplying={false}
-                      />
-                      <JobDetailContent job={selectedJob} />
-                      <Disclaimer />
-                    </>
-                  ) : null}
                 </div>
               )}
             </div>
+
+            {/* Right Column - Job Detail View */}
+            {/* On md: show when job is selected. On lg+: always show when selected */}
+            {selectedJobId && (
+              <div className="space-y-6">
+                {isJobLoading ? (
+                  <div className="text-center py-12">
+                    <Typography variant="body" className="text-gray-500">
+                      Loading job details...
+                    </Typography>
+                  </div>
+                ) : jobError || !selectedJob ? (
+                  <div className="text-center py-12">
+                    <Typography variant="body" className="text-red-500">
+                      {jobError
+                        ? "Failed to load job details"
+                        : "Job not found"}
+                    </Typography>
+                  </div>
+                ) : selectedJob ? (
+                  <>
+                    {/* Mobile Header Card */}
+                    <MobileJobHeaderCard
+                      job={selectedJob}
+                      logo={selectedJob.organization?.logoUrl}
+                      onFavorite={(id: string) => console.log("Favorited:", id)}
+                      onApply={(jobId: string) => {
+                        console.log("Apply to job:", jobId);
+                        // Handle apply logic in parent component
+                      }}
+                      isFavorite={false}
+                      isApplied={selectedJob.isApplied ?? false}
+                      isApplying={false}
+                      onBack={() => setSelectedJobId(null)}
+                      className="block sm:hidden"
+                    />
+                    {/* Desktop Header Card */}
+                    <JobHeaderCard
+                      className="hidden sm:block"
+                      job={selectedJob}
+                      logo={selectedJob.organization?.logoUrl}
+                      onFavorite={(id: string) => console.log("Favorited:", id)}
+                      onApply={(jobId: string) => {
+                        console.log("Apply to job:", jobId);
+                        // Handle apply logic in parent component
+                      }}
+                      isFavorite={false}
+                      isApplied={selectedJob.isApplied ?? false}
+                      isApplying={false}
+                    />
+                    <JobDetailContent job={selectedJob} />
+                    <Disclaimer />
+                  </>
+                ) : null}
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </Container1080>
   );
 }

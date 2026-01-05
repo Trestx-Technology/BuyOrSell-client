@@ -1,24 +1,24 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Footer } from "@/components/global/footer";
 import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
+import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
 import JobsHero from "./jobs-hero";
 import JobsProfileSection from "./jobs-profile-section";
 import FeaturedJobs from "./featured-jobs";
-import SimilarJobs from "./similar-jobs";
 import StatsSection from "./stats-section";
+import SimilarJobs from "./similar-jobs";
 
 export default function JobsContent() {
   const router = useRouter();
   const { data: profileData, isLoading, error } = useGetJobseekerProfile();
   const profile = profileData?.data?.profile;
-  const featuredJobs = profileData?.data?.featuredJobs;
-  const similarJobs = profileData?.data?.similarJobs;
+  const [showWarningDialog, setShowWarningDialog] = useState(false);
 
   useEffect(() => {
-    // Don't redirect while loading
+    // Don't check while loading
     if (isLoading) return;
 
     // Check for 404 or "JobProfile not found" message
@@ -32,7 +32,7 @@ export default function JobsContent() {
         errorMessage.includes("jobprofile not found") ||
         errorMessage.includes("job profile not found")
       ) {
-        router.push("/jobs/jobseeker/new");
+        setShowWarningDialog(true);
         return;
       }
     }
@@ -45,35 +45,64 @@ export default function JobsContent() {
         message.includes("jobprofile not found") ||
         message.includes("job profile not found")
       ) {
-        router.push("/jobs/jobseeker/new");
+        setShowWarningDialog(true);
         return;
       }
     }
 
-    // If no error but also no profile data, redirect to create profile
+    // If no error but also no profile data, show warning dialog
     if (!isLoading && !error && !profile) {
-      router.push("/jobs/jobseeker/new");
+      setShowWarningDialog(true);
     }
-  }, [error, profileData, profile, isLoading, router]);
+  }, [error, profileData, profile, isLoading]);
+
+  const handleCreateProfile = () => {
+    setShowWarningDialog(false);
+    router.push("/jobs/jobseeker/new");
+  };
 
   return (
-    <main className="min-h-screen bg-[#F2F4F7]">
-      {/* Hero Section */}
-      <JobsHero />
+    <>
+      <main className="min-h-screen bg-[#F2F4F7]">
+        {/* Hero Section */}
+        <JobsHero />
 
-      {/* Profile/Category Section */}
-      <JobsProfileSection profile={profile} isLoading={isLoading} />
+        {/* Profile/Category Section */}
+        <JobsProfileSection
+          profile={profile}
+          isLoading={isLoading}
+          profileCompletionPercentage={
+            profileData?.data?.profileCompletionPercentage
+          }
+        />
 
-      {/*Stats Section  */}
-      <StatsSection profile={profile} isLoading={isLoading} />
+        {/*Stats Section  */}
+        <StatsSection
+          isLoading={isLoading}
+          savedJobsCount={profileData?.data?.savedJobsCount}
+          appliedJobsCount={profileData?.data?.appliedJobsCount}
+        />
 
-      {/* Featured Jobs Section */}
-      <FeaturedJobs featuredJobs={featuredJobs} isLoading={isLoading} />
+        {/* Featured Jobs Section */}
+        <FeaturedJobs />
 
-      {/* Similar Jobs Section */}
-      <SimilarJobs similarJobs={similarJobs} isLoading={isLoading} />
+        {/* Similar Jobs Section */}
+        <SimilarJobs />
 
-      <Footer />
-    </main>
+        <Footer />
+      </main>
+
+      <WarningConfirmationDialog
+        open={showWarningDialog}
+        // NOTE: not let the user close the dialog by clicking outside or cancel button
+        onOpenChange={() => setShowWarningDialog(true)}
+        title="Job Profile Not Found"
+        description="You don't have a job profile. Please create one to continue."
+        confirmText="Create Profile"
+        cancelText="Cancel"
+        onConfirm={handleCreateProfile}
+        confirmVariant="primary"
+      />
+    </>
   );
 }
