@@ -291,17 +291,6 @@ export default function ExchangeDeals({
                         {categoryAds.length > 0 ? (
                           <CardsCarousel title="" showNavigation={true}>
                             {categoryAds.map((ad, index) => {
-                              const isFavorite = favorites.has(ad.id);
-                              // Override isAddedInCollection with local favorite state to ensure it takes precedence
-                              const cardProps: ListingCardProps = {
-                                ...ad,
-                                isFavorite,
-                                isAddedInCollection: isFavorite
-                                  ? true
-                                  : ad.isAddedInCollection === true
-                                  ? true
-                                  : false, // Explicitly set to false when not favorited to override API
-                              };
                               return (
                                 <motion.div
                                   key={ad.id}
@@ -317,8 +306,7 @@ export default function ExchangeDeals({
                                   className="flex-[0_0_auto] max-w-[220px] w-full"
                                 >
                                   <ListingCard
-                                    {...cardProps}
-                                    onFavorite={handleFavoriteToggle}
+                                    {...ad}
                                     showSeller={true}
                                     showSocials={true}
                                     className="w-full"

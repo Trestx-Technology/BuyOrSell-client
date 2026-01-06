@@ -6,6 +6,7 @@ import ListingCard from "@/components/global/listing-card";
 import { AD } from "@/interfaces/ad";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { useLocale } from "@/hooks/useLocale";
+import { containerVariants, itemVariants } from "@/utils/animation-variants";
 
 interface RecentViewsProps {
   recentlyViewedAds?: AD[];
@@ -17,27 +18,6 @@ export default function RecentViews({
   isLoading = false,
 }: RecentViewsProps) {
   const { t, locale } = useLocale();
-  
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.4 },
-    },
-  };
 
   // Transform AD objects to ListingCardProps (filter out any null/undefined ads)
   const listingItems = recentlyViewedAds
@@ -91,11 +71,13 @@ export default function RecentViews({
             variants={itemVariants}
             className="flex-[0_0_auto] max-w-[190px] w-full"
           >
-            <ListingCard {...item} />
+            <ListingCard
+              {...item}
+              isAddedInCollection={item.isAddedInCollection}
+            />
           </motion.div>
         ))}
       </CardsCarousel>
     </motion.section>
   );
 }
-

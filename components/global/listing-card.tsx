@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,8 +43,8 @@ import {
   Specification,
 } from "@/components/global/specifications-display";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
-import { useMemo } from "react";
 import { PriceDisplay } from "./price-display";
+import { cn } from "@/lib/utils";
 
 export interface ListingCardProps {
   id: string;
@@ -60,11 +60,6 @@ export interface ListingCardProps {
   postedTime: string;
   views?: number;
   isPremium?: boolean;
-  isFavorite?: boolean;
-  isAddedInCollection?: boolean; // Flag from ad data indicating if ad is in any collection
-  onFavorite?: (id: string) => void;
-  onShare?: (id: string) => void;
-  onClick?: (id: string) => void;
   className?: string;
   showSeller?: boolean;
   showSocials?: boolean;
@@ -76,6 +71,7 @@ export interface ListingCardProps {
     isVerified?: boolean;
     image?: string | null;
   };
+  isAddedInCollection?: boolean;
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({
@@ -84,7 +80,6 @@ const ListingCard: React.FC<ListingCardProps> = ({
   price,
   originalPrice,
   discount,
-  currency = "AED",
   location,
   images,
   extraFields,
@@ -92,32 +87,25 @@ const ListingCard: React.FC<ListingCardProps> = ({
   postedTime,
   views,
   isPremium = false,
-  isFavorite = false,
-  isAddedInCollection,
-  onFavorite,
-  onShare,
-  onClick,
   className,
   showSeller,
   showSocials,
   seller,
+  isAddedInCollection,
 }) => {
   const { share } = useShare();
-
-  // Use isAddedInCollection flag from ad data if provided, otherwise check via API
   const { data: collectionsByAdResponse } = useGetCollectionsByAd(
-    isAddedInCollection === undefined ? id : "" // Only fetch if flag not provided
+    isAddedInCollection === undefined ? id : ""
   );
   const apiIsAddedInCollection =
     collectionsByAdResponse?.data?.isAddedInCollection ?? false;
+  const [isSaved, setIsSaved] = useState(
+    isAddedInCollection ?? apiIsAddedInCollection
+  );
 
-  // Use isAddedInCollection prop if provided, otherwise use API result, fallback to isFavorite
-  const effectiveIsFavorite =
-    isAddedInCollection !== undefined
-      ? isAddedInCollection
-      : collectionsByAdResponse !== undefined
-      ? apiIsAddedInCollection
-      : isFavorite;
+  useEffect(() => {
+    setIsSaved(isAddedInCollection ?? apiIsAddedInCollection);
+  }, [isAddedInCollection, apiIsAddedInCollection]);
 
   // Dynamically extract specifications from extraFields
   const specifications = useMemo((): Specification[] => {
@@ -129,7 +117,6 @@ const ListingCard: React.FC<ListingCardProps> = ({
     }));
   }, [extraFields]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handlePreviousImage = (e: React.MouseEvent) => {
@@ -156,32 +143,14 @@ const ListingCard: React.FC<ListingCardProps> = ({
     }, 500);
   };
 
-  const handleCollectionSuccess = () => {
-    // Call the onFavorite callback to update parent state if needed
-    onFavorite?.(id);
-  };
-
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    try {
-      await share(id, title);
-    } catch (error) {
-      console.error("Error sharing ad:", error);
-    }
-    // Also call the original onShare callback if provided
-    onShare?.(id);
-  };
-
-  const handleCardClick = () => {
-    onClick?.(id);
+    await share(id, title);
   };
 
   return (
     <div
       className={`w-full overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={handleCardClick}
     >
       <Link href={`/ad/${id}`} className="absolute inset-0 "></Link>
       <div className="p-0">
@@ -334,11 +303,14 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 strokeWidth={1}
               />
             </button>
+
             <CollectionManager
               itemId={id}
               itemTitle={title}
-              itemImage={images[0]}
-              onSuccess={handleCollectionSuccess}
+              itemImage={images?.[0] || ""}
+              onSuccess={(isAdded) => {
+                setIsSaved(isAdded);
+              }}
             >
               <button
                 className="h-8 w-8 opacity-100 hover:scale-125 transition-all cursor-pointer rounded-full"
@@ -346,9 +318,10 @@ const ListingCard: React.FC<ListingCardProps> = ({
               >
                 <Heart
                   size={24}
-                  className={`mx-auto fill-white stroke-slate-400 ${
-                    effectiveIsFavorite ? "fill-red-500" : ""
-                  }`}
+                  className={cn(
+                    `mx-auto fill-white stroke-slate-400`,
+                    isSaved && "fill-purple"
+                  )}
                   strokeWidth={1}
                 />
               </button>

@@ -20,6 +20,7 @@ import {
   DrawerFooter,
   DrawerClose,
 } from "@/components/ui/drawer";
+import { cn } from "@/lib/utils";
 
 interface ResponsiveModalProps {
   open: boolean;
@@ -93,10 +94,16 @@ const ResponsiveModalContent = ({
   const { isMobile } = useResponsiveModal();
 
   if (isMobile) {
-    return <DrawerContent className={className}>{children}</DrawerContent>;
+    return (
+      <DrawerContent className={cn(className, "z-999")}>
+        {children}
+      </DrawerContent>
+    );
   }
 
-  return <DialogContent className={className}>{children}</DialogContent>;
+  return (
+    <DialogContent className={cn(className, "z-999")}>{children}</DialogContent>
+  );
 };
 
 const ResponsiveModalHeader = ({

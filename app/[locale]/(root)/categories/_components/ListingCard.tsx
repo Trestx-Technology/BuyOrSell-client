@@ -29,7 +29,11 @@ import {
   SpecificationsDisplay,
   Specification,
 } from "@/components/global/specifications-display";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
+import { useShare } from "@/hooks/useShare";
+import { CollectionManager } from "@/components/global/collection-manager";
+import { useGetCollectionsByAd } from "@/hooks/useCollections";
+import { cn } from "@/lib/utils";
 
 export interface ListingCardProps {
   id: string;
@@ -44,13 +48,11 @@ export interface ListingCardProps {
   postedTime: string;
   views?: number;
   isPremium?: boolean;
-  isFavorite?: boolean;
-  onFavorite?: (id: string) => void;
-  onShare?: (id: string) => void;
   onClick?: (id: string) => void;
   className?: string;
   showSeller?: boolean;
   showSocials?: boolean;
+  isAddedInCollection?: boolean;
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({
@@ -66,14 +68,26 @@ const ListingCard: React.FC<ListingCardProps> = ({
   postedTime,
   views = 0,
   isPremium = false,
-  isFavorite = false,
-  onFavorite,
-  onShare,
   onClick,
   className,
   showSeller,
   showSocials,
+  isAddedInCollection,
 }) => {
+  const { share } = useShare();
+  const { data: collectionsByAdResponse } = useGetCollectionsByAd(
+    isAddedInCollection === undefined ? id : ""
+  );
+  const apiIsAddedInCollection =
+    collectionsByAdResponse?.data?.isAddedInCollection ?? false;
+  const [isSaved, setIsSaved] = useState(
+    isAddedInCollection ?? apiIsAddedInCollection
+  );
+
+  useEffect(() => {
+    setIsSaved(isAddedInCollection ?? apiIsAddedInCollection);
+  }, [isAddedInCollection, apiIsAddedInCollection]);
+
   // Get specifications from extraFields and transform to Specification[] format
   const specifications = useMemo((): Specification[] => {
     const specsFromFields = getSpecifications(extraFields, 4);
@@ -83,8 +97,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
       icon: spec.icon,
     }));
   }, [extraFields]);
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handlePreviousImage = (e: React.MouseEvent) => {
@@ -113,12 +127,11 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
   const handleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onFavorite?.(id);
   };
 
-  const handleShare = (e: React.MouseEvent) => {
+  const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    onShare?.(id);
+    await share(id, title);
   };
 
   const handleCardClick = () => {
@@ -136,8 +149,6 @@ const ListingCard: React.FC<ListingCardProps> = ({
   return (
     <div
       className={`w-full overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
     >
       <Link href={"/ad/123"} className="absolute inset-0 "></Link>
@@ -281,18 +292,28 @@ const ListingCard: React.FC<ListingCardProps> = ({
                 strokeWidth={1}
               />
             </button>
-            <button
-              className="h-8 w-8 opacity-100 hover:scale-125 transition-all cursor-pointer rounded-full flex items-center justify-center"
-              onClick={handleFavorite}
+            <CollectionManager
+              itemId={id}
+              itemTitle={title}
+              itemImage={images?.[0] || ""}
+              onSuccess={(isAdded) => {
+                setIsSaved(isAdded);
+              }}
             >
-              <Heart
-                size={24}
-                className={`fill-white stroke-slate-400 ${
-                  isFavorite ? "fill-red-500" : ""
-                }`}
-                strokeWidth={1}
-              />
-            </button>
+              <button
+                className="h-8 w-8 opacity-100 hover:scale-125 transition-all cursor-pointer rounded-full flex items-center justify-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Heart
+                  size={24}
+                  className={cn(
+                    `fill-white stroke-slate-400`,
+                    isSaved && "fill-purple"
+                  )}
+                  strokeWidth={1}
+                />
+              </button>
+            </CollectionManager>
           </div>
         </div>
 

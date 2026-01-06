@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { MapPin, Navigation, ZoomIn, ZoomOut } from "lucide-react";
-import { ICONS } from "@/constants/icons";
+import { UI_ICONS } from "@/constants/icons";
 
 export interface MapProps {
   className?: string;
@@ -138,7 +138,7 @@ export default function Map({
         map,
         title: markerData.title,
         icon: {
-          url: pointerUrl,
+          url: UI_ICONS.Map,
           scaledSize: new window.google.maps.Size(28, 28),
           anchor: new window.google.maps.Point(14, 28),
         },

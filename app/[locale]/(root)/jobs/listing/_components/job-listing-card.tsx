@@ -90,6 +90,13 @@ export default function JobListingCard({
 
   // Get currency from extraFields or default to AED
   const currency = getFieldValue("currency") || "AED";
+  const validityValue = job.validity;
+  const validityDate = validityValue ? new Date(validityValue) : null;
+  const isValidityDateValid =
+    validityDate instanceof Date && !Number.isNaN(validityDate.getTime());
+  const isExpired = isValidityDateValid
+    ? validityDate!.getTime() < Date.now()
+    : false;
 
   const handleSaveToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -143,9 +150,16 @@ export default function JobListingCard({
       <div className="flex flex-col gap-[21.33px]">
         {/* Badge section */}
         <div className="flex justify-between items-center">
-          <Badge className="bg-[#F5EBFF] text-purple px-[7.11px] py-[7.11px] rounded-[24px] text-xs font-normal leading-[1.21]">
-            {postedTime}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge className="bg-[#F5EBFF] text-purple px-[7.11px] py-[7.11px] rounded-[24px] text-xs font-normal leading-[1.21]">
+              {postedTime}
+            </Badge>
+            {isExpired && (
+              <Badge className="bg-[#FEE2E2] text-destructive px-[7.11px] py-[7.11px] rounded-[24px] text-xs font-semibold leading-[1.21]">
+                Expired
+              </Badge>
+            )}
+          </div>
 
           <div className="flex items-center gap-2">
             <ShareJobDialog

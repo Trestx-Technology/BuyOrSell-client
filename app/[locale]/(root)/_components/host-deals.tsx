@@ -138,7 +138,6 @@ export default function HostDeals({
   const defaultTab = categories.length > 0 ? categories[0].value : "";
 
   const [activeTab, setActiveTab] = useState(defaultTab);
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   // Update active tab when categories change
   useEffect(() => {
@@ -146,18 +145,6 @@ export default function HostDeals({
       setActiveTab(defaultTab);
     }
   }, [defaultTab, activeTab]);
-
-  const handleFavoriteToggle = (id: string) => {
-    setFavorites((prev) => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(id)) {
-        newFavorites.delete(id);
-      } else {
-        newFavorites.add(id);
-      }
-      return newFavorites;
-    });
-  };
 
   // Find the biggest deal (highest discount percentage) from all ads across all categories
   const biggestDealValidity = useMemo(() => {
@@ -373,8 +360,7 @@ export default function HostDeals({
                               >
                                 <HotDealsListingCard
                                   {...deal}
-                                  isFavorite={favorites.has(deal.id)}
-                                  onFavorite={handleFavoriteToggle}
+                                  isAddedInCollection={deal.isAddedInCollection}
                                   showSeller={true}
                                   showSocials={true}
                                   className="w-full"

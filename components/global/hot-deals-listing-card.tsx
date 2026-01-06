@@ -49,9 +49,7 @@ export interface HotDealsListingCardProps {
   postedTime: string;
   views?: number;
   isPremium?: boolean;
-  isFavorite?: boolean;
-  onFavorite?: (id: string) => void;
-  onShare?: (id: string) => void;
+  isAddedInCollection?: boolean;
   onClick?: (id: string) => void;
   className?: string;
   showSeller?: boolean;
@@ -88,9 +86,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   isExchange = false,
   views,
   isPremium = false,
-  isFavorite = false,
-  onFavorite,
-  onShare,
+  isAddedInCollection,
   onClick,
   className,
   showSeller,
@@ -118,9 +114,18 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string>("");
   const { share } = useShare();
-  const { data: collectionsByAdResponse } = useGetCollectionsByAd(id);
-  const effectiveIsFavorite =
-    collectionsByAdResponse?.data?.isAddedInCollection ?? isFavorite;
+  const { data: collectionsByAdResponse } = useGetCollectionsByAd(
+    isAddedInCollection === undefined ? id : ""
+  );
+  const apiIsAddedInCollection =
+    collectionsByAdResponse?.data?.isAddedInCollection ?? false;
+  const [isSaved, setIsSaved] = useState(
+    isAddedInCollection ?? apiIsAddedInCollection
+  );
+
+  useEffect(() => {
+    setIsSaved(isAddedInCollection ?? apiIsAddedInCollection);
+  }, [isAddedInCollection, apiIsAddedInCollection]);
 
   // Timer logic for countdown using dealValidThrough
   useEffect(() => {
@@ -193,11 +198,6 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
     share(id, title).catch((error) => {
       console.error("Error sharing ad:", error);
     });
-    onShare?.(id);
-  };
-
-  const handleCollectionSuccess = () => {
-    onFavorite?.(id);
   };
 
   const handleCardClick = () => {
@@ -360,7 +360,9 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
               itemId={id}
               itemTitle={title}
               itemImage={images?.[0] || ""}
-              onSuccess={handleCollectionSuccess}
+              onSuccess={(isAdded) => {
+                setIsSaved(isAdded);
+              }}
             >
               <button
                 className="h-8 w-8 opacity-100 hover:scale-125 transition-all cursor-pointer rounded-full flex items-center justify-center"
@@ -369,7 +371,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
                 <Heart
                   size={24}
                   className={`fill-white stroke-slate-400 ${
-                    effectiveIsFavorite ? "fill-red-500" : ""
+                    isSaved ? "fill-purple" : ""
                   }`}
                   strokeWidth={1}
                 />

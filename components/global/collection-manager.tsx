@@ -3,40 +3,6 @@
 import React, { useState, useCallback } from "react";
 import { Heart, Plus, X, Check, ImageIcon, Loader2 } from "lucide-react";
 
-/**
- * USAGE EXAMPLES:
- *
- * // Basic usage with an ad
- * <CollectionManager itemId="ad123" itemTitle="iPhone 15">
- *   <Button>Add to Favorites</Button>
- * </CollectionManager>
- *
- * // With custom success callback
- * <CollectionManager
- *   itemId="job456"
- *   itemType="job"
- *   onSuccess={() => toast.success("Added to collection!")}
- * >
- *   <HeartIcon />
- * </CollectionManager>
- *
- * // With item details for preview
- * <CollectionManager
- *   itemId="ad789"
- *   itemTitle="MacBook Pro"
- *   itemImage="/macbook.jpg"
- *   variant="drawer"
- * >
- *   <Button variant="outline">Save</Button>
- * </CollectionManager>
- */
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
 import Image from "next/image";
@@ -52,6 +18,14 @@ import { CreateCollectionDialog } from "@/app/[locale]/(root)/favorites/_compone
 import { useAuthStore } from "@/stores/authStore";
 import { LoginRequiredDialog } from "@/components/auth/login-required-dialog";
 import { usePathname, useSearchParams } from "next/navigation";
+import {
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalDescription,
+  ResponsiveModalFooter,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+} from "@/components/ui/responsive-modal";
 import { adQueries } from "@/app/api/ad";
 
 export interface Collection {
@@ -66,11 +40,9 @@ export interface Collection {
 export interface CollectionManagerProps {
   children: React.ReactNode;
   itemId: string;
-  itemType?: "ad" | "job"; // For future extension
   itemTitle?: string;
   itemImage?: string;
-  onSuccess?: () => void;
-  variant?: "dialog" | "drawer" | "inline";
+  onSuccess?: (isAdded: boolean) => void;
   className?: string;
 }
 
@@ -87,11 +59,9 @@ export interface CollectionManagerProps {
 export const CollectionManager: React.FC<CollectionManagerProps> = ({
   children,
   itemId,
-  itemType = "ad",
   itemTitle,
   itemImage,
   onSuccess,
-  variant = "dialog",
   className,
 }) => {
   const { t } = useLocale();
@@ -116,89 +86,45 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
   // Handle adding item to collection
   const handleAddToCollection = useCallback(
     async (collectionId: string) => {
-      try {
-        await addToCollectionMutation.mutateAsync({
-          collectionId,
-          payload: {
-            adIds: [itemId], // API expects array of ad IDs
-          },
-        });
+      await addToCollectionMutation.mutateAsync({
+        collectionId,
+        payload: {
+          adIds: [itemId], // API expects array of ad IDs
+        },
+      });
+      // After adding to collection, invalidate collections and ad queries to refresh state
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueries.getMyCollections.Key,
+      });
 
-        // // Optimistically update the collection's adIds array
-        // queryClient.setQueryData(
-        //   [...collectionsQueries.getMyCollections.Key],
-        //   (oldData: CollectionsListResponse | undefined) => {
-        //     if (!oldData?.data) return oldData;
-        //     return {
-        //       ...oldData,
-        //       data: oldData.data.map((collection) =>
-        //         collection._id === collectionId
-        //           ? {
-        //               ...collection,
-        //               adIds: [...(collection.adIds || []), itemId],
-        //               count: (collection.count || 0) + 1,
-        //             }
-        //           : collection
-        //       ),
-        //     };
-        //   }
-        // );
-
-        queryClient.invalidateQueries({
-          queryKey: adQueries.ads.Key,
-        });
-
-        onSuccess?.();
-        setOpen(false);
-      } catch (error) {
-        console.error("Error adding to collection:", error);
-      }
+      onSuccess?.(true);
+      setOpen(false);
     },
-    [itemId, addToCollectionMutation, onSuccess, queryClient]
+    [itemId, addToCollectionMutation, queryClient, onSuccess]
   );
 
   // Handle removing item from collection
   const handleRemoveFromCollection = useCallback(
     async (collectionId: string) => {
-      try {
-        await removeFromCollectionMutation.mutateAsync({
-          collectionId,
-          adId: itemId,
-        });
+      // Store current state before mutation
+      const wasInOtherCollections = collections.some(
+        (collection) =>
+          collection._id !== collectionId && collection.adIds?.includes(itemId)
+      );
 
-        // // Optimistically update the collection's adIds array
-        // queryClient.setQueryData(
-        //   [...collectionsQueries.getMyCollections.Key],
-        //   (oldData: CollectionsListResponse | undefined) => {
-        //     if (!oldData?.data) return oldData;
-        //     return {
-        //       ...oldData,
-        //       data: oldData.data.map((collection) =>
-        //         collection._id === collectionId
-        //           ? {
-        //               ...collection,
-        //               adIds: (collection.adIds || []).filter(
-        //                 (id) => id !== itemId
-        //               ),
-        //               count: Math.max((collection.count || 0) - 1, 0),
-        //             }
-        //           : collection
-        //       ),
-        //     };
-        //   }
-        // );
+      await removeFromCollectionMutation.mutateAsync({
+        collectionId,
+        adId: itemId,
+      });
 
-        // Invalidate queries to ensure server state is synced
-        queryClient.invalidateQueries({
-          queryKey: adQueries.ads.Key,
-        });
+      // After removing from collection, invalidate queries to refresh state
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueries.getMyCollections.Key,
+      });
 
-        onSuccess?.();
-      } catch (error) {
-        console.error("Error removing from collection:", error);
-      }
+      onSuccess?.(wasInOtherCollections);
     },
-    [itemId, removeFromCollectionMutation, onSuccess, queryClient]
+    [itemId, removeFromCollectionMutation, queryClient, collections, onSuccess]
   );
 
   // Handle collection creation success
@@ -387,45 +313,39 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
     <div onClick={handleTriggerClick}>{children}</div>
   );
 
-  if (variant === "dialog") {
-    return (
-      <>
-        {triggerElement}
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent
-            className={`max-w-md w-[95%] overflow-y-auto max-h-[500px] rounded-lg ${className}`}
-            showCloseButton={false}
-          >
-            <DialogHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <DialogTitle className="text-xl font-bold text-dark-blue">
-                  {t.favorites?.myFavorites || "Favorites"}
-                </DialogTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setOpen(false)}
-                  className="h-8 w-8 p-0 hover:bg-gray-100"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </DialogHeader>
-            {content}
-          </DialogContent>
-        </Dialog>
-        <LoginRequiredDialog
-          open={isLoginDialogOpen}
-          onOpenChange={setIsLoginDialogOpen}
-          redirectUrl={redirectUrl}
-          message="You need to be logged in to save items to collections. Would you like to login?"
-        />
-      </>
-    );
-  }
-
-  // For other variants, you can implement drawer or inline versions
-  return <div className={className}>{content}</div>;
+  return (
+    <>
+      {triggerElement}
+      <ResponsiveModal open={open} onOpenChange={setOpen}>
+        <ResponsiveModalContent
+          className={`max-w-md w-[95%] overflow-y-auto max-h-[500px] rounded-lg ${className}`}
+        >
+          <ResponsiveModalHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <ResponsiveModalTitle className="text-xl font-bold text-dark-blue">
+                {t.favorites?.myFavorites || "Favorites"}
+              </ResponsiveModalTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setOpen(false)}
+                className="h-8 w-8 p-0 hover:bg-gray-100"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </ResponsiveModalHeader>
+          {content}
+        </ResponsiveModalContent>
+      </ResponsiveModal>
+      <LoginRequiredDialog
+        open={isLoginDialogOpen}
+        onOpenChange={setIsLoginDialogOpen}
+        redirectUrl={redirectUrl}
+        message="You need to be logged in to save items to collections. Would you like to login?"
+      />
+    </>
+  );
 };
 
 export default CollectionManager;
