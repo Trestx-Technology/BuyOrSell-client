@@ -9,12 +9,21 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, MapPin } from "lucide-react";
 import { JobseekerProfile } from "@/interfaces/job.types";
+import { useAuthStore } from "@/stores/authStore";
+import { useRouter } from "nextjs-toploader/app";
+import {
+  useCancelConnectionRequest,
+  useSendConnectionRequest,
+} from "@/hooks/useConnections";
+import { toast } from "sonner";
+import { ConnectionStatus } from "@/interfaces/connection.types";
 
 interface ProfessionalCardProps {
   professional: JobseekerProfile;
   onConnect?: (userId: string) => void;
   isConnected?: boolean;
   connectionStatus?: "PENDING" | "ACCEPTED" | "REJECTED" | "APPROVED";
+  isLoading?: boolean;
 }
 
 export default function ProfessionalCard({
@@ -22,7 +31,11 @@ export default function ProfessionalCard({
   onConnect,
   isConnected = false,
   connectionStatus,
+  isLoading = false,
 }: ProfessionalCardProps) {
+  const userId = useAuthStore((state) => state.session.user?._id);
+  const isCurrentUser = userId === professional.userId;
+  const router = useRouter();
   const {
     skills,
     preferredLocations,
@@ -33,11 +46,29 @@ export default function ProfessionalCard({
     experienceYears,
   } = professional;
 
+  const cancelConnectReq = useCancelConnectionRequest();
+  const sendConnectionReq = useSendConnectionRequest();
   // Get location from preferredLocations or use default
   const location =
     preferredLocations && preferredLocations.length > 0
       ? preferredLocations[0]
       : professional.location || "Not Specified";
+
+  const HandleConnection = async (
+    status: ConnectionStatus,
+    requestId: string | null
+  ) => {
+    if (status === "PENDING") {
+      if (!requestId) return toast.error("Request ID not found");
+      await cancelConnectReq.mutateAsync(requestId);
+    } else {
+      if (!userId)
+        return toast.error("Please log in to send a connection request");
+      await sendConnectionReq.mutateAsync({
+        receiverId: professional.userId,
+      });
+    }
+  };
 
   // Get initials for fallback avatar
   const initials =
@@ -51,7 +82,7 @@ export default function ProfessionalCard({
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      className="bg-white rounded-2xl p-6 hover:shadow-xl border border-[#E2E2E2] transition-all duration-300 flex flex-col items-center gap-4 group w-full max-w-[240px]"
+      className="bg-white rounded-2xl p-6 hover:shadow-xl border border-[#E2E2E2] transition-all duration-300 flex flex-col items-center gap-4 group w-full max-w-[240px] relative"
     >
       {/* Profile Picture */}
       <div className="relative">
@@ -73,14 +104,18 @@ export default function ProfessionalCard({
       </div>
 
       {/* Name */}
-      <Link href={`/jobs/jobseeker/${_id}`} className="text-center">
+      <Link
+        href={`/jobs/jobseeker/${_id}?type=profileVisit`}
+        className="text-center absolute inset-0 z-10"
+      ></Link>
+      <div className="text-center">
         <Typography
           variant="h3"
           className="line-clamp-1 text-dark-blue font-bold text-lg text-center group-hover:text-purple transition-colors cursor-pointer"
         >
           {name}
         </Typography>
-      </Link>
+      </div>
 
       {/* Headline */}
       {headline && (
@@ -128,11 +163,23 @@ export default function ProfessionalCard({
 
       {/* Connect Button */}
       <Button
-        disabled={
-          connectionStatus === "PENDING" || connectionStatus === "ACCEPTED"
+        isLoading={
+          cancelConnectReq.isPending || sendConnectionReq.isPending || isLoading
         }
-        onClick={() => onConnect?.(professional.userId)}
-        className="w-full rounded-lg py-2.5 font-semibold transition-all"
+        disabled={
+          cancelConnectReq.isPending || sendConnectionReq.isPending || isLoading
+        }
+        onClick={() => {
+          if (isCurrentUser) {
+            router.push(`/jobs/jobseeker/${professional._id}`);
+          } else {
+            HandleConnection(
+              connectionStatus as any,
+              professional.requestId || null
+            );
+          }
+        }}
+        className="w-full rounded-lg py-2.5 font-semibold transition-all z-20 relative"
         variant={
           connectionStatus === "PENDING" || connectionStatus === "ACCEPTED"
             ? "outline"
@@ -140,12 +187,14 @@ export default function ProfessionalCard({
         }
         width="full"
       >
-        {connectionStatus === "ACCEPTED"
+        {isCurrentUser
+          ? "View Profile"
+          : connectionStatus === "ACCEPTED"
           ? "Connected"
           : connectionStatus === "PENDING"
-          ? "Pending"
+          ? "Cancel Request"
           : connectionStatus === "REJECTED"
-          ? "Rejected"
+          ? "Send Request"
           : "Connect"}
       </Button>
     </motion.div>

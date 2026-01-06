@@ -3,6 +3,7 @@
 import { User } from "./user.types";
 import { Organization } from "./organization.types";
 import { AD } from "./ad";
+import { ConnectionStatus } from "./connection.types";
 
 export interface Professional {
   _id: string;
@@ -22,7 +23,14 @@ export interface JobApplicant {
   userId: string;
   jobId: string;
   user?: User;
-  status: "pending" | "reviewed" | "shortlisted" | "rejected" | "accepted" | "applied" | "hired";
+  status:
+    | "pending"
+    | "reviewed"
+    | "shortlisted"
+    | "rejected"
+    | "accepted"
+    | "applied"
+    | "hired";
   appliedAt?: string;
   coverLetter?: string;
   resumeUrl?: string;
@@ -95,12 +103,12 @@ export interface JobseekerProfile {
   experienceYears: number;
   education?: string;
   isFresher: boolean;
-  workStatus: string;
+  workStatus?: string;
   workStatusAr?: string;
-  location: string;
+  location?: string;
   locationAr?: string;
-  contactEmail: string;
-  contactPhone: string;
+  contactEmail?: string;
+  contactPhone?: string;
   desiredRoles: string[];
   desiredRolesAr?: string[];
   availability?: string;
@@ -143,7 +151,9 @@ export interface JobseekerProfile {
   twitterUrl?: string;
   portfolioUrl?: string;
   isConnected?: boolean;
-  connectionStatus?: string | null;
+  connectionStatus?: ConnectionStatus;
+  connectionDirection?: string;
+  requestId?: string;
   createdAt: string;
   updatedAt: string;
   __v?: number;
@@ -155,15 +165,21 @@ export interface JobseekerExperience {
   title: string;
   titleAr?: string;
   company: string;
+  companyAr?: string;
   startDate: string;
   endDate?: string;
   isCurrent: boolean;
   location?: string;
+  locationAr?: string;
   description?: string;
+  descriptionAr?: string;
   url?: string;
   employmentType?: string;
+  employmentTypeAr?: string;
   department?: string;
+  departmentAr?: string;
   jobType?: string;
+  jobTypeAr?: string;
   noticePeriodDays?: number;
   currentCtc?: number;
   ctcCurrency?: string;
@@ -193,7 +209,9 @@ export interface JobseekerEducation {
   endDate?: string;
   grade?: string;
   description?: string;
+  descriptionAr?: string;
   courseType?: string;
+  courseTypeAr?: string;
   scoreType?: string;
   score?: number;
   yearOfPassing?: number;
@@ -216,6 +234,7 @@ export interface JobseekerProject {
   endDate?: string;
   url?: string;
   description?: string;
+  descriptionAr?: string;
   techStack: string[];
   techStackAr?: string[];
   projectType?: string;

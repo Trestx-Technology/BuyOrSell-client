@@ -30,7 +30,6 @@ export default function ConnectProfessionals({
   const {
     data: searchResponse,
     isLoading: isSearchLoading,
-    error: searchError,
   } = useSearchJobseekerProfiles({
     limit: 4,
     page: 1,

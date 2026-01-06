@@ -150,13 +150,13 @@ export default function JobsHero() {
             <div className="flex flex-col gap-[10.67px] items-center">
               <Typography
                 variant="h1"
-                className="text-white text-center font-bold text-[62.22px] leading-[1.14]"
+                className="text-white text-center font-bold text-2xl sm:text-3xl lg:text-[62.22px] leading-[1.14]"
               >
                 Find Your Dream Job Today!
               </Typography>
               <Typography
                 variant="body-large"
-                className="text-white/80 text-center font-medium text-base max-w-full"
+                className="text-white/80 text-center font-medium text-xs sm:text-sm lg:text-base max-w-full"
               >
                 Connecting Talent with Opportunity: Your Gateway to Career
                 Success
@@ -311,7 +311,7 @@ export default function JobsHero() {
                   )
                 }
                 iconPosition="left"
-                className="bg-purple text-white rounded-none h-[71.11px] px-[24.89px] hover:bg-purple/90 flex items-center gap-[8.89px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-purple text-white rounded-l-none h-[71.11px] px-[24.89px] hover:bg-purple/90 flex items-center gap-[8.89px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="font-semibold text-base">
                   {isLoadingKeywords ? "Searching..." : "Search Job"}

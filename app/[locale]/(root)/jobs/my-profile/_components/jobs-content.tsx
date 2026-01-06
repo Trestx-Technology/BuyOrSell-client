@@ -6,7 +6,7 @@ import { Footer } from "@/components/global/footer";
 import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
 import JobsHero from "./jobs-hero";
-import JobsProfileSection from "./jobs-profile-section";
+import JobseekerProfileHeader from "@/components/global/jobseeker-profile-header";
 import FeaturedJobs from "./featured-jobs";
 import StatsSection from "./stats-section";
 import SimilarJobs from "./similar-jobs";
@@ -68,13 +68,26 @@ export default function JobsContent() {
         <JobsHero />
 
         {/* Profile/Category Section */}
-        <JobsProfileSection
-          profile={profile}
-          isLoading={isLoading}
-          profileCompletionPercentage={
-            profileData?.data?.profileCompletionPercentage
-          }
-        />
+        <section className="w-full bg-[#F2F4F7] pt-10 px-4 lg:px-[100px]">
+          {isLoading ? (
+            <div className="max-w-[1080px] mx-auto bg-white rounded-2xl p-6 animate-pulse">
+              <div className="h-[170px] w-[170px] rounded-full bg-gray-200" />
+            </div>
+          ) : profile ? (
+            <div className="max-w-[1080px] mx-auto">
+              <JobseekerProfileHeader
+                jobseeker={profile}
+                actions={{
+                  editUrl: "/jobs/jobseeker/new",
+                }}
+                profileCompletionPercentage={
+                  profileData?.data?.profileCompletionPercentage
+                }
+                showCompletionIndicator={true}
+              />
+            </div>
+          ) : null}
+        </section>
 
         {/*Stats Section  */}
         <StatsSection

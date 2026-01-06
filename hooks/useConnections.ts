@@ -10,15 +10,16 @@ import {
   getReceivedRequests,
   getConnectionLevel,
   canChat,
-} from '@/app/api/connections/connections.services';
-import { connectionQueries } from '@/app/api/connections/index';
+} from "@/app/api/connections/connections.services";
+import { connectionQueries } from "@/app/api/connections/index";
 import type {
   SendConnectionRequestPayload,
   ConnectionRequestResponse,
   ConnectionsResponse,
   ConnectionLevelResponse,
   CanChatResponse,
-} from '@/interfaces/connection.types';
+} from "@/interfaces/connection.types";
+import { jobseekerQueries } from "@/app/api/jobseeker";
 
 // ============================================================================
 // QUERY HOOKS
@@ -27,7 +28,9 @@ import type {
 /**
  * Get my connections with optional status filter
  */
-export const useMyConnections = (status?: 'PENDING' | 'ACCEPTED' | 'REJECTED') => {
+export const useMyConnections = (
+  status?: "PENDING" | "ACCEPTED" | "REJECTED"
+) => {
   return useQuery<ConnectionsResponse, Error>({
     queryKey: [...connectionQueries.getMyConnections.Key, status],
     queryFn: () => getMyConnections(status),
@@ -86,13 +89,26 @@ export const useCanChat = (userId: string) => {
 export const useSendConnectionRequest = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<ConnectionRequestResponse, Error, SendConnectionRequestPayload>({
+  return useMutation<
+    ConnectionRequestResponse,
+    Error,
+    SendConnectionRequestPayload
+  >({
     mutationFn: sendConnectionRequest,
     onSuccess: () => {
       // Invalidate and refetch connection-related queries
-      queryClient.invalidateQueries({ queryKey: connectionQueries.getMyConnections.Key });
-      queryClient.invalidateQueries({ queryKey: connectionQueries.getSentRequests.Key });
-      queryClient.invalidateQueries({ queryKey: connectionQueries.getReceivedRequests.Key });
+      queryClient.invalidateQueries({
+        queryKey: connectionQueries.getMyConnections.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: jobseekerQueries.searchJobseekerProfiles.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: connectionQueries.getSentRequests.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: connectionQueries.getReceivedRequests.Key,
+      });
     },
   });
 };
@@ -107,9 +123,15 @@ export const useAcceptConnectionRequest = () => {
     mutationFn: acceptConnectionRequest,
     onSuccess: () => {
       // Invalidate and refetch connection-related queries
-      queryClient.invalidateQueries({ queryKey: connectionQueries.getMyConnections.Key });
-      queryClient.invalidateQueries({ queryKey: connectionQueries.getSentRequests.Key });
-      queryClient.invalidateQueries({ queryKey: connectionQueries.getReceivedRequests.Key });
+      queryClient.invalidateQueries({
+        queryKey: connectionQueries.getMyConnections.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: connectionQueries.getSentRequests.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: connectionQueries.getReceivedRequests.Key,
+      });
     },
   });
 };
@@ -124,8 +146,12 @@ export const useRejectConnectionRequest = () => {
     mutationFn: rejectConnectionRequest,
     onSuccess: () => {
       // Invalidate and refetch connection-related queries
-      queryClient.invalidateQueries({ queryKey: connectionQueries.getMyConnections.Key });
-      queryClient.invalidateQueries({ queryKey: connectionQueries.getReceivedRequests.Key });
+      queryClient.invalidateQueries({
+        queryKey: connectionQueries.getMyConnections.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: connectionQueries.getReceivedRequests.Key,
+      });
     },
   });
 };
@@ -140,8 +166,15 @@ export const useCancelConnectionRequest = () => {
     mutationFn: cancelConnectionRequest,
     onSuccess: () => {
       // Invalidate and refetch connection-related queries
-      queryClient.invalidateQueries({ queryKey: connectionQueries.getMyConnections.Key });
-      queryClient.invalidateQueries({ queryKey: connectionQueries.getSentRequests.Key });
+      queryClient.invalidateQueries({
+        queryKey: connectionQueries.getMyConnections.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: jobseekerQueries.searchJobseekerProfiles.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: connectionQueries.getSentRequests.Key,
+      });
     },
   });
 };
@@ -156,8 +189,9 @@ export const useRemoveConnection = () => {
     mutationFn: removeConnection,
     onSuccess: () => {
       // Invalidate and refetch connection-related queries
-      queryClient.invalidateQueries({ queryKey: connectionQueries.getMyConnections.Key });
+      queryClient.invalidateQueries({
+        queryKey: connectionQueries.getMyConnections.Key,
+      });
     },
   });
 };
-

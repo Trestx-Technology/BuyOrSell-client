@@ -10,7 +10,6 @@ import { transformAdToJobCard } from "@/utils/transform-ad-to-job-card";
 
 export default function FeaturedJobs() {
   const { data: adsData, isLoading } = useAds({
-    isFeatured: true,
     adType: "JOB",
     limit: 4,
     page: 1,
@@ -45,14 +44,14 @@ export default function FeaturedJobs() {
           {/* Header */}
           <div className="flex justify-between items-center w-full">
             <JobsSectionTitle>Featured Jobs</JobsSectionTitle>
-            <Link href="/jobs/featured">
+            {/* <Link href="/jobs/featured">
               <Typography
                 variant="body-large"
                 className="text-purple font-semibold text-base hover:underline"
               >
                 View all
               </Typography>
-            </Link>
+            </Link> */}
           </div>
 
           {/* Jobs Grid */}

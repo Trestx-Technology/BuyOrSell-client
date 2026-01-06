@@ -49,7 +49,7 @@ export default function ApplicantCard({
   onShare,
 }: ApplicantCardProps) {
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full max-w-[256px] space-y-4 relative">
+    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full lg:max-w-[256px] space-y-4 relative">
       {/* Header with Badge and Actions */}
       <div className="flex flex-col gap-[21.33px]">
         <div className="flex justify-between items-start">
@@ -182,7 +182,7 @@ export default function ApplicantCard({
       {/* Action Button */}
       <Link
         className="w-full block uppercase font-medium text-xs bg-purple text-white rounded-lg py-2 px-4 text-center hover:scale-105 transition-all duration-300"
-        href={`/jobs/jobseeker/${id}`}
+        href={`/jobs/jobseeker/${id}?type=profileVisit`}
       >
         View profile
       </Link>

@@ -4,30 +4,107 @@ import { Typography } from "@/components/typography";
 import JobCard from "./job-card";
 import Link from "next/link";
 import JobsSectionTitle from "../../_components/jobs-section-title";
-import { JobData } from "@/interfaces/job.types";
+import { AD } from "@/interfaces/ad";
 import { formatDistanceToNow } from "date-fns";
+import { useAds } from "@/hooks/useAds";
+import { useMemo } from "react";
 
-interface SimilarJobsProps {
-  similarJobs?: {
-    page: number;
-    limit: number;
-    total: number;
-    items: JobData[];
-    profileMatched?: {
-      desiredRoles?: string[];
-      skills?: string[];
-      preferredLocations?: string[];
-      preferredJobTypes?: string[];
-    };
+const getSalaryFromAd = (ad: AD, type: "min" | "max"): number | undefined => {
+  if (!ad.extraFields) return undefined;
+
+  const extraFields = Array.isArray(ad.extraFields)
+    ? ad.extraFields
+    : Object.entries(ad.extraFields).map(([name, value]) => ({
+        name,
+        value,
+      }));
+
+  const match = extraFields.find((field) =>
+    field.name?.toLowerCase().includes(`${type}salary`)
+  );
+
+  if (match) {
+    const value = match.value;
+    if (typeof value === "number") return value;
+    if (typeof value === "string") return Number(value) || undefined;
+  }
+
+  return undefined;
+};
+
+const transformAdToJobCard = (ad: AD) => {
+  const postedTime = formatDistanceToNow(new Date(ad.createdAt), {
+    addSuffix: true,
+  });
+
+  const extraFields = Array.isArray(ad.extraFields)
+    ? ad.extraFields
+    : Object.entries(ad.extraFields || {}).map(([name, value]) => ({
+        name,
+        value,
+      }));
+
+  const getFieldValue = (fieldName: string): string => {
+    const field = extraFields.find((f) =>
+      f.name?.toLowerCase().includes(fieldName.toLowerCase())
+    );
+    if (!field) return "";
+    if (Array.isArray(field.value)) {
+      return field.value.join(", ");
+    }
+    return String(field.value || "");
   };
-  isLoading?: boolean;
-}
 
-export default function SimilarJobs({
-  similarJobs: similarJobsData,
-  isLoading,
-}: SimilarJobsProps) {
-  const jobs = similarJobsData?.items || [];
+  const jobType =
+    getFieldValue("jobType") || getFieldValue("job type") || "Not specified";
+  const experience = getFieldValue("experience") || "Not specified";
+
+  const salaryMin = getSalaryFromAd(ad, "min") || ad.price || 0;
+  const salaryMax = getSalaryFromAd(ad, "max") || ad.price || 0;
+
+  const location =
+    typeof ad.location === "string"
+      ? ad.location
+      : ad.location?.city || ad.address?.city || "Location not specified";
+
+  const company =
+    ad.organization?.tradeName ||
+    ad.organization?.legalName ||
+    (ad.owner?.firstName && ad.owner?.lastName
+      ? `${ad.owner.firstName} ${ad.owner.lastName}`
+      : "Company");
+
+  return {
+    id: ad._id,
+    title: ad.title,
+    company,
+    experience,
+    salaryMin,
+    salaryMax,
+    location,
+    jobType,
+    postedTime,
+    logo: ad.organization?.logoUrl,
+  };
+};
+
+export default function SimilarJobs() {
+  const { data, isLoading } = useAds({ adType: "JOB", limit: 4 });
+
+  const jobs = useMemo(() => {
+    if (!data) return [];
+
+    const source =
+      data.data?.ads ??
+      data.data?.adds ??
+      data.ads ??
+      data.adds ??
+      (Array.isArray(data.data) ? data.data : undefined);
+
+    if (!Array.isArray(source)) return [];
+
+    return source.map((ad) => transformAdToJobCard(ad));
+  }, [data]);
 
   if (isLoading) {
     return (
@@ -49,6 +126,7 @@ export default function SimilarJobs({
   if (jobs.length === 0) {
     return null;
   }
+
   return (
     <section className="w-full bg-white py-8 px-4 lg:px-[100px]">
       <div className="max-w-[1080px] mx-auto">
@@ -56,43 +134,21 @@ export default function SimilarJobs({
           {/* Header */}
           <div className="flex justify-between items-center w-full">
             <JobsSectionTitle>Similar Jobs</JobsSectionTitle>
-            <Link href="/jobs/similar">
+            {/* <Link href="/jobs/similar">
               <Typography
                 variant="body-large"
                 className="text-purple font-semibold text-base hover:underline"
               >
                 View all
               </Typography>
-            </Link>
+            </Link> */}
           </div>
 
           {/* Jobs Grid */}
           <div className="flex flex-wrap gap-5">
-            {jobs.map((job) => {
-              const jobCardProps = {
-                id: job._id,
-                title: job.title,
-                company: job.organization?.tradeName || job.company || "",
-                experience: job.experience || "",
-                salaryMin: job.salaryMin || 0,
-                salaryMax: job.salaryMax || 0,
-                location: job.location || "",
-                jobType: job.jobType || "",
-                postedTime: job.postedAt
-                  ? formatDistanceToNow(new Date(job.postedAt), {
-                      addSuffix: true,
-                    })
-                  : "",
-              };
-              return (
-                <JobCard
-                  key={job._id}
-                  onShare={() => {}}
-                  onFavorite={() => {}}
-                  {...jobCardProps}
-                />
-              );
-            })}
+            {jobs.map((job) => (
+              <JobCard key={job.id} {...job} />
+            ))}
           </div>
         </div>
       </div>

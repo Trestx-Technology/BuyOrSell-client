@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 // import { useGetJobseekerProfileById } from "@/hooks/useJobseeker";
 import { JobseekerProfile } from "@/interfaces/job.types";
 import { ArrowLeft } from "lucide-react";
-import CandidateHeader from "./_components/candidate-header";
+import JobseekerProfileHeader from "@/components/global/jobseeker-profile-header";
 import CandidateBasicInfo from "./_components/candidate-basic-info";
 import CandidateResume from "./_components/candidate-resume";
 import CandidateEmployment from "./_components/candidate-employment";
@@ -19,6 +19,8 @@ import CandidateProfileSummary from "./_components/candidate-profile-summary";
 import CandidateLanguages from "./_components/candidate-languages";
 import { useGetJobseekerProfileById } from "@/hooks/useJobseeker";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 export default function JobseekerProfilePage() {
   const params = useParams();
@@ -123,51 +125,67 @@ export default function JobseekerProfilePage() {
   }
 
   return (
-    <Container1080 className="py-6 space-y-6">
-      <Button
-        type="button"
-        variant="ghost"
-        onClick={() => router.back()}
-        className="text-dark-blue p-0 h-auto hover:bg-transparent"
-        icon={<ArrowLeft className="w-4 h-4" />}
-        iconPosition="left"
-      >
-        Jobseekers
-      </Button>
+    <Container1080>
+      <MobileStickyHeader title="Jobseeker Profile" />
 
-      {/* Main Content */}
-      {/* Candidate Header */}
-      <CandidateHeader
-        jobseeker={jobseekerProfile}
-        onChat={handleChat}
-        onReport={handleReport}
-        // onShortlist={handleShortlist}
-        // onReject={handleReject}
-      />
+      <div className="p-6 space-y-6">
+        <Breadcrumbs
+          items={[
+            {
+              id: "jobseekers",
+              label: "Jobseekers",
+              href: "/jobs/jobseeker",
+            },
+            {
+              id: jobseekerProfile._id,
+              label: jobseekerProfile.name?.split(" ")?.slice(0, 3)?.join(" "),
+              href: `/jobs/jobseeker/${jobseekerProfile._id}`,
+            },
+          ]}
+          showHomeIcon={false}
+          showSelectCategoryLink={false}
+        />
 
-      {/* Basic Information */}
-      <CandidateBasicInfo jobseeker={jobseekerProfile} />
+        {/* Main Content */}
+        {/* Candidate Header */}
+        <JobseekerProfileHeader
+          jobseeker={jobseekerProfile}
+          actions={{
+            onChat: handleChat,
+            onReport: handleReport,
+            onShortlist: handleShortlist,
 
-      {/* Resume */}
-      <CandidateResume
-        jobseeker={jobseekerProfile}
-        onDownload={handleDownloadResume}
-      />
+            onReject: handleReject,
+            chatButtonText: "Chat With Jobseeker",
+          }}
+          containerClassName="mb-6"
+          type="applicantsList"
+        />
 
-      {/* Employment */}
-      <CandidateEmployment jobseeker={jobseekerProfile} />
+        {/* Basic Information */}
+        <CandidateBasicInfo jobseeker={jobseekerProfile} />
 
-      {/* Education */}
-      <CandidateEducation jobseeker={jobseekerProfile} />
+        {/* Resume */}
+        <CandidateResume
+          jobseeker={jobseekerProfile}
+          onDownload={handleDownloadResume}
+        />
 
-      {/* Key Skills */}
-      <CandidateSkills jobseeker={jobseekerProfile} />
+        {/* Employment */}
+        <CandidateEmployment jobseeker={jobseekerProfile} />
 
-      {/* Profile Summary */}
-      <CandidateProfileSummary jobseeker={jobseekerProfile} />
+        {/* Education */}
+        <CandidateEducation jobseeker={jobseekerProfile} />
 
-      {/* Language Details */}
-      <CandidateLanguages languages={jobseekerProfile.languages} />
+        {/* Key Skills */}
+        <CandidateSkills jobseeker={jobseekerProfile} />
+
+        {/* Profile Summary */}
+        <CandidateProfileSummary jobseeker={jobseekerProfile} />
+
+        {/* Language Details */}
+        <CandidateLanguages languages={jobseekerProfile.languages} />
+      </div>
     </Container1080>
   );
 }

@@ -15,6 +15,7 @@ import { Typography } from "@/components/typography";
 import ApplicantsPreview from "./applicants-preview";
 import JobApplicantCard from "./job-applicant-card";
 import { useRouter } from "nextjs-toploader/app";
+import { useLocale } from "@/hooks/useLocale";
 
 interface JobApplicantsModalProps {
   jobId: string;
@@ -27,6 +28,7 @@ export default function JobApplicantsModal({
 }: JobApplicantsModalProps) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const { locale } = useLocale();
   const { data: applicantsData, isLoading } = useGetJobApplicants(
     jobId,
     undefined
@@ -92,20 +94,43 @@ export default function JobApplicantsModal({
                 </Typography>
               </div>
             ) : (
-              <div className="space-y-4 w-full">
-                {applicants.map((applicant) => (
-                  <JobApplicantCard
-                    key={applicant._id}
-                    applicant={applicant}
-                    jobId={jobId}
-                    onViewProfile={() =>
+              <>
+                <div className="space-y-4 w-full">
+                  {applicants.slice(0, 5).map((applicant) => (
+                    <JobApplicantCard
+                      key={applicant._id}
+                      applicant={applicant}
+                      jobId={jobId}
+                      onViewProfile={() => {
+                        const params = new URLSearchParams({
+                          type: "applicantsList",
+                          applicationId: applicant._id,
+                          jobId: jobId,
+                        });
+                        router.push(
+                          `/jobs/jobseeker/${
+                            applicant.applicantProfileId?._id
+                          }?${params.toString()}`
+                        );
+                      }}
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-center pt-4 border-t">
+                  <Button
+                    onClick={() => {
+                      setOpen(false);
                       router.push(
-                        `/jobs/jobseeker/${applicant.applicantProfileId?._id}`
-                      )
-                    }
-                  />
-                ))}
-              </div>
+                        `/${locale}/jobs/listing/${jobId}/applicants`
+                      );
+                    }}
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                  >
+                    View All Applicants ({totalCount})
+                  </Button>
+                </div>
+              </>
             )}
           </div>
         </ResponsiveModalContent>

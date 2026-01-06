@@ -5,6 +5,8 @@ export interface SendConnectionRequestPayload {
   message?: string;
 }
 
+export type ConnectionStatus = "PENDING" | "ACCEPTED" | "REJECTED" | null;
+
 export interface ConnectionRequestResponse {
   statusCode: number;
   timestamp: string;
@@ -13,7 +15,7 @@ export interface ConnectionRequestResponse {
     id: string;
     fromUserId: string;
     toUserId: string;
-    status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+    status: ConnectionStatus;
     message?: string;
     createdAt: string;
     updatedAt: string;
@@ -34,7 +36,7 @@ export interface Connection {
     name: string;
     image?: string;
   };
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  status: ConnectionStatus;
   message?: string;
   createdAt: string;
   updatedAt: string;
@@ -57,7 +59,7 @@ export interface ConnectionLevelResponse {
   timestamp: string;
   message?: string;
   data?: {
-    level: '1st' | '2nd' | '3rd' | 'none';
+    level: "1st" | "2nd" | "3rd" | "none";
     connectionPath?: string[];
   };
 }
@@ -71,4 +73,3 @@ export interface CanChatResponse {
     reason?: string;
   };
 }
-

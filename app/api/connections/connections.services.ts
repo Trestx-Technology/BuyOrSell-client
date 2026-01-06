@@ -68,7 +68,7 @@ export const rejectConnectionRequest = async (
 export const cancelConnectionRequest = async (
   id: string,
 ): Promise<ConnectionRequestResponse> => {
-  const response = await axiosInstance.post<ConnectionRequestResponse>(
+  const response = await axiosInstance.delete<ConnectionRequestResponse>(
     connectionQueries.cancelRequest(id).endpoint,
   );
   return response.data;

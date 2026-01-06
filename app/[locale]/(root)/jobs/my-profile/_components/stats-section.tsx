@@ -73,7 +73,7 @@ export default function StatsSection({
 
   return (
     <section className="w-full px-4 lg:px-[100px] pt-6 pb-10">
-      <div className="grid grid-cols-2 lg:flex gap-[21.33px] max-w-[1080px] mx-auto w-full lg:flex-wrap">
+      <div className="grid sm:grid-cols-2 lg:flex gap-[21.33px] max-w-[1080px] mx-auto w-full lg:flex-wrap">
         <StatCard
           count={savedJobsCount || 0}
           label="Saved Jobs"
