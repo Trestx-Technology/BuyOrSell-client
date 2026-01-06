@@ -123,14 +123,24 @@ export default function Map({
 
     // Create new markers
     const newMarkers = markers.map((markerData) => {
+      const pointerSvg = `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.3 6 11.5 6 11.5s6-6.2 6-11.5c0-3.87-3.13-7-7-7z" fill="#F05A28"/>
+          <circle cx="12" cy="9" r="2.5" fill="white"/>
+        </svg>
+      `;
+      const pointerUrl = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+        pointerSvg
+      )}`;
+
       const marker = new window.google.maps.Marker({
         position: markerData.position,
         map,
         title: markerData.title,
         icon: {
-          url: ICONS.currency.aed,
-          scaledSize: new window.google.maps.Size(20, 20),
-          anchor: new window.google.maps.Point(20, 20),
+          url: pointerUrl,
+          scaledSize: new window.google.maps.Size(28, 28),
+          anchor: new window.google.maps.Point(14, 28),
         },
       });
 
@@ -148,7 +158,7 @@ export default function Map({
       // Create styled info window content with image
       const imageUrl = getImageUrl(markerData.image);
       const hasImage = imageUrl !== "";
-      
+
       // Escape HTML to prevent XSS
       const escapeHtml = (text: string) => {
         const div = document.createElement("div");
@@ -158,8 +168,10 @@ export default function Map({
 
       const safeTitle = escapeHtml(markerData.title || "");
       const safePrice = markerData.price ? escapeHtml(markerData.price) : "";
-      const safeLocation = markerData.location ? escapeHtml(markerData.location) : "";
-      
+      const safeLocation = markerData.location
+        ? escapeHtml(markerData.location)
+        : "";
+
       const infoWindowContent = `
         <div style="
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -170,7 +182,9 @@ export default function Map({
           overflow: hidden;
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         ">
-          ${hasImage ? `
+          ${
+            hasImage
+              ? `
             <div style="
               width: 100%;
               height: 160px;
@@ -199,7 +213,8 @@ export default function Map({
                 "
               />
             </div>
-          ` : `
+          `
+              : `
             <div style="
               width: 100%;
               height: 120px;
@@ -212,7 +227,8 @@ export default function Map({
                 <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="white"/>
               </svg>
             </div>
-          `}
+          `
+          }
           <div style="padding: 12px; background: white;">
             <h3 style="
               font-size: 14px;
@@ -225,7 +241,9 @@ export default function Map({
               -webkit-box-orient: vertical;
               overflow: hidden;
             ">${safeTitle}</h3>
-            ${safePrice ? `
+            ${
+              safePrice
+                ? `
               <div style="margin-bottom: 8px;">
                 <span style="
                   font-size: 16px;
@@ -239,8 +257,12 @@ export default function Map({
                   margin-left: 4px;
                 ">AED</span>
               </div>
-            ` : ""}
-            ${safeLocation ? `
+            `
+                : ""
+            }
+            ${
+              safeLocation
+                ? `
               <div style="
                 display: flex;
                 align-items: center;
@@ -261,7 +283,9 @@ export default function Map({
                   white-space: nowrap;
                 ">${safeLocation}</span>
               </div>
-            ` : ""}
+            `
+                : ""
+            }
           </div>
         </div>
       `;
@@ -276,10 +300,10 @@ export default function Map({
       marker.addListener("click", () => {
         // Close all other info windows
         infoWindowsRef.current.forEach((iw) => iw.close());
-        
+
         // Open this info window
         infoWindow.open(map, marker);
-        
+
         // Call the marker click handler if provided
         if (onMarkerClick) {
           onMarkerClick(markerData.id);

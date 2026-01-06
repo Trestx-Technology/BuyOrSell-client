@@ -31,6 +31,9 @@ import {
 } from "@/components/global/specifications-display";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
 import { useMemo } from "react";
+import { useShare } from "@/hooks/useShare";
+import { CollectionManager } from "@/components/global/collection-manager";
+import { useGetCollectionsByAd } from "@/hooks/useCollections";
 
 export interface HotDealsListingCardProps {
   id: string;
@@ -114,6 +117,10 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [timeLeft, setTimeLeft] = useState<string>("");
+  const { share } = useShare();
+  const { data: collectionsByAdResponse } = useGetCollectionsByAd(id);
+  const effectiveIsFavorite =
+    collectionsByAdResponse?.data?.isAddedInCollection ?? isFavorite;
 
   // Timer logic for countdown using dealValidThrough
   useEffect(() => {
@@ -181,14 +188,16 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
     }, 500);
   };
 
-  const handleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onFavorite?.(id);
-  };
-
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
+    share(id, title).catch((error) => {
+      console.error("Error sharing ad:", error);
+    });
     onShare?.(id);
+  };
+
+  const handleCollectionSuccess = () => {
+    onFavorite?.(id);
   };
 
   const handleCardClick = () => {
@@ -347,18 +356,25 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
                 strokeWidth={1}
               />
             </button>
-            <button
-              className="h-8 w-8 opacity-100 hover:scale-125 transition-all cursor-pointer rounded-full flex items-center justify-center"
-              onClick={handleFavorite}
+            <CollectionManager
+              itemId={id}
+              itemTitle={title}
+              itemImage={images?.[0] || ""}
+              onSuccess={handleCollectionSuccess}
             >
-              <Heart
-                size={24}
-                className={`fill-white stroke-slate-400 ${
-                  isFavorite ? "fill-red-500" : ""
-                }`}
-                strokeWidth={1}
-              />
-            </button>
+              <button
+                className="h-8 w-8 opacity-100 hover:scale-125 transition-all cursor-pointer rounded-full flex items-center justify-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Heart
+                  size={24}
+                  className={`fill-white stroke-slate-400 ${
+                    effectiveIsFavorite ? "fill-red-500" : ""
+                  }`}
+                  strokeWidth={1}
+                />
+              </button>
+            </CollectionManager>
           </div>
 
           {/* Discount Badge */}
