@@ -98,7 +98,10 @@ export function CardsCarousel({
               size="icon"
               onClick={scrollPrev}
               disabled={!canScrollPrev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full shadow-xl border-0 shadow-purple/20 text-dark-blue hover:bg-purple hover:text-white disabled:opacity-50 disabled:cursor-not-allowed hidden md:flex"
+              className={cn(
+                "absolute left-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full shadow-xl border-0 shadow-purple/20 text-dark-blue hover:bg-purple hover:text-white disabled:opacity-50 disabled:cursor-not-allowed hidden md:flex",
+                !canScrollPrev && "md:hidden"
+              )}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -107,7 +110,10 @@ export function CardsCarousel({
               size="icon"
               onClick={scrollNext}
               disabled={!canScrollNext}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full shadow-xl border-0 shadow-purple/20 text-dark-blue hover:bg-purple hover:text-white disabled:opacity-50 disabled:cursor-not-allowed hidden md:flex"
+              className={cn(
+                "absolute right-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full shadow-xl border-0 shadow-purple/20 text-dark-blue hover:bg-purple hover:text-white disabled:opacity-50 disabled:cursor-not-allowed hidden md:flex",
+                !canScrollNext && "md:hidden"
+              )}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>

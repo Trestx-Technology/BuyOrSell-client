@@ -260,12 +260,18 @@ export default function SellerListings({
           let originalPrice: number | undefined = undefined;
           let discountPercentage: number | undefined = undefined;
 
-          if (ad.discountedPrice !== null && ad.discountedPrice !== undefined && ad.discountedPrice < ad.price) {
+          if (
+            ad.discountedPrice !== null &&
+            ad.discountedPrice !== undefined &&
+            ad.discountedPrice < ad.price
+          ) {
             // discountedPrice is available and is less than price
             currentPrice = ad.discountedPrice;
             originalPrice = ad.price;
             // Calculate discount percentage
-            discountPercentage = Math.round(((ad.price - ad.discountedPrice) / ad.price) * 100);
+            discountPercentage = Math.round(
+              ((ad.price - ad.discountedPrice) / ad.price) * 100
+            );
           } else {
             // Try to get discount from extraFields
             const discountedPercent = extraFieldsObj.discountedPercent
@@ -274,7 +280,9 @@ export default function SellerListings({
 
             if (discountedPercent && discountedPercent > 0 && ad.price) {
               // Calculate original price from discount percentage
-              originalPrice = Math.round(ad.price / (1 - discountedPercent / 100));
+              originalPrice = Math.round(
+                ad.price / (1 - discountedPercent / 100)
+              );
               currentPrice = ad.price; // price is already the discounted price
               discountPercentage = Math.round(discountedPercent);
             }
@@ -295,16 +303,9 @@ export default function SellerListings({
               postedTime={formatPostedTime(ad.createdAt || "")}
               views={ad.views || 0}
               isPremium={ad.isFeatured || false}
-              isFavorite={false}
               isAddedInCollection={ad.isAddedInCollection}
               seller={sellerInfo}
               showSeller={true}
-              onFavorite={(id) => console.log("Favorited:", id)}
-              onShare={(id) => console.log("Shared:", id)}
-              onClick={(id) => {
-                // Navigate to ad detail page
-                window.location.href = `/ad/${id}`;
-              }}
               className={view === "list" ? "flex-row" : ""}
             />
           );

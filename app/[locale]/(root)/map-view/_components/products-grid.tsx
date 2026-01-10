@@ -115,10 +115,7 @@ export default function ProductsGrid({
                   className="group cursor-pointer"
                   onClick={() => handleProductClick(ad)}
                 >
-                  <ListingCard
-                    {...listingCard}
-                    onFavorite={handleFavoriteToggle}
-                  />
+                  <ListingCard {...listingCard} />
                 </motion.div>
               );
             })

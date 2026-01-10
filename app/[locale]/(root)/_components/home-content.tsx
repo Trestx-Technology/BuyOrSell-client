@@ -102,14 +102,7 @@ export function HomeContent() {
                   category.categoryAr?.toLowerCase() === "وظيفة"));
 
             return (
-              <div
-                key={`trending-category-ads-${i}`}
-                className="sticky"
-                style={{
-                  top: `${topValue}px`,
-                  zIndex: zIndexValue,
-                }}
-              >
+              <div key={`trending-category-ads-${i}`}>
                 {isJobCategory ? (
                   <JobsTabbedCarousel
                     categoryData={{
@@ -138,7 +131,7 @@ export function HomeContent() {
                         isArabic && category.categoryAr
                           ? category.categoryAr
                           : category.category,
-                    }}
+                    }} 
                     isLoading={isLoading}
                     showNavigation={false}
                     showViewAll={true}

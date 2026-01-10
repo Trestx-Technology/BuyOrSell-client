@@ -206,7 +206,6 @@ export default function CategoryListingPage() {
       .join(" ");
 
   const breadcrumbItems: BreadcrumbItem[] = [
-    { id: "categories", label: t.categories.categories, href: "/categories" },
     ...slugSegments.map((segment, index) => {
       const path = slugSegments.slice(0, index + 1).join("/");
       const href = `/categories/${path}`;
@@ -854,9 +853,6 @@ export default function CategoryListingPage() {
                       <ListingCard
                         {...ad}
                         extraFields={extraFields}
-                        onFavorite={(id) => console.log("Favorited:", id)}
-                        onShare={(id) => console.log("Shared:", id)}
-                        onClick={handleCardClick}
                         className="min-h-[284px]"
                       />
                     ) : (

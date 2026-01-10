@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { isColor } from "@/utils/utils";
 
 interface SpecificationsSectionProps {
   ad: AD;
@@ -57,6 +58,7 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
   const renderSpecItem = (key: string, value: string, index: number) => {
     const needsPopover = shouldTruncate(value);
     const displayValue = needsPopover ? truncateValue(value) : value;
+    const isColorValue = isColor(displayValue);
 
     if (needsPopover) {
       return (
@@ -65,7 +67,14 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
             <div className="flex justify-between items-start group border-gray-100 w-full p-2 rounded cursor-pointer hover:text-purple hover:bg-purple/10 transition-colors">
               <span className="text-sm text-grey-blue">{key}</span>
               <span className="text-sm font-semibold text-dark-blue max-w-1/2 text-right group-hover:text-purple">
-                {displayValue}
+                {isColor(displayValue) ? (
+                  <div
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: displayValue }}
+                  />
+                ) : (
+                  displayValue
+                )}
               </span>
             </div>
           </PopoverTrigger>
@@ -96,7 +105,14 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
       >
         <span className="text-sm text-grey-blue">{key}</span>
         <span className="text-sm font-semibold text-dark-blue max-w-1/2 text-right">
-          {value}
+          {isColorValue ? (
+            <div
+              className="size-6 border border-slate-200 rounded-full"
+              style={{ backgroundColor: value }}
+            />
+          ) : (
+            value
+          )}
         </span>
       </div>
     );

@@ -87,12 +87,7 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({ adId }) => {
             key={ad.id}
             className="flex-[0_0_auto] max-w-[220px] sm:max-w-[255px] w-full"
           >
-            <ListingCard
-              {...ad}
-              onFavorite={(id) => console.log("Favorited:", id)}
-              onShare={(id) => console.log("Shared:", id)}
-              onClick={handleCardClick}
-            />
+            <ListingCard {...ad} />
           </div>
         ))}
       </CardsCarousel>

@@ -83,196 +83,78 @@ export default function GalleryDialog({
     <ResponsiveDialogDrawer
       open={isOpen}
       onOpenChange={onClose}
-      dialogContentClassName=" p-0 bg-black/95 backdrop-blur-sm border-0 rounded-xl min-w-4xl"
+      dialogContentClassName="p-0 h-[80vh] flex flex-col bg-black/25 backdrop-blur-sm border-0 rounded-xl min-w-2xl lg:min-w-4xl"
       drawerContentClassName="h-fit p-0 backdrop-blur-sm rounded-xl border-0"
-      mobileBreakpoint={1000}
+      mobileBreakpoint={700}
     >
-      {/* <div className=" flex items-center justify-between p-4 border bg-gradient-to-b from-black/60 to-transparent">
-        <Typography variant="md-black-inter" className="text-white">
-          {selectedIndex + 1} / {mediaItems.length}
-        </Typography>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onClose}
-          className="absolute right-4 top-4 text-white hover:bg-white/10 hover:text-white"
-        >
-          <X className="h-6 w-6" />
-        </Button>
-      </div> */}
-      {/* Negative margins to counteract ResponsiveDialogDrawer's px-4 pb-4 padding on drawer */}
-      {/* Header */}
+      <div className="relative w-full h-full flex-1 overflow-hidden flex justify-center">
+        {mediaItems.length > 1 && (
+          <>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={goToPrevious}
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-50 h-12 w-12 rounded-full bg-purple backdrop-blur-md hover:bg-white/20 text-white border border-white/20"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
 
-      {/* Main Content */}
-      <div className="flex flex-col md:flex-row items-stretch flex-1 min-h-0">
-        {/* Main Media Display Area */}
-        <div className="flex-1 flex items-center justify-center md:p-6 min-h-0">
-          <div className="relative w-full h-full flex items-center justify-center">
-            {/* Navigation Buttons - Hidden on desktop when thumbnails are on the side */}
-
-            {/* Media Display */}
-            <div className="relative w-full h-full flex items-center justify-center">
-              {mediaItems.length > 1 && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={goToPrevious}
-                    className="absolute left-4 z-50 h-12 w-12 rounded-full bg-purple backdrop-blur-md hover:bg-white/20 text-white border border-white/20"
-                  >
-                    <ChevronLeft className="h-6 w-6" />
-                  </Button>
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={goToNext}
-                    className="absolute right-4 z-50 h-12 w-12 rounded-full bg-purple backdrop-blur-md hover:bg-white/20 text-white border border-white/20"
-                  >
-                    <ChevronRight className="h-6 w-6" />
-                  </Button>
-                </>
-              )}
-              {selectedItem.type === "image" ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={goToNext}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-50 h-12 w-12 rounded-full bg-purple backdrop-blur-md hover:bg-white/20 text-white border border-white/20"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Button>
+          </>
+        )}
+        {selectedItem.type === "image" ? (
+          <Image
+            key={selectedItem.id}
+            src={selectedItem.src || "/placeholder.svg"}
+            alt={selectedItem.alt}
+            width={512}
+            height={512}
+            className="object-contain rounded-2xl animate-in fade-in zoom-in-95 duration-300"
+            unoptimized
+          />
+        ) : (
+          <div className="relative w-full h-full">
+            {isPlaying ? (
+              <video
+                key={selectedItem.id}
+                src={selectedItem.src}
+                controls
+                autoPlay
+                className="h-full object-contain rounded-lg shadow-2xl animate-in fade-in zoom-in-95 duration-300"
+                onEnded={() => setIsPlaying(false)}
+                onPause={() => setIsPlaying(false)}
+                onPlay={() => setIsPlaying(true)}
+              >
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <div className="relative">
                 <Image
-                  key={selectedItem.id}
-                  src={selectedItem.src || "/placeholder.svg"}
+                  src={selectedItem.thumbnail || "/placeholder.svg"}
                   alt={selectedItem.alt}
                   width={1920}
                   height={1080}
-                  className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in fade-in zoom-in-95 duration-300"
+                  className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
                   unoptimized
                 />
-              ) : (
-                <div className="relative w-full h-full flex items-center justify-center">
-                  {isPlaying ? (
-                    <video
-                      key={selectedItem.id}
-                      src={selectedItem.src}
-                      controls
-                      autoPlay
-                      className="max-w-full max-h-full rounded-lg shadow-2xl animate-in fade-in zoom-in-95 duration-300"
-                      onEnded={() => setIsPlaying(false)}
-                      onPause={() => setIsPlaying(false)}
-                      onPlay={() => setIsPlaying(true)}
-                    >
-                      Your browser does not support the video tag.
-                    </video>
-                  ) : (
-                    <div className="relative">
-                      <Image
-                        src={selectedItem.thumbnail || "/placeholder.svg"}
-                        alt={selectedItem.alt}
-                        width={1920}
-                        height={1080}
-                        className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-                        unoptimized
-                      />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setIsPlaying(true)}
-                        className="absolute inset-0 m-auto h-16 w-16 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 text-white border-2 border-white/40"
-                      >
-                        <Play className="h-8 w-8 ml-1" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Thumbnails - Bottom on mobile, Right side on desktop */}
-        {mediaItems.length > 1 && (
-          <>
-            {/* Mobile: Bottom thumbnails */}
-            <div
-              className={cn(
-                showThumbnails ? "translate-y-0" : "translate-y-full",
-                "relative md:hidden p-4 transition-transform duration-300",
-                "flex items-center justify-center gap-3 overflow-x-auto scrollbar-hide  min-w-full  w-full"
-              )}
-            >
-              {mediaItems.map((item, index) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setSelectedIndex(index);
-                    setIsPlaying(false);
-                  }}
-                  className={cn(
-                    "relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200",
-                    selectedIndex === index
-                      ? "border-purple scale-110 shadow-xl"
-                      : "border-purple/30 hover:border-purple/60 opacity-60 hover:opacity-100"
-                  )}
-                >
-                  <Image
-                    src={item.thumbnail || "/placeholder.svg"}
-                    alt={item.alt}
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-cover"
-                    unoptimized
-                  />
-                  {item.type === "video" && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                      <Play className="h-5 w-5 text-white" />
-                    </div>
-                  )}
-                </button>
-              ))}
-              {/* Toggle Thumbnails Button - Mobile only */}
-            </div>
-            {/* {mediaItems.length > 1 && (
                 <Button
-                  size={"icon-sm"}
-                  onClick={() => setShowThumbnails(!showThumbnails)}
-                  className="md:hidden absolute -top-4 right-2 w-8 rounded-full text-white/60 hover:text-white z-20"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsPlaying(true)}
+                  className="absolute inset-0 m-auto h-16 w-16 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 text-white border-2 border-white/40"
                 >
-                  {showThumbnails ? (
-                    <ChevronDown className="h-6 w-6" />
-                  ) : (
-                    <ChevronUp className="h-6 w-6" />
-                  )}
+                  <Play className="h-8 w-8 ml-1" />
                 </Button>
-              )} */}
-
-            {/* Desktop: Right side thumbnails */}
-            <div className=" hidden md:flex flex-col gap-3 p-6 w-32 overflow-y-auto scrollbar-hide max-h-[600px]">
-              {mediaItems.map((item, index) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setSelectedIndex(index);
-                    setIsPlaying(false);
-                  }}
-                  className={cn(
-                    "relative flex-shrink-0 w-full cursor-pointer aspect-square rounded-lg overflow-hidden border-2 transition-all duration-200",
-                    selectedIndex === index
-                      ? "border-purple scale-105 shadow-xl"
-                      : "border-purple/30 hover:border-purple/60 opacity-60 hover:opacity-100"
-                  )}
-                >
-                  <Image
-                    src={item.thumbnail || "/placeholder.svg"}
-                    alt={item.alt}
-                    width={100}
-                    height={100}
-                    className="w-full h-full object-cover"
-                    unoptimized
-                  />
-                  {item.type === "video" && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                      <Play className="h-5 w-5 text-white" />
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
-          </>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </ResponsiveDialogDrawer>

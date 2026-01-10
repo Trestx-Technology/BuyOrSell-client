@@ -408,10 +408,6 @@ export default function HotDealsPage() {
                       postedTime={formatPostedTime(ad.createdAt)}
                       views={ad.views}
                       isPremium={ad.isFeatured}
-                      isFavorite={ad.isAddedInCollection}
-                      onFavorite={(id) => console.log("Favorited:", id)}
-                      onShare={(id) => console.log("Shared:", id)}
-                      onClick={handleAdClick}
                       className="border-none"
                       showSeller={true}
                       seller={seller}

@@ -194,7 +194,10 @@ export default function CollectionDetailPage() {
               variant="h2"
               className="text-gray-900 font-bold text-2xl mb-2"
             >
-              {collection.name}
+              {collection.name}{" "}
+              <span className="text-gray-500 text-xs">
+                ({formatDate(collection?.createdAt || "")})
+              </span>
             </Typography>
             {collection.description && (
               <Typography variant="body-small" className="text-gray-600 mb-2">
@@ -202,11 +205,7 @@ export default function CollectionDetailPage() {
               </Typography>
             )}
             <Typography variant="body-small" className="text-gray-500">
-              {t.favorites.itemsCount.replace(
-                "{{count}}",
-                (collection.count || sortedAds.length).toString()
-              )}
-              {formatDate(collection?.createdAt || "")}
+              {" "}
             </Typography>
           </div>
 
@@ -226,13 +225,13 @@ export default function CollectionDetailPage() {
 
         {/* Collection Items Section */}
         <div className="bg-white md:bg-transparent border md:border-none rounded-xl p-4 md:p-0 shadow-sm md:shadow-none">
-          <div className="flex flex-wrap items-start justify-between mb-6">
-            <Typography
+          <div className="flex flex-wrap items-start justify-end mb-6">
+            {/* <Typography
               variant="body-large"
               className="text-gray-900 font-semibold"
             >
-              {t.favorites.items} ({sortedAds.length})
-            </Typography>
+              {t.favorites.items} ({sortedAds.length}){" "}
+            </Typography> */}
 
             {/* Sort and View Controls */}
             <SortAndViewControls
@@ -276,9 +275,6 @@ export default function CollectionDetailPage() {
                       {view === "grid" ? (
                         <ListingCard
                           {...listingCardProps}
-                          isFavorite={true}
-                          onShare={(id) => console.log("Shared:", id)}
-                          onClick={(id) => router.push(`/ad/${id}`)}
                           className="min-h-[284px]"
                         />
                       ) : (

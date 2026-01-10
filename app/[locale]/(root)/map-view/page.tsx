@@ -338,7 +338,7 @@ const MapView = () => {
               images: transformed.images,
               extraFields: transformed.extraFields,
               postedTime: transformed.postedTime,
-              isFavorite: transformed.isFavorite || false,
+              // isFavorite: transformed.isFavorite || false,
               onFavorite: () => {},
             };
           })}

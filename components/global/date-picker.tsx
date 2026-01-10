@@ -90,10 +90,11 @@ export function DatePicker({
           id="date-picker-input"
           value={inputValue}
           placeholder={placeholder}
-          className="bg-background pr-10 text-xs"
-          onChange={handleInputChange}
+          className="bg-background pr-10 text-xs cursor-pointer"
+          readOnly
+          onClick={() => setOpen(true)}
           onKeyDown={(e) => {
-            if (e.key === "ArrowDown") {
+            if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
               e.preventDefault();
               setOpen(true);
             }
@@ -113,7 +114,6 @@ export function DatePicker({
           </PopoverTrigger>
           <PopoverContent className="w-auto overflow-hidden p-0" align="end">
             <Calendar
-              mode="single"
               selected={date}
               captionLayout="dropdown"
               month={month}

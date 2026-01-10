@@ -59,20 +59,13 @@ const NavbarContent = ({ className }: { className?: string }) => {
   );
 
   const handleLogout = async () => {
-    try {
-      // Call API logout endpoint (clears server-side session, localStorage, and cookies)
-      await LogoutAPI();
-    } catch (error) {
-      console.error("Logout error:", error);
-      // Even if API call fails, clear local session
-    } finally {
-      // Always clear Zustand store state and redirect, even if API call failed
-      await clearSession();
-
-      toast.success("Logged out successfully");
-      router.push("/");
-      router.refresh();
-    }
+    // Call API logout endpoint (clears server-side session, localStorage, and cookies)
+    await LogoutAPI();
+    // Always clear Zustand store state and redirect, even if API call failed
+    await clearSession();
+    toast.success("Logged out successfully");
+    router.push("/");
+    router.refresh();
   };
 
   return (
@@ -150,7 +143,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              className="w-fit text-xs max-h-[300px] overflow-y-auto"
+              className="w-fit text-xs max-h-[300px] overflow-y-auto z-[60]"
               align="start"
             >
               <DropdownMenuItem onClick={() => handleCityChange("")}>

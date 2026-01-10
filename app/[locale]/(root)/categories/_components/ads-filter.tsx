@@ -265,12 +265,14 @@ const AdsFilter = ({
         </div>
 
         {/* Filter Controls - Static Filters Outside Dialog */}
-        <div className="min-w-full flex items-end gap-3 pb-4 sm:p-4 border-b sm:border-none whitespace-nowrap overflow-x-auto scrollbar-hide relative">
-          {staticFilterConfigs.map((filterConfig) => (
-            <div key={filterConfig.key} className="min-w-40 shrink-0">
-              {renderFilterControl(filterConfig)}
-            </div>
-          ))}
+        <div className="min-w-full flex items-end gap-3 pb-4 sm:p-4 border-b sm:border-none whitespace-nowrap relative">
+          <div className="flex flex-1 gap-3 overflow-x-auto scrollbar-hide">
+            {staticFilterConfigs.map((filterConfig) => (
+              <div key={filterConfig.key} className="min-w-40 shrink-0">
+                {renderFilterControl(filterConfig)}
+              </div>
+            ))}
+          </div>
 
           {/* Advanced Filters Dialog - Dynamic Filters Inside */}
           <Dialog open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
