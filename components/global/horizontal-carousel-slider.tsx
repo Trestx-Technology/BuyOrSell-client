@@ -5,11 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, MapPin, Share2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import {
-  formatSpecValue,
-  getSpecIcon,
-  ListingCardProps,
-} from "@/components/global/listing-card";
+import { ListingCardProps } from "@/components/global/listing-card";
+import { formatSpecValue, getSpecIcon } from "@/utils/utils";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { Typography } from "../typography";
 import Image from "next/image";
@@ -237,37 +234,56 @@ export function HorizontalCarouselSlider({
                       <div className="flex items-center gap-2 px-2.5">
                         {(() => {
                           // Normalize extraFields: handle both array and object formats
-                          let normalizedFields: Record<string, string | number | boolean | string[] | null> = {};
+                          let normalizedFields: Record<
+                            string,
+                            string | number | boolean | string[] | null
+                          > = {};
                           if (Array.isArray(item.extraFields)) {
                             item.extraFields.forEach((field) => {
-                              if (field && typeof field === 'object' && 'name' in field && 'value' in field) {
+                              if (
+                                field &&
+                                typeof field === "object" &&
+                                "name" in field &&
+                                "value" in field
+                              ) {
                                 normalizedFields[field.name] = field.value;
                               }
                             });
-                          } else if (item.extraFields && typeof item.extraFields === 'object') {
-                            normalizedFields = item.extraFields as Record<string, string | number | boolean | string[] | null>;
+                          } else if (
+                            item.extraFields &&
+                            typeof item.extraFields === "object"
+                          ) {
+                            normalizedFields = item.extraFields as Record<
+                              string,
+                              string | number | boolean | string[] | null
+                            >;
                           }
-                          
+
                           const entries = Object.entries(normalizedFields);
-                          return entries.length > 0 && (
-                            <div className="flex items-center gap-2 px-2.5">
-                              {entries
-                                .slice(0, 2)
-                                .map(([key, value]) => {
-                                  const Icon = getSpecIcon(key);
+                          return (
+                            entries.length > 0 && (
+                              <div className="flex items-center gap-2 px-2.5">
+                                {entries.slice(0, 2).map(([key, value]) => {
+                                  const iconEmoji = getSpecIcon(key);
                                   return (
                                     <div
                                       key={key}
                                       className="flex items-center gap-1"
                                     >
-                                      <Icon className="w-3 h-3 text-grey-500" />
+                                      <span className="text-xs text-grey-500">
+                                        {iconEmoji}
+                                      </span>
                                       <span className="text-xs text-grey-500 truncate">
-                                        {formatSpecValue(key, value as string | number)}
+                                        {formatSpecValue(
+                                          key,
+                                          value as string | number
+                                        )}
                                       </span>
                                     </div>
                                   );
                                 })}
-                            </div>
+                              </div>
+                            )
                           );
                         })()}
                       </div>
@@ -383,7 +399,9 @@ export function HorizontalCarouselSlider({
                         />
                       </svg>
                       <span className="text-xs text-gray-600">
-                        {selectedItem.extraFields.map((field: ProductExtraField) => field.name).join(", ") || "N/A"}{" "}
+                        {selectedItem.extraFields
+                          .map((field: ProductExtraField) => field.name)
+                          .join(", ") || "N/A"}{" "}
                         Bedrooms
                       </span>
                     </div>
@@ -403,7 +421,9 @@ export function HorizontalCarouselSlider({
                         />
                       </svg>
                       <span className="text-xs text-gray-600">
-                        {selectedItem.extraFields.map((field: ProductExtraField) => field.name).join(", ") || "N/A"}{" "}
+                        {selectedItem.extraFields
+                          .map((field: ProductExtraField) => field.name)
+                          .join(", ") || "N/A"}{" "}
                         Bathrooms
                       </span>
                     </div>
@@ -423,7 +443,10 @@ export function HorizontalCarouselSlider({
                         />
                       </svg>
                       <span className="text-xs text-gray-600">
-                        {selectedItem.extraFields.find((field: ProductExtraField) => field.name === "area")?.value || "N/A"} sqft
+                        {selectedItem.extraFields.find(
+                          (field: ProductExtraField) => field.name === "area"
+                        )?.value || "N/A"}{" "}
+                        sqft
                       </span>
                     </div>
                   </div>
@@ -458,7 +481,10 @@ export function HorizontalCarouselSlider({
                       Description
                     </h3>
                     <p className="text-xs text-gray-600 leading-relaxed">
-                        {selectedItem.extraFields.find((field: ProductExtraField) => field.name === "description")?.value ||
+                      {selectedItem.extraFields.find(
+                        (field: ProductExtraField) =>
+                          field.name === "description"
+                      )?.value ||
                         "This is a beautiful property with modern amenities and great location. Perfect for families looking for comfort and convenience in a prime area."}
                     </p>
                   </div>
