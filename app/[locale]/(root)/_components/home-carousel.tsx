@@ -1,9 +1,8 @@
 "use client";
 
 import { BannerCarousel } from "@/components/global/banner-carousel";
-import { banners } from "@/constants/banners";
 import { useBannersByLocation } from "@/hooks/useBanners";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 export function HomeCarousel() {
   const {
@@ -11,25 +10,19 @@ export function HomeCarousel() {
     isLoading: isLoadingBanners,
     error: errorBanners,
   } = useBannersByLocation("homepage-carousel");
-  
 
-  // Blur fade animation variants
-  const blurFadeVariants = {
+  // Optimized blur fade animation variants
+  const blurFadeVariants: Variants = {
     hidden: {
-      opacity: 0.5,
-      delay: 0.5,
-      filter: "blur(5px)",
-      scale: 0.95,
+      opacity: 0,
+      y: 20,
     },
     visible: {
       opacity: 1,
-      filter: "blur(0px)",
-      scale: 1,
+      y: 0,
       transition: {
-        type: "spring" as const,
-        stiffness: 200,
-        damping: 25,
-        duration: 0.8,
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1], // Custom easing for smoother animation
       },
     },
   };
@@ -37,9 +30,7 @@ export function HomeCarousel() {
   return (
     <motion.div
       variants={blurFadeVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-100px" }}
+      viewport={{ once: true, amount: 0.3 }}
     >
       <BannerCarousel
         banners={bannersData?.data?.banners || []}
@@ -54,4 +45,3 @@ export function HomeCarousel() {
     </motion.div>
   );
 }
-

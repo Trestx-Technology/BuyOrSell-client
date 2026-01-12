@@ -235,7 +235,7 @@ export default function HostDeals({
         background:
           "radial-gradient(circle, rgba(180, 207, 199, 1) 0%, rgba(132, 75, 143, 1) 100%)",
       }}
-      className={`bg-[#B7FBE9] lg:rounded-lg  max-w-[1180px] mx-auto py-5 ${className}`}
+      className={`bg-[#B7FBE9] xl:rounded-lg max-w-[1180px] mx-auto py-5 ${className}`}
     >
       <div className="w-full mx-auto">
         {/* Header with Timer */}
@@ -276,7 +276,7 @@ export default function HostDeals({
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="mb-4 pl-5"
+          className="mb-4 "
         >
           {isLoading ? (
             <>
@@ -314,8 +314,8 @@ export default function HostDeals({
               onValueChange={setActiveTab}
               className="w-full"
             >
-              <TabsList className="flex items-center justify-start w-full bg-transparent gap-3 overflow-x-auto scrollbar-hide">
-                {categories.map((category, index) => (
+              <TabsList className="flex items-center justify-start w-full bg-transparent gap-3 overflow-x-auto scrollbar-hide px-5">
+                {categories.map((category) => (
                   <TabsTrigger key={category.id} value={category.value}>
                     {category.name}
                   </TabsTrigger>
@@ -331,7 +331,7 @@ export default function HostDeals({
                   <TabsContent
                     key={category.id}
                     value={category.value}
-                    className="mt-4"
+                    className="mt-4 "
                   >
                     <motion.div
                       variants={contentVariants}
@@ -341,22 +341,13 @@ export default function HostDeals({
                       className="flex gap-4 items-center"
                     >
                       {/* Deals Carousel */}
-                      <div className="flex-1 overflow-hidden">
+                      <div className="flex-1 overflow-hidden ">
                         {categoryAds.length > 0 ? (
                           <CardsCarousel title="" showNavigation={true}>
-                            {categoryAds.map((deal, index) => (
+                            {categoryAds.map((deal) => (
                               <motion.div
                                 key={deal.id}
-                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                                viewport={{ once: true, margin: "-100px" }}
-                                transition={{
-                                  type: "spring" as const,
-                                  stiffness: 300,
-                                  damping: 22,
-                                  delay: 0.6 + index * 0.08,
-                                }}
-                                className="flex-[0_0_auto] max-w-[190px] w-full"
+                                className="flex gap-4 w-full"
                               >
                                 <HotDealsListingCard
                                   {...deal}

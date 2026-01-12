@@ -84,7 +84,10 @@ export function CardsCarousel({
     <div className={cn("space-y-4", className)}>
       {title && (
         <h2
-          className={cn("text-lg font-medium text-dark-blue", titleClassName)}
+          className={cn(
+            "sm:text-lg text-base font-semibold sm:font-medium text-dark-blue mx-5",
+            titleClassName
+          )}
         >
           {title}
         </h2>
@@ -121,7 +124,7 @@ export function CardsCarousel({
         )}
 
         <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex gap-3 py-3">{children}</div>
+          <div className="flex gap-3 py-3 px-5 ">{children}</div>
         </div>
       </div>
     </div>

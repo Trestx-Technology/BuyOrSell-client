@@ -142,7 +142,7 @@ export function PriceDisplay({
             <span
               className={`text-sm font-semibold text-teal ${discountBadgeClassName}`}
             >
-              {discountPercentage}% OFF
+              {discountPercentage}%
             </span>
           )}
         </>

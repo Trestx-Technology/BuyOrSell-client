@@ -12,7 +12,7 @@ import { AD } from "@/interfaces/ad";
 import { useLocale } from "@/hooks/useLocale";
 
 interface CategoryTabbedCarouselProps<
-  T extends { id?: string | number } = { id?: string | number },
+  T extends { id?: string | number } = { id?: string | number }
 > {
   categoryData: CategoryWithSubCategories;
   title?: string; // Optional, defaults to "Trending {category}"
@@ -29,7 +29,7 @@ interface CategoryTabbedCarouselProps<
 }
 
 export default function CategoryTabbedCarousel<
-  T extends { id?: string | number } = { id?: string | number },
+  T extends { id?: string | number } = { id?: string | number }
 >({
   categoryData,
   title,
@@ -42,20 +42,27 @@ export default function CategoryTabbedCarousel<
   onTabChange,
 }: CategoryTabbedCarouselProps<T>) {
   const { locale } = useLocale();
-  const isArabic = locale === 'ar';
+  const isArabic = locale === "ar";
 
   // Use Arabic category name if available
-  const categoryName = isArabic ? (categoryData.categoryAr || categoryData.category) : categoryData.category;
+  const categoryName = isArabic
+    ? categoryData.categoryAr || categoryData.category
+    : categoryData.category;
   const displayTitle = title || `Trending ${categoryName}`;
 
-  const subCategories = useMemo(() => categoryData.subCategory || [], [categoryData.subCategory]);
-  
+  const subCategories = useMemo(
+    () => categoryData.subCategory || [],
+    [categoryData.subCategory]
+  );
+
   const firstTabValue = categoryData.subCategory[0]?._id;
   const [activeTab, setActiveTab] = useState(firstTabValue);
 
   // Get ads directly from the selected subcategory
   const currentAds = useMemo(() => {
-    const activeSubCategory = subCategories.find(sub => sub._id === activeTab);
+    const activeSubCategory = subCategories.find(
+      (sub) => sub._id === activeTab
+    );
     return activeSubCategory?.ads || [];
   }, [subCategories, activeTab]);
 
@@ -74,17 +81,47 @@ export default function CategoryTabbedCarousel<
 
   const titleVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
-    visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring" as const, stiffness: 300, damping: 22, delay: 0.2 } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 22,
+        delay: 0.2,
+      },
+    },
   };
 
   const tabsVariants = {
     hidden: { opacity: 0, y: 15, scale: 0.95 },
-    visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring" as const, stiffness: 300, damping: 22, delay: 0.5 } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 22,
+        delay: 0.5,
+      },
+    },
   };
 
   const cardsVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
-    visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring" as const, stiffness: 300, damping: 22, delay: 0.8 } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring" as const,
+        stiffness: 300,
+        damping: 22,
+        delay: 0.8,
+      },
+    },
   };
 
   const handleTabChange = (tabId: string) => {
@@ -101,10 +138,15 @@ export default function CategoryTabbedCarousel<
     <div className="mb-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+          <div
+            key={i}
+            className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"
+          ></div>
         ))}
       </div>
-      {showViewAll && <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"></div>}
+      {showViewAll && (
+        <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+      )}
     </div>
   );
 
@@ -115,7 +157,7 @@ export default function CategoryTabbedCarousel<
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="flex-[0_0_auto] max-w-[190px] w-full bg-white border border-gray-200 rounded-lg overflow-hidden animate-pulse"
+              className="w-[220px] bg-white border border-gray-200 rounded-lg overflow-hidden animate-pulse"
             >
               <div className="h-32 bg-gray-200"></div>
               <div className="p-3 space-y-2">
@@ -137,7 +179,7 @@ export default function CategoryTabbedCarousel<
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="flex items-center justify-between mb-2"
+      className="flex items-center justify-between mb-2 pl-5"
     >
       <Typography
         variant="lg-black-inter"
@@ -156,16 +198,23 @@ export default function CategoryTabbedCarousel<
       viewport={{ once: true, margin: "-100px" }}
       className="mb-4 flex items-center justify-between"
     >
-      <div className="flex flex-1 items-center gap-3 overflow-x-auto scrollbar-hide">
+      <div className="flex flex-1 items-center gap-3 overflow-x-auto scrollbar-hide px-5">
         {subCategories.map((subCategory, index) => {
-          const subCategoryName = isArabic ? (subCategory.nameAr || subCategory.name) : subCategory.name;
+          const subCategoryName = isArabic
+            ? subCategory.nameAr || subCategory.name
+            : subCategory.name;
           return (
             <motion.button
               key={subCategory._id}
               initial={{ opacity: 0, y: 10, scale: 0.9 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ type: "spring" as const, stiffness: 300, damping: 22, delay: 0.6 + index * 0.08 }}
+              transition={{
+                type: "spring" as const,
+                stiffness: 300,
+                damping: 22,
+                delay: 0.6 + index * 0.08,
+              }}
               onClick={() => handleTabChange(subCategory._id)}
               className={`px-4 py-2 h-8 text-xs font-medium rounded-lg border transition-colors flex-shrink-0 ${
                 activeTab === subCategory._id
@@ -183,7 +232,12 @@ export default function CategoryTabbedCarousel<
           initial={{ opacity: 0, y: 10, scale: 0.9 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true, margin: "-100px" }}
-          transition={{ type: "spring" as const, stiffness: 300, damping: 22, delay: 0.7 }}
+          transition={{
+            type: "spring" as const,
+            stiffness: 300,
+            damping: 22,
+            delay: 0.7,
+          }}
         >
           <Button
             variant="filled"
@@ -218,25 +272,30 @@ export default function CategoryTabbedCarousel<
         viewport={{ once: true, margin: "-100px" }}
         className="relative"
       >
-            <CardsCarousel title="" showNavigation={showNavigation}>
-              {currentAds
-                .filter((item): item is AD => item != null)
-                .map((item, index) => {
-                  const listingCardProps = transformAdToListingCard(item, locale);
-                  return (
-                    <motion.div
-                      key={item._id || index}
-                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                      viewport={{ once: true, margin: "-50px" }}
-                      transition={{ type: "spring" as const, stiffness: 280, damping: 20, delay: 0.9 + index * 0.1 }}
-                      className="flex-[0_0_auto] max-w-[190px] w-full"
-                    >
-                      <ListingCard showSeller={false} {...listingCardProps} />
-                    </motion.div>
-                  );
-                })}
-            </CardsCarousel>
+        <CardsCarousel title="" showNavigation={showNavigation}>
+          {currentAds
+            .filter((item): item is AD => item != null)
+            .map((item, index) => {
+              const listingCardProps = transformAdToListingCard(item, locale);
+              return (
+                <motion.div
+                  key={item._id || index}
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{
+                    type: "spring" as const,
+                    stiffness: 280,
+                    damping: 20,
+                    delay: 0.9 + index * 0.1,
+                  }}
+                  className="flex gap-4"
+                >
+                  <ListingCard {...listingCardProps} />
+                </motion.div>
+              );
+            })}
+        </CardsCarousel>
       </motion.div>
     );
   };
@@ -249,7 +308,7 @@ export default function CategoryTabbedCarousel<
       viewport={{ once: true, margin: "-100px" }}
       className={`max-w-[1220px] bg-white mx-auto py-5 ${className}`}
     >
-      <div className="w-full mx-auto px-4 xl:px-5">
+      <div className="w-full mx-auto">
         {/* Header with Title */}
         {isLoading ? <TitleSkeleton /> : renderTitle()}
 
@@ -262,4 +321,3 @@ export default function CategoryTabbedCarousel<
     </motion.section>
   );
 }
-

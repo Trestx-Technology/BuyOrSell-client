@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/popover";
 import { UI_ICONS } from "@/constants/icons";
 import { cn } from "@/lib/utils";
+import { isColor } from "@/utils/utils";
 
 export interface Specification {
   name: string;
@@ -66,13 +67,21 @@ export function SpecificationsDisplay({
         >
           <div className="flex-shrink-0 flex items-center justify-center w-[22px] h-[22px]">
             {typeof spec.icon === "string" ? (
-              <Image
-                src={spec.icon || UI_ICONS.fallback}
-                alt={spec.name}
-                width={22}
-                height={22}
-                className="object-contain opacity-65"
-              />
+              isColor(spec.icon) ? (
+                <div
+                  className="w-full h-full rounded-sm border border-gray-200"
+                  style={{ backgroundColor: spec.icon }}
+                  title={`${spec.name}: ${spec.icon}`}
+                />
+              ) : (
+                <Image
+                  src={spec.icon || UI_ICONS.fallback}
+                  alt={spec.name}
+                  width={22}
+                  height={22}
+                  className="object-contain opacity-65"
+                />
+              )
             ) : spec.icon ? (
               <div className="opacity-65">{spec.icon}</div>
             ) : (
@@ -121,13 +130,21 @@ export function SpecificationsDisplay({
                   <div key={spec.name} className="flex items-center gap-2">
                     <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
                       {typeof spec.icon === "string" ? (
-                        <Image
-                          src={spec.icon || UI_ICONS.fallback}
-                          alt={spec.name}
-                          width={16}
-                          height={16}
-                          className="w-4 h-4 object-contain"
-                        />
+                        isColor(spec.icon) ? (
+                          <div
+                            className="w-full h-full rounded-sm border border-gray-200"
+                            style={{ backgroundColor: spec.icon }}
+                            title={`${spec.name}: ${spec.icon}`}
+                          />
+                        ) : (
+                          <Image
+                            src={spec.icon || UI_ICONS.fallback}
+                            alt={spec.name}
+                            width={16}
+                            height={16}
+                            className="w-4 h-4 object-contain"
+                          />
+                        )
                       ) : spec.icon ? (
                         spec.icon
                       ) : (

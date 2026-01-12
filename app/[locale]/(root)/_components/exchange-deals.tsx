@@ -216,14 +216,14 @@ export default function ExchangeDeals({
       }}
       className={`bg-[#B7FBE9] xl:rounded-lg max-w-[1180px] mx-auto py-5 ${className}`}
     >
-      <div className="w-full mx-auto pl-5">
+      <div className="w-full mx-auto">
         {/* Header with Timer */}
         <motion.div
           variants={headerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="flex items-center justify-between mb-4"
+          className="flex items-center justify-between mb-4 pl-5"
         >
           {/* Hot Deals Title */}
           <Typography
@@ -254,7 +254,7 @@ export default function ExchangeDeals({
               onValueChange={setActiveTab}
               className="w-full"
             >
-              <TabsList className="flex items-center justify-start w-full bg-transparent gap-3 overflow-x-auto scrollbar-hide">
+              <TabsList className="flex items-center justify-start w-full bg-transparent gap-3 overflow-x-auto scrollbar-hide px-5">
                 {categories.map((category, index) => (
                   <TabsTrigger
                     key={category.id}
@@ -303,14 +303,9 @@ export default function ExchangeDeals({
                                     damping: 22,
                                     delay: 0.6 + index * 0.08,
                                   }}
-                                  className="flex-[0_0_auto] max-w-[220px] w-full"
+                                  className="flex gap-4 w-full"
                                 >
-                                  <ListingCard
-                                    {...ad}
-                                    showSeller={true}
-                                    showSocials={true}
-                                    className="w-full"
-                                  />
+                                  <ListingCard {...ad} showSocials={true} />
                                 </motion.div>
                               );
                             })}

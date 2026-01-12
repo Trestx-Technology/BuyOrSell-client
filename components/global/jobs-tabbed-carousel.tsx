@@ -53,7 +53,9 @@ export default function JobsTabbedCarousel({
 
   // Get ads directly from the selected subcategory
   const currentAds = useMemo(() => {
-    const activeSubCategory = subCategories.find((sub) => sub._id === activeTab);
+    const activeSubCategory = subCategories.find(
+      (sub) => sub._id === activeTab
+    );
     return activeSubCategory?.ads || [];
   }, [subCategories, activeTab]);
 
@@ -116,9 +118,7 @@ export default function JobsTabbedCarousel({
     };
 
     const jobType =
-      getFieldValue("jobType") ||
-      getFieldValue("job type") ||
-      "Not specified";
+      getFieldValue("jobType") || getFieldValue("job type") || "Not specified";
     const experience = getFieldValue("experience") || "Not specified";
 
     // Extract salary from extraFields or use price
@@ -264,7 +264,7 @@ export default function JobsTabbedCarousel({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="flex items-center justify-between mb-2"
+      className="flex items-center justify-between mb-2 pl-5"
     >
       <Typography
         variant="lg-black-inter"
@@ -281,7 +281,7 @@ export default function JobsTabbedCarousel({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="mb-4 flex items-center justify-between"
+      className="mb-4 flex items-center justify-between px-5"
     >
       <div className="flex flex-1 items-center gap-3 overflow-x-auto scrollbar-hide">
         {subCategories.map((subCategory, index) => {
@@ -374,7 +374,7 @@ export default function JobsTabbedCarousel({
                     damping: 20,
                     delay: 0.9 + index * 0.1,
                   }}
-                  className="flex-[0_0_auto] max-w-[256px] w-full"
+                  className="flex gap-2"
                 >
                   <JobCard {...jobCardProps} />
                 </motion.div>
@@ -393,7 +393,7 @@ export default function JobsTabbedCarousel({
       viewport={{ once: true, margin: "-100px" }}
       className={`max-w-[1220px] bg-white mx-auto py-5 ${className}`}
     >
-      <div className="w-full mx-auto px-4 xl:px-5">
+      <div className="w-full mx-auto">
         {/* Header with Title */}
         {isLoading ? <TitleSkeleton /> : renderTitle()}
 
@@ -406,4 +406,3 @@ export default function JobsTabbedCarousel({
     </motion.section>
   );
 }
-

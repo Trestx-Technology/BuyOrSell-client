@@ -62,14 +62,14 @@ export default function RecentViews({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="max-w-[1180px] mx-auto px-4 xl:px-0"
+      className="max-w-[1180px] mx-auto"
     >
       <CardsCarousel title={t.home.recentViews.title}>
         {listingItems.map((item) => (
           <motion.div
             key={item.id}
             variants={itemVariants}
-            className="flex-[0_0_auto] max-w-[190px] w-full"
+            className="flex gap-4 items-center"
           >
             <ListingCard
               {...item}

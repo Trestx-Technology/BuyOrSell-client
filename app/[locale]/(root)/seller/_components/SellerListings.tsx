@@ -305,7 +305,6 @@ export default function SellerListings({
               isPremium={ad.isFeatured || false}
               isAddedInCollection={ad.isAddedInCollection}
               seller={sellerInfo}
-              showSeller={true}
               className={view === "list" ? "flex-row" : ""}
             />
           );

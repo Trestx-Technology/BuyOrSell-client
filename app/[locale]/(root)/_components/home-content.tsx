@@ -36,14 +36,6 @@ export function HomeContent() {
         />
 
         <div className="my-8 space-y-5">
-          {/* Recent Views */}
-          {homeData?.data?.recentlyViewed &&
-            homeData?.data?.recentlyViewed.length > 0 && (
-              <RecentViews
-                recentlyViewedAds={homeData.data.recentlyViewed}
-                isLoading={isLoading}
-              />
-            )}
           <HostDeals
             categoryTreeWithDealAds={homeData?.data?.categoryTreeWithDealAds}
             isLoading={isLoading}
@@ -56,98 +48,67 @@ export function HomeContent() {
           />
         </div>
 
+        {/* Recent Views */}
+        {homeData?.data?.recentlyViewed &&
+          homeData?.data?.recentlyViewed.length > 0 && (
+            <RecentViews
+              recentlyViewedAds={homeData.data.recentlyViewed}
+              isLoading={isLoading}
+            />
+          )}
+
         {/* PhonePe-Style Stacking Animation Container */}
-        <div className="max-w-[1280px] mx-auto relative">
-          {homeData?.data.subCategoryList?.map((category, i) => {
-            // Calculate dynamic sticky positioning
-            // Top pattern: 0, 50, 150, 200, 250, 300, 350, 400, 450...
-            // - First: 0
-            // - Second: 50
-            // - Third and beyond: 50 + index * 50
-            const calculateTop = (index: number): number => {
-              if (index === 0) return 0;
-              if (index === 1) return 50;
-              // For index 2+: 50 + index * 50
-              // index 2: 50 + 2 * 50 = 150 ✓
-              // index 3: 50 + 3 * 50 = 200 ✓
-              // index 4: 50 + 4 * 50 = 250 ✓
-              return 50 + index * 50;
-            };
+        {homeData?.data.subCategoryList?.map((category, i) => {
+          // Check if category is "job" (case-insensitive)
+          const isJobCategory =
+            category.category?.toLowerCase() === "job" ||
+            category.category?.toLowerCase() === "jobs" ||
+            (isArabic &&
+              (category.categoryAr?.toLowerCase() === "وظائف" ||
+                category.categoryAr?.toLowerCase() === "وظيفة"));
 
-            // Z-index pattern: 10, 20, 40, 50, 60, 70, 80, 90, 100...
-            // - First: 10
-            // - Second: 20
-            // - Third: 40 (jump of 20)
-            // - Fourth and beyond: 40 + (index - 2) * 10 = 50, 60, 70, 80, 90, 100...
-            const calculateZIndex = (index: number): number => {
-              if (index === 0) return 10;
-              if (index === 1) return 20;
-              if (index === 2) return 40;
-              // For index 3+: 40 + (index - 2) * 10
-              // index 3: 40 + 1 * 10 = 50 ✓
-              // index 4: 40 + 2 * 10 = 60 ✓
-              // index 5: 40 + 3 * 10 = 70 ✓
-              return 40 + (index - 2) * 10;
-            };
-
-            const topValue = calculateTop(i);
-            const zIndexValue = calculateZIndex(i);
-
-            // Check if category is "job" (case-insensitive)
-            const isJobCategory =
-              category.category?.toLowerCase() === "job" ||
-              category.category?.toLowerCase() === "jobs" ||
-              (isArabic &&
-                (category.categoryAr?.toLowerCase() === "وظائف" ||
-                  category.categoryAr?.toLowerCase() === "وظيفة"));
-
-            return (
-              <div key={`trending-category-ads-${i}`}>
-                {isJobCategory ? (
-                  <JobsTabbedCarousel
-                    categoryData={{
-                      ...category,
-                      category:
-                        isArabic && category.categoryAr
-                          ? category.categoryAr
-                          : category.category,
-                    }}
-                    isLoading={isLoading}
-                    showNavigation={false}
-                    showViewAll={true}
-                    viewAllText={t.common.viewAll}
-                    onViewAll={(categoryName) =>
-                      router.push(localePath("/jobs/listing"))
-                    }
-                    onTabChange={(tabId) =>
-                      console.log("Tab changed to:", tabId)
-                    }
-                  />
-                ) : (
-                  <CategoryTabbedCarousel
-                    categoryData={{
-                      ...category,
-                      category:
-                        isArabic && category.categoryAr
-                          ? category.categoryAr
-                          : category.category,
-                    }} 
-                    isLoading={isLoading}
-                    showNavigation={false}
-                    showViewAll={true}
-                    viewAllText={t.common.viewAll}
-                    onViewAll={(categoryName) =>
-                      router.push(`/categories/${categoryName}`)
-                    }
-                    onTabChange={(tabId) =>
-                      console.log("Tab changed to:", tabId)
-                    }
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
+          return (
+            <div key={`trending-category-ads-${i}`}>
+              {isJobCategory ? (
+                <JobsTabbedCarousel
+                  categoryData={{
+                    ...category,
+                    category:
+                      isArabic && category.categoryAr
+                        ? category.categoryAr
+                        : category.category,
+                  }}
+                  isLoading={isLoading}
+                  showNavigation={false}
+                  showViewAll={true}
+                  viewAllText={t.common.viewAll}
+                  onViewAll={(categoryName) =>
+                    router.push(localePath("/jobs/listing"))
+                  }
+                  onTabChange={(tabId) => console.log("Tab changed to:", tabId)}
+                />
+              ) : (
+                <CategoryTabbedCarousel
+                  categoryData={{
+                    ...category,
+                    category:
+                      isArabic && category.categoryAr
+                        ? category.categoryAr
+                        : category.category,
+                  }}
+                  isLoading={isLoading}
+                  showNavigation={false}
+                  showViewAll={true}
+                  viewAllText={t.common.viewAll}
+                  onViewAll={(categoryName) =>
+                    router.push(`/categories/${categoryName}`)
+                  }
+                  onTabChange={(tabId) => console.log("Tab changed to:", tabId)}
+                />
+              )}
+            </div>
+          );
+        })}
 
         {/* Footer */}
         <FloatingChatCTA />

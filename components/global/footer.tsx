@@ -15,6 +15,10 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "../ui/button";
+import {
+  fastContainerVariants,
+  fastItemVariants,
+} from "@/utils/animation-variants";
 
 interface FooterProps {
   className?: string;
@@ -25,32 +29,12 @@ export function Footer({ className }: FooterProps) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-    },
-  };
-
   return (
     <footer
       className={cn("w-full bg-purple text-primary-foreground", className)}
     >
       <motion.div
         className="w-full bg-black"
-        variants={itemVariants}
         initial="hidden"
         whileInView="visible"
       >
@@ -69,7 +53,7 @@ export function Footer({ className }: FooterProps) {
       {/* Main Footer Content */}
       <motion.div
         className="max-w-[1280px] mx-auto px-5 lg:px-[100px] py-12"
-        variants={containerVariants}
+        variants={fastContainerVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
@@ -77,7 +61,7 @@ export function Footer({ className }: FooterProps) {
         {/* Logo Section */}
         <motion.div
           className="mb-8 bg-white rounded-lg p-4 w-fit mx-auto md:mx-0"
-          variants={itemVariants}
+          variants={fastItemVariants}
         >
           <Image
             src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/assets/logo.svg"
@@ -93,7 +77,7 @@ export function Footer({ className }: FooterProps) {
           {/* Company Section */}
           <motion.div
             className="space-y-6 hidden md:block"
-            variants={itemVariants}
+            variants={fastItemVariants}
           >
             <Typography variant="h6" className="font-medium text-sm">
               Company
@@ -129,7 +113,7 @@ export function Footer({ className }: FooterProps) {
           {/* UAE Section */}
           <motion.div
             className="space-y-6 hidden md:block"
-            variants={itemVariants}
+            variants={fastItemVariants}
           >
             <Typography variant="h6" className="font-medium text-sm">
               UAE
@@ -189,7 +173,7 @@ export function Footer({ className }: FooterProps) {
           {/* Categories Section */}
           <motion.div
             className="space-y-6 hidden md:block"
-            variants={itemVariants}
+            variants={fastItemVariants}
           >
             <Typography variant="h6" className="font-medium text-sm">
               Categories
@@ -249,7 +233,7 @@ export function Footer({ className }: FooterProps) {
           {/* Download App Section */}
           <motion.div
             className="space-y-6 flex flex-col justify-center items-center w-full md:w-auto lg:items-start"
-            variants={itemVariants}
+            variants={fastItemVariants}
           >
             <Typography variant="h6" className="font-medium text-sm">
               Download App
@@ -337,7 +321,7 @@ export function Footer({ className }: FooterProps) {
           {/* Subscribe Section */}
           <motion.div
             className="space-y-6 hidden md:block"
-            variants={itemVariants}
+            variants={fastItemVariants}
           >
             <Typography variant="h6" className="font-medium text-sm">
               Subscribe
@@ -379,7 +363,7 @@ export function Footer({ className }: FooterProps) {
           {/* Language Section */}
           <motion.div
             className="space-y-6 hidden md:block"
-            variants={itemVariants}
+            variants={fastItemVariants}
           >
             <Typography variant="h6" className="font-medium text-sm">
               Language
@@ -407,7 +391,7 @@ export function Footer({ className }: FooterProps) {
         {/* Bottom Section */}
         <motion.div
           className="flex justify-center md:justify-between flex-wrap gap-5 items-center"
-          variants={itemVariants}
+          variants={fastItemVariants}
         >
           {/* Left Side - Legal Links */}
           <div className="hidden md:flex items-center gap-6 ">

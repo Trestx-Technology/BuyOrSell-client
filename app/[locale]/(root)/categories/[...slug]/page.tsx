@@ -851,9 +851,9 @@ export default function CategoryListingPage() {
                   <React.Fragment key={ad.id}>
                     {view === "grid" ? (
                       <ListingCard
+                        className="flex-[0_0_auto] w-full"
                         {...ad}
                         extraFields={extraFields}
-                        className="min-h-[284px]"
                       />
                     ) : (
                       <>

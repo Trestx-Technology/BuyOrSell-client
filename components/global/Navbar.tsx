@@ -185,7 +185,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="hidden md:flex flex-1">
+          <div className="hidden md:flex flex-1 ">
             <SearchAnimated />
           </div>
         </div>

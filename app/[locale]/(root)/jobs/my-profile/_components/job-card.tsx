@@ -1,6 +1,13 @@
 "use client";
 
-import { Briefcase, DollarSign, MapPin, Clock, Share2, Heart } from "lucide-react";
+import {
+  Briefcase,
+  DollarSign,
+  MapPin,
+  Clock,
+  Share2,
+  Heart,
+} from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +49,7 @@ export default function JobCard({
   const { localePath } = useLocale();
 
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full max-w-[256px] h-[335px] relative">
+    <div className="relative sm:w-[250px]  bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full h-full flex flex-col">
       {/* Header with Badge and Actions */}
       <div className="flex flex-col gap-[21.33px] mb-4">
         <div className="flex justify-between items-start">
@@ -105,7 +112,7 @@ export default function JobCard({
       </div>
 
       {/* Job Details */}
-      <div className="flex flex-col gap-3 mb-4">
+      <div className="flex flex-col gap-3 mb-4 flex-1">
         <div className="flex items-center gap-1.5">
           <Briefcase className="w-5 h-5 text-grey-blue" />
           <Typography
@@ -117,8 +124,12 @@ export default function JobCard({
         </div>
 
         <div className="flex items-center gap-1.5">
-
-          <Image src={ICONS.currency.aed} alt="dollar sign" width={16} height={16}/>
+          <Image
+            src={ICONS.currency.aed}
+            alt="dollar sign"
+            width={16}
+            height={16}
+          />
           <div className="flex items-center gap-1">
             <span className="text-[9.19px]">AED</span>
             <Typography
@@ -160,10 +171,7 @@ export default function JobCard({
       </div>
 
       {/* Action Button */}
-      <Link
-        href={localePath(`/jobs/${id}`)}
-        className="block absolute bottom-4 left-4 right-4"
-      >
+      <Link href={localePath(`/jobs/${id}`)}>
         <Button size={"sm"} className="w-full uppercase font-medium text-xs">
           Job details
         </Button>
@@ -171,4 +179,3 @@ export default function JobCard({
     </div>
   );
 }
-

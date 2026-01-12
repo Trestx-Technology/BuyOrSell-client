@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PopularCategory } from "@/interfaces/home.types";
 import { useLocale } from "@/hooks/useLocale";
+import { containerVariants, itemVariants } from "@/utils/animation-variants";
 
 interface CategoryCard {
   id: number;
@@ -25,32 +26,6 @@ interface PopularCategoriesProps {
   popularCategories?: PopularCategory[];
   isLoading?: boolean;
 }
-
-// Framer Motion animation variants - using improved patterns from AI search bar
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 22,
-    },
-  },
-};
 
 // Skeleton component for loading state
 const CategorySkeleton = () => (
@@ -178,7 +153,7 @@ const PopularCategories = ({
                   className="bg-white w-full md:border border-[#F5EBFF] rounded-md shadow-purple/20 hover:shadow-purple/30 block relative hover:bg-purple/10 transition-all duration-300 group"
                 >
                   {/* Category Content */}
-                  <div className="px-2 py-1 min-h-[130px]">
+                  <div className="px-2 py-2 h-full">
                     {/* Icon and Name Section */}
                     <div className="flex flex-col items-center text-center mb-2">
                       <div className="size-[60px] bg-[#FAFAFC] rounded-full flex items-center justify-center mb-1">
@@ -203,7 +178,7 @@ const PopularCategories = ({
                     </div>
 
                     {/* Description */}
-                    <p className="text-xs text-[#667085] text-center font-inter leading-tight line-clamp-2 md:block hidden truncate">
+                    <p className="text-xs text-slate-400 text-center font-inter leading-tight line-clamp-2 md:block hidden truncate">
                       {category.description}
                     </p>
                   </div>

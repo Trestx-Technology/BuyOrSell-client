@@ -91,7 +91,7 @@ export function SearchAnimated() {
     <div
       ref={searchRef}
       className={cn(
-        "relative flex items-center  border border-gray-300 rounded-lg h-10 flex-1 z-50"
+        "relative flex items-center  border border-gray-300 rounded-lg h-10 flex-1 z-50 bg-white"
         // !isAI && "overflow-hidden"
       )}
     >
