@@ -43,6 +43,8 @@ export const AI_ICONS = {
 // ============================================================================
 export const CURRENCY_ICONS = {
   aed: `${S3_BASE_URL}/icons/AED.svg`,
+  aedBlack: `${S3_BASE_URL}/icons/aed-icon-black.svg`,
+  aedWhite: `${S3_BASE_URL}/icons/aed-icon-white.svg`,
 } as const;
 
 // ============================================================================

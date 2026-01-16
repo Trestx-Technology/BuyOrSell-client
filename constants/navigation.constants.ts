@@ -76,7 +76,7 @@ export const REGULAR_NAVIGATION_ITEMS: NavigationItem[] = [
   {
     id: "offers",
     type: "link",
-    href: "/user/offers",
+    href: "/plans",
     translationKey: "offersPackages",
     icon: ICONS.navigation.offersPackages,
     iconType: "image",

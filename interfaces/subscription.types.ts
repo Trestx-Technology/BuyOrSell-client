@@ -20,7 +20,6 @@ export interface CreateSubscriptionPayload {
   endDate: string;
   status: string;
   paymentId: string;
-  adsUsed: number;
 }
 
 export interface UpdateSubscriptionPayload extends Partial<CreateSubscriptionPayload> {}
