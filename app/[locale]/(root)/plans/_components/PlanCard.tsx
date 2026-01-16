@@ -48,6 +48,13 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
             const numericPrice = parseFloat(plan.price.replace(/,/g, ''));
             const amount = Math.round(numericPrice * 100);
 
+            // Map validationPeriod to planType format expected by backend (WEEKLY, MONTHLY, YEARLY)
+            let planType = "MONTHLY"; // Default
+            if (plan.validationPeriod === "MONTH") planType = "MONTHLY";
+            else if (plan.validationPeriod === "YEAR") planType = "YEARLY";
+            else if (plan.validationPeriod === "WEEK") planType = "WEEKLY";
+            else if (plan.validationPeriod === "DAY") planType = "DAILY"; // Assuming DAILY might exist or fallback to MONTHLY if unknown
+
             const payload = {
                   amount: amount,
                   currency: "aed",

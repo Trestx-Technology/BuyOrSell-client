@@ -6,6 +6,7 @@ export interface CreatePaymentPayload {
   typeId: string;
   userId: string;
   redirectUrl?: string;
+  planType?: string; // Optional field for subscription plan duration (WEEKLY, MONTHLY, YEARLY)
 }
 
 export interface PaymentResponse {
