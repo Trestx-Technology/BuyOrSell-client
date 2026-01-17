@@ -13,17 +13,13 @@ export interface PaymentResponse {
   statusCode: number;
   message: string;
   data: {
-    clientSecret?: string;
+    secret?: string;
+    paymentIntent?: any;
     paymentIntentId?: string;
     // Add other relevant response fields based on Stripe/Provider response
-    _id: string;
     amount: number;
     currency: string;
     status: string;
-    type: string;
-    typeId: string;
-    userId: string;
-    createdAt: string;
   };
 }
 

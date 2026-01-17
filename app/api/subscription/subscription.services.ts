@@ -79,12 +79,13 @@ export const getSubscriptionUsers = async (
   return response.data;
 };
 
-export const getMySubscription = async (): Promise<SingleSubscriptionResponse> => {
-  const response = await axiosInstance.get<SingleSubscriptionResponse>(
-    subscriptionQueries.getMySubscription.endpoint
-  );
-  return response.data;
-};
+export const getMySubscription =
+  async (): Promise<SubscriptionListResponse> => {
+    const response = await axiosInstance.get<SubscriptionListResponse>(
+      subscriptionQueries.getMySubscription.endpoint
+    );
+    return response.data;
+  };
 
 export const getMyActiveSubscription = async (): Promise<SingleSubscriptionResponse> => {
   const response = await axiosInstance.get<SingleSubscriptionResponse>(

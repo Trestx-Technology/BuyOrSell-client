@@ -1,15 +1,20 @@
+import { IPlan } from "./plan.types";
+
 export interface ISubscription {
   _id: string;
   userID: string;
-  plan: string;
   isActive: boolean;
+  paymentId: string;
+  addOns: any[]; // Or define specific Interface if known
+  plan: IPlan; // Use IPlan if it matches, otherwise define strict shape here
   startDate: string;
   endDate: string;
-  status: 'active' | 'inactive' | 'expired';
-  paymentId: string;
+  status: "created" | "active" | "inactive" | "expired"; // Updated status enum based on sample 'created'
+  addsAvailable: number;
   adsUsed: number;
   createdAt: string;
   updatedAt: string;
+  __v?: number;
 }
 
 export interface CreateSubscriptionPayload {
@@ -22,7 +27,8 @@ export interface CreateSubscriptionPayload {
   paymentId: string;
 }
 
-export interface UpdateSubscriptionPayload extends Partial<CreateSubscriptionPayload> {}
+export interface UpdateSubscriptionPayload
+  extends Partial<CreateSubscriptionPayload> {}
 
 export interface SingleSubscriptionResponse {
   data: ISubscription;

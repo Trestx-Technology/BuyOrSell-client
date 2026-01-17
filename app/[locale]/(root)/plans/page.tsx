@@ -4,16 +4,22 @@ import React, { useState } from "react";
 import { Typography } from "@/components/typography";
 import { Star, Zap, Award } from "lucide-react";
 import { useLocale } from "@/hooks/useLocale";
-import { PlanCard } from "./_components/PlanCard";
+import { PlanCard, } from "./_components/PlanCard";
 import { useGetPlans } from "@/hooks/usePlans";
 import { IPlan } from "@/interfaces/plan.types";
+import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
+
+import { useGetMySubscription } from "@/hooks/useSubscriptions";
+import { PlanSkeleton } from "./_components/plancard-skeleton";
 
 export default function PlansPage() {
   const { t, locale } = useLocale();
   const [isYearly, setIsYearly] = useState(false);
   const { data: plansData, isLoading, error } = useGetPlans();
+  const { data: mySubscription } = useGetMySubscription();
 
   const getPlanIcon = (planName: string) => {
+    // ... (same as before)
     const normalizeName = planName.toLowerCase();
     if (normalizeName.includes("silver") || normalizeName.includes("basic"))
       return Star;
@@ -25,10 +31,8 @@ export default function PlansPage() {
   };
 
   const getFeatures = (plan: IPlan) => {
-    // The API might return features as a single CSV string in an array or a real array
-    // Based on example: ["Feature 1,Feature 2"]
+    // ... (same as before)
     if (!plan.features || plan.features.length === 0) return [];
-
     let featuresList = plan.features;
     if (plan.features.length === 1 && plan.features[0].includes(",")) {
       featuresList = plan.features[0].split(",");
@@ -36,11 +40,29 @@ export default function PlansPage() {
     return featuresList.map((f) => f.trim());
   };
 
-  const displayPlans = plansData?.data || [];
+  const displayPlans = (plansData?.data || []).filter((plan) => {
+    // Case insensitive comparison for planType
+    const type = plan.planType?.toUpperCase() || "MONTHLY";
+    // If isYearly is true, show YEARLY, else MONTHLY
+    return isYearly ? type === "YEARLY" : type === "MONTHLY";
+  });
+
+  // Helper to check if plan is current
+  // subscription response is a list: { data: ISubscription[] }
+  // We need to find if there is an active subscription for any plan
+  const activeSubscription = Array.isArray(mySubscription?.data)
+    ? mySubscription?.data.find((sub) => sub.isActive)
+    : undefined;
+
+  // If mySubscription.data is not array (older api structure), fallback (though we updated service)
+  // But let's stick to array logic as per latest service change.
+
+  const currentPlanId = activeSubscription?.plan?._id; 
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-16">
+      <MobileStickyHeader title={"Our Plans"} />
+      <div className="container mx-auto px-4 py-8 md:py-16">
         {/* Header Section */}
         <div className="text-center mb-16">
           {/* Plans and pricing badge */}
@@ -83,10 +105,12 @@ export default function PlansPage() {
           </div>
         </div>
 
-        {/* Loading/Error States */}
+        {/* Loading State */}
         {isLoading && (
-          <div className="text-center py-20">
-            <Typography variant="xl-medium">Loading plans...</Typography>
+          <div className="flex flex-wrap lg:flex-nowrap justify-center gap-8 mx-auto">
+            {[1, 2, 3].map((i) => (
+              <PlanSkeleton key={i} />
+            ))}
           </div>
         )}
 
@@ -100,29 +124,19 @@ export default function PlansPage() {
 
         {/* Plans Grid */}
         {!isLoading && !error && (
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="flex flex-wrap lg:flex-nowrap justify-center gap-8 mx-auto">
             {displayPlans.map((plan) => {
               const features = getFeatures(plan);
               const planName = locale === "ar" && plan.planAr ? plan.planAr : plan.plan;
 
-              // Since API provides one price, we use it directly.
-              // If isYearly is true, we might hypothetically show a yearly calculation or filter if API supported it.
-              // For now, we display the price from API. 
-              // Example API has monthly validation.
-              const price = plan.price.toString();
-              const originalPrice = (
-                plan.price + (plan.discount ? (plan.price * plan.discount) / 100 : 0) // rough reverse calc or just show regular
-              ).toFixed(0);
-              // Or better, if discount is applied, price is discountedPrice? 
-              // JSON: "price": 49, "discount": 20, "discountedPrice": 39.2
-              // So 'price' is original, 'discountedPrice' is actual?
-              // The UI usually shows "Current Price" and "crossed out Original Price".
               const displayPrice = plan.discountedPrice
                 ? plan.discountedPrice.toFixed(0).toString()
                 : plan.price.toFixed(0).toString();
               const displayOriginalPrice = plan.discountedPrice
                 ? plan.price.toFixed(0).toString()
                 : "";
+
+              const isCurrentPlan = currentPlanId === plan._id;
 
               // Map properties to PlanCard props
               const cardProps = {
@@ -133,11 +147,12 @@ export default function PlansPage() {
                 icon: getPlanIcon(plan.plan),
                 price: displayPrice,
                 originalPrice: displayOriginalPrice,
-                description: "", // API doesn't have description, maybe use features summary or empty
+                description: "", 
                 features: features,
-                buttonText: "Subscribe", // Could use translation t.plans.subscribe
-                isPopular: plan.isPopular, // API has isPopular
-                isPremium: plan.plan.toLowerCase() === "platinum", // or based on logic
+                buttonText: isCurrentPlan ? "Current Plan" : "Subscribe",
+                isPopular: plan.isPopular,
+                isPremium: plan.plan.toLowerCase() === "platinum",
+                isCurrent: isCurrentPlan // Add this property to PlanCardProps interface
               };
 
               return (
@@ -154,4 +169,3 @@ export default function PlansPage() {
     </div>
   );
 }
-

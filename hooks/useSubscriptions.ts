@@ -31,7 +31,7 @@ export const useGetAllSubscriptions = (params?: {
 };
 
 export const useGetMySubscription = () => {
-  return useQuery<SingleSubscriptionResponse, Error>({
+  return useQuery<SubscriptionListResponse, Error>({
     queryKey: subscriptionQueries.getMySubscription.Key,
     queryFn: () => getMySubscription(),
   });

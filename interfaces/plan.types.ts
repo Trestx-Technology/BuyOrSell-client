@@ -19,6 +19,7 @@ export interface IPlan {
   updatedAt: string;
   __v: number;
   planAr: string;
+  planType: string;
 }
 
 export interface PlanListResponse {

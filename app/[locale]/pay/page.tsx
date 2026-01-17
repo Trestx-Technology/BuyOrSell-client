@@ -60,6 +60,7 @@ function PayPageContent() {
     () => ({
       clientSecret: clientSecret!,
       appearance: { theme: "stripe" as const },
+
     }),
     [clientSecret]
   );

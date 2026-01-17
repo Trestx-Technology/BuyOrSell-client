@@ -38,11 +38,22 @@ export function PaymentForm({
   const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    if (isSuccess) {
-      router.push(`${redirectUrl}?status=success&type=${type}&typeId=${typeId}&paymentIntentId=${paymentIntentId}`);
+  // Centralized redirect handler
+  const handleRedirect = (status: "success" | "failed", errorMsg?: string) => {
+    const url = new URL(redirectUrl, window.location.origin); // Ensure base if relative
+    url.searchParams.set("status", status);
+
+    if (status === "success") {
+      url.searchParams.set("type", type);
+      url.searchParams.set("typeId", typeId);
+      url.searchParams.set("paymentIntentId", paymentIntentId);
+    } else if (errorMsg) {
+      url.searchParams.set("error", errorMsg);
     }
-  }, [isSuccess, type, typeId, paymentIntentId]);
+
+    router.replace(url.toString());
+  };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +70,7 @@ export function PaymentForm({
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: redirectUrl, // Fallback if redirect is required
+          return_url: redirectUrl, // Only used if redirect is strictly required by payment method
         },
         redirect: "if_required",
       });
@@ -67,8 +78,7 @@ export function PaymentForm({
       if (error) {
         setErrorMessage(error.message || "Payment failed");
         setIsProcessing(false);
-        // Redirect with failure
-        router.push(`${redirectUrl}?status=failed&error=${error.message || "Payment failed"}`);
+        handleRedirect("failed", error.message || "Payment failed");
         return;
       }
 
@@ -93,8 +103,11 @@ export function PaymentForm({
               } catch (e) {
                 console.error("Failed to post message to WebView", e);
               }
+
               setIsSuccess(true);
-              router.push(`${redirectUrl}?status=success&type=${type}&typeId=${typeId}&paymentIntentId=${paymentIntentId}`);
+              // Delay slightly to show success state before redirecting, or redirect immediately based on UX preference
+              // User requested: "Ensure redirect happens only after backend confirmation."
+              handleRedirect("success"); 
             },
             onError: (err) => {
               console.error("Backend confirmation failed", err);
@@ -102,18 +115,20 @@ export function PaymentForm({
                 "Payment succeeded but verification failed. Please contact support."
               );
               setIsProcessing(false);
-              router.push(`${redirectUrl}?status=failed&error=Backend verification failed`);
+              handleRedirect("failed", "Backend verification failed");
             },
           }
         );
       } else {
-        // Processing or requires action (handled by redirect usually)
+        // Processing or requires action (handled by redirect usually, but if here, status might be processing)
+        // If status is 'processing', likely async payment method.
         setIsProcessing(false);
       }
     } catch (err) {
       console.error(err);
       setErrorMessage("An unexpected error occurred.");
       setIsProcessing(false);
+      handleRedirect("failed", "An unexpected error occurred.");
     }
   };
 
@@ -140,7 +155,7 @@ export function PaymentForm({
         }
         iconPosition="left"
       >
-        Pay AED {amount}
+        {isProcessing || isConfirmingBackend ? "Processing..." : `Pay AED ${amount}`}
       </Button>
     </form>
   );

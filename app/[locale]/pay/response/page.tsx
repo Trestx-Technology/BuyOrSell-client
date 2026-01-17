@@ -54,8 +54,10 @@ function ResponseContent() {
         <p className="text-gray-500 mb-6 max-w-xs mx-auto">
           {error || "Something went wrong with your payment request. Please try again."}
         </p>
-        <Button onClick={() => router.back()} variant="outline" className="w-full">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+                 <Button onClick={() => router.back()} variant="filled" icon={
+                       <ArrowLeft className="w-4 h-4" />
+
+                 } iconPosition="center" className="w-full">
             Try Again
         </Button>
       </div>
