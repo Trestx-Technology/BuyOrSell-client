@@ -353,7 +353,7 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse): AxiosResponse => response,
-  (error: AxiosError): Promise<never> => {
+  async (error: AxiosError): Promise<never> => {
     const status = error.response?.status;
     const requestUrl = error.config?.url;
     const isPublic = isPublicEndpoint(requestUrl);
@@ -373,11 +373,61 @@ axiosInstance.interceptors.response.use(
 
     // Only redirect for 401 on protected endpoints
     if (status === 401 && !isPublic) {
-      if (!isRedirecting) {
-        void handleLogoutAndRedirect();
-        toast.error("Session expired. Please log in again.");
+      const originalRequest = error.config as InternalAxiosRequestConfig & {
+        _retry?: boolean;
+      };
+
+      if (!originalRequest) {
+        return Promise.reject(error);
       }
-      return Promise.reject(error);
+
+      // If we already retried, give up and logout
+      if (originalRequest._retry) {
+        if (!isRedirecting) {
+          void handleLogoutAndRedirect();
+          toast.error("Session expired. Please log in again.");
+        }
+        return Promise.reject(error);
+      }
+
+      originalRequest._retry = true;
+
+      // Try to refresh token
+      const refreshToken = getRefreshToken();
+
+      if (!refreshToken) {
+        if (!isRedirecting) {
+          void handleLogoutAndRedirect();
+        }
+        return Promise.reject(error);
+      }
+
+      try {
+        if (!refreshPromise) {
+          refreshPromise = executeRefreshFlow(refreshToken)
+            .catch((refreshErr) => {
+              // If refresh fails, we must logout
+              if (!isRedirecting) {
+                void handleLogoutAndRedirect();
+              }
+              throw refreshErr;
+            })
+            .finally(() => {
+              refreshPromise = null;
+            });
+        }
+
+        const newToken = await refreshPromise;
+
+        // Update verify header with new token
+        setAuthHeader(originalRequest, newToken);
+
+        // Retry original request
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        // Refresh failed (already handled in catch above, but strictly returning rejection here)
+        return Promise.reject(refreshError);
+      }
     }
 
     // For 401 on public endpoints, just return the error without redirecting

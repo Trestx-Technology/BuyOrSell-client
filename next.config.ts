@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   // Produce a standalone build so the Docker image only needs the minimal files
   output: "standalone",
   images: {
-    unoptimized:true,
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -32,6 +32,15 @@ const nextConfig: NextConfig = {
         hostname: "buyorsell-assets.s3.me-central-1.amazonaws.com",
       },
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: "/pay",
+        destination: "/en-US/pay",
+        permanent: false,
+      },
+    ];
   },
 };
 

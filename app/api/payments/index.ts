@@ -7,8 +7,4 @@ export const paymentQueries = {
     endpoint: `/payments/confirm/${paymentIntentId}`,
     Key: ["confirmPaymentIntent", paymentIntentId],
   }),
-  getPaymentIntent: (paymentIntentId: string) => ({
-    endpoint: `/payments/${paymentIntentId}`,
-    Key: ["getPaymentIntent", paymentIntentId],
-  }),
 };

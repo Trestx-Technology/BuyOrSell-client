@@ -1,3 +1,4 @@
+import axios from "axios";
 import { axiosInstance } from "@/services/axios-api-client";
 import { paymentQueries } from "./index";
 import type {
@@ -34,11 +35,20 @@ export const confirmPaymentIntent = async (
   return response.data;
 };
 
-export const getPaymentIntent = async (
-  paymentIntentId: string
-): Promise<PaymentResponse> => {
-  const response = await axiosInstance.get<PaymentResponse>(
-    paymentQueries.getPaymentIntent(paymentIntentId).endpoint
+export const confirmPaymentIntentWithToken = async (
+  paymentIntentId: string,
+  accessToken: string
+): Promise<ConfirmPaymentResponse> => {
+  const response = await axios.patch<ConfirmPaymentResponse>(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}${
+      paymentQueries.confirmPaymentIntent(paymentIntentId).endpoint
+    }`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
   );
   return response.data;
 };

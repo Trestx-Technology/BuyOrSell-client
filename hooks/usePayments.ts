@@ -2,7 +2,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import {
   createPaymentIntent,
   confirmPaymentIntent,
-  getPaymentIntent,
+  confirmPaymentIntentWithToken,
 } from "@/app/api/payments/payment.services";
 import {
   CreatePaymentPayload,
@@ -23,8 +23,6 @@ export const useCreatePaymentIntent = () => {
 };
 
 export const useConfirmPaymentIntent = () => {
-  const queryClient = useQueryClient();
-
   return useMutation<ConfirmPaymentResponse, Error, string>({
     mutationFn: confirmPaymentIntent,
     onSuccess: (_, paymentIntentId) => {
@@ -34,10 +32,15 @@ export const useConfirmPaymentIntent = () => {
   });
 };
 
-export const useGetPaymentIntent = (paymentIntentId: string) => {
-  return useQuery<PaymentResponse, Error>({
-    queryKey: paymentQueries.getPaymentIntent(paymentIntentId).Key,
-    queryFn: () => getPaymentIntent(paymentIntentId),
-    enabled: !!paymentIntentId,
+export const useConfirmPaymentIntentWithToken = () => {
+  return useMutation<
+    ConfirmPaymentResponse,
+    Error,
+    { paymentIntentId: string; accessToken: string }
+  >({
+    mutationFn: ({ paymentIntentId, accessToken }) =>
+      confirmPaymentIntentWithToken(paymentIntentId, accessToken),
   });
 };
+
+
