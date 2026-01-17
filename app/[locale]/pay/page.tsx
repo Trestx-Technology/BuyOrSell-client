@@ -41,7 +41,7 @@ function PayPageContent() {
   if (!paymentIntentId) missingParams.push("paymentIntentId");
   if (!accessToken) missingParams.push("accessToken");
   if (!amount) missingParams.push("amount");
-  if (!clientSecret) missingParams.push("clientSecret");
+  if (!clientSecret) missingParams.push("secret");
 
   // 3. Set Auth Token
   useEffect(() => {

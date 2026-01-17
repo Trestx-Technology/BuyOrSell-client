@@ -40,10 +40,7 @@ export function PaymentForm({
 
   useEffect(() => {
     if (isSuccess) {
-      const timer = setTimeout(() => {
-        router.push(`/pay/response?status=success&type=${type}&typeId=${typeId}&paymentIntentId=${paymentIntentId}`);
-      }, 2000);
-      return () => clearTimeout(timer);
+      router.push(`${redirectUrl}?status=success&type=${type}&typeId=${typeId}&paymentIntentId=${paymentIntentId}`);
     }
   }, [isSuccess, type, typeId, paymentIntentId]);
 
@@ -71,10 +68,7 @@ export function PaymentForm({
         setErrorMessage(error.message || "Payment failed");
         setIsProcessing(false);
         // Redirect with failure
-        const failureUrl = new URL(redirectUrl);
-        failureUrl.searchParams.set("status", "failed");
-        failureUrl.searchParams.set("error", error.message || "Payment failed");
-        router.push(failureUrl.toString());
+        router.push(`${redirectUrl}?status=failed&error=${error.message || "Payment failed"}`);
         return;
       }
 
@@ -100,6 +94,7 @@ export function PaymentForm({
                 console.error("Failed to post message to WebView", e);
               }
               setIsSuccess(true);
+              router.push(`${redirectUrl}?status=success&type=${type}&typeId=${typeId}&paymentIntentId=${paymentIntentId}`);
             },
             onError: (err) => {
               console.error("Backend confirmation failed", err);
@@ -107,13 +102,7 @@ export function PaymentForm({
                 "Payment succeeded but verification failed. Please contact support."
               );
               setIsProcessing(false);
-              const failureUrl = new URL(redirectUrl);
-              failureUrl.searchParams.set("status", "failed");
-              failureUrl.searchParams.set(
-                "error",
-                "Backend verification failed"
-              );
-              window.location.href = failureUrl.toString();
+              router.push(`${redirectUrl}?status=failed&error=Backend verification failed`);
             },
           }
         );
