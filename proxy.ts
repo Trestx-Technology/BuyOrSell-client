@@ -24,16 +24,12 @@ export function proxy(request: NextRequest) {
     "/api", // API routes
     "/_next", // Next.js internal routes
     "/favicon.ico", // Favicon
+    "/pay", // Pay routes
+    "/pay/response", // Pay response routes
     // Add more routes/keywords here that should be excluded from locale validation
   ];
 
-  // Check if the current path is a protected route (exclude /pay explicitly even if not in list for clarity)
-  if (pathname.includes("/pay")) {
-    // Allow /pay to proceed logic happens in handleAuth or here?
-    // Current logic flow: Check locale -> If yes, handleAuth. If no, redirect to locale.
-    // If /pay, we want to allow it.
-  }
-
+ 
   // Check if the current path should be excluded from locale validation
   const shouldBeExcluded = excludedRoutes.some(
     (route) => pathname.startsWith(route) || pathname === route
