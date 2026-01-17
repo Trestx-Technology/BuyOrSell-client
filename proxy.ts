@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getLocale, locales } from "./lib/i18n/config";
-// import { AUTH_TOKEN_NAMES } from '@/constants/auth.constants';
+import { AUTH_TOKEN_NAMES } from "@/constants/auth.constants";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -13,7 +13,7 @@ export function proxy(request: NextRequest) {
 
   // If pathname already has a locale, allow the request to proceed
   if (pathnameHasLocale) {
-    return NextResponse.next();
+    return handleAuth(request);
   }
 
   // All routes except excluded ones will be validated and redirected with locale
@@ -26,6 +26,13 @@ export function proxy(request: NextRequest) {
     "/favicon.ico", // Favicon
     // Add more routes/keywords here that should be excluded from locale validation
   ];
+
+  // Check if the current path is a protected route (exclude /pay explicitly even if not in list for clarity)
+  if (pathname.includes("/pay")) {
+    // Allow /pay to proceed logic happens in handleAuth or here?
+    // Current logic flow: Check locale -> If yes, handleAuth. If no, redirect to locale.
+    // If /pay, we want to allow it.
+  }
 
   // Check if the current path should be excluded from locale validation
   const shouldBeExcluded = excludedRoutes.some(
@@ -43,7 +50,7 @@ export function proxy(request: NextRequest) {
   );
 
   if (hasLocalePrefix) {
-    return NextResponse.next();
+    return handleAuth(request);
   }
 
   // Redirect if the route is not excluded and doesn't have locale yet
@@ -53,58 +60,63 @@ export function proxy(request: NextRequest) {
   // e.g. incoming request is /ad/123
   // The new URL is now /en-US/ad/123
   return NextResponse.redirect(request.nextUrl);
+}
 
-  // ============================================================================
-  // COMMENTED OUT: Token-related authentication logic
-  // ============================================================================
+function handleAuth(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-  // // Get the authentication token from cookies
-  // // Note: Cookies are set client-side via CookieService (non-httpOnly)
-  // // but are still accessible to middleware because cookies are sent with every HTTP request
-  // // The cookie is set in authStore.setSession() and authStore.refreshTokens()
-  // const token = request.cookies.get(AUTH_TOKEN_NAMES.ACCESS_TOKEN);
-  // const isAuthenticated = !!token?.value;
+  // Get the authentication token from cookies
+  // Note: Cookies are set client-side via CookieService (non-httpOnly)
+  // but are still accessible to middleware because cookies are sent with every HTTP request
+  // The cookie is set in authStore.setSession() and authStore.refreshTokens()
+  const token = request.cookies.get(AUTH_TOKEN_NAMES.ACCESS_TOKEN);
+  const isAuthenticated = !!token?.value;
 
-  // // Define auth routes (login, signup, etc.)
-  // const authRoutes = ['/login', '/signup', '/methods', '/forgot-password', '/reset-password'];
+  // Define auth routes (login, signup, etc.)
+  const authRoutes = [
+    "/login",
+    "/signup",
+    "/methods",
+    "/forgot-password",
+    "/reset-password",
+  ];
 
-  // // Define protected routes that require authentication
-  // const protectedRoutes = [
-  //   '/user',
-  //   '/post-ad',
-  //   '/chat',
-  //   '/favorites',
-  //   '/ai-ad-post',
-  // ];
+  // Define protected routes that require authentication
+  const protectedRoutes = [
+    "/user",
+    "/post-ad",
+    "/chat",
+    "/favorites",
+    "/ai-ad-post",
+  ];
 
-  // // Check if the current path is a protected route
-  // const isProtectedRoute = protectedRoutes.some(route =>
-  //   pathname.startsWith(route)
-  // );
+  // Check if the current path is a protected route
+  // We explicitly ensure /pay is NOT matched here (it isn't in the list, but good to verify)
+  const isProtectedRoute = protectedRoutes.some(
+    (route) => pathname.includes(route) // Changed to include to catch /en-US/user etc.
+  );
 
-  // // Check if the current path is an auth route
-  // const isAuthRoute = authRoutes.some(route =>
-  //   pathname === route || pathname.startsWith(route)
-  // );
+  // Check if the current path is an auth route
+  const isAuthRoute = authRoutes.some((route) => pathname.includes(route));
 
-  // // Redirect authenticated users away from auth pages
-  // if (isAuthenticated && isAuthRoute) {
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = '/';
-  //   return NextResponse.redirect(url);
-  // }
+  // Redirect authenticated users away from auth pages
+  if (isAuthenticated && isAuthRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
 
-  // // Redirect unauthenticated users to login when accessing protected routes
-  // if (!isAuthenticated && isProtectedRoute) {
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = '/login';
-  //   // Store the original URL to redirect back after login
-  //   url.searchParams.set('redirect', pathname);
-  //   return NextResponse.redirect(url);
-  // }
+  // Redirect unauthenticated users to login when accessing protected routes
+  if (!isAuthenticated && isProtectedRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    // Store the original URL to redirect back after login
+    url.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(url);
+  }
 
-  // // Allow the request to proceed
-  // return NextResponse.next();
+  // Allow the request to proceed
+  return NextResponse.next();
 }
 
 export const config = {
