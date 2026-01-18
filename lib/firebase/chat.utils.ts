@@ -32,7 +32,7 @@ export async function findOrCreateAdChat(
   // Find chat that matches this ad
   const existingChat = userChats.find(
     (chat) =>
-      chat.ad?.adId === ad._id &&
+      chat.adId === ad._id &&
       chat.participants.includes(adOwnerId) &&
       chat.participants.includes(currentUserId)
   );
@@ -44,36 +44,42 @@ export async function findOrCreateAdChat(
   // Create new chat
   const adOwner = typeof ad.owner === "string" ? null : ad.owner;
   const adOwnerName = adOwner
-    ? `${adOwner.firstName} ${adOwner.lastName}`.trim() || adOwner.name || "Seller"
+    ? `${adOwner.firstName} ${adOwner.lastName}`.trim() ||
+      adOwner.name ||
+      "Seller"
     : "Seller";
+  // Assuming arabic name isn't readily available in adOwner fields shown, reusing name
+  const adOwnerNameAr = adOwnerName;
   const adOwnerAvatar = adOwner?.image || "";
   const adOwnerVerified = adOwner?.emailVerified || false;
 
-  const currentUserName = `${currentUser.firstName} ${currentUser.lastName}`.trim();
+  const currentUserName =
+    `${currentUser.firstName} ${currentUser.lastName}`.trim();
+  const currentUserNameAr = currentUserName; // Fallback
   const currentUserAvatar = ""; // You may need to get this from user profile
   const currentUserVerified = currentUser.emailVerified || false;
 
   const chatId = await ChatService.createChat({
-    chatType: "ad" as ChatType,
+    type: "ad",
+    title: ad.title,
+    titleAr: ad.titleAr || ad.title,
+    image: ad.images?.[0] || "",
     participants: [currentUserId, adOwnerId],
     participantDetails: {
       [currentUserId]: {
         name: currentUserName,
-        avatar: currentUserAvatar,
+        nameAr: currentUserNameAr,
+        image: currentUserAvatar,
         isVerified: currentUserVerified,
       },
       [adOwnerId]: {
         name: adOwnerName,
-        avatar: adOwnerAvatar,
+        nameAr: adOwnerNameAr,
+        image: adOwnerAvatar,
         isVerified: adOwnerVerified,
       },
     },
-    ad: {
-      adId: ad._id,
-      adTitle: ad.title,
-      adImage: ad.images?.[0] || "",
-      adPrice: ad.price || 0,
-    },
+    adId: ad._id,
   });
 
   return chatId;

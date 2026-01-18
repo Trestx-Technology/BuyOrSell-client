@@ -27,7 +27,7 @@ export function MessagesList({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   };
 
   useEffect(() => {
@@ -58,9 +58,7 @@ export function MessagesList({
           >
             <Typography
               variant="body-small"
-              className={`${
-                msg.isFromUser ? "text-gray-900" : "text-gray-900"
-              }`}
+              className={"text-gray-900 text-ellipsis"}
             >
               {msg.text}
             </Typography>
@@ -88,6 +86,7 @@ export function MessagesList({
           </div>
         </div>
       ))}
+      <div ref={messagesEndRef} />
 
       {/* Typing Indicator */}
       {isTyping && (
@@ -112,8 +111,6 @@ export function MessagesList({
           </div>
         </div>
       )}
-
-      <div ref={messagesEndRef} />
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, MapPin, Share2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import { ListingCardProps } from "@/components/global/listing-card";
+import { ListingCardProps } from "@/components/features/listing-card/listing-card";
 import { formatSpecValue, getSpecIcon } from "@/utils/utils";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { Typography } from "../typography";

@@ -18,14 +18,10 @@ import {
 } from "@/utils/normalize-extra-fields";
 import { PriceDisplay } from "@/components/global/price-display";
 import { SpecificationsDisplay } from "@/components/global/specifications-display";
-import { useAuthStore } from "@/stores/authStore";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { findOrCreateAdChat } from "@/lib/firebase/chat.utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
+import { useLocale } from "@/hooks/useLocale";
+import { useChat } from "@/hooks/useChat";
 
 interface ProductInfoCardProps {
   ad: AD;
@@ -33,7 +29,7 @@ interface ProductInfoCardProps {
 
 const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
   const router = useRouter();
-  const { session, isAuthenticated } = useAuthStore((state) => state);
+  const { session, isAuthenticated, findOrCreateAdChat } = useChat();
   const [isLoading, setIsLoading] = useState(false);
 
   // Check if current user is the owner or organization owner
@@ -63,6 +59,8 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
     return getSpecifications(ad.extraFields);
   }, [ad.extraFields]);
 
+  const { localePath } = useLocale();
+
   const handleCall = () => {
     if (ad.contactPhoneNumber) {
       window.location.href = `tel:${ad.contactPhoneNumber}`;
@@ -75,7 +73,7 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
     // Check if user is authenticated
     if (!isAuthenticated || !session.user) {
       toast.error("Please login to send a message");
-      router.push("/login");
+      router.push(localePath("/login"));
       return;
     }
 
@@ -89,10 +87,10 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
     setIsLoading(true);
     try {
       // Find or create chat
-      const chatId = await findOrCreateAdChat(ad, session.user);
+      const chatId = await findOrCreateAdChat(ad);
 
       // Navigate to chat page with the chat ID
-      router.push(`/chat?chatId=${chatId}&type=ad`);
+      router.push(localePath(`/chat?chatId=${chatId}&type=ad`));
     } catch (error) {
       console.error("Error creating chat:", error);
       toast.error("Failed to start conversation. Please try again.");

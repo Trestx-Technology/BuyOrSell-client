@@ -5,8 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { useLocale } from "@/hooks/useLocale";
 import { Button } from "@/components/ui/button";
-import AdsFilter from "../_components/ads-filter";
-import ListingCard from "@/components/global/listing-card";
+import { CommonFilters, FilterConfig } from "@/components/common/common-filters";
+import ListingCard from "@/components/features/listing-card/listing-card";
 import { Typography } from "@/components/typography";
 import { Bell, ChevronLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -20,10 +20,10 @@ import Pagination from "@/components/global/pagination";
 import { useAds, useFilterAds } from "@/hooks/useAds";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { AdFilters, AD } from "@/interfaces/ad";
-import { FilterConfig } from "../_components/ads-filter";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
 import { Container1280 } from "@/components/layouts/container-1280";
 import { Container1080 } from "@/components/layouts/container-1080";
+import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
 
 const ITEMS_PER_PAGE = 12;
 const DYNAMIC_FILTERS_STORAGE_KEY = "category_dynamic_filters";
@@ -379,33 +379,22 @@ export default function CategoryListingPage() {
     "hasVideo",
   ];
 
-  // Check if any filters besides search are active
-  const hasOtherFilters = useMemo(() => {
-    return !!(
-      filters.price ||
-      filters.deal ||
-      filters.fromDate ||
-      filters.toDate ||
-      filters.isFeatured ||
-      filters.neighbourhood ||
-      filters.hasVideo ||
-      Object.keys(filters).some(
-        (key) =>
-          key !== "price" &&
-          key !== "deal" &&
-          key !== "fromDate" &&
-          key !== "toDate" &&
-          key !== "isFeatured" &&
-          key !== "neighbourhood" &&
-          key !== "hasVideo" &&
-          filters[key as keyof typeof filters]
-      )
+  // Check if any dynamic filters are active
+  const hasDynamicFilters = useMemo(() => {
+    return !!Object.keys(filters).some(
+      (key) =>
+        !staticFilterKeys.includes(key) &&
+        filters[key as keyof typeof filters] !== undefined &&
+        filters[key as keyof typeof filters] !== "" &&
+        // Array check
+        (!Array.isArray(filters[key as keyof typeof filters]) ||
+          (filters[key as keyof typeof filters] as any[]).length > 0)
     );
   }, [filters]);
 
-  // Build filter payload for useFilterAds
+  // Build filter payload for useFilterAds (only used if hasDynamicFilters)
   const filterPayload = useMemo(() => {
-    if (!hasOtherFilters) return {};
+    if (!hasDynamicFilters) return {};
 
     const payload: any = {
       category: currentCategory,
@@ -508,23 +497,25 @@ export default function CategoryListingPage() {
 
     return payload;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasOtherFilters, currentCategory, filters, searchQuery]);
+  }, [hasDynamicFilters, currentCategory, filters, searchQuery]);
 
-  // Use filter API if other filters are active, otherwise use regular ads API
+  // Use filter API if dynamic filters are active, otherwise use regular ads API
   const { data: filterAdsResponse, isLoading: isFilterLoading } = useFilterAds(
     filterPayload as any,
     currentPage,
     ITEMS_PER_PAGE,
-    hasOtherFilters
+    hasDynamicFilters
   );
 
   const { data: regularAdsResponse, isLoading: isRegularLoading } = useAds(
-    hasOtherFilters ? undefined : apiFilters
+    hasDynamicFilters ? undefined : apiFilters
   );
 
-  // Use filter results if other filters are active, otherwise use regular ads
-  const adsResponse = hasOtherFilters ? filterAdsResponse : regularAdsResponse;
-  const isLoading = hasOtherFilters ? isFilterLoading : isRegularLoading;
+  // Use filter results if dynamic filters are active, otherwise use regular ads
+  const adsResponse = hasDynamicFilters
+    ? filterAdsResponse
+    : regularAdsResponse;
+  const isLoading = hasDynamicFilters ? isFilterLoading : isRegularLoading;
 
   // Handle filter changes - static filters apply immediately, dynamic filters wait for "Apply Filters"
   const handleFilterChange = (
@@ -771,24 +762,29 @@ export default function CategoryListingPage() {
           />
         </div>
         {/* Filters */}
-        <AdsFilter
-          filters={{
-            // Merge: static filters from filters state (applied), dynamic filters from pendingFilters (pending)
-            ...Object.fromEntries(
-              staticFilterKeys.map((key) => [key, filters[key]])
-            ),
-            ...Object.fromEntries(
-              Object.entries(pendingFilters).filter(
-                ([key]) => !staticFilterKeys.includes(key)
-              )
-            ),
-          }}
-          onFilterChange={handleFilterChange}
-          onApplyFilters={handleApplyFilters}
-          onClearFilters={clearFilters}
-          config={[]}
+        <CommonFilters
+          filters={filters}
           staticFilters={staticFilterConfig}
           dynamicFilters={dynamicFilters}
+          onStaticFilterChange={handleFilterChange}
+          onApplyDynamicFilters={(newFilters) => {
+            // Apply all dynamic filters
+            setFilters((prev) => ({ ...prev, ...newFilters }));
+            setCurrentPage(1);
+
+            // Save dynamic filters to localStorage
+            if (typeof window !== "undefined") {
+              try {
+                localStorage.setItem(
+                  `${DYNAMIC_FILTERS_STORAGE_KEY}_${currentCategory}`,
+                  JSON.stringify(newFilters)
+                );
+              } catch (error) {
+                console.error("Failed to save dynamic filters:", error);
+              }
+            }
+          }}
+          onClearFilters={clearFilters}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           searchPlaceholder={`${t.categories.search} ${categoryName}...`}
@@ -811,10 +807,7 @@ export default function CategoryListingPage() {
         {isLoading && (
           <div className="px-4 lg:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-              <div
-                key={i}
-                className="bg-gray-200 rounded-2xl h-[284px] animate-pulse"
-              />
+              <ListingCardSkeleton className="w-full" key={i} />
             ))}
           </div>
         )}

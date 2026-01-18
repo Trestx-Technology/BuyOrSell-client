@@ -5,7 +5,7 @@ import HotDealsCarousel from "./_components/hot-deals-banners-carousel";
 import { ChevronLeft, Search } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Input } from "@/components/ui/input";
-import HotDealsListingCard from "@/components/global/hot-deals-listing-card";
+import HotDealsListingCard from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
 import AdCard from "@/app/[locale]/(root)/categories/_components/AdCard";
 import SortAndViewControls, {
   ViewMode,

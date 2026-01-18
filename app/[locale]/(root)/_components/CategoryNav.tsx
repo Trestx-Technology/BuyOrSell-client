@@ -867,6 +867,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
           ) : (
             /* Categories List */
             <motion.div
+                  key={isJobsPage ? "jobs-nav" : "main-nav"}
               className="hidden w-full md:flex flex-1 items-center justify-between"
               variants={fastContainerVariants}
               initial="hidden"

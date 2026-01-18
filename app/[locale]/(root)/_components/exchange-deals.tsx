@@ -5,12 +5,14 @@ import { Typography } from "@/components/typography";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-import ListingCard from "@/components/global/listing-card";
+import ListingCard from "@/components/features/listing-card/listing-card";
 import { CategoryTreeWithAds, DealAd } from "@/interfaces/home.types";
 import { AD } from "@/interfaces/ad";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
-import { ListingCardProps } from "@/components/global/listing-card";
+import { ListingCardProps } from "@/components/features/listing-card/listing-card";
 import { useLocale } from "@/hooks/useLocale";
+import { Skeleton } from "@/components/ui/skeleton";
+import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
 
 // Framer Motion animation variants - using improved patterns from AI search bar
 const containerVariants = {
@@ -243,11 +245,31 @@ export default function ExchangeDeals({
           className="mb-4"
         >
           {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <Typography variant="body" className="text-white">
-                Loading exchange offers...
-              </Typography>
-            </div>
+            <>
+              {/* Skeleton Tabs */}
+              <div className="flex px-5 items-center justify-start w-full bg-transparent gap-3 overflow-x-auto scrollbar-hide mb-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Skeleton key={index} className="h-10 w-24 rounded-md" />
+                ))}
+              </div>
+
+              {/* Skeleton Cards Carousel */}
+              <div className="flex-1 overflow-hidden">
+                <CardsCarousel title="" showNavigation={true}>
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className=""
+                    >
+                      <ListingCardSkeleton
+                        showSeller={true}
+                        showExtraFields={true}
+                      />
+                    </div>
+                  ))}
+                </CardsCarousel>
+              </div>
+            </>
           ) : categories.length > 0 ? (
             <Tabs
               value={activeTab}
@@ -303,7 +325,7 @@ export default function ExchangeDeals({
                                     damping: 22,
                                     delay: 0.6 + index * 0.08,
                                   }}
-                                  className="flex gap-4 w-full"
+                                  className="flex gap-4"
                                 >
                                   <ListingCard {...ad} showSocials={true} />
                                 </motion.div>

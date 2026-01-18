@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import { CategoryWithSubCategories } from "@/interfaces/home.types";
-import ListingCard from "@/components/global/listing-card";
+import ListingCard from "@/components/features/listing-card/listing-card";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { AD } from "@/interfaces/ad";
 import { useLocale } from "@/hooks/useLocale";

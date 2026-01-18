@@ -4,10 +4,7 @@ import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
-import { FilterConfig } from "@/app/[locale]/(root)/categories/_components/ads-filter";
 import { Typography } from "@/components/typography";
-import { Bell, ChevronLeft, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import JobsFilter from "../_components/jobs-filter";
 import { useAds, useFilterAds, useAdById } from "@/hooks/useAds";
 import {
@@ -196,7 +193,7 @@ export default function JobsListingPage() {
         ? normalizeExtraFieldsToArray(firstJob.extraFields)
         : [];
 
-    const dynamicFilters: FilterConfig[] = extraFields
+    const dynamicFilters = extraFields
       .filter((field) => {
         // Only include fields that have optionalArray and are not boolean type
         return (

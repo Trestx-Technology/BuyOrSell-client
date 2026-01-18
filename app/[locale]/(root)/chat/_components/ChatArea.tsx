@@ -9,6 +9,7 @@ import Image from "next/image";
 import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
 import Link from "next/link";
+import { ChatAdInfo } from "./ChatAdInfo";
 
 interface Message {
   id: string;
@@ -87,7 +88,7 @@ export function ChatArea({
 
   // Chat Area - Shown when chat is selected
   return (
-    <div className={cn("flex-1 w-full flex flex-col min-h-0 bg-white")}>
+    <div className={cn("flex-1 w-full flex flex-col bg-white relative")}>
       <ChatHeader
         currentChat={currentChat}
         onSearch={onSearch}
@@ -99,46 +100,7 @@ export function ChatArea({
 
       {/* Ad Info Card - Only shown for ad chats */}
       {currentChat.chatType === "ad" && currentChat.ad && (
-        <Link
-          href={`/ad/${currentChat.ad.adId}`}
-          className="border-b border-gray-200 bg-gray-50 p-4 hover:bg-gray-100 transition-colors"
-        >
-          <div className="flex items-center gap-4">
-            {currentChat.ad.adImage && (
-              <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                <Image
-                  src={currentChat.ad.adImage}
-                  alt={currentChat.ad.adTitle || "Ad image"}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              {currentChat.ad.adTitle && (
-                <Typography
-                  variant="body-small"
-                  className="font-semibold text-gray-900 mb-1 line-clamp-1"
-                >
-                  {currentChat.ad.adTitle}
-                </Typography>
-              )}
-              {currentChat.ad.adPrice !== undefined && (
-                <div className="flex items-center gap-1">
-                  <Image
-                    src={ICONS.currency.aed}
-                    alt="AED"
-                    width={16}
-                    height={16}
-                  />
-                  <span className="text-sm font-bold text-purple-600">
-                    {formatPrice(currentChat.ad.adPrice)}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        </Link>
+        <ChatAdInfo ad={currentChat.ad} />
       )}
 
       {/* Organisation Info Card - Only shown for organisation chats */}

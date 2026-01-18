@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Clock } from "lucide-react";
 import { Typography } from "@/components/typography";
-import HotDealsListingCard from "@/components/global/hot-deals-listing-card";
+import HotDealsListingCard from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
@@ -19,7 +19,7 @@ import {
   tabsVariants,
   contentVariants,
 } from "@/utils/animation-variants";
-import { HotDealsListingCardProps } from "@/components/global/hot-deals-listing-card";
+import { HotDealsListingCardProps } from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
 import { AD } from "@/interfaces/ad";
 
 interface HostDealsProps {
@@ -281,7 +281,7 @@ export default function HostDeals({
           {isLoading ? (
             <>
               {/* Skeleton Tabs */}
-              <div className="flex items-center justify-start w-full bg-transparent gap-3 overflow-x-auto scrollbar-hide mb-4">
+              <div className="flex px-5 items-center justify-start w-full bg-transparent gap-3 overflow-x-auto scrollbar-hide mb-4">
                 {Array.from({ length: 4 }).map((_, index) => (
                   <Skeleton key={index} className="h-10 w-24 rounded-md" />
                 ))}
@@ -293,7 +293,7 @@ export default function HostDeals({
                   {Array.from({ length: 6 }).map((_, index) => (
                     <div
                       key={index}
-                      className="flex-[0_0_auto] max-w-[190px] w-full"
+                      className=""
                     >
                       <ListingCardSkeleton
                         showTimer={true}
@@ -301,7 +301,6 @@ export default function HostDeals({
                         showImageCounter={true}
                         showSeller={true}
                         showExtraFields={true}
-                        className="w-full"
                       />
                     </div>
                   ))}
@@ -347,14 +346,12 @@ export default function HostDeals({
                             {categoryAds.map((deal) => (
                               <motion.div
                                 key={deal.id}
-                                className="flex gap-4 w-full"
                               >
                                 <HotDealsListingCard
                                   {...deal}
                                   isAddedInCollection={deal.isAddedInCollection}
                                   showSeller={true}
                                   showSocials={true}
-                                  className="w-full"
                                 />
                               </motion.div>
                             ))}

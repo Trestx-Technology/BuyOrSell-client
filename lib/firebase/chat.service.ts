@@ -18,6 +18,8 @@ import {
   arrayUnion,
   increment,
   writeBatch,
+  DocumentData,
+  QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { getFirebaseDb } from "./config";
 import {
@@ -29,6 +31,7 @@ import {
   ChatType,
   UnreadCount,
   TypingStatus,
+  OnlineStatus,
 } from "./types";
 
 // Collection names
@@ -36,7 +39,6 @@ const COLLECTIONS = {
   USERS: "users",
   CHATS: "chats",
   MESSAGES: "messages",
-  USER_CHATS: "userChats",
   PRESENCE: "presence",
 } as const;
 
@@ -54,8 +56,8 @@ export class ChatService {
   /**
    * Generate a prefixed chat ID based on chat type
    */
-  private static generateChatId(chatType: ChatType): string {
-    const prefix = `chat_${chatType}_`;
+  private static generateChatId(type: ChatType): string {
+    const prefix = `${type}_`;
     const randomId = doc(collection(this.db, COLLECTIONS.CHATS)).id;
     return `${prefix}${randomId}`;
   }
@@ -65,56 +67,63 @@ export class ChatService {
    */
   static async createChat(params: CreateChatParams): Promise<string> {
     // Generate prefixed chat ID
-    const chatId = this.generateChatId(params.chatType);
+    const chatId = this.generateChatId(params.type);
     const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
 
-    // Initialize unread counts and typing status
+    // Initialize unread counts, typing status, and online status
     const unreadCount: UnreadCount = {};
     const typing: TypingStatus = {};
+    const onlineStatus: OnlineStatus = {};
+
     params.participants.forEach((userId) => {
       unreadCount[userId] = 0;
       typing[userId] = false;
+      onlineStatus[userId] = false;
     });
 
     // Build base chat data object
-    const baseChatData: Omit<Chat, "id"> = {
-      chatType: params.chatType,
+    const chatData: Omit<Chat, "id"> = {
+      type: params.type,
+      title: params.title,
+      titleAr: params.titleAr,
+      image: params.image,
       participants: params.participants,
       participantDetails: params.participantDetails,
       lastMessage: {
         text: "",
         senderId: "",
-        timestamp: serverTimestamp() as Timestamp,
+        createdAt: serverTimestamp() as Timestamp,
+        type: "text",
       },
       unreadCount,
       typing,
+      onlineStatus,
       createdAt: serverTimestamp() as Timestamp,
       updatedAt: serverTimestamp() as Timestamp,
-    };
-
-    // Add nested ad or organisation object if provided
-    const chatData: Omit<Chat, "id"> = {
-      ...baseChatData,
-      ...(params.ad && { ad: params.ad }),
-      ...(params.organisation && { organisation: params.organisation }),
+      ...(params.adId && { adId: params.adId }),
+      ...(params.organisationId && { organisationId: params.organisationId }),
     };
 
     await setDoc(chatRef, chatData);
 
     // Create user chat index entries for all participants
+    // Path: users/{userId}/chats/{chatId}
     const batch = writeBatch(this.db);
     params.participants.forEach((userId) => {
       const userChatRef = doc(
         this.db,
-        COLLECTIONS.USER_CHATS,
+        COLLECTIONS.USERS,
         userId,
         "chats",
         chatId
       );
       batch.set(userChatRef, {
         chatId,
-        chatType: params.chatType,
-        lastMessage: chatData.lastMessage,
+        type: params.type,
+        lastMessage: {
+          text: "",
+          createdAt: serverTimestamp(),
+        },
         unreadCount: 0,
         updatedAt: serverTimestamp(),
       });
@@ -140,26 +149,26 @@ export class ChatService {
 
   /**
    * Get all chats for a user filtered by chat type
+   * Reads from: users/{userId}/chats
    */
-  static async getUserChats(
-    userId: string,
-    chatType?: ChatType
-  ): Promise<Chat[]> {
+  static async getUserChats(userId: string, type?: ChatType): Promise<Chat[]> {
     const userChatsRef = collection(
       this.db,
-      COLLECTIONS.USER_CHATS,
+      COLLECTIONS.USERS,
       userId,
       "chats"
     );
 
-    let q = query(userChatsRef, orderBy("updatedAt", "desc"));
+    let q;
 
-    if (chatType) {
+    if (type) {
       q = query(
         userChatsRef,
-        where("chatType", "==", chatType),
+        where("type", "==", type),
         orderBy("updatedAt", "desc")
       );
+    } else {
+      q = query(userChatsRef, orderBy("updatedAt", "desc"));
     }
 
     const snapshot = await getDocs(q);
@@ -170,6 +179,8 @@ export class ChatService {
     }
 
     // Fetch full chat documents
+    // Note: In a production app with many chats, you might want to rely on the index data
+    // or batch fetch to avoid N+1 reads. For now, fetching each is reliable.
     const chats: Chat[] = [];
     for (const chatId of chatIds) {
       const chat = await this.getChat(chatId);
@@ -183,49 +194,65 @@ export class ChatService {
 
   /**
    * Listen to user chats in real-time
+   * Listens to: users/{userId}/chats
    */
   static subscribeToUserChats(
     userId: string,
-    chatType: ChatType | undefined,
-    callback: (chats: Chat[]) => void
+    type: ChatType | undefined,
+    callback: (chats: Chat[]) => void,
+    onError?: (error: any) => void
   ): () => void {
     const userChatsRef = collection(
       this.db,
-      COLLECTIONS.USER_CHATS,
+      COLLECTIONS.USERS,
       userId,
       "chats"
     );
 
-    let q = query(userChatsRef, orderBy("updatedAt", "desc"));
+    let q;
 
-    if (chatType) {
+    if (type) {
       q = query(
         userChatsRef,
-        where("chatType", "==", chatType),
+        where("type", "==", type),
         orderBy("updatedAt", "desc")
       );
+    } else {
+      q = query(userChatsRef, orderBy("updatedAt", "desc"));
     }
 
-    return onSnapshot(q, async (snapshot) => {
-      const chatIds = snapshot.docs.map((doc) => doc.data().chatId);
-      const chats: Chat[] = [];
+    return onSnapshot(
+      q,
+      async (snapshot) => {
+        const chatIds = snapshot.docs.map((doc) => doc.data().chatId);
+        const chats: Chat[] = [];
 
-      for (const chatId of chatIds) {
-        const chat = await this.getChat(chatId);
-        if (chat) {
-          chats.push(chat);
+        // Note: This makes N reads every time the list updates.
+        // Consider optimizing if list grows large.
+        for (const chatId of chatIds) {
+          const chat = await this.getChat(chatId);
+          if (chat) {
+            chats.push(chat);
+          }
+        }
+
+        callback(chats);
+      },
+      (error) => {
+        console.error("Error in user chats subscription:", error);
+        if (onError) {
+          onError(error);
         }
       }
-
-      callback(chats);
-    });
+    );
   }
 
   /**
    * Send a message
    */
   static async sendMessage(params: SendMessageParams): Promise<string> {
-    const { chatId, senderId, text } = params;
+    const { chatId, senderId, text, type, userImage, coordinates, fileUrl } =
+      params;
 
     // Create message
     const messagesRef = collection(
@@ -241,10 +268,14 @@ export class ChatService {
       chatId,
       senderId,
       text,
+      type,
       isRead: false,
-      readBy: [senderId], // Sender has read their own message
-      timestamp: serverTimestamp() as Timestamp,
+      readBy: [],
+      timeStamp: serverTimestamp() as Timestamp,
       createdAt: serverTimestamp() as Timestamp,
+      ...(userImage && { userImage }),
+      ...(coordinates && { coordinates }),
+      ...(fileUrl && { fileUrl }),
     };
 
     await setDoc(messageRef, messageData);
@@ -259,51 +290,57 @@ export class ChatService {
       // Update chat last message
       batch.update(chatRef, {
         lastMessage: {
-          text,
+          text:
+            type === "text" ? text : type === "location" ? "Location" : "File",
           senderId,
-          timestamp: serverTimestamp(),
+          createdAt: serverTimestamp(),
+          type,
         },
         updatedAt: serverTimestamp(),
       });
 
-      // Update unread counts for all participants except sender
+      // Update unread counts and user indexes for all participants
       chat.participants.forEach((participantId) => {
+        // Path: users/{userId}/chats/{chatId}
+        const userChatRef = doc(
+          this.db,
+          COLLECTIONS.USERS,
+          participantId,
+          "chats",
+          chatId
+        );
+
         if (participantId !== senderId) {
+          // Increment unread for others
           batch.update(chatRef, {
             [`unreadCount.${participantId}`]: increment(1),
           });
 
-          // Update user chat index
-          const userChatRef = doc(
-            this.db,
-            COLLECTIONS.USER_CHATS,
-            participantId,
-            "chats",
-            chatId
-          );
+          // Update user chat index for receiver
           batch.update(userChatRef, {
             unreadCount: increment(1),
             lastMessage: {
-              text,
-              senderId,
-              timestamp: serverTimestamp(),
+              text:
+                type === "text"
+                  ? text
+                  : type === "location"
+                  ? "Location"
+                  : "File",
+              createdAt: serverTimestamp(),
             },
             updatedAt: serverTimestamp(),
           });
         } else {
-          // Update sender's user chat index (no unread increment)
-          const userChatRef = doc(
-            this.db,
-            COLLECTIONS.USER_CHATS,
-            senderId,
-            "chats",
-            chatId
-          );
+          // Update user chat index for sender (no unread increment)
           batch.update(userChatRef, {
             lastMessage: {
-              text,
-              senderId,
-              timestamp: serverTimestamp(),
+              text:
+                type === "text"
+                  ? text
+                  : type === "location"
+                  ? "Location"
+                  : "File",
+              createdAt: serverTimestamp(),
             },
             updatedAt: serverTimestamp(),
           });
@@ -331,7 +368,7 @@ export class ChatService {
     );
     const q = query(
       messagesRef,
-      orderBy("timestamp", "desc"),
+      orderBy("createdAt", "desc"), // Changed to createdAt based on schema
       limit(limitCount)
     );
 
@@ -357,7 +394,7 @@ export class ChatService {
     );
     const q = query(
       messagesRef,
-      orderBy("timestamp", "desc"),
+      orderBy("createdAt", "desc"), // Changed to createdAt
       limit(limitCount)
     );
 
@@ -385,9 +422,12 @@ export class ChatService {
       messageId
     );
 
+    // Schema only has isRead boolean, not readBy array update in screenshot
+    // But good to keep tracking if possible. Schema says isRead: boolean.
+    // We'll update isRead to true.
     await updateDoc(messageRef, {
-      readBy: arrayUnion(userId),
       isRead: true,
+      readBy: arrayUnion(userId), // Optional given simplified schema but usually good practice
     });
   }
 
@@ -406,19 +446,22 @@ export class ChatService {
     const batch = writeBatch(this.db);
     const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
 
-    // Reset unread count
+    // Reset unread count in main chat
     batch.update(chatRef, {
       [`unreadCount.${userId}`]: 0,
     });
 
-    // Update user chat index
+    // Reset unread count in user's chat index
+    // Path: users/{userId}/chats/{chatId}
     const userChatRef = doc(
       this.db,
-      COLLECTIONS.USER_CHATS,
+      COLLECTIONS.USERS,
       userId,
       "chats",
       chatId
     );
+
+    // We update because it should exist
     batch.update(userChatRef, {
       unreadCount: 0,
     });
@@ -522,9 +565,9 @@ export class ChatService {
    */
   static async getTotalUnreadCount(
     userId: string,
-    chatType?: ChatType
+    type?: ChatType
   ): Promise<number> {
-    const userChats = await this.getUserChats(userId, chatType);
+    const userChats = await this.getUserChats(userId, type);
     return userChats.reduce(
       (total, chat) => total + (chat.unreadCount[userId] || 0),
       0
@@ -542,4 +585,3 @@ export class ChatService {
     // or manually when user accesses their chat list
   }
 }
-

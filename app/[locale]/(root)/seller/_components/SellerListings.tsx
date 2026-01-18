@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import { Typography } from "@/components/typography";
 import SortAndViewControls from "@/app/[locale]/(root)/post-ad/_components/SortAndViewControls";
 import { ProductExtraFields, AD } from "@/interfaces/ad";
-import ListingCard from "@/components/global/listing-card";
+import ListingCard from "@/components/features/listing-card/listing-card";
 import { useLocale } from "@/hooks/useLocale";
 import { useAds } from "@/hooks/useAds";
 import { Organization } from "@/interfaces/organization.types";

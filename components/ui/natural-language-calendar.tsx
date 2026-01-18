@@ -43,34 +43,66 @@ export function NaturalLanguageCalendar({
   className,
 }: NaturalLanguageCalendarProps) {
   const [open, setOpen] = React.useState(false)
-  const [inputValue, setInputValue] = React.useState(value)
-  const [date, setDate] = React.useState<Date | undefined>(
-    value ? parseDate(value) || undefined : undefined
-  )
-  const [month, setMonth] = React.useState<Date | undefined>(date || new Date())
 
+  // Parse initial value to date if it's a valid ISO string or date string
+  const initialDate = React.useMemo(() => {
+    if (!value) return undefined;
+    const timestamp = Date.parse(value);
+    return isNaN(timestamp) ? undefined : new Date(timestamp);
+  }, [value]);
+
+  // Initial display value is formatted date if valid, otherwise empty 
+  // (input value is for user typing, so we don't force ISO string into it)
+  const [inputValue, setInputValue] = React.useState(
+    initialDate ? formatDate(initialDate) : ""
+  )
+
+  const [date, setDate] = React.useState<Date | undefined>(initialDate)
+  const [month, setMonth] = React.useState<Date | undefined>(initialDate || new Date())
+
+  // Sync internal state if value prop changes externally (e.g. cleared form)
   React.useEffect(() => {
-    if (value !== inputValue) {
-      setInputValue(value)
-      const parsedDate = value ? parseDate(value) : undefined
-      if (parsedDate) {
-        setDate(parsedDate)
-        setMonth(parsedDate)
+    // If value is empty, clear everything
+    if (!value) {
+      setInputValue("")
+      setDate(undefined)
+      return;
+    }
+
+    // If value is a valid new date that doesn't match current internal date, update
+    const timestamp = Date.parse(value);
+    if (!isNaN(timestamp)) {
+      const newDate = new Date(timestamp);
+      if (date?.toISOString() !== newDate.toISOString()) {
+        setDate(newDate);
+        setMonth(newDate);
+        setInputValue(formatDate(newDate));
       }
     }
-  }, [value, inputValue])
+  }, [value, date])
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value
     setInputValue(newValue)
+
+    // Parse natural language
     const parsedDate = parseDate(newValue)
+
     if (parsedDate) {
       setDate(parsedDate)
       setMonth(parsedDate)
-      const formatted = formatDate(parsedDate)
-      onChange?.(formatted)
+      // Send ISO string to parent
+      onChange?.(parsedDate.toISOString())
     } else {
-      onChange?.(newValue)
+      // If invalid date/still typing, we don't update the parent with a date yet
+      // OR we can choose to clear it? 
+      // User requested "value should be in the ISO", so if invalid, we probably shouldn't emit an ISO string.
+      // However, typical behavior is to clear the date if input is cleared.
+      if (newValue === "") {
+        setDate(undefined)
+        onChange?.("")
+      }
     }
   }
 
@@ -79,7 +111,7 @@ export function NaturalLanguageCalendar({
       setDate(selectedDate)
       const formatted = formatDate(selectedDate)
       setInputValue(formatted)
-      onChange?.(formatted)
+      onChange?.(selectedDate.toISOString())
       setOpen(false)
     }
   }

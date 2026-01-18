@@ -50,7 +50,7 @@ export interface ListingCardSkeletonProps {
 }
 
 export const ListingCardSkeleton: React.FC<ListingCardSkeletonProps> = ({
-  maxWidth = "max-w-[170px]",
+  maxWidth,
   showImageCounter = true,
   showViewsCounter = false,
   showPremiumBadge = false,
@@ -65,7 +65,7 @@ export const ListingCardSkeleton: React.FC<ListingCardSkeletonProps> = ({
   return (
     <div
       className={cn(
-        "w-full overflow-hidden rounded-2xl border-purple-100 bg-white",
+        "w-[220px] overflow-hidden rounded-2xl border-purple-100 bg-white",
         maxWidth,
         className
       )}

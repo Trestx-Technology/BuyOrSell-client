@@ -88,8 +88,8 @@ export function MessageInput({
   };
 
   return (
-    <div className="border-t border-gray-200 bg-purple/10 p-4">
-      <div className="flex items-center gap-3">
+    <div className="border-t border-gray-200 sticky bottom-0 bg-white">
+      <div className="flex items-center gap-3 bg-purple/10 p-4">
         <AIFeaturesPopover
           onMessageGenerated={onAIMessageGenerated}
           currentMessage={value}

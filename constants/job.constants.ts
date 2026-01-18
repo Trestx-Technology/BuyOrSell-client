@@ -1,13 +1,11 @@
-import { FilterConfig } from "@/app/[locale]/(root)/categories/_components/ads-filter";
-
 /**
  * Default filter configuration for jobs listing page
  */
-export const defaultJobFilters: FilterConfig[] = [
+export const defaultJobFilters = [
   {
     key: "salary",
     label: "Salary Range",
-    type: "select",
+    type: "select" as const,
     options: [
       { value: "under-10k", label: "Under 10,000" },
       { value: "10k-20k", label: "10,000 - 20,000" },
@@ -21,7 +19,7 @@ export const defaultJobFilters: FilterConfig[] = [
   {
     key: "jobType",
     label: "Job Type",
-    type: "select",
+    type: "select" as const,
     options: [
       { value: "full-time", label: "Full Time" },
       { value: "part-time", label: "Part Time" },
@@ -34,7 +32,7 @@ export const defaultJobFilters: FilterConfig[] = [
   {
     key: "workMode",
     label: "Work Mode",
-    type: "select",
+    type: "select" as const,
     options: [
       { value: "remote", label: "Remote" },
       { value: "on-site", label: "On-Site" },
@@ -45,7 +43,7 @@ export const defaultJobFilters: FilterConfig[] = [
   {
     key: "experience",
     label: "Experience",
-    type: "select",
+    type: "select" as const,
     options: [
       { value: "entry", label: "Entry Level" },
       { value: "mid", label: "Mid Level" },
@@ -57,13 +55,13 @@ export const defaultJobFilters: FilterConfig[] = [
   {
     key: "fromDate",
     label: "From Date",
-    type: "calendar",
+    type: "calendar" as const,
     placeholder: "Select start date",
   },
   {
     key: "toDate",
     label: "To Date",
-    type: "calendar",
+    type: "calendar" as const,
     placeholder: "Select end date",
   },
 ];
@@ -71,11 +69,11 @@ export const defaultJobFilters: FilterConfig[] = [
 /**
  * Default filter configuration for jobseekers listing page
  */
-export const defaultJobseekerFilters: FilterConfig[] = [
+export const defaultJobseekerFilters = [
   {
     key: "location",
     label: "Location",
-    type: "select",
+    type: "select" as const,
     options: [
       { value: "dubai", label: "Dubai" },
       { value: "abu-dhabi", label: "Abu Dhabi" },
@@ -90,7 +88,7 @@ export const defaultJobseekerFilters: FilterConfig[] = [
   {
     key: "salary",
     label: "Salary Range",
-    type: "select",
+    type: "select" as const,
     options: [
       { value: "under-10k", label: "Under 10,000" },
       { value: "10k-20k", label: "10,000 - 20,000" },
@@ -104,7 +102,7 @@ export const defaultJobseekerFilters: FilterConfig[] = [
   {
     key: "jobType",
     label: "Job Type",
-    type: "select",
+    type: "select" as const,
     options: [
       { value: "full-time", label: "Full Time" },
       { value: "part-time", label: "Part Time" },
@@ -117,7 +115,7 @@ export const defaultJobseekerFilters: FilterConfig[] = [
   {
     key: "workMode",
     label: "Work Mode",
-    type: "select",
+    type: "select" as const,
     options: [
       { value: "remote", label: "Remote" },
       { value: "on-site", label: "On-Site" },
@@ -128,7 +126,7 @@ export const defaultJobseekerFilters: FilterConfig[] = [
   {
     key: "experience",
     label: "Experience",
-    type: "select",
+    type: "select" as const,
     options: [
       { value: "entry", label: "Entry Level" },
       { value: "mid", label: "Mid Level" },

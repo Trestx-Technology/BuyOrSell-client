@@ -1,6 +1,6 @@
 import { AD, ProductExtraFields } from "@/interfaces/ad";
-import { ListingCardProps } from "@/components/global/listing-card";
-import { HotDealsListingCardProps } from "@/components/global/hot-deals-listing-card";
+import { ListingCardProps } from "@/components/features/listing-card/listing-card";
+import { HotDealsListingCardProps } from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
 import { LatestAd, DealAd } from "@/interfaces/home.types";
 import { formatDate } from "./format-date";
 import { type Locale } from "@/lib/i18n/config";

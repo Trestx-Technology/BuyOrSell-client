@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ListingCard } from "@/components/global/listing-card";
+import { ListingCard } from "@/components/features/listing-card/listing-card";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import { useSimilarAds } from "@/hooks/useAds";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";

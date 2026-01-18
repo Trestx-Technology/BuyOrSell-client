@@ -15,22 +15,23 @@ const fontWeights = {
 } as const;
 
 // Font sizes using our design system (starting from 9px)
+// Font sizes using our design system (starting from 9px)
 const fontSizes = {
   "3xs": "text-3xs", // 9px
   "2xs": "text-2xs", // 10px
   xs: "text-xs", // 12px
   sm: "text-sm", // 14px
-  md: "text-base", // 16px
-  lg: "text-lg", // 18px
-  xl: "text-xl", // 20px
-  "2xl": "text-2xl", // 24px
-  "3xl": "text-3xl", // 30px
-  "4xl": "text-4xl", // 36px
-  "5xl": "text-5xl", // 48px
-  "6xl": "text-6xl", // 60px
-  "7xl": "text-7xl", // 72px
-  "8xl": "text-8xl", // 96px
-  "9xl": "text-9xl", // 128px
+  md: "text-sm md:text-base", // 16px responsive
+  lg: "text-base md:text-lg", // 18px responsive
+  xl: "text-lg md:text-xl", // 20px responsive
+  "2xl": "text-xl md:text-2xl", // 24px responsive
+  "3xl": "text-2xl md:text-3xl", // 30px responsive
+  "4xl": "text-2xl md:text-3xl lg:text-4xl", // 36px responsive
+  "5xl": "text-2xl md:text-3xl lg:text-5xl", // 48px responsive
+  "6xl": "text-3xl md:text-4xl lg:text-6xl", // 60px responsive
+  "7xl": "text-4xl md:text-5xl lg:text-7xl", // 72px responsive
+  "8xl": "text-4xl md:text-5xl lg:text-8xl", // 96px responsive
+  "9xl": "text-5xl md:text-6xl lg:text-9xl", // 128px responsive
 } as const;
 
 // Font families from our design system
@@ -63,14 +64,14 @@ const letterSpacing = {
 // Semantic text variants for common use cases
 const semanticVariants = {
   // Headings
-  "display-1": "text-6xl font-bold font-poppins",
-  "display-2": "text-5xl font-bold font-poppins",
-  "display-3": "text-4xl font-bold font-poppins",
+  "display-1": "text-3xl md:text-5xl lg:text-6xl font-bold font-poppins",
+  "display-2": "text-3xl md:text-4xl lg:text-5xl font-bold font-poppins",
+  "display-3": "text-2xl md:text-3xl lg:text-4xl font-bold font-poppins",
 
-  h1: "text-3xl font-bold font-inter",
-  h2: "text-2xl font-semibold font-inter",
-  h3: "text-xl font-semibold font-inter",
-  h4: "text-lg font-medium font-inter",
+  h1: "text-2xl md:text-3xl font-bold font-inter",
+  h2: "text-xl md:text-2xl font-semibold font-inter",
+  h3: "text-lg md:text-xl font-semibold font-inter",
+  h4: "text-base md:text-lg font-medium font-inter",
   h5: "text-base font-medium font-inter",
   h6: "text-sm font-medium font-inter",
 

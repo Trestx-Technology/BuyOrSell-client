@@ -4,7 +4,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
-import ListingCard from "@/components/global/listing-card";
+import ListingCard from "@/components/features/listing-card/listing-card";
 import { useRouter } from "nextjs-toploader/app";
 import { AD } from "@/interfaces/ad";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";

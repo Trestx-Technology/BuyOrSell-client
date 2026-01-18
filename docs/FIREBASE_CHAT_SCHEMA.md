@@ -23,29 +23,32 @@ Stores user information and online status.
 ```
 
 ### 2. Chats Collection (`chats/{chatId}`)
-Stores chat metadata and participants.
+Stores chat metadata, participants, and real-time status.
 
 ```typescript
 {
   id: string;                    // Chat ID (auto-generated)
-  chatType: "ad" | "dm" | "organisation";  // Chat type
+  type: "ad" | "dm" | "organisation";    // Chat type
+  title: string;                 // Chat title (e.g. Ad title or Organisation name)
+  titleAr: string;               // Arabic Chat title
+  image: string;                 // Chat image (Ad image or Organisation logo)
   participants: string[];        // Array of user IDs
   participantDetails: {          // Participant information
     [userId: string]: {
       name: string;
-      avatar: string;
+      nameAr: string;            // Arabic name
+      image: string;             // User image/avatar URL
       isVerified: boolean;
     }
   };
-  adId?: string;                 // Ad ID (only for "ad" type chats)
-  adTitle?: string;              // Ad title (only for "ad" type chats)
-  adImage?: string;              // Ad image URL (only for "ad" type chats)
-  organisationId?: string;       // Organisation ID (only for "organisation" type)
-  organisationName?: string;     // Organisation name (only for "organisation" type)
   lastMessage: {                 // Last message preview
     text: string;
     senderId: string;
-    timestamp: Timestamp;
+    createdAt: Timestamp;        // Message creation timestamp
+    type: string;                // Message type (e.g., "text")
+  };
+  onlineStatus: {                // Online status per user in this chat
+    [userId: string]: boolean;
   };
   unreadCount: {                 // Unread count per user
     [userId: string]: number;
@@ -63,27 +66,36 @@ Stores individual messages within each chat.
 
 ```typescript
 {
-  id: string;                    // Message ID (auto-generated)
   chatId: string;                // Parent chat ID
   senderId: string;              // User ID of sender
   text: string;                  // Message content
+  type: "text" | "location" | "file"; // Message type
   isRead: boolean;               // Read status
-  readBy: string[];              // Array of user IDs who read the message
-  timestamp: Timestamp;          // Message timestamp
-  createdAt: Timestamp;         // Creation timestamp
+  createdAt: Timestamp;          // Creation timestamp
+  timeStamp: Timestamp;          // Message timestamp
+  userImage?: string;            // Sender's avatar URL
+
+  // Location specific fields (if type === "location")
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+
+  // File specific fields (if type === "file")
+  fileUrl?: string;
 }
 ```
 
-### 4. User Chats Index (`userChats/{userId}/chats/{chatId}`)
-Optimized index for quick access to user's chats.
+### 4. User Chats Subcollection (`users/{userId}/chats/{chatId}`)
+Optimized index for quick access to user's chats, nested within the user's document.
 
 ```typescript
 {
   chatId: string;                // Reference to chat document
-  chatType: "ad" | "dm" | "organisation";
+  type: "ad" | "dm" | "organisation";
   lastMessage: {
     text: string;
-    timestamp: Timestamp;
+    createdAt: Timestamp;
   };
   unreadCount: number;          // Unread count for this user
   updatedAt: Timestamp;         // Last update timestamp
@@ -106,14 +118,14 @@ Tracks user online/offline status in real-time.
 
 ### Firestore Composite Indexes:
 1. `chats` collection:
-   - `chatType` (Ascending) + `updatedAt` (Descending)
+   - `type` (Ascending) + `updatedAt` (Descending)
    - `participants` (Array Contains) + `updatedAt` (Descending)
 
-2. `userChats/{userId}/chats` subcollection:
+2. `users/{userId}/chats` subcollection:
    - `updatedAt` (Descending)
 
 3. `chats/{chatId}/messages` subcollection:
-   - `timestamp` (Descending)
+   - `createdAt` (Descending)
 
 ## Security Rules (Firestore)
 
@@ -125,6 +137,12 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == userId;
+
+      // User chats nested subcollection
+      match /chats/{chatId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
     }
     
     // Chats collection
@@ -144,12 +162,6 @@ service cloud.firestore {
         allow update: if request.auth != null && 
                          request.auth.uid == request.resource.data.senderId;
       }
-    }
-    
-    // User chats index
-    match /userChats/{userId}/chats/{chatId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null && request.auth.uid == userId;
     }
     
     // Presence collection

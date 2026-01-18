@@ -54,6 +54,14 @@ export function ChatHeader({
               last seen 5 mins ago
             </Typography>
           </div>
+          {currentChat?.isOnline && (
+            <div
+              className={`absolute ${currentChat?.chatType === "ad" && currentChat?.ad
+                ? "top-0 right-0"
+                : "bottom-0 right-0"
+                } w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full z-20`}
+            ></div>
+          )}
         </div>
 
         <div className="flex items-center gap-2">

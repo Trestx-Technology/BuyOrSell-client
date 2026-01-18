@@ -8,7 +8,7 @@ import { Typography } from "@/components/typography";
 import { useLocale } from "@/hooks/useLocale";
 import { cn } from "@/lib/utils";
 import React from "react";
-import ListingCard from "@/components/global/listing-card";
+import ListingCard from "@/components/features/listing-card/listing-card";
 import { ProductExtraFields, AD } from "@/interfaces/ad";
 import { useGetCollectionById } from "@/hooks/useCollections";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";

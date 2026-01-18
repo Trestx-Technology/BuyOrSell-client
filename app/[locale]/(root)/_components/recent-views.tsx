@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CardsCarousel } from "@/components/global/cards-carousel";
-import ListingCard from "@/components/global/listing-card";
+import ListingCard from "@/components/features/listing-card/listing-card";
 import { AD } from "@/interfaces/ad";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { useLocale } from "@/hooks/useLocale";
@@ -31,7 +31,6 @@ export default function RecentViews({
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
-        className="max-w-[1180px] mx-auto px-4 xl:px-0"
       >
         <CardsCarousel title={t.home.recentViews.title}>
           {Array.from({ length: 6 }).map((_, i) => (
@@ -62,7 +61,6 @@ export default function RecentViews({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="max-w-[1180px] mx-auto"
     >
       <CardsCarousel title={t.home.recentViews.title}>
         {listingItems.map((item) => (

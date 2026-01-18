@@ -5,7 +5,7 @@ export type ChatType = "ad" | "dm" | "organisation";
 export interface User {
   id: string;
   name: string;
-  avatar: string;
+  avatar: string; // Keep for user profile, but chat generic uses 'image'
   email: string;
   isVerified: boolean;
   lastSeen: Timestamp | Date;
@@ -17,7 +17,8 @@ export interface User {
 export interface ParticipantDetails {
   [userId: string]: {
     name: string;
-    avatar: string;
+    nameAr: string;
+    image: string;
     isVerified: boolean;
   };
 }
@@ -25,7 +26,8 @@ export interface ParticipantDetails {
 export interface LastMessage {
   text: string;
   senderId: string;
-  timestamp: Timestamp | Date;
+  createdAt: Timestamp | Date;
+  type: string;
 }
 
 export interface UnreadCount {
@@ -36,31 +38,28 @@ export interface TypingStatus {
   [userId: string]: boolean;
 }
 
-export interface AdDetails {
-  adId: string;
-  adTitle: string;
-  adImage: string;
-  adPrice: number;
-}
-
-export interface OrganisationDetails {
-  organisationId: string;
-  orgTradeName: string;
-  orgImage: string;
+export interface OnlineStatus {
+  [userId: string]: boolean;
 }
 
 export interface Chat {
   id: string;
-  chatType: ChatType;
+  type: ChatType;
+  title: string;
+  titleAr: string;
+  image: string;
   participants: string[];
   participantDetails: ParticipantDetails;
-  ad?: AdDetails;
-  organisation?: OrganisationDetails;
   lastMessage: LastMessage;
   unreadCount: UnreadCount;
   typing: TypingStatus;
+  onlineStatus: OnlineStatus;
   createdAt: Timestamp | Date;
   updatedAt: Timestamp | Date;
+  // Optional references if needed for navigation, though specific data is now flat
+  adId?: string;
+  adOwnerId?: string;
+  organisationId?: string;
 }
 
 export interface Message {
@@ -68,16 +67,26 @@ export interface Message {
   chatId: string;
   senderId: string;
   text: string;
+  type: "text" | "location" | "file";
   isRead: boolean;
-  readBy: string[];
-  timestamp: Timestamp | Date;
+  readBy: string[]; // Keeping for backward compat logic if needed, but schema only has isRead in list
   createdAt: Timestamp | Date;
+  timeStamp: Timestamp | Date;
+  userImage?: string;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+  fileUrl?: string;
 }
 
 export interface UserChat {
   chatId: string;
-  chatType: ChatType;
-  lastMessage: LastMessage;
+  type: ChatType;
+  lastMessage: {
+    text: string;
+    createdAt: Timestamp | Date;
+  };
   unreadCount: number;
   updatedAt: Timestamp | Date;
 }
@@ -90,16 +99,27 @@ export interface Presence {
 }
 
 export interface CreateChatParams {
-  chatType: ChatType;
+  type: ChatType;
+  title: string;
+  titleAr: string;
+  image: string;
   participants: string[];
   participantDetails: ParticipantDetails;
-  ad?: AdDetails;
-  organisation?: OrganisationDetails;
+  adId?: string;
+  adOwnerId?: string;
+  organisationId?: string;
 }
 
 export interface SendMessageParams {
   chatId: string;
   senderId: string;
   text: string;
+  type: "text" | "location" | "file";
+  userImage?: string;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+  fileUrl?: string;
 }
 
