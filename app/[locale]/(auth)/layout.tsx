@@ -3,6 +3,7 @@ import Image from "next/image";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Metadata } from "next";
 import Link from "next/link";
+import { AuthGuard } from "./_components/auth-guard";
 
 export const metadata: Metadata = {
   title: "Authentication - BuyOrSell",
@@ -19,6 +20,7 @@ const AuthRootLayout = async ({ children, params }: AuthRootLayoutProps) => {
   
   return (
     <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID!}>
+      <AuthGuard>
       <div className="px-[12px] lg:px-[100px] min-h-[750px] h-screen w-screen max-w-[1280px] mx-auto flex flex-col">
         <Link href={`/${locale}`} className=" pt-8">
           <Image
@@ -43,7 +45,9 @@ const AuthRootLayout = async ({ children, params }: AuthRootLayoutProps) => {
           </div>
         </main>
       </div>
+      </AuthGuard>
     </GoogleOAuthProvider>
+
   );
 };
 
