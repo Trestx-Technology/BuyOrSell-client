@@ -416,7 +416,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          className="absolute w-full px-4 lg:px-0 lg:w-fit lg:mt-1 top-full flex-1 z-[9999] left-1/2 -translate-x-1/2 lg:-translate-x-0 lg:left-0 min-w-[230px]"
+          className="absolute w-fit px-4 lg:px-0 lg:w-fit lg:mt-1 top-full flex-1 z-[9999] left-0 lg:left-0 min-w-[230px]"
           variants={dropdownVariants}
           initial="hidden"
           animate="visible"
@@ -871,7 +871,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                 <motion.div
                   key={type}
                   variants={fastItemVariants}
-                  className="lg:relative"
+                  className="relative"
                 >
                   <CategoryButton
                     categoryType={type}
@@ -894,7 +894,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
 
               {/* "Other" Categories Dropdown */}
               {otherCategories.length > 0 && (
-                <motion.div variants={fastItemVariants} className="lg:relative">
+                    <motion.div variants={fastItemVariants} className="relative">
                   <CategoryButton
                     categoryType="other"
                     label="Other"

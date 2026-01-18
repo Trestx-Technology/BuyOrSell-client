@@ -5,6 +5,8 @@ import Image from "next/image";
 import { ICONS } from "@/constants/icons";
 import { AD } from "@/interfaces/ad";
 import { getDiscountInfo, DiscountInfo } from "@/utils/get-discount-info";
+import { H4, H5 } from "../typography";
+import { cn } from "@/lib/utils";
 
 interface PriceDisplayProps {
   // Option 1: Pass full AD object
@@ -125,25 +127,25 @@ export function PriceDisplay({
           width={currencyIconWidth}
           height={currencyIconHeight}
         />
-        <span
-          className={`text-2xl font-bold text-purple-600 ${currentPriceClassName}`}
+        <H4
+          className={`font-bold text-purple-600 ${currentPriceClassName}`}
         >
           {formatPrice(currentPrice)}
-        </span>
+        </H4>
       </div>
       {hasDiscount && (
         <>
-          <span
-            className={`text-lg text-grey-blue line-through ${originalPriceClassName}`}
+          <H5
+            className={cn(discountBadgeClassName, "text-grey-blue line-through")}
           >
             {formatPrice(discountOriginalPrice!)}
-          </span>
+          </H5>
           {discountPercentage && (
-            <span
-              className={`text-sm font-semibold text-teal ${discountBadgeClassName}`}
+            <H5
+              className={cn(discountBadgeClassName, "font-semibold text-teal")}
             >
               {discountPercentage}%
-            </span>
+            </H5>
           )}
         </>
       )}

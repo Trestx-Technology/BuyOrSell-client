@@ -18,8 +18,7 @@ import SortAndViewControls, {
   ViewMode,
 } from "@/app/[locale]/(root)/post-ad/_components/SortAndViewControls";
 import { cn } from "@/lib/utils";
-import HorizontalListingCard from "../_components/desktop-horizontal-list-card";
-import MobileHorizontalListViewCard from "../_components/MobileHorizontalListViewCard";
+import HorizontalListingCard from "../_components/horizontal-listing-card";
 import Pagination from "@/components/global/pagination";
 import { useAds, useFilterAds } from "@/hooks/useAds";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
@@ -547,7 +546,6 @@ export default function CategoryListingPage() {
                         extraFields={extraFields}
                       />
                     ) : (
-                      <>
                         <HorizontalListingCard
                           {...ad}
                           extraFields={extraFields}
@@ -555,16 +553,7 @@ export default function CategoryListingPage() {
                           onFavorite={(id) => console.log("Favorited:", id)}
                           onShare={(id) => console.log("Shared:", id)}
                           onClick={handleCardClick}
-                          className="hidden sm:block"
                         />
-                        <MobileHorizontalListViewCard
-                          {...ad}
-                          extraFields={extraFields}
-                          seller={sellerInfo}
-                          onClick={handleCardClick}
-                          className="block sm:hidden"
-                        />
-                      </>
                     )}
                   </React.Fragment>
                 );
