@@ -16,6 +16,7 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
+import { cn } from "@/lib/utils";
 
 interface ResponsiveDialogDrawerProps {
   open?: boolean;
@@ -93,7 +94,7 @@ export function ResponsiveDialogDrawer({
       <>
         {triggerElement}
         <Drawer open={open} onOpenChange={setOpen}>
-          <DrawerContent className={drawerContentClassName}>
+          <DrawerContent className={cn(drawerContentClassName)}>
             {(title || description) && (
               <DrawerHeader>
                 {title && <DrawerTitle>{title}</DrawerTitle>}
@@ -102,7 +103,7 @@ export function ResponsiveDialogDrawer({
                 )}
               </DrawerHeader>
             )}
-            <div className="px-4 pb-4">{children}</div>
+            {children}
           </DrawerContent>
         </Drawer>
       </>
@@ -113,9 +114,9 @@ export function ResponsiveDialogDrawer({
     <>
       {triggerElement}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className={dialogContentClassName}>
+        <DialogContent className={cn(dialogContentClassName, "p-0")}>
           {(title || description) && (
-            <DialogHeader>
+            <DialogHeader className="p-4">
               {title && <DialogTitle>{title}</DialogTitle>}
               {description && (
                 <DialogDescription>{description}</DialogDescription>

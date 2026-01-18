@@ -54,4 +54,8 @@ export const categoriesQueries = {
     Key: ["categories", "job-subcategories", params],
     endpoint: "/categories/job-subcategories",
   }),
+  validateCategoryPath: (path: string) => ({
+    Key: ["categories", "validate", path],
+    endpoint: `/categories/validate/${path}`,
+  }),
 };

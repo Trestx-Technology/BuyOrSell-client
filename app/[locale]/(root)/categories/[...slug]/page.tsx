@@ -5,7 +5,11 @@ import { useParams, useRouter } from "next/navigation";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { useLocale } from "@/hooks/useLocale";
 import { Button } from "@/components/ui/button";
-import { CommonFilters, FilterConfig } from "@/components/common/common-filters";
+import { CommonFilters } from "@/components/common/common-filters";
+import { useUrlFilters } from "@/hooks/useUrlFilters";
+import { generateCategoryBreadcrumbs } from "@/lib/breadcrumb-utils";
+import { useUrlParams } from "@/hooks/useUrlParams";
+import { ActiveFilters } from "@/components/common/active-filters";
 import ListingCard from "@/components/features/listing-card/listing-card";
 import { Typography } from "@/components/typography";
 import { Bell, ChevronLeft, Search } from "lucide-react";
@@ -24,15 +28,16 @@ import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
 import { Container1280 } from "@/components/layouts/container-1280";
 import { Container1080 } from "@/components/layouts/container-1080";
 import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
+import { FilterConfig } from "@/components/common/filter-control";
 
 const ITEMS_PER_PAGE = 12;
-const DYNAMIC_FILTERS_STORAGE_KEY = "category_dynamic_filters";
-const DYNAMIC_FILTER_CONFIGS_STORAGE_KEY = "category_dynamic_filter_configs";
 
 export default function CategoryListingPage() {
   const { t, locale } = useLocale();
   const params = useParams();
   const router = useRouter();
+  const { clearUrlQueries } = useUrlParams();
+  const { extraFields } = useUrlFilters();
   const [searchQuery, setSearchQuery] = useState("");
 
   // Get category from URL params - use the last slug segment
@@ -44,72 +49,11 @@ export default function CategoryListingPage() {
   const currentCategory = slugSegments[slugSegments.length - 1] || "";
   const categoryName = decodeURIComponent(currentCategory) || "Category";
 
-  // Load saved dynamic filters from localStorage
-  const getSavedDynamicFilters = (): Record<
-    string,
-    string | number | string[] | number[] | undefined
-  > => {
-    if (typeof window === "undefined") return {};
-    try {
-      const saved = localStorage.getItem(
-        `${DYNAMIC_FILTERS_STORAGE_KEY}_${currentCategory}`
-      );
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  };
-
-  // Load saved dynamic filter configs from localStorage
-  const getSavedDynamicFilterConfigs = (): FilterConfig[] => {
-    if (typeof window === "undefined") return [];
-    try {
-      const saved = localStorage.getItem(
-        `${DYNAMIC_FILTER_CONFIGS_STORAGE_KEY}_${currentCategory}`
-      );
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  };
-
-  // Save dynamic filter configs to localStorage
-  const saveDynamicFilterConfigs = (configs: FilterConfig[]) => {
-    if (typeof window === "undefined") return;
-    try {
-      localStorage.setItem(
-        `${DYNAMIC_FILTER_CONFIGS_STORAGE_KEY}_${currentCategory}`,
-        JSON.stringify(configs)
-      );
-    } catch (error) {
-      console.error("Failed to save dynamic filter configs:", error);
-    }
-  };
-
-  // Initialize filters - start empty, load saved dynamic filters after mount
+  // Initialize filters
   const [filters, setFilters] = useState<
     Record<string, string | number | string[] | number[] | undefined>
   >({});
 
-  // Pending filters - updated immediately but don't trigger API calls
-  const [pendingFilters, setPendingFilters] = useState<
-    Record<string, string | number | string[] | number[] | undefined>
-  >({});
-
-  // Store dynamic filter configs in state so they persist even when data is empty
-  const [savedDynamicFilterConfigs, setSavedDynamicFilterConfigs] = useState<
-    FilterConfig[]
-  >(() => getSavedDynamicFilterConfigs());
-
-  // Load saved dynamic filters on mount and when slug changes
-  useEffect(() => {
-    const saved = getSavedDynamicFilters();
-    setFilters(saved);
-    setPendingFilters(saved);
-    const savedConfigs = getSavedDynamicFilterConfigs();
-    setSavedDynamicFilterConfigs(savedConfigs);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentCategory]);
 
   const [view, setView] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState("default");
@@ -199,25 +143,7 @@ export default function CategoryListingPage() {
     },
   ];
 
-  const formatLabel = (segment: string) =>
-    segment
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-
-  const breadcrumbItems: BreadcrumbItem[] = [
-    ...slugSegments.map((segment, index) => {
-      const path = slugSegments.slice(0, index + 1).join("/");
-      const href = `/categories/${path}`;
-
-      return {
-        id: path || `segment-${index}`,
-        label: formatLabel(decodeURIComponent(segment)),
-        href,
-        isActive: index === slugSegments.length - 1,
-      };
-    }),
-  ];
+  const breadcrumbItems = generateCategoryBreadcrumbs(slugSegments);
 
   // Build API filters from state
   const apiFilters = useMemo<AdFilters>(() => {
@@ -290,36 +216,6 @@ export default function CategoryListingPage() {
       apiParams.hasVideo = false;
     }
 
-    // Collect extraFields filters (prefixed with "extraField_")
-    const extraFieldsFilters: Record<
-      string,
-      string | string[] | number | boolean
-    > = {};
-    Object.entries(filters).forEach(([key, value]) => {
-      if (key.startsWith("extraField_") && value) {
-        const fieldName = key.replace("extraField_", "");
-        // Convert value to appropriate type
-        if (Array.isArray(value)) {
-          // For number arrays (like price range), convert to string array or handle separately
-          if (value.length > 0 && typeof value[0] === "number") {
-            extraFieldsFilters[fieldName] = value.map(String);
-          } else {
-            extraFieldsFilters[fieldName] = value as string[];
-          }
-        } else if (typeof value === "number") {
-          extraFieldsFilters[fieldName] = value;
-        } else if (typeof value === "boolean") {
-          extraFieldsFilters[fieldName] = value;
-        } else {
-          extraFieldsFilters[fieldName] = String(value);
-        }
-      }
-    });
-
-    // Note: extraFields filters would need to use the filter API endpoint
-    // For now, we're collecting them but not sending to the regular /ad endpoint
-    // If extraFields filtering is needed, switch to useFilterAds hook with AdFilterPayload
-
     // Add sort
     if (sortBy !== "default") {
       switch (sortBy) {
@@ -381,16 +277,8 @@ export default function CategoryListingPage() {
 
   // Check if any dynamic filters are active
   const hasDynamicFilters = useMemo(() => {
-    return !!Object.keys(filters).some(
-      (key) =>
-        !staticFilterKeys.includes(key) &&
-        filters[key as keyof typeof filters] !== undefined &&
-        filters[key as keyof typeof filters] !== "" &&
-        // Array check
-        (!Array.isArray(filters[key as keyof typeof filters]) ||
-          (filters[key as keyof typeof filters] as any[]).length > 0)
-    );
-  }, [filters]);
+    return Object.keys(extraFields).length > 0;
+  }, [extraFields]);
 
   // Build filter payload for useFilterAds (only used if hasDynamicFilters)
   const filterPayload = useMemo(() => {
@@ -460,44 +348,14 @@ export default function CategoryListingPage() {
       payload.hasVideo = false;
     }
 
-    // Collect extraFields filters (dynamic filters)
-    const extraFieldsFilters: Record<
-      string,
-      string | string[] | number | boolean
-    > = {};
-    Object.entries(filters).forEach(([key, value]) => {
-      // Skip static filters, only include dynamic ones
-      if (
-        !staticFilterKeys.includes(key) &&
-        value !== undefined &&
-        value !== ""
-      ) {
-        // Convert value to appropriate type
-        if (Array.isArray(value)) {
-          // For number arrays (like price range), convert to string array
-          if (value.length > 0 && typeof value[0] === "number") {
-            extraFieldsFilters[key] = (value as number[]).map(String);
-          } else {
-            extraFieldsFilters[key] = value as string[];
-          }
-        } else if (typeof value === "number") {
-          extraFieldsFilters[key] = value;
-        } else if (typeof value === "boolean") {
-          extraFieldsFilters[key] = value;
-        } else {
-          extraFieldsFilters[key] = String(value);
-        }
-      }
-    });
-
     // Add extraFields if any dynamic filters are set
-    if (Object.keys(extraFieldsFilters).length > 0) {
-      payload.extraFields = extraFieldsFilters;
+    if (Object.keys(extraFields).length > 0) {
+      payload.extraFields = extraFields;
     }
 
     return payload;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasDynamicFilters, currentCategory, filters, searchQuery]);
+  }, [hasDynamicFilters, currentCategory, filters, searchQuery, extraFields]);
 
   // Use filter API if dynamic filters are active, otherwise use regular ads API
   const { data: filterAdsResponse, isLoading: isFilterLoading } = useFilterAds(
@@ -517,80 +375,21 @@ export default function CategoryListingPage() {
     : regularAdsResponse;
   const isLoading = hasDynamicFilters ? isFilterLoading : isRegularLoading;
 
-  // Handle filter changes - static filters apply immediately, dynamic filters wait for "Apply Filters"
+  // Handle filter changes - static filters apply immediately
   const handleFilterChange = (
     key: string,
     value: string | string[] | number[]
   ) => {
-    if (staticFilterKeys.includes(key)) {
-      // Static filters: update both pending and actual filters immediately (triggers API call)
-      setPendingFilters((prev) => ({ ...prev, [key]: value }));
-      setFilters((prev) => ({ ...prev, [key]: value }));
-      setCurrentPage(1); // Reset to first page when filter changes
-    } else {
-      // Dynamic filters: only update pending filters (wait for "Apply Filters" button)
-      setPendingFilters((prev) => ({ ...prev, [key]: value }));
-    }
-  };
-
-  // Apply pending filters - called when "Apply Filters" is clicked (only for dynamic filters)
-  const handleApplyFilters = () => {
-    // Only apply dynamic filters (static filters are already applied)
-    const dynamicFilters: Record<
-      string,
-      string | number | string[] | number[] | undefined
-    > = {};
-
-    Object.entries(pendingFilters).forEach(([key, value]) => {
-      if (!staticFilterKeys.includes(key)) {
-        dynamicFilters[key] = value;
-      }
-    });
-
-    // Get current static filters from filters state (already applied)
-    const currentStaticFilters: Record<
-      string,
-      string | number | string[] | number[] | undefined
-    > = {};
-    staticFilterKeys.forEach((key) => {
-      if (filters[key] !== undefined) {
-        currentStaticFilters[key] = filters[key];
-      }
-    });
-
-    // Apply all filters (static + dynamic)
-    setFilters({ ...currentStaticFilters, ...dynamicFilters });
+    // Static filters: update immediately
+    setFilters((prev) => ({ ...prev, [key]: value }));
     setCurrentPage(1);
-
-    // Save dynamic filters to localStorage
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(
-          `${DYNAMIC_FILTERS_STORAGE_KEY}_${currentCategory}`,
-          JSON.stringify(dynamicFilters)
-        );
-      } catch (error) {
-        console.error("Failed to save dynamic filters:", error);
-      }
-    }
   };
 
   const clearFilters = () => {
-    setPendingFilters({});
     setFilters({});
     setSearchQuery("");
     setCurrentPage(1);
-
-    // Clear saved dynamic filters
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.removeItem(
-          `${DYNAMIC_FILTERS_STORAGE_KEY}_${currentCategory}`
-        );
-      } catch (error) {
-        console.error("Failed to clear dynamic filters:", error);
-      }
-    }
+    clearUrlQueries();
   };
 
   const handlePageChange = (page: number) => {
@@ -607,105 +406,13 @@ export default function CategoryListingPage() {
     );
   }, [adsResponse, locale]);
 
-  // Get first ad to extract extraFields for dynamic filters
-  const firstAd: AD | undefined = adsResponse?.data?.adds?.[0];
-
-  // Create dynamic filters from extraFields - shown inside the dialog
-  const dynamicFiltersFromAds = useMemo<FilterConfig[]>(() => {
-    if (!firstAd?.extraFields) return [];
-
-    const normalizedFields = normalizeExtraFieldsToArray(firstAd.extraFields);
-
-    return normalizedFields
-      .filter((field) => {
-        // Only include fields that have optionalArray (dropdown options) or are filterable
-        // Exclude fields that are already in static filters
-        const staticFilterKeys = staticFilterConfig.map((f) => f.key);
-        const hasOptions =
-          field.optionalArray && field.optionalArray.length > 0;
-        return (
-          !staticFilterKeys.includes(field.name.toLowerCase()) &&
-          (hasOptions || field.type === "select" || field.type === "checkboxes")
-        );
-      })
-      .map((field) => {
-        const filterKey = field.name; // Use field name directly for extrafields
-
-        // Create options from optionalArray if available
-        const options =
-          field.optionalArray?.map((value) => ({
-            value: value.toLowerCase().replace(/\s+/g, "-"),
-            label: value,
-          })) || [];
-
-        // If no optionalArray but it's a select/checkbox type, create options from unique values
-        if (
-          options.length === 0 &&
-          (field.type === "select" || field.type === "checkboxes")
-        ) {
-          // We could collect unique values from all ads, but for now just use the field value
-          if (Array.isArray(field.value)) {
-            options.push(
-              ...field.value.map((v) => ({
-                value: String(v).toLowerCase().replace(/\s+/g, "-"),
-                label: String(v),
-              }))
-            );
-          }
-        }
-
-        return {
-          key: filterKey,
-          label:
-            field.name.charAt(0).toUpperCase() +
-            field.name.slice(1).replace(/([A-Z])/g, " $1"),
-          type:
-            field.type === "checkboxes" ? "multiselect" : ("select" as const),
-          options: options.length > 0 ? options : undefined,
-          placeholder: `Select ${field.name}`,
-          isStatic: false, // Dynamic filters go inside dialog
-        } as FilterConfig;
-      });
-  }, [firstAd]);
-
-  // Update saved configs when new filters are discovered from ads
-  useEffect(() => {
-    if (dynamicFiltersFromAds.length > 0) {
-      // Merge: use saved configs if they exist for a key, otherwise use new ones
-      const merged: FilterConfig[] = [];
-      const savedKeys = new Set(savedDynamicFilterConfigs.map((c) => c.key));
-
-      // Add saved configs first (they take precedence)
-      savedDynamicFilterConfigs.forEach((savedConfig) => {
-        merged.push(savedConfig);
-      });
-
-      // Add new configs that don't exist in saved
-      dynamicFiltersFromAds.forEach((newConfig) => {
-        if (!savedKeys.has(newConfig.key)) {
-          merged.push(newConfig);
-        }
-      });
-
-      // Update saved configs if we have new ones (only if length changed to prevent infinite loops)
-      if (merged.length > savedDynamicFilterConfigs.length) {
-        setSavedDynamicFilterConfigs(merged);
-        saveDynamicFilterConfigs(merged);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dynamicFiltersFromAds]);
-
-  // Always use saved configs (they persist even when data is empty)
-  const dynamicFilters = useMemo<FilterConfig[]>(() => {
-    return savedDynamicFilterConfigs;
-  }, [savedDynamicFilterConfigs]);
+  const dynamicFilters: FilterConfig[] = []; // Handled by GlobalMoreFilters
 
   const totalAds = adsResponse?.data?.total || 0;
   const totalPages = Math.ceil(totalAds / ITEMS_PER_PAGE);
 
   return (
-    <Container1080>
+    <Container1080 className="min-h-[calc(100dvh)]">
       {/* Mobile Header */}
       <div className="w-full bg-purple sm:hidden p-4 space-y-4">
         <div className="flex items-center justify-between">
@@ -734,12 +441,12 @@ export default function CategoryListingPage() {
       </div>
 
       <div className="max-w-7xl mx-auto py-6">
-        <div className="hidden sm:block mb-6 px-4">
+        <div className="hidden px-4 sm:block mb-6">
           <Breadcrumbs items={breadcrumbItems} showSelectCategoryLink={false} />
         </div>
 
         {/* Page Header */}
-        <div className="flex items-center justify-between mb-6 px-4">
+        <div className="flex items-center justify-between px-4 mb-6">
           <Typography variant="md-black-inter" className="font-semibold">
             {t.categories.forSaleIn
               .replace(
@@ -767,28 +474,19 @@ export default function CategoryListingPage() {
           staticFilters={staticFilterConfig}
           dynamicFilters={dynamicFilters}
           onStaticFilterChange={handleFilterChange}
-          onApplyDynamicFilters={(newFilters) => {
-            // Apply all dynamic filters
-            setFilters((prev) => ({ ...prev, ...newFilters }));
-            setCurrentPage(1);
-
-            // Save dynamic filters to localStorage
-            if (typeof window !== "undefined") {
-              try {
-                localStorage.setItem(
-                  `${DYNAMIC_FILTERS_STORAGE_KEY}_${currentCategory}`,
-                  JSON.stringify(newFilters)
-                );
-              } catch (error) {
-                console.error("Failed to save dynamic filters:", error);
-              }
-            }
-          }}
+          onApplyDynamicFilters={() => { }}
           onClearFilters={clearFilters}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           searchPlaceholder={`${t.categories.search} ${categoryName}...`}
           className="mb-4"
+        />
+
+        <ActiveFilters
+          staticFiltersConfig={staticFilterConfig}
+          categoryPath={slugSegments.join("/")}
+          onClearAll={clearFilters}
+          className="px-4 mb-4"
         />
 
         <SortAndViewControls
@@ -805,7 +503,7 @@ export default function CategoryListingPage() {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="px-4 lg:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
               <ListingCardSkeleton className="w-full" key={i} />
             ))}
@@ -814,10 +512,10 @@ export default function CategoryListingPage() {
 
         {/* Ads Grid/List */}
         {!isLoading && (
-          <div className="space-y-6">
+          <div className="space-y-6 ">
             <div
               className={cn(
-                `px-4 lg:px-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3`,
+                `px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3`,
                 view === "list" && "flex flex-col"
               )}
             >
@@ -880,7 +578,7 @@ export default function CategoryListingPage() {
 
         {/* No Results */}
         {!isLoading && ads.length === 0 && (
-          <div className="text-center py-12">
+          <div className="text-center py-12 ">
             <p className="text-gray-500 text-lg">{t.categories.noAdsFound}</p>
             <Button variant="outline" onClick={clearFilters} className="mt-4">
               {t.categories.clearFilters}

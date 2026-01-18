@@ -145,3 +145,12 @@ export const getJobSubcategories = async (params?: {
   return response.data;
 };
 
+export const validateCategoryPath = async (
+  path: string
+): Promise<CategoryApiResponse> => {
+  const response = await axiosInstance.get<CategoryApiResponse>(
+    categoriesQueries.validateCategoryPath(path).endpoint
+  );
+  return response.data;
+};
+

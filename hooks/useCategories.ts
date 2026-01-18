@@ -13,6 +13,7 @@ import {
   downloadExcelTemplate,
   getCategoriesWithFilter,
   getJobSubcategories,
+  validateCategoryPath,
 } from "@/app/api/categories/categories.services";
 import { categoriesQueries } from "@/app/api/categories/index";
 import {
@@ -205,5 +206,13 @@ export const useJobSubcategories = (params?: {
     queryKey: [...categoriesQueries.jobSubcategories(params).Key],
     queryFn: () => getJobSubcategories(params),
     select: (data: JobSubcategoriesApiResponse) => data.data,
+  });
+};
+
+export const useValidateCategoryPath = (path: string) => {
+  return useQuery<CategoryApiResponse, Error>({
+    queryKey: [...categoriesQueries.validateCategoryPath(path).Key],
+    queryFn: () => validateCategoryPath(path),
+    enabled: !!path,
   });
 };

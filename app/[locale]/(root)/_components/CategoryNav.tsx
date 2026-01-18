@@ -258,6 +258,14 @@ const buildCategoryUrl = (
 // REUSABLE COMPONENTS
 // ============================================================================
 
+const CategoryLoader = () => (
+  <div className="hidden md:flex gap-4 flex-1 items-center justify-between animate-pulse">
+    {[...Array(6)].map((_, i) => (
+      <div key={i} className="h-9 w-24 bg-white/20 rounded-sm" />
+    ))}
+  </div>
+);
+
 /**
  * CategoryButton Component
  *
@@ -814,22 +822,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
     return category?.children || [];
   }, [activeCategoryType, categoriesToDisplay]);
 
-  // ========================================================================
-  // LOADING COMPONENT
-  // ========================================================================
 
-  /**
-   * Loading skeleton for category buttons
-   */
-  const CategoryLoader = () => (
-    <div className="hidden w-full md:flex flex-1 items-center justify-between">
-      {Array.from({ length: VISIBLE_CATEGORIES_COUNT + 1 }).map((_, index) => (
-        <div key={index} className="animate-pulse min-w-[100px]">
-          <div className="h-9 w-16 bg-white/20 rounded-sm"></div>
-        </div>
-      ))}
-    </div>
-  );
 
   // ========================================================================
   // RENDER
@@ -839,9 +832,8 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
     <motion.div
       className={cn("relative md:bg-purple", className)}
       initial={{ opacity: 0 }}
-      animate={{ opacity: categoriesLoading ? 0 : 1 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-      style={{ willChange: "opacity" }}
     >
       <div className="max-w-[1080px] mx-auto px-4 xl:px-0">
         <nav
