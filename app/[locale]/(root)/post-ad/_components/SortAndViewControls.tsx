@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { LayoutGrid, Menu, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SortDropdown, { SortOption } from "./SortDropdown";
+import { useLocale } from "@/hooks/useLocale";
 
 export type ViewMode = "grid" | "list";
 
 export interface SortAndViewControlsProps {
   // Sort props
-  sortOptions: SortOption[];
+  sortOptions?: SortOption[];
   sortValue?: string;
   onSortChange?: (value: string) => void;
   sortPlaceholder?: string;
@@ -34,7 +35,7 @@ export interface SortAndViewControlsProps {
 }
 
 const SortAndViewControls: React.FC<SortAndViewControlsProps> = ({
-  sortOptions,
+  sortOptions: propSortOptions,
   sortValue,
   variant = "light",
   onSortChange,
@@ -50,6 +51,18 @@ const SortAndViewControls: React.FC<SortAndViewControlsProps> = ({
   disabled = false,
   size = "fit",
 }) => {
+  const { t } = useLocale();
+
+  const defaultSortOptions: SortOption[] = [
+    { value: "default", label: t.categories.sort.default },
+    { value: "newest", label: t.categories.sort.newest },
+    { value: "oldest", label: t.categories.sort.oldest },
+    { value: "price-asc", label: t.categories.sort.priceLowToHigh },
+    { value: "price-desc", label: t.categories.sort.priceHighToLow },
+  ];
+
+  const sortOptions = propSortOptions || defaultSortOptions;
+
   const handleViewChange = (mode: ViewMode) => {
     onViewChange?.(mode);
   };

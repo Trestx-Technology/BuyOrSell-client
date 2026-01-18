@@ -6,12 +6,13 @@ export const formatLabel = (segment: string): string =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
-export const generateCategoryBreadcrumbs = (
-  slugSegments: string[]
+export const generateBreadcrumbs = (
+  slugSegments: string[],
+  basePath: string
 ): BreadcrumbItem[] => {
   return slugSegments.map((segment, index) => {
     const path = slugSegments.slice(0, index + 1).join("/");
-    const href = `/categories/${path}`;
+    const href = `${basePath}/${path}`;
 
     return {
       id: path || `segment-${index}`,
@@ -20,4 +21,10 @@ export const generateCategoryBreadcrumbs = (
       isActive: index === slugSegments.length - 1,
     };
   });
+};
+
+export const generateCategoryBreadcrumbs = (
+  slugSegments: string[]
+): BreadcrumbItem[] => {
+  return generateBreadcrumbs(slugSegments, "/categories");
 };

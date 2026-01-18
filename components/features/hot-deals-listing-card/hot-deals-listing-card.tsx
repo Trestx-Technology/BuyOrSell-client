@@ -115,7 +115,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
 
   return (
     <div
-      className={`w-[220px] overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
+      className={`w-[220px] overflow-hidden rounded-2xl bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}

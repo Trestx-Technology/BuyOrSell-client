@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
+import { Breadcrumbs, } from "@/components/ui/breadcrumbs";
 import { useLocale } from "@/hooks/useLocale";
 import { Button } from "@/components/ui/button";
 import { CommonFilters } from "@/components/common/common-filters";
@@ -22,12 +22,12 @@ import HorizontalListingCard from "../_components/horizontal-listing-card";
 import Pagination from "@/components/global/pagination";
 import { useAds, useFilterAds } from "@/hooks/useAds";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
-import { AdFilters, AD } from "@/interfaces/ad";
-import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
-import { Container1280 } from "@/components/layouts/container-1280";
+import { AdFilters, } from "@/interfaces/ad";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { buildAdFilterPayload } from "@/utils/ad-payload";
+import { buildAdQueryParams } from "@/utils/ad-query-params";
 import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
-import { FilterConfig } from "@/components/common/filter-control";
+import { getStaticFilterConfig } from "@/constants/filters.constants";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -36,7 +36,7 @@ export default function CategoryListingPage() {
   const params = useParams();
   const router = useRouter();
   const { clearUrlQueries } = useUrlParams();
-  const { extraFields } = useUrlFilters();
+  const { extraFields, hasDynamicFilters } = useUrlFilters();
   const [searchQuery, setSearchQuery] = useState("");
 
   // Get category from URL params - use the last slug segment
@@ -57,303 +57,37 @@ export default function CategoryListingPage() {
   const [view, setView] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState("default");
   const [currentPage, setCurrentPage] = useState(1);
-  // Sort options
-  const sortOptions = [
-    { value: "default", label: t.categories.sort.default },
-    { value: "newest", label: t.categories.sort.newest },
-    { value: "oldest", label: t.categories.sort.oldest },
-    { value: "price-asc", label: t.categories.sort.priceLowToHigh },
-    { value: "price-desc", label: t.categories.sort.priceHighToLow },
-  ];
+
 
   // Static filter configuration - shown outside the dialog
-  const staticFilterConfig: FilterConfig[] = [
-    {
-      key: "price",
-      label: t.categories.filters.price,
-      type: "range",
-      min: 0,
-      max: 1000000,
-      step: 1000,
-      isStatic: true,
-    },
-    {
-      key: "deal",
-      label: t.categories.filters.deal,
-      type: "select",
-      options: [
-        { value: "true", label: t.categories.boolean.yes },
-        { value: "false", label: t.categories.boolean.no },
-      ],
-      placeholder: t.categories.placeholders.select,
-      isStatic: true,
-    },
-    {
-      key: "fromDate",
-      label: t.categories.filters.fromDate,
-      type: "calendar",
-      placeholder: t.categories.placeholders.selectStartDate,
-      isStatic: true,
-    },
-    {
-      key: "toDate",
-      label: t.categories.filters.toDate,
-      type: "calendar",
-      placeholder: t.categories.placeholders.selectEndDate,
-      isStatic: true,
-    },
-    {
-      key: "isFeatured",
-      label: t.categories.filters.featured,
-      type: "select",
-      options: [
-        { value: "true", label: t.categories.boolean.yes },
-        { value: "false", label: t.categories.boolean.no },
-      ],
-      placeholder: t.categories.placeholders.select,
-      isStatic: true,
-    },
-    {
-      key: "neighbourhood",
-      label: t.categories.filters.neighbourhood,
-      type: "select",
-      options: [
-        { value: "dubai", label: t.categories.locations.dubai },
-        { value: "abu-dhabi", label: t.categories.locations.abuDhabi },
-        { value: "sharjah", label: t.categories.locations.sharjah },
-        { value: "ajman", label: t.categories.locations.ajman },
-        { value: "ras-al-khaimah", label: t.categories.locations.rasAlKhaimah },
-        { value: "fujairah", label: t.categories.locations.fujairah },
-        { value: "umm-al-quwain", label: t.categories.locations.ummAlQuwain },
-      ],
-      placeholder: t.categories.placeholders.select,
-      isStatic: true,
-    },
-    {
-      key: "hasVideo",
-      label: t.categories.filters.hasVideo,
-      type: "select",
-      options: [
-        { value: "true", label: t.categories.boolean.yes },
-        { value: "false", label: t.categories.boolean.no },
-      ],
-      placeholder: t.categories.placeholders.select,
-      isStatic: true,
-    },
-  ];
+  // Static filter configuration - shown outside the dialog
+  const staticFilterConfig = getStaticFilterConfig(t);
 
   const breadcrumbItems = generateCategoryBreadcrumbs(slugSegments);
 
   // Build API filters from state
   const apiFilters = useMemo<AdFilters>(() => {
-    const apiParams: AdFilters = {
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-      category: categoryName,
-    };
+    return buildAdQueryParams({
+      categoryName,
+      currentPage,
+      itemsPerPage: ITEMS_PER_PAGE,
+      searchQuery,
+      filters,
+      sortBy,
+    });
+  }, [categoryName, currentPage, searchQuery, filters, sortBy]);
 
-    // Add search query if present
-    if (searchQuery.trim()) {
-      apiParams.search = searchQuery.trim();
-    }
-
-    // Add price filter if present (from select dropdown)
-    if (filters.price && typeof filters.price === "string") {
-      switch (filters.price) {
-        case "under-50k":
-          apiParams.maxPrice = 50000;
-          break;
-        case "50k-100k":
-          apiParams.minPrice = 50000;
-          apiParams.maxPrice = 100000;
-          break;
-        case "100k-200k":
-          apiParams.minPrice = 100000;
-          apiParams.maxPrice = 200000;
-          break;
-        case "200k-500k":
-          apiParams.minPrice = 200000;
-          apiParams.maxPrice = 500000;
-          break;
-        case "over-500k":
-          apiParams.minPrice = 500000;
-          break;
-      }
-    }
-
-    // Add deal filter if present
-    if (filters.deal === "true") {
-      apiParams.deal = true;
-    } else if (filters.deal === "false") {
-      apiParams.deal = false;
-    }
-
-    // Add date filters if present
-    if (filters.fromDate && typeof filters.fromDate === "string") {
-      apiParams.fromDate = filters.fromDate;
-    }
-    if (filters.toDate && typeof filters.toDate === "string") {
-      apiParams.toDate = filters.toDate;
-    }
-
-    // Add isFeatured filter if present
-    if (filters.isFeatured === "true") {
-      apiParams.isFeatured = true;
-    } else if (filters.isFeatured === "false") {
-      apiParams.isFeatured = false;
-    }
-
-    // Add neighbourhood filter if present
-    if (filters.neighbourhood && typeof filters.neighbourhood === "string") {
-      apiParams.neighbourhood = filters.neighbourhood;
-    }
-
-    // Add hasVideo filter if present
-    if (filters.hasVideo === "true") {
-      apiParams.hasVideo = true;
-    } else if (filters.hasVideo === "false") {
-      apiParams.hasVideo = false;
-    }
-
-    // Add sort
-    if (sortBy !== "default") {
-      switch (sortBy) {
-        case "newest":
-          apiParams.sort = "createdAt:desc";
-          break;
-        case "oldest":
-          apiParams.sort = "createdAt:asc";
-          break;
-        case "price-asc":
-          apiParams.sort = "price:asc";
-          break;
-        case "price-desc":
-          apiParams.sort = "price:desc";
-          break;
-      }
-    }
-
-    return apiParams;
-  }, [currentCategory, currentPage, searchQuery, filters, sortBy]);
-
-  // Check if only search filter is active
-  const hasOnlySearchFilter = useMemo(() => {
-    return !!(
-      searchQuery.trim() &&
-      !(
-        filters.price ||
-        filters.deal ||
-        filters.fromDate ||
-        filters.toDate ||
-        filters.isFeatured ||
-        filters.neighbourhood ||
-        filters.hasVideo ||
-        Object.keys(filters).some(
-          (key) =>
-            key !== "price" &&
-            key !== "deal" &&
-            key !== "fromDate" &&
-            key !== "toDate" &&
-            key !== "isFeatured" &&
-            key !== "neighbourhood" &&
-            key !== "hasVideo" &&
-            filters[key as keyof typeof filters]
-        )
-      )
-    );
-  }, [searchQuery, filters]);
-
-  // Static filter keys that should trigger API calls immediately
-  const staticFilterKeys = [
-    "price",
-    "deal",
-    "fromDate",
-    "toDate",
-    "isFeatured",
-    "neighbourhood",
-    "hasVideo",
-  ];
-
-  // Check if any dynamic filters are active
-  const hasDynamicFilters = useMemo(() => {
-    return Object.keys(extraFields).length > 0;
-  }, [extraFields]);
 
   // Build filter payload for useFilterAds (only used if hasDynamicFilters)
   const filterPayload = useMemo(() => {
     if (!hasDynamicFilters) return {};
 
-    const payload: any = {
-      category: currentCategory,
-    };
-
-    // Add search query if present
-    if (searchQuery.trim()) {
-      payload.search = searchQuery.trim();
-    }
-
-    // Add price filter if present (from range slider)
-    if (
-      filters.price &&
-      Array.isArray(filters.price) &&
-      filters.price.length === 2
-    ) {
-      const priceArray = filters.price;
-      if (
-        typeof priceArray[0] === "number" &&
-        typeof priceArray[1] === "number"
-      ) {
-        const [minPrice, maxPrice] = priceArray;
-        if (minPrice > 0) {
-          payload.priceFrom = minPrice;
-        }
-        if (maxPrice < 1000000) {
-          payload.priceTo = maxPrice;
-        }
-      }
-    }
-
-    // Add deal filter if present
-    if (filters.deal === "true") {
-      payload.deal = true;
-    } else if (filters.deal === "false") {
-      payload.deal = false;
-    }
-
-    // Add date filters if present
-    if (filters.fromDate && typeof filters.fromDate === "string") {
-      payload.fromDate = new Date(filters.fromDate).toISOString();
-    }
-    if (filters.toDate && typeof filters.toDate === "string") {
-      payload.toDate = new Date(filters.toDate).toISOString();
-    }
-
-    // Add isFeatured filter if present
-    if (filters.isFeatured === "true") {
-      payload.isFeatured = true;
-    } else if (filters.isFeatured === "false") {
-      payload.isFeatured = false;
-    }
-
-    // Add neighbourhood filter if present
-    if (filters.neighbourhood && typeof filters.neighbourhood === "string") {
-      payload.neighbourhood = filters.neighbourhood;
-    }
-
-    // Add hasVideo filter if present
-    if (filters.hasVideo === "true") {
-      payload.hasVideo = true;
-    } else if (filters.hasVideo === "false") {
-      payload.hasVideo = false;
-    }
-
-    // Add extraFields if any dynamic filters are set
-    if (Object.keys(extraFields).length > 0) {
-      payload.extraFields = extraFields;
-    }
-
-    return payload;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return buildAdFilterPayload({
+      currentCategory,
+      searchQuery,
+      filters,
+      extraFields,
+    });
   }, [hasDynamicFilters, currentCategory, filters, searchQuery, extraFields]);
 
   // Use filter API if dynamic filters are active, otherwise use regular ads API
@@ -405,7 +139,6 @@ export default function CategoryListingPage() {
     );
   }, [adsResponse, locale]);
 
-  const dynamicFilters: FilterConfig[] = []; // Handled by GlobalMoreFilters
 
   const totalAds = adsResponse?.data?.total || 0;
   const totalPages = Math.ceil(totalAds / ITEMS_PER_PAGE);
@@ -456,7 +189,6 @@ export default function CategoryListingPage() {
           </Typography>
 
           <SortAndViewControls
-            sortOptions={sortOptions}
             sortValue={sortBy}
             onSortChange={setSortBy}
             viewMode={view}
@@ -471,9 +203,7 @@ export default function CategoryListingPage() {
         <CommonFilters
           filters={filters}
           staticFilters={staticFilterConfig}
-          dynamicFilters={dynamicFilters}
           onStaticFilterChange={handleFilterChange}
-          onApplyDynamicFilters={() => { }}
           onClearFilters={clearFilters}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -489,7 +219,6 @@ export default function CategoryListingPage() {
         />
 
         <SortAndViewControls
-          sortOptions={sortOptions}
           sortValue={sortBy}
           onSortChange={setSortBy}
           viewMode={view}
@@ -502,7 +231,7 @@ export default function CategoryListingPage() {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="px-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
               <ListingCardSkeleton className="w-full" key={i} />
             ))}
@@ -514,7 +243,7 @@ export default function CategoryListingPage() {
           <div className="space-y-6 ">
             <div
               className={cn(
-                `px-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3`,
+                `px-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3`,
                 view === "list" && "flex flex-col"
               )}
             >

@@ -227,7 +227,7 @@ export function BannerCarousel({
     >
       {/* Main Carousel */}
       <div
-        className={`relative z-10 w-full max-w-[880px] overflow-hidden ${className} h-full`}
+        className={`relative w-full max-w-[880px] overflow-hidden ${className} h-full`}
         style={{ willChange: "transform" }}
       >
         <div

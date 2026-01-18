@@ -26,7 +26,7 @@ export const HotDealsSeller: React.FC<HotDealsSellerProps> = ({
   showSeller,
 }) => {
   return (
-    <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-start justify-between">
+    <div className="hidden text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 sm:flex items-start justify-between mt-auto">
       {showSeller && seller && (
         <div className="flex items-center gap-2 cursor-pointer">
           {seller.image ? (

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { Search, MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -14,9 +14,7 @@ import { useUrlParams } from "@/hooks/useUrlParams";
 export interface CommonFiltersProps {
       filters: Record<string, any>; // Current applied filters
       staticFilters: FilterConfig[];
-      dynamicFilters: FilterConfig[]; // Kept for compatibility but unused locally
       onStaticFilterChange: (key: string, value: any) => void;
-      onApplyDynamicFilters: (newFilters: Record<string, any>) => void;
       onClearFilters: () => void;
       searchQuery?: string;
       onSearchChange?: (query: string) => void;
@@ -144,8 +142,8 @@ export const CommonFilters = ({
                         </div>
 
                         {/* Filter Controls - Static Filters Outside Dialog */}
-                        <div className="min-w-full flex items-end gap-3 pb-4 sm:p-4 border-b sm:border-none whitespace-nowrap relative">
-                              <div className="flex flex-1 gap-3 overflow-x-auto scrollbar-hide">
+                        <div className="min-w-full flex items-end gap-3 border-b sm:border-none whitespace-nowrap relative">
+                              <div className="flex flex-1 items-end gap-3 overflow-x-auto pb-4 sm:p-4 scrollbar-hide relative">
                                     {staticFilters.map((filterConfig) => (
                                           <div key={filterConfig.key} className="min-w-40 shrink-0">
                                                 <FilterControl
@@ -155,10 +153,10 @@ export const CommonFilters = ({
                                                 />
                                           </div>
                                     ))}
-                              </div>
-
                               {/* Advanced Filters Dialog - GlobalMoreFilters */}
                               <GlobalMoreFilters />
+                              </div>
+
                         </div>
                   </CardContent>
             </Card>

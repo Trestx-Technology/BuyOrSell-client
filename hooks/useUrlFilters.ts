@@ -25,11 +25,14 @@ export const useUrlFilters = () => {
       }
     }
 
+    const hasDynamicFilters = Object.keys(extraFields).length > 0;
+
     return {
       query: filters,
       extraFields,
       search: searchParams.get("search") || "",
       location: searchParams.get("location") || "",
+      hasDynamicFilters,
     };
   }, [searchParams]);
 };

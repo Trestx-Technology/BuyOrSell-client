@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography } from "@/components/typography";
+import { H3, H6, Typography } from "@/components/typography";
 import { MapPin } from "lucide-react";
 import { PriceDisplay } from "@/components/global/price-display";
 import {
@@ -42,12 +42,10 @@ export const HotDealsInfo: React.FC<HotDealsInfoProps> = ({
       </div>
 
       {/* Title */}
-      <Typography
-        variant="h3"
-        className="text-sm font-semibold text-dark-blue leading-tight px-2.5 line-clamp-1"
-      >
+      <H6 className="font-semibold text-dark-blue leading-normal px-2.5 line-clamp-2">
         {title}
-      </Typography>
+      </H6>
+
 
       {/* Location */}
       <div className="flex px-1 gap-1 items-center">
@@ -65,18 +63,16 @@ export const HotDealsInfo: React.FC<HotDealsInfoProps> = ({
       </div>
 
       {/* Dynamic Specs */}
-      {specifications.length > 0 && (
-        <div className="px-2.5">
+      <div className="px-2.5">
+        {specifications.length > 0 && (
           <SpecificationsDisplay
             specifications={specifications}
             maxVisible={4}
             showPopover={false}
-            truncate
-            className="grid grid-cols-2 gap-2"
-            itemClassName="text-[#667085]"
+            className="flex flex-wrap gap-2 truncate"
           />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
