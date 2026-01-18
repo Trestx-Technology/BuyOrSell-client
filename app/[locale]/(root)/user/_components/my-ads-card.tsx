@@ -22,6 +22,7 @@ import { useDeleteAd } from "@/hooks/useAds";
 import { SpecificationsDisplay } from "@/components/global/specifications-display";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
 import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
+import { useRouter } from "nextjs-toploader/app";
 
 export interface FieldWithIcon {
   name: string;
@@ -69,12 +70,12 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
   onDelete,
   className,
 }) => {
-  const { t, localePath } = useLocale();
+  const { t, } = useLocale();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const deleteAdMutation = useDeleteAd();
+  const router = useRouter();
 
   // Convert extraFields to specifications format
   const specifications = useMemo(() => {
@@ -144,14 +145,17 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
     }).format(amount);
   };
 
+  const handleEditClick = () => {
+    router.push(`/post-ad/edit/${id}`);
+  };
+
   return (
     <div
       className={`w-full overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={handleCardClick}
     >
-      <div className="p-0 relative">
+      <div
+
+        className="p-0 relative">
         {/* Image Section */}
         <div className="relative aspect-[3/3] sm:aspect-[4/3] bg-primary w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
           {images.length > 0 ? (
@@ -208,7 +212,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             </div>
           </div>
 
-          {images.length > 1 && isHovered && (
+          {images.length > 1 && (
             <div>
               <Button
                 size="sm"
@@ -265,7 +269,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
           )}
         </div>
 
-        <div className="pt-2 space-y-3">
+        <Link href={`/ad/${id}`} className="pt-2 space-y-3">
           <div className="flex items-center gap-1 px-2.5">
             <Image src={ICONS.currency.aed} alt="AED" width={16} height={16} />
             <span className="text-md font-bold text-purple">
@@ -314,16 +318,18 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             />
           )}
           {/* TODO: Add ad status */}
-          <Badge className="mx-2 h-7 bg-success-100">Approved</Badge>
+          <Badge className="mx-2 h-7 my-2 bg-success-100">Approved</Badge>
 
+        </Link>
           <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-center justify-between">
             <Button
               icon={<Pencil className="-mr-2" />}
               size={"icon-sm"}
               className="px-2 text-xs"
               iconPosition="left"
+            onClick={handleEditClick}
             >
-              {t.user.profileEdit.editProfile}
+            {t.user.profileEdit.editAd}
             </Button>
             <Button
               icon={<Trash2 className="-mr-2" />}
@@ -335,8 +341,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
               disabled={deleteAdMutation.isPending}
             >
               {t.user.profileEdit.deleteAd}
-            </Button>
-          </div>
+          </Button>
         </div>
       </div>
 

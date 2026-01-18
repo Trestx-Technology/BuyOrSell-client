@@ -40,6 +40,7 @@ export type UserTranslations = {
     updateSuccess: string;
     updateFailed: string;
     deleteAd: string;
+    editAd: string;
   };
 
   // Address

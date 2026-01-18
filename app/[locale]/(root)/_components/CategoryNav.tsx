@@ -613,7 +613,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link
-                        href="/"
+                          href="/user/profile"
                         className="min-w-6 min-[1080px]:block hidden"
                       >
                         <Image

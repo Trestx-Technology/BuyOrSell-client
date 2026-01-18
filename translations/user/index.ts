@@ -38,6 +38,7 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
       updateSuccess: "Profile updated successfully!",
       updateFailed: "Failed to update profile. Please try again.",
       deleteAd: "Delete Ad",
+      editAd: "Edit Ad",
     },
     address: {
       pageTitle: "My Address",
@@ -156,6 +157,7 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
       updateSuccess: "Profiel succesvol bijgewerkt!",
       updateFailed: "Profiel bijwerken mislukt. Probeer het opnieuw.",
       deleteAd: "Advertentie Verwijderen",
+      editAd: "Advertentie Bewerken",
     },
     address: {
       pageTitle: "Mijn Adres",
@@ -275,6 +277,7 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
       updateSuccess: "Profiel succesvol bijgewerkt!",
       updateFailed: "Profiel bijwerken mislukt. Probeer het opnieuw.",
       deleteAd: "Advertentie Verwijderen",
+      editAd: "Advertentie Bewerken",
     },
     address: {
       pageTitle: "Mijn Adres",
@@ -394,6 +397,7 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
       updateSuccess: "تم تحديث الملف الشخصي بنجاح!",
       updateFailed: "فشل تحديث الملف الشخصي. يرجى المحاولة مرة أخرى.",
       deleteAd: "حذف الإعلان",
+      editAd: "تعديل الإعلان",
     },
     address: {
       pageTitle: "عنواني",
