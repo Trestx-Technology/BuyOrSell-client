@@ -52,7 +52,7 @@ export default function PopularIndustries() {
       <div className="max-w-[1080px] mx-auto px-4">
         <JobsSectionTitle>Popular Industries</JobsSectionTitle>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {jobSubcategories.map((industry) => {
             const industryId = industry._id;
             const industryName = industry.name || "";
@@ -64,7 +64,7 @@ export default function PopularIndustries() {
               <motion.div key={industryId} variants={itemVariants}>
                 <Link
                   href={href}
-                  className="bg-white w-[200px] h-fit rounded-2xl py-6 hover:shadow-lg hover:border-purple border border-[#E2E2E2] transition-all duration-300 flex flex-col items-center gap-2 group"
+                  className="bg-white w-full h-fit rounded-2xl py-6 hover:shadow-lg hover:border-purple border border-[#E2E2E2] transition-all duration-300 flex flex-col items-center gap-2 group"
                 >
                   {/* Logo/Icon */}
                   <div className="flex items-center justify-center size-[60px]">

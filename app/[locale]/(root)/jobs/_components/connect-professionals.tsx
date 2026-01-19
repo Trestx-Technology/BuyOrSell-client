@@ -146,7 +146,7 @@ export default function ConnectProfessionals({
         </div>
 
         {/* Professionals Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
+        <div className="flex flex-wrap gap-6 justify-items-center">
           {professionals.slice(0, 4).map((professional) => {
             // Get connection status from API response if available
             const profileItem = searchResponse?.data?.items?.find(
@@ -173,7 +173,6 @@ export default function ConnectProfessionals({
               <motion.div
                 key={professional._id}
                 variants={itemVariants}
-                className="w-full"
               >
                 <ProfessionalCard
                   professional={professional}

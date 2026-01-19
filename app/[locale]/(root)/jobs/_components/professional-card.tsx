@@ -82,7 +82,7 @@ export default function ProfessionalCard({
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      className="bg-white rounded-2xl p-6 hover:shadow-xl border border-[#E2E2E2] transition-all duration-300 flex flex-col items-center gap-4 group w-full max-w-[240px] relative"
+      className="bg-white w-full rounded-2xl p-6 hover:shadow-xl border border-[#E2E2E2] transition-all duration-300 flex flex-col items-center gap-4 group max-w-[240px] relative"
     >
       {/* Profile Picture */}
       <div className="relative">

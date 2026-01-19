@@ -1,5 +1,5 @@
-import React from "react";
-import { CommonFilters, FilterConfig } from "@/components/common/common-filters";
+import { CommonFilters, } from "@/components/common/common-filters";
+import { FilterConfig } from "@/components/common/filter-control";
 
 export interface JobsFilterProps {
   searchQuery: string;
@@ -42,9 +42,7 @@ export default function JobsFilter({
     <CommonFilters
       filters={filters}
       staticFilters={staticFilters}
-      dynamicFilters={dynamicFilters}
       onStaticFilterChange={onFilterChange}
-      onApplyDynamicFilters={handleApplyDynamicFilters}
       onClearFilters={onClearFilters}
       searchQuery={searchQuery}
       onSearchChange={onSearchChange}
