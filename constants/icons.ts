@@ -77,6 +77,7 @@ export const NAVIGATION_ICONS = {
   contactUs: `${S3_BASE_URL}/icons/contact-us.svg`,
   starRate: `${S3_BASE_URL}/icons/star-rate.svg`,
   share: `${S3_BASE_URL}/icons/share.svg`,
+  home: `${S3_BASE_URL}/icons/home.png`,
 } as const;
 
 // ============================================================================
@@ -86,10 +87,11 @@ export const JOB_NAVIGATION_ICONS = {
   jobsDashboard: `${S3_BASE_URL}/icons/jobs-dashboard.svg`,
   jobListings: `${S3_BASE_URL}/icons/job-seeking.png`,
   myJobListings: `${S3_BASE_URL}/icons/job (1).png`,
-  jobseekers: `${S3_BASE_URL}/icons/job (1).png`,
+  jobseekers: `${S3_BASE_URL}/icons/job-seekers.png`,
   organizations: `${S3_BASE_URL}/icons/company-building.png`,
   myJobProfile: `${S3_BASE_URL}/icons/user-profile.png`,
   myOrganization: `${S3_BASE_URL}/icons/property-budget.png`,
+  postJob: `${S3_BASE_URL}/icons/post-job.png`,
 } as const;
 
 // ============================================================================

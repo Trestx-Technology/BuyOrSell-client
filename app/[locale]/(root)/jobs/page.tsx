@@ -22,7 +22,7 @@ export default function JobsHomePage() {
       <CompaniesToFollow />
 
       {/* Jobs CTA Section */}
-      <JobsCTASection />
+      {/* <JobsCTASection /> */}
 
       {/* Featured Jobs Section */}
       {/* <FeaturedJobsSection

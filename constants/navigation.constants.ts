@@ -105,6 +105,15 @@ export const REGULAR_NAVIGATION_ITEMS: NavigationItem[] = [
 // Job navigation menu items
 export const JOB_NAVIGATION_ITEMS: NavigationItem[] = [
   {
+    id: "go-home",
+    type: "link",
+    href: "/",
+    translationKey: "Go Home",
+    icon: ICONS.navigation.home,
+    iconType: "image",
+    alt: "Go Home",
+  },
+  {
     id: "jobs-dashboard",
     type: "link",
     href: "/jobs",
@@ -113,6 +122,16 @@ export const JOB_NAVIGATION_ITEMS: NavigationItem[] = [
     iconType: "image",
     alt: "Jobs Dashboard",
   },
+  {
+    id: "post-job",
+    type: "link",
+    href: "/post-job/select",
+    translationKey: "Post Job",
+    icon: ICONS.jobNavigation.postJob,
+    iconType: "image",
+    alt: "Post Job",
+  },
+
   // {
   //   id: "job-listings",
   //   type: "link",

@@ -114,7 +114,7 @@ export default function JobsCTASection() {
           title="For Employers"
           description="Finding jobs on BuyOrSell is easier than ever. Download the mobile apps to your smartphone device and enjoy for free!"
           buttonText="Post Jobs"
-          buttonHref="/jobs/post"
+          buttonHref="/post-job"
           variant="employers"
         />
       </div>

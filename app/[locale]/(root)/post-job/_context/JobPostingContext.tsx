@@ -2,7 +2,7 @@
 
 import React, { ReactNode, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import ProgressBar from "../_components/ProgressBar";
+import ProgressBar from "../../post-ad/_components/ProgressBar";
 import { Breadcrumbs, type BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { useLocale } from "@/hooks/useLocale";
@@ -12,18 +12,16 @@ import { Container1080 } from "@/components/layouts/container-1080";
 export type { CategoryBreadcrumbItem } from "@/stores/adPostingStore";
 
 // Context type (now just re-exports from store)
-export type AdPostingContextType = ReturnType<typeof useAdPostingStore>;
+export type JobPostingContextType = ReturnType<typeof useAdPostingStore>;
 
 // ============================================================================
-// PROVIDER COMPONENT (now just provides UI layout)
+// PROVIDER COMPONENT
 // ============================================================================
-// ... (imports remain)
-// ... (imports remain)
-interface AdPostingProviderProps {
+interface JobPostingProviderProps {
   children: ReactNode;
 }
 
-export const AdPostingProvider: React.FC<AdPostingProviderProps> = ({
+export const JobPostingProvider: React.FC<JobPostingProviderProps> = ({
   children,
 }) => {
   const router = useRouter();
@@ -34,6 +32,8 @@ export const AdPostingProvider: React.FC<AdPostingProviderProps> = ({
     addToCategoryArray,
     setActiveCategory,
   } = useAdPostingStore((state) => state);
+  
+  const basePath = "/post-job";
 
   // Build breadcrumb items - collapse middle items if more than 3 categories
   const breadcrumbItems: BreadcrumbItem[] = useMemo(() => {
@@ -50,7 +50,7 @@ export const AdPostingProvider: React.FC<AdPostingProviderProps> = ({
         return {
           id: category.id,
           label: category.name,
-          href: localePath(`/post-ad/${slugPath}`),
+          href: localePath(`${basePath}/${slugPath}`),
           isActive: index === validCategories.length - 1,
         };
       });
@@ -67,7 +67,7 @@ export const AdPostingProvider: React.FC<AdPostingProviderProps> = ({
     items.push({
       id: firstCategory.id,
       label: firstCategory.name,
-      href: `/post-ad/${firstCategory.id}`,
+      href: `${basePath}/${firstCategory.id}`,
       isActive: false,
     });
 
@@ -88,7 +88,7 @@ export const AdPostingProvider: React.FC<AdPostingProviderProps> = ({
     items.push({
       id: secondToLastCategory.id,
       label: secondToLastCategory.name,
-      href: `/post-ad/${secondToLastPath}`,
+      href: `${basePath}/${secondToLastPath}`,
       isActive: false,
     });
 
@@ -97,12 +97,12 @@ export const AdPostingProvider: React.FC<AdPostingProviderProps> = ({
     items.push({
       id: lastCategory.id,
       label: lastCategory.name,
-      href: `/post-ad/${lastPath}`,
+      href: `${basePath}/${lastPath}`,
       isActive: true,
     });
 
     return items;
-  }, [categoryArray, localePath]);
+  }, [categoryArray, basePath, localePath]);
 
   // Handle breadcrumb click - find category by ID and remove all after it
   const handleBreadcrumbClick = (item: BreadcrumbItem, index: number) => {
@@ -125,7 +125,7 @@ export const AdPostingProvider: React.FC<AdPostingProviderProps> = ({
 
       // Build slug path and navigate
       const slugPath = categoriesToKeep.map((cat) => cat.id);
-      router.push(localePath(`/post-ad/${slugPath.join("/")}`));
+      router.push(localePath(`${basePath}/${slugPath.join("/")}`));
     }
   };
 
