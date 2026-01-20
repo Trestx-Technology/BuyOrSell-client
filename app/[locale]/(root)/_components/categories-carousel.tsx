@@ -5,9 +5,9 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useEmblaCarousel from "embla-carousel-react";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { HomeCategory } from "@/interfaces/home.types";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 
 interface CategoriesCarouselProps {
   categoryList?: HomeCategory[];
@@ -30,6 +30,7 @@ const CategoriesCarousel = ({ categoryList = [], isLoading = false }: Categories
 
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(false);
+  const { ref, isVisible } = useIntersectionObserver({ threshold: 0.1, rootMargin: "-30px" });
 
   // Transform API data to match expected format using API data directly
   const categoryData = categoryList?.map((category: HomeCategory, index: number) => {
@@ -40,33 +41,6 @@ const CategoriesCarousel = ({ categoryList = [], isLoading = false }: Categories
       description: category.desc || `${category.name} category`,
     };
   }) || [];
-
-  // Framer Motion animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 22,
-        duration: 0.5,
-      },
-    },
-  };
 
   // Check scroll availability
   React.useEffect(() => {
@@ -112,7 +86,10 @@ const CategoriesCarousel = ({ categoryList = [], isLoading = false }: Categories
   );
 
   return (
-    <section className="hidden sm:block w-full max-w-[1180px] mx-auto mt-5 md:mt-0 ">
+    <section
+      ref={ref as any}
+      className={`hidden sm:block w-full max-w-[1180px] mx-auto mt-5 md:mt-0 reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
+    >
       <div className="relative">
         {/* Left Navigation Arrow - Only show when can scroll prev */}
         {categoryList && categoryList.length > 0 && (
@@ -132,25 +109,15 @@ const CategoriesCarousel = ({ categoryList = [], isLoading = false }: Categories
           {isLoading || !categoryList || categoryList.length === 0 ? (
             <LoadingSkeleton />
           ) : (
-            <motion.div
-              className="flex"
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{
-                once: true,
-                margin: "-30px",
-                amount: 0.1,
-              }}
+              <div
+                className={`flex reveal-fade-in ${isVisible ? 'is-visible' : ''}`}
             >
-              {categoryData.map((category) => (
-                <motion.div
+                {categoryData.map((category, index) => (
+                  <div
                   key={category.id}
-                  variants={itemVariants}
-                  className="flex flex-col items-center gap-3 min-w-[calc(100%/4)] sm:min-w-[calc(100%/5)] md:min-w-[calc(100%/6)] lg:min-w-[calc(100%/7)] xl:min-w-[calc(100%/7)] cursor-pointer group relative"
-                  whileHover={{
-                    scale: 1.05,
-                    transition: { duration: 0.2 },
+                    className={`flex flex-col items-center gap-3 min-w-[calc(100%/4)] sm:min-w-[calc(100%/5)] md:min-w-[calc(100%/6)] lg:min-w-[calc(100%/7)] xl:min-w-[calc(100%/7)] cursor-pointer group relative transition-all duration-300 transform hover:scale-105`}
+                    style={{
+                      transitionDelay: `${index * 50}ms`
                   }}
                 >
                   <Link
@@ -175,9 +142,9 @@ const CategoriesCarousel = ({ categoryList = [], isLoading = false }: Categories
                       {category.name}
                     </span>
                   </Link>
-                </motion.div>
+                  </div>
               ))}
-            </motion.div>
+              </div>
           )}
         </div>
 

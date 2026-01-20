@@ -6,21 +6,15 @@ import { Typography } from "@/components/typography";
 import HotDealsListingCard from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Image from "next/image";
-import { motion } from "framer-motion";
 import { CategoryTreeWithAds } from "@/interfaces/home.types";
 import { formatDate } from "@/utils/format-date";
 import { useLocale } from "@/hooks/useLocale";
 import { ListingCardSkeleton } from "@/components/global/listing-card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  containerVariants,
-  headerVariants,
-  tabsVariants,
-  contentVariants,
-} from "@/utils/animation-variants";
 import { HotDealsListingCardProps } from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
 import { AD } from "@/interfaces/ad";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
+
 
 interface HostDealsProps {
   className?: string;
@@ -225,26 +219,21 @@ export default function HostDeals({
     return null;
   }
 
+  const { ref, isVisible } = useIntersectionObserver({ threshold: 0.1, rootMargin: "-50px" });
+
   return (
-    <motion.section
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-100px" }}
+    <section
+      ref={ref as any}
       style={{
         background:
           "radial-gradient(circle, rgba(180, 207, 199, 1) 0%, rgba(132, 75, 143, 1) 100%)",
       }}
-      className={`bg-[#B7FBE9] xl:rounded-lg max-w-[1180px] mx-auto py-5 ${className}`}
+      className={`bg-[#B7FBE9] xl:rounded-lg max-w-[1180px] mx-auto py-5 reveal-on-scroll ${isVisible ? 'is-visible' : ''} ${className}`}
     >
       <div className="w-full mx-auto">
         {/* Header with Timer */}
-        <motion.div
-          variants={headerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="flex items-center justify-between mb-4"
+        <div
+          className={`flex items-center justify-between mb-4 reveal-on-scroll reveal-delay-100 ${isVisible ? 'is-visible' : ''}`}
         >
           <div className="flex items-center gap-4 px-5">
             {/* Hot Deals Title */}
@@ -268,13 +257,11 @@ export default function HostDeals({
               </div>
             )}
           </div>
-        </motion.div>
+        </div>
 
         {/* Category Tabs */}
-        <motion.div
-          variants={tabsVariants}
-
-          className="mb-4 "
+        <div
+          className={`mb-4 reveal-on-scroll reveal-delay-200 ${isVisible ? 'is-visible' : ''}`}
         >
           {isLoading ? (
             <>
@@ -328,21 +315,17 @@ export default function HostDeals({
                   <TabsContent
                     key={category.id}
                     value={category.value}
-                    className="mt-4 "
+                    className="mt-4"
                   >
-                    <motion.div
-                      variants={contentVariants}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, margin: "-100px" }}
-                      className="flex gap-4 items-center"
+                    <div
+                      className={`flex gap-4 items-center reveal-fade-in ${isVisible ? 'is-visible' : ''}`}
                     >
                       {/* Deals Carousel */}
                       <div className="flex-1 overflow-hidden ">
                         {categoryAds.length > 0 ? (
                           <CardsCarousel title="" showNavigation={true}>
                             {categoryAds.map((deal) => (
-                              <motion.div
+                              <div
                                 key={deal.id}
                               >
                                 <HotDealsListingCard
@@ -351,7 +334,7 @@ export default function HostDeals({
                                   showSeller={true}
                                   showSocials={true}
                                 />
-                              </motion.div>
+                              </div>
                             ))}
                           </CardsCarousel>
                         ) : (
@@ -362,33 +345,14 @@ export default function HostDeals({
                           </div>
                         )}
                       </div>
-
-                      {/* Sponsored Banner
-                      <div className="hidden lg:block relative max-w-[352px] w-full h-[290px] bg-gray-200 rounded-lg overflow-hidden">
-                        <Image
-                          src="https://images.unsplash.com/photo-1629581678313-36cf745a9af9?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                          alt="Sponsored Deal"
-                          width={352}
-                          height={290}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute top-2.5 left-2.5 bg-white/80 rounded px-2.5 py-1">
-                          <Typography
-                            variant="xs-black-inter"
-                            className="text-black text-sm font-medium"
-                          >
-                            {t.home.hostDeals.sponsored}
-                          </Typography>
-                        </div>
-                      </div> */}
-                    </motion.div>
+                    </div>
                   </TabsContent>
                 );
               })}
             </Tabs>
           ) : null}
-        </motion.div>
+        </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

@@ -4,7 +4,6 @@ import { useState, useMemo, useEffect } from "react";
 import { Typography } from "@/components/typography";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { motion } from "framer-motion";
 import ListingCard from "@/components/features/listing-card/listing-card";
 import { CategoryTreeWithAds, DealAd } from "@/interfaces/home.types";
 import { AD } from "@/interfaces/ad";
@@ -13,6 +12,7 @@ import { ListingCardProps } from "@/components/features/listing-card/listing-car
 import { useLocale } from "@/hooks/useLocale";
 import { Skeleton } from "@/components/ui/skeleton";
 import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 
 // Framer Motion animation variants - using improved patterns from AI search bar
 const containerVariants = {
@@ -112,6 +112,8 @@ export default function ExchangeDeals({
   isLoading = false,
 }: ExchangeDealsProps) {
   const { t, locale } = useLocale();
+  const { ref, isVisible } = useIntersectionObserver({ threshold: 0.1, rootMargin: "-50px" });
+
   // Transform and filter exchange ads from categoryTreeWithExchangeAds
   const transformedAdsByCategory = useMemo(() => {
     if (
@@ -207,25 +209,18 @@ export default function ExchangeDeals({
   }
 
   return (
-    <motion.section
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-100px" }}
+    <section
+      ref={ref as any}
       style={{
         background:
           "radial-gradient(circle,rgba(55, 231, 182, 1) 0%, rgba(46, 31, 148, 1) 100%)",
       }}
-      className={`bg-[#B7FBE9] xl:rounded-lg max-w-[1180px] mx-auto py-5 ${className}`}
+      className={`bg-[#B7FBE9] xl:rounded-lg max-w-[1180px] mx-auto py-5 reveal-on-scroll ${className} ${isVisible ? 'is-visible' : ''}`}
     >
       <div className="w-full mx-auto">
         {/* Header with Timer */}
-        <motion.div
-          variants={headerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="flex items-center justify-between mb-4 pl-5"
+        <div
+          className={`flex items-center justify-between mb-4 pl-5 reveal-slide-left ${isVisible ? 'is-visible' : ''} reveal-delay-100`}
         >
           {/* Hot Deals Title */}
           <Typography
@@ -234,15 +229,11 @@ export default function ExchangeDeals({
           >
             {t.home.exchangeDeals.title}
           </Typography>
-        </motion.div>
+        </div>
 
         {/* Category Tabs */}
-        <motion.div
-          variants={tabsVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="mb-4"
+        <div
+          className={`mb-4 reveal-on-scroll ${isVisible ? 'is-visible' : ''} reveal-delay-300`}
         >
           {isLoading ? (
             <>
@@ -301,12 +292,8 @@ export default function ExchangeDeals({
                     value={category.value}
                     className="mt-4"
                   >
-                    <motion.div
-                      variants={contentVariants}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true, margin: "-100px" }}
-                      className="flex gap-4 items-center"
+                    <div
+                      className={`flex gap-4 items-center reveal-fade-in ${isVisible ? 'is-visible' : ''} reveal-delay-500`}
                     >
                       {/* Deals Carousel */}
                       <div className="flex-1 overflow-hidden">
@@ -314,21 +301,15 @@ export default function ExchangeDeals({
                           <CardsCarousel title="" showNavigation={true}>
                             {categoryAds.map((ad, index) => {
                               return (
-                                <motion.div
+                                <div
                                   key={ad.id}
-                                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                                  viewport={{ once: true, margin: "-100px" }}
-                                  transition={{
-                                    type: "spring" as const,
-                                    stiffness: 300,
-                                    damping: 22,
-                                    delay: 0.6 + index * 0.08,
+                                  className="flex gap-4 transition-all duration-300"
+                                  style={{
+                                    transitionDelay: `${index * 50}ms`
                                   }}
-                                  className="flex gap-4"
                                 >
                                   <ListingCard {...ad} showSocials={true} />
-                                </motion.div>
+                                </div>
                               );
                             })}
                           </CardsCarousel>
@@ -340,14 +321,14 @@ export default function ExchangeDeals({
                           </div>
                         )}
                       </div>
-                    </motion.div>
+                    </div>
                   </TabsContent>
                 );
               })}
             </Tabs>
           ) : null}
-        </motion.div>
+        </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

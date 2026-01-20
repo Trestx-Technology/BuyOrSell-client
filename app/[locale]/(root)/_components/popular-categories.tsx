@@ -5,13 +5,12 @@ import Image from "next/image";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useMediaQuery } from "usehooks-ts";
-import { motion } from "framer-motion";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PopularCategory } from "@/interfaces/home.types";
 import { useLocale } from "@/hooks/useLocale";
-import { containerVariants, itemVariants } from "@/utils/animation-variants";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 
 interface CategoryCard {
   id: number;
@@ -55,6 +54,7 @@ const PopularCategories = ({
 }: PopularCategoriesProps) => {
   const { t, locale } = useLocale();
   const [showAllCategories, setShowAllCategories] = useState(false);
+  const { ref, isVisible } = useIntersectionObserver({ threshold: 0.1, rootMargin: "-50px" });
 
   // Mobile breakpoint at 500px
   const isMobile = useMediaQuery("(max-width: 500px)");
@@ -103,19 +103,16 @@ const PopularCategories = ({
   const displayCategories = getDisplayCategories();
 
   return (
-    <motion.section
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      className="w-full max-w-[1180px] px-4 xl:px-0 mx-auto mt-8 sm:mt-5"
+    <section
+      ref={ref as any}
+      className={`w-full max-w-[1180px] px-4 xl:px-0 mx-auto mt-8 sm:mt-5 reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
     >
       {/* Section Title */}
-      <motion.h2
-        variants={itemVariants}
+      <h2
         className="text-[18px] font-medium text-[#1D2939] mb-3 font-poppins"
       >
         {t.home.popularCategories.title}
-      </motion.h2>
+      </h2>
 
       {/* Categories Grid */}
       <div
@@ -129,21 +126,13 @@ const PopularCategories = ({
             Array.from({ length: 10 }).map((_, index) => (
               <CategorySkeleton key={index} />
             ))
-          : // Show actual data with Framer Motion animations
+          : // Show actual data with CSS animations
             displayCategories.map((category, index) => (
-              <motion.div
+              <div
                 key={category.id}
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{
-                  type: "spring" as const,
-                  stiffness: 300,
-                  damping: 22,
-                  delay: 0.3 + index * 0.06, // Staggered delay for each category
-                }}
-                className="transition-all duration-300 ease-out"
+                className={`transition-all duration-300 ease-out reveal-fade-in ${isVisible ? 'is-visible' : ''}`}
                 style={{
+                  transitionDelay: `${index * 50}ms`,
                   willChange: "transform, opacity",
                   contain: "layout style paint",
                 }}
@@ -194,44 +183,10 @@ const PopularCategories = ({
                     </Typography>
                   </div>
                 </Link>
-              </motion.div>
+              </div>
             ))}
       </div>
-
-      {/* Toggle Button - Only show on mobile or when there are more categories to show */}
-      {/* {(isMobile || categoryData.length > 9) && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{
-            type: "spring" as const,
-            stiffness: 300,
-            damping: 22,
-            delay: 0.8, // Delay after categories animate
-          }}
-        >
-          <Button
-            icon={
-              showAllCategories ? (
-                <ChevronDown className="w-4 h-4 rotate-180" />
-              ) : (
-                <ChevronDown className="w-4 h-4" />
-              )
-            }
-            iconPosition="right"
-            size={"lg"}
-            variant="filled"
-            className="flex sm:hidden w-full text-sm mt-2"
-            onClick={handleToggleCategories}
-          >
-            {showAllCategories
-              ? t.home.popularCategories.showLess
-              : t.home.popularCategories.viewAll}
-          </Button>
-        </motion.div>
-      )} */}
-    </motion.section>
+    </section>
   );
 };
 

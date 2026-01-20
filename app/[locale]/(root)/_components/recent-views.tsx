@@ -1,12 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import ListingCard from "@/components/features/listing-card/listing-card";
 import { AD } from "@/interfaces/ad";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { useLocale } from "@/hooks/useLocale";
-import { containerVariants, itemVariants } from "@/utils/animation-variants";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 
 interface RecentViewsProps {
   recentlyViewedAds?: AD[];
@@ -18,6 +17,7 @@ export default function RecentViews({
   isLoading = false,
 }: RecentViewsProps) {
   const { t, locale } = useLocale();
+  const { ref, isVisible } = useIntersectionObserver({ threshold: 0.1, rootMargin: "-50px" });
 
   // Transform AD objects to ListingCardProps (filter out any null/undefined ads)
   const listingItems = recentlyViewedAds
@@ -26,11 +26,9 @@ export default function RecentViews({
 
   if (isLoading) {
     return (
-      <motion.section
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
+      <section
+        ref={ref as any}
+        className={`reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
       >
         <CardsCarousel title={t.home.recentViews.title}>
           {Array.from({ length: 6 }).map((_, i) => (
@@ -47,7 +45,7 @@ export default function RecentViews({
             </div>
           ))}
         </CardsCarousel>
-      </motion.section>
+      </section>
     );
   }
 
@@ -56,26 +54,23 @@ export default function RecentViews({
   }
 
   return (
-    <motion.section
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-100px" }}
+    <section
+      ref={ref as any}
+      className={`reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
     >
       <CardsCarousel title={t.home.recentViews.title}>
         {listingItems.map((item) => (
-          <motion.div
+          <div
             key={item.id}
-            variants={itemVariants}
             className="flex gap-4 items-center"
           >
             <ListingCard
               {...item}
               isAddedInCollection={item.isAddedInCollection}
             />
-          </motion.div>
+          </div>
         ))}
       </CardsCarousel>
-    </motion.section>
+    </section>
   );
 }

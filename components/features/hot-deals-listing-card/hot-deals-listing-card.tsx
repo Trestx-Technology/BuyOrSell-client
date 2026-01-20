@@ -85,7 +85,6 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   const [isSaved, setIsSaved] = useState(
     isAddedInCollection ?? apiIsAddedInCollection
   );
-  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     setIsSaved(isAddedInCollection ?? apiIsAddedInCollection);
@@ -115,9 +114,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
 
   return (
     <div
-      className={`w-[220px] overflow-hidden rounded-2xl bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`w-[220px] h-full overflow-hidden rounded-2xl bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
       onClick={handleCardClick}
     >
       <Link href={`/ad/${id}`} className="absolute inset-0 "></Link>

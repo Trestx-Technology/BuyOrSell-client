@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
 
 import { useGetMainCategories } from "@/hooks/useCategories";
 import { SubCategory } from "@/interfaces/categories.types";
@@ -36,11 +35,6 @@ import { Typography } from "@/components/typography";
 import SearchHistoryPopover from "../user/search-history/_components/SearchHistoryPopover";
 import NotificationsPopover from "../user/notifications/_components/NotificationsPopover";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  fastContainerVariants,
-  fastItemVariants,
-  subcategoryVariants,
-} from "@/utils/animation-variants";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -519,11 +513,8 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   };
 
   return (
-    <motion.div
-      className={cn("relative md:bg-purple", className)}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+    <div
+      className={cn("relative md:bg-purple animate-fade-in", className)}
     >
       <div className="max-w-[1080px] mx-auto px-4 xl:px-0">
         <nav className={cn("flex items-center justify-between py-1 w-full")}>
@@ -535,38 +526,34 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
             </div>
           ) : categoriesLoading ? (
             <CategoryLoader />
-            ) : (
-            <motion.div
-                  key={isJobsPage ? "jobs-nav" : "main-nav"}
+          ) : (
+            <div
+              key={isJobsPage ? "jobs-nav" : "main-nav"}
               className="hidden w-full md:flex flex-1 items-center justify-between"
-              variants={fastContainerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-                >
+            >
               {visibleCategoriesList.map(({ type, label }) => (
-                <motion.div key={type} variants={fastItemVariants}>
+                <div key={type}>
                   <CategoryButton categoryType={type} label={label}>
                     <CategoryDropdownContent
                       categoryData={getCategoryData(type)}
                       allCategories={categoriesData || []}
                     />
                   </CategoryButton>
-                </motion.div>
+                </div>
               ))}
 
               {otherCategories.length > 0 && (
-                    <motion.div variants={fastItemVariants}>
-                      <CategoryButton categoryType="other" label="Other">
-                        <CategoryDropdownContent
-                          categoryData={getCategoryData("other")}
-                          allCategories={categoriesData || []}
-                          isOtherCategory={true}
-                        />
-                      </CategoryButton>
-                </motion.div>
+                <div>
+                  <CategoryButton categoryType="other" label="Other">
+                    <CategoryDropdownContent
+                      categoryData={getCategoryData("other")}
+                      allCategories={categoriesData || []}
+                      isOtherCategory={true}
+                    />
+                  </CategoryButton>
+                </div>
               )}
-            </motion.div>
+            </div>
           )}
 
           <div className="flex md:hidden flex-1">
@@ -586,38 +573,20 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
             </div>
           ) : (
             <TooltipProvider delayDuration={200}>
-                <div className="min-w-fit xl:min-w-[350px] min-[1080px]:w-full min-[1080px]:flex items-center justify-between lg:gap-5 ml-2">
-                <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 22,
-                    delay: 0.1,
-                  }}
-                >
+              <div className="min-w-fit xl:min-w-[350px] min-[1080px]:w-full min-[1080px]:flex items-center justify-between lg:gap-5 ml-2">
+                <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
                   <SearchHistoryPopover />
-                </motion.div>
+                </div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 22,
-                    delay: 0.15,
-                  }}
-                >
+                <div className="animate-fade-in" style={{ animationDelay: '150ms' }}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link
-                          href="/user/profile"
+                        href="/user/profile"
                         className="min-w-6 min-[1080px]:block hidden"
                       >
                         <Image
-                            src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/help.svg"
+                          src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/help.svg"
                           alt="help"
                           className="size-6 hover:scale-110 transition-all duration-300"
                           width={24}
@@ -629,18 +598,9 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                       <p>My Ads</p>
                     </TooltipContent>
                   </Tooltip>
-                </motion.div>
+                </div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 22,
-                    delay: 0.2,
-                  }}
-                >
+                <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link
@@ -648,7 +608,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                         className="min-w-6 min-[1080px]:block hidden"
                       >
                         <Image
-                            src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/unread_chat.svg"
+                          src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/unread_chat.svg"
                           alt="unread_chat"
                           className="size-6 hover:scale-110 transition-all duration-300"
                           width={24}
@@ -660,18 +620,9 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                       <p>Messages</p>
                     </TooltipContent>
                   </Tooltip>
-                </motion.div>
+                </div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 22,
-                    delay: 0.25,
-                  }}
-                >
+                <div className="animate-fade-in" style={{ animationDelay: '250ms' }}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link
@@ -685,40 +636,25 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                       <p>Favorites</p>
                     </TooltipContent>
                   </Tooltip>
-                </motion.div>
+                </div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 22,
-                    delay: 0.3,
-                  }}
-                >
+                <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
                   <NotificationsPopover />
-                </motion.div>
+                </div>
 
-                <motion.div
+                <div
                   hidden={isJobsPage}
-                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 22,
-                    delay: 0.35,
-                  }}
+                  className="animate-fade-in"
+                  style={{ animationDelay: '350ms' }}
                 >
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
                         icon={<MapPin className="w-4 h-4 -mr-3" />}
                         iconPosition="center"
-                          className="hover:bg-white hover:text-purple py-5 md:py-4"
+                        className="hover:bg-white hover:text-purple py-5 md:py-4"
                         variant={isMobile ? "filled" : "outline"}
-                          size="sm"
+                        size="sm"
                         onClick={() => router.push("/map-view")}
                       >
                         Map View
@@ -728,13 +664,13 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                       <p>View on Map</p>
                     </TooltipContent>
                   </Tooltip>
-                </motion.div>
+                </div>
               </div>
             </TooltipProvider>
           )}
         </nav>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

@@ -5,7 +5,7 @@ import Image, { StaticImageData } from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 
 export interface MidBannerItem {
   id: number | string;
@@ -53,51 +53,7 @@ export function MidBannerCarousel({
 }: MidBannerCarouselProps) {
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(true);
-
-  // Framer Motion animation variants - blue fade-in pattern
-  const containerVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 22,
-        duration: 0.8,
-      },
-    },
-  };
-
-  const carouselVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 280,
-        damping: 20,
-        delay: 0.2,
-        duration: 0.6,
-      },
-    },
-  };
-
-  const dotsVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 22,
-        delay: 0.4,
-        duration: 0.5,
-      },
-    },
-  };
+  const { ref, isVisible } = useIntersectionObserver({ threshold: 0.1, rootMargin: "-50px" });
 
   const previousSlide = React.useCallback(() => {
     setCurrentSlide((curr) =>
@@ -141,20 +97,13 @@ export function MidBannerCarousel({
 
   // Loading skeleton
   const LoadingSkeleton = () => (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-100px" }}
-      className={`${maxWidth} mx-auto flex flex-col items-center justify-center p-4 md:p-0 ${containerClassName}`}
+    <div
+      ref={ref as any}
+      className={`${maxWidth} mx-auto flex flex-col items-center justify-center p-4 md:p-0 ${containerClassName} reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
     >
       {/* Main carousel skeleton */}
-      <motion.div
-        variants={carouselVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        className={`relative z-10 ${height} w-full max-w-[880px] overflow-hidden`}
+      <div
+        className={`relative z-10 ${height} w-full max-w-[880px] overflow-hidden reveal-fade-in ${isVisible ? 'is-visible' : ''} reveal-delay-200`}
       >
         <div className="h-full w-full bg-gray-200 animate-pulse rounded-xl md:rounded-none"></div>
 
@@ -176,15 +125,11 @@ export function MidBannerCarousel({
             <div className="absolute right-[7%] bottom-1/2 bg-gray-200 rounded-full size-8 animate-pulse"></div>
           </>
         )}
-      </motion.div>
+      </div>
 
       {/* Bottom dots skeleton */}
-      <motion.div
-        variants={dotsVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        className="flex items-center justify-center bg-gray-200 w-full max-w-[1150px] mx-auto py-3 mb-3 rounded-b-lg animate-pulse"
+      <div
+        className={`flex items-center justify-center bg-gray-200 w-full max-w-[1150px] mx-auto py-3 mb-3 rounded-b-lg animate-pulse reveal-fade-in ${isVisible ? 'is-visible' : ''} reveal-delay-400`}
       >
         {showDots && (
           <div className="flex space-x-2 w-full justify-center items-center">
@@ -195,8 +140,8 @@ export function MidBannerCarousel({
             )}
           </div>
         )}
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 
   if (isLoading) {
@@ -204,24 +149,18 @@ export function MidBannerCarousel({
   }
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, margin: "-100px" }}
+    <div
+      ref={ref as any}
       className={cn(
-        "mx-auto flex flex-col items-center justify-center p-4 md:p-0 relative overflow-visible bg-white",
+        "mx-auto flex flex-col items-center justify-center p-4 md:p-0 relative overflow-visible bg-white reveal-on-scroll",
         maxWidth,
-        containerClassName
+        containerClassName,
+        isVisible ? "is-visible" : ""
       )}
     >
       {/* Main Carousel */}
-      <motion.div
-        variants={carouselVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        className={`relative z-10 ${height} w-full max-w-[880px] overflow-hidden ${className}`}
+      <div
+        className={`relative z-10 ${height} w-full max-w-[880px] overflow-hidden ${className} reveal-fade-in ${isVisible ? 'is-visible' : ''} reveal-delay-200`}
       >
         <div
           className="flex transition-transform duration-500 ease-out"
@@ -242,8 +181,6 @@ export function MidBannerCarousel({
             </div>
           ))}
         </div>
-
-        {/* Dot Indicators */}
 
         {/* Navigation Buttons */}
         {showNavigation && (
@@ -274,14 +211,10 @@ export function MidBannerCarousel({
             />
           </>
         )}
-      </motion.div>
+      </div>
 
-      <motion.div
-        variants={dotsVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        className="flex items-center justify-center bg-black w-full mx-auto py-3 rounded-b-lg"
+      <div
+        className={`flex items-center justify-center bg-black w-full mx-auto py-3 rounded-b-lg reveal-fade-in ${isVisible ? 'is-visible' : ''} reveal-delay-400`}
       >
         {showDots && (
           <div className="flex space-x-2 w-full justify-center items-center">
@@ -298,7 +231,7 @@ export function MidBannerCarousel({
             ))}
           </div>
         )}
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }
