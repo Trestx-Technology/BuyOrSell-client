@@ -17,6 +17,9 @@ interface Message {
   time: string;
   isFromUser: boolean;
   isRead: boolean;
+  type?: "text" | "location" | "file";
+  fileUrl?: string;
+  coordinates?: { latitude: number; longitude: number };
 }
 
 interface ChatAreaProps {
@@ -25,12 +28,21 @@ interface ChatAreaProps {
   message: string;
   isTyping: boolean;
   onMessageChange: (value: string) => void;
-  onSendMessage: () => void;
+  onSendMessage: (data?: {
+    type: "text" | "location" | "file";
+    text?: string;
+    fileUrl?: string;
+    coordinates?: { latitude: number; longitude: number };
+  }) => void;
   onAIMessageGenerated: (message: string) => void;
   onSearch?: () => void;
   onCall?: () => void;
   onMoreOptions?: () => void;
   onBackToSidebar?: () => void;
+  onEditMessage?: (messageId: string, newText: string) => void;
+  onDeleteMessage?: (messageId: string) => void;
+  onDeleteChat?: () => void;
+  className?: string;
 }
 
 export function ChatArea({
@@ -45,11 +57,15 @@ export function ChatArea({
   onCall,
   onMoreOptions,
   onBackToSidebar,
+  onEditMessage,
+  onDeleteMessage,
+  onDeleteChat,
+  className,
 }: ChatAreaProps) {
   // Empty State - Only shown on desktop when no chat is selected
   if (!currentChat) {
     return (
-      <div className="hidden sm:flex flex-1 items-center justify-center bg-gray-50">
+      <div className={cn("flex flex-1 items-center justify-center bg-gray-50", className)}>
         <div className="text-center">
           <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
@@ -88,7 +104,7 @@ export function ChatArea({
 
   // Chat Area - Shown when chat is selected
   return (
-    <div className={cn("flex-1 w-full flex flex-col bg-white relative")}>
+    <div className={cn("flex-1 w-full flex flex-col bg-white relative", className)}>
       <ChatHeader
         currentChat={currentChat}
         onSearch={onSearch}
@@ -96,6 +112,7 @@ export function ChatArea({
         onMoreOptions={onMoreOptions}
         onBackToSidebar={onBackToSidebar}
         showBackButton={true}
+        onDeleteChat={onDeleteChat}
       />
 
       {/* Ad Info Card - Only shown for ad chats */}
@@ -120,7 +137,7 @@ export function ChatArea({
                 />
               </div>
             )}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1">
               {currentChat.organisation.orgTradeName && (
                 <Typography
                   variant="body-small"
@@ -135,7 +152,12 @@ export function ChatArea({
       )}
 
       <div className="flex-1 min-h-0">
-        <MessagesList messages={messages} isTyping={isTyping} />
+        <MessagesList
+          messages={messages}
+          isTyping={isTyping}
+          onEditMessage={onEditMessage}
+          onDeleteMessage={onDeleteMessage}
+        />
       </div>
 
       <MessageInput

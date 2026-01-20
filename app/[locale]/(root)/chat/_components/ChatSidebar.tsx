@@ -3,6 +3,11 @@
 import { Input } from "@/components/ui/input";
 import { Typography } from "@/components/typography";
 import { ChatTypeSelector, ChatType } from "./ChatTypeSelector";
+import Image from "next/image";
+import { User } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { ICONS } from "@/constants/icons";
 
 export interface AdDetails {
   adId: string;
@@ -40,7 +45,43 @@ interface ChatSidebarProps {
   onChatSelect: (chatId: string) => void;
   onChatTypeChange: (type: ChatType) => void;
   onBack?: () => void;
+  className?: string;
 }
+
+export const AvatarImage = ({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className?: string; // Used for passing wrapper styles if needed, but here we strictly control it.
+}) => {
+  const [error, setError] = useState(false);
+
+  // If src is empty or error occurred, show fallback
+  if (error || !src) {
+    return (
+      <div
+        className={`flex items-center justify-center bg-gray-100 text-gray-400 w-full h-full ${className}`}
+      >
+        <User className="w-1/2 h-1/2" />
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      className={className}
+      fill
+      sizes="56px"
+      onError={() => setError(true)}
+      style={{ objectFit: "cover" }}
+    />
+  );
+};
 
 export function ChatSidebar({
   chats,
@@ -48,6 +89,7 @@ export function ChatSidebar({
   chatType,
   onChatSelect,
   onChatTypeChange,
+  className,
 }: ChatSidebarProps) {
   const handleChatSelect = (chatId: string) => {
     // Also call the onChatSelect callback for state management
@@ -55,7 +97,7 @@ export function ChatSidebar({
   };
 
   return (
-    <div className="w-full border max-w-sm flex flex-col h-full">
+    <div className={cn("w-full md:max-w-sm flex flex-col h-full", className)}>
       {/* Header */}
       <div className="bg-purple p-4 space-y-3">
         <ChatTypeSelector value={chatType} onChange={onChatTypeChange} />
@@ -108,82 +150,91 @@ export function ChatSidebar({
                 <div
                   key={chat.id}
                   onClick={() => handleChatSelect(chat.id)}
-                    className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${activeChat === chat.id ? "bg-gray-50" : ""
-                      }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="relative">
-                        <div className="w-14 h-14 rounded-full overflow-hidden shrink-0 border border-gray-100">
-                          <img
-                            src={
-                              displayImage || "/assets/images/placeholder-avatar.png"
-                            }
-                            alt={displayName}
+                  className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${activeChat === chat.id ? "bg-gray-200" : ""
+                    }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <div className="w-14 h-14 relative rounded-full overflow-hidden shrink-0 border border-gray-100">
+                        <AvatarImage
+                          src={
+                            displayImage ||
+                            "/assets/images/placeholder-avatar.png"
+                          }
+                          alt={displayName}
+                          className="" // className handled by outer div mostly, but AvatarImage uses it for wrapper or img.
+                        />
+                      </div>
+
+                      {/* Ad Image Overlay */}
+                      {chat.chatType === "ad" && chat.ad && (
+                        <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-sm z-10">
+                          <Image
+                            src={chat.ad.adImage}
+                            alt="Ad"
+                            width={10}
+                            height={10}
                             className="w-full h-full object-cover"
                           />
                         </div>
+                      )}
 
-                        {/* Ad Image Overlay */}
-                        {chat.chatType === "ad" && chat.ad && (
-                          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded overflow-hidden border-2 border-white shadow-sm z-10">
-                            <img
-                              src={chat.ad.adImage}
-                              alt="Ad"
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
+                      {chat.isOnline && (
+                        <div
+                          className={`absolute ${chat.chatType === "ad" && chat.ad
+                            ? "top-0 right-0"
+                            : "bottom-0 right-0"
+                            } w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full z-20`}
+                        ></div>
+                      )}
+                    </div>
 
-                        {chat.isOnline && (
-                          <div
-                            className={`absolute ${chat.chatType === "ad" && chat.ad
-                              ? "top-0 right-0"
-                              : "bottom-0 right-0"
-                              } w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full z-20`}
-                          ></div>
-                        )}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 max-w-[70%]">
-                            <Typography
-                              variant="body-small"
-                              className="font-semibold text-gray-900 truncate"
-                            >
-                              {displayName}
-                            </Typography>
-                            {chat.isVerified && (
-                              <div className="shrink-0 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center p-[2px]">
-                                <svg viewBox="0 0 24 24" fill="white" className="w-3 h-3"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
-                              </div>
-                            )}
-                          </div>
-                          <Typography
-                            variant="caption"
-                            className={`text-gray-500 whitespace-nowrap ml-2 ${chat.unreadCount > 0 ? "text-gray-900 font-medium" : ""
-                              }`}
-                          >
-                            {chat.time}
-                          </Typography>
-                        </div>
-
-                        <div className="flex items-center justify-between mt-1">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 max-w-[70%]">
                           <Typography
                             variant="body-small"
-                            className="text-gray-500 truncate flex-1 mr-2"
+                            className="font-semibold text-gray-900 truncate"
                           >
-                            {chat.lastMessage}
+                            {displayName}
                           </Typography>
-                          {chat.unreadCount > 0 && (
-                            <div className="w-5 h-5 bg-purple-600 text-white text-xs rounded-full flex items-center justify-center font-medium shrink-0">
-                              {chat.unreadCount}
+                          {chat.isVerified && (
+                            <div className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center p-[2px]">
+                              <Image
+                                src={ICONS.auth.verified}
+                                alt="Verified"
+                                width={10}
+                                height={10}
+                                className="w-full h-full object-cover"
+                              />
                             </div>
                           )}
                         </div>
+                        <Typography
+                          variant="caption"
+                          className={`text-gray-500 whitespace-nowrap ml-2 ${chat.unreadCount > 0 ? "text-gray-900 font-medium" : ""
+                            }`}
+                        >
+                          {chat.time}
+                        </Typography>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-1">
+                        <Typography
+                          variant="body-small"
+                          className="text-gray-500 truncate flex-1 mr-2"
+                        >
+                          {chat.lastMessage}
+                        </Typography>
+                        {chat.unreadCount > 0 && (
+                          <div className="w-5 h-5 bg-purple-600 text-white text-xs rounded-full flex items-center justify-center font-medium shrink-0">
+                            {chat.unreadCount}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
+                </div>
               );
             })
         )}

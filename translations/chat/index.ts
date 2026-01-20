@@ -8,6 +8,8 @@ export const chatTranslations: ChatTranslationNamespace = {
     chatNotFound: "Chat not found",
     failedToLoadChat: "Failed to load chat",
     failedToSendMessage: "Failed to send message",
+    messageDeleted: "Message deleted",
+    failedToDeleteMessage: "Failed to delete message",
   },
   "nl-NL": {
     loadingChats: "Chats laden...",
@@ -16,6 +18,8 @@ export const chatTranslations: ChatTranslationNamespace = {
     chatNotFound: "Chat niet gevonden",
     failedToLoadChat: "Chat laden mislukt",
     failedToSendMessage: "Bericht verzenden mislukt",
+    messageDeleted: "Bericht verwijderd",
+    failedToDeleteMessage: "Bericht verwijderen mislukt",
   },
   nl: {
     loadingChats: "Chats laden...",
@@ -24,6 +28,8 @@ export const chatTranslations: ChatTranslationNamespace = {
     chatNotFound: "Chat niet gevonden",
     failedToLoadChat: "Chat laden mislukt",
     failedToSendMessage: "Bericht verzenden mislukt",
+    messageDeleted: "Bericht verwijderd",
+    failedToDeleteMessage: "Bericht verwijderen mislukt",
   },
   ar: {
     loadingChats: "جارٍ تحميل المحادثات...",
@@ -32,6 +38,8 @@ export const chatTranslations: ChatTranslationNamespace = {
     chatNotFound: "المحادثة غير موجودة",
     failedToLoadChat: "فشل تحميل المحادثة",
     failedToSendMessage: "فشل إرسال الرسالة",
+    messageDeleted: "رسالة تم حذفها",
+    failedToDeleteMessage: "فشل حذف الرسالة",
   },
 };
 

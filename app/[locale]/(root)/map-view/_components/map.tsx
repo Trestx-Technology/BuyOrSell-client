@@ -78,10 +78,13 @@ export default function Map({
 
   // Initialize map
   useEffect(() => {
-    if (!window.google?.maps?.Map || !mapRef.current || isLoading) return;
+    if (!window.google?.maps?.Map || !mapRef.current || isLoading || map) return;
+
+    // Use default center if prop is undefined, but avoid dependency issues
+    const initialCenter = center || { lat: 25.2048, lng: 55.2708 };
 
     const mapInstance = new window.google.maps.Map(mapRef.current, {
-      center,
+      center: initialCenter,
       zoom,
       styles: [
         {
@@ -98,20 +101,41 @@ export default function Map({
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: false,
+      gestureHandling: "greedy",
     });
 
     setMap(mapInstance);
+  }, [isLoading, map]); // Removed center/zoom from init dependencies to prevent loops
 
-    // Add click listener to map
-    if (onMapClick) {
-      mapInstance.addListener("click", (event: any) => {
-        onMapClick({
-          lat: event.latLng.lat(),
-          lng: event.latLng.lng(),
-        });
-      });
+  // Handle center updates
+  useEffect(() => {
+    if (map && center) {
+      map.panTo(center);
     }
-  }, [center, zoom, isLoading, onMapClick]);
+  }, [map, center]);
+
+  // Handle zoom updates
+  useEffect(() => {
+    if (map && zoom) {
+      map.setZoom(zoom);
+    }
+  }, [map, zoom]);
+
+  // Handle map click listener
+  useEffect(() => {
+    if (!map || !onMapClick) return;
+
+    const listener = map.addListener("click", (event: any) => {
+      onMapClick({
+        lat: event.latLng.lat(),
+        lng: event.latLng.lng(),
+      });
+    });
+
+    return () => {
+      window.google.maps.event.removeListener(listener);
+    };
+  }, [map, onMapClick]);
 
   // Update markers
   useEffect(() => {

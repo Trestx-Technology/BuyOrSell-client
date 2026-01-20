@@ -31,9 +31,6 @@ const ChatArea = dynamic(
   }
 );
 
-// Import types (not components, so regular import is fine)
-import type { ChatType } from "./_components/ChatTypeSelector";
-import type { Chat } from "./_components/ChatSidebar";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { LoginRequiredDialog } from "@/components/auth/login-required-dialog";
 
@@ -62,6 +59,9 @@ export default function ChatPage() {
     handleSearch,
     handleCall,
     handleMoreOptions,
+    handleEditMessage,
+    handleDeleteMessage,
+    handleDeleteChat,
     router,
   } = useChat();
 
@@ -92,7 +92,7 @@ export default function ChatPage() {
   }
 
   return (
-    <Container1080 className="flex relative h-dvh">
+    <Container1080 className="flex relative h-dvh border-r">
       {/* Sidebar - Always visible on desktop, full width on mobile when no chat selected */}
 
       <ChatSidebar
@@ -102,6 +102,7 @@ export default function ChatPage() {
         onChatSelect={handleChatSelect}
         onChatTypeChange={handleChatTypeChange}
         onBack={handleBack}
+        className={urlChatId ? "hidden md:flex" : "flex w-full md:w-auto"}
       />
 
       {/* Chat Area - Show current chat if selected, otherwise show empty state */}
@@ -119,6 +120,10 @@ export default function ChatPage() {
         onCall={handleCall}
         onMoreOptions={handleMoreOptions}
         onBackToSidebar={handleBackToSidebar}
+        onEditMessage={handleEditMessage}
+        onDeleteMessage={handleDeleteMessage}
+        onDeleteChat={handleDeleteChat}
+        className={!urlChatId ? "hidden md:flex" : "flex w-full"}
       />
     </Container1080>
   );

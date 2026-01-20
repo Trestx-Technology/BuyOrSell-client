@@ -449,6 +449,9 @@ export function useChat() {
       time: formatTimestamp(msg.createdAt),
       isFromUser: msg.senderId === session.user?._id,
       isRead: msg.isRead,
+      type: msg.type || "text",
+      fileUrl: msg.fileUrl,
+      coordinates: msg.coordinates,
     }));
   }, [messages, session.user?._id]);
 
@@ -464,17 +467,34 @@ export function useChat() {
     router.push(localePath("/chat"));
   };
 
-  const handleSendMessage = async () => {
-    if (!message.trim() || !urlChatId || !session.user?._id) return;
+  const handleSendMessage = async (data?: {
+    type: "text" | "location" | "file";
+    text?: string;
+    fileUrl?: string;
+    coordinates?: { latitude: number; longitude: number };
+  }) => {
+    if (!urlChatId || !session.user?._id) return;
+
+    // Default to text message from state if no data provided
+    const msgText = data?.text ?? message.trim();
+    const msgType = data?.type ?? "text";
+
+    if (msgType === "text" && !msgText) return;
 
     try {
       await ChatService.sendMessage({
         chatId: urlChatId,
         senderId: session.user._id,
-        text: message.trim(),
-        type: "text",
+        text: msgText,
+        type: msgType,
+        fileUrl: data?.fileUrl,
+        coordinates: data?.coordinates,
       });
-      setMessage("");
+
+      if (msgType === "text") {
+        setMessage("");
+      }
+
       await ChatService.setTypingStatus(urlChatId, session.user._id, false);
     } catch (error) {
       console.error("Error sending message:", error);
@@ -488,7 +508,7 @@ export function useChat() {
       await ChatService.setTypingStatus(
         urlChatId,
         session.user._id,
-        !!value.trim()
+        !!value.trim(),
       );
     }
   };
@@ -513,6 +533,40 @@ export function useChat() {
     console.log("Show more options");
   };
 
+  const handleEditMessage = async (messageId: string, newText: string) => {
+    if (!urlChatId) return;
+    try {
+      await ChatService.editMessage(urlChatId, messageId, newText);
+      toast.success(t.chat?.messageEdited || "Message edited");
+    } catch (error) {
+      console.error("Error editing message:", error);
+      toast.error(t.chat?.failedToEditMessage || "Failed to edit message");
+    }
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!urlChatId) return;
+    try {
+      await ChatService.deleteMessage(urlChatId, messageId);
+      toast.success(t.chat?.messageDeleted || "Message deleted");
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      toast.error(t.chat?.failedToDeleteMessage || "Failed to delete message");
+    }
+  };
+
+  const handleDeleteChat = async () => {
+    if (!urlChatId) return;
+    try {
+      await ChatService.deleteChat(urlChatId);
+      toast.success(t.chat?.chatDeleted || "Chat deleted");
+      router.push(localePath("/chat"));
+    } catch (error) {
+      console.error("Error deleting chat:", error);
+      toast.error(t.chat?.failedToDeleteChat || "Failed to delete chat");
+    }
+  };
+
   return {
     isAuthenticated,
     session,
@@ -534,6 +588,9 @@ export function useChat() {
     handleSearch,
     handleCall,
     handleMoreOptions,
+    handleEditMessage,
+    handleDeleteMessage,
+    handleDeleteChat,
     router,
     localePath,
     t,

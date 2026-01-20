@@ -115,7 +115,7 @@ export class ChatService {
         COLLECTIONS.USERS,
         userId,
         "chats",
-        chatId
+        chatId,
       );
       batch.set(userChatRef, {
         chatId,
@@ -156,7 +156,7 @@ export class ChatService {
       this.db,
       COLLECTIONS.USERS,
       userId,
-      "chats"
+      "chats",
     );
 
     let q;
@@ -165,7 +165,7 @@ export class ChatService {
       q = query(
         userChatsRef,
         where("type", "==", type),
-        orderBy("updatedAt", "desc")
+        orderBy("updatedAt", "desc"),
       );
     } else {
       q = query(userChatsRef, orderBy("updatedAt", "desc"));
@@ -200,13 +200,13 @@ export class ChatService {
     userId: string,
     type: ChatType | undefined,
     callback: (chats: Chat[]) => void,
-    onError?: (error: any) => void
+    onError?: (error: any) => void,
   ): () => void {
     const userChatsRef = collection(
       this.db,
       COLLECTIONS.USERS,
       userId,
-      "chats"
+      "chats",
     );
 
     let q;
@@ -215,7 +215,7 @@ export class ChatService {
       q = query(
         userChatsRef,
         where("type", "==", type),
-        orderBy("updatedAt", "desc")
+        orderBy("updatedAt", "desc"),
       );
     } else {
       q = query(userChatsRef, orderBy("updatedAt", "desc"));
@@ -243,7 +243,7 @@ export class ChatService {
         if (onError) {
           onError(error);
         }
-      }
+      },
     );
   }
 
@@ -259,7 +259,7 @@ export class ChatService {
       this.db,
       COLLECTIONS.CHATS,
       chatId,
-      COLLECTIONS.MESSAGES
+      COLLECTIONS.MESSAGES,
     );
     const messageRef = doc(messagesRef);
     const messageId = messageRef.id;
@@ -307,7 +307,7 @@ export class ChatService {
           COLLECTIONS.USERS,
           participantId,
           "chats",
-          chatId
+          chatId,
         );
 
         if (participantId !== senderId) {
@@ -324,8 +324,8 @@ export class ChatService {
                 type === "text"
                   ? text
                   : type === "location"
-                  ? "Location"
-                  : "File",
+                    ? "Location"
+                    : "File",
               createdAt: serverTimestamp(),
             },
             updatedAt: serverTimestamp(),
@@ -338,8 +338,8 @@ export class ChatService {
                 type === "text"
                   ? text
                   : type === "location"
-                  ? "Location"
-                  : "File",
+                    ? "Location"
+                    : "File",
               createdAt: serverTimestamp(),
             },
             updatedAt: serverTimestamp(),
@@ -358,23 +358,23 @@ export class ChatService {
    */
   static async getMessages(
     chatId: string,
-    limitCount: number = 50
+    limitCount: number = 50,
   ): Promise<Message[]> {
     const messagesRef = collection(
       this.db,
       COLLECTIONS.CHATS,
       chatId,
-      COLLECTIONS.MESSAGES
+      COLLECTIONS.MESSAGES,
     );
     const q = query(
       messagesRef,
       orderBy("createdAt", "desc"), // Changed to createdAt based on schema
-      limit(limitCount)
+      limit(limitCount),
     );
 
     const snapshot = await getDocs(q);
     return snapshot.docs
-      .map((doc) => ({ id: doc.id, ...doc.data() } as Message))
+      .map((doc) => ({ id: doc.id, ...doc.data() }) as Message)
       .reverse(); // Reverse to get chronological order
   }
 
@@ -384,23 +384,23 @@ export class ChatService {
   static subscribeToMessages(
     chatId: string,
     callback: (messages: Message[]) => void,
-    limitCount: number = 50
+    limitCount: number = 50,
   ): () => void {
     const messagesRef = collection(
       this.db,
       COLLECTIONS.CHATS,
       chatId,
-      COLLECTIONS.MESSAGES
+      COLLECTIONS.MESSAGES,
     );
     const q = query(
       messagesRef,
       orderBy("createdAt", "desc"), // Changed to createdAt
-      limit(limitCount)
+      limit(limitCount),
     );
 
     return onSnapshot(q, (snapshot) => {
       const messages = snapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() } as Message))
+        .map((doc) => ({ id: doc.id, ...doc.data() }) as Message)
         .reverse();
       callback(messages);
     });
@@ -412,14 +412,14 @@ export class ChatService {
   static async markMessageAsRead(
     chatId: string,
     messageId: string,
-    userId: string
+    userId: string,
   ): Promise<void> {
     const messageRef = doc(
       this.db,
       COLLECTIONS.CHATS,
       chatId,
       COLLECTIONS.MESSAGES,
-      messageId
+      messageId,
     );
 
     // Schema only has isRead boolean, not readBy array update in screenshot
@@ -458,7 +458,7 @@ export class ChatService {
       COLLECTIONS.USERS,
       userId,
       "chats",
-      chatId
+      chatId,
     );
 
     // We update because it should exist
@@ -475,7 +475,7 @@ export class ChatService {
   static async setTypingStatus(
     chatId: string,
     userId: string,
-    isTyping: boolean
+    isTyping: boolean,
   ): Promise<void> {
     const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
     await updateDoc(chatRef, {
@@ -488,7 +488,7 @@ export class ChatService {
    */
   static subscribeToTypingStatus(
     chatId: string,
-    callback: (typing: { [userId: string]: boolean }) => void
+    callback: (typing: { [userId: string]: boolean }) => void,
   ): () => void {
     const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
 
@@ -511,7 +511,7 @@ export class ChatService {
         lastSeen: serverTimestamp(),
         updatedAt: serverTimestamp(),
       },
-      { merge: true }
+      { merge: true },
     );
   }
 
@@ -535,7 +535,7 @@ export class ChatService {
    */
   static subscribeToOnlineStatus(
     userId: string,
-    callback: (online: boolean) => void
+    callback: (online: boolean) => void,
   ): () => void {
     const presenceRef = doc(this.db, COLLECTIONS.PRESENCE, userId);
 
@@ -565,12 +565,12 @@ export class ChatService {
    */
   static async getTotalUnreadCount(
     userId: string,
-    type?: ChatType
+    type?: ChatType,
   ): Promise<number> {
     const userChats = await this.getUserChats(userId, type);
     return userChats.reduce(
       (total, chat) => total + (chat.unreadCount[userId] || 0),
-      0
+      0,
     );
   }
 
@@ -579,9 +579,63 @@ export class ChatService {
    */
   static async deleteChat(chatId: string): Promise<void> {
     const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
-    await deleteDoc(chatRef);
+    const chat = await this.getChat(chatId);
 
-    // Note: User chat indexes should be cleaned up via Cloud Function
-    // or manually when user accesses their chat list
+    if (chat) {
+      // Delete chat document
+      await deleteDoc(chatRef);
+
+      // Clean up user chat indexes
+      const promises = chat.participants.map((participantId) => {
+        const userChatRef = doc(
+          this.db,
+          COLLECTIONS.USERS,
+          participantId,
+          "chats",
+          chatId,
+        );
+        return deleteDoc(userChatRef);
+      });
+
+      await Promise.all(promises);
+    }
+  }
+
+  /**
+   * Edit a message
+   */
+  static async editMessage(
+    chatId: string,
+    messageId: string,
+    newText: string,
+  ): Promise<void> {
+    const messageRef = doc(
+      this.db,
+      COLLECTIONS.CHATS,
+      chatId,
+      COLLECTIONS.MESSAGES,
+      messageId,
+    );
+
+    await updateDoc(messageRef, {
+      text: newText,
+      updatedAt: serverTimestamp(),
+      isEdited: true,
+    });
+  }
+
+  /**
+   * Delete a message
+   */
+  static async deleteMessage(chatId: string, messageId: string): Promise<void> {
+    const messageRef = doc(
+      this.db,
+      COLLECTIONS.CHATS,
+      chatId,
+      COLLECTIONS.MESSAGES,
+      messageId,
+    );
+
+    await deleteDoc(messageRef);
   }
 }
