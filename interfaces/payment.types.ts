@@ -37,6 +37,11 @@ export interface ConfirmPaymentResponse {
   data: unknown;
 }
 
+export interface ConfirmPaymentPayload {
+  paymentIntentId: string;
+  accessToken?: string;
+}
+
 export interface RefundPaymentDto {
   paymentIntentId?: string;
   checkoutSessionId?: string;

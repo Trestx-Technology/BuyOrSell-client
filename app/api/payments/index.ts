@@ -3,9 +3,17 @@ export const paymentQueries = {
     endpoint: "/payments/refund",
     Key: ["refundPayment"],
   },
+  createPaymentIntent: {
+    endpoint: "/payments/create-intent",
+    Key: ["createPaymentIntent"],
+  },
   createCheckoutSession: {
     endpoint: "/payments/checkout-session",
     Key: ["createCheckoutSession"],
+  },
+  confirmPaymentIntent: {
+    endpoint: "/payments/confirm",
+    Key: ["confirmPaymentIntent"],
   },
   completeCheckoutSession: (sessionId: string) => ({
     endpoint: `/payments/checkout-session/${sessionId}`,

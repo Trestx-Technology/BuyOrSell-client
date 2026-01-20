@@ -7,11 +7,44 @@ import type {
   CreateCheckoutSessionDto,
   CheckoutSessionResponse,
   CompleteCheckoutSessionResponse,
+  ConfirmPaymentPayload,
+  ConfirmPaymentResponse,
+  CreatePaymentPayload,
+  PaymentResponse,
 } from "@/interfaces/payment.types";
 
 // ============================================================================
 // PAYMENT OPERATIONS
 // ============================================================================
+
+export const createPaymentIntent = async (
+  payload: CreatePaymentPayload,
+): Promise<PaymentResponse> => {
+  const response = await axiosInstance.post<PaymentResponse>(
+    paymentQueries.createPaymentIntent.endpoint,
+    payload,
+  );
+  return response.data;
+};
+
+export const confirmPaymentIntent = async (
+  payload: ConfirmPaymentPayload,
+): Promise<ConfirmPaymentResponse> => {
+  const config = payload.accessToken
+    ? {
+        headers: {
+          Authorization: `Bearer ${payload.accessToken}`,
+        },
+      }
+    : undefined;
+
+  const response = await axiosInstance.post<ConfirmPaymentResponse>(
+    paymentQueries.confirmPaymentIntent.endpoint,
+    { paymentIntentId: payload.paymentIntentId },
+    config,
+  );
+  return response.data;
+};
 
 export const refundPayment = async (
   payload: RefundPaymentDto,

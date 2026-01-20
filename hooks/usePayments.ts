@@ -6,6 +6,8 @@ import {
   getUserPayments,
   getUserAddonPayments,
   getSubscriptionAddonPayments,
+  confirmPaymentIntent,
+  createPaymentIntent,
 } from "@/app/api/payments/payment.services";
 import {
   RefundPaymentDto,
@@ -13,12 +15,30 @@ import {
   CreateCheckoutSessionDto,
   CheckoutSessionResponse,
   CompleteCheckoutSessionResponse,
+  ConfirmPaymentPayload,
+  ConfirmPaymentResponse,
+  CreatePaymentPayload,
+  PaymentResponse,
 } from "@/interfaces/payment.types";
 import { paymentQueries } from "@/app/api/payments/index";
 
 // ============================================================================
 // PAYMENT MUTATION HOOKS
 // ============================================================================
+
+export const useCreatePaymentIntent = () => {
+  return useMutation<PaymentResponse, Error, CreatePaymentPayload>({
+    mutationFn: createPaymentIntent,
+    mutationKey: paymentQueries.createPaymentIntent.Key,
+  });
+};
+
+export const useConfirmPaymentIntentWithToken = () => {
+  return useMutation<ConfirmPaymentResponse, Error, ConfirmPaymentPayload>({
+    mutationFn: confirmPaymentIntent,
+    mutationKey: paymentQueries.confirmPaymentIntent.Key,
+  });
+};
 
 export const useRefundPayment = () => {
   const queryClient = useQueryClient();
