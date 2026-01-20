@@ -209,12 +209,12 @@ export function MessageInput({
           </Button>
         </div>
 
-        <AIFeaturesPopover
+        {/* <AIFeaturesPopover
           onMessageGenerated={onAIMessageGenerated}
           currentMessage={value}
           itemTitle={itemTitle}
           itemPrice={itemPrice}
-        />
+        /> */}
 
         <div className="flex-1 relative">
           <AutosizeTextarea

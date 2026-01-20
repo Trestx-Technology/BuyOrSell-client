@@ -2,6 +2,7 @@ import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getFirestore, Firestore } from "firebase/firestore";
 import { getAuth, Auth } from "firebase/auth";
 import { getStorage, FirebaseStorage } from "firebase/storage";
+import { getMessaging, Messaging } from "firebase/messaging";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -18,6 +19,7 @@ let _app: FirebaseApp | null = null;
 let _db: Firestore | null = null;
 let _auth: Auth | null = null;
 let _storage: FirebaseStorage | null = null;
+let _messaging: Messaging | null = null;
 
 function ensureClientSide() {
   if (typeof window === "undefined") {
@@ -63,11 +65,20 @@ function getStorageInstance(): FirebaseStorage {
   return _storage;
 }
 
+function getMessagingInstance(): Messaging {
+  ensureClientSide();
+  if (!_messaging) {
+    _messaging = getMessaging(getApp());
+  }
+  return _messaging;
+}
+
 // ONLY export the getter functions - do NOT export direct access
 export const getFirebaseApp = getApp;
 export const getFirebaseDb = getDb;
 export const getFirebaseAuth = getAuthInstance;
 export const getFirebaseStorage = getStorageInstance;
+export const getFirebaseMessaging = getMessagingInstance;
 
 // Alternative: Export as namespace object (if you prefer this style)
 export const firebase = {
@@ -75,4 +86,5 @@ export const firebase = {
   getDb: getDb,
   getAuth: getAuthInstance,
   getStorage: getStorageInstance,
+  getMessaging: getMessagingInstance,
 };

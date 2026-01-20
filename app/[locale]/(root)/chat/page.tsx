@@ -92,7 +92,7 @@ export default function ChatPage() {
   }
 
   return (
-    <Container1080 className="flex relative h-dvh border-r">
+    <Container1080 className="flex relative h-[calc(100vh-84px)] border-r">
       {/* Sidebar - Always visible on desktop, full width on mobile when no chat selected */}
 
       <ChatSidebar

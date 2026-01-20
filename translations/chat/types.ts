@@ -9,6 +9,10 @@ export type ChatTranslations = {
   failedToSendMessage: string;
   messageDeleted: string;
   failedToDeleteMessage: string;
+  messageEdited: string;
+  failedToEditMessage: string;
+  chatDeleted: string;
+  failedToDeleteChat: string;
 };
 
 export type ChatTranslationNamespace = Record<Locale, ChatTranslations>;

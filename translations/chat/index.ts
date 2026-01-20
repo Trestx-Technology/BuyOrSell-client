@@ -10,6 +10,10 @@ export const chatTranslations: ChatTranslationNamespace = {
     failedToSendMessage: "Failed to send message",
     messageDeleted: "Message deleted",
     failedToDeleteMessage: "Failed to delete message",
+    messageEdited: "Message edited",
+    failedToEditMessage: "Failed to edit message",
+    chatDeleted: "Chat deleted",
+    failedToDeleteChat: "Failed to delete chat",
   },
   "nl-NL": {
     loadingChats: "Chats laden...",
@@ -20,6 +24,10 @@ export const chatTranslations: ChatTranslationNamespace = {
     failedToSendMessage: "Bericht verzenden mislukt",
     messageDeleted: "Bericht verwijderd",
     failedToDeleteMessage: "Bericht verwijderen mislukt",
+    messageEdited: "Bericht aangepast",
+    failedToEditMessage: "Bericht aanpassen mislukt",
+    chatDeleted: "Chat verwijderd",
+    failedToDeleteChat: "Chat verwijderen mislukt",
   },
   nl: {
     loadingChats: "Chats laden...",
@@ -30,7 +38,11 @@ export const chatTranslations: ChatTranslationNamespace = {
     failedToSendMessage: "Bericht verzenden mislukt",
     messageDeleted: "Bericht verwijderd",
     failedToDeleteMessage: "Bericht verwijderen mislukt",
-  },
+    messageEdited: "Bericht aangepast",
+    failedToEditMessage: "Bericht aanpassen mislukt",
+    chatDeleted: "Chat verwijderd",
+    failedToDeleteChat: "Chat verwijderen mislukt",
+      },
   ar: {
     loadingChats: "جارٍ تحميل المحادثات...",
     pleaseLogin: "يرجى تسجيل الدخول لعرض محادثاتك",
@@ -40,6 +52,10 @@ export const chatTranslations: ChatTranslationNamespace = {
     failedToSendMessage: "فشل إرسال الرسالة",
     messageDeleted: "رسالة تم حذفها",
     failedToDeleteMessage: "فشل حذف الرسالة",
-  },
+    messageEdited: "رسالة تم تعديلها",
+    failedToEditMessage: "فشل تعديل الرسالة",
+    chatDeleted: "محادثة تم حذفها",
+    failedToDeleteChat: "فشل حذف المحادثة",
+    },
 };
 

@@ -17,7 +17,7 @@ export interface SignUpPayload {
   email: string;
   password: string;
   countryCode: string;
-  deviceKey?: string;
+  deviceKey?: string | null;
 }
 
 export interface SignUpResponse {
@@ -49,9 +49,7 @@ export const login = async (
 };
 
 // Signup
-export const signUp = async (
-  data: SignUpPayload,
-): Promise<SignUpResponse> => {
+export const signUp = async (data: SignUpPayload): Promise<SignUpResponse> => {
   const response = await axiosInstance.post<SignUpResponse>(
     authQueries.signUp.endpoint,
     {
@@ -60,7 +58,7 @@ export const signUp = async (
       email: data.email,
       password: data.password,
       countryCode: data.countryCode,
-      deviceKey: data.deviceKey || 'web',
+      deviceKey: data.deviceKey || "web",
     },
   );
   return response.data;
