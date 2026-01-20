@@ -31,9 +31,7 @@ export const headerVariants: Variants = {
     y: 0,
     scale: 1,
     transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 22,
+      type: "tween" as const,
       delay: 0.1,
     },
   },
@@ -50,9 +48,7 @@ export const tabsVariants: Variants = {
     y: 0,
     scale: 1,
     transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 22,
+      type: "tween" as const,
       delay: 0.3,
     },
   },

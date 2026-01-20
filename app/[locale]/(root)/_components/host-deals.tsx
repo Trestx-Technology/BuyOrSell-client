@@ -273,9 +273,7 @@ export default function HostDeals({
         {/* Category Tabs */}
         <motion.div
           variants={tabsVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
+
           className="mb-4 "
         >
           {isLoading ? (
