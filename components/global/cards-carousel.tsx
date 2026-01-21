@@ -32,6 +32,9 @@ export function CardsCarousel({
   },
 }: CardsCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "start",
+    dragFree: true,
+    containScroll: "trimSnaps",
     slidesToScroll: 1,
     breakpoints: {
       "(min-width: 0px)": { slidesToScroll: breakpoints.mobile || 1 },

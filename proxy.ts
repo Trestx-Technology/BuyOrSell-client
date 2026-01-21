@@ -26,6 +26,10 @@ export function proxy(request: NextRequest) {
     "/favicon.ico", // Favicon
     "/pay", // Pay routes
     "/pay/response", // Pay response routes
+    "/firebase-messaging-sw.js", // Firebase service worker
+    "/manifest.json", // PWA manifest
+    "/images", // Static images
+    "/assets", // Static assets
     // Add more routes/keywords here that should be excluded from locale validation
   ];
 

@@ -33,8 +33,7 @@ import { calculatePasswordStrength } from "@/utils/password-strength";
 import { createSignupSchema, countryCodes, type SignupFormData } from "@/schemas/signup.schema";
 import { useLocale } from "@/hooks/useLocale";
 import Image from "next/image";
-import { getFirebaseMessaging } from "@/lib/firebase/config";
-import { getToken } from "firebase/messaging";
+import { getFCMToken } from "@/lib/firebase/config";
 
 const Signup = () => {
   const { localePath, t } = useLocale();
@@ -120,24 +119,7 @@ const Signup = () => {
       const firstName = nameParts[0] || "";
       const lastName = nameParts.slice(1).join(" ") || nameParts[0] || "";
 
-      let deviceToken = null;
-      try {
-        if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-          const permission = await Notification.requestPermission();
-          if (permission === "granted") {
-            const messaging = getFirebaseMessaging();
-            // Note: If a VAPID key is required by your project config, 
-            // you may need to pass { vapidKey: "YOUR_PUBLIC_KEY" } here.
-            const token = await getToken(messaging).catch((err) => {
-              console.warn("Failed to get FCM token:", err);
-              return null;
-            });
-            if (token) deviceToken = token;
-          }
-        }
-      } catch (error) {
-        console.error("Error setting up notifications:", error);
-      }
+      const deviceToken = await getFCMToken();
 
       const response = await signUpMutation.mutateAsync({
         firstName: firstName,

@@ -2,7 +2,7 @@ import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import { getFirestore, Firestore } from "firebase/firestore";
 import { getAuth, Auth } from "firebase/auth";
 import { getStorage, FirebaseStorage } from "firebase/storage";
-import { getMessaging, Messaging } from "firebase/messaging";
+import { getMessaging, getToken, Messaging } from "firebase/messaging";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -73,6 +73,22 @@ function getMessagingInstance(): Messaging {
   return _messaging;
 }
 
+const fetchToken = async () => {
+  try {
+    const fcmMessaging = getMessagingInstance();
+    if (fcmMessaging) {
+      const token = await getToken(fcmMessaging, {
+        vapidKey: process.env.NEXT_PUBLIC_FIREBASE_FCM_VAPID_KEY,
+      });
+      return token;
+    }
+    return null;
+  } catch (err) {
+    console.error("An error occurred while fetching the token:", err);
+    return null;
+  }
+};
+
 // ONLY export the getter functions - do NOT export direct access
 export const getFirebaseApp = getApp;
 export const getFirebaseDb = getDb;
@@ -87,4 +103,8 @@ export const firebase = {
   getAuth: getAuthInstance,
   getStorage: getStorageInstance,
   getMessaging: getMessagingInstance,
+  getFCMToken: fetchToken,
 };
+
+// Helper to get FCM Token safely
+

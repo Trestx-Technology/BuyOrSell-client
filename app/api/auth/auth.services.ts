@@ -35,7 +35,7 @@ export interface SignUpResponse {
 export const login = async (
   email: string,
   password: string,
-  deviceKey: string,
+  deviceKey: string | null,
 ): Promise<loginResponse> => {
   const response = await axiosInstance.post<loginResponse>(
     authQueries.login.endpoint,

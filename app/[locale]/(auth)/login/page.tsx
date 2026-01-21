@@ -18,8 +18,8 @@ import { useAuthStore } from "@/stores/authStore";
 import { AxiosError } from "axios";
 import { useLocale } from "@/hooks/useLocale";
 import { locales } from "@/lib/i18n/config";
-
 import Image from "next/image";
+import { firebase } from "@/lib/firebase/config";
 
 const LoginContent = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -34,7 +34,7 @@ const LoginContent = () => {
     password: "",
   });
 
-  const loginMutation = useMutation<loginResponse, Error, { email: string; password: string; deviceKey: string }>({
+  const loginMutation = useMutation<loginResponse, Error, { email: string; password: string; deviceKey: string | null }>({
     mutationFn: ({ email, password, deviceKey }) => LoginAPI(email, password, deviceKey),
     onSuccess: async (data) => {
       // Store session in Zustand store (handles localStorage and cookies)
@@ -68,18 +68,21 @@ const LoginContent = () => {
     },
   });
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!loginData.email || !loginData.password) {
       toast.error("Please fill in all fields");
       return;
     }
 
+    const deviceToken = await firebase.getFCMToken();
+
     loginMutation.mutate({
       email: loginData.email,
       password: loginData.password,
-      deviceKey: "1234567890", // TODO: Replace with actual device key generation
+      deviceKey: deviceToken,
     });
   };
+
   return (
     <section className="w-full mx-auto lg:w-1/2 max-w-[530px] h-full flex flex-col justify-start lg:justify-center relative">
       <Link
