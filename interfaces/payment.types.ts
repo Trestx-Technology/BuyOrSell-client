@@ -59,8 +59,20 @@ export interface RefundResponse {
   status: string;
 }
 
-export interface CreateCheckoutSessionDto {
-  lineItems?: {
+// 1. Subscription Checkout
+export interface CreatePlanSubscriptionCheckoutDto {
+  successUrl: string;
+  cancelUrl: string;
+  type: "PLAN";
+  typeId: string;
+  userId: string;
+  customerEmail: string;
+  mode: "subscription";
+}
+
+// 2. One-time Payment Checkout for Plan
+export interface CreatePlanOneTimeCheckoutDto {
+  lineItems: {
     name: string;
     amount: number;
     currency: string;
@@ -68,13 +80,58 @@ export interface CreateCheckoutSessionDto {
   }[];
   successUrl: string;
   cancelUrl: string;
-  type: "PLAN" | "ADS" | "ADDON";
+  type: "PLAN";
   typeId: string;
   userId: string;
   customerEmail: string;
-  mode: "payment" | "subscription";
-  metadata?: Record<string, string>;
+  mode: "payment";
 }
+
+// 3. Custom Line Items (Ads) Checkout
+// Covers both single and multiple custom line items for ADS type
+export interface CreateAdsCheckoutDto {
+  lineItems: {
+    name: string;
+    amount: number;
+    currency: string;
+    quantity: number;
+  }[];
+  successUrl: string;
+  cancelUrl: string;
+  type: "ADS";
+  typeId: string;
+  userId: string;
+  customerEmail: string;
+  mode: "payment";
+}
+
+// 4. Add-on Purchase Checkout
+export interface CreateAddonCheckoutDto {
+  lineItems: {
+    name: string;
+    amount: number;
+    currency: string;
+    quantity: number;
+  }[];
+  successUrl: string;
+  cancelUrl: string;
+  type: "ADDON";
+  typeId: string;
+  userId: string;
+  customerEmail: string;
+  mode: "payment";
+  metadata?: {
+    subscriptionId: string;
+    [key: string]: string;
+  };
+}
+
+// Union Type for use in services/hooks
+export type CreateCheckoutSessionDto =
+  | CreatePlanSubscriptionCheckoutDto
+  | CreatePlanOneTimeCheckoutDto
+  | CreateAdsCheckoutDto
+  | CreateAddonCheckoutDto;
 
 export interface CheckoutSessionResponse {
   message: string;

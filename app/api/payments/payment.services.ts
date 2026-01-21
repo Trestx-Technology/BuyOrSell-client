@@ -11,6 +11,10 @@ import type {
   ConfirmPaymentResponse,
   CreatePaymentPayload,
   PaymentResponse,
+  CreatePlanSubscriptionCheckoutDto,
+  CreatePlanOneTimeCheckoutDto,
+  CreateAdsCheckoutDto,
+  CreateAddonCheckoutDto,
 } from "@/interfaces/payment.types";
 
 // ============================================================================
@@ -57,7 +61,12 @@ export const refundPayment = async (
 };
 
 export const createCheckoutSession = async (
-  payload: CreateCheckoutSessionDto,
+  payload:
+    | CreateCheckoutSessionDto
+    | CreatePlanSubscriptionCheckoutDto
+    | CreatePlanOneTimeCheckoutDto
+    | CreateAdsCheckoutDto
+    | CreateAddonCheckoutDto,
 ): Promise<CheckoutSessionResponse> => {
   const response = await axiosInstance.post<CheckoutSessionResponse>(
     paymentQueries.createCheckoutSession.endpoint,

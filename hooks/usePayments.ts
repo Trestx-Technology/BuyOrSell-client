@@ -19,6 +19,10 @@ import {
   ConfirmPaymentResponse,
   CreatePaymentPayload,
   PaymentResponse,
+  CreatePlanSubscriptionCheckoutDto,
+  CreatePlanOneTimeCheckoutDto,
+  CreateAdsCheckoutDto,
+  CreateAddonCheckoutDto,
 } from "@/interfaces/payment.types";
 import { paymentQueries } from "@/app/api/payments/index";
 
@@ -54,10 +58,50 @@ export const useRefundPayment = () => {
   });
 };
 
-export const useCreateCheckoutSession = () => {
-  return useMutation<CheckoutSessionResponse, Error, CreateCheckoutSessionDto>({
+// ============================================================================
+// CHECKOUT SESSION HOOKS
+// ============================================================================
+
+export const useCreatePlanSubscriptionCheckout = () => {
+  return useMutation<
+    CheckoutSessionResponse,
+    Error,
+    CreatePlanSubscriptionCheckoutDto
+  >({
     mutationFn: createCheckoutSession,
-    mutationKey: paymentQueries.createCheckoutSession.Key,
+    mutationKey: [...paymentQueries.createCheckoutSession.Key, "subscription"],
+  });
+};
+
+export const useCreatePlanOneTimeCheckout = () => {
+  return useMutation<
+    CheckoutSessionResponse,
+    Error,
+    CreatePlanOneTimeCheckoutDto
+  >({
+    mutationFn: createCheckoutSession,
+    mutationKey: [...paymentQueries.createCheckoutSession.Key, "plan-onetime"],
+  });
+};
+
+export const useCreateAdsCheckout = () => {
+  return useMutation<CheckoutSessionResponse, Error, CreateAdsCheckoutDto>({
+    mutationFn: createCheckoutSession,
+    mutationKey: [...paymentQueries.createCheckoutSession.Key, "ads"],
+  });
+};
+
+export const useCreateAddonCheckout = () => {
+  return useMutation<CheckoutSessionResponse, Error, CreateAddonCheckoutDto>({
+    mutationFn: createCheckoutSession,
+    mutationKey: [...paymentQueries.createCheckoutSession.Key, "addon"],
+  });
+};
+
+export const useCreateMultiAdsCheckout = () => {
+  return useMutation<CheckoutSessionResponse, Error, CreateAdsCheckoutDto>({
+    mutationFn: createCheckoutSession,
+    mutationKey: [...paymentQueries.createCheckoutSession.Key, "multi-ads"],
   });
 };
 

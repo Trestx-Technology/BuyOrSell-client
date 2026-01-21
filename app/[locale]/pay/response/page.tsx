@@ -6,14 +6,46 @@ import { Typography } from "@/components/typography";
 import { CheckCircle2, XCircle, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+import { useCompleteCheckoutSession } from "@/hooks/usePayments";
+import { useEffect } from "react";
+
 function ResponseContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const status = searchParams.get("status");
-  const error = searchParams.get("error");
-  const type = searchParams.get("type"); // e.g. PLAN or ADS
-  
-  if (status === "success") {
+  const sessionId = searchParams.get("session_id");
+  const fallbackStatus = searchParams.get("status");
+  const fallbackError = searchParams.get("error");
+
+  // Verify session if ID exists
+  const { data, isLoading, isError, error } = useCompleteCheckoutSession(sessionId || "");
+
+  // Effect to handle automatic redirect or other side effects if needed
+  useEffect(() => {
+    if (data?.status === "complete" || data?.status === "paid") {
+      const timer = setTimeout(() => {
+        router.push("/");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [data, router]);
+
+  // 1. Loading State (Verifying)
+  if (sessionId && isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <Loader2 className="w-12 h-12 animate-spin text-purple-600 mb-4" />
+        <Typography variant="h3" className="mb-2 font-bold text-gray-900">
+          Verifying Payment...
+        </Typography>
+        <p className="text-gray-500">
+          Please wait while we confirm your transaction.
+        </p>
+      </div>
+    );
+  }
+
+  // 2. Success State (Verified via API)
+  if (sessionId && data && (data.status === "complete" || data.status === "paid")) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-300">
         <div className="bg-green-100 p-4 rounded-full mb-4">
@@ -23,17 +55,13 @@ function ResponseContent() {
           Payment Successful!
         </Typography>
         <p className="text-gray-500 mb-6">
-          Your payment has been processed successfully.
+          {data.message || "Your payment has been processed successfully."}
         </p>
         <div className="animate-pulse text-sm text-purple-600 font-medium mb-6">
-           You will be redirected automatically...
+          Redirecting to home in a few seconds...
         </div>
         <Button 
-            onClick={() => {
-                // Try to close webview or redirect to app scheme if needed
-                // For now just redirect to home
-                router.push("/");
-            }} 
+          onClick={() => router.push("/")} 
             className="w-full"
         >
             Return to Home
@@ -42,7 +70,10 @@ function ResponseContent() {
     );
   }
 
-  if (status === "failed") {
+  // 3. Failure State (API Error or URL param error)
+  if (isError || (sessionId && data && data.status !== "complete" && data.status !== "paid") || fallbackStatus === "failed") {
+    const errorMessage = error?.message || (data ? "Payment verification failed." : fallbackError) || "Something went wrong with your payment request.";
+
      return (
       <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-300">
         <div className="bg-red-100 p-4 rounded-full mb-4">
@@ -52,26 +83,24 @@ function ResponseContent() {
           Payment Failed
         </Typography>
         <p className="text-gray-500 mb-6 max-w-xs mx-auto">
-          {error || "Something went wrong with your payment request. Please try again."}
+           {errorMessage}
         </p>
-                 <Button onClick={() => router.back()} variant="filled" icon={
-                       <ArrowLeft className="w-4 h-4" />
-
-                 } iconPosition="center" className="w-full">
+         <Button onClick={() => router.push("/plans")} variant="filled" icon={
+           <ArrowLeft className="w-4 h-4" />
+         } iconPosition="center" className="w-full">
             Try Again
         </Button>
       </div>
     );
   }
 
-  // Default / Loading State
+  // Fallback / Initial State (if no session_id and no status param)
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh]">
         <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-        <p className="text-gray-500 mt-4">Verifying payment status...</p>
+      <p className="text-gray-500 mt-4">Initializing...</p>
     </div>
   );
-
 }
 
 export default function PaymentResponsePage() {
