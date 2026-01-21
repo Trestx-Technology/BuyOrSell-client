@@ -5,6 +5,8 @@ import CompaniesToFollow from "./_components/companies-to-follow";
 import JobsCTASection from "./_components/jobs-cta-section";
 import EmiratisSupport from "./_components/emiratis-support";
 import { Container1280 } from "@/components/layouts/container-1280";
+import LatestJobsSection from "./_components/latest-jobs-section";
+import FeaturedJobsSection from "./_components/featured-jobs-section";
 
 export default function JobsHomePage() {
   return (
@@ -25,16 +27,10 @@ export default function JobsHomePage() {
       {/* <JobsCTASection /> */}
 
       {/* Featured Jobs Section */}
-      {/* <FeaturedJobsSection
-        jobs={homeData?.featuredJobs?.jobs}
-        isLoading={isLoading}
-      /> */}
+      <FeaturedJobsSection />
 
       {/* Recent Jobs Section */}
-      {/* <LatestJobsSection
-        jobs={homeData?.latestJobs?.jobs}
-        isLoading={isLoading}
-      /> */}
+      <LatestJobsSection />
 
       {/* Emiratis Support Section */}
       <EmiratisSupport />

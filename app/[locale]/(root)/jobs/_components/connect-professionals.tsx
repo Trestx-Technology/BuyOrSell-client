@@ -118,9 +118,9 @@ export default function ConnectProfessionals({
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
     >
-      <div className="max-w-[1080px] mx-auto px-4">
+      <div className="max-w-[1080px] mx-auto space-y-8 px-4">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
           <JobsSectionTitle>Connect Professionals</JobsSectionTitle>
           <Link href="/jobs/jobseeker" className="group">
             <Typography
@@ -146,7 +146,7 @@ export default function ConnectProfessionals({
         </div>
 
         {/* Professionals Grid */}
-        <div className="flex flex-wrap gap-6 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
           {professionals.slice(0, 4).map((professional) => {
             // Get connection status from API response if available
             const profileItem = searchResponse?.data?.items?.find(
@@ -170,10 +170,6 @@ export default function ConnectProfessionals({
               professional.userId === currentUserId;
 
             return (
-              <motion.div
-                key={professional._id}
-                variants={itemVariants}
-              >
                 <ProfessionalCard
                   professional={professional}
                   onConnect={handleConnect}
@@ -185,8 +181,7 @@ export default function ConnectProfessionals({
                       | "REJECTED"
                       | "APPROVED"
                   }
-                />
-              </motion.div>
+              />
             );
           })}
         </div>

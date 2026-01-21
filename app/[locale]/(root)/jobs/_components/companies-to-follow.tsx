@@ -135,13 +135,8 @@ export default function CompaniesToFollow({
           </div>
 
           {/* Organizations Grid */}
-          <div className="flex gap-5 justify-start w-full">
+          <div className="flex flex-wrap gap-5 justify-start w-full">
             {organizations.slice(0, limit).map((organization) => (
-              <motion.div
-                key={organization._id}
-                variants={itemVariants}
-                className="w-full max-w-[256px]"
-              >
                 <EmployerCard
                   logo={organization.logoUrl || ""}
                   name={organization.tradeName || organization.legalName}
@@ -153,8 +148,7 @@ export default function CompaniesToFollow({
                   onWishlist={() => handleWishlist(organization._id)}
                   isFollowing={organization.isFollowing || false}
                   isWishlisted={wishlistedEmployers.has(organization._id)}
-                />
-              </motion.div>
+              />
             ))}
           </div>
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Typography } from "@/components/typography";
+import { Display3, H2, Typography } from "@/components/typography";
 
 interface JobsSectionTitleProps {
   children: React.ReactNode;
@@ -13,12 +13,11 @@ export default function JobsSectionTitle({
   className = "",
 }: JobsSectionTitleProps) {
   return (
-    <Typography
-      variant="h2"
-      className={`text-dark-blue font-bold text-3xl mb-3 ${className}`}
+    <H2
+      className={`text-dark-blue font-bold  mb-3 ${className}`}
     >
       {children}
-    </Typography>
+    </H2>
   );
 }
 

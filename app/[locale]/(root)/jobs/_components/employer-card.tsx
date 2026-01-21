@@ -48,7 +48,7 @@ export function EmployerCard({
   };
 
   return (
-    <div className="w-full rounded-3xl bg-gradient-to-br from-purple-100 to-purple-50 py-2 px-4 shadow-lg relative">
+    <div className=" w-full sm:w-[240px] rounded-3xl bg-gradient-to-br from-purple-100 to-purple-50 py-2 px-4 shadow-lg relative">
       {/* Header with Logo and Wishlist */}
       <div className="flex items-center justify-between">
         <div className="size-[32px] rounded-lg">

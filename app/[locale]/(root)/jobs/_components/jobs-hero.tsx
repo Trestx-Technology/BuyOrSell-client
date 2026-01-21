@@ -1,6 +1,6 @@
 "use client";
 
-import { Typography } from "@/components/typography";
+import { Display2, Typography } from "@/components/typography";
 import CandidateSearchBar from "./candidate-search-bar";
 
 export default function JobsHero() {
@@ -20,12 +20,11 @@ export default function JobsHero() {
           {/* Text Section */}
           <div className="flex flex-col items-center gap-[53.33px]">
             <div className="flex flex-col gap-[10.67px] items-center">
-              <Typography
-                variant="h1"
-                className="text-white text-center font-bold text-[62.22px] leading-[1.14]"
+              <Display2
+                className="text-white text-center font-bold leading-[1.14]"
               >
                 Find Your Dream Job Today!
-              </Typography>
+              </Display2>
               <Typography
                 variant="body-large"
                 className="text-white/80 text-center font-medium text-base max-w-full"

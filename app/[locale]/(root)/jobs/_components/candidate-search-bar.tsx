@@ -1,76 +1,181 @@
-'use client';
-
 import React, { useState } from 'react';
-import { MapPin, Search } from 'lucide-react';
+import { Loader2, MapPin, Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "next/navigation";
+import { Popover, PopoverContent, PopoverAnchor } from "@/components/ui/popover";
+import { useEmirates } from "@/hooks/useLocations";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { useAds } from "@/hooks/useAds";
+import { useSearchJobseekerProfiles } from "@/hooks/useJobseeker";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CandidateSearchBar() {
-      const [candidate, setCandidate] = useState('');
-      const [jobTitle, setJobTitle] = useState('');
+      const [searchType, setSearchType] = useState('job');
+      const [searchQuery, setSearchQuery] = useState('');
       const [location, setLocation] = useState('');
+      const [openLocation, setOpenLocation] = useState(false);
+      const [openSearch, setOpenSearch] = useState(false);
       const { t } = useLocale();
 
+      // Debounce inputs
+      const [inputLocation, setInputLocation] = useDebouncedValue(location, setLocation, 500);
+      const [inputSearch, setInputSearch] = useDebouncedValue(searchQuery, setSearchQuery, 500);
+
       const router = useRouter();
-      // TODO: `candidate` state from dropdown might map to a filter, e.g. role or category. 
-      // For now, we'll mostly use jobTitle and location for search.
+
+      // 1. Fetch Location Suggestions
+      const { data: emirates } = useEmirates(location ? { search: location } : undefined);
+
+      // 2. Fetch Search Suggestions (Jobs or Candidates)
+      const { data: jobSuggestions, isPending: jobSuggestionsPending } = useAds(
+            searchType === 'job' && searchQuery ? { search: searchQuery, limit: 10, adType: "JOB" } : undefined
+      );
+
+      const { data: candidateSuggestions, isPending: candidateSuggestionsPending } = useSearchJobseekerProfiles(
+            searchType !== 'job' && searchQuery ? { q: searchQuery, limit: 10 } : undefined
+      );
+
+      const isLoading = jobSuggestionsPending || candidateSuggestionsPending;
 
       const handleSearch = (e: React.FormEvent) => {
             e.preventDefault();
 
             const params = new URLSearchParams();
-            params.set("type", "candidate");
-            if (jobTitle) params.set("query", jobTitle);
-            if (location) params.set("location", location);
-            if (candidate) params.set("role", candidate); // Assuming selection is role/category
+            if (inputLocation) params.set("location", inputLocation);
 
-            router.push(`/jobs/jobseeker?${params.toString()}`);
+            if (searchType === 'job') {
+                  if (inputSearch) params.set("search", inputSearch);
+                  router.push(`/jobs/listing?${params.toString()}`);
+            } else {
+            // Candidate/Applicant search
+                  params.set("type", "candidate");
+                  if (inputSearch) params.set("query", inputSearch); // or 'name' depending on target page logic
+                  if (searchType && searchType !== 'applicant') params.set("role", searchType); // if specialized role selected
+
+                  router.push(`/jobs/jobseeker?${params.toString()}`);
+            }
       };
+
+      const suggestions = searchType === 'job'
+            ? (jobSuggestions?.data as any)?.ads?.map((j: any) => ({ label: j.title, value: j.title }))
+            : candidateSuggestions?.data?.items?.map((c: any) => ({ label: `${c.firstName} ${c.lastName}`, value: `${c.firstName} ${c.lastName}` }));
 
       return (
             <form onSubmit={handleSearch} className="w-full max-w-[1080px]">
-                  <div className="flex flex-col md:flex-row items-center gap-0 bg-white rounded-[14.22px] overflow-hidden shadow-lg">
+                  <div className="flex flex-col lg:flex-row items-center gap-3 lg:gap-0 lg:bg-white lg:rounded-[14.22px] lg:overflow-hidden lg:shadow-lg">
 
-                        {/* Candidate Dropdown */}
-                        <div className="flex items-center justify-start h-10 px-4 border-r-0 sm:border-r border-[rgba(199,199,199,0.6)] min-w-[188px] flex-1 md:flex-none">
+                        {/* Search Type Dropdown */}
+                        <div className="flex items-center justify-start h-12 lg:h-10 px-4 lg:border-r border-[rgba(199,199,199,0.6)] min-w-[150px] w-full lg:w-auto flex-none lg:flex-1 bg-white rounded-[14.22px] lg:bg-transparent lg:rounded-none shadow-sm lg:shadow-none">
                               <Select
-                                    value={candidate}
-                                    onValueChange={setCandidate}
+                                    value={searchType}
+                                    onValueChange={setSearchType}
                               >
-                                    <SelectTrigger className="border-0 rounded-none h-[71.11px] px-0 text-[14.22px] focus:ring-0 bg-transparent hover:bg-transparent text-[#8A8A8A] w-full">
-                                          <SelectValue placeholder="Candidate" />
+                                    <SelectTrigger className="border-0 rounded-none h-full lg:h-[71.11px] px-0 text-[14.22px] focus:ring-0 bg-transparent hover:bg-transparent text-[#8A8A8A] w-full">
+                                          <SelectValue placeholder="Type" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                          <SelectItem value="candidate1">Senior Developer</SelectItem>
-                                          <SelectItem value="candidate2">Product Manager</SelectItem>
-                                          <SelectItem value="candidate3">Designer</SelectItem>
+                                          <SelectItem value="job">Find a Job</SelectItem>
+                                          <SelectItem value="applicant">Find Candidates</SelectItem>
                                     </SelectContent>
                               </Select>
                         </div>
 
-                        {/* Job Title Input */}
-                        <div className="flex-1 w-full lg:max-w-[250px] flex items-center h-10 px-4 border-r-0 sm:border-r border-[rgba(199,199,199,0.6)]">
-                              <input
-                                    type="text"
-                                    placeholder="Job Title"
-                                    value={jobTitle}
-                                    onChange={(e) => setJobTitle(e.target.value)}
-                                    className="w-full border-0 focus:outline-none focus:ring-0 bg-transparent text-[14.22px] placeholder:text-[#8A8A8A] text-[#1D2939] font-medium h-full py-4"
-                              />
+                        {/* Search Query Input (Auto-complete) */}
+                        <div className="flex-1 w-full lg:w-auto lg:max-w-[350px] flex items-center h-[72px] lg:h-10 px-4 lg:border-r border-[rgba(199,199,199,0.6)] relative bg-white rounded-[14.22px] lg:bg-transparent lg:rounded-none shadow-sm lg:shadow-none">
+                              <Popover open={openSearch && !!inputSearch} onOpenChange={setOpenSearch}>
+                                    <PopoverAnchor asChild>
+                                          <>
+                                                <input
+                                                      type="text"
+                                                      placeholder={searchType === 'job' ? "Job Title, Keywords..." : "Candidate Name, Skills..."}
+                                                      value={inputSearch}
+                                                      onChange={(e) => {
+                                                            setInputSearch(e.target.value);
+                                                            setOpenSearch(true);
+                                                      }}
+                                                      onFocus={() => setOpenSearch(true)}
+                                                      className="w-full border-0 focus:outline-none focus:ring-0 bg-transparent text-[14.22px] placeholder:text-[#8A8A8A] text-[#1D2939] font-medium h-full py-4"
+                                                />
+                                                {(candidateSuggestionsPending || jobSuggestionsPending) && <Loader2 className="absolute right-3 text-purple top-1/2 -translate-y-1/2 animate-spin" />}
+                                          </>
+                                    </PopoverAnchor>
+                                    <PopoverContent
+                                          className="p-1 w-[200px] sm:w-[300px]"
+                                          align="start"
+                                          onOpenAutoFocus={(e) => e.preventDefault()}
+                                    >
+                                          <div className="flex flex-col max-h-[200px] overflow-y-auto">
+                                                {isLoading ? (
+                                                      Array.from({ length: 3 }).map((_, i) => (
+                                                            <div key={i} className="px-3 py-2">
+                                                                  <Skeleton className="h-4 w-full" />
+                                                            </div>
+                                                      ))
+                                                ) : suggestions?.length > 0 ? (
+                                                      suggestions?.map((item: any, idx: number) => (
+                                                            <button
+                                                                  key={idx}
+                                                                  type="button"
+                                                                  className="text-left px-3 py-2 hover:bg-gray-100 rounded-sm text-sm"
+                                                                  onClick={() => {
+                                                                        setInputSearch(item.value);
+                                                                        setOpenSearch(false);
+                                                                  }}
+                                                            >
+                                                                  {item.label}
+                                                            </button>
+                                                      ))
+                                                ) : (
+                                                      <div className="px-3 py-4 text-center text-sm text-gray-500">
+                                                            No results found
+                                                      </div>
+                                                )}
+                                          </div>
+                                    </PopoverContent>
+                              </Popover>
                         </div>
 
-                        {/* Location Input */}
-                        <div className="flex-1 border w-full flex items-center pl-4 relative">
-                              <MapPin className="size-10 text-purple mr-2" />
-                              <input
-                                    type="text"
-                                    placeholder="Enter Location"
-                                    value={location}
-                                    onChange={(e) => setLocation(e.target.value)}
-                                    className="w-full border-0 focus:outline-none focus:ring-0 bg-transparent text-[14.22px] placeholder:text-[#8A8A8A] text-[#1D2939] font-medium h-full py-4"
-                              />
+                        {/* Location Input (Auto-complete) */}
+                        <div className="flex-1 w-full lg:w-auto flex items-center pl-4 relative bg-white rounded-[14.22px] lg:bg-transparent lg:rounded-none shadow-sm lg:shadow-none h-[72px] lg:h-auto">
+                              <MapPin className="size-5 lg:size-10 text-purple mr-2" />
+                              <Popover open={openLocation && (emirates?.length || 0) > 0} onOpenChange={setOpenLocation}>
+                                    <PopoverAnchor asChild>
+                                          <input
+                                                type="text"
+                                                placeholder="City, Emirates..."
+                                                value={inputLocation}
+                                                onChange={(e) => {
+                                                      setInputLocation(e.target.value);
+                                                      setOpenLocation(true);
+                                                }}
+                                                onFocus={() => setOpenLocation(true)}
+                                                className="w-fit border-0 focus:outline-none focus:ring-0 bg-transparent text-[14.22px] placeholder:text-[#8A8A8A] text-[#1D2939] font-medium h-full py-4"
+                                          />
+                                    </PopoverAnchor>
+                                    <PopoverContent
+                                          className="p-1 w-[200px] sm:w-[300px]"
+                                          align="start"
+                                          onOpenAutoFocus={(e) => e.preventDefault()}
+                                    >
+                                          <div className="flex flex-col max-h-[200px] overflow-y-auto">
+                                                {emirates?.map((item, idx) => (
+                                                      <button
+                                                            key={idx}
+                                                            type="button"
+                                                            className="text-left px-3 py-2 hover:bg-gray-100 rounded-sm text-sm"
+                                                            onClick={() => {
+                                                                  setInputLocation(item.emirate);
+                                                                  setOpenLocation(false);
+                                                            }}
+                                                      >
+                                                            {item.emirate}
+                                                      </button>
+                                                ))}
+                                          </div>
+                                    </PopoverContent>
+                              </Popover>
                               <Button
                                     icon={
                                           <Search className="w-5 h-5 -mr-2" />
@@ -78,7 +183,7 @@ export default function CandidateSearchBar() {
                                     }
                                     iconPosition='center'
                                     type="submit"
-                                    className="hidden md:flex bg-purple hover:bg-purple/90 text-white rounded-none w-full p-5 h-full"
+                                    className="hidden lg:flex bg-purple hover:bg-purple/90 text-white rounded-none w-full p-5 h-full"
                               >
                                     Search
                               </Button>
@@ -87,11 +192,11 @@ export default function CandidateSearchBar() {
                         {/* Mobile Search Button */}
                         <Button
                               type="submit"
-                              className="md:hidden w-full bg-purple hover:bg-purple/90 text-white rounded-none h-[60px]"
+                              className="lg:hidden w-full bg-purple hover:bg-purple/90 text-white rounded-[14.22px] h-[60px]"
                               icon={<Search className="w-5 h-5 -mr-2" />}
                               iconPosition='center'
                         >
-                              Search Candidate
+                              Search
                         </Button>
 
                   </div>

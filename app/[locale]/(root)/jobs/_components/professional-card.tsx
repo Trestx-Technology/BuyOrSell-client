@@ -82,8 +82,10 @@ export default function ProfessionalCard({
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      className="bg-white w-full rounded-2xl p-6 hover:shadow-xl border border-[#E2E2E2] transition-all duration-300 flex flex-col items-center gap-4 group max-w-[240px] relative"
+      className="bg-white w-full flex flex-col items-center gap-4 rounded-2xl p-6 hover:shadow-xl border border-[#E2E2E2] transition-all duration-300"
     >
+      <div className=" flex-1 flex flex-col items-center gap-4 group rounded-2xl relative">
+
       {/* Profile Picture */}
       <div className="relative">
         <div className="size-24 bg-gradient-to-br from-purple/20 to-purple/10 rounded-full flex items-center justify-center overflow-hidden border-4 border-white shadow-lg ring-2 ring-purple/10 group-hover:ring-purple/20 transition-all">
@@ -107,21 +109,19 @@ export default function ProfessionalCard({
       <Link
         href={`/jobs/jobseeker/${_id}?type=profileVisit`}
         className="text-center absolute inset-0 z-10"
-      ></Link>
-      <div className="text-center">
+        ></Link>
         <Typography
           variant="h3"
-          className="line-clamp-1 text-dark-blue font-bold text-lg text-center group-hover:text-purple transition-colors cursor-pointer"
+          className="line-clamp-2 max-w-[220px] text-dark-blue font-bold text-lg text-center group-hover:text-purple transition-colors cursor-pointer"
         >
           {name}
         </Typography>
-      </div>
 
       {/* Headline */}
       {headline && (
         <Typography
           variant="body-small"
-          className="text-grey-blue text-sm text-center line-clamp-1"
+            className="text-grey-blue line-clamp-2 max-w-[220px] text-sm text-center line-clamp-1"
         >
           {headline}
         </Typography>
@@ -160,6 +160,7 @@ export default function ProfessionalCard({
           experience
         </Typography>
       )}
+      </div>
 
       {/* Connect Button */}
       <Button
@@ -197,6 +198,7 @@ export default function ProfessionalCard({
           ? "Send Request"
           : "Connect"}
       </Button>
+
     </motion.div>
   );
 }

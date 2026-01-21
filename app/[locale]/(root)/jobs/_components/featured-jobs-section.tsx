@@ -8,18 +8,16 @@ import { JobData } from "@/interfaces/job.types";
 import { transformJobDataToJobCard } from "@/utils/transform-job-data-to-job-card";
 import JobsSectionTitle from "@/app/[locale]/(root)/jobs/_components/jobs-section-title";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAds } from "@/hooks/useAds";
 
-interface FeaturedJobsSectionProps {
-  jobs?: JobData[];
-  isLoading?: boolean;
-}
+export default function FeaturedJobsSection() {
+  const { data, isPending: isLoading } = useAds({
+    adType: "JOB",
+    isFeatured: true,
+    limit: 10
+  });
 
-export default function FeaturedJobsSection({ 
-  jobs: jobsProp, 
-  isLoading: isLoadingProp 
-}: FeaturedJobsSectionProps = {}) {
-  const jobs = jobsProp || [];
-  const isLoading = isLoadingProp ?? false;
+  const jobs = (data as any)?.ads || [];
 
   if (isLoading) {
     return (
@@ -48,7 +46,7 @@ export default function FeaturedJobsSection({
         <div className=" py-8">
           {/* Header */}
           <div className="flex justify-between items-center gap-[35.56px] w-full">
-            <JobsSectionTitle>Recent Jobs</JobsSectionTitle>
+            <JobsSectionTitle>Featured Jobs</JobsSectionTitle>
             <Link href="/jobs/listing">
               <Typography
                 variant="body-large"

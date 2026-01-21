@@ -8,18 +8,17 @@ import { JobData } from "@/interfaces/job.types";
 import { transformJobDataToJobCard } from "@/utils/transform-job-data-to-job-card";
 import JobsSectionTitle from "@/app/[locale]/(root)/jobs/_components/jobs-section-title";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAds } from "@/hooks/useAds";
 
-interface LatestJobsSectionProps {
-  jobs?: JobData[];
-  isLoading?: boolean;
-}
+export default function LatestJobsSection() {
+  const { data, isPending: isLoading } = useAds({
+    adType: "JOB",
+    limit: 10,
+    sortBy: "createdAt",
+    sortOrder: "desc"
+  });
 
-export default function LatestJobsSection({ 
-  jobs: jobsProp, 
-  isLoading: isLoadingProp 
-}: LatestJobsSectionProps = {}) {
-  const jobs = jobsProp || [];
-  const isLoading = isLoadingProp ?? false;
+  const jobs = (data as any)?.ads || [];
 
   if (isLoading) {
     return (
