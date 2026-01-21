@@ -33,7 +33,7 @@ import { calculatePasswordStrength } from "@/utils/password-strength";
 import { createSignupSchema, countryCodes, type SignupFormData } from "@/schemas/signup.schema";
 import { useLocale } from "@/hooks/useLocale";
 import Image from "next/image";
-import { getFCMToken } from "@/lib/firebase/config";
+import { firebase } from "@/lib/firebase/config";
 
 const Signup = () => {
   const { localePath, t } = useLocale();
@@ -119,7 +119,7 @@ const Signup = () => {
       const firstName = nameParts[0] || "";
       const lastName = nameParts.slice(1).join(" ") || nameParts[0] || "";
 
-      const deviceToken = await getFCMToken();
+      const deviceToken = await firebase.getFCMToken();
 
       const response = await signUpMutation.mutateAsync({
         firstName: firstName,
