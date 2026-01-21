@@ -22,6 +22,7 @@ import {
   SideMenuItem,
 } from "@/constants/navigation.constants";
 import { useRouter } from "nextjs-toploader/app";
+import { ICONS } from "@/constants/icons";
 
 interface SideMenuProps {
   trigger: React.ReactNode;
@@ -308,7 +309,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                       {user.email}
                     </Typography>
                   </div>
-                  {user.isVerified && (
+                  {!user.isVerified ? (
                     <Button
                       variant="outline"
                       size="sm"
@@ -316,7 +317,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                     >
                       Verify Account
                     </Button>
-                  )}
+                  ) : <Image src={ICONS.auth.verified} alt="Verified" width={20} height={20} />}
                 </div>
                 <SheetTrigger asChild>
                   <Button
@@ -353,7 +354,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                   "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/profile.svg"
                 }
                 label="Profile"
-                href="/profile"
+                  href="/user/profile"
               />
             )}
           </div>

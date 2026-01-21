@@ -517,7 +517,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
       className={cn("relative md:bg-purple animate-fade-in", className)}
     >
       <div className="max-w-[1080px] mx-auto px-4 xl:px-0">
-        <nav className={cn("flex items-center justify-between py-1 w-full")}>
+        <nav className={cn("flex items-center bg-white sm:bg-transparent justify-between py-1 w-full")}>
           {categoriesError ? (
             <div className="hidden md:flex flex-1 items-center justify-center">
               <Typography variant="sm-regular" className="text-red-500">
@@ -652,12 +652,12 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                       <Button
                         icon={<MapPin className="w-4 h-4 -mr-3" />}
                         iconPosition="center"
-                        className="hover:bg-white hover:text-purple py-5 md:py-4"
+                          className={cn("hidden sm:flex", "text-purple py-5 md:py-4")}
                         variant={isMobile ? "filled" : "outline"}
                         size="sm"
                         onClick={() => router.push("/map-view")}
                       >
-                        Map View
+                          <span className="hidden sm:block">Map View</span>
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>

@@ -215,6 +215,18 @@ export const SIDE_MENU_ACTIVITY_ITEMS: SideMenuItem[] = [
     href: "/user/search-history",
   },
   {
+    id: "my-chats",
+    label: "My Chats",
+    icon: ICONS.ui.chat,
+    href: "/chats",
+  },
+  {
+    id: "view-on-map",
+    label: "View on Map",
+    icon: ICONS.ui.Map,
+    href: "/map-view",
+  },
+  {
     id: "my-ads",
     label: "My Ads",
     icon: ICONS.navigation.myAds,
@@ -242,7 +254,7 @@ export const SIDE_MENU_ACTIVITY_ITEMS: SideMenuItem[] = [
     id: "offers-packages",
     label: "Offers & Packages",
     icon: ICONS.navigation.offersPackages,
-    href: "/user/offers",
+    href: "/plans",
   },
   {
     id: "settings",

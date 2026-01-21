@@ -28,6 +28,7 @@ export const UI_ICONS = {
   fallback: `/assets/fallback.png`,
   company: `/assets/company.png`,
   Map: `${S3_BASE_URL}/icons/location.png`,
+  chat: `${S3_BASE_URL}/icons/chat.png`,
 } as const;
 
 // ============================================================================
