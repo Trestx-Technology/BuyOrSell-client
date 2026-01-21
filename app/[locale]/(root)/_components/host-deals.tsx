@@ -29,6 +29,9 @@ export default function HostDeals({
 }: HostDealsProps) {
   const { t, locale } = useLocale();
 
+  // Move hook to top level
+  const { ref, isVisible } = useIntersectionObserver({ threshold: 0.1, rootMargin: "-50px" });
+
   // Simple mapper function to transform API ad to component props
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapAdToCardProps = (ad: any): HotDealsListingCardProps => {
@@ -82,7 +85,7 @@ export default function HostDeals({
   // Transform and filter deal ads from categoryTreeWithDealAds
   const transformedAdsByCategory = useMemo(() => {
     if (!categoryTreeWithDealAds || categoryTreeWithDealAds.length === 0) {
-      return {};
+      return {} as Record<string, HotDealsListingCardProps[]>;
     }
 
     const adsByCategory: Record<string, HotDealsListingCardProps[]> = {};
@@ -99,6 +102,7 @@ export default function HostDeals({
     });
 
     return adsByCategory;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryTreeWithDealAds, locale, t]);
 
   // Get category names for tabs
@@ -168,58 +172,10 @@ export default function HostDeals({
     return biggestDeal.dealValidThru || biggestDeal.dealValidThrough || null;
   }, [categoryTreeWithDealAds]);
 
-  // Main timer state
-  const [mainTimer, setMainTimer] = useState<string>("");
-
-  // Update main timer
-  useEffect(() => {
-    if (!biggestDealValidity) {
-      setMainTimer("");
-      return;
-    }
-
-    const updateTimer = () => {
-      const now = new Date().getTime();
-      const end = new Date(biggestDealValidity).getTime();
-      const distance = end - now;
-
-      if (distance > 0) {
-        const totalSeconds = Math.floor(distance / 1000);
-        const totalMinutes = Math.floor(totalSeconds / 60);
-        const totalHours = Math.floor(totalMinutes / 60);
-        const days = Math.floor(totalHours / 24);
-        const hours = totalHours % 24;
-        const minutes = totalMinutes % 60;
-
-        // Format based on remaining time for better readability
-        let timeString = "";
-        if (days > 0) {
-          // Show days and hours (e.g., "5d 12h remaining")
-          timeString = `${days}d ${hours}h remaining`;
-        } else if (totalHours > 0) {
-          // Show hours and minutes (e.g., "12h 30m remaining")
-          timeString = `${totalHours}h ${minutes}m remaining`;
-        } else {
-          // Show minutes only (e.g., "30m remaining")
-          timeString = `${totalMinutes}m remaining`;
-        }
-        setMainTimer(timeString);
-      } else {
-        setMainTimer("EXPIRED");
-      }
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [biggestDealValidity]);
-
   // Don't render if no categories
   if (!isLoading && categories.length === 0) {
     return null;
   }
-
-  const { ref, isVisible } = useIntersectionObserver({ threshold: 0.1, rootMargin: "-50px" });
 
   return (
     <section
@@ -245,17 +201,7 @@ export default function HostDeals({
             </Typography>
 
             {/* Main Timer */}
-            {mainTimer && (
-              <div className="bg-white rounded px-2 py-1 flex items-center gap-1">
-                <Clock className="w-4 h-4 text-red-500" />
-                <Typography
-                  variant="xs-black-inter"
-                  className="text-error-100 text-sm font-medium"
-                >
-                  {mainTimer}
-                </Typography>
-              </div>
-            )}
+            <DealTimer validThrough={biggestDealValidity} />
           </div>
         </div>
 
@@ -354,5 +300,65 @@ export default function HostDeals({
         </div>
       </div>
     </section>
+  );
+}
+
+function DealTimer({ validThrough }: { validThrough: string | null | Date }) {
+  const [timeLeft, setTimeLeft] = useState("");
+
+  useEffect(() => {
+    if (!validThrough) {
+      setTimeLeft("");
+      return;
+    }
+
+    const updateTimer = () => {
+      const now = new Date().getTime();
+      const end = new Date(validThrough).getTime();
+      const distance = end - now;
+
+      if (distance > 0) {
+        const totalSeconds = Math.floor(distance / 1000);
+        const totalMinutes = Math.floor(totalSeconds / 60);
+        const totalHours = Math.floor(totalMinutes / 60);
+        const days = Math.floor(totalHours / 24);
+        const hours = totalHours % 24;
+        const minutes = totalMinutes % 60;
+
+        // Format based on remaining time for better readability
+        let timeString = "";
+        if (days > 0) {
+          // Show days and hours (e.g., "5d 12h remaining")
+          timeString = `${days}d ${hours}h remaining`;
+        } else if (totalHours > 0) {
+          // Show hours and minutes (e.g., "12h 30m remaining")
+          timeString = `${totalHours}h ${minutes}m remaining`;
+        } else {
+          // Show minutes only (e.g., "30m remaining")
+          timeString = `${totalMinutes}m remaining`;
+        }
+        setTimeLeft(timeString);
+      } else {
+        setTimeLeft("EXPIRED");
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [validThrough]);
+
+  if (!timeLeft) return null;
+
+  return (
+    <div className="bg-white rounded px-2 py-1 flex items-center gap-1">
+      <Clock className="w-4 h-4 text-red-500" />
+      <Typography
+        variant="xs-black-inter"
+        className="text-error-100 text-sm font-medium"
+      >
+        {timeLeft}
+      </Typography>
+    </div>
   );
 }

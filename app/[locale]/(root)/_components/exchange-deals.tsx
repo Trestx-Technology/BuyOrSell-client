@@ -303,10 +303,7 @@ export default function ExchangeDeals({
                               return (
                                 <div
                                   key={ad.id}
-                                  className="flex gap-4 transition-all duration-300"
-                                  style={{
-                                    transitionDelay: `${index * 50}ms`
-                                  }}
+                                  className="flex gap-4"
                                 >
                                   <ListingCard {...ad} showSocials={true} />
                                 </div>
