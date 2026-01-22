@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Typography } from "@/components/typography";
 import { CheckCircle2, XCircle, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { useEffect } from "react";
 function ResponseContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
   const sessionId = searchParams.get("session_id");
 
   // Verify session if ID exists
@@ -20,13 +21,22 @@ function ResponseContent() {
   // Effect to handle automatic redirect or other side effects if needed
   useEffect(() => {
     console.log("data", data);
+
+    if (data?.data?.status) {
+      const params = new URLSearchParams(searchParams.toString());
+      if (params.get("status") !== data.data.status) {
+        params.set("status", data.data.status);
+        router.replace(`${pathname}?${params.toString()}`);
+      }
+    }
+
     if (data?.data?.status === "succeeded") {
       const timer = setTimeout(() => {
         router.push("/");
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [data, router]);
+  }, [data, router, pathname, searchParams]);
 
   // 1. Loading State (Verifying)
   if (sessionId && isLoading) {
