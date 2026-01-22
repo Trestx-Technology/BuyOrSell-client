@@ -18,6 +18,7 @@ import {
 } from "@/app/api/saved-jobs/saved-jobs.services";
 import { savedJobsQueries } from "@/app/api/saved-jobs/index";
 import { adQueries } from "@/app/api/ad/index";
+import { useIsAuthenticated } from "./useAuth";
 
 // ============================================================================
 // SAVED JOBS QUERY HOOKS
@@ -40,10 +41,11 @@ export const useCheckSavedJob = (jobId: string, enabled?: boolean) => {
 };
 
 export const useGetSavedJobsCount = (enabled?: boolean) => {
+  const isAuthenticated = useIsAuthenticated();
   return useQuery<SavedJobsCountResponse, Error>({
     queryKey: savedJobsQueries.getSavedJobsCount.Key,
     queryFn: () => getSavedJobsCount(),
-    enabled: enabled !== false,
+    enabled: enabled !== false || isAuthenticated,
   });
 };
 
@@ -72,10 +74,11 @@ export const useGetMySavedJobs = (
   },
   enabled?: boolean
 ) => {
+  const isAuthenticated = useIsAuthenticated();
   return useQuery<SavedJobsListResponse, Error>({
     queryKey: [...savedJobsQueries.getMySavedJobs.Key, params],
     queryFn: () => getMySavedJobs(params),
-    enabled: enabled !== false,
+    enabled: enabled !== false || isAuthenticated,
   });
 };
 

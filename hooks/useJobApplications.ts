@@ -20,7 +20,7 @@ import {
   JobApplicantsListResponse,
 } from "@/interfaces/job.types";
 import { jobApplicationQueries } from "@/app/api/job-applications/index";
-
+import { useIsAuthenticated } from "./useAuth";
 // ============================================================================
 // JOB APPLICATIONS QUERY HOOKS
 // ============================================================================
@@ -46,9 +46,11 @@ export const useGetMyApplications = (params?: {
   limit?: number;
   status?: string;
 }) => {
+  const isAuthenticated = useIsAuthenticated();
   return useQuery<JobApplicationsResponse, Error>({
     queryKey: [...jobApplicationQueries.getMyApplications.Key, params],
     queryFn: () => getMyApplications(params),
+    enabled: isAuthenticated,
   });
 };
 

@@ -13,7 +13,8 @@ import type {
   BulkDeleteSearchHistoryResponse,
 } from "@/interfaces/search-history.types";
 import { searchHistoryQueries } from "@/app/api/search-history/index";
-import { useAuthStore } from "@/stores/authStore";
+  import { useAuthStore } from "@/stores/authStore";
+import { useIsAuthenticated } from "./useAuth";
 
 // ============================================================================
 // SEARCH HISTORY QUERY HOOKS
@@ -31,12 +32,12 @@ export const useGetSearchHistory = (
     enabled?: boolean;
   }
 ) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAuthenticated = useIsAuthenticated();
 
   return useQuery<SearchHistoryListResponse, Error>({
     queryKey: searchHistoryQueries.getSearchHistory(params).Key,
     queryFn: () => getSearchHistory(params),
-    enabled: isAuthenticated && (options?.enabled ?? true),
+    enabled: isAuthenticated || (options?.enabled ?? true),
   });
 };
 
@@ -105,7 +106,7 @@ export const useDeleteUserSearchHistory = () => {
  */
 export const useSaveSearchTerm = () => {
   const createMutation = useCreateSearchHistory();
-  const { session } = useAuthStore();
+  const session = useAuthStore((state) => state.session);
 
   const saveSearchTerm = (searchTerm: string) => {
     if (!session?.user?._id || !searchTerm.trim()) return;

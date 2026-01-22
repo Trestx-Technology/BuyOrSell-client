@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/stores/authStore";
 import { useMutation } from "@tanstack/react-query";
 import {
   signUp,
@@ -37,6 +38,10 @@ export const useLogin = () => {
 export const useChangePassword = () => {
   return useMutation<ChangePasswordResponse, Error, ChangePasswordPayload>({
     mutationFn: changePassword,
-    mutationKey: authQueries.changePassword.Key,
   });
+};
+
+export const useIsAuthenticated = () => {
+  const accessToken = useAuthStore((state) => state.session.accessToken);
+  return !!accessToken;
 };

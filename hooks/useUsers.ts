@@ -35,7 +35,7 @@ import {
   AssignRolePayload,
 } from "@/interfaces/user.types";
 import { userQueries } from "@/app/api/user/index";
-
+import { useIsAuthenticated } from "./useAuth";
 // ============================================================================
 // QUERY HOOKS
 // ============================================================================
@@ -60,9 +60,11 @@ export const useGetUserById = (id: string, options?: { enabled?: boolean }) => {
 };
 
 export const useGetProfile = () => {
+  const isAuthenticated = useIsAuthenticated();
   return useQuery<ProfileResponse, Error>({
     queryKey: userQueries.getProfile.Key,
     queryFn: () => getProfile(),
+    enabled: isAuthenticated,
   });
 };
 

@@ -15,6 +15,7 @@ import {
   UpdateSubscriptionPayload,
 } from "@/interfaces/subscription.types";
 import { subscriptionQueries } from "@/app/api/subscription/index";
+import { useIsAuthenticated } from "@/hooks/useAuth";
 
 // ============================================================================
 // SUBSCRIPTION QUERY HOOKS
@@ -24,9 +25,11 @@ export const useGetAllSubscriptions = (params?: {
   page?: number;
   limit?: number;
 }) => {
+  const isAuth = useIsAuthenticated();
   return useQuery<SubscriptionListResponse, Error>({
     queryKey: [...subscriptionQueries.getAllSubscriptions.Key, params],
     queryFn: () => getAllSubscriptions(params),
+    enabled: !!isAuth,
   });
 };
 

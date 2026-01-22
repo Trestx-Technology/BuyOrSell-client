@@ -10,15 +10,17 @@ import {
   UserSettingsResponse,
 } from "@/interfaces/user-settings.types";
 import { userSettingsQueries } from "@/app/api/user-settings/index";
-
+import { useIsAuthenticated } from "./useAuth";
 // ============================================================================
 // QUERY HOOKS
 // ============================================================================
 
 export const useGetUserSettings = (enabled: boolean = true) => {
+  const isAuthenticated = useIsAuthenticated();
   return useQuery<UserSettingsResponse, Error>({
     queryKey: [...userSettingsQueries.getUserSettings().Key],
     queryFn: () => getUserSettings(),
+    enabled: enabled || isAuthenticated,
   });
 };
 

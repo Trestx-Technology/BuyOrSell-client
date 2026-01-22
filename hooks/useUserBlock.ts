@@ -12,24 +12,26 @@ import {
   IsBlockedResponse,
 } from "@/interfaces/user-block.types";
 import { userBlockQueries } from "@/app/api/user-block/index";
-
+import { useIsAuthenticated } from "./useAuth";
 // ============================================================================
 // QUERY HOOKS
 // ============================================================================
 
 export const useGetBlockedUsers = (enabled: boolean = true) => {
+  const isAuthenticated = useIsAuthenticated();
   return useQuery<BlockedUsersListResponse, Error>({
     queryKey: [...userBlockQueries.getBlockedUsers.Key],
     queryFn: () => getBlockedUsers(),
-    enabled,
+    enabled: enabled || isAuthenticated,
   });
 };
 
 export const useIsBlocked = (id: string, enabled: boolean = true) => {
+  const isAuthenticated = useIsAuthenticated();
   return useQuery<IsBlockedResponse, Error>({
     queryKey: [...userBlockQueries.isBlocked(id).Key],
     queryFn: () => isBlocked(id),
-    enabled: enabled && !!id,
+    enabled: enabled && !!id || isAuthenticated,
   });
 };
 

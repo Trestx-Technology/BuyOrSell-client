@@ -16,7 +16,7 @@ import type {
   MarkNotificationsReadPayload,
 } from '@/interfaces/notifications.types';
 import { notificationsQueries } from '@/app/api/notifications/index';
-import { useAuthStore } from '@/stores/authStore';
+import { useIsAuthenticated } from './useAuth';
 
 // ============================================================================
 // NOTIFICATIONS QUERY HOOKS
@@ -34,8 +34,7 @@ export const useGetNotifications = (
     enabled?: boolean;
   }
 ) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-
+  const isAuthenticated = useIsAuthenticated();
   return useQuery<NotificationsListResponse, Error>({
     queryKey: notificationsQueries.getNotifications(params).Key,
     queryFn: () => getNotifications(params),

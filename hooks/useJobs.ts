@@ -34,6 +34,7 @@ import {
   JobHomeParams,
 } from '@/interfaces/job.types';
 import { jobQueries } from '@/app/api/job/index';
+import { useIsAuthenticated } from "./useAuth";
 
 // ============================================================================
 // JOB QUERY HOOKS
@@ -122,9 +123,11 @@ export const useGetMyJobs = (params?: {
   limit?: number;
   status?: 'live' | 'closed' | 'draft' | 'pending' | 'rejected';
 }) => {
+  const isAuthenticated = useIsAuthenticated();
   return useQuery<JobsListResponse, Error>({
     queryKey: [...jobQueries.getMyJobs.Key, params],
     queryFn: () => getMyJobs(params),
+    enabled: isAuthenticated,
   });
 };
 
