@@ -1,34 +1,25 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {
-  Eye,
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
-  Pencil,
-  MoreVertical,
-  Trash2,
-} from "lucide-react";
-import { ICONS } from "@/constants/icons";
+import { Pencil, Trash2, RefreshCw } from "lucide-react";
 import { Typography } from "@/components/typography";
 import Link from "next/link";
+import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 import { useLocale } from "@/hooks/useLocale";
-import { useDeleteAd } from "@/hooks/useAds";
-import { SpecificationsDisplay } from "@/components/global/specifications-display";
-import { getSpecifications } from "@/utils/normalize-extra-fields";
+import { useDeleteAd, useRenewAd } from "@/hooks/useAds";
 import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
 import { useRouter } from "nextjs-toploader/app";
-
-export interface FieldWithIcon {
-  name: string;
-  value: string | number | boolean | string[] | null;
-  icon?: string;
-}
+import { ProductExtraFields } from "@/interfaces/ad";
+import { getSpecifications } from "@/utils/normalize-extra-fields";
+import { ListingInfo } from "@/components/features/listing-card/listing-info";
+import { ListingImageGallery } from "@/components/features/listing-card/listing-image-gallery";
+import { Specification } from "@/components/global/specifications-display";
+import { cn } from "@/lib/utils";
 
 export interface MyAdCardProps {
   id: string;
@@ -39,18 +30,16 @@ export interface MyAdCardProps {
   currency?: string;
   location: string;
   images: string[];
-  extraFields?: FieldWithIcon[];
-  postedTime: string;
+  extraFields?: ProductExtraFields;
+  postedTime: string; // Keep for interface compatibility, though might not be used in actions
   views?: number;
   isPremium?: boolean;
-  isFavorite?: boolean;
-  onFavorite?: (id: string) => void;
-  onShare?: (id: string) => void;
-  onDelete?: (id: string) => void;
-  onClick?: (id: string) => void;
+  validity?: string;
   className?: string;
-  showSeller?: boolean;
-  showSocials?: boolean;
+  // Handlers
+  onFavorite?: (id: string) => void; // Kept for compatibility if passed
+  onShare?: (id: string) => void;
+  onClick?: (id: string) => void;
 }
 
 const MyAdCard: React.FC<MyAdCardProps> = ({
@@ -59,72 +48,46 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
   price,
   originalPrice,
   discount,
-  currency = "AED",
   location,
   images,
   extraFields = [],
-  postedTime,
   views = 0,
   isPremium = false,
-  onClick,
-  onDelete,
+  validity,
   className,
+  onClick,
 }) => {
-  const { t, } = useLocale();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const { t } = useLocale();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showRenewDialog, setShowRenewDialog] = useState(false);
+  const [renewDays, setRenewDays] = useState(30);
+
   const deleteAdMutation = useDeleteAd();
+  const { mutate: renewAd, isPending: isRenewing } = useRenewAd();
   const router = useRouter();
 
-  // Convert extraFields to specifications format
-  const specifications = useMemo(() => {
-    if (!extraFields || extraFields.length === 0) return [];
-    // Convert FieldWithIcon[] to ProductExtraFields format for getSpecifications
-    const productExtraFields = extraFields.map((field) => ({
-      name: field.name,
-      value: field.value,
-      icon: field.icon,
-      type: Array.isArray(field.value)
-        ? "checkboxes"
-        : typeof field.value === "boolean"
-        ? "bool"
-        : typeof field.value === "number"
-        ? "number"
-        : "string",
+  // Check Expiration
+  const isExpired = useMemo(() => {
+    if (!validity) return false;
+    return new Date(validity) < new Date();
+  }, [validity]);
+
+  // Dynamically extract specifications from extraFields
+  const specifications = useMemo((): Specification[] => {
+    const specsFromFields = getSpecifications(extraFields, 4);
+    return specsFromFields.map((spec) => ({
+      name: spec.name,
+      value: spec.value,
+      icon: spec.icon,
     }));
-    return getSpecifications(productExtraFields);
   }, [extraFields]);
-
-  const handlePreviousImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isTransitioning) return;
-
-    setIsTransitioning(true);
-    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-
-    setTimeout(() => {
-      setIsTransitioning(false);
-    }, 500);
-  };
-
-  const handleNextImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isTransitioning) return;
-
-    setIsTransitioning(true);
-    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-
-    setTimeout(() => {
-      setIsTransitioning(false);
-    }, 500);
-  };
 
   const handleCardClick = () => {
     onClick?.(id);
   };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setShowDeleteConfirm(true);
   };
@@ -137,211 +100,110 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
     });
   };
 
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const handleEditClick = () => {
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     router.push(`/post-ad/edit/${id}`);
   };
 
+  const handleRenewClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowRenewDialog(true);
+  };
+
+  // Renew mutation handler
+  const onRenewSubmit = () => {
+    renewAd(
+      { id, days: Number(renewDays) },
+      {
+        onSuccess: () => {
+          setShowRenewDialog(false);
+        },
+      }
+    );
+  };
+
   return (
-    <div
-      className={`w-full overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
-    >
+    <>
       <div
-
-        className="p-0 relative">
-        {/* Image Section */}
-        <div className="relative aspect-[3/3] sm:aspect-[4/3] bg-primary w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
-          {images.length > 0 ? (
-            <div className="relative w-full h-full overflow-hidden">
-              <div
-                className="flex transition-transform duration-500 ease-in-out h-full"
-                style={{
-                  transform: `translateX(-${currentImageIndex * 100}%)`,
-                }}
-              >
-                {images.map((image, index) => (
-                  <div
-                    key={index}
-                    className="w-full h-full flex-shrink-0 relative"
-                  >
-                    <Image
-                      src={image}
-                      alt={`${title} - Image ${index + 1}`}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                ))}
+        className={cn(
+          "w-full overflow-hidden rounded-2xl bg-white shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer group relative flex flex-col",
+          className
+        )}
+        onClick={handleCardClick}
+      >
+        <Link href={`/ad/${id}`} className="absolute inset-0 z-10" />
+        <div className="p-0 flex flex-col h-full">
+          {/* Image Section */}
+          <div className="relative">
+            <ListingImageGallery
+              id={id}
+              title={title}
+              images={images}
+              isPremium={isPremium}
+              views={views}
+              isSaved={false} // My Ads typically don't need "save" functionality for self
+              onToggleSave={() => { }}
+              handleShare={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Implement share if needed
+              }}
+            />
+            {isExpired && (
+              <div className="absolute inset-0 bg-black/60 z-20 flex items-center justify-center">
+                <Badge variant="destructive" className="text-sm px-3 py-1">
+                  EXPIRED
+                </Badge>
               </div>
-            </div>
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-              <div className="text-center text-gray-400">
-                <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center mb-2 mx-auto">
-                  <span className="text-2xl">🚗</span>
-                </div>
-                <span className="text-sm">No Image</span>
-              </div>
-            </div>
-          )}
-
-          {isPremium && (
-            <div className="absolute top-3 left-3">
-              <Image
-                src={"/premium.svg"}
-                alt="Premium"
-                width={31}
-                height={31}
-              />
-            </div>
-          )}
-
-          <div className="absolute bottom-3 right-3">
-            <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
-              <Eye className="size-3 sm:size-5 text-white" />
-              <span className="text-[10px] sm:text-xs text-white font-medium">
-                {views}
-              </span>
-            </div>
-          </div>
-
-          {images.length > 1 && (
-            <div>
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={isTransitioning}
-                className={`absolute left-2 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity ${
-                  isTransitioning
-                    ? "opacity-50 cursor-not-allowed"
-                    : "opacity-100"
-                }`}
-                onClick={handlePreviousImage}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={isTransitioning}
-                className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity ${
-                  isTransitioning
-                    ? "opacity-50 cursor-not-allowed"
-                    : "opacity-100"
-                }`}
-                onClick={handleNextImage}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-
-          {images.length > 1 && (
-            <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1">
-              {images.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (isTransitioning || index === currentImageIndex) return;
-                    setIsTransitioning(true);
-                    setCurrentImageIndex(index);
-                    setTimeout(() => {
-                      setIsTransitioning(false);
-                    }, 500);
-                  }}
-                  disabled={isTransitioning || index === currentImageIndex}
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 cursor-pointer hover:scale-125 ${
-                    index === currentImageIndex
-                      ? "bg-white scale-125"
-                      : "bg-white/50 hover:bg-white/75"
-                  } ${isTransitioning ? "cursor-not-allowed" : ""}`}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <Link href={`/ad/${id}`} className="pt-2 space-y-3">
-          <div className="flex items-center gap-1 px-2.5">
-            <Image src={ICONS.currency.aed} alt="AED" width={16} height={16} />
-            <span className="text-md font-bold text-purple">
-              {formatPrice(price).replace("AED", "").trim()}
-            </span>
-            {originalPrice && (
-              <span className="text-md text-grey-blue line-through text-sm">
-                {formatPrice(originalPrice).replace("AED", "").trim()}
-              </span>
-            )}
-            {discount && (
-              <span className="text-md text-grey-blue text-sm text-teal font-semibold">
-                {discount}%
-              </span>
             )}
           </div>
 
-          <Typography
-            variant="h3"
-            className="text-sm font-semibold text-dark-blue leading-tight px-2.5 line-clamp-1"
-          >
-            {title}
-          </Typography>
+          {/* Info Section Using Shared Component */}
+          <ListingInfo
+            title={title}
+            price={price}
+            originalPrice={originalPrice}
+            discount={discount}
+            location={location}
+            specifications={specifications}
+          />
 
-          <div className="flex items-center gap-1 px-2.5">
-            <MapPin
-              size={22}
-              stroke="white"
-              className="-ml-1 fill-dark-blue text-[#667085]"
-            />
-            <Typography
-              variant="body-small"
-              className="text-xs text-[#667085] truncate"
-            >
-              {location}
-            </Typography>
-          </div>
-
-          {/* Dynamic Specs */}
-          {specifications.length > 0 && (
-            <SpecificationsDisplay
-              specifications={specifications}
-              maxVisible={4}
-              showPopover={false}
-              itemClassName="text-[#667085]"
-            />
-          )}
-          {/* TODO: Add ad status */}
-          <Badge className="mx-2 h-7 my-2 bg-success-100">Approved</Badge>
-
-        </Link>
-          <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-center justify-between">
+          {/* Actions Footer */}
+          <div className="mt-auto border-t border-gray-100 p-3 flex items-center justify-between gap-2 z-20 relative bg-white">
             <Button
-              icon={<Pencil className="-mr-2" />}
-              size={"icon-sm"}
-              className="px-2 text-xs"
-              iconPosition="left"
+              variant="outline"
+              size="sm"
+              className="h-8 px-2 text-xs"
             onClick={handleEditClick}
             >
             {t.user.profileEdit.editAd}
             </Button>
             <Button
-              icon={<Trash2 className="-mr-2" />}
-              size={"icon-sm"}
-              className="px-2 text-xs"
-              iconPosition="left"
-              variant={"danger"}
+              variant="danger"
+              size="sm"
+              className="h-8 px-2 text-xs bg-red-50 text-red-600 hover:bg-red-100 border-red-100"
               onClick={handleDeleteClick}
               disabled={deleteAdMutation.isPending}
             >
               {t.user.profileEdit.deleteAd}
           </Button>
+            {/* Renew Action - Show if expired or valid */}
+            {isExpired && <Button
+              size="sm"
+              className={cn(
+                "h-8 px-2 text-xs",
+                isExpired
+                  ? "bg-green-600 hover:bg-green-700 text-white"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              )}
+              onClick={handleRenewClick}
+
+            >
+              Renew
+            </Button>}
+          </div>
         </div>
       </div>
 
@@ -357,7 +219,43 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
         isLoading={deleteAdMutation.isPending}
         confirmVariant="danger"
       />
-    </div>
+
+      {/* Renew Dialog */}
+      <ResponsiveDialogDrawer
+        open={showRenewDialog}
+        onOpenChange={setShowRenewDialog}
+        title="Renew Ad"
+        description="Extend the validity of your ad. Enter the number of days you want to extend it for."
+      >
+        <div className="grid gap-4 py-4 px-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="days" className="text-right">
+              Days
+            </Label>
+            <Input
+              id="days"
+              type="number"
+              value={renewDays}
+              onChange={(e) => setRenewDays(Number(e.target.value))}
+              className="col-span-3"
+              min={1}
+            />
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowRenewDialog(false)}
+              disabled={isRenewing}
+            >
+              Cancel
+            </Button>
+            <Button onClick={onRenewSubmit} disabled={isRenewing}>
+              {isRenewing ? "Renewing..." : "Confirm Renewal"}
+            </Button>
+          </div>
+        </div>
+      </ResponsiveDialogDrawer>
+    </>
   );
 };
 

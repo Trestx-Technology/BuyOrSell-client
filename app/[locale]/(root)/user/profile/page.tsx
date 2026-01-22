@@ -12,7 +12,7 @@ import { useMyAds } from "@/hooks/useAds";
 import { useUserAverageRating, useUserReviews } from "@/hooks/useReviews";
 import { AD } from "@/interfaces/ad";
 import { formatDate } from "@/utils/format-date";
-import { MyAdCardProps, FieldWithIcon } from "../_components/my-ads-card";
+import { MyAdCardProps } from "../_components/my-ads-card";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { useRouter } from "nextjs-toploader/app";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
@@ -50,52 +50,8 @@ const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
     return "Location not specified";
   };
 
-  // Normalize extraFields: handle both array and object formats, preserving icon info
-  const normalizeExtraFields = (): FieldWithIcon[] => {
-    if (!ad.extraFields) return [];
-
-    // If it's an array, use it directly (preserves icon info)
-    if (Array.isArray(ad.extraFields)) {
-      return ad.extraFields
-        .filter(
-          (field) =>
-            field &&
-            typeof field === "object" &&
-            "name" in field &&
-            "value" in field
-        )
-        .map((field) => ({
-          name: field.name,
-          value: field.value,
-          icon: field.icon,
-        }))
-        .filter(
-          (field) =>
-            field.value !== null &&
-            field.value !== undefined &&
-            field.value !== ""
-        );
-    }
-
-    // If it's an object, convert to array format (no icon info available)
-    const fields: FieldWithIcon[] = [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Object.entries(ad.extraFields as Record<string, any>).forEach(
-      ([name, value]) => {
-        if (value !== null && value !== undefined && value !== "") {
-          fields.push({ name, value });
-        }
-      }
-    );
-    return fields;
-  };
-
-  const extraFieldsList = normalizeExtraFields();
-
-  // Get first 4 fields for display (2 per row)
-  const displayFields = extraFieldsList.slice(0, 4);
-
   // Calculate discount and original price
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   const extraFieldsObj = Array.isArray(ad.extraFields)
     ? ad.extraFields.reduce((acc, field) => {
         if (
@@ -129,11 +85,11 @@ const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
     currency: "AED",
     location: getLocation(),
     images: ad.images || [],
-    extraFields: displayFields,
+    extraFields: ad.extraFields,
     postedTime: ad.createdAt ? formatDate(ad.createdAt) : "Recently",
     views: ad.views || 0,
     isPremium: ad.isFeatured || false,
-    isFavorite: ad.isAddedInCollection || false,
+    validity: ad.validity,
   };
 };
 

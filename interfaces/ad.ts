@@ -443,3 +443,7 @@ export interface AdFilterPayload {
   page?: number;
   limit?: number;
 }
+
+export interface RenewAdPayload {
+  days: number;
+}

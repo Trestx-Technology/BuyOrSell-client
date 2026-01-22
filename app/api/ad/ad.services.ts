@@ -89,6 +89,24 @@ export const updateAdStatus = async (
   return response.data;
 };
 
+// Renew ad
+export const renewAd = async (
+  id: string,
+  days: number
+): Promise<PostAdResponse> => {
+  const response = await axiosInstance.patch<PostAdResponse>(
+    adQueries.renewAd(id).endpoint,
+    { days },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
+};
+
+
 // Get ads by user
 export const getAdsByUser = async (
   userId: string,

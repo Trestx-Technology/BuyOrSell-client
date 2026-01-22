@@ -15,6 +15,7 @@ import {
   filterAds,
   getSimilarAds,
   getAdsByKeyword,
+  renewAd,
 } from "@/app/api/ad/ad.services";
 import {
   PostAdPayload,
@@ -58,7 +59,7 @@ export const useAdsByUser = (
     page?: number;
     limit?: number;
     status?: "live" | "rejected" | "pending";
-  }
+  },
 ) => {
   return useQuery<GetLiveAdsResponse, Error>({
     queryKey: [...adQueries.adsByUser(userId).Key, params],
@@ -77,7 +78,7 @@ export const useAdsByCategory = (
     maxPrice?: number;
     sortBy?: string;
     sortOrder?: "asc" | "desc";
-  }
+  },
 ) => {
   return useQuery<GetLiveAdsResponse, Error>({
     queryKey: [...adQueries.adsByCategory(categoryId).Key, params],
@@ -189,6 +190,24 @@ export const useUpdateAdStatus = () => {
     { id: string; status: AdStatus; reason?: string }
   >({
     mutationFn: ({ id, status, reason }) => updateAdStatus(id, status, reason),
+    onSuccess: (_, variables) => {
+      // Invalidate and refetch ads
+      queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
+      queryClient.invalidateQueries({
+        queryKey: [...adQueries.adById(variables.id).Key],
+      });
+      queryClient.invalidateQueries({ queryKey: adQueries.myAds.Key });
+      queryClient.invalidateQueries({ queryKey: adQueries.liveAds.Key });
+    },
+  });
+};
+
+// Renew ad
+export const useRenewAd = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<PostAdResponse, Error, { id: string; days: number }>({
+    mutationFn: ({ id, days }) => renewAd(id, days),
     onSuccess: (_, variables) => {
       // Invalidate and refetch ads
       queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
