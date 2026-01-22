@@ -101,7 +101,15 @@ export function SpecificationsDisplay({
               truncate && "max-w-lg truncate"
             )}
           >
-            {spec.value}
+            {isColor(spec.value) ? (
+              <div
+                className="size-4 rounded-full border border-gray-200"
+                style={{ backgroundColor: spec.value }}
+                title={spec.value}
+              />
+            ) : (
+              spec.value
+            )}
           </Typography>
         </div>
       ))}
@@ -168,7 +176,15 @@ export function SpecificationsDisplay({
                         variant="body-small"
                         className="text-sm text-dark-blue font-medium"
                       >
-                        {spec.value}
+                        {isColor(spec.value) ? (
+                          <div
+                            className="size-4 rounded-full border border-gray-200"
+                            style={{ backgroundColor: spec.value }}
+                            title={spec.value}
+                          />
+                        ) : (
+                          spec.value
+                        )}
                       </Typography>
                     </div>
                   </div>

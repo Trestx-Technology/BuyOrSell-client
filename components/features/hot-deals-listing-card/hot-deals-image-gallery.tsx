@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HotDealsActions } from "./hot-deals-actions";
+import { DealTimer } from "@/components/global/deal-timer";
 
 interface HotDealsImageGalleryProps {
   id: string;
@@ -54,7 +55,6 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<string>("");
 
   // Handler for image navigation
   const handlePreviousImage = (e: React.MouseEvent) => {
@@ -83,43 +83,6 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
     }, 500);
   };
 
-  // Timer logic
-  useEffect(() => {
-    if (!showTimer || !dealValidThrough) {
-      setTimeLeft("");
-      return;
-    }
-
-    const updateTimer = () => {
-      const now = new Date().getTime();
-      const end = new Date(dealValidThrough).getTime();
-      const distance = end - now;
-
-      if (distance > 0) {
-        const totalSeconds = Math.floor(distance / 1000);
-        const totalMinutes = Math.floor(totalSeconds / 60);
-        const totalHours = Math.floor(totalMinutes / 60);
-        const days = Math.floor(totalHours / 24);
-        const hours = totalHours % 24;
-        const minutes = totalMinutes % 60;
-        const seconds = totalSeconds % 60;
-
-        if (days > 0) {
-          setTimeLeft(`${days}d ${hours}h`);
-        } else if (totalHours > 0) {
-          setTimeLeft(`${totalHours}h ${minutes}m`);
-        } else {
-          setTimeLeft(`${totalMinutes}m ${seconds}s`);
-        }
-      } else {
-        setTimeLeft("EXPIRED");
-      }
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [dealValidThrough, showTimer]);
 
   return (
     <div className="relative aspect-[3/3] sm:aspect-[4/3] bg-primary w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
@@ -275,16 +238,22 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
       )}
 
       {/* Timer */}
-      {showTimer && timeLeft && (
+      {showTimer && dealValidThrough && (
         <div
           className={cn(
-            "absolute bottom-0 right-0 px-2 py-1 rounded-tl-lg text-xs font-semibold shadow-lg flex items-center gap-1 z-20",
+            "absolute bottom-0 right-0 px-2 py-1 rounded-tl-lg text-xs font-semibold shadow-lg z-20",
             timerBg,
             timerTextColor
           )}
         >
-          <Clock className="w-3 h-3" />
-          {timeLeft}
+          <DealTimer
+            validThrough={dealValidThrough}
+            variant="plain"
+            showIcon={true}
+            iconColor={timerTextColor}
+            textColor={timerTextColor}
+            className="text-xs"
+          />
         </div>
       )}
     </div>

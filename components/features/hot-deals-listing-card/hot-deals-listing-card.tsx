@@ -55,11 +55,9 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   price,
   originalPrice,
   discount,
-  currency = "AED",
   location,
   images,
   extraFields,
-  isExchange = false,
   views,
   isPremium = false,
   isAddedInCollection,
@@ -118,7 +116,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
       onClick={handleCardClick}
     >
       <Link href={`/ad/${id}`} className="absolute inset-0 "></Link>
-      <div className="p-0">
+      <div className="p-0 flex flex-col h-full">
         {/* Image Section */}
         <HotDealsImageGallery
           id={id}
@@ -141,7 +139,6 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
         />
 
         {/* Content Section */}
-        <div className="pt-2 space-y-3">
           <HotDealsInfo
             title={title}
             price={price}
@@ -151,8 +148,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
             specifications={specifications}
           />
 
-          <HotDealsSeller seller={seller} showSeller={showSeller} />
-        </div>
+        <HotDealsSeller seller={seller} showSeller={showSeller} />
       </div>
     </div>
   );

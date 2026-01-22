@@ -25,7 +25,7 @@ export const HotDealsInfo: React.FC<HotDealsInfoProps> = ({
   specifications,
 }) => {
   return (
-    <div className="pt-2 space-y-3">
+    <div className="py-2 space-y-3 flex-1 flex flex-col">
       {/* Price Section */}
       <div className="px-2.5">
         <PriceDisplay

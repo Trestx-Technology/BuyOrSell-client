@@ -13,6 +13,7 @@ import { ListingCardSkeleton } from "@/components/global/listing-card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HotDealsListingCardProps } from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
 import { AD } from "@/interfaces/ad";
+import { DealTimer } from "@/components/global/deal-timer";
 import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 
 
@@ -114,12 +115,12 @@ export default function HostDeals({
     const isArabic = locale === "ar";
 
     return categoryTreeWithDealAds
-      .filter((category) => {
-        // Only show categories that have transformed ads
-        const categoryName = category.name.toLowerCase().replace(/\s+/g, "-");
-        const ads = transformedAdsByCategory[categoryName] || [];
-        return ads.length > 0;
-      })
+      // .filter((category) => {
+      //   // Only show categories that have transformed ads
+      //   const categoryName = category.name.toLowerCase().replace(/\s+/g, "-");
+      //   const ads = transformedAdsByCategory[categoryName] || [];
+      //   return ads.length > 0;
+      // })
       .map((category) => {
         const name = isArabic
           ? category.nameAr || category.name
@@ -201,7 +202,7 @@ export default function HostDeals({
             </Typography>
 
             {/* Main Timer */}
-            <DealTimer validThrough={biggestDealValidity} />
+            <DealTimer  validThrough={biggestDealValidity} />
           </div>
         </div>
 
@@ -303,62 +304,4 @@ export default function HostDeals({
   );
 }
 
-function DealTimer({ validThrough }: { validThrough: string | null | Date }) {
-  const [timeLeft, setTimeLeft] = useState("");
 
-  useEffect(() => {
-    if (!validThrough) {
-      setTimeLeft("");
-      return;
-    }
-
-    const updateTimer = () => {
-      const now = new Date().getTime();
-      const end = new Date(validThrough).getTime();
-      const distance = end - now;
-
-      if (distance > 0) {
-        const totalSeconds = Math.floor(distance / 1000);
-        const totalMinutes = Math.floor(totalSeconds / 60);
-        const totalHours = Math.floor(totalMinutes / 60);
-        const days = Math.floor(totalHours / 24);
-        const hours = totalHours % 24;
-        const minutes = totalMinutes % 60;
-
-        // Format based on remaining time for better readability
-        let timeString = "";
-        if (days > 0) {
-          // Show days and hours (e.g., "5d 12h remaining")
-          timeString = `${days}d ${hours}h remaining`;
-        } else if (totalHours > 0) {
-          // Show hours and minutes (e.g., "12h 30m remaining")
-          timeString = `${totalHours}h ${minutes}m remaining`;
-        } else {
-          // Show minutes only (e.g., "30m remaining")
-          timeString = `${totalMinutes}m remaining`;
-        }
-        setTimeLeft(timeString);
-      } else {
-        setTimeLeft("EXPIRED");
-      }
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [validThrough]);
-
-  if (!timeLeft) return null;
-
-  return (
-    <div className="bg-white rounded px-2 py-1 flex items-center gap-1">
-      <Clock className="w-4 h-4 text-red-500" />
-      <Typography
-        variant="xs-black-inter"
-        className="text-error-100 text-sm font-medium"
-      >
-        {timeLeft}
-      </Typography>
-    </div>
-  );
-}
