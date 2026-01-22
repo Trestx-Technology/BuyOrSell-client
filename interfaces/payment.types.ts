@@ -1,3 +1,5 @@
+import { ApiResponse } from "@/interfaces/api.types";
+
 export interface CreatePaymentPayload {
   amount: number;
   currency: string;
@@ -18,24 +20,18 @@ export interface CreatePaymentDto {
   requestType?: "payment"; // or something if needed
 }
 
-export interface PaymentResponse {
-  statusCode: number;
-  message: string;
-  data: {
-    secret?: string;
-    paymentIntent?: any;
-    paymentIntentId?: string;
-    amount: number;
-    currency: string;
-    status: string;
-  };
+export interface PaymentData {
+  secret?: string;
+  paymentIntent?: any;
+  paymentIntentId?: string;
+  amount: number;
+  currency: string;
+  status: string;
 }
 
-export interface ConfirmPaymentResponse {
-  statusCode: number;
-  message: string;
-  data: unknown;
-}
+export type PaymentResponse = ApiResponse<PaymentData>;
+
+export type ConfirmPaymentResponse = ApiResponse<unknown>;
 
 export interface ConfirmPaymentPayload {
   paymentIntentId: string;
@@ -49,8 +45,7 @@ export interface RefundPaymentDto {
   reason?: string;
 }
 
-export interface RefundResponse {
-  message: string;
+export interface RefundData {
   refundId: string;
   paymentIntentId?: string;
   checkoutSessionId?: string;
@@ -58,6 +53,8 @@ export interface RefundResponse {
   currency: string;
   status: string;
 }
+
+export type RefundResponse = ApiResponse<RefundData>;
 
 // 1. Subscription Checkout
 export interface CreatePlanSubscriptionCheckoutDto {
@@ -133,8 +130,7 @@ export type CreateCheckoutSessionDto =
   | CreateAdsCheckoutDto
   | CreateAddonCheckoutDto;
 
-export interface CheckoutSessionResponse {
-  message: string;
+export interface CheckoutSessionData {
   sessionId: string;
   checkoutUrl: string;
   amount: number;
@@ -142,11 +138,15 @@ export interface CheckoutSessionResponse {
   status: string;
 }
 
-export interface CompleteCheckoutSessionResponse {
-  message: string;
+export type CheckoutSessionResponse = ApiResponse<CheckoutSessionData>;
+
+export interface CompleteCheckoutSessionData {
   sessionId: string;
   paymentIntentId: string;
   status: string;
   amount: number;
   currency: string;
 }
+
+export type CompleteCheckoutSessionResponse =
+  ApiResponse<CompleteCheckoutSessionData>;

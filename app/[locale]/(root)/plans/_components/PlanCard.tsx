@@ -77,16 +77,12 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
             mode: "payment",
       }, {
             onSuccess: (data) => {
-                  if (data.checkoutUrl) {
-                        window.location.href = data.checkoutUrl;
+                  if (data.data.checkoutUrl) {
+                        window.location.href = data.data.checkoutUrl;
                   } else {
                         toast.error("Failed to generate payment link.");
                   }
-            },
-            onError: (err) => {
-                  console.error(err);
-                  toast.error("Failed to initiate checkout.");
-            }
+                    },
       });
     } else {
           // Subscription
@@ -100,16 +96,12 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
                 mode: "subscription",
           }, {
                 onSuccess: (data) => {
-                      if (data.checkoutUrl) {
-                            window.location.href = data.checkoutUrl;
+                      if (data.data.checkoutUrl) {
+                            window.location.href = data.data.checkoutUrl;
                       } else {
                             toast.error("Failed to generate payment link.");
                       }
                 },
-            onError: (err) => {
-                  console.error(err);
-                  toast.error("Failed to initiate checkout.");
-            }
       });
     }
   };

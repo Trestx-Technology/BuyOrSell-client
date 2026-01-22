@@ -51,7 +51,7 @@ export const useRefundPayment = () => {
     mutationKey: paymentQueries.refundPayment.Key,
     onSuccess: (data) => {
       // Invalidate related queries to refresh data
-      if (data.paymentIntentId) {
+      if (data.data.paymentIntentId) {
         // e.g., invalidate user payments if needed
       }
     },

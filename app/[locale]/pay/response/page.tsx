@@ -13,15 +13,14 @@ function ResponseContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const sessionId = searchParams.get("session_id");
-  const fallbackStatus = searchParams.get("status");
-  const fallbackError = searchParams.get("error");
 
   // Verify session if ID exists
-  const { data, isLoading, isError, error } = useCompleteCheckoutSession(sessionId || "");
+  const { data, isLoading, error } = useCompleteCheckoutSession(sessionId || "");
 
   // Effect to handle automatic redirect or other side effects if needed
   useEffect(() => {
-    if (data?.status === "complete" || data?.status === "paid") {
+    console.log("data", data);
+    if (data?.data?.status === "succeeded") {
       const timer = setTimeout(() => {
         router.push("/");
       }, 3000);
@@ -45,7 +44,7 @@ function ResponseContent() {
   }
 
   // 2. Success State (Verified via API)
-  if (sessionId && data && (data.status === "complete" || data.status === "paid")) {
+  if (sessionId && data?.data && data.data.status === "succeeded") {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-300">
         <div className="bg-green-100 p-4 rounded-full mb-4">
@@ -71,11 +70,11 @@ function ResponseContent() {
   }
 
   // 3. Failure State (API Error or URL param error)
-  if (isError || (sessionId && data && data.status !== "complete" && data.status !== "paid") || fallbackStatus === "failed") {
-    const errorMessage = error?.message || (data ? "Payment verification failed." : fallbackError) || "Something went wrong with your payment request.";
+  if (sessionId && data && data.data?.status !== "succeeded") {
+    const errorMessage = error?.message || (data ? "Payment verification failed." : "Something went wrong with your payment request.");
 
      return (
-      <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-300">
+       <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-300">
         <div className="bg-red-100 p-4 rounded-full mb-4">
           <XCircle className="w-12 h-12 text-red-600" />
         </div>
