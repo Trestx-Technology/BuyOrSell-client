@@ -20,8 +20,6 @@ function ResponseContent() {
 
   // Effect to handle automatic redirect or other side effects if needed
   useEffect(() => {
-    console.log("data", data);
-
     if (data?.data?.status) {
       const params = new URLSearchParams(searchParams.toString());
       if (params.get("status") !== data.data.status) {
@@ -32,7 +30,7 @@ function ResponseContent() {
 
     if (data?.data?.status === "succeeded") {
       const timer = setTimeout(() => {
-        router.push("/");
+        // router.push("/");
       }, 3000);
       return () => clearTimeout(timer);
     }
