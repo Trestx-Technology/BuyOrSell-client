@@ -28,6 +28,7 @@ import { buildAdFilterPayload } from "@/utils/ad-payload";
 import { buildAdQueryParams } from "@/utils/ad-query-params";
 import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
 import { getStaticFilterConfig } from "@/constants/filters.constants";
+import { NoDataCard } from "@/components/global/fallback-cards";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -296,11 +297,16 @@ export default function CategoryListingPage() {
 
         {/* No Results */}
         {!isLoading && ads.length === 0 && (
-          <div className="text-center py-12 ">
-            <p className="text-gray-500 text-lg">{t.categories.noAdsFound}</p>
-            <Button variant="outline" onClick={clearFilters} className="mt-4">
-              {t.categories.clearFilters}
-            </Button>
+          <div className="py-12">
+            <NoDataCard
+              title={t.categories.noAdsFound}
+              description="Try adjusting your filters or search query to find what you're looking for."
+              action={
+                <Button variant="outline" onClick={clearFilters}>
+                  {t.categories.clearFilters}
+                </Button>
+              }
+            />
           </div>
         )}
 

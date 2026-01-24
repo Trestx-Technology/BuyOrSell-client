@@ -59,6 +59,20 @@ export const AUTH_ICONS = {
   verified: `/verified-seller.svg`,
 } as const;
 
+
+// =============================================================================
+// FALLBACK ICONS
+// =============================================================================
+
+export const FALLBACK_ICONS = {
+  noData: `${S3_BASE_URL}/icons/no-data.png`,
+  "404": `${S3_BASE_URL}/icons/404-error.png`,
+}
+
+
+
+
+
 // ============================================================================
 // NAVIGATION & MENU ICONS
 // ============================================================================
@@ -80,6 +94,7 @@ export const NAVIGATION_ICONS = {
   share: `${S3_BASE_URL}/icons/share.svg`,
   home: `${S3_BASE_URL}/icons/home.png`,
 } as const;
+
 
 // ============================================================================
 // JOB NAVIGATION ICONS
