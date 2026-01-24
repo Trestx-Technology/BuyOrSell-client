@@ -17,10 +17,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 import Link from "next/link";
 
@@ -206,8 +206,8 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
   label,
   children,
 }) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger asChild>
+  <HoverCard openDelay={0} closeDelay={100}>
+    <HoverCardTrigger asChild>
       <Button
         variant="ghost"
         size="sm"
@@ -215,9 +215,9 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
       >
         {label}
       </Button>
-    </DropdownMenuTrigger>
+    </HoverCardTrigger>
     {children}
-  </DropdownMenu>
+  </HoverCard>
 );
 
 const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
@@ -312,8 +312,8 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
 
   if (isOtherCategory) {
     return (
-      <DropdownMenuContent
-        className="bg-white  rounded-none rounded-b-xl  shadow-lg border border-gray-200 overflow-hidden max-h-[500px] p-0"
+      <HoverCardContent
+        className="bg-white rounded-none rounded-b-xl shadow-lg border border-gray-200 overflow-hidden max-h-[500px] p-0 w-fit"
         align="start"
         sideOffset={4}
       >
@@ -344,15 +344,15 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
             );
           })}
         </div>
-      </DropdownMenuContent>
+      </HoverCardContent>
     );
   }
 
   return (
-    <DropdownMenuContent
-      className="bg-white rounded-none rounded-b-xl shadow-lg border border-gray-200 overflow-hidden max-h-[500px] p-0"
+    <HoverCardContent
+      className="bg-white rounded-none rounded-b-xl shadow-lg border border-gray-200 overflow-hidden max-h-[500px] p-0 w-fit"
       align="start"
-      sideOffset={4}
+      sideOffset={0}
     >
       <div className="flex w-full">
         <div className="w-60 border-r border-gray-300 overflow-y-auto">
@@ -429,7 +429,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
             />
           )}
       </div>
-    </DropdownMenuContent>
+    </HoverCardContent>
   );
 };
 
@@ -529,7 +529,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
           ) : (
             <div
               key={isJobsPage ? "jobs-nav" : "main-nav"}
-              className="hidden w-full md:flex flex-1 items-center justify-between"
+                  className="hidden w-full md:flex gap-1 flex-1 items-center justify-between"
             >
               {visibleCategoriesList.map(({ type, label }) => (
                 <div key={type}>
