@@ -16,6 +16,7 @@ interface SearchResult {
   adCount: number;
   name: string;
   category: string;
+  relatedCategories: string[];
 }
 
 interface SimpleSearchInputProps {
@@ -72,14 +73,14 @@ export function SimpleSearchInput({
     !!showDropdown
   );
 
-  const handleSearch = (category: string) => {
-    if (category.trim()) {
-      router.push(`/categories/${category}`);
+  const handleSearch = (relatedCategories: string[]) => {
+    if (relatedCategories.length > 0) {
+      router.push(`/categories/${relatedCategories.join("/")}`);
     }
   };
 
-  const handleResultClick = (category: string) => {
-    handleSearch(category);
+  const handleResultClick = (relatedCategories: string[]) => {
+    handleSearch(relatedCategories);
     setLocalSearchQuery("");
     setDebouncedQuery("");
     setSelectedIndex(-1);
@@ -88,9 +89,9 @@ export function SimpleSearchInput({
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       if (selectedIndex >= 0 && keywordResults[selectedIndex]) {
-        handleResultClick(keywordResults[selectedIndex].category);
+        handleResultClick(keywordResults[selectedIndex].relatedCategories);
       } else {
-        handleSearch(localSearchQuery);
+        handleSearch(localSearchQuery.split(","));
       }
     } else if (event.key === "ArrowDown") {
       event.preventDefault();
@@ -173,7 +174,7 @@ export function SimpleSearchInput({
                         ? "bg-purple/10"
                         : "hover:bg-purple/10"
                     }`}
-                    onClick={() => handleResultClick(result.category)}
+                    onClick={() => handleResultClick(result.relatedCategories)}
                     onMouseEnter={() => setSelectedIndex(index)}
                   >
                     <div className="flex items-start justify-between gap-3">
