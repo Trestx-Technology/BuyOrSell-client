@@ -19,8 +19,7 @@ const AuthRootLayout = async ({ children, params }: AuthRootLayoutProps) => {
   const { locale } = await params;
   
   return (
-    <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID!}>
-      <AuthGuard>
+    // <AuthGuard>
       <div className="px-[12px] lg:px-[100px] min-h-[750px] h-screen w-screen max-w-[1280px] mx-auto flex flex-col">
         <Link href={`/${locale}`} className=" pt-8">
           <Image
@@ -45,8 +44,7 @@ const AuthRootLayout = async ({ children, params }: AuthRootLayoutProps) => {
           </div>
         </main>
       </div>
-      </AuthGuard>
-    </GoogleOAuthProvider>
+    // </AuthGuard>
 
   );
 };
