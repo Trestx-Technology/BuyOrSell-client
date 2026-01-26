@@ -23,13 +23,13 @@ export interface CommonFiltersProps {
       onLocationChange?: (query: string) => void;
       locationPlaceholder?: string;
       className?: string;
+      dontValidate?: boolean;
 }
 
 export const CommonFilters = ({
       filters,
       staticFilters,
       onStaticFilterChange,
-      onClearFilters,
       searchQuery = "",
       onSearchChange,
       searchPlaceholder = "Search...",
@@ -37,6 +37,7 @@ export const CommonFilters = ({
       onLocationChange,
       locationPlaceholder = "Location...",
       className,
+      dontValidate,
 }: CommonFiltersProps) => {
       const { updateUrlParam, searchParams } = useUrlParams();
 
@@ -111,7 +112,7 @@ export const CommonFilters = ({
       return (
             <Card
                   className={cn(
-                        "mx-4 shadow-none bg-transparent sm:bg-white sm:shadow-sm border border-none sm:border sm:border-[#F5EBFF] rounded-xl",
+                        "shadow-none bg-transparent sm:bg-white sm:shadow-sm border border-none sm:border sm:border-[#F5EBFF] rounded-xl",
                         className
                   )}
             >
@@ -154,7 +155,7 @@ export const CommonFilters = ({
                                           </div>
                                     ))}
                               {/* Advanced Filters Dialog - GlobalMoreFilters */}
-                              <GlobalMoreFilters />
+                                    <GlobalMoreFilters dontValidate={dontValidate} />
                               </div>
 
                         </div>

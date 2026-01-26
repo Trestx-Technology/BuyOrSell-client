@@ -52,7 +52,7 @@ export function SpecificationsDisplay({
   return (
     <div
       className={cn(
-        `flex items-center justify-start gap-2 flex-wrap ${className}`,
+        `flex items-center justify-start flex-wrap ${className}`,
         truncate && "max-w-sm"
       )}
     >

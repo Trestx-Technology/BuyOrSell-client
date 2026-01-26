@@ -1,17 +1,16 @@
 import { AD } from "@/interfaces/ad";
 import { formatDistanceToNow } from "date-fns";
-import { JobCardProps } from "@/app/[locale]/(root)/jobs/my-profile/_components/job-card";
 
 /**
  * Transform AD object to JobCardProps
  * Extracts job-specific fields from extraFields or uses standard AD fields
  */
-export const transformAdToJobCard = (ad: AD): JobCardProps => {
+export const transformAdToJobCard = (ad: AD) => {
   // Helper to extract fields
   const getFieldValue = (fieldName: string): string => {
     if (Array.isArray(ad.extraFields)) {
       const field = ad.extraFields.find((f) =>
-        f.name?.toLowerCase().includes(fieldName.toLowerCase())
+        f.name?.toLowerCase().includes(fieldName.toLowerCase()),
       );
       return field ? String(field.value) : "";
     }
@@ -25,7 +24,7 @@ export const transformAdToJobCard = (ad: AD): JobCardProps => {
           field.name?.toLowerCase().includes("salary") &&
           (type === "min"
             ? field.name?.toLowerCase().includes("min")
-            : field.name?.toLowerCase().includes("max"))
+            : field.name?.toLowerCase().includes("max")),
       );
       return salaryField && typeof salaryField.value === "number"
         ? salaryField.value

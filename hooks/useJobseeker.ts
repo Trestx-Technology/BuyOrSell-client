@@ -56,6 +56,7 @@ import {
   CreatePortfolioItemPayload,
 } from "@/interfaces/job.types";
 import { jobseekerQueries } from "@/app/api/jobseeker/index";
+import { useAuthStore } from "@/stores/authStore";
 
 // ============================================================================
 // GENERAL PROFILE QUERY HOOKS
@@ -200,9 +201,11 @@ export const useUnblockJobseekerProfile = () => {
 // ============================================================================
 
 export const useGetJobseekerProfile = () => {
+  const isAuthenticated = useAuthStore((state)=> state.isAuthenticated)
   return useQuery<JobseekerProfileResponse, Error>({
     queryKey: jobseekerQueries.getJobseekerProfile.Key,
     queryFn: getJobseekerProfile,
+    enabled: isAuthenticated,
   });
 };
 

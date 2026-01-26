@@ -116,7 +116,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
       onClick={handleCardClick}
     >
       <Link href={`/ad/${id}`} className="absolute inset-0 "></Link>
-      <div className="p-0 flex flex-col h-full">
+      <div className="p-0 flex flex-col flex-1 h-full">
         {/* Image Section */}
         <HotDealsImageGallery
           id={id}

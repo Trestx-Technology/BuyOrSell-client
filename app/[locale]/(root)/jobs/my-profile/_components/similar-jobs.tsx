@@ -91,20 +91,7 @@ const transformAdToJobCard = (ad: AD) => {
 export default function SimilarJobs() {
   const { data, isLoading } = useAds({ adType: "JOB", limit: 4 });
 
-  const jobs = useMemo(() => {
-    if (!data) return [];
-
-    const source =
-      data.data?.ads ??
-      data.data?.adds ??
-      data.ads ??
-      data.adds ??
-      (Array.isArray(data.data) ? data.data : undefined);
-
-    if (!Array.isArray(source)) return [];
-
-    return source.map((ad) => transformAdToJobCard(ad));
-  }, [data]);
+  const jobs = data?.adds || data?.ads || data?.data?.ads || data?.data?.adds || []
 
   if (isLoading) {
     return (
@@ -147,7 +134,7 @@ export default function SimilarJobs() {
           {/* Jobs Grid */}
           <div className="flex flex-wrap gap-5">
             {jobs.map((job) => (
-              <JobCard key={job.id} {...job} />
+              <JobCard job={job} />
             ))}
           </div>
         </div>

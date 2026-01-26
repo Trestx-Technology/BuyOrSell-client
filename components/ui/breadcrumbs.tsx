@@ -40,7 +40,7 @@ const Breadcrumbs = React.forwardRef<HTMLDivElement, BreadcrumbsProps>(
       homeLabel = "Home",
       onItemClick,
       variant = "default",
-      showSelectCategoryLink = true,
+      showSelectCategoryLink = false,
       selectCategoryHref = "/post-ad/select",
       selectCategoryLabel = "Select Category",
       ...props

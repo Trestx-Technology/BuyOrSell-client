@@ -1,34 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
 import { Button } from "@/components/ui/button";
 import { SlidersHorizontal } from "lucide-react";
 import { useValidateCategoryPath } from "@/hooks/useCategories";
-import { Input } from "@/components/ui/input";
-import {
-      Select,
-      SelectContent,
-      SelectItem,
-      SelectTrigger,
-      SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
-import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
+
 import { useUrlParams } from "@/hooks/useUrlParams";
 import { Field } from "@/interfaces/categories.types";
-import { NaturalLanguageCalendar } from "@/components/ui/natural-language-calendar";
 import { FilterControl, FilterConfig, FilterOption } from "./filter-control";
 
 interface GlobalMoreFiltersProps {
       className?: string;
+      dontValidate?: boolean;
 }
 
 export const GlobalMoreFilters = ({
       className,
+      dontValidate,
 }: GlobalMoreFiltersProps) => {
       const { updateUrlParam, searchParams } = useUrlParams();
       const params = useParams();
@@ -45,7 +36,7 @@ export const GlobalMoreFilters = ({
             Record<string, any>
       >({});
 
-      const { data: categoryData, isLoading } = useValidateCategoryPath(categoryPath);
+      const { data: categoryData, isLoading } = dontValidate ? { data: null, isLoading: false } : useValidateCategoryPath(categoryPath);
 
       // Update dynamic filters when category data changes
       useEffect(() => {

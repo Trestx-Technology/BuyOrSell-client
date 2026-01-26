@@ -9,6 +9,7 @@ import { transformJobDataToJobCard } from "@/utils/transform-job-data-to-job-car
 import JobsSectionTitle from "@/app/[locale]/(root)/jobs/_components/jobs-section-title";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAds } from "@/hooks/useAds";
+import { AD } from "@/interfaces/ad";
 
 export default function LatestJobsSection() {
   const { data, isPending: isLoading } = useAds({
@@ -73,9 +74,8 @@ export default function LatestJobsSection() {
 
           {/* Jobs Grid */}
           <div className="flex flex-wrap gap-5 mt-5">
-            {jobs.slice(0, 8).map((job: JobData) => {
-              const jobCardProps = transformJobDataToJobCard(job);
-              return <JobCard key={job._id} {...jobCardProps} />;
+            {jobs.slice(0, 8).map((job: AD) => {
+              return <JobCard key={job._id} job={job} />;
             })}
           </div>
         </div>

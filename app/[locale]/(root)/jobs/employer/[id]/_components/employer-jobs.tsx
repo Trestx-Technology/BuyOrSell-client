@@ -82,8 +82,7 @@ export default function EmployerJobs({ employerId }: EmployerJobsProps) {
 
       <div className="flex flex-wrap gap-5">
         {jobs.slice(0, 6).map((job: AD) => {
-          const jobCardProps = transformAdToJobCard(job);
-          return <JobCard key={job._id} {...jobCardProps} />;
+          return <JobCard key={job._id} job={job} />;
         })}
       </div>
     </div>

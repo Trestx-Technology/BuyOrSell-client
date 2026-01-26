@@ -87,6 +87,8 @@ export interface SubCategory {
   relatedTo?: string;
   children: SubCategory[];
   brands?: unknown[];
+  slug?: string;
+  slugAr?: string;
   createdAt?: string;
   updatedAt?: string;
 }

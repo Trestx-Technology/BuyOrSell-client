@@ -150,7 +150,7 @@ export default function JobsTabbedCarousel({
       jobType,
       postedTime,
       logo: ad.organization?.logoUrl,
-      isFavorite: false,
+      isSaved: false,
       onFavorite: (id: string) => console.log("Favorited:", id),
       onShare: (id: string) => console.log("Shared:", id),
     };
@@ -361,7 +361,6 @@ export default function JobsTabbedCarousel({
           {currentAds
             .filter((item): item is AD => item != null)
             .map((item, index) => {
-              const jobCardProps = transformAdToJobCard(item);
               return (
                 <motion.div
                   key={item._id || index}
@@ -376,7 +375,7 @@ export default function JobsTabbedCarousel({
                   }}
                   className="flex gap-2"
                 >
-                  <JobCard {...jobCardProps} />
+                  <JobCard job={item} />
                 </motion.div>
               );
             })}
@@ -391,7 +390,7 @@ export default function JobsTabbedCarousel({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className={`max-w-[1220px] bg-white mx-auto py-5 ${className}`}
+      className={`max-w-[1220px]  mx-auto py-5 ${className}`}
     >
       <div className="w-full mx-auto">
         {/* Header with Title */}

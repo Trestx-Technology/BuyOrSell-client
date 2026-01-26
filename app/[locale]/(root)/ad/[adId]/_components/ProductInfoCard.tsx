@@ -185,7 +185,7 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
       {/* Price Section */}
       {hasPrice && (
         <div className="mb-6">
-          <PriceDisplay ad={ad} />
+          <PriceDisplay ad={ad} currencyIconWidth={18} />
         </div>
       )}
 

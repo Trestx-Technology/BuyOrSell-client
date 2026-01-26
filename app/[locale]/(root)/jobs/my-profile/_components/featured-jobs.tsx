@@ -1,12 +1,9 @@
 "use client";
 
-import { Typography } from "@/components/typography";
 import JobCard from "./job-card";
-import Link from "next/link";
 import JobsSectionTitle from "../../_components/jobs-section-title";
 import { useAds } from "@/hooks/useAds";
 import { AD } from "@/interfaces/ad";
-import { transformAdToJobCard } from "@/utils/transform-ad-to-job-card";
 
 export default function FeaturedJobs() {
   const { data: adsData, isLoading } = useAds({
@@ -57,13 +54,10 @@ export default function FeaturedJobs() {
           {/* Jobs Grid */}
           <div className="flex flex-wrap gap-5">
             {jobs.map((job) => {
-              const jobCardProps = transformAdToJobCard(job);
               return (
                 <JobCard
                   key={job._id}
-                  onShare={() => {}}
-                  onFavorite={() => {}}
-                  {...jobCardProps}
+                  job={job}
                 />
               );
             })}

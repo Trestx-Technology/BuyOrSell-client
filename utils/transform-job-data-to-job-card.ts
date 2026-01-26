@@ -1,11 +1,10 @@
-import { JobCardProps } from "@/app/[locale]/(root)/jobs/my-profile/_components/job-card";
 import { JobData } from "@/interfaces/job.types";
 import { formatDistanceToNow } from "date-fns";
 
 /**
  * Transform JobData object to JobCardProps
  */
-export function transformJobDataToJobCard(job: JobData): JobCardProps {
+export function transformJobDataToJobCard(job: JobData) {
   // Calculate posted time
   const postedTime = formatDistanceToNow(new Date(job.postedAt), {
     addSuffix: true,
@@ -48,4 +47,3 @@ export function transformJobDataToJobCard(job: JobData): JobCardProps {
     isFavorite: false,
   };
 }
-

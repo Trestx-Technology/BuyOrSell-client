@@ -1,9 +1,8 @@
-// Job-related TypeScript interfaces
-
 import { User } from "./user.types";
 import { Organization } from "./organization.types";
 import { AD } from "./ad";
 import { ConnectionStatus } from "./connection.types";
+import { SubCategory } from "./categories.types";
 
 export interface Professional {
   _id: string;
@@ -69,8 +68,16 @@ export interface JobApplication {
   _id: string;
   jobId: string;
   userId: string;
-  status: "pending" | "reviewed" | "shortlisted" | "rejected" | "accepted";
-  appliedAt: string;
+  applicantProfileId?: string;
+  status:
+    | "pending"
+    | "reviewed"
+    | "shortlisted"
+    | "rejected"
+    | "accepted"
+    | "applied"
+    | "hired";
+  appliedAt?: string;
   coverLetter?: string;
   resumeUrl?: string;
   experience?: string;
@@ -78,6 +85,37 @@ export interface JobApplication {
   expectedSalary?: number;
   availability?: string;
   notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// MyAppliedJob - represents an application returned with job details
+export interface MyAppliedJob {
+  _id: string;
+  userId: string;
+  jobId: string;
+  applicantProfileId: string;
+  status:
+    | "pending"
+    | "reviewed"
+    | "shortlisted"
+    | "rejected"
+    | "accepted"
+    | "applied"
+    | "hired";
+  coverLetter?: string;
+  resumeUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+  job?: JobData;
+}
+
+export interface MySavedJob {
+  _id: string;
+  jobSeekerObjectId: string;
+  jobId: string;
+  jobObjectId: string;
+  job?: AD;
   createdAt: string;
   updatedAt: string;
 }
@@ -355,9 +393,13 @@ export interface EmployerReview {
 export interface JobData {
   _id: string;
   title: string;
+  titleAr?: string;
   description: string;
+  descriptionAr?: string;
   company?: string;
   organization?: Organization;
+  owner?: User;
+  category?: SubCategory;
   location?: string;
   jobType?: string;
   workMode?: string;
@@ -369,6 +411,7 @@ export interface JobData {
   postedAt: string;
   expiresAt?: string;
   isFeatured?: boolean;
+  isSaved?: boolean;
   views?: number;
   applicationsCount?: number;
   status: string;
@@ -496,7 +539,7 @@ export interface JobApplicationsResponse {
     page: number;
     limit: number;
     total: number;
-    items: JobApplication[];
+    items: MyAppliedJob[];
   };
 }
 
@@ -504,7 +547,7 @@ export interface SingleJobApplicationResponse {
   statusCode: number;
   timestamp: string;
   message?: string;
-  data: JobApplication;
+  data: MyAppliedJob;
 }
 
 export interface SavedJobsResponse {
@@ -569,8 +612,7 @@ export interface CreateWorkExperiencePayload {
   achievements?: string[];
 }
 
-export interface UpdateWorkExperiencePayload
-  extends Partial<CreateWorkExperiencePayload> {
+export interface UpdateWorkExperiencePayload extends Partial<CreateWorkExperiencePayload> {
   _id?: string;
 }
 
@@ -585,8 +627,7 @@ export interface CreateEducationPayload {
   description?: string;
 }
 
-export interface UpdateEducationPayload
-  extends Partial<CreateEducationPayload> {
+export interface UpdateEducationPayload extends Partial<CreateEducationPayload> {
   _id?: string;
 }
 
@@ -609,8 +650,7 @@ export interface CreateCertificationPayload {
   credentialUrl?: string;
 }
 
-export interface UpdateCertificationPayload
-  extends Partial<CreateCertificationPayload> {
+export interface UpdateCertificationPayload extends Partial<CreateCertificationPayload> {
   _id?: string;
 }
 
@@ -626,8 +666,7 @@ export interface CreatePortfolioItemPayload {
   teamSize?: number;
 }
 
-export interface UpdatePortfolioItemPayload
-  extends Partial<CreatePortfolioItemPayload> {
+export interface UpdatePortfolioItemPayload extends Partial<CreatePortfolioItemPayload> {
   _id?: string;
 }
 

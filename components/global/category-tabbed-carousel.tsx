@@ -306,7 +306,7 @@ export default function CategoryTabbedCarousel<
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className={`max-w-[1220px] bg-white mx-auto py-5 ${className}`}
+      className={`max-w-[1220px]  mx-auto py-5 ${className}`}
     >
       <div className="w-full mx-auto">
         {/* Header with Title */}

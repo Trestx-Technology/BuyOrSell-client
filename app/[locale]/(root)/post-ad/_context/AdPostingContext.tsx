@@ -130,7 +130,7 @@ export const AdPostingProvider: React.FC<AdPostingProviderProps> = ({
   };
 
   return (
-    <Container1080 className="bg-white min-h-[calc(100vh-200px)] flex flex-col px-20 relative pt-10 space-y-8">
+    <Container1080 className="bg-white min-h-[calc(100vh-200px)] flex flex-col md:px-20 px-5 relative pt-10 space-y-8">
       <div className="w-full sticky top-0 space-y-4">
         <ProgressBar totalSteps={4} />
         <Breadcrumbs

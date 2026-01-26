@@ -10,7 +10,7 @@ import { AD } from "@/interfaces/ad";
 import { useLocale } from "@/hooks/useLocale";
 
 interface ShareJobDialogProps {
-  job: AD;
+  job: Partial<AD>;
   trigger?: React.ReactNode;
 }
 
@@ -21,8 +21,8 @@ export default function ShareJobDialog({ job, trigger }: ShareJobDialogProps) {
 
   // Construct the job URL
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-  const jobUrl = `${baseUrl}/${locale}/jobs/listing?jobId=${job._id}`;
-  const shareText = `Check out this job: ${job.title}`;
+  const jobUrl = `${baseUrl}/${locale}/jobs/listing/${job?.category?.name}?jobId=${job?._id}`;
+  const shareText = `Check out this job: ${job?.title}`;
   const encodedUrl = encodeURIComponent(jobUrl);
   const encodedText = encodeURIComponent(shareText);
 
@@ -96,7 +96,7 @@ export default function ShareJobDialog({ job, trigger }: ShareJobDialogProps) {
         )
       }
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 px-4 py-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
           {shareLinks.map((platform) => (
             <Button

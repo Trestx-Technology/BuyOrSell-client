@@ -21,7 +21,7 @@ export default function RecentViews({
 
   // Transform AD objects to ListingCardProps (filter out any null/undefined ads)
   const listingItems = recentlyViewedAds
-    .filter((ad): ad is AD => ad != null)
+    .filter((ad): ad is AD => ad != null && ad.adType !== "JOB")
     .map((ad) => transformAdToListingCard(ad, locale));
 
   if (isLoading) {
@@ -56,13 +56,13 @@ export default function RecentViews({
   return (
     <section
       ref={ref as any}
-      className={`reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
+      className={` max-w-[1220px] mx-auto reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
     >
       <CardsCarousel title={t.home.recentViews.title}>
         {listingItems.map((item) => (
           <div
             key={item.id}
-            className="flex gap-4 items-center"
+            className="flex gap-4"
           >
             <ListingCard
               {...item}

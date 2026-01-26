@@ -83,7 +83,7 @@ export function HomeContent() {
                   showViewAll={true}
                   viewAllText={t.common.viewAll}
                   onViewAll={(categoryName) =>
-                    router.push(localePath("/jobs/listing"))
+                    router.push(localePath(`/jobs/listing/${categoryName}`))
                   }
                   onTabChange={(tabId) => console.log("Tab changed to:", tabId)}
                 />

@@ -25,7 +25,7 @@ export const ListingInfo: React.FC<ListingInfoProps> = ({
   specifications,
 }) => {
   return (
-    <div className="py-2 space-y-3 flex-1 flex flex-col">
+    <div className="py-2 space-y-1 flex-1 flex flex-col">
       {/* Price Section */}
       <div className="flex items-center gap-1 px-2.5">
         <PriceDisplay
@@ -68,10 +68,12 @@ export const ListingInfo: React.FC<ListingInfoProps> = ({
             specifications={specifications}
             maxVisible={4}
             showPopover={false}
-            className="flex flex-wrap gap-2 truncate"
+            className="flex flex-wrap gap-1 truncate"
           />
         )}
       </div>
+
+
     </div>
   );
 };

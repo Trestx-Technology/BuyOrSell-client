@@ -6,7 +6,6 @@ import {
   Clock,
   MapPin,
   Share2,
-  Heart,
   ChevronLeft,
   Edit,
   Trash2,
@@ -22,20 +21,16 @@ import { useRouter } from "next/navigation";
 import JobApplicantsModal from "./job-applicants-modal";
 import ShareJobDialog from "./share-job-dialog";
 import { AD } from "@/interfaces/ad";
-import {
-  useSaveJob,
-  useDeleteSavedJobByJobAndSeeker,
-} from "@/hooks/useSavedJobs";
-import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
+import { SaveJobButton } from "../../saved/_components/save-job-button";
 import { useDeleteAd } from "@/hooks/useAds";
 import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
 import Image from "next/image";
+import { useApplyToJob } from "@/hooks/useJobApplications";
+import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 
 export interface MobileJobHeaderCardProps {
   job: AD;
-  onFavorite?: (id: string) => void;
-  onApply?: (jobId: string) => void;
-  isFavorite?: boolean;
+  isSaved?: boolean;
   isApplied?: boolean;
   isApplying?: boolean;
   logo?: string;
@@ -45,9 +40,7 @@ export interface MobileJobHeaderCardProps {
 
 export default function MobileJobHeaderCard({
   job,
-  onFavorite,
-  onApply,
-  isFavorite = false,
+  isSaved = false,
   isApplied = false,
   isApplying = false,
   logo,
@@ -55,23 +48,18 @@ export default function MobileJobHeaderCard({
   className,
 }: MobileJobHeaderCardProps) {
   const router = useRouter();
-  const { session } = useAuthStore();
+  const session = useAuthStore((state) => state.session);
   const currentUserId = session.user?._id;
   const isJobOwner =
     job.owner?._id === currentUserId ||
     job.organization?.owner === currentUserId;
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  // Get jobseeker profile to get jobSeekerId
+  // Get jobseeker profile for apply logic
   const { data: jobseekerProfile } = useGetJobseekerProfile();
-  const jobSeekerId = jobseekerProfile?.data?.profile?.userId;
 
-  const isSaved = job.isSaved ?? false;
-  const savedJobId = job.savedJobId;
-
-  // Save/Unsave mutations
-  const { mutate: saveJob, isPending: isSaving } = useSaveJob();
-  const { mutate: deleteSavedJob, isPending: isDeleting } =
-    useDeleteSavedJobByJobAndSeeker();
+  // Apply mutation
+  const { mutate: apply, isPending: isApplyingToJob, isSuccess } = useApplyToJob();
 
   // Delete ad mutation
   const { mutate: deleteAd, isPending: isDeletingAd } = useDeleteAd();
@@ -200,65 +188,6 @@ export default function MobileJobHeaderCard({
     [job.location, job.address, location]
   );
 
-  const handleApply = () => {
-    if (onApply) {
-      onApply(job._id);
-    } else {
-      toast.info("Apply functionality not available");
-    }
-  };
-
-  const handleSaveToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-
-    if (!jobSeekerId) {
-      toast.error("Please create a jobseeker profile first");
-      return;
-    }
-
-    if (isSaved && savedJobId) {
-      // Unsave the job
-      deleteSavedJob(
-        {
-          jobSeekerId,
-          jobId: job._id,
-        },
-        {
-          onSuccess: () => {
-            toast.success("Job removed from saved jobs");
-          },
-          onError: (error) => {
-            toast.error(
-              error instanceof Error ? error.message : "Failed to unsave job"
-            );
-          },
-        }
-      );
-    } else {
-      // Save the job
-      saveJob(
-        {
-          jobSeekerId,
-          jobId: job._id,
-        },
-        {
-          onSuccess: () => {
-            toast.success("Job saved successfully");
-          },
-          onError: (error) => {
-            toast.error(
-              error instanceof Error ? error.message : "Failed to save job"
-            );
-          },
-        }
-      );
-    }
-
-    // Call onFavorite if provided (for backward compatibility)
-    if (onFavorite) {
-      onFavorite(job._id);
-    }
-  };
 
   const handleBack = () => {
     if (onBack) {
@@ -284,14 +213,34 @@ export default function MobileJobHeaderCard({
           router.back();
         }
       },
-      onError: (error) => {
-        toast.error(
-          error instanceof Error ? error.message : "Failed to delete job"
-        );
-        setShowDeleteConfirm(false);
-      },
     });
   };
+
+  const handleApply = () => {
+    if (!isAuthenticated) {
+      toast.error("Please login to apply for this job");
+      return;
+    }
+
+    const applicantProfileId = jobseekerProfile?.data?.profile?._id;
+    if (!applicantProfileId) {
+      toast.error("Please create a jobseeker profile first");
+      return;
+    }
+
+    apply(
+      {
+        jobId: job._id,
+        payload: { applicantProfileId },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Application submitted successfully");
+        },
+        }
+      );
+  };
+
 
   return (
     <div className={cn("bg-white rounded-2xl shadow", className)}>
@@ -301,9 +250,9 @@ export default function MobileJobHeaderCard({
           <button onClick={handleBack}>
             <ChevronLeft className="size-6 text-grey-blue" />
           </button>
-          <Badge className="text-xs font-medium bg-success-10 text-success-100">
+          {/* <Badge className="text-xs font-medium bg-success-10 text-success-100">
             Part time
-          </Badge>
+          </Badge> */}
           <Badge className="text-xs font-medium bg-purple/10 text-purple">
             Full time
           </Badge>
@@ -346,21 +295,13 @@ export default function MobileJobHeaderCard({
                   </button>
                 }
               />
-              <button
-                onClick={handleSaveToggle}
-                disabled={isSaving || isDeleting || !jobSeekerId}
-                className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Heart
-                  className={cn(
-                    "w-5 h-5",
-                    isSaved || isFavorite
-                      ? "fill-red-500 text-red-500"
-                      : "text-gray-700"
-                  )}
-                  strokeWidth={1.5}
-                />
-              </button>
+              <SaveJobButton
+                jobId={job._id}
+                isSaved={isSaved}
+                isJobOwner={isJobOwner}
+                iconOnly
+                className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center"
+              />
             </div>
           )}
         </div>
@@ -484,7 +425,7 @@ export default function MobileJobHeaderCard({
             <>
               <Button
                 variant="outline"
-                size={"lg"}
+                  size={"sm"}
                 className="w-full"
                 onClick={() => toast.info("Work in progress")}
               >
@@ -492,7 +433,7 @@ export default function MobileJobHeaderCard({
               </Button>
               <Button
                 variant={isApplied ? "outline" : "filled"}
-                size={"lg"}
+                  size={"sm"}
                 className="w-full"
                 onClick={handleApply}
                 disabled={isApplying || isApplied}

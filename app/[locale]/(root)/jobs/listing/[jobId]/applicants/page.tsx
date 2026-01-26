@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Table } from "@/components/table/table";
 import { useGetJobApplicants } from "@/hooks/useJobApplications";
@@ -8,9 +8,7 @@ import { JobApplicant } from "@/interfaces/job.types";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
-import { ArrowLeft } from "lucide-react";
 import { useLocale } from "@/hooks/useLocale";
 import { createColumns } from "./_components/columns";
 
@@ -64,11 +62,10 @@ export default function JobApplicantsPage() {
             },
           ]}
           showHomeIcon={false}
-          showSelectCategoryLink={false}
         />
 
-        <div className="bg-white rounded-2xl">
-          <div className="lg:block hidden">
+        <div className="bg-white rounded-2xl border border-gray-200">
+          <div className="lg:block hidden p-5">
             <Typography variant="h2" className="text-dark-blue font-bold mb-2">
               Job Applicants
             </Typography>

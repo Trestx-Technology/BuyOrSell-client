@@ -9,6 +9,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { AD } from "@/interfaces/ad";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { useLocale } from "@/hooks/useLocale";
+import { containerVariants, itemVariants } from "@/utils/animation-variants";
 
 export interface ProductsGridProps {
   className?: string;
@@ -32,32 +33,7 @@ export default function ProductsGrid({
   gridClassName,
 }: ProductsGridProps) {
   const { locale } = useLocale();
-  // Animation variants for staggered reveal
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 22,
-        duration: 0.5,
-      },
-    },
-  };
 
   const handleProductClick = (ad: AD) => {
     onProductClick?.(ad);
@@ -115,7 +91,7 @@ export default function ProductsGrid({
                   className="group cursor-pointer"
                   onClick={() => handleProductClick(ad)}
                 >
-                  <ListingCard {...listingCard} />
+                  <ListingCard {...listingCard} className="w-full" />
                 </motion.div>
               );
             })

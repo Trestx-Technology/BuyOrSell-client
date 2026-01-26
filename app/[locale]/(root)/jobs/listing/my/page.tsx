@@ -256,14 +256,9 @@ export default function MyJobsPage() {
                     <MobileJobHeaderCard
                       job={selectedJob}
                       logo={selectedJob.organization?.logoUrl}
-                      onFavorite={(id: string) => console.log("Favorited:", id)}
-                      onApply={(jobId: string) => {
-                        console.log("Apply to job:", jobId);
-                        // Handle apply logic in parent component
-                      }}
-                      isFavorite={false}
-                      isApplied={selectedJob.isApplied ?? false}
-                      isApplying={false}
+
+                              isSaved={selectedJob.isSaved ?? false}
+                              isApplied={selectedJob.isApplied ?? false}
                       onBack={() => setSelectedJobId(null)}
                       className="block sm:hidden"
                     />
@@ -272,14 +267,8 @@ export default function MyJobsPage() {
                       className="hidden sm:block"
                       job={selectedJob}
                       logo={selectedJob.organization?.logoUrl}
-                      onFavorite={(id: string) => console.log("Favorited:", id)}
-                      onApply={(jobId: string) => {
-                        console.log("Apply to job:", jobId);
-                        // Handle apply logic in parent component
-                      }}
-                      isFavorite={false}
-                      isApplied={selectedJob.isApplied ?? false}
-                      isApplying={false}
+                              isSaved={selectedJob.isSaved ?? false}
+                              isApplied={selectedJob.isApplied ?? false}
                     />
                     <JobDetailContent job={selectedJob} />
                     <Disclaimer />

@@ -1,5 +1,6 @@
 import { axiosInstance } from "@/services/axios-api-client";
 import { savedJobsQueries } from "./index";
+import { JobAd, JobData, MySavedJob } from "@/interfaces/job.types";
 
 // ============================================================================
 // SAVED JOBS TYPES
@@ -34,21 +35,22 @@ export interface SavedJobResponse {
 export interface SavedJobsListResponse {
   statusCode: number;
   message: string;
-  data: {
-    items: Array<{
-      _id: string;
-      jobSeekerId: string;
-      jobId: string;
-      notes?: string;
-      notesAr?: string;
-      createdAt: string;
-      updatedAt: string;
-      job?: unknown;
-    }>;
-    total: number;
-    page: number;
-    limit: number;
-  };
+  // data: {
+  //   items: Array<{
+  //     _id: string;
+  //     jobSeekerId: string;
+  //     jobId: string;
+  //     notes?: string;
+  //     notesAr?: string;
+  //     createdAt: string;
+  //     updatedAt: string;
+  //     job?: JobData;
+  //   }>;
+  //   total: number;
+  //   page: number;
+  //   limit: number;
+  // };
+  data: MySavedJob[];
 }
 
 export interface CheckSavedJobResponse {

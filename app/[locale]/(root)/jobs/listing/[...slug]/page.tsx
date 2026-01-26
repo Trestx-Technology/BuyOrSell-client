@@ -218,7 +218,7 @@ export default function JobsListingPage() {
                     }`}
             >
               <div
-                className={cn("flex gap-5 flex-wrap", selectedJobId && "block")}
+                    className={cn("flex flex-wrap gap-4", selectedJobId && "block")}
               >
                 {jobs.map((job) => (
                   <JobListingCard
@@ -269,11 +269,8 @@ export default function JobsListingPage() {
                             <MobileJobHeaderCard
                               job={selectedJob}
                               logo={selectedJob.organization?.logoUrl}
-                                onFavorite={() => { }}
-                                onApply={() => { }}
-                                isFavorite={false}
+                                isSaved={selectedJob.isSaved}
                                 isApplied={selectedJob.isApplied ?? false}
-                                isApplying={false}
                                 onBack={() => setSelectedJobId(null)}
                                 className="block sm:hidden"
                               />
@@ -282,11 +279,8 @@ export default function JobsListingPage() {
                                 className="hidden sm:block"
                                 job={selectedJob}
                                 logo={selectedJob.organization?.logoUrl}
-                                onFavorite={() => { }}
-                                onApply={() => { }}
-                                isFavorite={false}
+                                isSaved={selectedJob.isSaved}
                                 isApplied={selectedJob.isApplied ?? false}
-                                isApplying={false}
                               />
                               <JobDetailContent job={selectedJob} />
                               <Disclaimer />

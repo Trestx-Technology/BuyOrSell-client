@@ -50,7 +50,7 @@ export function LoginRequiredDialog({
       description={message}
       dialogContentClassName="sm:max-w-[425px]"
     >
-      <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+      <div className="p-4 flex flex-col sm:flex-row gap-2 sm:justify-end">
         <Button
           variant="outline"
           onClick={handleCancel}

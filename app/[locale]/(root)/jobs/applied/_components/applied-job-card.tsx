@@ -1,59 +1,45 @@
 "use client";
 
+import { MyAppliedJob } from "@/interfaces/job.types";
 import {
   Briefcase,
   MapPin,
   Clock,
-  Share2,
 } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import Link from "next/link";
-import { ICONS } from "@/constants/icons";
-import { SaveJobButton } from "../../saved/_components/save-job-button";
 import { formatDate } from "@/utils/format-date";
-import { AD } from "@/interfaces/ad";
-import ShareJobDialog from "../../listing/_components/share-job-dialog";
+import { cn } from "@/lib/utils";
 
+export default function AppliedJobCard({ application, className }: { application: MyAppliedJob, className?: string }) {
+  const { job } = application;
 
-export default function JobCard({
-  job
-}: { job: Partial<AD> }) {
-  const organization = job?.organization;
-  const address = job?.address;
-  const owner = job?.owner;
-  const isSaved = job?.isSaved;
-  const title = job?.title;
-  const logo = organization?.logoUrl || owner?.image;
-  const company = organization?.tradeName || organization?.legalName || owner?.firstName + " " + owner?.lastName;
-  const location = address?.city || address?.state || address?.country;
-  const createdAt = job?.createdAt;
+  if (!job) return null;
+
+  const companyName =
+    job.organization?.tradeName ||
+    job.organization?.legalName ||
+    job.company ||
+    "Company Name";
+
+  const logo = job.organization?.logoUrl;
+
 
 
   return (
-    <div className="relative sm:w-[250px]  bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full flex flex-col h-full">
-      {/* Header with Badge and Actions */}
-      <div className="space-y-2 flex-1  gap-[21.33px] mb-4">
+    <div className={cn("relative sm:max-w-[300px] bg-white border border-slate-200 rounded-2xl p-4 shadow-sm w-full flex flex-col h-full", className)}>
+      {/* Header with Status and Applied Time */}
+      <div className="space-y-2 flex-1 gap-[21.33px] mb-4">
         <div className="flex justify-between items-center">
-          <Badge className="bg-[#F5EBFF] text-purple px-2 py-1.5 rounded-[24px] text-xs font-normal">
-            {formatDate?.(createdAt)}
+          <Badge className="bg-[#F5EBFF] text-purple px-2 py-1.5 rounded-[24px] text-xs font-normal capitalize">
+            {application.status}
           </Badge>
-          <div className="flex items-center gap-2">
-            <ShareJobDialog job={job} trigger={
-              <button>
-                <Share2 className="w-5 h-5 text-grey-blue" />
-              </button>
-            }
-            />
-            <SaveJobButton
-              jobId={job?._id as string}
-              isSaved={isSaved}
-              iconOnly={true}
-              className="p-1 hover:bg-gray-100 rounded flex flex-row"
-            />
-          </div>
+          <Typography variant="body-small" className="text-grey-blue text-[10px]">
+            Applied {formatDate(application.createdAt)}
+          </Typography>
         </div>
 
         {/* Company Logo and Info */}
@@ -63,24 +49,24 @@ export default function JobCard({
               variant="h3"
               className="text-black font-bold text-lg leading-tight line-clamp-1"
             >
-              {title || "Not specified"}
+              {job.title}
             </Typography>
             <Typography variant="body-small" className="text-black text-sm">
-              {company}
+              {companyName}
             </Typography>
           </div>
           {logo ? (
             <Image
               src={logo}
-              alt={company}
+              alt={companyName}
               width={32}
               height={32}
-              className="object-cover w-10 h-10 rounded-full"
+              className="rounded-full"
             />
           ) : (
             <div className="w-8 h-8 rounded-full bg-purple flex items-center justify-center">
               <span className="text-white text-xs font-semibold">
-                {company.charAt(0)}
+                {companyName.charAt(0)}
               </span>
             </div>
           )}
@@ -95,24 +81,33 @@ export default function JobCard({
             variant="body-small"
             className="text-dark-blue text-xs font-medium"
           >
-            Not specified
+            {job.experience || "Not specified"}
           </Typography>
         </div>
 
         <div className="flex items-center gap-1.5">
-          <Image
+          {/* <Image
             src={ICONS.currency.aed}
-            alt="dollar sign"
+            alt="currency icon"
             width={16}
             height={16}
-          />
+          /> */}
           <div className="flex items-center gap-1">
             <span className="text-[9.19px]">AED</span>
             <Typography
               variant="body-small"
               className="text-dark-blue text-xs font-medium"
             >
-              {job?.price || "Not specified"}
+              {job.salaryMin || "Not specified"}
+            </Typography>
+
+            <span className="text-[#8A8A8A] text-[10.83px]">-</span>
+            <span className="text-[9.19px]">AED</span>
+            <Typography
+              variant="body-small"
+              className="text-dark-blue text-xs font-medium"
+            >
+              {job.salaryMax || "Not specified"}
             </Typography>
           </div>
         </div>
@@ -123,7 +118,7 @@ export default function JobCard({
             variant="body-small"
             className="text-dark-blue text-xs font-medium"
           >
-            Not specified
+            {job.jobType || "Not specified"}
           </Typography>
         </div>
 
@@ -133,13 +128,13 @@ export default function JobCard({
             variant="body-small"
             className="text-dark-blue text-xs font-medium"
           >
-            {location || "Not specified"}
+            {job.location ?? "Not specified"}
           </Typography>
         </div>
       </div>
 
       {/* Action Button */}
-      <Link href={(`/jobs/${job?.category?.name}?jobId=${job?._id}`)}>
+      <Link href={`/jobs/${job.category?.name}?jobId=${job._id}`}>
         <Button size={"sm"} className="w-full uppercase font-medium text-xs">
           Job details
         </Button>

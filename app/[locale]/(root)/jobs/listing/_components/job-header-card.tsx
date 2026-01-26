@@ -12,18 +12,14 @@ import { useAuthStore } from "@/stores/authStore";
 import JobApplicantsModal from "./job-applicants-modal";
 import ShareJobDialog from "./share-job-dialog";
 import { AD } from "@/interfaces/ad";
-import {
-  useSaveJob,
-  useDeleteSavedJobByJobAndSeeker,
-} from "@/hooks/useSavedJobs";
+import { SaveJobButton } from "../../saved/_components/save-job-button";
 import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
+import { useApplyToJob } from "@/hooks/useJobApplications";
 import Image from "next/image";
 
 export interface JobHeaderCardProps {
   job: AD;
-  onFavorite?: (id: string) => void;
-  onApply?: (jobId: string) => void;
-  isFavorite?: boolean;
+  isSaved?: boolean;
   isApplied?: boolean;
   isApplying?: boolean;
   logo?: string;
@@ -32,31 +28,26 @@ export interface JobHeaderCardProps {
 
 export default function JobHeaderCard({
   job,
-  onFavorite,
-  onApply,
-  isFavorite = false,
+  isSaved = false,
   isApplied = false,
   isApplying = false,
   logo,
   className,
 }: JobHeaderCardProps) {
-  const { session } = useAuthStore();
+  const session = useAuthStore((state) => state.session);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const currentUserId = session.user?._id;
+
   const isJobOwner =
     job.owner?._id === currentUserId ||
     job.organization?.owner === currentUserId;
 
-  // Get jobseeker profile to get jobSeekerId
+
+  // Get jobseeker profile for apply logic
   const { data: jobseekerProfile } = useGetJobseekerProfile();
-  const jobSeekerId = jobseekerProfile?.data?.profile?.userId;
 
-  const isSaved = job.isSaved ?? false;
-  const savedJobId = job.savedJobId;
-
-  // Save/Unsave mutations
-  const { mutate: saveJob, isPending: isSaving } = useSaveJob();
-  const { mutate: deleteSavedJob, isPending: isDeleting } =
-    useDeleteSavedJobByJobAndSeeker();
+  // Apply mutation
+  const { mutate: apply, isPending: isApplyingToJob, isSuccess } = useApplyToJob();
 
   // Extract extraFields
   const extraFields = Array.isArray(job.extraFields)
@@ -180,54 +171,30 @@ export default function JobHeaderCard({
   );
 
   const handleApply = () => {
-    if (onApply) {
-      onApply(job._id);
-    } else {
-      toast.info("Apply functionality not available");
+    if (!isAuthenticated) {
+      toast.error("Please login to apply for this job");
+      return;
     }
-  };
 
-  const handleSaveToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-
-    if (!jobSeekerId) {
+    const applicantProfileId = jobseekerProfile?.data?.profile?._id;
+    if (!applicantProfileId) {
       toast.error("Please create a jobseeker profile first");
       return;
     }
 
-    if (isSaved && savedJobId) {
-      // Unsave the job
-      deleteSavedJob(
-        {
-          jobSeekerId,
-          jobId: job._id,
+    apply(
+      {
+        jobId: job._id,
+        payload: { applicantProfileId },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Application submitted successfully");
         },
-        {
-          onSuccess: () => {
-            toast.success("Job removed from saved jobs");
-          },
-        }
-      );
-    } else {
-      // Save the job
-      saveJob(
-        {
-          jobSeekerId,
-          jobId: job._id,
-        },
-        {
-          onSuccess: () => {
-            toast.success("Job saved successfully");
-          },
-        }
-      );
-    }
-
-    // Call onFavorite if provided (for backward compatibility)
-    if (onFavorite) {
-      onFavorite(job._id);
-    }
+      }
+    );
   };
+
 
   return (
     <div
@@ -248,22 +215,11 @@ export default function JobHeaderCard({
           }
         />
         {!isJobOwner && (
-          <button
-            onClick={handleSaveToggle}
-            disabled={isSaving || isDeleting || !jobSeekerId}
-            className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Heart
-              className={cn(
-                "w-5 h-5",
-                isSaved || isFavorite
-                  ? "fill-red-500 text-red-500"
-                  : "text-grey-blue"
-              )}
-              strokeWidth={1.5}
-            />
-            <span className="text-xs text-grey-blue font-medium">Save</span>
-          </button>
+          <SaveJobButton
+            jobId={job._id}
+            isSaved={isSaved}
+            isJobOwner={isJobOwner}
+          />
         )}
       </div>
 
@@ -394,21 +350,21 @@ export default function JobHeaderCard({
               <>
                 <Button
                   variant="outline"
-                  size={"lg"}
+                    size={"small"}
                   className="px-4 py-2"
                   onClick={() => toast.info("Work in progress")}
                 >
                   Chat with employer
                 </Button>
                 <Button
-                  variant={isApplied ? "outline" : "filled"}
-                  size={"lg"}
-                  onClick={handleApply}
-                  disabled={isApplying || isApplied}
+                    variant={isApplied || isSuccess ? "outline" : "filled"}
+                    size={"small"}
+                    onClick={handleApply}
+                    className="px-4 py-2"
+                    disabled={isApplying || isApplyingToJob || isApplied || isSuccess}
+                    isLoading={isApplying || isApplyingToJob}
                 >
-                  {isApplying
-                    ? "Applying..."
-                    : isApplied
+                    {isApplied || isSuccess
                     ? "Applied"
                     : "Apply Now"}
                 </Button>

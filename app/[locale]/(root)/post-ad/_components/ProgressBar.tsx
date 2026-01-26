@@ -41,7 +41,7 @@ export default function ProgressBar({
   }, [currentStep, totalSteps, progressPercentage]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-8 md:gap-4">
       {/* Title */}
       <h2 className="text-xs font-semibold text-[#1D2939] text-left">
         {title}

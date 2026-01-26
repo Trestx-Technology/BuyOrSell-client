@@ -83,7 +83,7 @@ export function ShareDialog({ url, title, description, children }: ShareDialogPr
       open={open}
       onOpenChange={setOpen}
       title="Share"
-      description={`Share this ${title.toLowerCase()} on your favorite platform`}
+      description={`Share this ${title} on your favorite platform`}
       dialogContentClassName="sm:max-w-lg"
       trigger={
         children || (
@@ -94,7 +94,7 @@ export function ShareDialog({ url, title, description, children }: ShareDialogPr
         )
       }
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
           {shareLinks.map((platform) => (
             <Button

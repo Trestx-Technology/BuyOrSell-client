@@ -105,7 +105,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
   return (
     <div className="relative aspect-[3/3] sm:aspect-[4/3] w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
       {images.length > 0 ? (
-        <div className="relative w-full h-full overflow-hidden z-20">
+        <div className="relative w-full h-full overflow-hidden">
           <div
             className="flex transition-transform duration-500 ease-in-out h-full"
             style={{
@@ -149,7 +149,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
       )}
 
       {isExchange && (
-        <Badge className="absolute h-6 bg-[#FE9800] top-3 left-2 z-20">
+        <Badge className="absolute h-6 bg-[#FE9800] top-3 left-2 ">
           <Repeat size={22} />
           Exchange Available
         </Badge>
@@ -157,7 +157,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
 
       {/* Image Counter */}
       {images?.length > 1 && (
-        <div className="absolute bottom-3 left-3 w-fit z-20">
+        <div className="absolute bottom-3 left-3 w-fit ">
           <div className="bg-[#777777] rounded-lg px-2 py-1 flex items-center gap-1 w-fit">
             <ImageIcon className="size-3 sm:size-4 text-white" />
             <span className="text-[10px] text-white font-medium">
@@ -168,7 +168,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
       )}
 
       {/* Views Counter */}
-      <div className="absolute bottom-3 right-3 z-20">
+      <div className="absolute bottom-3 right-3">
         <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
           <Eye className="size-3 sm:size-4 text-white" />
           <span className="text-[10px] text-white font-medium">
@@ -198,7 +198,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
             variant="secondary"
             disabled={isTransitioning}
             className={cn(
-              "absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg z-30 p-0",
+              "absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg p-0",
               isTransitioning && "opacity-50 cursor-not-allowed"
             )}
             onClick={handleNextImage}
@@ -211,7 +211,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
 
       {/* Image Dots Indicator */}
       {images.length > 1 && images.length <= 5 && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-20">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1">
           {images.map((_, index) => (
             <button
               key={`${id}-dot-${index}`}

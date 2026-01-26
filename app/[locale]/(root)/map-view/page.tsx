@@ -1,20 +1,18 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import MapViewFilter, { MapViewFilters } from "./_components/map-view-filter";
 import ProductsGrid from "./_components/products-grid";
 import Map from "./_components/map";
 import { cn } from "@/lib/utils";
 import { HorizontalCarouselSlider } from "@/components/global/horizontal-carousel-slider";
-import Navbar from "@/components/global/Navbar";
-import { Footer } from "@/components/global/footer";
-import { useAds, useFilterAds } from "@/hooks/useAds";
-import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { useSearchParams } from "next/navigation";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
 import { AdFilterPayload, ProductExtraFields } from "@/interfaces/ad";
 import { useLocale } from "@/hooks/useLocale";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { useAds, useFilterAds } from "@/hooks/useAds";
+import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 
 const MapView = () => {
   const { t } = useLocale();

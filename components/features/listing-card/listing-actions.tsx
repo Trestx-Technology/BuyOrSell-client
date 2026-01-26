@@ -23,7 +23,7 @@ export const ListingActions: React.FC<ListingActionsProps> = ({
   onToggleSave,
 }) => {
   return (
-    <div className="hidden absolute top-3 right-3 sm:flex gap-2 z-20">
+    <div className="hidden absolute top-3 right-3 sm:flex gap-2">
       {!isExchange && (
         <button
           className="h-8 w-8 opacity-100 hover:scale-125 transition-transform cursor-pointer rounded-full"

@@ -355,7 +355,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
       sideOffset={0}
     >
       <div className="flex w-full">
-        <div className="w-60 border-r border-gray-300 overflow-y-auto">
+        <div className="w-60 border-r border-gray-300 overflow-y-auto max-h-[500px]">
           {categoryData.map((category) => {
             const hasChildren =
               category.children && category.children.length > 0;

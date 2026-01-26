@@ -6,7 +6,6 @@ import { FcGoogle } from "react-icons/fc";
 import React, { useState, useMemo } from "react";
 import { FaApple } from "react-icons/fa";
 import Link from "next/link";
-import { GoogleLoginButton } from "../_components/google";
 import { toast } from "sonner";
 import {
   ChevronLeft,
@@ -333,29 +332,8 @@ const Signup = () => {
       </Typography>
 
       <div className="space-y-2 text-sm sm:text-md font-medium">
-        <GoogleLoginButton
-          oneTapAutoSelect={false}
-          onSuccess={(data) => {
-            const payload = {
-              countryCode: selectedCountryCode,
-              deviceKey: "1234567890",
-              email: data.email,
-              firstName: data.firstName,
-              lastName: data.lastName || data.firstName,
-              socialType: "google",
-              verifyEmail: true,
-            };
-            console.log("payload: ", payload);
-            // HandleSocialSignup(payload);
-          }}
-          onError={(error) => toast.error(error)}
-          className="w-[400px]"
-          enableOneTap={false}
-          render={({ onClick, disabled, isLoading }) => (
-            <Button
-              disabled={disabled}
-              onClick={onClick}
-              isLoading={isLoading}
+
+        <Button
               variant="ghost"
               size="lg"
               className="w-full bg-white border-[#8B31E18A] border text-dark-blue text-sm"
@@ -363,9 +341,7 @@ const Signup = () => {
               icon={<FcGoogle />}
             >
               {t.auth.signup.continueWithGoogle}
-            </Button>
-          )}
-        />
+        </Button>
 
         <Button
           variant="ghost"

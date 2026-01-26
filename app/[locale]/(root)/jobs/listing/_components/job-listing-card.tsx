@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Briefcase, Clock, MapPin, Share2, Heart } from "lucide-react";
+import { Briefcase, Clock, MapPin, Share2 } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -11,14 +11,9 @@ import { formatDistanceToNow } from "date-fns";
 import { ICONS } from "@/constants/icons";
 import { FaMoneyBillWave } from "react-icons/fa";
 import ShareJobDialog from "./share-job-dialog";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { useAuthStore } from "@/stores/authStore";
-import {
-  useSaveJob,
-  useDeleteSavedJobByJobAndSeeker,
-} from "@/hooks/useSavedJobs";
-import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
+import { SaveJobButton } from "../../saved/_components/save-job-button";
+import { formatDate } from "@/utils/format-date";
 
 export interface JobListingCardProps {
   job: AD;
@@ -50,22 +45,10 @@ export default function JobListingCard({
     job.owner?._id === currentUserId ||
     job.organization?.owner === currentUserId;
 
-  // Get jobseeker profile to get jobSeekerId
-  const { data: jobseekerProfile } = useGetJobseekerProfile();
-  const jobSeekerId = jobseekerProfile?.data?.profile?.userId;
-
   const isSaved = job.isSaved ?? false;
-  const savedJobId = job.savedJobId;
-
-  // Save/Unsave mutations
-  const { mutate: saveJob, isPending: isSaving } = useSaveJob();
-  const { mutate: deleteSavedJob, isPending: isDeleting } =
-    useDeleteSavedJobByJobAndSeeker();
 
   const jobProps = transformAdToJobCardProps(job);
-  const postedTime = formatDistanceToNow(new Date(job.createdAt), {
-    addSuffix: true,
-  });
+  const postedTime = formatDate(job.createdAt)
 
   // Extract additional fields directly from job
   const extraFields = Array.isArray(job.extraFields)
@@ -98,49 +81,13 @@ export default function JobListingCard({
     ? validityDate!.getTime() < Date.now()
     : false;
 
-  const handleSaveToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-
-    if (!jobSeekerId) {
-      toast.error("Please create a jobseeker profile first");
-      return;
-    }
-
-    if (isSaved && savedJobId) {
-      // Unsave the job
-      deleteSavedJob(
-        {
-          jobSeekerId,
-          jobId: job._id,
-        },
-        {
-          onSuccess: () => {
-            toast.success("Job removed from saved jobs");
-          },
-        }
-      );
-    } else {
-      // Save the job
-      saveJob(
-        {
-          jobSeekerId,
-          jobId: job._id,
-        },
-        {
-          onSuccess: () => {
-            toast.success("Job saved successfully");
-          },
-        }
-      );
-    }
-  };
 
   return (
     <div
       onClick={onClick}
       role="button"
       className={cn(
-        "bg-white w-full sm:min-w-[256px] rounded-2xl cursor-pointer transition-all relative p-4",
+        "bg-white w-full sm:max-w-[270px] rounded-2xl cursor-pointer transition-all relative p-4",
         "border shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] hover:shadow-[0px_2.67px_7.11px_#309689/20]",
         isSelected ? "border-purple border-[1px]" : "border-[#E2E2E2]"
       )}
@@ -173,20 +120,12 @@ export default function JobListingCard({
             />
 
             {!isJobOwner && (
-              <button
-                onClick={handleSaveToggle}
-                disabled={isSaving || isDeleting || !jobSeekerId}
-                className="flex flex-col items-center gap-1 hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Heart
-                  className={cn(
-                    "w-5 h-5",
-                    isSaved ? "fill-red-500 text-red-500" : "text-grey-blue"
-                  )}
-                  strokeWidth={1.5}
-                />
-                <span className="text-xs text-grey-blue font-medium">Save</span>
-              </button>
+              <SaveJobButton
+                jobId={job._id}
+                isSaved={isSaved}
+                isJobOwner={isJobOwner}
+                iconOnly={true}
+              />
             )}
           </div>
         </div>
@@ -249,7 +188,7 @@ export default function JobListingCard({
               variant="body-small"
               className="text-[#1D2939] text-xs font-medium leading-[1.21]"
             >
-              {jobProps.salaryMin || "0"} -
+              {jobProps.salaryMin} -
               {jobProps.salaryMax || "Not specified"}
             </Typography>
           </div>

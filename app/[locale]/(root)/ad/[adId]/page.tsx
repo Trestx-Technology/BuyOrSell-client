@@ -24,7 +24,7 @@ import { Container1080 } from "@/components/layouts/container-1080";
 
 export default function AdDetailPage() {
   const { adId } = useParams();
-  const [activeTab, setActiveTab] = useState<TabType>("specifications");
+  const [activeTab, setActiveTab] = useState<TabType>("description");
   const { t } = useLocale();
 
   // Fetch ad data by ID

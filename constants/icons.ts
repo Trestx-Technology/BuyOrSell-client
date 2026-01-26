@@ -27,7 +27,7 @@ export const UI_ICONS = {
   finishLine: `${S3_BASE_URL}/icons/finish-line.svg`,
   fallback: `/assets/fallback.png`,
   company: `/assets/company.png`,
-  Map: `${S3_BASE_URL}/icons/location.png`,
+  Map: `${S3_BASE_URL}/icons/map.svg`,
   chat: `${S3_BASE_URL}/icons/chat.png`,
 } as const;
 

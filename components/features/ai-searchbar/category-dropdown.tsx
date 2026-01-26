@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 interface CategoryDropdownProps {
   selectedCategory: string;
-  setSelectedCategory: (category: string) => void;
+  setSelectedCategory: (categories: string) => void;
 }
 
 export function CategoryDropdown({

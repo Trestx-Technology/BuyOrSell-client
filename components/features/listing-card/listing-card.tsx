@@ -102,12 +102,12 @@ const ListingCard: React.FC<ListingCardProps> = ({
   return (
     <div
       className={cn(
-        "w-[220px] h-full overflow-hidden rounded-2xl bg-white shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer group relative flex flex-col",
+        "w-[220px] overflow-hidden rounded-2xl bg-white shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer group relative flex flex-col",
         className
       )}
     >
       <Link href={`/ad/${id}`} className="absolute inset-0 z-10" />
-      <div className="p-0 flex flex-col h-full">
+      <div className="p-0 flex flex-col flex-1">
         {/* Image Section (Carousel, Badges, Actions) */}
         <ListingImageGallery
           id={id}

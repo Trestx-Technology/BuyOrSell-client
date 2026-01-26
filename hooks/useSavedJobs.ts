@@ -72,126 +72,37 @@ export const useGetMySavedJobs = (
     page?: number;
     limit?: number;
   },
-  enabled?: boolean
+  enabled?: boolean,
 ) => {
   const isAuthenticated = useIsAuthenticated();
   return useQuery<SavedJobsListResponse, Error>({
     queryKey: [...savedJobsQueries.getMySavedJobs.Key, params],
     queryFn: () => getMySavedJobs(params),
-    enabled: enabled !== false || isAuthenticated,
+    enabled: enabled !== false && isAuthenticated,
   });
 };
 
 // ============================================================================
-// SAVED JOBS MUTATION HOOKS (WITH OPTIMISTIC UPDATES)
+// SAVED JOBS MUTATION HOOKS
 // ============================================================================
-
-type SavedJobContext = {
-  previousCheck?: CheckSavedJobResponse;
-  previousCount?: SavedJobsCountResponse;
-};
 
 export const useSaveJob = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<SavedJobResponse, Error, SaveJobPayload, SavedJobContext>({
+  return useMutation<SavedJobResponse, Error, SaveJobPayload>({
     mutationFn: (payload) => saveJob(payload),
-    onMutate: async (variables) => {
-      // Cancel any outgoing refetches to avoid overwriting optimistic update
-      await queryClient.cancelQueries({
+    onSuccess: (_, variables) => {
+      // Invalidate queries to ensure fresh data eventually
+      queryClient.invalidateQueries({
+        queryKey: savedJobsQueries.getMySavedJobs.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: savedJobsQueries.getSavedJobsCount.Key,
+      });
+      queryClient.invalidateQueries({
         queryKey: [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
       });
-      await queryClient.cancelQueries({
-        queryKey: savedJobsQueries.getMySavedJobs.Key,
-      });
-      await queryClient.cancelQueries({
-        queryKey: savedJobsQueries.getSavedJobsCount.Key,
-      });
-
-      // Snapshot the previous values
-      const previousCheck = queryClient.getQueryData<CheckSavedJobResponse>([
-        ...savedJobsQueries.checkSavedJob.Key,
-        variables.jobId,
-      ]);
-      const previousCount = queryClient.getQueryData<SavedJobsCountResponse>(
-        savedJobsQueries.getSavedJobsCount.Key
-      );
-
-      // Optimistically update to the new value
-      queryClient.setQueryData<CheckSavedJobResponse>(
-        [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
-        {
-          statusCode: 200,
-          message: "Job is saved",
-          data: {
-            isSaved: true,
-            savedJobId: "optimistic-id",
-          },
-        }
-      );
-
-      // Optimistically update count
-      if (previousCount) {
-        queryClient.setQueryData<SavedJobsCountResponse>(
-          savedJobsQueries.getSavedJobsCount.Key,
-          {
-            ...previousCount,
-            data: {
-              count: previousCount.data.count + 1,
-            },
-          }
-        );
-      }
-
-      // Return context with the snapshotted values
-      return { previousCheck, previousCount };
-    },
-    onSuccess: (data, variables) => {
-      // Update with real data from server
-      queryClient.setQueryData<CheckSavedJobResponse>(
-        [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
-        {
-          statusCode: 200,
-          message: "Job is saved",
-          data: {
-            isSaved: true,
-            savedJobId: data.data._id,
-          },
-        }
-      );
-
-      // Invalidate queries to refetch with real data
-      queryClient.invalidateQueries({
-        queryKey: savedJobsQueries.getMySavedJobs.Key,
-      });
-      queryClient.invalidateQueries({
-        queryKey: savedJobsQueries.getSavedJobsCount.Key,
-      });
-      // Invalidate ads queries to update isSaved state in job listings
-      queryClient.invalidateQueries({
-        queryKey: adQueries.ads.Key,
-      });
-      queryClient.invalidateQueries({
-        queryKey: adQueries.filterAds.Key,
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["ad", variables.jobId],
-      });
-    },
-    onError: (error, variables, context) => {
-      // Rollback optimistic updates on error
-      if (context?.previousCheck) {
-        queryClient.setQueryData<CheckSavedJobResponse>(
-          [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
-          context.previousCheck
-        );
-      }
-      if (context?.previousCount) {
-        queryClient.setQueryData<SavedJobsCountResponse>(
-          savedJobsQueries.getSavedJobsCount.Key,
-          context.previousCount
-        );
-      }
+      queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
     },
   });
 };
@@ -202,95 +113,20 @@ export const useDeleteSavedJob = () => {
   return useMutation<
     { statusCode: number; message: string },
     Error,
-    { savedJobId: string; jobId: string },
-    SavedJobContext
+    { savedJobId: string; jobId: string }
   >({
     mutationFn: ({ savedJobId }) => deleteSavedJob(savedJobId),
-    onMutate: async (variables) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({
-        queryKey: [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
-      });
-      await queryClient.cancelQueries({
-        queryKey: savedJobsQueries.getMySavedJobs.Key,
-      });
-      await queryClient.cancelQueries({
-        queryKey: savedJobsQueries.getSavedJobsCount.Key,
-      });
-
-      // Snapshot the previous values
-      const previousCheck = queryClient.getQueryData<CheckSavedJobResponse>([
-        ...savedJobsQueries.checkSavedJob.Key,
-        variables.jobId,
-      ]);
-      const previousCount = queryClient.getQueryData<SavedJobsCountResponse>(
-        savedJobsQueries.getSavedJobsCount.Key
-      );
-
-      // Optimistically update to the new value
-      queryClient.setQueryData<CheckSavedJobResponse>(
-        [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
-        {
-          statusCode: 200,
-          message: "Job is not saved",
-          data: {
-            isSaved: false,
-          },
-        }
-      );
-
-      // Optimistically update count
-      if (previousCount && previousCount.data.count > 0) {
-        queryClient.setQueryData<SavedJobsCountResponse>(
-          savedJobsQueries.getSavedJobsCount.Key,
-          {
-            ...previousCount,
-            data: {
-              count: previousCount.data.count - 1,
-            },
-          }
-        );
-      }
-
-      // Return context with the snapshotted values
-      return { previousCheck, previousCount };
-    },
     onSuccess: (_, variables) => {
-      // Invalidate queries to refetch with real data
-      queryClient.invalidateQueries({
-        queryKey: [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
-      });
       queryClient.invalidateQueries({
         queryKey: savedJobsQueries.getMySavedJobs.Key,
       });
       queryClient.invalidateQueries({
         queryKey: savedJobsQueries.getSavedJobsCount.Key,
       });
-      // Invalidate ads queries to update isSaved state in job listings
       queryClient.invalidateQueries({
-        queryKey: adQueries.ads.Key,
+        queryKey: [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
       });
-      queryClient.invalidateQueries({
-        queryKey: adQueries.filterAds.Key,
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["ad", variables.jobId],
-      });
-    },
-    onError: (error, variables, context) => {
-      // Rollback optimistic updates on error
-      if (context?.previousCheck) {
-        queryClient.setQueryData<CheckSavedJobResponse>(
-          [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
-          context.previousCheck
-        );
-      }
-      if (context?.previousCount) {
-        queryClient.setQueryData<SavedJobsCountResponse>(
-          savedJobsQueries.getSavedJobsCount.Key,
-          context.previousCount
-        );
-      }
+      queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
     },
   });
 };
@@ -301,96 +137,21 @@ export const useDeleteSavedJobByJobAndSeeker = () => {
   return useMutation<
     { statusCode: number; message: string },
     Error,
-    { jobSeekerId: string; jobId: string },
-    SavedJobContext
+    { jobSeekerId: string; jobId: string }
   >({
     mutationFn: ({ jobSeekerId, jobId }) =>
       deleteSavedJobByJobAndSeeker(jobSeekerId, jobId),
-    onMutate: async (variables) => {
-      // Cancel any outgoing refetches
-      await queryClient.cancelQueries({
-        queryKey: [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
-      });
-      await queryClient.cancelQueries({
-        queryKey: savedJobsQueries.getMySavedJobs.Key,
-      });
-      await queryClient.cancelQueries({
-        queryKey: savedJobsQueries.getSavedJobsCount.Key,
-      });
-
-      // Snapshot the previous values
-      const previousCheck = queryClient.getQueryData<CheckSavedJobResponse>([
-        ...savedJobsQueries.checkSavedJob.Key,
-        variables.jobId,
-      ]);
-      const previousCount = queryClient.getQueryData<SavedJobsCountResponse>(
-        savedJobsQueries.getSavedJobsCount.Key
-      );
-
-      // Optimistically update to the new value
-      queryClient.setQueryData<CheckSavedJobResponse>(
-        [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
-        {
-          statusCode: 200,
-          message: "Job is not saved",
-          data: {
-            isSaved: false,
-          },
-        }
-      );
-
-      // Optimistically update count
-      if (previousCount && previousCount.data.count > 0) {
-        queryClient.setQueryData<SavedJobsCountResponse>(
-          savedJobsQueries.getSavedJobsCount.Key,
-          {
-            ...previousCount,
-            data: {
-              count: previousCount.data.count - 1,
-            },
-          }
-        );
-      }
-
-      // Return context with the snapshotted values
-      return { previousCheck, previousCount };
-    },
     onSuccess: (_, variables) => {
-      // Invalidate queries to refetch with real data
-      queryClient.invalidateQueries({
-        queryKey: [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
-      });
       queryClient.invalidateQueries({
         queryKey: savedJobsQueries.getMySavedJobs.Key,
       });
       queryClient.invalidateQueries({
         queryKey: savedJobsQueries.getSavedJobsCount.Key,
       });
-      // Invalidate ads queries to update isSaved state in job listings
       queryClient.invalidateQueries({
-        queryKey: adQueries.ads.Key,
+        queryKey: [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
       });
-      queryClient.invalidateQueries({
-        queryKey: adQueries.filterAds.Key,
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["ad", variables.jobId],
-      });
-    },
-    onError: (error, variables, context) => {
-      // Rollback optimistic updates on error
-      if (context?.previousCheck) {
-        queryClient.setQueryData<CheckSavedJobResponse>(
-          [...savedJobsQueries.checkSavedJob.Key, variables.jobId],
-          context.previousCheck
-        );
-      }
-      if (context?.previousCount) {
-        queryClient.setQueryData<SavedJobsCountResponse>(
-          savedJobsQueries.getSavedJobsCount.Key,
-          context.previousCount
-        );
-      }
+      queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
     },
   });
 };

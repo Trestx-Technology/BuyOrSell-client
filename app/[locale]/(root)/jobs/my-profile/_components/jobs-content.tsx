@@ -100,7 +100,7 @@ export default function JobsContent() {
         <FeaturedJobs />
 
         {/* Similar Jobs Section */}
-        <SimilarJobs />
+        {/* <SimilarJobs /> */}
 
         <Footer />
       </main>

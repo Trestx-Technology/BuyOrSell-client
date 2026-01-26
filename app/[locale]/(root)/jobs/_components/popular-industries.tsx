@@ -53,7 +53,7 @@ export default function PopularIndustries() {
         <JobsSectionTitle>Popular Industries</JobsSectionTitle>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          {jobSubcategories.map((industry) => {
+          {jobSubcategories.filter((industry) => industry.adCount > 0).map((industry) => {
             const industryId = industry._id;
             const industryName = industry.name || "";
             const jobCount = industry.adCount || 0;

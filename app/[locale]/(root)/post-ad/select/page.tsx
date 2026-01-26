@@ -5,12 +5,7 @@ import Image from "next/image";
 import { useGetMainCategories } from "@/hooks/useCategories";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { useRouter } from "nextjs-toploader/app";
-import { useMyOrganization } from "@/hooks/useOrganizations";
-import OrganizationRequiredDialog from "../_components/OrganizationRequiredDialog";
-import {
-  isJobCategory,
-  hasOrganization,
-} from "@/validations/post-ad.validation";
+
 import { Container1080 } from "@/components/layouts/container-1080";
 
 export default function SelectCategoryPage() {
@@ -31,29 +26,24 @@ export default function SelectCategoryPage() {
     error: categoriesError,
   } = useGetMainCategories();
 
-  // Fetch user organizations
-  const { data: organizationsData, isLoading: organizationsLoading } =
-    useMyOrganization();
-  const organizations = organizationsData?.data || [];
-
   // Use API data directly
-  const categories = categoriesData || [];
+  const categories = categoriesData?.filter((cat) => cat.name !== "Jobs") || [];
 
   const handleCategorySelect = (categoryId: string) => {
     // Find the selected category to get its name
     const selectedCategory = categories.find((cat) => cat._id === categoryId);
 
     if (selectedCategory) {
-      // Check if it's a job category
-      if (isJobCategory(selectedCategory.name)) {
-        // Check if user has organizations
-        if (!hasOrganization(organizations)) {
-          // Show dialog if no organizations
-          setShowOrgDialog(true);
-          return; // Don't proceed
-        }
-        // If user has organizations, proceed normally
-      }
+      // // Check if it's a job category
+      // if (isJobCategory(selectedCategory.name)) {
+      //   // Check if user has organizations
+      //   if (!hasOrganization(organizations)) {
+      //     // Show dialog if no organizations
+      //     setShowOrgDialog(true);
+      //     return; // Don't proceed
+      //   }
+      //   // If user has organizations, proceed normally
+      // }
 
       // Add to category array for breadcrumbs
       addToCategoryArray({
@@ -80,20 +70,16 @@ export default function SelectCategoryPage() {
 
   return (
     <Container1080>
-      <OrganizationRequiredDialog
-        isOpen={showOrgDialog}
-        onClose={() => setShowOrgDialog(false)}
-      />
+
       <div className=" w-full max-w-[888px] flex-1 mx-auto bg-white">
         {/* Main Container */}
         <div className="w-full mx-auto bg-white">
           {/* Main Content */}
-          <div className="pb-8">
-            {/* Categories Grid */}
-            <div className="space-y-[13px]">
+          <div className="pb-8 ">
+
               {/* First Row */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-[13px]">
-                {categoriesLoading || organizationsLoading ? (
+            <div className="flex flex-wrap justify-center items-center gap-[13px]">
+              {categoriesLoading ? (
                   // Loading skeleton
                   Array.from({ length: 10 }).map((_, index) => (
                     <div
@@ -125,7 +111,7 @@ export default function SelectCategoryPage() {
                     <button
                       key={category._id}
                       onClick={() => handleCategorySelect(category._id)}
-                      className="bg-[#F7F8FA] rounded-lg p-[10px_18px] w-full h-[140px] flex flex-col items-center justify-center gap-4 hover:bg-purple/10 hover:scale-105 cursor-pointer transition-all duration-300"
+                      className="bg-[#F7F8FA] rounded-lg p-5 w-full sm:w-[150px] min-h-[140px] flex flex-col items-center justify-center gap-4 hover:bg-purple/10 hover:scale-105 cursor-pointer transition-all duration-300"
                     >
                       {category.icon && (
                         <div className="w-[70px] h-[70px] relative">
@@ -134,17 +120,16 @@ export default function SelectCategoryPage() {
                             alt={category.name}
                             fill
                             unoptimized
-                            className="object-cover rounded"
+                            className="object-contain rounded"
                           />
                         </div>
                       )}
-                      <span className="text-sm font-semibold text-black text-center max-w-[130px] truncate whitespace-nowrap leading-tight">
+                      <span className="text-sm font-semibold text-black text-center line-clamp-2 leading-tight">
                         {category.name}
                       </span>
                     </button>
                   ))
-                )}
-              </div>
+              )}
             </div>
           </div>
         </div>
