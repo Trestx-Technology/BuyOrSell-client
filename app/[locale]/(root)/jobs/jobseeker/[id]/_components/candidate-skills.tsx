@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Typography } from "@/components/typography";
+import { H2, Typography } from "@/components/typography";
 import { Badge } from "@/components/ui/badge";
 import { JobseekerProfile } from "@/interfaces/job.types";
 
@@ -16,12 +16,11 @@ export default function CandidateSkills({ jobseeker }: CandidateSkillsProps) {
 
   return (
     <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
-      <Typography
-        variant="h2"
-        className="text-dark-blue font-bold text-2xl mb-4"
+      <H2
+        className="text-dark-blue font-bold mb-4"
       >
         Key Skills
-      </Typography>
+      </H2>
       <div className="flex flex-wrap gap-3">
         {jobseeker.skills.map((skill, index) => (
           <Badge

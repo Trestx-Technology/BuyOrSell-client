@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Typography } from "@/components/typography";
+import { H2, Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { JobseekerProfile } from "@/interfaces/job.types";
 import { Download } from "lucide-react";
@@ -27,10 +27,11 @@ export default function CandidateResume({ jobseeker, onDownload }: CandidateResu
 
   return (
     <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
-      <Typography variant="h2" className="text-dark-blue font-bold text-2xl mb-4">
+      <H2
+        className="text-dark-blue font-bold mb-4">
         Resume
-      </Typography>
-      <div className="flex items-center justify-between">
+      </H2>
+      <div className="flex flex-col sm:flex-row gap-4  items-center justify-between">
         <div>
           <Typography variant="body-small" className="text-dark-blue mb-1">
             {jobseeker.resumeFileUrl.split("/").pop() || "Resume"}

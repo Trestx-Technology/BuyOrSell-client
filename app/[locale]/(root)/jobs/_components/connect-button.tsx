@@ -12,6 +12,14 @@ import { toast } from "sonner";
 import { ConnectionStatus } from "@/interfaces/connection.types";
 import { cn } from "@/lib/utils";
 
+export type ConnectButtonRenderProps = {
+      isConnected: boolean;
+      connectionStatus: ConnectionStatus;
+      handleConnection: (e: React.MouseEvent) => void;
+      isLoading: boolean;
+      requestId?: string;
+};
+
 interface ConnectButtonProps {
       receiverId: string; // The userId of the professional
       professionalId: string; // The _id of the professional profile
@@ -19,6 +27,8 @@ interface ConnectButtonProps {
       initialConnectionStatus?: ConnectionStatus;
       initialRequestId?: string;
       className?: string;
+      render?: (props: ConnectButtonRenderProps) => React.ReactNode;
+      children?: React.ReactNode;
 }
 
 export const ConnectButton = ({
@@ -28,17 +38,27 @@ export const ConnectButton = ({
       initialConnectionStatus,
       initialRequestId,
       className,
-}: ConnectButtonProps) => {
+      render,
+      children,
+      ...props
+}: ConnectButtonProps & Omit<React.ComponentProps<typeof Button>, "children">) => {
+      const normalizeStatus = (status: any): ConnectionStatus => {
+            if (status === "APPROVED" || status === "ACCEPTED") return "ACCEPTED";
+            if (status === "PENDING") return "PENDING";
+            if (status === "REJECTED") return "REJECTED";
+            return null;
+      };
+
       const [isConnected, setIsConnected] = useState(initialIsConnected);
-      const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus | undefined>(
-            initialConnectionStatus
+      const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>(
+            normalizeStatus(initialConnectionStatus)
       );
       const [requestId, setRequestId] = useState<string | undefined>(initialRequestId);
 
       // Keep internal state in sync with props if they change
       useEffect(() => {
             setIsConnected(initialIsConnected);
-            setConnectionStatus(initialConnectionStatus);
+            setConnectionStatus(normalizeStatus(initialConnectionStatus));
             setRequestId(initialRequestId);
       }, [initialIsConnected, initialConnectionStatus, initialRequestId]);
 
@@ -49,6 +69,8 @@ export const ConnectButton = ({
       const { mutateAsync: sendRequest, isPending: isSending } = useSendConnectionRequest();
       const { mutateAsync: cancelRequest, isPending: isCancelling } = useCancelConnectionRequest();
 
+      const isLoading = isSending || isCancelling;
+
       const handleConnection = async (e: React.MouseEvent) => {
             e.stopPropagation();
 
@@ -58,7 +80,7 @@ export const ConnectButton = ({
             }
 
             // Prevent double clicks if already processing
-            if (isSending || isCancelling) return;
+            if (isLoading) return;
 
             if (connectionStatus === "ACCEPTED") {
                   toast.info("You are already connected");
@@ -118,6 +140,9 @@ export const ConnectButton = ({
       };
 
       if (isCurrentUser) {
+            if (render) {
+                  return <>{render({ isConnected, connectionStatus, handleConnection, isLoading, requestId })}</>;
+            }
             return (
                   <Button
                         onClick={(e) => {
@@ -127,16 +152,21 @@ export const ConnectButton = ({
                         className={cn("w-full rounded-lg py-2.5 font-semibold transition-all z-20 relative", className)}
                         variant="primary"
                         width="full"
+                        {...props}
                   >
-                        View Profile
+                        {children || "View Profile"}
                   </Button>
             );
       }
 
+      if (render) {
+            return <>{render({ isConnected, connectionStatus, handleConnection, isLoading, requestId })}</>;
+      }
+
       return (
             <Button
-                  isLoading={isSending || isCancelling}
-                  disabled={isSending || isCancelling}
+                  isLoading={isLoading}
+                  disabled={isLoading}
                   onClick={handleConnection}
                   className={cn("w-full rounded-lg py-2.5 font-semibold transition-all z-20 relative", className)}
                   variant={
@@ -145,14 +175,17 @@ export const ConnectButton = ({
                               : "primary"
                   }
                   width="full"
+                  {...props}
             >
-                  {connectionStatus === "ACCEPTED"
-                        ? "Connected"
-                        : connectionStatus === "PENDING"
-                              ? "Cancel Request"
-                              : connectionStatus === "REJECTED"
-                                    ? "Resend Request"
-                                    : "Connect"}
+                  {children || (
+                        connectionStatus === "ACCEPTED"
+                              ? "Connected"
+                              : connectionStatus === "PENDING"
+                                    ? "Cancel Request"
+                                    : connectionStatus === "REJECTED"
+                                          ? "Resend Request"
+                                          : "Connect"
+                  )}
             </Button>
       );
 };

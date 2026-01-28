@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Typography } from "@/components/typography";
+import { H2, Typography } from "@/components/typography";
 import { JobseekerExperience, JobseekerProfile } from "@/interfaces/job.types";
 import { MapPin } from "lucide-react";
 import { format } from "date-fns";
@@ -17,15 +17,16 @@ export default function CandidateEmployment({ jobseeker }: CandidateEmploymentPr
 
   return (
     <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
-      <Typography variant="h2" className="text-dark-blue font-bold text-2xl mb-4">
+      <H2
+        className="text-dark-blue font-bold mb-4">
         Employment
-      </Typography>
+      </H2>
       <div className="space-y-6">
         {jobseeker.experiences.map((exp: JobseekerExperience, index: number) => (
           <div key={exp._id || index} className="border-b border-[#E2E2E2] last:border-0 pb-6 last:pb-0">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <Typography variant="h3" className="text-dark-blue font-semibold text-lg mb-1">
+                <Typography variant="h3" className="text-dark-blue font-semibold mb-1">
                   {exp.title}
                 </Typography>
                 <Typography variant="body-small" className="text-purple mb-1">

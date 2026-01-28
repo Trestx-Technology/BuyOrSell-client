@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Typography } from "@/components/typography";
+import { H2, Typography } from "@/components/typography";
 import { JobseekerEducation, JobseekerProfile } from "@/interfaces/job.types";
 import { format } from "date-fns";
 
@@ -16,9 +16,10 @@ export default function CandidateEducation({ jobseeker }: CandidateEducationProp
 
   return (
     <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
-      <Typography variant="h2" className="text-dark-blue font-bold text-2xl mb-4">
+      <H2
+        className="text-dark-blue font-bold mb-4">
         Education
-      </Typography>
+      </H2>
       <div className="space-y-6">
         {jobseeker.educations?.map((edu: JobseekerEducation, index: number  ) => (
           <div key={edu._id || index}>

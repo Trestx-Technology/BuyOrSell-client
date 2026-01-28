@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Typography } from "@/components/typography";
+import { H2, Typography } from "@/components/typography";
 import { JobseekerProfile } from "@/interfaces/job.types";
 
 interface CandidateProfileSummaryProps {
@@ -15,9 +15,10 @@ export default function CandidateProfileSummary({ jobseeker }: CandidateProfileS
 
   return (
     <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
-      <Typography variant="h2" className="text-dark-blue font-bold text-2xl mb-4">
+      <H2
+        className="text-dark-blue font-bold mb-4">
         Profile Summary
-      </Typography>
+      </H2>
       <Typography variant="body-large" className="text-[#8A8A8A] text-base leading-relaxed whitespace-pre-line">
         {jobseeker.summary}
       </Typography>

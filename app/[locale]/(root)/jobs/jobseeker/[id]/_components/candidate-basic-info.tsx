@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Typography } from "@/components/typography";
+import { H2, Typography } from "@/components/typography";
 import { JobseekerProfile } from "@/interfaces/job.types";
 import { Briefcase, Calendar, Phone, Mail, Clock } from "lucide-react";
 import { format } from "date-fns";
@@ -30,13 +30,12 @@ export default function CandidateBasicInfo({
 
   return (
     <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
-      <Typography
-        variant="h2"
-        className="text-dark-blue font-bold text-2xl mb-6"
+      <H2
+        className="text-dark-blue font-bold mb-6"
       >
         Basic Information
-      </Typography>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      </H2>
+      <div className="grid grid-cols-1 max-[450px]:grid-cols-1 grid-cols-2 gap-6">
         <div className="flex items-center gap-3">
           <Briefcase className="w-5 h-5 text-purple flex-shrink-0" />
           <div>

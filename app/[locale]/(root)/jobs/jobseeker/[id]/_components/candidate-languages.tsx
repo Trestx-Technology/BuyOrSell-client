@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Typography } from "@/components/typography";
+import { H2, Typography } from "@/components/typography";
 import { JobseekerLanguage } from "@/interfaces/job.types";
 
 interface CandidateLanguagesProps {
@@ -17,12 +17,11 @@ export default function CandidateLanguages({
 
   return (
     <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8">
-      <Typography
-        variant="h2"
-        className="text-dark-blue font-bold text-2xl mb-4"
+      <H2
+        className="text-dark-blue font-bold mb-4"
       >
         Language Details
-      </Typography>
+      </H2>
       <div className="space-y-3">
         {languages.map((lang, index) => (
           <div key={lang._id || index} className="flex items-center gap-2">

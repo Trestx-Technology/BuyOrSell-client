@@ -21,10 +21,6 @@ import { formatDistanceToNow } from "date-fns";
 import { useAuthStore } from "@/stores/authStore";
 import { cn } from "@/lib/utils";
 import {
-  useCancelConnectionRequest,
-  useSendConnectionRequest,
-} from "@/hooks/useConnections";
-import {
   useAcceptApplication,
   useRejectApplication,
 } from "@/hooks/useJobApplications";
@@ -34,6 +30,11 @@ import {
   JobseekerProfileHeaderActionButtons,
   JobseekerProfileHeaderType,
 } from "./jobseeker-profile-header";
+import { ConnectButton } from "@/app/[locale]/(root)/jobs/_components/connect-button";
+import { useCanChat } from "@/hooks/useConnections";
+import { findOrCreateDmChat } from "@/lib/firebase/chat.utils";
+import { useState } from "react";
+import { CURRENCY_ICONS } from "@/constants/icons";
 
 export interface JobseekerProfileHeaderMobileProps {
   jobseeker: JobseekerProfile;
@@ -45,6 +46,10 @@ export interface JobseekerProfileHeaderMobileProps {
   containerClassName?: string;
   applicationId?: string;
   jobId?: string;
+  isConnected?: boolean;
+  connectionStatus?: string | null;
+  connectionDirection?: string | null;
+  requestId?: string | null;
 }
 
 export default function JobseekerProfileHeaderMobile({
@@ -57,11 +62,16 @@ export default function JobseekerProfileHeaderMobile({
   containerClassName,
   applicationId: applicationIdProp,
   jobId: jobIdProp,
+  isConnected,
+  connectionStatus: connectionStatusProp,
+  connectionDirection: connectionDirectionProp,
+  requestId: requestIdProp,
 }: JobseekerProfileHeaderMobileProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const currentUserId = useAuthStore((state) => state.session?.user?._id);
+  const { session, isAuthenticated } = useAuthStore();
+  const currentUserId = session?.user?._id;
   const isCurrentUser = currentUserId === jobseeker.userId;
 
   // Get applicationId, jobId, and status from props or search params
@@ -69,20 +79,23 @@ export default function JobseekerProfileHeaderMobile({
   const jobId = jobIdProp || searchParams.get("jobId");
   const applicationStatus = searchParams.get("status");
 
-  // Connection hooks
-  const cancelConnectReq = useCancelConnectionRequest();
-  const sendConnectionReq = useSendConnectionRequest();
+  // Chat hooks
+  const { data: canChatData } = useCanChat(jobseeker.userId);
+  const canChat = canChatData?.data?.canChat || false;
+  const [isMessageLoading, setIsMessageLoading] = useState(false);
 
   // Application hooks
   const acceptApplicationMutation = useAcceptApplication();
   const rejectApplicationMutation = useRejectApplication();
 
-  // Get connection status from jobseeker profile
-  const rawConnectionStatus = jobseeker.connectionStatus as
+  // Get connection status from jobseeker profile or props
+  const isActuallyConnected = isConnected ?? jobseeker.isConnected;
+  const rawConnectionStatus = (connectionStatusProp || jobseeker.connectionStatus) as
     | string
     | null
     | undefined;
-  const connectionStatus: ConnectionStatus =
+
+  let connectionStatus: ConnectionStatus =
     rawConnectionStatus === "APPROVED" || rawConnectionStatus === "ACCEPTED"
       ? "ACCEPTED"
       : rawConnectionStatus === "PENDING"
@@ -90,7 +103,12 @@ export default function JobseekerProfileHeaderMobile({
       : rawConnectionStatus === "REJECTED"
       ? "REJECTED"
       : null;
-  const requestId = jobseeker.requestId || null;
+
+  // If isConnected is true but status isn't ACCEPTED, treat it as ACCEPTED
+  if (isActuallyConnected && connectionStatus !== "ACCEPTED") {
+    connectionStatus = "ACCEPTED";
+  }
+  const requestId = requestIdProp || jobseeker.requestId || null;
 
   // Get type from search params, fallback to prop, default to "default"
   const typeFromParams = searchParams.get("type");
@@ -104,30 +122,6 @@ export default function JobseekerProfileHeaderMobile({
     (typeFromParams && validTypes.includes(resolvedType)
       ? resolvedType
       : typeProp) || "default";
-
-  // Handle connection logic
-  const handleConnection = async (
-    status: ConnectionStatus | null,
-    reqId: string | null
-  ) => {
-    if (status === "PENDING") {
-      if (!reqId) {
-        toast.error("Request ID not found");
-        return;
-      }
-      await cancelConnectReq.mutateAsync(reqId);
-      toast.success("Connection request cancelled");
-    } else {
-      if (!currentUserId) {
-        toast.error("Please log in to send a connection request");
-        return;
-      }
-      await sendConnectionReq.mutateAsync({
-        receiverId: jobseeker.userId,
-      });
-      toast.success("Connection request sent");
-    }
-  };
 
   // Handle shortlist (accept application)
   const handleShortlist = async () => {
@@ -177,6 +171,35 @@ export default function JobseekerProfileHeaderMobile({
     const params = new URLSearchParams(searchParams.toString());
     params.set("status", "rejected");
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  // Handle Message
+  const handleMessage = async () => {
+    if (!isAuthenticated || !session?.user) {
+      toast.error("Please login to send a message");
+      router.push("/login");
+      return;
+    }
+
+    if (!canChat) {
+      toast.error("You can only message users you are connected with");
+      return;
+    }
+
+    setIsMessageLoading(true);
+    try {
+      const chatId = await findOrCreateDmChat(session.user, {
+        id: jobseeker.userId,
+        name: jobseeker.name || "User",
+        image: jobseeker.photoUrl || "",
+      });
+      router.push(`/chat?chatId=${chatId}&type=dm`);
+    } catch (error) {
+      console.error("Error creating chat:", error);
+      toast.error("Failed to start conversation");
+    } finally {
+      setIsMessageLoading(false);
+    }
   };
 
   const profileName = jobseeker.name || "User";
@@ -341,12 +364,19 @@ export default function JobseekerProfileHeaderMobile({
 
         {/* Name and Title */}
         <div className="flex-1 min-w-0 pt-1">
-          <Typography
-            variant="h2"
-            className="text-dark-blue font-semibold text-lg mb-1"
-          >
-            {profileName}
-          </Typography>
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <Typography
+              variant="h2"
+              className="text-dark-blue font-semibold text-lg"
+            >
+              {profileName}
+            </Typography>
+            {(connectionStatus === "ACCEPTED" || isActuallyConnected) && (
+              <span className="bg-success-10 text-success-100 text-[10px] px-2 py-0.5 rounded-full border border-success-100 font-medium whitespace-nowrap">
+                Connected
+              </span>
+            )}
+          </div>
           {professionalTitle && (
             <Typography
               variant="body-small"
@@ -376,7 +406,7 @@ export default function JobseekerProfileHeaderMobile({
       </div>
 
       {/* Profile Details - Compact Grid */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
+      <div className="grid max-[450px]:grid-cols-1 grid-cols-2 gap-3 mb-4">
         {jobType && (
           <div className="flex items-center gap-1.5">
             <Clock className="w-4 h-4 text-grey-blue flex-shrink-0" />
@@ -426,7 +456,7 @@ export default function JobseekerProfileHeaderMobile({
 
         {(salaryMin > 0 || salaryMax > 0) && (
           <div className="flex items-center gap-1.5">
-            <DollarSign className="w-4 h-4 text-dark-blue flex-shrink-0" />
+            <Image src={CURRENCY_ICONS.aedBlack} alt="AED" width={20} height={20} />
             <div className="flex items-center gap-0.5 min-w-0">
               <span className="text-[10px]">{ctcCurrency}</span>
               <Typography
@@ -500,7 +530,8 @@ export default function JobseekerProfileHeaderMobile({
                 {applicationStatus === "rejected" ? "Rejected" : "Reject"}
               </Button>
               <Button
-                onClick={() => toast.info("Under development")}
+                onClick={handleMessage}
+                isLoading={isMessageLoading}
                 className="bg-purple text-white hover:bg-purple/90 w-full"
                 size="sm"
               >
@@ -509,52 +540,59 @@ export default function JobseekerProfileHeaderMobile({
             </>
           ) : type === "profileVisit" ? (
             // Profile visit view - show Connect, Message
-            <>
-              <Button
-                onClick={() => {
-                  handleConnection(connectionStatus, requestId);
-                }}
-                isLoading={
-                  cancelConnectReq.isPending || sendConnectionReq.isPending
-                }
-                disabled={
-                  cancelConnectReq.isPending || sendConnectionReq.isPending
-                }
-                className={
-                  connectionStatus === "PENDING" ||
-                  connectionStatus === "ACCEPTED"
-                    ? "bg-white text-dark-blue border border-gray-300 hover:bg-gray-50 w-full"
-                    : "bg-purple text-white hover:bg-purple/90 w-full"
-                }
-                size="sm"
-                icon={<UserPlus className="w-4 h-4" />}
-                iconPosition="left"
-                variant={
-                  connectionStatus === "PENDING" ||
-                  connectionStatus === "ACCEPTED"
-                    ? "outline"
-                    : "primary"
-                }
-              >
-                {connectionStatus === "ACCEPTED"
-                  ? "Connected"
-                  : connectionStatus === "PENDING"
-                  ? "Cancel Request"
-                  : connectionStatus === "REJECTED"
-                  ? "Send Request"
-                  : "Connect"}
-              </Button>
-              <Button
-                onClick={() => toast.info("Under development")}
-                variant="outline"
-                className="bg-white text-dark-blue border border-gray-300 hover:bg-gray-50 w-full"
-                size="sm"
-                icon={<MessageCircle className="w-4 h-4" />}
-                iconPosition="left"
-              >
-                Message
-              </Button>
-            </>
+              <div className="flex max-[350px]:flex-col gap-2">
+                <ConnectButton
+                  receiverId={jobseeker.userId}
+                  professionalId={jobseeker._id}
+                  initialConnectionStatus={connectionStatus}
+                  initialRequestId={requestId as string}
+                  render={({ connectionStatus, handleConnection, isLoading }) => (
+                    <Button
+                      onClick={handleConnection}
+                      isLoading={isLoading}
+                      disabled={isLoading}
+                      className={
+                        connectionStatus === "PENDING" ||
+                          connectionStatus === "ACCEPTED"
+                          ? "bg-white text-dark-blue border border-gray-300 hover:bg-gray-50 w-full"
+                          : "bg-purple text-white hover:bg-purple/90 w-full"
+                      }
+                      size="sm"
+                      icon={<UserPlus className="w-4 h-4" />}
+                      iconPosition="center"
+                      variant={
+                        connectionStatus === "PENDING" ||
+                          connectionStatus === "ACCEPTED"
+                          ? "outline"
+                          : "primary"
+                      }
+                    >
+                      {connectionStatus === "ACCEPTED"
+                        ? "Connected"
+                        : connectionStatus === "PENDING"
+                          ? "Cancel Request"
+                          : connectionStatus === "REJECTED"
+                            ? "Send Request"
+                            : "Connect"}
+                    </Button>
+                  )}
+                />
+                <Button
+                  onClick={handleMessage}
+                  isLoading={isMessageLoading}
+                  disabled={isMessageLoading || !canChat}
+                  variant="outline"
+                  className={cn(
+                    "bg-white text-dark-blue border border-gray-300 hover:bg-gray-50 w-full",
+                    !canChat && "opacity-50 cursor-not-allowed"
+                  )}
+                  size="sm"
+                  icon={<MessageCircle className="w-4 h-4" />}
+                  iconPosition="center"
+                >
+                  Message
+                </Button>
+              </div>
           ) : actions ? (
             // Default view - show all available interaction buttons if actions provided
             <>

@@ -1,14 +1,8 @@
 "use client";
 
-import React from "react";
 import { useParams, useRouter } from "next/navigation";
-// import { useEffect } from "react";
-import { Footer } from "@/components/global/footer";
 import { Typography } from "@/components/typography";
-import { Button } from "@/components/ui/button";
-// import { useGetJobseekerProfileById } from "@/hooks/useJobseeker";
 import { JobseekerProfile } from "@/interfaces/job.types";
-import { ArrowLeft } from "lucide-react";
 import JobseekerProfileHeader from "@/components/global/jobseeker-profile-header";
 import CandidateBasicInfo from "./_components/candidate-basic-info";
 import CandidateResume from "./_components/candidate-resume";
@@ -24,7 +18,6 @@ import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 export default function JobseekerProfilePage() {
   const params = useParams();
-  const router = useRouter();
   const userId = params.id as string;
 
   // Fetch jobseeker profile by user ID
@@ -37,8 +30,7 @@ export default function JobseekerProfilePage() {
   // Extract profile from response data
   // API response structure: { statusCode, timestamp, data: JobseekerProfile }
   // The profile is directly in data (not nested under data.profile)
-  const jobseekerProfile = profileData?.data as JobseekerProfile | undefined;
-
+  const jobseekerProfile = profileData?.data;
   // useEffect(() => {
   //   if (error) {
   //     const errorMessage = error.message?.toLowerCase() || "";
@@ -89,8 +81,8 @@ export default function JobseekerProfilePage() {
   };
 
   const handleDownloadResume = () => {
-    if (jobseekerProfile?.resumeFileUrl) {
-      window.open(jobseekerProfile.resumeFileUrl, "_blank");
+    if (jobseekerProfile?.profile?.resumeFileUrl) {
+      window.open(jobseekerProfile.profile.resumeFileUrl, "_blank");
     }
   };
 
@@ -132,14 +124,19 @@ export default function JobseekerProfilePage() {
         <Breadcrumbs
           items={[
             {
+              id: "home",
+              label: "Home",
+              href: "/jobs",
+            },
+            {
               id: "jobseekers",
               label: "Jobseekers",
               href: "/jobs/jobseeker",
             },
             {
-              id: jobseekerProfile._id,
-              label: jobseekerProfile.name?.split(" ")?.slice(0, 3)?.join(" "),
-              href: `/jobs/jobseeker/${jobseekerProfile._id}`,
+              id: jobseekerProfile.profile._id,
+              label: jobseekerProfile.profile.name?.split(" ")?.slice(0, 3)?.join(" "),
+              href: `/jobs/jobseeker/${jobseekerProfile.profile._id}`,
             },
           ]}
           showHomeIcon={false}
@@ -149,7 +146,7 @@ export default function JobseekerProfilePage() {
         {/* Main Content */}
         {/* Candidate Header */}
         <JobseekerProfileHeader
-          jobseeker={jobseekerProfile}
+          jobseeker={jobseekerProfile.profile}
           actions={{
             onChat: handleChat,
             onReport: handleReport,
@@ -160,31 +157,35 @@ export default function JobseekerProfilePage() {
           }}
           containerClassName="mb-6"
           type="applicantsList"
+          isConnected={jobseekerProfile.isConnected}
+          connectionStatus={jobseekerProfile.connectionStatus}
+          connectionDirection={jobseekerProfile.connectionDirection}
+          requestId={jobseekerProfile.requestId}
         />
 
         {/* Basic Information */}
-        <CandidateBasicInfo jobseeker={jobseekerProfile} />
+        {/* <CandidateBasicInfo jobseeker={jobseekerProfile.profile} /> */}
 
         {/* Resume */}
         <CandidateResume
-          jobseeker={jobseekerProfile}
+          jobseeker={jobseekerProfile.profile}
           onDownload={handleDownloadResume}
         />
 
         {/* Employment */}
-        <CandidateEmployment jobseeker={jobseekerProfile} />
+        <CandidateEmployment jobseeker={jobseekerProfile.profile} />
 
         {/* Education */}
-        <CandidateEducation jobseeker={jobseekerProfile} />
+        <CandidateEducation jobseeker={jobseekerProfile.profile} />
 
         {/* Key Skills */}
-        <CandidateSkills jobseeker={jobseekerProfile} />
+        <CandidateSkills jobseeker={jobseekerProfile.profile} />
 
         {/* Profile Summary */}
-        <CandidateProfileSummary jobseeker={jobseekerProfile} />
+        <CandidateProfileSummary jobseeker={jobseekerProfile.profile} />
 
         {/* Language Details */}
-        <CandidateLanguages languages={jobseekerProfile.languages} />
+        <CandidateLanguages languages={jobseekerProfile.profile.languages} />
       </div>
     </Container1080>
   );
