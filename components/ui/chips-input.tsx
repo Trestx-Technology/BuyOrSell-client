@@ -33,9 +33,10 @@ const ChipsInput = ({
       !value.includes(option.value)
   );
 
-  const selectedOptions = options.filter((option) =>
-    value.includes(option.value)
-  );
+  const selectedOptions = value.map((v) => {
+    const option = options.find((o) => o.value === v);
+    return option || { value: v, label: v };
+  });
 
   const handleSelect = (optionValue: string) => {
     onChange([...value, optionValue]);
@@ -50,6 +51,15 @@ const ChipsInput = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && searchQuery === "" && value.length > 0) {
       handleRemove(value[value.length - 1]);
+    }
+    if (e.key === "Enter" && searchQuery.trim() !== "") {
+      e.preventDefault();
+      // Only add if not already present
+      if (!value.includes(searchQuery.trim())) {
+        handleSelect(searchQuery.trim());
+      } else {
+        setSearchQuery("");
+      }
     }
     if (e.key === "Escape") {
       setIsOpen(false);

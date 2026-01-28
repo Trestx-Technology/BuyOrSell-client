@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, X, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -44,6 +44,13 @@ export function BusinessHoursInput({
   disabled = false,
 }: BusinessHoursInputProps) {
   const [hours, setHours] = useState<BusinessHour[]>(value);
+
+  // Sync state with value prop when it changes (e.g., after form reset)
+  useEffect(() => {
+    if (JSON.stringify(value) !== JSON.stringify(hours)) {
+      setHours(value);
+    }
+  }, [value]);
 
   const updateHours = (newHours: BusinessHour[]) => {
     setHours(newHours);

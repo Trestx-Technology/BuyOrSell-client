@@ -88,10 +88,10 @@ export interface OrganizationLocation {
 }
 
 export interface BusinessHours {
-  day: string;
+  day: number;
   open: string;
   close: string;
-  isClosed?: boolean;
+  closed?: boolean;
   allDay?: boolean;
 }
 
