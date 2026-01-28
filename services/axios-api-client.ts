@@ -14,6 +14,12 @@ import { useAuthStore } from "@/stores/authStore";
 import { CookieService } from "@/services/cookie-service";
 import { authQueries } from "@/app/api/auth";
 
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    skipErrorToast?: boolean;
+  }
+}
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -50,7 +56,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 function isTokenExpired(
   token: string | null,
-  skewMs: number = EXP_SKEW_MS
+  skewMs: number = EXP_SKEW_MS,
 ): boolean {
   if (!token) return true;
 
@@ -95,7 +101,7 @@ async function handleLogoutAndRedirect(): Promise<void> {
 
 function setAuthHeader(
   config: InternalAxiosRequestConfig,
-  token: string
+  token: string,
 ): void {
   if (!config.headers) {
     config.headers = {} as unknown as AxiosRequestHeaders;
@@ -120,13 +126,13 @@ function createRefreshAxiosInstance() {
 
 function getRefreshToken(): string | null {
   let refreshToken = LocalStorageService.get<string>(
-    AUTH_TOKEN_NAMES.REFRESH_TOKEN
+    AUTH_TOKEN_NAMES.REFRESH_TOKEN,
   );
 
   // Fallback: try direct localStorage access
   if (!refreshToken && typeof window !== "undefined") {
     const rawRefreshToken = localStorage.getItem(
-      AUTH_TOKEN_NAMES.REFRESH_TOKEN
+      AUTH_TOKEN_NAMES.REFRESH_TOKEN,
     );
     if (rawRefreshToken) {
       try {
@@ -142,7 +148,7 @@ function getRefreshToken(): string | null {
 
 async function callRefreshTokenAPI(
   refreshToken: string,
-  userId?: string
+  userId?: string,
 ): Promise<RefreshTokenResponse> {
   const refreshAxios = createRefreshAxiosInstance();
 
@@ -152,7 +158,7 @@ async function callRefreshTokenAPI(
       {
         refreshToken,
         userId,
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -199,8 +205,8 @@ async function executeRefreshFlow(refreshToken: string): Promise<string> {
   const timeout = new Promise<string>((_, reject) =>
     setTimeout(
       () => reject(new Error("Refresh token request timeout")),
-      REFRESH_TIMEOUT_MS
-    )
+      REFRESH_TIMEOUT_MS,
+    ),
   );
 
   return Promise.race([refreshCall, timeout]);
@@ -265,7 +271,7 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   async (
-    config: InternalAxiosRequestConfig
+    config: InternalAxiosRequestConfig,
   ): Promise<InternalAxiosRequestConfig> => {
     // 1. Skip auth for public endpoints
     if (isPublicEndpoint(config.url)) {
@@ -294,7 +300,7 @@ axiosInstance.interceptors.request.use(
             .catch((err) => {
               console.error(
                 "[Request Interceptor] Refresh flow failed:",
-                err.message
+                err.message,
               );
               void handleLogoutAndRedirect();
               throw err;
@@ -316,7 +322,7 @@ axiosInstance.interceptors.request.use(
         // Only force logout if we had an expired token and no valid refresh token
         // If we had NO token at all, we might be a guest user, so don't force logout
         console.error(
-          "[Request Interceptor] Session expired (No valid refresh token)"
+          "[Request Interceptor] Session expired (No valid refresh token)",
         );
         void handleLogoutAndRedirect();
         return Promise.reject(new Error("Session expired"));
@@ -344,7 +350,7 @@ axiosInstance.interceptors.request.use(
 
     return config;
   },
-  (error: unknown) => Promise.reject(error)
+  (error: unknown) => Promise.reject(error),
 );
 
 // ============================================================================
@@ -438,13 +444,19 @@ axiosInstance.interceptors.response.use(
 
     const errorResponse = ApiErrorHandler.handle(error);
 
+    // Check if the request config has the skipErrorToast flag
+    const skipToast = error.config?.skipErrorToast;
+
     if (
       typeof window !== "undefined" &&
-      !window.location.pathname.includes("/no-internet")
+      !window.location.pathname.includes("/no-internet") &&
+      !skipToast
     ) {
       toast.error(errorResponse.message);
     }
 
     return Promise.reject(errorResponse);
-  }
+  },
 );
+
+
