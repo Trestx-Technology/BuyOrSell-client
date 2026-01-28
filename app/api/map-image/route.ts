@@ -4,6 +4,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const lat = searchParams.get("lat");
   const lng = searchParams.get("lng");
+  const zoom = searchParams.get("zoom") || "15";
 
   if (!lat || !lng) {
     return NextResponse.json({ error: "Missing coordinates" }, { status: 400 });
@@ -11,11 +12,14 @@ export async function GET(req: NextRequest) {
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY;
   if (!apiKey) {
-    return NextResponse.json({ error: "API key not configured" }, { status: 500 });
+    return NextResponse.json(
+      { error: "API key not configured" },
+      { status: 500 },
+    );
   }
 
   // Google Static Maps API URL
-  const url = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=600x320&maptype=roadmap&markers=color:red%7C${lat},${lng}&key=${apiKey}`;
+  const url = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=${zoom}&size=600x320&maptype=roadmap&markers=color:red%7C${lat},${lng}&key=${apiKey}`;
 
   try {
     const response = await fetch(url);

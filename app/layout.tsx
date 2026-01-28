@@ -4,7 +4,6 @@ import "@/styles/globals.css";
 import { Toaster } from "sonner";
 import NextTopLoader from "nextjs-toploader";
 import QueryProvider from "@/services/query-client";
-import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -35,9 +34,7 @@ export default function RootLayout({
         <Toaster position="top-center" richColors duration={2000} />
         <Toaster position="top-center" richColors duration={2000} />
         <QueryProvider>
-          <GoogleMapsProvider>
-            {children}
-          </GoogleMapsProvider>
+          {children}
         </QueryProvider>
       </body>
     </html>

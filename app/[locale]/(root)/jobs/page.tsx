@@ -10,12 +10,14 @@ import FeaturedJobsSection from "./_components/featured-jobs-section";
 
 export default function JobsHomePage() {
   return (
-    <Container1280 className="flex flex-col gap-12">
+    <div className="flex flex-col gap-12">
       {/* Hero Section */}
-      <JobsHero />
+      <JobsHero zoom={30} />
 
       {/* Popular Industries Section */}
       <PopularIndustries />
+
+      <section className="bg-white">
 
       {/* Connect Professionals Section */}
       <ConnectProfessionals />
@@ -39,7 +41,8 @@ export default function JobsHomePage() {
       {/* <TopEmployersSection
         employers={homeData?.topEmployers}
         isLoading={isLoading}
-      /> */}
-    </Container1280>
+        /> */}
+      </section>
+    </div>
   );
 }

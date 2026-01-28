@@ -21,6 +21,7 @@ import { ErrorCard } from "@/components/ui/error-card";
 import { useLocale } from "@/hooks/useLocale";
 import AdCard from "../../categories/_components/AdCard";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
 
 export default function AdDetailPage() {
   const { adId } = useParams();
@@ -103,97 +104,99 @@ export default function AdDetailPage() {
   }
 
   return (
-    <Container1080>
-      {/* Header with Back, Share, Save */}
-      <Header ad={ad} />
+    <GoogleMapsProvider>
+      <Container1080>
+        {/* Header with Back, Share, Save */}
+        <Header ad={ad} />
 
-      <div className="w-full mx-auto py-0">
-        {/* Desktop Layout */}
-        <div className="hidden lg:grid grid-cols-1 lg:grid-cols-3 mb-6 gap-6">
-          {/* Left Column - Main Content */}
-          <div className="md:col-span-2 space-y-6 relative">
-            {/* Product Gallery */}
+        <div className="w-full mx-auto py-0">
+          {/* Desktop Layout */}
+          <div className="hidden lg:grid grid-cols-1 lg:grid-cols-3 mb-6 gap-6">
+            {/* Left Column - Main Content */}
+            <div className="md:col-span-2 space-y-6 relative">
+              {/* Product Gallery */}
+              <ProductGallery ad={ad} />
+
+              <ProductInfoTabs
+                onTabChange={(tab) => setActiveTab(tab)}
+                initialTab="description"
+              />
+              <div className="space-y-6 relative">
+                {/* Reorder sections based on active tab with smooth animations */}
+                {reorderedSections.map((section, index) => (
+                  <div
+                    key={section.id}
+                    className="section-item transition-all duration-500 ease-in-out"
+                    style={{
+                      animationDelay: `${index * 50}ms`,
+                    }}
+                  >
+                    {section.component}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Column - Sidebar */}
+            <div className="space-y-6 hidden md:block">
+              {/* Product Information Card */}
+              <ProductInfoCard ad={ad} />
+
+              {/* Seller Information */}
+              <SellerInfo ad={ad} />
+
+              {/* Safety Features */}
+              {/* <SafetyFeatures ad={ad} /> */}
+
+              {/* Contact Actions */}
+              {/* <ContactActions ad={ad} /> */}
+
+              <AdCard className="min-h-[550px]" />
+            </div>
+          </div>
+
+          {/* Mobile Layout */}
+          <div className="block lg:hidden space-y-6 mb-6 relative">
+            {/* TODO: update the zindex of the gallery in the mobile layout */}
             <ProductGallery ad={ad} />
+            <div className="bg-[#F9FAFC] space-y-6 relative z-10 rounded-t-xl -mt-8">
+              <ProductInfoCardMobile ad={ad} />
 
-            <ProductInfoTabs
-              onTabChange={(tab) => setActiveTab(tab)}
-              initialTab="description"
-            />
-            <div className="space-y-6 relative">
+              <ProductInfoTabs
+                onTabChange={(tab) => setActiveTab(tab)}
+                initialTab="description"
+              />
+
               {/* Reorder sections based on active tab with smooth animations */}
-              {reorderedSections.map((section, index) => (
-                <div
-                  key={section.id}
-                  className="section-item transition-all duration-500 ease-in-out"
-                  style={{
-                    animationDelay: `${index * 50}ms`,
-                  }}
-                >
-                  {section.component}
-                </div>
-              ))}
+              <div className="space-y-6 relative">
+                {reorderedSections.map((section, index) => (
+                  <div
+                    key={section.id}
+                    className="section-item transition-all duration-500 ease-in-out"
+                    style={{
+                      animationDelay: `${index * 50}ms`,
+                    }}
+                  >
+                    {section.component}
+                  </div>
+                ))}
+              </div>
+
+              {/* Seller Information */}
+              <SellerInfo ad={ad} />
+
+              {/* Safety Features */}
+              <SafetyFeatures ad={ad} />
+
+              {/* Contact Actions */}
+              <ContactActions ad={ad} />
             </div>
           </div>
 
-          {/* Right Column - Sidebar */}
-          <div className="space-y-6 hidden md:block">
-            {/* Product Information Card */}
-            <ProductInfoCard ad={ad} />
-
-            {/* Seller Information */}
-            <SellerInfo ad={ad} />
-
-            {/* Safety Features */}
-            {/* <SafetyFeatures ad={ad} /> */}
-
-            {/* Contact Actions */}
-            {/* <ContactActions ad={ad} /> */}
-
-            <AdCard className="min-h-[550px]" />
-          </div>
+          {/* Similar Ads */}
+          <SimilarAds adId={adId as string} />
         </div>
-
-        {/* Mobile Layout */}
-        <div className="block lg:hidden space-y-6 mb-6 relative">
-          {/* TODO: update the zindex of the gallery in the mobile layout */}
-          <ProductGallery ad={ad} />
-          <div className="bg-[#F9FAFC] space-y-6 relative z-10 rounded-t-xl -mt-8">
-            <ProductInfoCardMobile ad={ad} />
-
-            <ProductInfoTabs
-              onTabChange={(tab) => setActiveTab(tab)}
-              initialTab="description"
-            />
-
-            {/* Reorder sections based on active tab with smooth animations */}
-            <div className="space-y-6 relative">
-              {reorderedSections.map((section, index) => (
-                <div
-                  key={section.id}
-                  className="section-item transition-all duration-500 ease-in-out"
-                  style={{
-                    animationDelay: `${index * 50}ms`,
-                  }}
-                >
-                  {section.component}
-                </div>
-              ))}
-            </div>
-
-            {/* Seller Information */}
-            <SellerInfo ad={ad} />
-
-            {/* Safety Features */}
-            <SafetyFeatures ad={ad} />
-
-            {/* Contact Actions */}
-            <ContactActions ad={ad} />
-          </div>
-        </div>
-
-        {/* Similar Ads */}
-        <SimilarAds adId={adId as string} />
-      </div>
-    </Container1080>
+      </Container1080>
+    </GoogleMapsProvider>
   );
 }

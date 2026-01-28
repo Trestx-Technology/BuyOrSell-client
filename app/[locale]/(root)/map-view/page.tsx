@@ -13,6 +13,7 @@ import { useLocale } from "@/hooks/useLocale";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { useAds, useFilterAds } from "@/hooks/useAds";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
+import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
 
 const MapView = () => {
   const { t } = useLocale();
@@ -287,70 +288,72 @@ const MapView = () => {
   };
 
   return (
-    <section className="w-full flex flex-col relative h-full">
-      {/* Filter Section */}
-      <div className="w-full border bg-white">
-        <MapViewFilter
-          extraFields={categoryExtraFields}
-          onFilterChange={handleFilterChange}
-        />
-      </div>
+    <GoogleMapsProvider>
+      <section className="w-full flex flex-col relative h-full">
+        {/* Filter Section */}
+        <div className="w-full border bg-white">
+          <MapViewFilter
+            extraFields={categoryExtraFields}
+            onFilterChange={handleFilterChange}
+          />
+        </div>
 
-      {/* Main Content */}
-      <Container1080 className="flex items-start justify-between gap-4 relative p-2 h-[calc(100vh-180px)] overflow-y-auto">
-        {/* Products Grid */}
-        <ProductsGrid
-          ads={ads}
-          isLoading={isLoading}
-          title={t.mapView.title}
-          showReturnButton={true}
-          className={cn(filters.showMap && "max-w-md hidden md:flex")}
-          gridClassName={cn(
-            !filters.showMap && "md:grid-cols-3 lg:grid-cols-5"
+        {/* Main Content */}
+        <Container1080 className="flex items-start justify-between gap-4 relative p-2 h-[calc(100vh-180px)] overflow-y-auto">
+          {/* Products Grid */}
+          <ProductsGrid
+            ads={ads}
+            isLoading={isLoading}
+            title={t.mapView.title}
+            showReturnButton={true}
+            className={cn(filters.showMap && "max-w-md hidden md:flex")}
+            gridClassName={cn(
+              !filters.showMap && "md:grid-cols-3 lg:grid-cols-5"
+            )}
+          />
+
+          {/* Map Section */}
+          {filters.showMap && (
+            <div className="w-full sticky top-4 h-full">
+              <Map
+                markers={mapMarkers}
+                onMarkerClick={handleMarkerClick}
+                onMapClick={handleMapClick}
+                center={{ lat: 25.2048, lng: 55.2708 }}
+                zoom={12}
+                className="h-full"
+              />
+            </div>
           )}
-        />
-
-        {/* Map Section */}
-        {filters.showMap && (
-          <div className="w-full sticky top-4 h-full">
-            <Map
-              markers={mapMarkers}
-              onMarkerClick={handleMarkerClick}
-              onMapClick={handleMapClick}
-              center={{ lat: 25.2048, lng: 55.2708 }}
-              zoom={12}
-              className="h-full"
-            />
-          </div>
-        )}
-        <HorizontalCarouselSlider
-          items={ads.slice(0, 10).map((ad) => {
-            const transformed = transformAdToListingCard(ad);
-            return {
-              id: transformed.id,
-              title: transformed.title,
-              price: transformed.price,
-              originalPrice: transformed.originalPrice,
-              discount: transformed.discount,
-              location: transformed.location,
-              images: transformed.images,
-              extraFields: transformed.extraFields,
-              postedTime: transformed.postedTime,
-              // isFavorite: transformed.isFavorite || false,
-              onFavorite: () => {},
-            };
-          })}
-          showNavigation={false}
-          autoScroll={false}
-          autoScrollInterval={4000}
-          cardWidth={280}
-          gap={16}
-          showScrollbar={true}
-          className="md:hidden "
-        />
-      </Container1080>
-      {/* Horizontal Carousel Slider at Bottom */}
-    </section>
+          <HorizontalCarouselSlider
+            items={ads.slice(0, 10).map((ad) => {
+              const transformed = transformAdToListingCard(ad);
+              return {
+                id: transformed.id,
+                title: transformed.title,
+                price: transformed.price,
+                originalPrice: transformed.originalPrice,
+                discount: transformed.discount,
+                location: transformed.location,
+                images: transformed.images,
+                extraFields: transformed.extraFields,
+                postedTime: transformed.postedTime,
+                // isFavorite: transformed.isFavorite || false,
+                onFavorite: () => { },
+              };
+            })}
+            showNavigation={false}
+            autoScroll={false}
+            autoScrollInterval={4000}
+            cardWidth={280}
+            gap={16}
+            showScrollbar={true}
+            className="md:hidden "
+          />
+        </Container1080>
+        {/* Horizontal Carousel Slider at Bottom */}
+      </section>
+    </GoogleMapsProvider>
   );
 };
 

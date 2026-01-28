@@ -12,6 +12,7 @@ import { containerVariants, itemVariants } from "@/utils/animation-variants";
 import { useSearchJobseekerProfiles } from "@/hooks/useJobseeker";
 import { JobseekerProfile } from "@/interfaces/job.types";
 import ProfessionalCard from "./professional-card";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 interface ConnectProfessionalsProps {
   professionals?: JobseekerProfile[];
@@ -92,8 +93,8 @@ export default function ConnectProfessionals({
 
   if (isLoading) {
     return (
-      <section className="w-full bg-white py-12">
-        <div className="max-w-[1080px] mx-auto px-4">
+      <section className="w-full py-12">
+        <Container1080 className="mx-auto px-4">
           <div className="flex flex-wrap gap-6 justify-center md:justify-start">
             {Array.from({ length: 4 }).map((_, i) => (
               <div
@@ -102,7 +103,7 @@ export default function ConnectProfessionals({
               />
             ))}
           </div>
-        </div>
+        </Container1080>
       </section>
     );
   }
@@ -117,6 +118,7 @@ export default function ConnectProfessionals({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
+      className="py-5"
     >
       <div className="max-w-[1080px] mx-auto space-y-8 px-4">
         {/* Header */}

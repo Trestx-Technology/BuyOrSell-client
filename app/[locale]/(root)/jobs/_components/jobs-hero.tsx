@@ -2,14 +2,22 @@
 
 import { Display2, Typography } from "@/components/typography";
 import CandidateSearchBar from "./candidate-search-bar";
-import Map from "@/app/[locale]/(root)/map-view/_components/map";
+import { Container1280 } from "@/components/layouts/container-1280";
 
-export default function JobsHero() {
+export interface JobsHeroProps {
+  zoom?: number;
+}
+
+export default function JobsHero({ zoom = 15 }: JobsHeroProps) {
   return (
-    <section className="relative w-full h-[350px] flex items-center justify-center overflow-hidden">
+    <Container1280 className="relative w-full h-[350px] flex items-center justify-center overflow-hidden">
       {/* Map Background */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-        <Map className="w-full h-full rounded-none" />
+        <img
+          src={`/api/map-image?lat=25.2048&lng=55.2708&zoom=${zoom}`}
+          alt="Map Background"
+          className="w-full h-full object-cover"
+        />
       </div>
 
       {/* Overlay */}
@@ -40,6 +48,6 @@ export default function JobsHero() {
           <CandidateSearchBar />
         </div>
       </div>
-    </section>
+    </Container1280>
   );
 }

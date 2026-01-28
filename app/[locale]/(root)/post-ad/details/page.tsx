@@ -13,6 +13,7 @@ import { CheckboxInput } from "./_components/CheckboxInput";
 import { MapComponent } from "./_components/MapComponent";
 import { Button } from "@/components/ui/button";
 import { useAdPostingStore } from "@/stores/adPostingStore";
+import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
 
 // Mock form schema based on category - in real app, this would come from API
 const formSchemas = {
@@ -653,108 +654,110 @@ export default function DynamicFormPage() {
   };
 
   return (
-    <section className="h-full w-full max-w-[888px] mx-auto">
-      {/* Main Container */}
-      <div className="flex-1 w-full max-w-[888px] mx-auto mb-5">
-        <div className="flex h-fit gap-10">
-          {/* Left Column - Categories */}
-          <div className="w-full space-y-3 md:w-2/3 h-full">
-            <FormField
-              label="Ad Images or Video"
-              htmlFor="images"
-              fullWidth={true}
-            >
-              <ImageGallery
-                images={images}
-                onImagesChange={(images) => setImages(images)}
-                maxImages={8}
-                gridCols={4}
-                maxFileSize={100}
-                acceptedFileTypes={[
-                  "image/jpeg",
-                  "image/png",
-                  "image/gif",
-                  "video/mp4",
-                ]}
+    <GoogleMapsProvider>
+      <section className="h-full w-full max-w-[888px] mx-auto">
+        {/* Main Container */}
+        <div className="flex-1 w-full max-w-[888px] mx-auto mb-5">
+          <div className="flex h-fit gap-10">
+            {/* Left Column - Categories */}
+            <div className="w-full space-y-3 md:w-2/3 h-full">
+              <FormField
+                label="Ad Images or Video"
+                htmlFor="images"
+                fullWidth={true}
+              >
+                <ImageGallery
+                  images={images}
+                  onImagesChange={(images) => setImages(images)}
+                  maxImages={8}
+                  gridCols={4}
+                  maxFileSize={100}
+                  acceptedFileTypes={[
+                    "image/jpeg",
+                    "image/png",
+                    "image/gif",
+                    "video/mp4",
+                  ]}
+                />
+              </FormField>
+
+              <FormField
+                label="Title"
+                htmlFor="title"
+                fullWidth={true}
+                required={true}
+                error={errors.title}
+              >
+                <TextInput
+                  value={formValues.title || ""}
+                  onChange={(value) => handleInputChange("title", value)}
+                  placeholder="Enter ad title"
+                />
+              </FormField>
+              {/* Location Selection */}
+
+              <MapComponent
+                onLocationSelect={handleLocationSelect}
+                initialLocation={selectedLocation || undefined}
+                height="300px"
+                className="rounded-lg"
               />
-            </FormField>
+              {selectedLocation && (
+                <div className="mt-2 p-3 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    <strong>Selected:</strong> {selectedLocation.address}
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    Coordinates: {selectedLocation.coordinates.lat.toFixed(6)},{" "}
+                    {selectedLocation.coordinates.lng.toFixed(6)}
+                  </p>
+                </div>
+              )}
 
-            <FormField
-              label="Title"
-              htmlFor="title"
-              fullWidth={true}
-              required={true}
-              error={errors.title}
-            >
-              <TextInput
-                value={formValues.title || ""}
-                onChange={(value) => handleInputChange("title", value)}
-                placeholder="Enter ad title"
-              />
-            </FormField>
-            {/* Location Selection */}
+              {Object.entries(formSchema).length > 0 ? (
+                Object.entries(formSchema).map(([field, config]) => {
+                  return renderField(field, config);
+                })
+              ) : (
+                <div className="text-center text-gray-500 py-8">
+                  <p>No form fields available. Please select a category first.</p>
+                </div>
+              )}
+            </div>
 
-            <MapComponent
-              onLocationSelect={handleLocationSelect}
-              initialLocation={selectedLocation || undefined}
-              height="300px"
-              className="rounded-lg"
-            />
-            {selectedLocation && (
-              <div className="mt-2 p-3 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  <strong>Selected:</strong> {selectedLocation.address}
-                </p>
-                <p className="text-xs text-blue-600 mt-1">
-                  Coordinates: {selectedLocation.coordinates.lat.toFixed(6)},{" "}
-                  {selectedLocation.coordinates.lng.toFixed(6)}
-                </p>
-              </div>
-            )}
-
-            {Object.entries(formSchema).length > 0 ? (
-              Object.entries(formSchema).map(([field, config]) => {
-                return renderField(field, config);
-              })
-            ) : (
-              <div className="text-center text-gray-500 py-8">
-                <p>No form fields available. Please select a category first.</p>
-              </div>
-            )}
-          </div>
-
-          {/* Right Column - Image Upload Area */}
-          <div className="sticky top-0 bg-gray-100 hidden md:flex flex-1 p-6 w-1/3 max-h-[800px] rounded-lg border-2 border-dashed border-gray-300  items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-8 h-8 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
+            {/* Right Column - Image Upload Area */}
+            <div className="sticky top-0 bg-gray-100 hidden md:flex flex-1 p-6 w-1/3 max-h-[800px] rounded-lg border-2 border-dashed border-gray-300  items-center justify-center">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <footer className="w-full bg-white sticky  bottom-0 left-0 right-0 max-w-[1080px] mx-auto md:border-t px-5 py-5">
-        <div className="flex w-full justify-between max-w-[888px] mx-auto gap-3">
-          <Button className="w-full" variant={"outline"}>
-            Back
-          </Button>
-          <Button className="w-full" variant={"primary"}>
-            Next
-          </Button>
-        </div>
-      </footer>
-    </section>
+        <footer className="w-full bg-white sticky  bottom-0 left-0 right-0 max-w-[1080px] mx-auto md:border-t px-5 py-5">
+          <div className="flex w-full justify-between max-w-[888px] mx-auto gap-3">
+            <Button className="w-full" variant={"outline"}>
+              Back
+            </Button>
+            <Button className="w-full" variant={"primary"}>
+              Next
+            </Button>
+          </div>
+        </footer>
+      </section>
+    </GoogleMapsProvider>
   );
 }

@@ -149,7 +149,10 @@ export const validateCategoryPath = async (
   path: string
 ): Promise<CategoryApiResponse> => {
   const response = await axiosInstance.get<CategoryApiResponse>(
-    categoriesQueries.validateCategoryPath(path).endpoint
+    categoriesQueries.validateCategoryPath(path).endpoint,
+    {
+      skipErrorToast: true,
+    },
   );
   return response.data;
 };
