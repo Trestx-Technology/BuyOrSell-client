@@ -86,7 +86,9 @@ export const useCanChat = (userId: string) => {
 /**
  * Send a connection request to another user
  */
-export const useSendConnectionRequest = () => {
+export const useSendConnectionRequest = (
+  onSuccess?: (data: ConnectionRequestResponse) => void,
+) => {
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -95,20 +97,8 @@ export const useSendConnectionRequest = () => {
     SendConnectionRequestPayload
   >({
     mutationFn: sendConnectionRequest,
-    onSuccess: () => {
-      // Invalidate and refetch connection-related queries
-      queryClient.invalidateQueries({
-        queryKey: connectionQueries.getMyConnections.Key,
-      });
-      queryClient.invalidateQueries({
-        queryKey: jobseekerQueries.searchJobseekerProfiles.Key,
-      });
-      queryClient.invalidateQueries({
-        queryKey: connectionQueries.getSentRequests.Key,
-      });
-      queryClient.invalidateQueries({
-        queryKey: connectionQueries.getReceivedRequests.Key,
-      });
+    onSuccess: (data) => {
+      onSuccess?.(data);
     },
   });
 };
@@ -116,12 +106,15 @@ export const useSendConnectionRequest = () => {
 /**
  * Accept a connection request
  */
-export const useAcceptConnectionRequest = () => {
+export const useAcceptConnectionRequest = (
+  onSuccess?: (data: ConnectionRequestResponse) => void,
+) => {
   const queryClient = useQueryClient();
 
   return useMutation<ConnectionRequestResponse, Error, string>({
     mutationFn: acceptConnectionRequest,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      onSuccess?.(data);
       // Invalidate and refetch connection-related queries
       queryClient.invalidateQueries({
         queryKey: connectionQueries.getMyConnections.Key,
@@ -139,12 +132,15 @@ export const useAcceptConnectionRequest = () => {
 /**
  * Reject a connection request
  */
-export const useRejectConnectionRequest = () => {
+export const useRejectConnectionRequest = (
+  onSuccess?: (data: ConnectionRequestResponse) => void,
+) => {
   const queryClient = useQueryClient();
 
   return useMutation<ConnectionRequestResponse, Error, string>({
     mutationFn: rejectConnectionRequest,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      onSuccess?.(data);
       // Invalidate and refetch connection-related queries
       queryClient.invalidateQueries({
         queryKey: connectionQueries.getMyConnections.Key,
@@ -159,22 +155,13 @@ export const useRejectConnectionRequest = () => {
 /**
  * Cancel a pending connection request (sent by you)
  */
-export const useCancelConnectionRequest = () => {
-  const queryClient = useQueryClient();
-
+export const useCancelConnectionRequest = (
+  onSuccess?: (data: ConnectionRequestResponse) => void,
+) => {
   return useMutation<ConnectionRequestResponse, Error, string>({
     mutationFn: cancelConnectionRequest,
-    onSuccess: () => {
-      // Invalidate and refetch connection-related queries
-      queryClient.invalidateQueries({
-        queryKey: connectionQueries.getMyConnections.Key,
-      });
-      queryClient.invalidateQueries({
-        queryKey: jobseekerQueries.searchJobseekerProfiles.Key,
-      });
-      queryClient.invalidateQueries({
-        queryKey: connectionQueries.getSentRequests.Key,
-      });
+    onSuccess: (data) => {
+      onSuccess?.(data);
     },
   });
 };
@@ -182,16 +169,13 @@ export const useCancelConnectionRequest = () => {
 /**
  * Remove an accepted connection
  */
-export const useRemoveConnection = () => {
-  const queryClient = useQueryClient();
-
+export const useRemoveConnection = (
+  onSuccess?: (data: ConnectionRequestResponse) => void,
+) => {
   return useMutation<ConnectionRequestResponse, Error, string>({
     mutationFn: removeConnection,
-    onSuccess: () => {
-      // Invalidate and refetch connection-related queries
-      queryClient.invalidateQueries({
-        queryKey: connectionQueries.getMyConnections.Key,
-      });
+    onSuccess: (data) => {
+      onSuccess?.(data);
     },
   });
 };

@@ -15,7 +15,8 @@ export interface BannerItem {
 }
 
 export interface GenericCarouselProps {
-  banners: BannerItem[];
+  banners?: BannerItem[];
+  children?: React.ReactNode;
   autoPlay?: boolean;
   autoPlayInterval?: number;
   showDots?: boolean;
@@ -33,6 +34,7 @@ export interface GenericCarouselProps {
 
 export function GenericCarousel({
   banners,
+  children,
   autoPlay = true,
   autoPlayInterval = 5000,
   showDots = true,
@@ -50,17 +52,20 @@ export function GenericCarousel({
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(false);
 
+  // Calculate total items
+  const totalItems = banners?.length || React.Children.count(children) || 0;
+
   const previousSlide = React.useCallback(() => {
     setCurrentSlide((curr) =>
-      curr === 0 ? (banners?.length || 1) - 1 : curr - 1
+      curr === 0 ? (totalItems || 1) - 1 : curr - 1
     );
-  }, [banners?.length]);
+  }, [totalItems]);
 
   const nextSlide = React.useCallback(() => {
     setCurrentSlide((curr) =>
-      curr === (banners?.length || 1) - 1 ? 0 : curr + 1
+      curr === (totalItems || 1) - 1 ? 0 : curr + 1
     );
-  }, [banners?.length]);
+  }, [totalItems]);
 
   // Loading state for smooth UX
   React.useEffect(() => {
@@ -73,11 +78,11 @@ export function GenericCarousel({
 
   // Auto-play functionality
   React.useEffect(() => {
-    if (isLoading || !autoPlay || !banners?.length) return;
+    if (isLoading || !autoPlay || !totalItems) return;
 
     const timer = setInterval(nextSlide, autoPlayInterval);
     return () => clearTimeout(timer);
-  }, [nextSlide, isLoading, autoPlay, autoPlayInterval, banners?.length]);
+  }, [nextSlide, isLoading, autoPlay, autoPlayInterval, totalItems]);
 
   // Callback for slide change
   React.useEffect(() => {
@@ -118,7 +123,7 @@ export function GenericCarousel({
         {/* Skeleton dots */}
         {showDots && (
           <div className="absolute bottom-7 left-1/2 flex -translate-x-1/2 space-x-2">
-            {Array.from({ length: Math.min(banners?.length || 3, 3) }).map(
+            {Array.from({ length: Math.min(totalItems || 3, 3) }).map(
               (_, index) => (
                 <div key={index} className="h-2 w-2 rounded-full bg-gray-300" />
               )
@@ -137,7 +142,38 @@ export function GenericCarousel({
     </div>
   );
 
-  if (!banners || banners.length === 0) {
+  // Touch swipe functionality
+  const [touchStart, setTouchStart] = React.useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = React.useState<number | null>(null);
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null); // Reset touch end
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextSlide();
+    }
+    if (isRightSwipe) {
+      previousSlide();
+    }
+  };
+
+  if ((!banners || banners.length === 0) && (!children || React.Children.count(children) === 0)) {
     return null;
   }
 
@@ -148,22 +184,31 @@ export function GenericCarousel({
   return (
     <div
       className={`flex items-center p-4 md:p-0 relative overflow-visible ${containerClassName}`}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
     >
       {/* Main Carousel */}
       <div
         className={`relative z-10 ${height} w-full overflow-hidden ${className}`}
       >
         <div
-          className="flex transition-transform duration-500 ease-out"
+          className="flex transition-transform duration-500 ease-out h-full"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
         >
-          {banners.map((banner, index) => renderBanner(banner))}
+          {banners
+            ? banners.map((banner, index) => renderBanner(banner))
+            : React.Children.map(children, (child) => (
+              <div className={`${height} w-full shrink-0 relative h-full`}>
+                {child}
+              </div>
+            ))}
         </div>
 
         {/* Dot Indicators */}
         {showDots && (
           <div className="absolute flex bottom-2 md:bottom-7 left-1/2 -translate-x-1/2 space-x-2">
-            {banners.map((_, index) => (
+            {Array.from({ length: totalItems }).map((_, index) => (
               <button
                 key={index}
                 className={`size-2 md:size-3 rounded-full transition-all duration-300 border-grey-blue border ${
@@ -178,7 +223,7 @@ export function GenericCarousel({
         )}
 
         {/* Navigation Buttons */}
-        {showNavigation && banners.length > 1 && (
+        {showNavigation && totalItems > 1 && (
           <>
             <Button
               variant="ghost"
