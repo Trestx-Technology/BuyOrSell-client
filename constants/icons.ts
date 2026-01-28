@@ -29,6 +29,7 @@ export const UI_ICONS = {
   company: `/assets/company.png`,
   Map: `${S3_BASE_URL}/icons/map.svg`,
   chat: `${S3_BASE_URL}/icons/chat.png`,
+  connections: `${S3_BASE_URL}/icons/connection.png`,
 } as const;
 
 // ============================================================================

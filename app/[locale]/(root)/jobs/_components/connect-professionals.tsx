@@ -74,7 +74,7 @@ export default function ConnectProfessionals({
     >
       <div className="max-w-[1080px] mx-auto space-y-8 px-4">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+        <div className="flex justify-between items-center gap-4">
           <JobsSectionTitle>Connect Professionals</JobsSectionTitle>
           <Link href="/jobs/jobseeker" className="group">
             <Typography

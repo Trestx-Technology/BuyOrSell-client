@@ -1,4 +1,4 @@
-// Connection-related TypeScript interfaces
+import { JobseekerProfile } from "./job.types";
 
 export interface SendConnectionRequestPayload {
   receiverId: string;
@@ -24,22 +24,41 @@ export interface ConnectionRequestResponse {
 
 export interface Connection {
   id: string;
-  fromUserId: string;
-  toUserId: string;
+  _id?: string;
+  connectionId?: string;
+  requestId?: string;
+  fromUserId?: string;
+  toUserId?: string;
   fromUser?: {
     id: string;
-    name: string;
+    name?: string;
+    firstName?: string;
+    lastName?: string;
     image?: string;
   };
   toUser?: {
     id: string;
-    name: string;
+    name?: string;
+    firstName?: string;
+    lastName?: string;
     image?: string;
   };
+  user?: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    name?: string;
+    image?: string;
+  };
+  userProfile?: JobseekerProfile;
   status: ConnectionStatus;
   message?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+  acceptedAt?: string;
+  connectedAt?: string;
+  location?: string;
+  skills?: string[];
 }
 
 export interface ConnectionsResponse {

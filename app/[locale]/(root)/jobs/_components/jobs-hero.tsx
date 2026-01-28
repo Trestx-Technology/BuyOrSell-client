@@ -10,7 +10,7 @@ export interface JobsHeroProps {
 
 export default function JobsHero({ zoom = 15 }: JobsHeroProps) {
   return (
-    <Container1280 className="relative w-full h-[350px] flex items-center justify-center overflow-hidden">
+    <Container1280 className="relative w-full py-10 xl:h-[350px] flex items-center justify-center overflow-hidden">
       {/* Map Background */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
         <img

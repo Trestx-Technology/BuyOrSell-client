@@ -1,5 +1,5 @@
 import React from "react";
-import { LogOut } from "lucide-react";
+import { LogOut, Users } from "lucide-react";
 import { ICONS } from "./icons";
 
 export type NavigationItemType = "link" | "button" | "divider";
@@ -91,6 +91,7 @@ export const REGULAR_NAVIGATION_ITEMS: NavigationItem[] = [
     iconType: "image",
     alt: "Settings",
   },
+
   {
     id: "sign-out",
     type: "button",
@@ -121,6 +122,15 @@ export const JOB_NAVIGATION_ITEMS: NavigationItem[] = [
     icon: ICONS.jobNavigation.jobsDashboard,
     iconType: "image",
     alt: "Jobs Dashboard",
+  },
+  {
+    id: "connections",
+    type: "link",
+    href: "/connections",
+    translationKey: "My Connections",
+    icon: ICONS.ui.connections,
+    iconType: "image",
+    alt: "Connections",
   },
   {
     id: "post-job",
