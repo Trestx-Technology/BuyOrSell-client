@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Loader2, MapPin, Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverAnchor } from "@/components/ui/popover";
 import { useEmirates } from "@/hooks/useLocations";
@@ -17,7 +16,6 @@ export default function CandidateSearchBar() {
       const [location, setLocation] = useState('');
       const [openLocation, setOpenLocation] = useState(false);
       const [openSearch, setOpenSearch] = useState(false);
-      const { t } = useLocale();
 
       // Debounce inputs
       const [inputLocation, setInputLocation] = useDebouncedValue(location, setLocation, 500);
@@ -86,7 +84,7 @@ export default function CandidateSearchBar() {
                         <div className="flex-1 w-full lg:w-auto lg:max-w-[350px] flex items-center h-[72px] lg:h-10 px-4 lg:border-r border-[rgba(199,199,199,0.6)] relative bg-white rounded-[14.22px] lg:bg-transparent lg:rounded-none shadow-sm lg:shadow-none">
                               <Popover open={openSearch && !!inputSearch} onOpenChange={setOpenSearch}>
                                     <PopoverAnchor asChild>
-                                          <>
+                                          <div className="relative w-full">
                                                 <input
                                                       type="text"
                                                       placeholder={searchType === 'job' ? "Job Title, Keywords..." : "Candidate Name, Skills..."}
@@ -99,7 +97,7 @@ export default function CandidateSearchBar() {
                                                       className="w-full border-0 focus:outline-none focus:ring-0 bg-transparent text-[14.22px] placeholder:text-[#8A8A8A] text-[#1D2939] font-medium h-full py-4"
                                                 />
                                                 {(candidateSuggestionsPending || jobSuggestionsPending) && <Loader2 className="absolute right-3 text-purple top-1/2 -translate-y-1/2 animate-spin" />}
-                                          </>
+                                          </div>
                                     </PopoverAnchor>
                                     <PopoverContent
                                           className="p-1 w-[200px] sm:w-[300px]"

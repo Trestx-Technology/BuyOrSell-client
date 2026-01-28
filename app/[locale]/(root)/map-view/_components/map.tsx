@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { MapPin, Navigation, ZoomIn, ZoomOut } from "lucide-react";
 import { UI_ICONS } from "@/constants/icons";
+import { useGoogleMaps } from "@/components/providers/google-maps-provider";
 
 export interface MapProps {
   className?: string;
@@ -40,44 +41,12 @@ export default function Map({
   const [map, setMap] = useState<any>(null);
   const [googleMarkers, setGoogleMarkers] = useState<any[]>([]);
   const infoWindowsRef = useRef<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Load Google Maps script
-  useEffect(() => {
-    const loadGoogleMaps = () => {
-      if (window.google?.maps?.Map) {
-        setIsLoading(false);
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        // Wait a bit to ensure maps API is fully initialized
-        setTimeout(() => {
-          if (window.google?.maps?.Map) {
-            setIsLoading(false);
-          } else {
-            console.error("Google Maps API not fully loaded");
-            setIsLoading(false);
-          }
-        }, 100);
-      };
-      script.onerror = () => {
-        console.error("Failed to load Google Maps");
-        setIsLoading(false);
-      };
-      document.head.appendChild(script);
-    };
-
-    loadGoogleMaps();
-  }, []);
+  const { isLoaded } = useGoogleMaps();
+  const isLoading = !isLoaded;
 
   // Initialize map
   useEffect(() => {
-    if (!window.google?.maps?.Map || !mapRef.current || isLoading || map) return;
+    if (!isLoaded || !mapRef.current || map || !window.google?.maps?.Map) return;
 
     // Use default center if prop is undefined, but avoid dependency issues
     const initialCenter = center || { lat: 25.2048, lng: 55.2708 };

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { SearchableDropdownInput } from "./SearchableDropdownInput";
 import { useEmirates, useAreas } from "@/hooks/useLocations";
 import { useLocale } from "@/hooks/useLocale";
+import { useGoogleMaps } from "@/components/providers/google-maps-provider";
 
 declare global {
   interface Window {
@@ -48,7 +49,8 @@ export const MapComponent = ({
   const autocompleteRef = useRef<any>(null);
   const markerRef = useRef<any>(null); // Use ref instead of state
   const mapInstanceRef = useRef<any>(null); // Use ref for map
-  const [isLoading, setIsLoading] = useState(true);
+  const { isLoaded, error: scriptError } = useGoogleMaps();
+  const isLoading = !isLoaded;
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEmirate, setSelectedEmirate] = useState("");
@@ -60,6 +62,12 @@ export const MapComponent = ({
   const { data: areas = [], isLoading: isLoadingAreas } =
     useAreas(selectedEmirate);
   const { locale } = useLocale();
+
+  useEffect(() => {
+    if (scriptError) {
+      setError("Failed to load Google Maps");
+    }
+  }, [scriptError]);
 
   // Store areas by emirate
   const [emirateAreas, setEmirateAreas] = useState<Record<string, string[]>>(
@@ -276,54 +284,7 @@ export const MapComponent = ({
     [onLocationSelect, extractAddressComponents]
   );
 
-  // Load Google Maps script (with duplicate prevention)
-  useEffect(() => {
-    const loadGoogleMaps = () => {
-      // Check if Google Maps is already loaded
-      if (window.google && window.google.maps) {
-        setIsLoading(false);
-        return;
-      }
 
-      // Check if script already exists in DOM
-      const existingScript = document.querySelector(
-        'script[src*="maps.googleapis.com"]'
-      );
-      if (existingScript) {
-        // Script is already being loaded or loaded, wait for it
-        if (window.google && window.google.maps) {
-          setIsLoading(false);
-        } else {
-          // Wait for existing script to load
-          existingScript.addEventListener("load", () => {
-            setIsLoading(false);
-          });
-          existingScript.addEventListener("error", () => {
-            setError("Failed to load Google Maps");
-            setIsLoading(false);
-          });
-        }
-        return;
-      }
-
-      // Create new script tag only if it doesn't exist
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        setIsLoading(false);
-      };
-      script.onerror = () => {
-        console.error("Failed to load Google Maps");
-        setError("Failed to load Google Maps");
-        setIsLoading(false);
-      };
-      document.head.appendChild(script);
-    };
-
-    loadGoogleMaps();
-  }, []);
 
   // Fetch quick locations when Google Maps is loaded (can work without map instance)
   useEffect(() => {

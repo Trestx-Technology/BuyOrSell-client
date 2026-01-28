@@ -2,20 +2,21 @@
 
 import { Display2, Typography } from "@/components/typography";
 import CandidateSearchBar from "./candidate-search-bar";
+import Map from "@/app/[locale]/(root)/map-view/_components/map";
 
 export default function JobsHero() {
   return (
-    <section
-      className="relative w-full bg-cover bg-center"
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2069&auto=format&fit=crop')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        minHeight: "491px",
-      }}
-    >
-      <div className="mx-auto px-4 py-24">
+    <section className="relative w-full h-[350px] flex items-center justify-center overflow-hidden">
+      {/* Map Background */}
+      <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
+        <Map className="w-full h-full rounded-none" />
+      </div>
+
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/70 z-10 pointer-events-none" />
+
+      {/* Content */}
+      <div className="relative z-20 mx-auto px-4 w-full">
         <div className="w-full max-w-[860px] mx-auto flex flex-col items-center gap-[71.11px]">
           {/* Text Section */}
           <div className="flex flex-col items-center gap-[53.33px]">

@@ -139,7 +139,7 @@ export function SpecificationsDisplay({
                     <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
                       {typeof spec.icon === "string" ? (
                         isColor(spec.icon) ? (
-                          <div
+                          <span
                             className="w-full h-full rounded-sm border border-gray-200"
                             style={{ backgroundColor: spec.icon }}
                             title={`${spec.name}: ${spec.icon}`}

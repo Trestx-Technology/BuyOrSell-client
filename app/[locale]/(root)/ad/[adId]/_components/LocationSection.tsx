@@ -6,6 +6,7 @@ import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
 import { AD } from "@/interfaces/ad";
+import { useGoogleMaps } from "@/components/providers/google-maps-provider";
 
 interface LocationSectionProps {
   ad: AD;
@@ -15,10 +16,17 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [, setMap] = useState<any>(null);
   const [, setMarker] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { isLoaded, error: scriptError } = useGoogleMaps();
+  const isLoading = !isLoaded;
   const [error, setError] = useState<string | null>(null);
   const [, setMapTimeout] = useState(false);
   const [showMap, setShowMap] = useState(false);
+
+  useEffect(() => {
+    if (scriptError) {
+      setError("Failed to load Google Maps");
+    }
+  }, [scriptError]);
 
   // Extract location data from ad
   const getLocationAddress = (): string => {
@@ -51,61 +59,6 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
           : 55.2744,
     },
   };
-
-  // Load Google Maps script
-  useEffect(() => {
-    // Set a timeout to prevent infinite loading
-    const timeout = setTimeout(() => {
-      console.log("Map loading timeout reached");
-      setMapTimeout(true);
-      setIsLoading(false);
-    }, 10000); // 10 second timeout
-
-    const loadGoogleMaps = () => {
-      if (window.google && window.google.maps) {
-        console.log("Google Maps already loaded");
-        clearTimeout(timeout);
-        setIsLoading(false);
-        return;
-      }
-
-      // Check if script already exists
-      const existingScript = document.querySelector(
-        'script[src*="maps.googleapis.com"]'
-      );
-      if (existingScript) {
-        console.log("Google Maps script already exists, waiting for load");
-        existingScript.addEventListener("load", () => {
-          console.log("Existing script loaded");
-          clearTimeout(timeout);
-          setIsLoading(false);
-        });
-        return;
-      }
-
-      console.log("Loading Google Maps script...");
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        console.log("Google Maps script loaded successfully");
-        clearTimeout(timeout);
-        setIsLoading(false);
-      };
-      script.onerror = (err) => {
-        console.error("Failed to load Google Maps:", err);
-        clearTimeout(timeout);
-        setError("Failed to load Google Maps. Please check your API key.");
-        setIsLoading(false);
-      };
-      document.head.appendChild(script);
-    };
-
-    loadGoogleMaps();
-
-    return () => clearTimeout(timeout);
-  }, []); // Empty dependency array - only run once
 
   // Initialize map - only when not loading, Google Maps is available, and showMap is true
   useEffect(() => {
