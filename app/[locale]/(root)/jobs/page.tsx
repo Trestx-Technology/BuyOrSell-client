@@ -1,5 +1,6 @@
 import JobsHero from "./_components/jobs-hero";
 import PopularIndustries from "./_components/popular-industries";
+import JobsTabbedSection from "./_components/jobs-tabbed-section";
 import ConnectProfessionals from "./_components/connect-professionals";
 import CompaniesToFollow from "./_components/companies-to-follow";
 import JobsCTASection from "./_components/jobs-cta-section";
@@ -7,6 +8,7 @@ import EmiratisSupport from "./_components/emiratis-support";
 import { Container1280 } from "@/components/layouts/container-1280";
 import LatestJobsSection from "./_components/latest-jobs-section";
 import FeaturedJobsSection from "./_components/featured-jobs-section";
+import TopEmployersSection from "./_components/top-employers-section";
 
 export default function JobsHomePage() {
   return (
@@ -19,29 +21,36 @@ export default function JobsHomePage() {
 
       <section className="bg-white">
 
-      {/* Connect Professionals Section */}
-      <ConnectProfessionals />
+        {/* Connect Professionals Section */}
+        <ConnectProfessionals />
 
-      {/* Companies to follow */}
-      <CompaniesToFollow />
+        {/* Companies to follow */}
+        <CompaniesToFollow />
 
-      {/* Jobs CTA Section */}
-      {/* <JobsCTASection /> */}
+        {/* Jobs CTA Section */}
+        <JobsCTASection />
 
-      {/* Featured Jobs Section */}
-      <FeaturedJobsSection />
+        {/* Featured Jobs Section */}
+        {/* <FeaturedJobsSection /> */}
 
-      {/* Recent Jobs Section */}
-      <LatestJobsSection />
+        {/* Recent Jobs Section */}
+        {/* <LatestJobsSection /> */}
 
-      {/* Emiratis Support Section */}
-      <EmiratisSupport />
 
-      {/* Top Employers Section */}
-      {/* <TopEmployersSection
-        employers={homeData?.topEmployers}
-        isLoading={isLoading}
-        /> */}
+
+        {/* Tabbed Jobs Section */}
+        <JobsTabbedSection title="Latest Jobs" titleClassName="font-bold" />
+
+
+
+        {/* Emiratis Support Section */}
+        <EmiratisSupport />
+
+
+
+        {/* Top Employers Section */}
+        <TopEmployersSection
+        />
       </section>
     </div>
   );

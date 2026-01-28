@@ -11,6 +11,7 @@ import { useValidateCategoryPath } from "@/hooks/useCategories";
 import { useUrlParams } from "@/hooks/useUrlParams";
 import { Field } from "@/interfaces/categories.types";
 import { FilterControl, FilterConfig, FilterOption } from "./filter-control";
+import { unSlugify } from "@/utils/slug-utils";
 
 interface GlobalMoreFiltersProps {
       className?: string;
@@ -19,7 +20,6 @@ interface GlobalMoreFiltersProps {
 
 export const GlobalMoreFilters = ({
       className,
-      dontValidate,
 }: GlobalMoreFiltersProps) => {
       const { updateUrlParam, searchParams } = useUrlParams();
       const params = useParams();
@@ -27,8 +27,9 @@ export const GlobalMoreFilters = ({
       // Derive category path from slug param
       // params.slug can be string, array of strings (for catch-all), or undefined
       const categoryPath = Array.isArray(params.slug)
-            ? params.slug.join("/")
-            : (params.slug as string);
+            ? params.slug.map((s) => unSlugify(s)).join("/")
+            : unSlugify(params.slug as string);
+
 
       const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
       const [dynamicFilters, setDynamicFilters] = useState<FilterConfig[]>([]);
@@ -36,7 +37,7 @@ export const GlobalMoreFilters = ({
             Record<string, any>
       >({});
 
-      const { data: categoryData, isLoading } = dontValidate ? { data: null, isLoading: false } : useValidateCategoryPath(categoryPath);
+      const { data: categoryData, isLoading } = useValidateCategoryPath(categoryPath);
 
       // Update dynamic filters when category data changes
       useEffect(() => {

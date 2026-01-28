@@ -22,10 +22,23 @@ export function toSlug(text: string): string {
   if (!text) return "";
 
   return text
-    .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/[^A-Za-z0-9\(\)\[\]\{\}\-]+/g, "")
+    .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Transforms a slug back to a human-readable string
+ * Replaces hyphens with spaces
+ *
+ * @param slug - The slug to convert back
+ * @returns A human-readable string
+ */
+export function unSlugify(slug: string): string {
+  if (!slug) return "";
+  return slug.replace(/-/g, " ");
 }
 
 /**

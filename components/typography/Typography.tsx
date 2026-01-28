@@ -69,7 +69,7 @@ const semanticVariants = {
   "display-3": "text-2xl md:text-3xl lg:text-4xl font-bold font-poppins",
 
   h1: "text-2xl md:text-3xl font-bold font-inter",
-  h2: "text-xl md:text-2xl font-semibold font-inter",
+  h2: "text-md sm:text-lg md:text-2xl font-semibold font-inter",
   h3: "text-lg md:text-xl font-semibold font-inter",
   h4: "text-base md:text-lg font-medium font-inter",
   h5: "text-base font-medium font-inter",

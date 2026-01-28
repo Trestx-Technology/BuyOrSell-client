@@ -21,6 +21,7 @@ interface JobsTabbedCarouselProps {
   showViewAll?: boolean;
   showNavigation?: boolean;
   isLoading?: boolean;
+  titleClassName?: string;
 }
 
 export default function JobsTabbedCarousel({
@@ -33,6 +34,7 @@ export default function JobsTabbedCarousel({
   viewAllText = "View all",
   onViewAll,
   onTabChange,
+  titleClassName,
 }: JobsTabbedCarouselProps) {
   const { locale, localePath } = useLocale();
   const isArabic = locale === "ar";
@@ -268,7 +270,7 @@ export default function JobsTabbedCarousel({
     >
       <Typography
         variant="lg-black-inter"
-        className="text-md sm:text-lg font-medium text-dark-blue"
+        className={`text-md sm:text-lg font-medium text-dark-blue ${titleClassName}`}
       >
         {displayTitle}
       </Typography>

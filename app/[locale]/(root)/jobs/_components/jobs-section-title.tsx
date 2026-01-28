@@ -14,7 +14,7 @@ export default function JobsSectionTitle({
 }: JobsSectionTitleProps) {
   return (
     <H2
-      className={`text-dark-blue font-bold  mb-3 ${className}`}
+      className={`text-dark-blue font-bold${className}`}
     >
       {children}
     </H2>

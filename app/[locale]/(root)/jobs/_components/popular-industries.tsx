@@ -4,13 +4,14 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Typography } from "@/components/typography";
+import { H4, Typography } from "@/components/typography";
 import { Badge } from "@/components/ui/badge";
 import JobsSectionTitle from "./jobs-section-title";
 import { useJobSubcategories } from "@/hooks/useCategories";
 import { useLocale } from "@/hooks/useLocale";
 import { slugify } from "@/utils/slug-utils";
 import { containerVariants, itemVariants } from "@/utils/animation-variants";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 export default function PopularIndustries() {
   const { localePath } = useLocale();
@@ -49,7 +50,7 @@ export default function PopularIndustries() {
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
     >
-      <div className="max-w-[1080px] mx-auto px-4">
+      <Container1080 className="px-4 space-y-6">
         <JobsSectionTitle>Popular Industries</JobsSectionTitle>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -64,9 +65,11 @@ export default function PopularIndustries() {
               <motion.div key={industryId} variants={itemVariants}>
                 <Link
                   href={href}
-                  className="bg-white w-full h-fit rounded-2xl py-6 hover:shadow-lg hover:border-purple border border-[#E2E2E2] transition-all duration-300 flex flex-col items-center gap-2 group"
+                  className="bg-white w-full h-full rounded-2xl py-6 hover:shadow-lg hover:border-purple border border-[#E2E2E2] transition-all duration-300 flex flex-col items-center gap-2 group"
                 >
                   {/* Logo/Icon */}
+                  <div className="flex-1 flex flex-col items-center justify-center">
+
                   <div className="flex items-center justify-center size-[60px]">
                     {logoUrl ? (
                       <Image
@@ -86,12 +89,12 @@ export default function PopularIndustries() {
                   </div>
 
                   {/* Industry Name */}
-                  <Typography
-                    variant="body-large"
-                    className="text-dark-blue font-semibold text-lg truncate max-w-[150px] text-center group-hover:text-purple transition-colors line-clamp-1"
+                    <H4
+                      className="text-dark-blue font-semibold  text-center group-hover:text-purple transition-colors line-clamp-2"
                   >
                     {industryName}
-                  </Typography>
+                    </H4>
+                  </div>
 
                   {/* Job Count Badge */}
                   <Badge className="bg-purple/10 text-purple px-4 py-1 capitalize rounded-md text-sm font-medium">
@@ -102,7 +105,7 @@ export default function PopularIndustries() {
             );
           })}
         </div>
-      </div>
+      </Container1080>
     </motion.section>
   );
 }

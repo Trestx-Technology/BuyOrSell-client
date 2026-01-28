@@ -34,6 +34,8 @@ import { generateBreadcrumbs, formatLabel } from "@/lib/breadcrumb-utils";
 import { transformAdToJobCard } from "@/utils/transform-ad-to-job-card";
 import { buildAdFilterPayload } from "@/utils/ad-payload";
 import { buildAdQueryParams } from "@/utils/ad-query-params";
+import { unSlugify } from "@/utils/slug-utils";
+import { NoDataCard } from "@/components/global/fallback-cards";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -50,7 +52,7 @@ export default function JobsListingPage() {
       : [];
   const currentCategory = slugSegments[slugSegments.length - 1] || "";
   const categoryName = currentCategory
-    ? formatLabel(decodeURIComponent(currentCategory))
+    ? unSlugify(currentCategory)
     : "Jobs";
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -101,9 +103,7 @@ export default function JobsListingPage() {
   // Build filter payload for useFilterAds
   const filterPayload = useMemo((): AdFilterPayload => {
     return buildAdFilterPayload({
-      currentCategory: currentCategory
-        ? decodeURIComponent(currentCategory)
-        : undefined,
+      currentCategory: categoryName ?? undefined,
       searchQuery,
       locationQuery,
       filters,
@@ -116,9 +116,7 @@ export default function JobsListingPage() {
   // API Params for simple useAds
   const simpleAdsParams = useMemo((): AdFilters => {
     return buildAdQueryParams({
-      categoryName: currentCategory
-        ? decodeURIComponent(currentCategory)
-        : undefined,
+      categoryName: categoryName ?? undefined,
       currentPage,
       itemsPerPage: ITEMS_PER_PAGE,
       searchQuery,
@@ -205,8 +203,8 @@ export default function JobsListingPage() {
           </div>
         ) : jobs.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No jobs found.</p>
-              <Button variant="outline" onClick={handleClearFilters} className="mt-4">
+              <NoDataCard title="No jobs found." description="Try adjusting your search or filters to see more results." />
+              <Button variant="outline" onClick={handleClearFilters} size={"small"} className="mt-4">
               Clear Filters
             </Button>
           </div>

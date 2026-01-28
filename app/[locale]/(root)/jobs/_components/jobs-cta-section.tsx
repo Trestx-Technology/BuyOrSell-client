@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -50,12 +51,11 @@ function CTACard({
   return (
     <motion.div
       variants={cardVariants}
-      className={`max-w-[530px] w-full p-6 h-[202px] rounded-2xl border-[0.5px] border-[#E2E2E2] shadow-[0px_2.67px_7.11px_0px_rgba(48,150,137,0.08)] ${
-        isJobSeekers ? "bg-[#F2F4F7]" : "bg-purple"
+      className={`max-w-[530px] w-full p-6 h-[202px] flex flex-col gap-3 rounded-2xl border-[0.5px] border-[#E2E2E2] shadow-[0px_2.67px_7.11px_0px_rgba(48,150,137,0.08)] ${isJobSeekers ? "bg-slate-100" : "bg-purple"
       } relative overflow-hidden`}
     >
       {/* Title - positioned at x:26, y:30.5 */}
-      <div className="space-y-2">
+      <div className="space-y-2 flex-1">
         <Typography
           variant="h3"
           className={`text-lg font-bold leading-[1.21] ${
@@ -77,7 +77,7 @@ function CTACard({
       </div>
 
       {/* Button - positioned at x:26, y:140, 165x40px */}
-      <Link href={buttonHref} className="absolute left-[26px] top-[140px]">
+      <Link href={buttonHref}>
         <Button
           size={"sm"}
           className={`w-[160px] font-semibold h-10  ${
@@ -102,12 +102,12 @@ export default function JobsCTASection() {
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
     >
-      <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+      <Container1080 className="px-4 py-10 flex flex-col md:flex-row items-center justify-center gap-6">
         <CTACard
           title="For Job Seekers"
           description="Finding jobs on BuyOrSell is easier than ever. Download the mobile apps to your smartphone device and enjoy for free!"
           buttonText="Browse Jobs"
-          buttonHref="/jobs/browse"
+          buttonHref="/jobs/listing/Jobs"
           variant="job-seekers"
         />
         <CTACard
@@ -117,7 +117,7 @@ export default function JobsCTASection() {
           buttonHref="/post-job"
           variant="employers"
         />
-      </div>
+      </Container1080>
     </motion.section>
   );
 }

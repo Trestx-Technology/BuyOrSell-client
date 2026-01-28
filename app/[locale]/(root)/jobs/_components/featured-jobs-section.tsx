@@ -1,11 +1,8 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import { Typography } from "@/components/typography";
 import JobCard from "@/app/[locale]/(root)/jobs/my-profile/_components/job-card";
-import { JobData } from "@/interfaces/job.types";
-import { transformJobDataToJobCard } from "@/utils/transform-job-data-to-job-card";
 import JobsSectionTitle from "@/app/[locale]/(root)/jobs/_components/jobs-section-title";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAds } from "@/hooks/useAds";
@@ -14,7 +11,6 @@ import { AD } from "@/interfaces/ad";
 export default function FeaturedJobsSection() {
   const { data, isPending: isLoading } = useAds({
     adType: "JOB",
-    isFeatured: true,
     limit: 10
   });
 

@@ -73,7 +73,7 @@ export const FollowOrganizationButton = ({
       disabled={isLoading}
       size={"sm"}
       className={cn(
-        "w-[96px] text-xs font-semibold transition-colors absolute bottom-3 right-3",
+        "w-[96px] text-xs font-semibold transition-colors",
         className
       )}
       variant={isFollowing ? "outline" : "primary"}

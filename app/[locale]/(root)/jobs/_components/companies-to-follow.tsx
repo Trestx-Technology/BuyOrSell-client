@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Typography } from "@/components/typography";
+import { H2, H3, Typography } from "@/components/typography";
 import JobsSectionTitle from "./jobs-section-title";
 import { EmployerCard } from "./employer-card";
 import {
@@ -11,16 +11,18 @@ import {
 } from "@/hooks/useOrganizations";
 import { Organization } from "@/interfaces/organization.types";
 import { useQueryClient } from "@tanstack/react-query";
-import { containerVariants, itemVariants } from "@/utils/animation-variants";
+import { containerVariants } from "@/utils/animation-variants";
 import { useAuthStore } from "@/stores/authStore";
 import { useLocale } from "@/hooks/useLocale";
+import { CardsCarousel } from "@/components/global/cards-carousel";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 interface CompaniesToFollowProps {
   limit?: number;
 }
 
 export default function CompaniesToFollow({
-  limit = 4,
+  limit = 10, // Increased default limit for carousel
 }: CompaniesToFollowProps = {}) {
   const queryClient = useQueryClient();
   const { localePath } = useLocale();
@@ -34,7 +36,7 @@ export default function CompaniesToFollow({
   });
 
 
-  const organizations = organizationsData?.data?.items?.filter((org) => org.owner._id !== currentUserId) || [];
+  const organizations = organizationsData?.data?.items?.filter((org) => org?.owner?._id !== currentUserId) || [];
 
   // Check if user is owner and get navigation href
   const getOrganizationHref = useMemo(() => {
@@ -58,12 +60,12 @@ export default function CompaniesToFollow({
   if (isLoading) {
     return (
       <section className="w-full py-8">
-        <div className="max-w-[1280px] mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
+        <div className="max-w-[1080px] mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-gray-200 rounded-2xl h-48 animate-pulse"
+                className="bg-gray-200 rounded-3xl h-[200px] animate-pulse"
               />
             ))}
           </div>
@@ -82,25 +84,43 @@ export default function CompaniesToFollow({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
+      className="w-full overflow-hidden"
     >
-      <div className="max-w-[1080px] mx-auto px-4">
-        <div className="py-8 space-y-4">
+      <Container1080 className="px-4">
           {/* Header */}
-          <div className="flex justify-between items-center gap-[35.56px] max-w-[1080px] mx-auto w-full">
+        <div className="flex justify-between items-center max-w-[1080px] mx-auto w-full">
             <JobsSectionTitle>Organizations to Follow</JobsSectionTitle>
-            <Link href="/jobs/organization">
-              <Typography
-                variant="body-large"
-                className="text-purple font-semibold text-base hover:underline"
-              >
+          <Link href="/jobs/organization" className="text-purple font-semibold hover:underline flex items-center gap-1">
                 View all
-              </Typography>
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
             </Link>
           </div>
 
-          {/* Organizations Grid */}
-          <div className="flex flex-wrap gap-5 justify-start w-full">
-            {organizations.slice(0, limit).map((organization) => (
+        {/* Organizations Carousel */}
+        <CardsCarousel
+          showNavigation={true}
+          className="pb-5"
+          breakpoints={{
+            mobile: 1,
+            tablet: 2,
+            desktop: 3,
+            wide: 4
+          }}
+        >
+          {organizations.map((organization, index) => (
+            <div key={`${organization._id}-${index}`} className="flex justify-center p-2">
                 <EmployerCard
                   logo={organization.logoUrl || ""}
                   name={organization.tradeName || organization.legalName}
@@ -111,10 +131,10 @@ export default function CompaniesToFollow({
                   isFollowing={organization.isFollowing || false}
                 isWishlisted={organization.isSaved || false}
               />
-            ))}
-          </div>
-        </div>
-      </div>
+            </div>
+          ))}
+        </CardsCarousel>
+      </Container1080>
     </motion.section>
   );
 }

@@ -9,6 +9,7 @@ import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useAds } from "@/hooks/useAds";
 import { useSearchJobseekerProfiles } from "@/hooks/useJobseeker";
 import { Skeleton } from "@/components/ui/skeleton";
+import { slugify, unSlugify } from '@/utils/slug-utils';
 
 export default function CandidateSearchBar() {
       const [searchType, setSearchType] = useState('job');
@@ -45,7 +46,7 @@ export default function CandidateSearchBar() {
 
             if (searchType === 'job') {
                   if (inputSearch) params.set("search", inputSearch);
-                  router.push(`/jobs/listing?${params.toString()}`);
+                  router.push(`/jobs/listing/${slugify(inputSearch)}?${params.toString()}`);
             } else {
             // Candidate/Applicant search
                   params.set("type", "candidate");

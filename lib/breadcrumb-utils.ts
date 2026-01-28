@@ -1,10 +1,7 @@
 import { BreadcrumbItem } from "@/components/ui/breadcrumbs";
+import { unSlugify } from "@/utils/slug-utils";
 
-export const formatLabel = (segment: string): string =>
-  segment
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+export const formatLabel = (segment: string): string => unSlugify(segment);
 
 export const generateBreadcrumbs = (
   slugSegments: string[],
