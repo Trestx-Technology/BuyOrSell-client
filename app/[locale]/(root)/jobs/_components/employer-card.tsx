@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Typography } from "@/components/typography";
 import { UI_ICONS } from "@/constants/icons";
 import { SaveOrganizationButton } from "./save-organization-button";
+import { FollowOrganizationButton } from "./follow-organization-button";
 
 interface EmployerCardProps {
   logo: string;
@@ -13,7 +14,6 @@ interface EmployerCardProps {
   category: string;
   followers: number;
   employerId: string;
-  onFollow?: () => void;
   isFollowing?: boolean;
   isWishlisted?: boolean;
   href?: string; // Optional custom href for navigation
@@ -25,7 +25,6 @@ export function EmployerCard({
   category,
   followers,
   employerId,
-  onFollow,
   isFollowing = false,
   isWishlisted = false,
   href,
@@ -41,13 +40,13 @@ export function EmployerCard({
     <div className=" w-full sm:w-[240px] rounded-3xl bg-gradient-to-br from-purple-100 to-purple-50 py-2 px-4 shadow-lg relative">
       {/* Header with Logo and Wishlist */}
       <div className="flex items-center justify-between">
-        <div className="size-[32px] rounded-lg">
+        <div className="size-[32px] rounded-full">
           <Image
             src={logo || UI_ICONS.company}
             alt={`${name} logo`}
             width={32}
             height={32}
-            className="h-full w-full object-contain rounded-lg"
+            className="h-full w-full object-cover rounded-full"
             onError={(e) => {
               // Fallback to company icon if logo fails to load
               const target = e.target as HTMLImageElement;
@@ -57,7 +56,7 @@ export function EmployerCard({
             }}
           />
         </div>
-        <SaveOrganizationButton
+        <SaveOrganizationButton 
           organizationId={employerId}
           initialIsSaved={isWishlisted}
         />
@@ -84,15 +83,11 @@ export function EmployerCard({
         </Typography>
       </div>
 
-      {/* Follow Button */}
-      <Button
-        onClick={onFollow}
-        size={"sm"}
-        className="w-[96px]  text-xs font-semibold text-white hover:bg-purple-700 transition-colors absolute bottom-3 right-3"
-        variant="primary"
-      >
-        {isFollowing ? "Following" : "Follow"}
-      </Button>
+      {/* Follow Button Component */}
+      <FollowOrganizationButton
+        organizationId={employerId}
+        initialIsFollowing={isFollowing}
+      />
     </div>
   );
 }

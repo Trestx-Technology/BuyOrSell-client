@@ -40,42 +40,10 @@ export default function TopEmployersSection({
   employers: employersProp, 
   isLoading: isLoadingProp 
 }: TopEmployersSectionProps = {}) {
-  const [followingEmployers, setFollowingEmployers] = React.useState<Set<string>>(
-    new Set()
-  );
-  const [wishlistedEmployers, setWishlistedEmployers] = React.useState<Set<string>>(
-    new Set()
-  );
-
   // Only use API data, no fallback
   const employers = employersProp || [];
   const isLoading = isLoadingProp ?? false;
 
-  const handleFollow = (employerId: string) => {
-    setFollowingEmployers((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(employerId)) {
-        newSet.delete(employerId);
-      } else {
-        newSet.add(employerId);
-      }
-      return newSet;
-    });
-    // TODO: Implement API call to follow/unfollow employer
-  };
-
-  const handleWishlist = (employerId: string) => {
-    setWishlistedEmployers((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(employerId)) {
-        newSet.delete(employerId);
-      } else {
-        newSet.add(employerId);
-      }
-      return newSet;
-    });
-    // TODO: Implement API call to wishlist/unwishlist employer
-  };
 
   if (isLoading) {
     return (
@@ -131,10 +99,8 @@ export default function TopEmployersSection({
                   category={employer.type || "Company"}
                   followers={employer.followersCount || 0}
                   employerId={employer._id}
-                  onFollow={() => handleFollow(employer._id)}
-                  onWishlist={() => handleWishlist(employer._id)}
-                  isFollowing={followingEmployers.has(employer._id)}
-                  isWishlisted={wishlistedEmployers.has(employer._id)}
+                  isFollowing={employer.isFollowing}
+                  isWishlisted={employer.isSaved}
                 />
               </motion.div>
             ))}

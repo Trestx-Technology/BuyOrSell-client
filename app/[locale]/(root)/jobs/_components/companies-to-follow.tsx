@@ -8,12 +8,9 @@ import JobsSectionTitle from "./jobs-section-title";
 import { EmployerCard } from "./employer-card";
 import {
   useOrganizations,
-  useFollowOrganization,
-  useUnfollowOrganization,
 } from "@/hooks/useOrganizations";
 import { Organization } from "@/interfaces/organization.types";
 import { useQueryClient } from "@tanstack/react-query";
-import { organizationQueries } from "@/app/api/organization";
 import { containerVariants, itemVariants } from "@/utils/animation-variants";
 import { useAuthStore } from "@/stores/authStore";
 import { useLocale } from "@/hooks/useLocale";
@@ -36,8 +33,6 @@ export default function CompaniesToFollow({
     page: 1,
   });
 
-  const followOrganization = useFollowOrganization();
-  const unfollowOrganization = useUnfollowOrganization();
 
   const organizations = organizationsData?.data?.items?.filter((org) => org.owner._id !== currentUserId) || [];
 
@@ -59,21 +54,6 @@ export default function CompaniesToFollow({
     };
   }, [currentUserId, localePath]);
 
-  const handleFollow = (organization: Organization) => {
-    const mutation = organization.isFollowing
-      ? unfollowOrganization
-      : followOrganization;
-
-    mutation.mutate(organization._id, {
-      onSuccess: () => {
-        // Invalidate search query to refresh the list with updated follow status
-        queryClient.invalidateQueries({
-          queryKey: organizationQueries.findAllOrganizations({ limit, page: 1 })
-            .Key,
-        });
-      },
-    });
-  };
 
   if (isLoading) {
     return (
@@ -127,8 +107,7 @@ export default function CompaniesToFollow({
                   category={organization.type || "Organization"}
                   followers={organization.followersCount || 0}
                   employerId={organization._id}
-                  href={getOrganizationHref(organization)}
-                onFollow={() => handleFollow(organization)}
+                href={getOrganizationHref(organization)}
                   isFollowing={organization.isFollowing || false}
                 isWishlisted={organization.isSaved || false}
               />
