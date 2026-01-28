@@ -11,6 +11,7 @@ export interface SavedOrganization {
 
 export interface CreateSavedOrganizationPayload {
   organizationId: string;
+  userId: string;
   notes?: string;
 }
 

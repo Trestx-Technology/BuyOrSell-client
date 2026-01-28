@@ -2,15 +2,14 @@
 
 export interface Organization {
   _id: string;
-  owner:
-    | string
-    | {
-        _id: string;
-        firstName: string;
-        lastName: string;
-        phoneNo: string;
-        email: string;
-      };
+  owner: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    image: string;
+    phoneNo: string;
+    email: string;
+  };
   type: string;
   country: string;
   emirate: string;

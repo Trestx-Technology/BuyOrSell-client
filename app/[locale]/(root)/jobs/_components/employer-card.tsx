@@ -1,12 +1,11 @@
 "use client";
 
-import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Typography } from "@/components/typography";
 import { UI_ICONS } from "@/constants/icons";
+import { SaveOrganizationButton } from "./save-organization-button";
 
 interface EmployerCardProps {
   logo: string;
@@ -15,7 +14,6 @@ interface EmployerCardProps {
   followers: number;
   employerId: string;
   onFollow?: () => void;
-  onWishlist?: () => void;
   isFollowing?: boolean;
   isWishlisted?: boolean;
   href?: string; // Optional custom href for navigation
@@ -28,18 +26,10 @@ export function EmployerCard({
   followers,
   employerId,
   onFollow,
-  onWishlist,
   isFollowing = false,
   isWishlisted = false,
   href,
 }: EmployerCardProps) {
-  const [localWishlisted, setLocalWishlisted] = useState(isWishlisted);
-
-  const handleWishlist = () => {
-    setLocalWishlisted(!localWishlisted);
-    onWishlist?.();
-  };
-
   const formatFollowers = (count: number) => {
     if (count >= 1000) {
       return `${(count / 1000).toFixed(1)}k`;
@@ -67,20 +57,10 @@ export function EmployerCard({
             }}
           />
         </div>
-        <button
-          onClick={handleWishlist}
-          className="rounded-full p-2 hover:bg-white/50 transition-colors"
-          aria-label="Add to wishlist"
-        >
-          <Heart
-            size={24}
-            className={`transition-colors ${
-              localWishlisted
-                ? "fill-red-500 stroke-red-500"
-                : "stroke-gray-800 hover:stroke-red-500"
-            }`}
-          />
-        </button>
+        <SaveOrganizationButton
+          organizationId={employerId}
+          initialIsSaved={isWishlisted}
+        />
       </div>
 
       {/* Company Info */}

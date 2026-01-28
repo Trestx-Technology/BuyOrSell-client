@@ -25,9 +25,6 @@ interface CompaniesToFollowProps {
 export default function CompaniesToFollow({
   limit = 4,
 }: CompaniesToFollowProps = {}) {
-  const [wishlistedEmployers, setWishlistedEmployers] = React.useState<
-    Set<string>
-  >(new Set());
   const queryClient = useQueryClient();
   const { localePath } = useLocale();
   const { session } = useAuthStore((state) => state);
@@ -42,7 +39,7 @@ export default function CompaniesToFollow({
   const followOrganization = useFollowOrganization();
   const unfollowOrganization = useUnfollowOrganization();
 
-  const organizations = organizationsData?.data?.items || [];
+  const organizations = organizationsData?.data?.items?.filter((org) => org.owner._id !== currentUserId) || [];
 
   // Check if user is owner and get navigation href
   const getOrganizationHref = useMemo(() => {
@@ -76,19 +73,6 @@ export default function CompaniesToFollow({
         });
       },
     });
-  };
-
-  const handleWishlist = (employerId: string) => {
-    setWishlistedEmployers((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(employerId)) {
-        newSet.delete(employerId);
-      } else {
-        newSet.add(employerId);
-      }
-      return newSet;
-    });
-    // TODO: Implement API call to wishlist/unwishlist employer
   };
 
   if (isLoading) {
@@ -144,10 +128,9 @@ export default function CompaniesToFollow({
                   followers={organization.followersCount || 0}
                   employerId={organization._id}
                   href={getOrganizationHref(organization)}
-                  onFollow={() => handleFollow(organization)}
-                  onWishlist={() => handleWishlist(organization._id)}
+                onFollow={() => handleFollow(organization)}
                   isFollowing={organization.isFollowing || false}
-                  isWishlisted={wishlistedEmployers.has(organization._id)}
+                isWishlisted={organization.isSaved || false}
               />
             ))}
           </div>

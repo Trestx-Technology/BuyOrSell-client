@@ -43,5 +43,6 @@ export const useChangePassword = () => {
 
 export const useIsAuthenticated = () => {
   const accessToken = useAuthStore((state) => state.session.accessToken);
-  return !!accessToken;
+  const userSession = useAuthStore((state) => state.session.user);
+  return !!accessToken && !!userSession;
 };
