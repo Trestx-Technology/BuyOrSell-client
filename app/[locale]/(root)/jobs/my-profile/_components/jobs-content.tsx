@@ -101,8 +101,6 @@ export default function JobsContent() {
 
         {/* Similar Jobs Section */}
         {/* <SimilarJobs /> */}
-
-        <Footer />
       </main>
 
       <WarningConfirmationDialog

@@ -10,6 +10,7 @@ import { SubCategory } from "@/interfaces/categories.types";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { findCategoryInTree } from "@/validations/post-ad.validation";
 import { useLocale } from "@/hooks/useLocale";
+import { H2 } from "@/components/typography";
 
 export default function JobCategoryTraversalPage() {
   const { localePath } = useLocale();
@@ -300,9 +301,9 @@ export default function JobCategoryTraversalPage() {
                               <ImageOffIcon className="size-5 text-gray-400" />
                             )}
                           </div>
-                          <span className="text-lg font-medium text-gray-900">
+                          <H2 className="font-medium text-gray-900">
                             {category.name}
-                          </span>
+                          </H2>
                         </div>
                         <ChevronRight className="w-5 h-5 text-gray-400" />
                       </div>

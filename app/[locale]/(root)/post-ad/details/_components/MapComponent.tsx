@@ -194,10 +194,15 @@ export const MapComponent = ({
     label: locale === "ar" ? emirate.emirateAr : emirate.emirate, // Show localized label
   }));
 
-  const areaOptions = availableAreas.map((area) => ({
-    value: area,
-    label: area,
-  }));
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const areaOptions = availableAreas.map((area: any) => {
+    const areaName = typeof area === 'object' ? area.area : area;
+    const areaNameAr = typeof area === 'object' ? area.areaAr : area;
+    return {
+      value: areaName,
+      label: locale === "ar" ? areaNameAr || areaName : areaName,
+    };
+  });
 
   // Helper function to extract address components from Google Maps address_components
   const extractAddressComponents = useCallback((addressComponents: any[]) => {

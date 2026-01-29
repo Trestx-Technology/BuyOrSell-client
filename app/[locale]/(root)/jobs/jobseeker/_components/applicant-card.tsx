@@ -49,23 +49,25 @@ export default function ApplicantCard({
   onShare,
 }: ApplicantCardProps) {
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full lg:max-w-[256px] space-y-4 relative">
+    <div className="bg-white flex flex-col justify-between border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full lg:max-w-[256px] space-y-4 relative">
       {/* Header with Badge and Actions */}
+      <div className="flex-1 space-y-4">
+
       <div className="flex flex-col gap-[21.33px]">
         <div className="flex justify-between items-start">
           <Badge className="bg-[#F5EBFF] text-purple px-2 py-1.5 rounded-[24px] text-xs font-normal">
             {postedTime}
           </Badge>
           <div className="flex items-center gap-2">
-            {onShare && (
+              {/* {onShare && (
               <button
                 onClick={() => onShare(id)}
                 className="p-1 hover:bg-gray-100 rounded"
               >
                 <Share2 className="w-5 h-5 text-dark-blue" />
               </button>
-            )}
-            {onFavorite && (
+            )} */}
+              {/* {onFavorite && (
               <button
                 onClick={() => onFavorite(id)}
                 className="p-1 hover:bg-gray-100 rounded"
@@ -76,7 +78,7 @@ export default function ApplicantCard({
                   }`}
                 />
               </button>
-            )}
+            )} */}
           </div>
         </div>
 
@@ -102,22 +104,22 @@ export default function ApplicantCard({
               working in {company}
             </Typography>
           </div>
+            <div className="w-8 h-8 rounded-full border-[1px] border-purple flex items-center justify-center">
           {logo ? (
             <Image
               src={logo}
               alt={name}
               width={32}
               height={32}
-              className="rounded-full"
+                  className="rounded-full object-cover"
             />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-purple flex items-center justify-center">
-              <span className="text-white text-xs font-semibold">
+              ) : (
+                  <span className="text-purple text-xs font-semibold">
                 {name.charAt(0)}
               </span>
+              )}
             </div>
-          )}
-        </div>
+          </div>
       </div>
 
       {/* Applicant Details */}
@@ -177,6 +179,7 @@ export default function ApplicantCard({
             {location}
           </Typography>
         </div>
+      </div>
       </div>
 
       {/* Action Button */}

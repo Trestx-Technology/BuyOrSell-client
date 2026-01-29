@@ -27,7 +27,8 @@ export const ActiveFilters = ({
       const { data: categoryData } = useValidateCategoryPath(categoryPath);
 
       // Helper to remove a filter
-      const removeFilter = (key: string, isDynamic: boolean = false) => {
+      const removeFilter = (filter: any) => {
+            const { key, isDynamic, value: itemValue, config } = filter;
             if (isDynamic) {
                   const newExtraFields = { ...extraFields };
                   delete newExtraFields[key];
@@ -37,6 +38,9 @@ export const ActiveFilters = ({
                   } else {
                         updateUrlParam("extraFields", jsonString);
                   }
+            } else if (config?.type === "multiselect" && itemValue && typeof query[key] === "string") {
+                  const items = (query[key] as string).split(",").filter((v) => v !== itemValue);
+                  updateUrlParam(key, items.length > 0 ? items : null);
             } else {
                   updateUrlParam(key, null);
             }
@@ -82,17 +86,37 @@ export const ActiveFilters = ({
       };
 
       // Collect active filters
-      const activeFilters: { key: string; label: string; isDynamic: boolean }[] = [];
+      const activeFilters: {
+            key: string;
+            label: string;
+            isDynamic: boolean;
+            value?: any;
+            config?: FilterConfig;
+      }[] = [];
 
       // Static Filters
       staticFiltersConfig.forEach((config) => {
             const value = query[config.key];
             if (value) {
-                  activeFilters.push({
-                        key: config.key,
-                        label: getFilterLabel(config.key, value, config),
-                        isDynamic: false,
-                  });
+                  if (config.type === "multiselect" && typeof value === "string") {
+                        const items = value.split(",");
+                        items.forEach(item => {
+                              activeFilters.push({
+                                    key: config.key,
+                                    label: getFilterLabel(config.key, item, config),
+                                    isDynamic: false,
+                                    value: item,
+                                    config
+                              });
+                        });
+                  } else {
+                        activeFilters.push({
+                              key: config.key,
+                              label: getFilterLabel(config.key, value, config),
+                              isDynamic: false,
+                              config
+                        });
+                  }
             }
       });
 
@@ -122,11 +146,12 @@ export const ActiveFilters = ({
       }
 
       // Search Query
-      if (query.search) {
+      const s = query.search || query.query;
+      if (s) {
             activeFilters.push({
-                  key: "search",
-                  label: `Search: ${query.search}`,
-                  isDynamic: false
+                  key: query.search ? "search" : "query",
+                  label: `Search: ${s}`,
+                  isDynamic: false,
             });
       }
 
@@ -135,7 +160,7 @@ export const ActiveFilters = ({
             activeFilters.push({
                   key: "location",
                   label: `Location: ${query.location}`,
-                  isDynamic: false
+                  isDynamic: false,
             });
       }
 
@@ -153,11 +178,7 @@ export const ActiveFilters = ({
                               {filter.label}
                               <div
                                     role="button"
-                                    onClick={() => {
-                                          if (filter.key === "search") removeFilter("search");
-                                          else if (filter.key === "location") removeFilter("location");
-                                          else removeFilter(filter.key, filter.isDynamic);
-                                    }}
+                                    onClick={() => removeFilter(filter)}
                                     className="cursor-pointer ml-1 hover:text-purple-700"
                               >
                                     <X className="h-3 w-3" />

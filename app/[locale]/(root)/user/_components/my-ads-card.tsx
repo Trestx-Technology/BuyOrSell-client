@@ -40,6 +40,7 @@ export interface MyAdCardProps {
   onFavorite?: (id: string) => void; // Kept for compatibility if passed
   onShare?: (id: string) => void;
   onClick?: (id: string) => void;
+  isSaved: boolean;
 }
 
 const MyAdCard: React.FC<MyAdCardProps> = ({
@@ -55,7 +56,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
   isPremium = false,
   validity,
   className,
-  onClick,
+  isSaved
 }) => {
   const { t } = useLocale();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -82,9 +83,6 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
     }));
   }, [extraFields]);
 
-  const handleCardClick = () => {
-    onClick?.(id);
-  };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -131,9 +129,9 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
           "w-full overflow-hidden rounded-2xl bg-white shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer group relative flex flex-col",
           className
         )}
-        onClick={handleCardClick}
+        // onClick={handleCardClick}
       >
-        <Link href={`/ad/${id}`} className="absolute inset-0 z-10" />
+        <Link href={`/ad/${id}`} className="absolute inset-0" />
         <div className="p-0 flex flex-col h-full">
           {/* Image Section */}
           <div className="relative">
@@ -143,7 +141,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
               images={images}
               isPremium={isPremium}
               views={views}
-              isSaved={false} // My Ads typically don't need "save" functionality for self
+              isSaved={isSaved}
               onToggleSave={() => { }}
               handleShare={(e) => {
                 e.preventDefault();

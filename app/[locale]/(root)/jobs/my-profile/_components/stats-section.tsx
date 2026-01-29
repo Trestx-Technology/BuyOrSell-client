@@ -82,17 +82,17 @@ export default function StatsSection({
         <StatCard
           count={appliedJobsCount || 0}
           label="Applied Jobs"
-          href="/jobs/applied"
+          href="/jobs/applied?type=applied"
         />
         <StatCard
           count={shortlistedJobsCount || 0}
           label="Shortlisted Jobs"
-          href="/jobs/shortlisted"
+          href="/jobs/applied?type=shortlisted"
         />
         <StatCard
           count={rejectedJobsCount || 0}
           label="Rejected Jobs"
-          href="/jobs/rejected"
+          href="/jobs/applied?type=rejected"
         />
       </div>
     </section>

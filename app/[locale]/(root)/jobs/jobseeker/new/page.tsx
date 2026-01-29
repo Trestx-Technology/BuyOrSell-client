@@ -86,7 +86,7 @@ export default function NewJobseekerProfilePage() {
       <div className="w-full">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar Navigation */}
-          <aside className="lg:w-[254px] bg-white h-fit rounded-lg px-6 py-2 shadow-sm flex-shrink-0 sticky top-8">
+          <aside className="lg:w-[254px] bg-white h-fit rounded-lg px-6 py-2 shadow-sm flex-shrink-0 sticky top-30">
             {formSections.map((section) => {
               const isActive = activeSection === section.id;
               return (

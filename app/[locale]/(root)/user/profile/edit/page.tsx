@@ -14,7 +14,6 @@ import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 const ProfileEditPage = () => {
   const { t, localePath } = useLocale();
-  const router = useRouter();
 
   return (
     <Container1080>

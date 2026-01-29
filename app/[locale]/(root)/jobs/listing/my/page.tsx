@@ -19,6 +19,7 @@ import { Container1080 } from "@/components/layouts/container-1080";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 import router from "next/router";
 import { useRouter } from "nextjs-toploader/app";
+import { NoDataCard } from "@/components/global/fallback-cards";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -182,7 +183,7 @@ export default function MyJobsPage() {
             variant="primary"
             size="sm"
             onClick={() => {
-              router.push("/post-ad/");
+              router.push("/post-job/");
             }}
             icon={<PlusIcon />}
             iconPosition="left"
@@ -198,30 +199,29 @@ export default function MyJobsPage() {
           </div>
         ) : jobs.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No jobs found.</p>
+              <NoDataCard title="No Jobs Found" description="You have not created any jobs yet." />
           </div>
         ) : (
-          <div className="flex items-start gap-5">
+              <div className="flex flex-col items-center justify-center gap-5">
             {/* Left Column - Job Listings Sidebar */}
             {/* On md: hide when job is selected, show when no selection. On lg+: always show */}
             <div
-              className={`space-y-5 w-full  gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:min-w-[256px] ${
-                selectedJobId ? "hidden md:block" : ""
-              }`}
+                  className={`space-y-5 w-full  gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:min-w-[256px]`}
             >
               {jobs.map((job) => (
                 <JobListingCard
                   key={job._id}
                   job={job}
                   isSelected={selectedJobId === job._id}
-                  onClick={() => setSelectedJobId(job._id)}
+                  onClick={() => console.log(job._id)}
                   transformAdToJobCardProps={transformAdToJobCardProps}
                 />
               ))}
 
               {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="bg-white rounded-xl p-4">
+                </div>
+                {totalPages > 1 && (
+                  <div className="bg-white w-full flex justify-center items-center border border-gray-200 rounded-xl p-4">
                   <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}
@@ -229,8 +229,7 @@ export default function MyJobsPage() {
                     isLoading={false}
                   />
                 </div>
-              )}
-            </div>
+                )}
 
             {/* Right Column - Job Detail View */}
             {/* On md: show when job is selected. On lg+: always show when selected */}

@@ -12,30 +12,28 @@ import { useAdPostingStore } from "@/stores/adPostingStore";
 import { useAuthStore } from "@/stores/authStore";
 import { Button } from "@/components/ui/button";
 import { PostAdPayload } from "@/interfaces/ad";
-import { ImageGallery, ImageItem } from "@/app/[locale]/(root)/post-ad/details/_components/image-upload";
-import { VideoUpload, type VideoItem } from "@/app/[locale]/(root)/post-ad/details/_components/video-upload";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 import { TextInput } from "@/app/[locale]/(root)/post-ad/details/_components/TextInput";
 import { TextareaInput } from "@/app/[locale]/(root)/post-ad/details/_components/TextareaInput";
 import { NumberInput } from "@/app/[locale]/(root)/post-ad/details/_components/NumberInput";
-import { BooleanInput } from "@/app/[locale]/(root)/post-ad/details/_components/BooleanInput";
-import { MultipleImageInput, ImageItem as MultipleImageItem } from "@/app/[locale]/(root)/post-ad/details/_components/MultipleImageInput";
 import { MapComponent } from "@/app/[locale]/(root)/post-ad/details/_components/MapComponent";
 import { CheckboxInput } from "@/app/[locale]/(root)/post-ad/details/_components/CheckboxInput";
 import { Field } from "@/interfaces/categories.types";
-import DateTimeInput from "@/app/[locale]/(root)/post-ad/details/_components/DateTimeInput";
-import { DynamicFieldRenderer } from "@/app/[locale]/(root)/post-ad/details/_components/DynamicFieldRenderer";
+import { DynamicFieldRenderer, FormValues } from "@/app/[locale]/(root)/post-ad/details/_components/DynamicFieldRenderer";
 import { SelectInput } from "@/app/[locale]/(root)/post-ad/details/_components/SelectInput";
 import { FormSkeleton } from "@/app/[locale]/(root)/post-ad/details/_components/FormSkeleton";
-import { createPostAdSchema, type AddressFormValue } from "@/schemas/post-ad.schema";
-import { getFieldOptions, shouldShowField, isJobCategory } from "@/validations/post-ad.validation";
+import { createPostJobSchema, type AddressFormValue } from "@/schemas/post-ad.schema";
+import { getFieldOptions, shouldShowField } from "@/validations/post-ad.validation";
 import { AD_SYSTEM_FIELDS } from "@/constants/ad.constants";
 import { removeUndefinedFields } from "@/utils/remove-undefined-fields";
+import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
+import PhoneNumberInput from "@/components/global/phone-number-input";
 
-type FormValues = Record<string, string | number | boolean | string[] | MultipleImageItem[] | ImageItem[] | AddressFormValue>;
+// Local AddressFormValue matches the one in DynamicFieldRenderer, but we needed to align the whole FormValues type
+// type FormValues = Record<string, string | number | boolean | string[] | AddressFormValue | undefined | null>;
 
 export default function JobLeafCategoryPage() {
-      const { localePath } = useLocale();
+      const { localePath, locale } = useLocale();
       const { leafCategoryId } = useParams<{ leafCategoryId: string }>();
       const router = useRouter();
       const { session } = useAuthStore((state) => state);
@@ -61,7 +59,7 @@ export default function JobLeafCategoryPage() {
 
       // Build dynamic Zod schema based on category fields
       const formSchema = useMemo(() => {
-            return createPostAdSchema(category);
+            return createPostJobSchema(category);
       }, [category]);
 
       const {
@@ -69,24 +67,23 @@ export default function JobLeafCategoryPage() {
             handleSubmit,
             setValue,
             watch,
-            trigger,
             formState: { errors, isValid, isSubmitting },
       } = useForm<FormValues>({
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             resolver: category ? zodResolver(formSchema as any) : undefined,
             defaultValues: {
-                  images: [] as ImageItem[],
+                  minSalary: 0,
+                  maxSalary: 0,
+                  phoneNumber: "",
+                  address: { address: "" },
             },
             mode: "onChange",
       });
 
       // Handle input change (wrapper for setValue)
-      const handleInputChange = (field: string, value: string | number | boolean | string[] | MultipleImageItem[] | AddressFormValue) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const handleInputChange = (field: string, value: any) => {
             setValue(field as keyof FormValues, value as FormValues[keyof FormValues], { shouldValidate: true });
-
-            if (field === "price") {
-                  trigger("discountedPrice");
-            }
 
             if (category?.fields) {
                   category.fields.forEach((f: Field) => {
@@ -98,6 +95,10 @@ export default function JobLeafCategoryPage() {
       };
 
       const formValues = watch();
+
+
+
+
 
       const handleLocationSelect = (location: {
             address: string;
@@ -132,7 +133,7 @@ export default function JobLeafCategoryPage() {
                   return null;
             }
 
-            const options = getFieldOptions(field, formValues);
+            const options = getFieldOptions(field, formValues, locale);
 
             return (
                   <DynamicFieldRenderer
@@ -150,23 +151,10 @@ export default function JobLeafCategoryPage() {
       };
 
       const onSubmit = async (data: FormValues) => {
-            const images = (data.images as ImageItem[]) || [];
-            const imageUrls = images.map((img) => img.url || img.presignedUrl || "").filter(Boolean);
-
-            const price = (data.price as number) || 0;
-            const discountedPrice = (data.discountedPrice as number) || 0;
-            const dealValidThru = (data.dealValidThru as string) || undefined;
-
-            const isExchange = data.isExchange === true || data.isExchange === "true";
-            const exchangeImages = (data.exchangeImages as MultipleImageItem[]) || [];
-            const exchangeImageUrl = exchangeImages
-                  .map((img) => {
-                        const url = img.fileUrl || (img.url && !img.url.startsWith("blob:") ? img.url : null);
-                        return url;
-                  })
-                  .filter((url): url is string => !!url)[0];
-            const exchangeTitle = (data.exchangeTitle as string) || "";
-            const exchangeDescription = (data.exchangeDescription as string) || "";
+            const minSalary = (data.minSalary as number) || 0;
+            const maxSalary = (data.maxSalary as number) || 0;
+            const jobMode = (data.jobMode as string) || "";
+            const jobShift = (data.jobShift as string) || "";
 
             const connectionTypes = Array.isArray(data.connectionTypes)
                   ? data.connectionTypes
@@ -189,6 +177,7 @@ export default function JobLeafCategoryPage() {
                               !AD_SYSTEM_FIELDS.includes(
                                     field.name as (typeof AD_SYSTEM_FIELDS)[number]
                               ) &&
+                              !['minSalary', 'maxSalary', 'jobMode', 'jobShift'].includes(field.name) &&
                               data[field.name] !== undefined &&
                               data[field.name] !== null &&
                               data[field.name] !== ""
@@ -213,29 +202,21 @@ export default function JobLeafCategoryPage() {
             const payload: PostAdPayload = {
                   title: (data.title as string) || "",
                   description: (data.description as string) || "",
-                  price: price,
-                  stockQuantity: (data.stockQuantity as number) || 1,
-                  availability: (data.availability as string) || "in-stock",
-                  images: imageUrls,
-                  videoUrl: (data.video as string) || undefined,
+                  // price is reused for single salary view if needed, but for jobs we use min/max
+                  price: 0,
+                  minSalary,
+                  maxSalary,
+                  jobMode,
+                  jobShift,
+                  stockQuantity: 1,
+                  availability: "in-stock",
+                  images: [], // No images for jobs
+                  deal: false,
+                  videoUrl: undefined, // No video for jobs
                   category: leafCategoryId as string,
                   owner: (session.user?._id as string) || "",
                   contactPhoneNumber: (data.phoneNumber as string) || "",
                   connectionTypes: connectionTypes as ("chat" | "call" | "whatsapp")[] | undefined,
-                  deal: data.deal === true || data.deal === "true",
-                  discountedPrice:
-                        data.deal && discountedPrice > 0 ? discountedPrice : undefined,
-                  dealValidThru:
-                        data.deal && dealValidThru ? dealValidThru : undefined,
-                  isExchangable: isExchange,
-                  exchangeWith:
-                        isExchange && exchangeTitle
-                              ? {
-                                    title: exchangeTitle,
-                                    description: exchangeDescription || undefined,
-                                    imageUrl: exchangeImageUrl || undefined,
-                              }
-                              : undefined,
                   address: {
                         state: addressData.state || "",
                         country: addressData.country || "",
@@ -245,7 +226,7 @@ export default function JobLeafCategoryPage() {
                         coordinates: Array.isArray(addressData.coordinates) ? addressData.coordinates : null,
                   },
                   relatedCategories: categoryArray.map((cat) => cat.name),
-                  featuredStatus: data.isFeatured ? "live" : "created",
+                  featuredStatus: "created", // Removed featured checkbox from UI, default to created
                   status: "created",
                   userType: "RERA_LANDLORD" as const,
                   tags: [],
@@ -255,6 +236,7 @@ export default function JobLeafCategoryPage() {
                   ...(isIndividual ? {} : { organizationId: organizationValue }),
             };
 
+            // Remove purely undefined fields if any (helper fn)
             removeUndefinedFields(payload);
 
             try {
@@ -302,6 +284,8 @@ export default function JobLeafCategoryPage() {
       }
 
       return (
+            <GoogleMapsProvider>
+
             <section className="w-full max-w-[888px] mx-auto relative">
                   <div className="flex h-full gap-10 relative">
                         <div className="w-full space-y-6 md:w-2/3 h-full pb-24">
@@ -331,14 +315,14 @@ export default function JobLeafCategoryPage() {
                                                             {
                                                                   value: "individual",
                                                                   label: "Post as Individual",
-                                                                  disabled: true, // Jobs must imply organization usually, but if not constraint, keep as is. Logic says check hasOrganization.
+                                                                  disabled: true,
                                                             },
                                                             ...organizations.map((org) => ({
                                                                   value: org._id,
                                                                   label: `${org.tradeName || org.legalName}${org.verified ? " (Verified)" : ""}`,
                                                                   icon: org.logoUrl,
                                                             })),
-                                                      ]// Remove individual if disabled
+                                                      ]
 
                                                       return (
                                                             <SelectInput
@@ -409,101 +393,118 @@ export default function JobLeafCategoryPage() {
                                           />
                                     </FormField>
 
-                                    {/* Image Upload - Optional for jobs? Usually yes, company logo or office */}
-                                    <FormField
-                                          label="Images (Optional)"
-                                          htmlFor="images"
-                                          fullWidth={true}
-                                    >
-                                          <Controller
-                                                name="images"
+                                          {/* Salary Range */}
+                                          <div className="grid grid-cols-2 gap-4">
+                                                <FormField
+                                                      label="Min Salary (AED)"
+                                                      htmlFor="minSalary"
+                                                      required
+                                                      error={errors.minSalary?.message as string}
+                                                >
+                                                      <Controller
+                                                            name="minSalary"
+                                                            control={control}
+                                                            rules={{ min: { value: 0, message: "Must be positive" } }}
+                                                            render={({ field }) => (
+                                                                  <NumberInput
+                                                                        value={(field.value as number) || 0}
+                                                                        onChange={(val) => {
+                                                                              field.onChange(val);
+                                                                              handleInputChange("minSalary", val);
+                                                                        }}
+                                                                        min={0}
+                                                                        placeholder="Min"
+                                                                        error={errors.minSalary?.message as string}
+                                                                  />
+                                                            )}
+                                                      />
+                                                </FormField>
+                                                <FormField
+                                                      label="Max Salary (AED)"
+                                                      htmlFor="maxSalary"
+                                                      required
+                                                      error={errors.maxSalary?.message as string}
+                                                >
+                                                      <Controller
+                                                            name="maxSalary"
+                                                            control={control}
+                                                            rules={{ min: { value: 0, message: "Must be positive" } }}
+                                                            render={({ field }) => (
+                                                                  <NumberInput
+                                                                        value={(field.value as number) || 0}
+                                                                        onChange={(val) => {
+                                                                              field.onChange(val);
+                                                                              handleInputChange("maxSalary", val);
+                                                                        }}
+                                                                        min={0}
+                                                                        placeholder="Max"
+                                                                        error={errors.maxSalary?.message as string}
+                                                                  />
+                                                            )}
+                                                      />
+                                                </FormField>
+                                          </div>
+
+                                          {/* Job Mode & Shift */}
+                                          <div className="grid grid-cols-2 gap-4">
+                                                <FormField
+                                                      label="Job Mode"
+                                                      htmlFor="jobMode"
+                                                      required
+                                                      error={errors.jobMode?.message as string}
+                                                >
+                                                      <Controller
+                                                            name="jobMode"
                                                 control={control}
+                                                            rules={{ required: "Job mode is required" }}
+                                                            render={({ field }) => (
+                                                                  <SelectInput
+                                                                        value={field.value as string}
+                                                                        onChange={(value) => {
+                                                                              field.onChange(value);
+                                                                              handleInputChange("jobMode", value);
+                                                                        }}
+                                                                        options={[
+                                                                              { value: "on-site", label: "On-Site" },
+                                                                              { value: "remote", label: "Remote" },
+                                                                              { value: "hybrid", label: "Hybrid" },
+                                                                        ]}
+                                                                        placeholder="Select Mode"
+                                                                        error={errors.jobMode?.message as string}
+                                                                  />
+                                                            )}
+                                                      />
+                                                </FormField>
+                                                <FormField
+                                                      label="Job Shift"
+                                                      htmlFor="jobShift"
+                                                      required
+                                                      error={errors.jobShift?.message as string}
+                                                >
+                                                      <Controller
+                                                            name="jobShift"
+                                                control={control}
+                                                            rules={{ required: "Job shift is required" }}
                                                 render={({ field }) => (
-                                                      <ImageGallery
-                                                            images={(field.value as ImageItem[]) || []}
-                                                            onImagesChange={(newImages) => {
-                                                                  field.onChange(newImages);
-                                                                  handleInputChange("images", newImages);
+                                                      <SelectInput
+                                                            value={field.value as string}
+                                                            onChange={(value) => {
+                                                                  field.onChange(value);
+                                                                  handleInputChange("jobShift", value);
                                                             }}
-                                                            maxImages={4}
-                                                            maxFileSize={100}
-                                                            acceptedFileTypes={[
-                                                                  "image/jpeg",
-                                                                  "image/png",
-                                                                  "image/gif",
+                                                            options={[
+                                                                  { value: "Day", label: "Day" },
+                                                                  { value: "Night", label: "Night" },
+                                                                  { value: "Rotational", label: "Rotational" },
                                                             ]}
+                                                            placeholder="Select Shift"
+                                                            error={errors.jobShift?.message as string}
                                                       />
                                                 )}
-                                          />
-                                    </FormField>
-
-                                    {/* Video Upload - Optional */}
-                                    <FormField
-                                          label="Video (Optional)"
-                                          htmlFor="video"
-                                          error={errors.video?.message as string}
-                                          fullWidth={true}
-                                    >
-                                          <Controller
-                                                name="video"
-                                                control={control}
-                                                render={({ field }) => {
-                                                      const videoItem: VideoItem | null = field.value
-                                                            ? {
-                                                                  id: "video-1",
-                                                                  url: field.value as string,
-                                                                  presignedUrl: field.value as string,
-                                                            }
-                                                            : null;
-
-                                                      return (
-                                                            <VideoUpload
-                                                                  video={videoItem}
-                                                                  onVideoChange={(video: VideoItem | null) => {
-                                                                        const videoUrl = video?.presignedUrl || video?.url || "";
-                                                                        field.onChange(videoUrl);
-                                                                        handleInputChange("video", videoUrl);
-                                                                  }}
-                                                                  maxFileSize={5}
-                                                                  maxDuration={60}
-                                                                  acceptedFileTypes={[
-                                                                        "video/mp4",
-                                                                        "video/webm",
-                                                                  ]}
-                                                            />
-                                                      );
-                                                }}
-                                          />
-                                    </FormField>
-
-                                    {/* Salary (Price) */}
-                                    <FormField
-                                          label="Salary (AED)"
-                                          htmlFor="price"
-                                          required
-                                          error={errors.price?.message as string}
-                                    >
-                                          <Controller
-                                                name="price"
-                                                control={control}
-                                                rules={{
-                                                      required: "Salary is required",
-                                                      min: { value: 0, message: "Salary must be greater than 0" }
-                                                }}
-                                                render={({ field }) => (
-                                                      <NumberInput
-                                                            value={(field.value as number) || 0}
-                                                            onChange={(val) => {
-                                                                  field.onChange(val);
-                                                                  handleInputChange("price", val);
-                                                            }}
-                                                            min={0}
-                                                            placeholder="Enter salary amount"
-                                                            error={errors.price?.message as string}
                                                       />
-                                                )}
-                                          />
-                                    </FormField>
+                                                </FormField>
+                                          </div>
+
 
                                     {/* Phone Number */}
                                     <FormField
@@ -517,15 +518,12 @@ export default function JobLeafCategoryPage() {
                                                 control={control}
                                                 rules={{ required: "Phone number is required" }}
                                                 render={({ field }) => (
-                                                      <TextInput
+                                                      <PhoneNumberInput
                                                             value={(field.value as string) || ""}
-                                                            onChange={(val) => {
+                                                            onPhoneChange={(val) => {
                                                                   field.onChange(val);
                                                                   handleInputChange("phoneNumber", val);
                                                             }}
-                                                            placeholder="Enter phone number"
-                                                            type="tel"
-                                                            error={errors.phoneNumber?.message as string}
                                                       />
                                                 )}
                                           />
@@ -638,6 +636,7 @@ export default function JobLeafCategoryPage() {
                               </div>
                         </div>
                   </div>
-            </section>
+                  </section>
+            </GoogleMapsProvider>
       );
 }

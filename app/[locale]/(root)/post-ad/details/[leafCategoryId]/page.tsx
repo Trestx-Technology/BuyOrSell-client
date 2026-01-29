@@ -24,15 +24,17 @@ import { MapComponent } from "../_components/MapComponent";
 import { CheckboxInput } from "../_components/CheckboxInput";
 import { Field } from "@/interfaces/categories.types";
 import DateTimeInput from "../_components/DateTimeInput";
-import { DynamicFieldRenderer } from "../_components/DynamicFieldRenderer";
+import { DynamicFieldRenderer, FormValues } from "../_components/DynamicFieldRenderer";
 import { SelectInput } from "../_components/SelectInput";
 import { FormSkeleton } from "../_components/FormSkeleton";
 import { createPostAdSchema, type AddressFormValue } from "@/schemas/post-ad.schema";
 import { getFieldOptions, shouldShowField, isJobCategory } from "@/validations/post-ad.validation";
 import { AD_SYSTEM_FIELDS } from "@/constants/ad.constants";
 import { removeUndefinedFields } from "@/utils/remove-undefined-fields";
+import PhoneNumberInput from "@/components/global/phone-number-input";
+import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
 
-type FormValues = Record<string, string | number | boolean | string[] | MultipleImageItem[] | ImageItem[] | AddressFormValue>;
+// type FormValues = Record<string, string | number | boolean | string[] | MultipleImageItem[] | ImageItem[] | AddressFormValue>;
 
 export default function LeafCategoryPage() {
   const { localePath } = useLocale();
@@ -79,16 +81,20 @@ export default function LeafCategoryPage() {
     resolver: category ? zodResolver(formSchema as any) : undefined,
     defaultValues: {
       images: [] as ImageItem[],
+      deal: false,
+      dealValidThru: "",
+      discountedPrice: 0,
     },
     mode: "onChange",
   });
   
-  console.log("errors: ", errors);
+
 
 
 
   // Handle input change (wrapper for setValue)
-  const handleInputChange = (field: string, value: string | number | boolean | string[] | MultipleImageItem[] | AddressFormValue) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleInputChange = (field: string, value: any) => {
     setValue(field as keyof FormValues, value as FormValues[keyof FormValues], { shouldValidate: true });
     
     // If price changes, trigger validation for discountedPrice to show error if needed
@@ -340,6 +346,7 @@ export default function LeafCategoryPage() {
   }
 
   return (
+    <GoogleMapsProvider>
     <section className="w-full max-w-[888px] mx-auto relative">
       {/* Breadcrumbs */}
 
@@ -573,15 +580,12 @@ export default function LeafCategoryPage() {
                 control={control}
                 rules={{ required: "Phone number is required" }}
                 render={({ field }) => (
-                  <TextInput
+                  <PhoneNumberInput
                     value={(field.value as string) || ""}
-                    onChange={(val) => {
+                    onPhoneChange={(val) => {
                       field.onChange(val);
                       handleInputChange("phoneNumber", val);
                     }}
-                    placeholder="Enter phone number"
-                    type="tel"
-                    error={errors.phoneNumber?.message as string}
                   />
                 )}
               />
@@ -962,6 +966,8 @@ export default function LeafCategoryPage() {
         </div>
       </footer>
     </section>
+    </GoogleMapsProvider>
+
   );
 }
 

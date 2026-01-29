@@ -43,13 +43,11 @@ export const CommonFilters = ({
 
       // Wrapper for static filter changes
       const handleStaticChange = (key: string, value: any) => {
-            updateUrlParam(key, value);
             onStaticFilterChange(key, value);
       };
 
       // Wrapper for location changes
       const handleLocationChange = (value: string) => {
-            updateUrlParam("location", value);
             if (onLocationChange) onLocationChange(value);
       };
 

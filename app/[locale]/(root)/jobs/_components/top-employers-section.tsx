@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { Typography } from "@/components/typography";
 import JobsSectionTitle from "./jobs-section-title";
 import { Organization } from "@/interfaces/organization.types";
-import { EmployerCard } from "./employer-card";
+import { EmployerCard } from "./organisation-card";
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -79,7 +79,7 @@ export default function TopEmployersSection({
           {/* Header */}
           <div className="flex justify-between items-center gap-[35.56px] max-w-[1080px] mx-auto w-full">
             <JobsSectionTitle>Top Employers</JobsSectionTitle>
-            <Link href="/jobs/employers">
+            <Link href="/organizations">
               <Typography
                 variant="body-large"
                 className="text-purple font-semibold text-base hover:underline"

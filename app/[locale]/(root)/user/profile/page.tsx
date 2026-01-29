@@ -90,6 +90,7 @@ const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
     views: ad.views || 0,
     isPremium: ad.isFeatured || false,
     validity: ad.validity,
+    isSaved: ad.isSaved || false,
   };
 };
 

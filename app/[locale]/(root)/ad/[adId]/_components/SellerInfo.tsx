@@ -9,6 +9,7 @@ import { AD } from "@/interfaces/ad";
 import { format } from "date-fns";
 import { useLocale } from "@/hooks/useLocale";
 import { ICONS } from "@/constants/icons";
+import { toast } from "sonner";
 
 interface SellerInfoProps {
   ad: AD;
@@ -53,13 +54,17 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ ad }) => {
   const sellerId = ad.organization?._id || ad.owner?._id || "";
 
   // Determine the correct seller route based on seller type
-  const sellerRoute = isOrganization
-    ? `/seller/org/${sellerId}`
-    : `/seller/user/${sellerId}`;
+  const sellerRoute = isOrganization && ad.organization?.type === "company" ? `/organizations/${ad.organization._id}` : `/seller/org/${sellerId}`
+
 
   return (
     <Link
-      href={sellerId ? localePath(sellerRoute) : "#"}
+      onClick={() => {
+        if (!isOrganization) {
+          toast.info("This Ad is posted by a Private Seller");
+        }
+      }}
+      href={isOrganization ? localePath(sellerRoute) : "#"}
       className="bg-white group rounded-xl border border-gray-200 p-4 shadow-sm relative block w-full"
     >
       <Typography

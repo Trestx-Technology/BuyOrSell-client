@@ -52,8 +52,47 @@ export const isLeafCategory = (category?: SubCategory): boolean => {
  */
 export const getFieldOptions = (
   field: Field,
-  formValues: Record<string, unknown>
+  formValues: Record<string, unknown>,
+  locale: string = "en",
 ): { value: string; label: string }[] => {
+  const getOptionLabel = (option: unknown) => {
+    if (typeof option === "object" && option !== null) {
+      const opt = option as {
+        area?: string;
+        areaAr?: string;
+        name?: string;
+        nameAr?: string;
+        label?: string;
+        [key: string]: unknown;
+      };
+      if (locale === "ar") {
+        return (
+          opt.areaAr ||
+          opt.nameAr ||
+          opt.area ||
+          opt.name ||
+          opt.label ||
+          JSON.stringify(opt)
+        );
+      }
+      return opt.area || opt.name || opt.label || JSON.stringify(opt);
+    }
+    return String(option);
+  };
+
+  const getOptionValue = (option: unknown) => {
+    if (typeof option === "object" && option !== null) {
+      const opt = option as {
+        area?: string;
+        name?: string;
+        value?: string;
+        id?: string;
+      };
+      return opt.area || opt.name || opt.value || opt.id || String(option);
+    }
+    return String(option);
+  };
+
   // If field depends on another field (and it's not "none"), use optionalMapOfArray
   if (
     field.dependsOn &&
@@ -68,24 +107,31 @@ export const getFieldOptions = (
       const normalizedParentValue = parentValue.trim();
 
       // First try exact match
-      if (field.optionalMapOfArray[normalizedParentValue]) {
-        return field.optionalMapOfArray[normalizedParentValue].map(
-          (option: string) => ({
-            value: option,
-            label: option,
-          })
-        );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const exactMatch = (field.optionalMapOfArray as any)[
+        normalizedParentValue
+      ];
+      if (exactMatch) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return exactMatch.map((option: any) => ({
+          value: getOptionValue(option),
+          label: getOptionLabel(option),
+        }));
       }
 
       // Try case-insensitive match
       const matchingKey = Object.keys(field.optionalMapOfArray).find(
-        (key) => key.trim().toLowerCase() === normalizedParentValue.toLowerCase()
+        (key) =>
+          key.trim().toLowerCase() === normalizedParentValue.toLowerCase(),
       );
 
-      if (matchingKey && field.optionalMapOfArray[matchingKey]) {
-        return field.optionalMapOfArray[matchingKey].map((option: string) => ({
-          value: option,
-          label: option,
+      if (matchingKey) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const options = (field.optionalMapOfArray as any)[matchingKey];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return options.map((option: any) => ({
+          value: getOptionValue(option),
+          label: getOptionLabel(option),
         }));
       }
     }
@@ -94,9 +140,10 @@ export const getFieldOptions = (
 
   // Otherwise use optionalArray
   if (field.optionalArray && field.optionalArray.length > 0) {
-    return field.optionalArray.map((option: string) => ({
-      value: option,
-      label: option,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (field.optionalArray as any[]).map((option: any) => ({
+      value: getOptionValue(option),
+      label: getOptionLabel(option),
     }));
   }
 

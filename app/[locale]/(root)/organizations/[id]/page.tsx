@@ -1,0 +1,64 @@
+"use client";
+
+import React, { useMemo } from "react";
+import { useParams } from "next/navigation";
+import { Footer } from "@/components/global/footer";
+import { useOrganizationById } from "@/hooks/useOrganizations";
+import { useAuthStore } from "@/stores/authStore";
+import OrganizationProfile from "./_components/organization-profile";
+import { Organization } from "@/interfaces/organization.types";
+import { EmployerProfile } from "@/interfaces/job.types";
+
+export default function OrganizationDetailPage() {
+  const params = useParams();
+  const organizationId = params.id as string;
+  const { session } = useAuthStore((state) => state);
+  const currentUserId = session.user?._id;
+
+  const { data: orgData, isLoading } = useOrganizationById(organizationId);
+  const organization = orgData?.data;
+
+  // Check if current user is the owner
+  const isOwner = useMemo(() => {
+    if (!currentUserId || !organization) return false;
+    const ownerId = typeof organization.owner === "string"
+      ? organization.owner
+      : organization.owner?._id;
+    return currentUserId === ownerId;
+  }, [currentUserId, organization]);
+
+  if (isLoading) {
+    return (
+      <main className="min-h-screen bg-[#F2F4F7]">
+        <div className="max-w-[1080px] mx-auto px-4 py-8">
+          <div className="bg-gray-200 rounded-2xl h-96 animate-pulse" />
+        </div>
+      </main>
+    );
+  }
+
+  if (!organization) {
+    return (
+      <main className="min-h-screen bg-[#F2F4F7]">
+        <div className="max-w-[1080px] mx-auto px-4 py-8">
+          <div className="bg-white border border-[#E2E2E2] rounded-2xl p-8 text-center">
+            <h1 className="text-2xl font-bold text-dark-blue mb-2">
+              Organization Not Found
+            </h1>
+            <p className="text-[#8A8A8A]">
+              The organization you&apos;re looking for doesn&apos;t exist.
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <OrganizationProfile
+      organization={organization as Organization & Partial<EmployerProfile>}
+      isOwner={isOwner}
+    />
+  );
+}
+

@@ -66,7 +66,7 @@ export default function JobCard({
               {title || "Not specified"}
             </Typography>
             <Typography variant="body-small" className="text-black text-sm">
-              {company}
+              {company || "Not specified"}
             </Typography>
           </div>
           {logo ? (
@@ -80,7 +80,7 @@ export default function JobCard({
           ) : (
             <div className="w-8 h-8 rounded-full bg-purple flex items-center justify-center">
               <span className="text-white text-xs font-semibold">
-                {company.charAt(0)}
+                  {company ? company?.charAt(0) : "NA"}
               </span>
             </div>
           )}
@@ -95,7 +95,7 @@ export default function JobCard({
             variant="body-small"
             className="text-dark-blue text-xs font-medium"
           >
-            Not specified
+            {job?.category?.name || "Not specified"}
           </Typography>
         </div>
 

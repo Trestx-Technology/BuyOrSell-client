@@ -293,7 +293,7 @@ export default function CategoryTraversalPage() {
   }
 
   return (
-    <section className="relative border border-red-500 h-full overflow-y-auto">
+    <section className="relative h-full overflow-y-auto">
       <div className="flex-1 w-full max-w-[888px] mx-auto mb-5">
         <div className="flex h-full gap-10">
           {/* Left Column - Categories */}

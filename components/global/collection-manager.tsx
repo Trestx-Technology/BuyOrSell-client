@@ -21,8 +21,6 @@ import { usePathname, useSearchParams } from "next/navigation";
 import {
   ResponsiveModal,
   ResponsiveModalContent,
-  ResponsiveModalDescription,
-  ResponsiveModalFooter,
   ResponsiveModalHeader,
   ResponsiveModalTitle,
 } from "@/components/ui/responsive-modal";
@@ -81,50 +79,112 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
   const addToCollectionMutation = useAddAdsToCollection();
   const removeFromCollectionMutation = useRemoveAdFromCollection();
 
-  const collections = collectionsResponse?.data || [];
+  const [localCollections, setLocalCollections] = useState<Collection[]>([]);
+
+  const [loadingCollectionId, setLoadingCollectionId] = useState<string | null>(null);
+
+  // Sync local state with fetched data
+  React.useEffect(() => {
+    if (collectionsResponse?.data) {
+      setLocalCollections(collectionsResponse.data);
+    }
+  }, [collectionsResponse?.data]);
 
   // Handle adding item to collection
   const handleAddToCollection = useCallback(
     async (collectionId: string) => {
-      await addToCollectionMutation.mutateAsync({
-        collectionId,
-        payload: {
-          adIds: [itemId], // API expects array of ad IDs
-        },
-      });
-      // After adding to collection, invalidate collections and ad queries to refresh state
-      queryClient.invalidateQueries({
-        queryKey: collectionsQueries.getMyCollections.Key,
-      });
+      setLoadingCollectionId(collectionId);
+      // Optimistic update using local state
+      setLocalCollections((prev) =>
+        prev.map((col) => {
+          if (col._id === collectionId) {
+            const newAdIds = col.adIds ? [...col.adIds] : [];
+            if (!newAdIds.includes(itemId)) {
+              newAdIds.push(itemId);
+            }
+            return {
+              ...col,
+              adIds: newAdIds,
+              count: (col.count || 0) + 1,
+            };
+          }
+          return col;
+        })
+      );
 
-      onSuccess?.(true);
-      setOpen(false);
+      try {
+        await addToCollectionMutation.mutateAsync({
+          collectionId,
+          payload: {
+            adIds: [itemId], // API expects array of ad IDs
+          },
+        });
+
+        // Invalidate to ensure consistency with server
+
+
+        onSuccess?.(true);
+        setOpen(false);
+      } catch (error) {
+        // Revert on error by resetting to server state
+        if (collectionsResponse?.data) {
+          setLocalCollections(collectionsResponse.data);
+        }
+        console.error("Failed to add to collection", error);
+      } finally {
+        setLoadingCollectionId(null);
+      }
     },
-    [itemId, addToCollectionMutation, queryClient, onSuccess]
+    [itemId, addToCollectionMutation, queryClient, onSuccess, collectionsResponse?.data]
   );
 
   // Handle removing item from collection
   const handleRemoveFromCollection = useCallback(
     async (collectionId: string) => {
-      // Store current state before mutation
-      const wasInOtherCollections = collections.some(
+      setLoadingCollectionId(collectionId);
+      const wasInOtherCollections = localCollections.some(
         (collection) =>
           collection._id !== collectionId && collection.adIds?.includes(itemId)
       );
 
-      await removeFromCollectionMutation.mutateAsync({
-        collectionId,
-        adId: itemId,
-      });
+      // Optimistic update using local state
+      setLocalCollections((prev) =>
+        prev.map((col) => {
+          if (col._id === collectionId) {
+            const newAdIds = col.adIds?.filter((id) => id !== itemId) || [];
+            return {
+              ...col,
+              adIds: newAdIds,
+              count: Math.max((col.count || 1) - 1, 0),
+            };
+          }
+          return col;
+        })
+      );
 
-      // After removing from collection, invalidate queries to refresh state
-      queryClient.invalidateQueries({
-        queryKey: collectionsQueries.getMyCollections.Key,
-      });
+      try {
+        await removeFromCollectionMutation.mutateAsync({
+          collectionId,
+          adId: itemId,
+        });
 
-      onSuccess?.(wasInOtherCollections);
+        // Invalidate to ensure consistency with server
+        queryClient.invalidateQueries({
+          queryKey: collectionsQueries.getMyCollections.Key,
+        });
+
+        onSuccess?.(wasInOtherCollections);
+      } catch (error) {
+        // Revert on error
+        if (collectionsResponse?.data) {
+          setLocalCollections(collectionsResponse.data);
+        }
+        console.error("Failed to remove from collection", error);
+      } finally {
+        setLoadingCollectionId(null);
+      }
     },
-    [itemId, removeFromCollectionMutation, queryClient, collections, onSuccess]
+    [itemId, removeFromCollectionMutation, queryClient, localCollections, onSuccess, collectionsResponse?.data]
   );
 
   // Handle collection creation success
@@ -147,9 +207,7 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
 
   const renderCollectionItem = (collection: Collection) => {
     const isInCollection = isItemInCollection(collection);
-    const isLoading =
-      addToCollectionMutation.isPending ||
-      removeFromCollectionMutation.isPending;
+    const isLoading = loadingCollectionId === collection._id;
 
     return (
       <div
@@ -253,7 +311,7 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
       </CreateCollectionDialog>
 
       {/* Collections List */}
-      <div className="space-y-1 max-h-96 overflow-y-auto">
+      <div className="space-y-1">
         {isLoadingCollections ? (
           <div className="text-center py-8">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-purple" />
@@ -261,8 +319,8 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
               {t.common?.loading || "Loading collections..."}
             </Typography>
           </div>
-        ) : collections.length > 0 ? (
-          collections.map(renderCollectionItem)
+        ) : localCollections.length > 0 ? (
+          localCollections.map(renderCollectionItem)
         ) : (
           <div className="text-center py-8">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">

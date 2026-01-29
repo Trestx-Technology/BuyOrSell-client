@@ -137,7 +137,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
             ? bh.day - 1
             : parseInt(String(bh.day), 10) - 1;
         const dayName = dayNames[dayIndex] || `Day ${bh.day}`;
-        if (bh.isClosed || (bh as any).closed) {
+        if (bh.close || (bh as any).closed) {
           return `${dayName}: Closed`;
         }
         if (bh.allDay) {

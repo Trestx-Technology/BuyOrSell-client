@@ -36,7 +36,7 @@ export interface SortAndViewControlsProps {
 
 const SortAndViewControls: React.FC<SortAndViewControlsProps> = ({
   sortOptions: propSortOptions,
-  sortValue,
+  sortValue = "newest",
   variant = "light",
   onSortChange,
   sortPlaceholder = "Sort by",

@@ -6,30 +6,42 @@ export const useUrlParams = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const updateUrlParam = useCallback(
-    (key: string, value: any) => {
+  const updateUrlParams = useCallback(
+    (updates: Record<string, any>) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (
-        value &&
-        value !== "" &&
-        (Array.isArray(value) ? value.length > 0 : true)
-      ) {
-        if (Array.isArray(value)) {
-          params.set(key, value.join(","));
+
+      Object.entries(updates).forEach(([key, value]) => {
+        if (
+          value !== undefined &&
+          value !== null &&
+          value !== "" &&
+          (Array.isArray(value) ? value.length > 0 : true)
+        ) {
+          if (Array.isArray(value)) {
+            params.set(key, value.join(","));
+          } else {
+            params.set(key, String(value));
+          }
         } else {
-          params.set(key, String(value));
+          params.delete(key);
         }
-      } else {
-        params.delete(key);
-      }
+      });
+
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     },
-    [router, pathname, searchParams]
+    [router, pathname, searchParams],
+  );
+
+  const updateUrlParam = useCallback(
+    (key: string, value: any) => {
+      updateUrlParams({ [key]: value });
+    },
+    [updateUrlParams],
   );
 
   const clearUrlQueries = useCallback(() => {
     router.replace(pathname, { scroll: false });
   }, [router, pathname]);
 
-  return { updateUrlParam, clearUrlQueries, searchParams };
+  return { updateUrlParam, updateUrlParams, clearUrlQueries, searchParams };
 };

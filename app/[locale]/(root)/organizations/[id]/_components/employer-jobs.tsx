@@ -4,41 +4,18 @@ import React from "react";
 import Link from "next/link";
 import { Typography } from "@/components/typography";
 import JobCard from "@/app/[locale]/(root)/jobs/my-profile/_components/job-card";
-import { useAds } from "@/hooks/useAds";
 import { AD } from "@/interfaces/ad";
-import { transformAdToJobCard } from "@/utils/transform-ad-to-job-card";
+import { Organization } from "@/interfaces/organization.types";
+import { EmployerProfile } from "@/interfaces/job.types";
 
 interface EmployerJobsProps {
   employerId: string;
+  organization: Organization & Partial<EmployerProfile>;
 }
 
-export default function EmployerJobs({ employerId }: EmployerJobsProps) {
-  const { data: adsData, isLoading } = useAds({
-    adType: "JOB",
-    limit: 10,
-    page: 1,
-  });
-
-  // Filter jobs by organization/employer
-  // Note: This assumes the AD has an organization field that matches employerId
-  const jobs = (adsData?.data?.adds || []).filter(
-    (job: AD) => job.organization?._id === employerId
-  );
-
-  if (isLoading) {
-    return (
-      <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8">
-        <div className="flex flex-wrap gap-5">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-gray-200 rounded-2xl w-[256px] h-[400px] animate-pulse"
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
+export default function EmployerJobs({ employerId, organization }: EmployerJobsProps) {
+  // Use jobs from organization data
+  const jobs = (organization.latestJobs || []) as AD[];
 
   if (jobs.length === 0) {
     return (
@@ -62,13 +39,13 @@ export default function EmployerJobs({ employerId }: EmployerJobsProps) {
   }
 
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8">
+    <div className="rounded-2xl">
       <div className="flex justify-between items-end mb-6">
         <Typography
           variant="h2"
           className="text-dark-blue font-bold text-2xl"
         >
-          Active Job Postings
+          Active Job Postings by {organization.tradeName}
         </Typography>
         <Link href={`/jobs/listing?employer=${employerId}`}>
           <Typography

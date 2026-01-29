@@ -26,6 +26,7 @@ import {
   profileEditSchema,
   type ProfileEditFormData,
 } from "@/schemas/profile-edit.schema";
+import { countryCodes } from "@/schemas/signup.schema";
 import type { UpdateUserPayload } from "@/interfaces/user.types";
 import { useRouter } from "nextjs-toploader/app";
 import { useAuthStore } from "@/stores/authStore";
@@ -198,6 +199,7 @@ export default function ProfileEditForm() {
   const onSubmit = (data: ProfileEditFormData) => {
     if (!userId) return;
 
+    // Check if phone number has changed and is verified
     if (phoneNumberChanged && !isPhoneVerified) {
       toast.error(
         "Please verify your new phone number before updating your profile."
@@ -205,24 +207,33 @@ export default function ProfileEditForm() {
       return;
     }
 
-    // Extract countryCode and phoneNo separately
-    let phoneNo: string | undefined;
-    let countryCode: string | undefined;
+    let phoneNo: string | undefined = data.phoneNo?.toString();
+    let countryCode: string | undefined = user?.countryCode || "+971";
 
-    if (verifiedPhoneNumber) {
-      // Extract country code from verified phone number (format: +971XXXXXXXXX)
-      const countryCodeMatch = verifiedPhoneNumber.match(/^(\+\d{1,4})/);
-      countryCode = countryCodeMatch ? countryCodeMatch[1] : user?.countryCode || "+971";
-      phoneNo = verifiedPhoneNumber.replace(/^\+\d{1,4}/, "");
-    } else if (data.phoneNo) {
-      // Use existing country code if phone number is not verified/changed
-      countryCode = user?.countryCode || "+971";
-      phoneNo = data.phoneNo.toString();
+    if (phoneNumberChanged && verifiedPhoneNumber) {
+      // Extract from verified phone number
+      // Sort codes by length descending to match longest possible code (e.g. +971 vs +97)
+      const codes = countryCodes.map(c => c.code).sort((a, b) => b.length - a.length);
+      const matchedCode = codes.find(code => verifiedPhoneNumber.startsWith(code));
+
+      if (matchedCode) {
+        countryCode = matchedCode;
+        phoneNo = verifiedPhoneNumber.slice(matchedCode.length);
+      } else {
+        // Fallback
+        countryCode = user?.countryCode || "+971";
+        phoneNo = verifiedPhoneNumber.replace(countryCode, ""); // Basic cleanup
+      }
+    } else {
+      // Phone number didn't change, keep existing values
+      phoneNo = user?.phoneNo;
+      countryCode = user?.countryCode;
     }
 
     // Prepare update payload
     const updatePayload: UpdateUserPayload = {
       firstName: data.firstName,
+      lastName: data.lastName,
       email: data.email.trim(),
       phoneNo: phoneNo,
       countryCode: countryCode,
@@ -239,6 +250,7 @@ export default function ProfileEditForm() {
           // Update auth session with new data
           updateUserSession({
             firstName: data.firstName,
+            lastName: data.lastName,
             email: data.email.trim(),
           });
           

@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { useLocale } from "@/hooks/useLocale";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useOutsideClick } from "@/hooks/useOutsideClick";
+import { slugify } from "@/utils/slug-utils";
 
 export default function JobsHero() {
   const router = useRouter();
@@ -125,10 +126,15 @@ export default function JobsHero() {
     }
 
     const params = new URLSearchParams();
-    if (searchKeyword) params.set("query", searchKeyword);
     if (selectedEmirate) params.set("location", selectedEmirate);
 
-    router.push(localePath(`/jobs/listing?${params.toString()}`));
+    let path = "/jobs/listing";
+    if (searchKeyword) {
+      const slug = slugify(searchKeyword);
+      path = `/jobs/listing/${slug}`;
+    }
+
+    router.push(localePath(`${path}?${params.toString()}`));
     setShowDropdown(false);
   };
 

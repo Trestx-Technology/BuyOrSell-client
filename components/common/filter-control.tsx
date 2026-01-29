@@ -53,13 +53,33 @@ export const FilterControl = ({
     step = 1,
   } = filterConfig;
   const value = currentValues[key];
+  const isValueSelected = Array.isArray(value) ? value.length > 0 : !!value;
+
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onChange(key, type === "multiselect" ? [] : null);
+  };
+
+  const labelWithClear = (
+    <div className="flex justify-between items-center w-full">
+      <span>{filterConfig.label}</span>
+      {isValueSelected && (
+        <button
+          onClick={handleClear}
+          className="text-[10px] text-purple hover:text-purple-700 font-medium"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  );
 
   switch (type) {
     case "select":
       return (
         <FormField
           className="text-sm w-full"
-          label={filterConfig.label}
+          label={labelWithClear}
           required={false}
         >
           <Select
@@ -83,7 +103,7 @@ export const FilterControl = ({
     case "range":
       return (
         <FormField
-          label={filterConfig.label}
+          label={labelWithClear}
           required={false}
           className="-space-y-2"
         >
@@ -109,7 +129,7 @@ export const FilterControl = ({
 
     case "multiselect":
       return (
-        <FormField label={filterConfig.label} required={false}>
+        <FormField label={labelWithClear} required={false}>
           <div className="w-full">
             <Select
               value=""
@@ -131,37 +151,13 @@ export const FilterControl = ({
                 ))}
               </SelectContent>
             </Select>
-            {Array.isArray(value) && value.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {value.map((selectedValue: string) => (
-                  <Badge
-                    key={selectedValue}
-                    variant="secondary"
-                    className="text-xs"
-                  >
-                    {selectedValue}
-                    <button
-                      onClick={() => {
-                        const newValues = value.filter(
-                          (v: string) => v !== selectedValue
-                        );
-                        onChange(key, newValues);
-                      }}
-                      className="ml-1 hover:text-red-500"
-                    >
-                      ×
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            )}
           </div>
         </FormField>
       );
 
     case "search":
       return (
-        <FormField label={filterConfig.label} required={false}>
+        <FormField label={labelWithClear} required={false}>
           <Input
             placeholder={placeholder}
             value={value || ""}
@@ -173,7 +169,7 @@ export const FilterControl = ({
 
     case "calendar":
       return (
-        <FormField label={filterConfig.label} required={false}>
+        <FormField label={labelWithClear} required={false}>
           <div className="min-w-40">
             <NaturalLanguageCalendar
               value={value || ""}

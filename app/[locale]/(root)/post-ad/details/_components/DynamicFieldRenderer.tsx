@@ -16,7 +16,7 @@ import { MultipleImageInput, ImageItem as MultipleImageItem } from "./MultipleIm
 import { MapComponent } from "./MapComponent";
 import { ImageItem } from "./image-upload";
 
-type FormValues = Record<string, string | number | boolean | string[] | MultipleImageItem[] | ImageItem[] | {
+export type FormValues = Record<string, string | number | boolean | string[] | MultipleImageItem[] | ImageItem[] | {
   state?: string;
   country?: string;
   zipCode?: string;
@@ -25,7 +25,7 @@ type FormValues = Record<string, string | number | boolean | string[] | Multiple
   address?: string;
   coordinates?: number[];
   type?: string;
-}>;
+} | undefined | null>;
 
 interface DynamicFieldRendererProps {
   field: Field;

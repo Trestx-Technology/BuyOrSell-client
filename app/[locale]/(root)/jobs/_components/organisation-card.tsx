@@ -56,7 +56,7 @@ export function EmployerCard({
             }}
           />
         </div>
-        <SaveOrganizationButton 
+        <SaveOrganizationButton
           organizationId={employerId}
           initialIsSaved={isWishlisted}
         />
@@ -64,7 +64,7 @@ export function EmployerCard({
 
       {/* Company Info */}
       <div className="mb-2">
-        <Link href={href || `/jobs/employer/${employerId}`}>
+        <Link href={href || `/organizations/${employerId}`}>
           <Typography
             variant="h3"
             className="text-xl font-bold text-gray-900 hover:text-purple transition-colors cursor-pointer truncate"

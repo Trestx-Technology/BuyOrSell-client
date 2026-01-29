@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import ApplicantCard from "./_components/applicant-card";
@@ -22,6 +22,9 @@ import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useJobSubcategories } from "@/hooks/useCategories";
 import { useGetAllSkills } from "@/hooks/useSkills";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { useUrlParams } from "@/hooks/useUrlParams";
+import { NoDataCard } from "@/components/global/fallback-cards";
+import { ActiveFilters } from "@/components/common/active-filters";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -31,23 +34,39 @@ const getFilterString = (value: string | string[] | undefined): string => {
   return Array.isArray(value) ? value[0] || "" : value;
 };
 
+// Helper to get array from params (supporting both repeated keys and comma-separated)
+const getArrayParam = (params: URLSearchParams, key: string): string[] => {
+  const all = params.getAll(key);
+  if (all.length > 1) return all;
+  if (all.length === 1) return all[0].split(",");
+  return [];
+};
+
 export default function JobseekersPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { updateUrlParam, updateUrlParams, clearUrlQueries } = useUrlParams();
   const urlQuery =
     searchParams.get("query") || searchParams.get("search") || "";
   const urlLocation = searchParams.get("location") || "";
 
   const [locationQuery, setLocationQuery] = useState(urlLocation);
+
+  // Initialize filters from URL
   const [filters, setFilters] = useState<Record<string, string | string[]>>({
     location: urlLocation,
-    skills: [],
-    desiredRoles: [],
-    minExp: "",
-    maxExp: "",
-    industryId: "",
+    skills: getArrayParam(new URLSearchParams(searchParams.toString()), "skills"),
+    desiredRoles: getArrayParam(new URLSearchParams(searchParams.toString()), "desiredRoles"),
+    minExp: searchParams.get("minExp") || "",
+    maxExp: searchParams.get("maxExp") || "",
+    industryId: searchParams.get("industryId") || "",
   });
+
   const [view, setView] = useState<ViewMode>("grid");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(
+    Number(searchParams.get("page")) || 1
+  );
 
   // Debounced search query - searchQuery is the debounced value used for API calls
   const [searchQuery, setSearchQuery] = useState(urlQuery);
@@ -57,17 +76,54 @@ export default function JobseekersPage() {
     500
   );
 
-  // Initialize search query and location from URL params
+  // Sync state when URL params change (e.g. back navigation)
   useEffect(() => {
-    if (urlQuery) {
-      setSearchQuery(urlQuery);
-      setLocalSearchQuery(urlQuery);
+    const newQuery = searchParams.get("query") || searchParams.get("search") || "";
+    if (newQuery !== searchQuery) {
+      setSearchQuery(newQuery);
+      setLocalSearchQuery(newQuery);
     }
-    if (urlLocation) {
-      setLocationQuery(urlLocation);
-      setFilters((prev) => ({ ...prev, location: urlLocation }));
+
+    const newLocation = searchParams.get("location") || "";
+    if (newLocation !== locationQuery) {
+      setLocationQuery(newLocation);
     }
-  }, [urlQuery, urlLocation, setLocalSearchQuery]);
+
+    const newPage = Number(searchParams.get("page")) || 1;
+    if (newPage !== currentPage) {
+      setCurrentPage(newPage);
+    }
+
+    // Sync filters - Only update if values actually changed to avoid loops
+    const skills = getArrayParam(new URLSearchParams(searchParams.toString()), "skills");
+    const desiredRoles = getArrayParam(new URLSearchParams(searchParams.toString()), "desiredRoles");
+    const minExp = searchParams.get("minExp") || "";
+    const maxExp = searchParams.get("maxExp") || "";
+    const industryId = searchParams.get("industryId") || "";
+
+    const hasSkillsChanged = JSON.stringify(skills) !== JSON.stringify(filters.skills);
+    const hasRolesChanged = JSON.stringify(desiredRoles) !== JSON.stringify(filters.desiredRoles);
+
+    if (
+      hasSkillsChanged ||
+      hasRolesChanged ||
+      minExp !== filters.minExp ||
+      maxExp !== filters.maxExp ||
+      industryId !== filters.industryId ||
+      newLocation !== filters.location
+    ) {
+      setFilters({
+        location: newLocation,
+        skills,
+        desiredRoles,
+        minExp,
+        maxExp,
+        industryId,
+      });
+    }
+  }, [searchParams]);
+
+
 
   const categoryName = "Jobseekers";
 
@@ -238,12 +294,18 @@ export default function JobseekersPage() {
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
   const handleFilterChange = (key: string, value: string | string[]) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+    updateUrlParams({ [key]: value, page: "1" });
+    setCurrentPage(1);
   };
 
   const handleLocationChange = (value: string) => {
     setLocationQuery(value);
-    setFilters((prev) => ({ ...prev, location: value }));
+    const newFilters = { ...filters, location: value };
+    setFilters(newFilters);
+    updateUrlParams({ location: value, page: "1" });
+    setCurrentPage(1);
   };
 
   const clearFilters = () => {
@@ -260,13 +322,17 @@ export default function JobseekersPage() {
     setLocalSearchQuery("");
     setLocationQuery("");
     setCurrentPage(1);
+    clearUrlQueries();
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    // Scroll to top when page changes
+    updateUrlParam("page", page.toString());
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  // Search and URL state are synchronized via CommonFilters and the main useEffect on searchParams
+
 
   // Transform JobseekerProfile to ApplicantCard props
   const transformJobseekerToApplicantCardProps = (
@@ -370,17 +436,15 @@ export default function JobseekersPage() {
             {categoryName} in Dubai ({jobseekers.length})
           </Typography>
 
-          <SortAndViewControls
-            sortOptions={[]}
-            sortValue="default"
-            onSortChange={() => {}}
+          {/* <SortAndViewControls
             viewMode={view}
             onViewChange={setView}
-            showViewToggle={true}
+            showViewToggle={false}
             showFilterButton={false}
             size="fit"
             className="hidden sm:flex"
-          />
+            sortValue="newest"
+          /> */}
         </div>
 
         {/* Jobseekers Filters */}
@@ -398,13 +462,21 @@ export default function JobseekersPage() {
           className="mb-4"
         />
 
+        {/* Active Filters Section */}
+        <ActiveFilters
+          staticFiltersConfig={filterConfig}
+          categoryPath=""
+          onClearAll={clearFilters}
+          className="mb-6 px-4"
+        />
+
         <SortAndViewControls
           sortOptions={[]}
-          sortValue="default"
+          sortValue="newest"
           onSortChange={() => {}}
           viewMode={view}
           onViewChange={setView}
-          showViewToggle={true}
+          showViewToggle={false}
           showFilterButton={false}
           size="fit"
           className="px-4 flex justify-end mb-4 sm:hidden"
@@ -432,9 +504,7 @@ export default function JobseekersPage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
-                No jobseekers found matching your criteria.
-              </p>
+                  <NoDataCard title="No jobseekers found matching your criteria." description="Please try again with different filters." />
               <Button variant="outline" onClick={clearFilters} className="mt-4">
                 Clear Filters
               </Button>

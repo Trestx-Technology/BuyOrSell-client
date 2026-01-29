@@ -30,7 +30,7 @@ export default function AppliedJobCard({ application, className }: { application
 
 
   return (
-    <div className={cn("relative sm:max-w-[300px] bg-white border border-slate-200 rounded-2xl p-4 shadow-sm w-full flex flex-col h-full", className)}>
+    <div className={cn("relative sm:max-w-[250px] bg-white border border-slate-200 rounded-2xl p-4 shadow-sm w-full flex flex-col h-full", className)}>
       {/* Header with Status and Applied Time */}
       <div className="space-y-2 flex-1 gap-[21.33px] mb-4">
         <div className="flex justify-between items-center">

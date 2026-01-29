@@ -130,9 +130,6 @@ export const useAddAdsToCollection = () => {
       queryClient.invalidateQueries({
         queryKey: collectionsQueries.getCollectionById(variables.collectionId).Key,
       });
-      queryClient.invalidateQueries({
-        queryKey: collectionsQueries.getMyCollections.Key,
-      });
     },
   });
 };
@@ -150,9 +147,6 @@ export const useRemoveAdFromCollection = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: collectionsQueries.getCollectionById(variables.collectionId).Key,
-      });
-      queryClient.invalidateQueries({
-        queryKey: collectionsQueries.getMyCollections.Key,
       });
     },
   });

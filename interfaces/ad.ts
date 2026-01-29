@@ -283,6 +283,10 @@ export interface PostAdPayload {
   description: string;
   price: number;
   images: string[];
+  minSalary?: number;
+  maxSalary?: number;
+  jobMode?: string;
+  jobShift?: string;
   videoUrl?: string;
   contactPhoneNumber?: string;
   extraFields: ProductExtraFields;

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { H2, H3, Typography } from "@/components/typography";
 import JobsSectionTitle from "./jobs-section-title";
-import { EmployerCard } from "./employer-card";
+import { EmployerCard } from "./organisation-card";
 import {
   useOrganizations,
 } from "@/hooks/useOrganizations";
@@ -49,10 +49,10 @@ export default function CompaniesToFollow({
 
       if (currentUserId && ownerId === currentUserId) {
         // User is the owner, redirect to organization page
-        return localePath(`/jobs/organization/${organization._id}`);
+        return localePath(`/organizations/${organization._id}`);
       }
       // Not the owner, use default employer page
-      return localePath(`/jobs/employer/${organization._id}`);
+      return localePath(`/organizations/${organization._id}`);
     };
   }, [currentUserId, localePath]);
 
@@ -90,7 +90,7 @@ export default function CompaniesToFollow({
           {/* Header */}
         <div className="flex justify-between items-center max-w-[1080px] mx-auto w-full">
             <JobsSectionTitle>Organizations to Follow</JobsSectionTitle>
-          <Link href="/jobs/organization" className="text-purple font-semibold hover:underline flex items-center gap-1">
+          <Link href="/organizations" className="text-purple font-semibold hover:underline flex items-center gap-1">
                 View all
             <svg
               className="w-4 h-4"

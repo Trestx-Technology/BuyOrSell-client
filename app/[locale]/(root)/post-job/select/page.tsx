@@ -2,16 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { useGetMainCategories } from "@/hooks/useCategories";
+import { useJobSubcategories } from "@/hooks/useCategories";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { useRouter } from "nextjs-toploader/app";
 import { useMyOrganization } from "@/hooks/useOrganizations";
+import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 import OrganizationRequiredDialog from "@/app/[locale]/(root)/post-ad/_components/OrganizationRequiredDialog";
-import {
-  isJobCategory,
-  hasOrganization,
-} from "@/validations/post-ad.validation";
+import { hasOrganization } from "@/validations/post-ad.validation";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { toast } from "sonner";
+import { H2 } from "@/components/typography";
 
 export default function SelectJobCategoryPage() {
   const router = useRouter();
@@ -26,18 +26,33 @@ export default function SelectJobCategoryPage() {
 
   // Fetch categories using the hook
   const {
-    data: categoriesData,
+    data: categories = [],
     isLoading: categoriesLoading,
     error: categoriesError,
-  } = useGetMainCategories();
+  } = useJobSubcategories();
 
   // Fetch user organizations
   const { data: organizationsData, isLoading: organizationsLoading } =
     useMyOrganization();
   const organizations = organizationsData?.data || [];
 
-  // Filter for Job categories only
-  const categories = categoriesData?.filter(cat => isJobCategory(cat.name)) || [];
+  // Check for Jobseeker Profile
+  const { data: jobseekerData, isLoading: isJobseekerLoading } =
+    useGetJobseekerProfile();
+
+  useEffect(() => {
+
+    if (organizations.length === 0) {
+      toast.error("Please create an organization to post a job");
+      // router.push("/organizations/new");
+      setShowOrgDialog(true);
+    }
+    if (!isJobseekerLoading && !jobseekerData?.data) {
+      toast.error("Please create a jobseeker profile to post a job");
+      // router.push("/jobs/jobseeker/new");
+    }
+  }, [isJobseekerLoading, jobseekerData, router]);
+
 
   const handleCategorySelect = (categoryId: string) => {
     const selectedCategory = categories.find((cat) => cat._id === categoryId);
@@ -77,13 +92,13 @@ export default function SelectJobCategoryPage() {
         <div className="w-full mx-auto bg-white">
           <div className="pb-8">
              <div className="mb-6">
-                <h1 className="text-2xl font-bold text-[#1D2939]">Post a Job</h1>
+              <H2 className="font-bold text-[#1D2939]">Post a Job</H2>
                 <p className="text-[#667085] mt-1">Select a job category to get started</p>
              </div>
             
             <div className="space-y-[13px]">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-[13px]">
-                {categoriesLoading || organizationsLoading ? (
+                {categoriesLoading || organizationsLoading || isJobseekerLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
                     <div
                       key={index}
@@ -114,17 +129,17 @@ export default function SelectJobCategoryPage() {
                       onClick={() => handleCategorySelect(category._id)}
                       className="bg-[#F7F8FA] rounded-lg p-[10px_18px] w-full h-[140px] flex flex-col items-center justify-center gap-4 hover:bg-purple/10 hover:scale-105 cursor-pointer transition-all duration-300"
                     >
-                      {category.icon && (
+
                         <div className="w-[70px] h-[70px] relative">
                           <Image
-                            src={category.icon}
+                          src={category.mobileImage || category.icon || ""}
                             alt={category.name}
                             fill
                             unoptimized
                             className="object-cover rounded"
                           />
                         </div>
-                      )}
+
                       <span className="text-sm font-semibold text-black text-center max-w-[130px] truncate whitespace-nowrap leading-tight">
                         {category.name}
                       </span>

@@ -22,7 +22,7 @@ import { MultipleImageInput, ImageItem as MultipleImageItem } from "../../detail
 import { MapComponent } from "../../details/_components/MapComponent";
 import { CheckboxInput } from "../../details/_components/CheckboxInput";
 import { Field } from "@/interfaces/categories.types";
-import { DynamicFieldRenderer } from "../../details/_components/DynamicFieldRenderer";
+import { DynamicFieldRenderer, FormValues } from "../../details/_components/DynamicFieldRenderer";
 import { SelectInput } from "../../details/_components/SelectInput";
 import { FormSkeleton } from "../../details/_components/FormSkeleton";
 import { createPostAdSchema, type AddressFormValue } from "@/schemas/post-ad.schema";
@@ -30,13 +30,15 @@ import { getFieldOptions, shouldShowField, isJobCategory } from "@/validations/p
 import { AD_SYSTEM_FIELDS } from "@/constants/ad.constants";
 import { removeUndefinedFields } from "@/utils/remove-undefined-fields";
 import { Typography } from "@/components/typography";
+import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
 
-type FormValues = Record<string, string | number | boolean | string[] | MultipleImageItem[] | ImageItem[] | AddressFormValue>;
+// type FormValues = Record<string, string | number | boolean | string[] | MultipleImageItem[] | ImageItem[] | AddressFormValue>;
 
 export default function EditAdPage() {
       const { localePath } = useLocale();
       const { adId } = useParams<{ adId: string }>();
       const router = useRouter();
+      // ... (rest of the component until handleInputChange) ...
       const { session } = useAuthStore((state) => state);
       const updateAdMutation = useUpdateAd();
       const [selectedLocation, setSelectedLocation] = useState<{
@@ -168,7 +170,8 @@ export default function EditAdPage() {
       }, [existingAd, category, reset]);
 
       // Handle input change (wrapper for setValue)
-      const handleInputChange = (field: string, value: string | number | boolean | string[] | MultipleImageItem[] | AddressFormValue) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const handleInputChange = (field: string, value: any) => {
             setValue(field as keyof FormValues, value as FormValues[keyof FormValues], { shouldValidate: true });
 
             // If price changes, trigger validation for discountedPrice to show error if needed
@@ -423,6 +426,8 @@ export default function EditAdPage() {
       }
 
       return (
+            <GoogleMapsProvider>
+
             <section className="w-full max-w-[888px] mx-auto relative">
                   {/* Main Container */}
                   <div className="flex h-full gap-10 relative">
@@ -915,5 +920,7 @@ export default function EditAdPage() {
                         </div>
                   </div>
             </section>
+            </GoogleMapsProvider>
+
       );
 }

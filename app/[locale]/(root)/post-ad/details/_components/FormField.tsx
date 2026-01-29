@@ -8,7 +8,7 @@ interface FormFieldProps {
   children: ReactNode;
   className?: string;
   fullWidth?: boolean;
-  label: string;
+  label: string | ReactNode;
   htmlFor?: string;
   required?: boolean;
   error?: string;
