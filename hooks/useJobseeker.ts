@@ -57,6 +57,7 @@ import {
 } from "@/interfaces/job.types";
 import { jobseekerQueries } from "@/app/api/jobseeker/index";
 import { useAuthStore } from "@/stores/authStore";
+import { useIsAuthenticated } from "./useAuth";
 
 // ============================================================================
 // GENERAL PROFILE QUERY HOOKS
@@ -201,7 +202,7 @@ export const useUnblockJobseekerProfile = () => {
 // ============================================================================
 
 export const useGetJobseekerProfile = () => {
-  const isAuthenticated = useAuthStore((state)=> state.isAuthenticated)
+  const isAuthenticated = useIsAuthenticated();
   return useQuery<JobseekerProfileResponse, Error>({
     queryKey: jobseekerQueries.getJobseekerProfile.Key,
     queryFn: getJobseekerProfile,

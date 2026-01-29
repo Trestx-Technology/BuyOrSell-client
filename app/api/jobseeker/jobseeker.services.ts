@@ -108,17 +108,18 @@ export const unblockJobseekerProfile = async (
 export const getJobseekerProfile =
   async (): Promise<JobseekerProfileResponse> => {
     const response = await axiosInstance.get<JobseekerProfileResponse>(
-      jobseekerQueries.getJobseekerProfile.endpoint
+      jobseekerQueries.getJobseekerProfile.endpoint,
+      { skipErrorToast: true },
     );
     return response.data;
   };
 
 export const crateOrUpdateJobseekerProfilePartialMe = async (
-  data: Partial<UpdateJobseekerProfilePayload>
+  data: Partial<UpdateJobseekerProfilePayload>,
 ): Promise<JobseekerProfileResponse> => {
   const response = await axiosInstance.patch<JobseekerProfileResponse>(
     jobseekerQueries.crateOrUpdateJobseekerProfilePartialMe.endpoint,
-    data
+    data,
   );
   return response.data;
 };
@@ -129,11 +130,11 @@ export const crateOrUpdateJobseekerProfilePartialMe = async (
 
 export const getJobseekerProfileByUserId = async (
   userId: string,
-  params?: { similarJobs?: boolean }
+  params?: { similarJobs?: boolean },
 ): Promise<JobseekerProfileResponse> => {
   const response = await axiosInstance.get<JobseekerProfileResponse>(
     jobseekerQueries.getJobseekerProfileByUserId(userId).endpoint,
-    { params }
+    { params },
   );
   return response.data;
 };
