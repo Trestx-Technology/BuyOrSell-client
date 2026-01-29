@@ -32,15 +32,15 @@ const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
 
     // Use Arabic address if available and locale is Arabic
     if (isArabic && ad.addressAr) {
-      const cityAr = ad.addressAr.city;
-      const stateAr = ad.addressAr.state;
+      const cityAr = ad.address?.cityAr;
+      const stateAr = ad.address?.stateAr;
       if (cityAr && stateAr) return `${cityAr}, ${stateAr}`;
       if (cityAr) return cityAr;
       if (stateAr) return stateAr;
     }
 
-    const city = locationData.city?.trim();
-    const state = locationData.state?.trim();
+    const city = locationData?.city?.trim();
+    const state = locationData?.state?.trim();
     if (city && state) return `${city}, ${state}`;
     if (city) return city;
     if (state) return state;

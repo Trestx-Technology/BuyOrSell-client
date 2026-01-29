@@ -46,8 +46,8 @@ export const transformAdToListingCard = (
 
     // Use Arabic address if available and locale is Arabic
     if (isArabic && ad.addressAr) {
-      const cityAr = ad.addressAr.city;
-      const stateAr = ad.addressAr.state;
+      const cityAr = ad.address?.cityAr;
+      const stateAr = ad.address?.stateAr;
       if (cityAr && stateAr) {
         return `${cityAr}, ${stateAr}`;
       }
@@ -56,8 +56,8 @@ export const transformAdToListingCard = (
     }
 
     // Build location from city and state
-    const city = getStringValue(locationData.city);
-    const state = getStringValue(locationData.state);
+    const city = getStringValue(locationData?.city);
+    const state = getStringValue(locationData?.state);
 
     if (city && state) {
       return `${city}, ${state}`;
