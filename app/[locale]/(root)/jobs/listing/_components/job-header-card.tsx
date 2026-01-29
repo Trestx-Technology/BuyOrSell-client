@@ -87,10 +87,12 @@ export default function JobHeaderCard({
   const companyName =
     job.organization?.tradeName || job.organization?.legalName || "Company";
   const companyLogo = logo || job.organization?.logoUrl;
+  const jobMode = job.jobMode || getFieldValue("jobMode") || getFieldValue("job mode") || "";
   const jobType = getFieldValue("jobType") || getFieldValue("job type") || "";
   const experience = getFieldValue("experience") || "";
-  const salaryMin = getSalaryFromAd("min");
-  const salaryMax = getSalaryFromAd("max");
+  const salaryMin = job.minSalary ?? getSalaryFromAd("min");
+  const salaryMax = job.maxSalary ?? getSalaryFromAd("max");
+  const jobShift = job.jobShift || getFieldValue("jobShift") || getFieldValue("job shift") || "";
   const location =
     typeof job.location === "string"
       ? job.location
@@ -260,6 +262,11 @@ export default function JobHeaderCard({
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {jobMode && (
+                <Badge className="bg-purple/20 text-purple px-[10.67px] py-[7.11px] rounded-full text-xs font-semibold">
+                  {jobMode}
+                </Badge>
+              )}
               {jobType && (
                 <Badge className="bg-purple/20 text-purple px-[10.67px] py-[7.11px] rounded-full text-xs font-semibold">
                   {jobType}
@@ -293,7 +300,7 @@ export default function JobHeaderCard({
                 variant="body-small"
                 className="text-[#1D2939] text-xs font-medium"
               >
-                {jobType || "Not specified"}
+                {jobShift || "Not specified"}
               </Typography>
             </div>
             <div className="flex items-center gap-2">

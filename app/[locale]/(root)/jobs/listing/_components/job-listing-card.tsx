@@ -1,19 +1,17 @@
 "use client";
 
-import React from "react";
 import { Briefcase, Clock, MapPin, Share2 } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AD } from "@/interfaces/ad";
-import { formatDistanceToNow } from "date-fns";
-import { ICONS } from "@/constants/icons";
 import { FaMoneyBillWave } from "react-icons/fa";
 import ShareJobDialog from "./share-job-dialog";
 import { useAuthStore } from "@/stores/authStore";
 import { SaveJobButton } from "../../saved/_components/save-job-button";
 import { formatDate } from "@/utils/format-date";
+import { useLocale } from "@/hooks/useLocale";
 
 export interface JobListingCardProps {
   job: AD;
@@ -39,7 +37,10 @@ export default function JobListingCard({
   onClick,
   transformAdToJobCardProps,
 }: JobListingCardProps) {
-  const { session } = useAuthStore();
+  const session = useAuthStore((state) => state.session);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { locale } = useLocale();
+  const isArabic = locale === "ar";
   const currentUserId = session.user?._id;
   const isJobOwner =
     job.owner?._id === currentUserId ||
@@ -73,6 +74,15 @@ export default function JobListingCard({
 
   // Get currency from extraFields or default to AED
   const currency = getFieldValue("currency") || "AED";
+
+  const jobTitle = isArabic && job.titleAr ? job.titleAr : job.title;
+  const companyName = isArabic && job.organization?.tradeNameAr ? job.organization.tradeNameAr :
+    (isArabic && job.organization?.legalNameAr ? job.organization.legalNameAr : jobProps.company);
+  const jobMode = isArabic && job.jobModeAr ? job.jobModeAr : (job.jobMode || getFieldValue("jobMode") || getFieldValue("job mode") || "");
+  const jobShift = isArabic && job.jobShiftAr ? job.jobShiftAr : (job.jobShift || getFieldValue("jobShift") || getFieldValue("job shift") || "");
+  const locationDisplay = isArabic && typeof job.location === "object" && job.location.cityAr ? job.location.cityAr :
+    (isArabic && typeof job.address === "object" && job.address.cityAr ? job.address.cityAr : jobProps.location);
+
   const validityValue = job.validity;
   const validityDate = validityValue ? new Date(validityValue) : null;
   const isValidityDateValid =
@@ -153,13 +163,13 @@ export default function JobListingCard({
               variant="h3"
               className="text-[#1D2939] font-semibold text-[18px] leading-[1.21] line-clamp-1"
             >
-              {jobProps.title}
+              {jobTitle}
             </Typography>
             <Typography
               variant="body-small"
               className="text-[#1D2939] text-sm font-normal leading-[1.21]"
             >
-              {jobProps.company}
+              {companyName}
             </Typography>
           </div>
           {/* Logo - 32x32 */}
@@ -194,14 +204,14 @@ export default function JobListingCard({
           </div>
         </div>
 
-        {/* Job Type - y: 188.12 */}
+        {/* Job Shift/Type - y: 188.12 */}
         <div className="flex items-center gap-1.5">
           <Clock className="w-5 h-5 text-[#8A8A8A]" />
           <Typography
             variant="body-small"
             className="text-[#1D2939] text-xs font-medium leading-[1.21]"
           >
-            {jobProps.jobType || "Not specified"}
+            {jobShift || jobProps.jobType || "Not specified"}
           </Typography>
         </div>
 
@@ -212,7 +222,7 @@ export default function JobListingCard({
             variant="body-small"
             className="text-[#1D2939] text-xs font-medium leading-[1.21] truncate"
           >
-            {jobProps.location || "Location not specified"}
+            {locationDisplay}
           </Typography>
         </div>
       </div>

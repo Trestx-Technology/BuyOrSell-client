@@ -16,6 +16,7 @@ import { SaveJobButton } from "../../saved/_components/save-job-button";
 import { formatDate } from "@/utils/format-date";
 import { AD } from "@/interfaces/ad";
 import ShareJobDialog from "../../listing/_components/share-job-dialog";
+import { slugify } from "@/utils/slug-utils";
 
 
 export default function JobCard({
@@ -139,7 +140,7 @@ export default function JobCard({
       </div>
 
       {/* Action Button */}
-      <Link href={(`/jobs/${job?.category?.name}?jobId=${job?._id}`)}>
+      <Link href={(`jobs/listing/${job?.relatedCategories?.map((category) => slugify(category))?.join("/")}?jobId=${job?._id}`)}>
         <Button size={"sm"} className="w-full uppercase font-medium text-xs">
           Job details
         </Button>

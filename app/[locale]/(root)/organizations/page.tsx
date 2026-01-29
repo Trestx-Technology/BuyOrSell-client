@@ -18,6 +18,7 @@ import SortAndViewControls, {
 import { cn } from "@/lib/utils";
 import JobsFilter, { FilterConfig } from "./_components/jobs-filter";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { NoDataCard } from "@/components/global/fallback-cards";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -52,23 +53,23 @@ export default function OrganizationsListingPage() {
     500
   );
 
-// Initialize search query and location from URL params
+  // Initialize search query and location from URL params
   useEffect(() => {
-    if (urlQuery) {
+    if (urlQuery && urlQuery !== searchQuery) {
       setSearchQuery(urlQuery);
       setLocalSearchQuery(urlQuery);
     }
-    if (urlLocation) {
+    if (urlLocation && urlLocation !== locationQuery) {
       setLocationQuery(urlLocation);
       setFilters((prev) => ({ ...prev, location: urlLocation }));
     }
-    if (urlType) {
+    if (urlType && urlType !== filters.type) {
       setFilters((prev) => ({ ...prev, type: urlType }));
     }
-    if (urlVerified) {
+    if (urlVerified && urlVerified !== filters.verified) {
       setFilters((prev) => ({ ...prev, verified: urlVerified }));
     }
-  }, [urlQuery, urlLocation, urlType, urlVerified, setLocalSearchQuery]);
+  }, [urlQuery, urlLocation, urlType, urlVerified, searchQuery, locationQuery, filters.type, filters.verified, setLocalSearchQuery]);
 
   const categoryName = "Organizations";
 
@@ -304,9 +305,7 @@ export default function OrganizationsListingPage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
-                No organizations found matching your criteria.
-              </p>
+                  <NoDataCard title="No organizations found matching your criteria." description="Please try again with different filters." />
               <Button variant="outline" onClick={clearFilters} className="mt-4">
                 Clear Filters
               </Button>

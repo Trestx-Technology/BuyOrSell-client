@@ -15,7 +15,7 @@ interface OrganizationHeaderProps {
 
 export const OrganizationHeader = ({ organization }: OrganizationHeaderProps) => {
   const session = useAuthStore((state) => state.session);
-  const isOwner = session?.user?._id === organization.owner._id;
+  const isOwner = session?.user?._id === organization?.owner?._id;
   const router = useRouter()
   return (
     <div className="px-6 py-8">

@@ -44,13 +44,19 @@ export interface AdOrganization {
   tradeLicenseExpiry: string;
   trn: string;
   legalName: string;
+  legalNameAr?: string;
   tradeName: string;
+  tradeNameAr?: string;
   reraNumber?: string;
   addressLine1: string;
+  addressLine1Ar?: string;
   addressLine2?: string;
+  addressLine2Ar?: string;
   city: string;
+  cityAr?: string;
   poBox?: string | null;
   contactName: string;
+  contactNameAr?: string;
   contactEmail: string;
   contactPhone: string;
   website?: string;
@@ -71,6 +77,7 @@ export interface AdOrganization {
   ratingAvg?: number;
   ratingCount?: number;
   followersCount?: number;
+  isFollowing?: boolean;
   _id: string;
   createdAt: string;
   updatedAt: string;
@@ -83,10 +90,17 @@ export type AD = {
   description: string;
   descriptionAr?: string;
   price: number;
+  minSalary?: number;
+  maxSalary?: number;
+  jobMode?: string;
+  jobModeAr?: string;
+  jobShift?: string;
+  jobShiftAr?: string;
   views?: number; // Number of views
   adType?: "JOB" | "AD"; // Type of ad
   stockQuantity: number;
   availability: string;
+  availabilityAr?: string;
   images: string[];
   videoUrl?: string;
   blurredImages?: string[]; // optional if not always present
@@ -98,21 +112,24 @@ export type AD = {
   organization?: AdOrganization; // Organization info for job ads
   extraFields?: ProductExtraFields; // Optional, not present in all ads
   featuredStatus?: string; // present in some APIs
+  featuredStatusAr?: string;
   isFeatured?: boolean;
   isAddedInCollection?: boolean;
   collectionIds?: string[]; // Array of collection IDs the ad belongs to
   status: AdStatus;
+  statusAr?: string;
   connectionTypes: ("call" | "chat" | "whatsapp")[]; // Array of connection types
   topChoice: boolean;
   deal: boolean;
   validity?: string; // Validity date for the ad
   location?: AdLocation | string; // can be string address or object with country/city/state/area
   address?: AdLocation; // Alternative location field name
-  addressAr?: AdLocation; // Arabic address (full structure matching AdLocation)
+  addressAr?: AdLocation | string; // Arabic address
   relatedCategories: string[];
   subscriptionId?: string;
   documents?: Document[];
   userType?: string;
+  userTypeAr?: string;
   contactPhoneNumber?: string;
   blockedReason?: string[];
   statusHistory?: StatusHistory[];
@@ -207,12 +224,16 @@ export interface AdBrand {
 
 export interface AdOwner {
   name?: string;
+  nameAr?: string;
   firstName: string;
+  firstNameAr?: string;
   lastName: string;
+  lastNameAr?: string;
   phoneNo: string;
   countryCode: string;
   email: string;
-  age: number;
+  age?: number;
+  gender?: string;
   image?: string;
   status: string;
   hashedPassword: string;
@@ -225,7 +246,11 @@ export interface AdOwner {
   deviceKey?: string;
   documents?: any[];
   blockedReason?: string[];
+  emaratiStatus?: string;
+  recentlyViewed?: any[];
+  activeAddOns?: any[];
   loggedIn?: boolean;
+  lastActiveAt?: string;
   _id: string;
   createdAt: string;
   updatedAt: string;
@@ -233,10 +258,12 @@ export interface AdOwner {
 
 export interface AdOwnerRole {
   name: string;
-  permissions: {
-    none: string;
-  };
+  nameAr?: string;
+  description?: string;
+  descriptionAr?: string;
+  permissions: Record<string, any>;
   _id: string;
+  createdAt?: string;
   updatedAt: string;
 }
 
@@ -250,11 +277,15 @@ export interface StatusHistory {
 
 export interface AdLocation {
   country?: string;
+  countryAr?: string;
   state?: string;
+  stateAr?: string;
   city?: string;
+  cityAr?: string;
   area?: string;
   street?: string;
   address?: string | null;
+  addressAr?: string | null;
   coordinates?: number[] | null; // Can be array of [lng, lat] or string
   zipCode?: string | null;
   type?: string; // e.g., "Point" for GeoJSON

@@ -30,6 +30,12 @@ export function useDebouncedValue<T>(
 ): [T, (value: T) => void] {
   const [localValue, setLocalValue] = useState<T>(value);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const onChangeRef = useRef(onChange);
+
+  // Keep onChangeRef up to date
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   // Sync local state with external value
   useEffect(() => {
@@ -50,7 +56,7 @@ export function useDebouncedValue<T>(
 
     // Set new timer
     debounceTimerRef.current = setTimeout(() => {
-      onChange(localValue);
+      onChangeRef.current(localValue);
     }, delay);
 
     // Cleanup on unmount or when localValue changes
@@ -59,7 +65,7 @@ export function useDebouncedValue<T>(
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [localValue, onChange, value, delay]);
+  }, [localValue, value, delay]);
 
   return [localValue, setLocalValue];
 }

@@ -172,7 +172,7 @@ export const JOB_NAVIGATION_ITEMS: NavigationItem[] = [
   {
     id: "organizations",
     type: "link",
-    href: "/jobs/organization",
+    href: "/organizations/my",
     translationKey: "organizations",
     icon: ICONS.jobNavigation.organizations,
     iconType: "image",
@@ -186,15 +186,6 @@ export const JOB_NAVIGATION_ITEMS: NavigationItem[] = [
     icon: ICONS.jobNavigation.myJobProfile,
     iconType: "image",
     alt: "My Job Profile",
-  },
-  {
-    id: "my-organization",
-    type: "link",
-    href: "/jobs/organization/me",
-    translationKey: "myOrganization",
-    icon: ICONS.jobNavigation.myOrganization,
-    iconType: "image",
-    alt: "My Organization",
   },
   {
     id: "sign-out",

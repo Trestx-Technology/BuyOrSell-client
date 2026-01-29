@@ -15,6 +15,7 @@ import {
   useRejectApplication,
 } from "@/hooks/useJobApplications";
 import { toast } from "sonner";
+import { useLocale } from "@/hooks/useLocale";
 
 const getStatusLabel = (status: JobApplicant["status"]) => {
   switch (status) {
@@ -70,6 +71,8 @@ export default function JobApplicantCard({
   className,
   onViewProfile,
 }: JobApplicantCardProps) {
+  const { locale } = useLocale();
+  const isArabic = locale === "ar";
   const { mutate: acceptApplication, isPending: isAccepting } =
     useAcceptApplication();
   const { mutate: rejectApplication, isPending: isRejecting } =
@@ -111,7 +114,7 @@ export default function JobApplicantCard({
     handleAccept();
   };
   const profile = applicant.applicantProfileId;
-  const userName = profile?.name || profile?.headline || "Unknown User";
+  const userName = isArabic && profile?.nameAr ? profile.nameAr : (profile?.name || profile?.headline || "Unknown User");
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
     userName
   )}&background=random`;

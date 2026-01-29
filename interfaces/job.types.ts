@@ -44,7 +44,9 @@ export interface JobApplicant {
     _id: string;
     userId: string;
     name?: string;
+    nameAr?: string;
     headline?: string;
+    headlineAr?: string;
     skills?: string[];
     experienceYears?: number;
     linkedinUrl?: string;

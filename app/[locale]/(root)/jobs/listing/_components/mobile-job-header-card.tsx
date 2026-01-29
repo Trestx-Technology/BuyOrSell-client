@@ -27,6 +27,7 @@ import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-
 import Image from "next/image";
 import { useApplyToJob } from "@/hooks/useJobApplications";
 import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
+import { useLocale } from "@/hooks/useLocale";
 
 export interface MobileJobHeaderCardProps {
   job: AD;
@@ -49,11 +50,13 @@ export default function MobileJobHeaderCard({
 }: MobileJobHeaderCardProps) {
   const router = useRouter();
   const session = useAuthStore((state) => state.session);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const currentUserId = session.user?._id;
   const isJobOwner =
     job.owner?._id === currentUserId ||
     job.organization?.owner === currentUserId;
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { locale } = useLocale();
+  const isArabic = locale === "ar";
 
   // Get jobseeker profile for apply logic
   const { data: jobseekerProfile } = useGetJobseekerProfile();
@@ -103,16 +106,23 @@ export default function MobileJobHeaderCard({
   };
 
   const companyName =
-    job.organization?.tradeName || job.organization?.legalName || "Company";
+    isArabic && job.organization?.tradeNameAr ? job.organization.tradeNameAr :
+      (isArabic && job.organization?.legalNameAr ? job.organization.legalNameAr :
+        (job.organization?.tradeName || job.organization?.legalName || "Company"));
   const companyLogo = logo || job.organization?.logoUrl;
+  const jobMode = isArabic && job.jobModeAr ? job.jobModeAr : (job.jobMode || getFieldValue("jobMode") || getFieldValue("job mode") || "");
+  const jobShift = isArabic && job.jobShiftAr ? job.jobShiftAr : (job.jobShift || getFieldValue("jobShift") || getFieldValue("job shift") || "");
   const jobType = getFieldValue("jobType") || getFieldValue("job type") || "";
   const experience = getFieldValue("experience") || "";
-  const salaryMin = getSalaryFromAd("min");
-  const salaryMax = getSalaryFromAd("max");
+  const salaryMin = job.minSalary ?? getSalaryFromAd("min");
+  const salaryMax = job.maxSalary ?? getSalaryFromAd("max");
+  const jobTitle = isArabic && job.titleAr ? job.titleAr : job.title;
   const location =
     typeof job.location === "string"
       ? job.location
-      : job.location?.city || job.address?.city || "";
+      : (isArabic && job.location?.cityAr ? job.location.cityAr :
+        (isArabic && job.address?.cityAr ? job.address.cityAr :
+          (job.location?.city || job.address?.city || "")));
 
   // Build map redirect URL
   const getMapUrl = (): string | null => {
@@ -253,9 +263,11 @@ export default function MobileJobHeaderCard({
           {/* <Badge className="text-xs font-medium bg-success-10 text-success-100">
             Part time
           </Badge> */}
-          <Badge className="text-xs font-medium bg-purple/10 text-purple">
-            Full time
-          </Badge>
+          {jobMode && (
+            <Badge className="text-xs font-medium bg-purple/10 text-purple">
+              {jobMode}
+            </Badge>
+          )}
           <Badge className="text-xs font-medium bg-warning-10 text-warning-100">
             Urgent
           </Badge>
@@ -331,7 +343,7 @@ export default function MobileJobHeaderCard({
               variant="h2"
               className="text-black font-semibold text-xl leading-tight mb-1 line-clamp-2"
             >
-              {job.title}
+              {jobTitle}
             </Typography>
             <Typography
               variant="body-small"
@@ -376,7 +388,7 @@ export default function MobileJobHeaderCard({
               variant="body-small"
               className="text-[#1D2939] text-sm font-medium"
             >
-              {jobType || "Not specified"}
+              {jobShift || jobType || "Not specified"}
             </Typography>
           </div>
 

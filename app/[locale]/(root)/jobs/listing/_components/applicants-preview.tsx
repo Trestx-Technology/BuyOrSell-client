@@ -37,11 +37,11 @@ const ApplicantsPreview = ({
         ))}
       </div>
 
-      {count && (
+      {Boolean(count) && count !== 0 ? (
         <span className="text-grey-blue text-xs font-medium">+{count}</span>
-      )}
+      ) : null}
 
-      {count && (
+      {Boolean(count) && (
         <button
           onClick={onViewClick}
           className="text-purple text-xs font-semibold hover:text-purple/80 transition-colors cursor-pointer"

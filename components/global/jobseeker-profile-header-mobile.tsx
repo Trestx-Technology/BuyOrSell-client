@@ -26,6 +26,7 @@ import {
 } from "@/hooks/useJobApplications";
 import { toast } from "sonner";
 import { ConnectionStatus } from "@/interfaces/connection.types";
+import { useLocale } from "@/hooks/useLocale";
 import {
   JobseekerProfileHeaderActionButtons,
   JobseekerProfileHeaderType,
@@ -70,6 +71,8 @@ export default function JobseekerProfileHeaderMobile({
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const { locale } = useLocale();
+  const isArabic = locale === "ar";
   const { session, isAuthenticated } = useAuthStore();
   const currentUserId = session?.user?._id;
   const isCurrentUser = currentUserId === jobseeker.userId;
@@ -202,7 +205,7 @@ export default function JobseekerProfileHeaderMobile({
     }
   };
 
-  const profileName = jobseeker.name || "User";
+  const profileName = (isArabic && jobseeker.nameAr) ? jobseeker.nameAr : (jobseeker.name || "User");
   const initials =
     profileName
       .split(" ")
@@ -210,16 +213,16 @@ export default function JobseekerProfileHeaderMobile({
       .join("")
       .toUpperCase()
       .slice(0, 2) || "SK";
-  const professionalTitle = jobseeker.headline || "";
-  const currentCompany = jobseeker.experiences?.[0]?.company || "";
+  const professionalTitle = (isArabic && jobseeker.headlineAr) ? jobseeker.headlineAr : (jobseeker.headline || "");
+  const currentCompany = (isArabic && jobseeker.experiences?.[0]?.companyAr) ? jobseeker.experiences[0].companyAr : (jobseeker.experiences?.[0]?.company || "");
 
   // Get job preferences
-  const jobType = jobseeker.preferredJobTypes?.[0] || "";
+  const jobType = (isArabic && jobseeker.preferredJobTypesAr?.[0]) ? jobseeker.preferredJobTypesAr[0] : (jobseeker.preferredJobTypes?.[0] || "");
 
   const salaryMin = jobseeker.salaryExpectationMin || 0;
   const salaryMax = jobseeker.salaryExpectationMax || 0;
   const ctcCurrency = jobseeker.ctcCurrency || "AED";
-  const availability =
+  const availability = isArabic && jobseeker.availabilityAr ? jobseeker.availabilityAr :
     jobseeker.availability ||
     (jobseeker.noticePeriodDays
       ? `${jobseeker.noticePeriodDays} days notice`
