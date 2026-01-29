@@ -15,7 +15,7 @@ const jobseekerExperienceSchema = z.object({
   location: z.string().optional(),
   description: z.string().optional(),
   descriptionAr: z.string().optional(),
-  url: z.string().url("Invalid URL").optional().or(z.literal("")),
+  url: z.string().url("Invalid URL").optional().nullable(),
   employmentType: z.string().optional(),
   employmentTypeAr: z.string().optional(),
   department: z.string().optional(),
@@ -29,7 +29,7 @@ const jobseekerExperienceSchema = z.object({
     .string()
     .regex(
       /^\d{4}-\d{2}-\d{2}$/,
-      "Last working day must be in YYYY-MM-DD format"
+      "Last working day must be in YYYY-MM-DD format",
     )
     .optional()
     .nullable(),
@@ -68,7 +68,7 @@ const jobseekerProjectSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "End date must be in YYYY-MM-DD format")
     .optional(),
-  url: z.string().url("Invalid URL").optional().or(z.literal("")),
+  url: z.string().url("Invalid URL").optional().nullable(),
   techStack: z.array(z.string()).optional(),
   projectType: z.string().optional(),
   teamSize: z.number().int().min(1).optional(),
@@ -86,8 +86,8 @@ const jobseekerCertificationSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Expiry date must be in YYYY-MM-DD format")
     .optional(),
   credentialId: z.string().optional(),
-  credentialUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
-  url: z.string().url("Invalid URL").optional().or(z.literal("")),
+  credentialUrl: z.string().url("Invalid URL").optional().nullable(),
+  url: z.string().url("Invalid URL").optional().nullable(),
   description: z.string().optional(),
 });
 
@@ -112,7 +112,7 @@ const jobseekerAwardSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Issue date must be in YYYY-MM-DD format")
     .optional(),
   description: z.string().optional(),
-  url: z.string().url("Invalid URL").optional().or(z.literal("")),
+  url: z.string().url("Invalid URL").optional().nullable(),
 });
 
 const jobseekerPublicationSchema = z.object({
@@ -123,7 +123,7 @@ const jobseekerPublicationSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format")
     .optional(),
   description: z.string().optional(),
-  url: z.string().url("Invalid URL").optional().or(z.literal("")),
+  url: z.string().url("Invalid URL").optional().nullable(),
 });
 
 const jobseekerLinkSchema = z.object({
@@ -132,10 +132,8 @@ const jobseekerLinkSchema = z.object({
 });
 
 export const workStatusSchema = z.enum([
-  "fresher",
-  "experienced",
-  "open_to_opportunities",
   "actively_looking",
+  "open_to_opportunities",
   "not_looking",
 ]);
 
@@ -166,14 +164,14 @@ export const jobseekerProfileSchema = z
     preferredLocations: z.array(z.string()).optional(),
     keywords: z.array(z.string()).optional(),
     visibility: z.enum(["public", "private"]).default("public").optional(),
-    websiteUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
+    websiteUrl: z.string().url("Invalid URL").optional().nullable(),
     industryId: z.string().optional(),
     summary: z.string().optional(),
-    photoUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
-    githubUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
-    twitterUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
-    portfolioUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
-    linkedinUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
+    photoUrl: z.string().url("Invalid URL").optional().nullable(),
+    githubUrl: z.string().url("Invalid URL").optional().nullable(),
+    twitterUrl: z.string().url("Invalid URL").optional().nullable(),
+    portfolioUrl: z.string().url("Invalid URL").optional().nullable(),
+    linkedinUrl: z.string().url("Invalid URL").optional().nullable(),
     links: z.array(jobseekerLinkSchema).optional(),
     experiences: z.array(jobseekerExperienceSchema).optional(),
     educations: z.array(jobseekerEducationSchema).optional(),
@@ -183,7 +181,7 @@ export const jobseekerProfileSchema = z
     awards: z.array(jobseekerAwardSchema).optional(),
     publications: z.array(jobseekerPublicationSchema).optional(),
     resumeText: z.string().optional(),
-    resumeFileUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
+    resumeFileUrl: z.string().url("Invalid URL").optional().nullable(),
   })
   .refine(
     (data) => {
@@ -200,7 +198,7 @@ export const jobseekerProfileSchema = z
       message:
         "Maximum salary expectation must be greater than or equal to minimum salary expectation",
       path: ["salaryExpectationMax"],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -213,7 +211,7 @@ export const jobseekerProfileSchema = z
     {
       message: "Expected CTC must be greater than or equal to current CTC",
       path: ["expectedCtc"],
-    }
+    },
   );
 
 // Partial schema for updates (all fields optional)
@@ -230,7 +228,7 @@ export const jobseekerProfileFormSchema = z
     professionalTitle: z.string().optional(),
     currentCompany: z.string().optional(),
     bio: z.string().optional(),
-    resumeUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
+    resumeUrl: z.string().url("Invalid URL").optional().nullable(),
     workExperience: z
       .array(
         z.object({
@@ -243,7 +241,7 @@ export const jobseekerProfileFormSchema = z
           location: z.string().optional(),
           achievements: z.array(z.string()).optional(),
           description: z.string().optional(),
-        })
+        }),
       )
       .optional(),
     education: z
@@ -258,7 +256,7 @@ export const jobseekerProfileFormSchema = z
           current: z.boolean().optional(),
           grade: z.string().optional(),
           description: z.string().optional(),
-        })
+        }),
       )
       .optional(),
     skills: z.array(z.string()).optional(),
@@ -271,12 +269,8 @@ export const jobseekerProfileFormSchema = z
           issueDate: z.string().optional(),
           expiryDate: z.string().optional(),
           credentialId: z.string().optional(),
-          credentialUrl: z
-            .string()
-            .url("Invalid URL")
-            .optional()
-            .or(z.literal("")),
-        })
+          credentialUrl: z.string().url("Invalid URL").optional().nullable(),
+        }),
       )
       .optional(),
     portfolio: z
@@ -288,11 +282,11 @@ export const jobseekerProfileFormSchema = z
           description: z.string().optional(),
           startDate: z.string().optional(),
           endDate: z.string().optional(),
-          url: z.string().url("Invalid URL").optional().or(z.literal("")),
+          url: z.string().url("Invalid URL").optional().nullable(),
           techStack: z.array(z.string()).optional(),
           projectType: z.string().optional(),
           teamSize: z.number().int().min(1).optional(),
-        })
+        }),
       )
       .optional(),
     languages: z
@@ -304,7 +298,7 @@ export const jobseekerProfileFormSchema = z
           readLevel: z.number().int().min(0).max(5).optional(),
           writeLevel: z.number().int().min(0).max(5).optional(),
           speakLevel: z.number().int().min(0).max(5).optional(),
-        })
+        }),
       )
       .optional(),
     jobPreferences: z.unknown().optional(),
@@ -322,25 +316,50 @@ export type JobseekerProfileFormSchemaType = z.infer<
 >;
 
 // Section-specific schemas for independent form instances
-export const basicDetailsSchema = z
-  .object({
-    name: z.string().min(1, "Name is required"),
-    contactEmail: z.string().email("Invalid email address").optional(),
-    contactPhone: z.string().optional(),
-    resumeFileUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
-    workStatus: z.enum(workStatusSchema.options).optional(),
-    experienceYears: z.number().int().min(0).optional(),
-    currentCtc: z.number().nonnegative().optional(),
-    location: z.string().optional(),
-    noticePeriodDays: z.number().int().min(0).optional(),
-  })
-  .partial();
+export const basicDetailsSchema = z.object({
+  name: z
+    .string({ message: "Name is required" })
+    .trim()
+    .min(1, "Name is required"),
+  contactEmail: z
+    .string({ message: "Email is required" })
+    .trim()
+    .min(1, "Email is required")
+    .email("Invalid email address"),
+  contactPhone: z
+    .string({ message: "Phone number is required" })
+    .trim()
+    .min(1, "Phone number is required"),
+  resumeFileUrl: z
+    .string({ message: "Resume is required" })
+    .trim()
+    .min(1, "Resume is required")
+    .url("Invalid URL"),
+  workStatus: z.enum(workStatusSchema.options, {
+    message: "Work status is required",
+  }),
+  experienceYears: z
+    .number({ message: "Experience is required" })
+    .int()
+    .min(0, "Invalid experience"),
+  currentCtc: z
+    .number({ message: "Salary is required" })
+    .nonnegative("Invalid salary"),
+  location: z
+    .string({ message: "Location is required" })
+    .trim()
+    .min(1, "Location is required"),
+  noticePeriodDays: z
+    .number({ message: "Notice period is required" })
+    .int()
+    .min(0, "Invalid notice period"),
+});
 
 export type BasicDetailsSchemaType = z.infer<typeof basicDetailsSchema>;
 
 export const skillsSchema = z
   .object({
-    skills: z.array(z.string()).optional(),
+    skills: z.array(z.string({ message: "Skill must be a string" })).optional(),
   })
   .partial();
 
@@ -349,7 +368,7 @@ export type SkillsSchemaType = z.infer<typeof skillsSchema>;
 export const profileSummarySchema = z
   .object({
     summary: z
-      .string()
+      .string({ message: "Summary must be a string" })
       .max(2000, "Summary must be 2000 characters or less")
       .optional(),
   })
@@ -358,37 +377,45 @@ export const profileSummarySchema = z
 export type ProfileSummarySchemaType = z.infer<typeof profileSummarySchema>;
 
 // Form schema for Employment (uses form field names)
-export const employmentFormSchema = z
-  .object({
-    workExperience: z
-      .array(
-        z.object({
-          _id: z.string().optional(),
-          position: z.string().optional(),
-          company: z.string().optional(),
-          startDate: z.string().optional(),
-          endDate: z.string().optional(),
-          current: z.boolean().optional(),
-          location: z.string().optional(),
-          description: z.string().optional(),
-          descriptionAr: z.string().optional(),
-          url: z.string().url("Invalid URL").optional().or(z.literal("")),
-          employmentType: z.string().optional(),
-          employmentTypeAr: z.string().optional(),
-          department: z.string().optional(),
-          departmentAr: z.string().optional(),
-          jobType: z.string().optional(),
-          noticePeriodDays: z.number().int().min(0).optional(),
-          currentCtc: z.number().nonnegative().optional(),
-          ctcCurrency: z.string().optional(),
-          servingNotice: z.boolean().optional(),
-          lastWorkingDay: z.string().optional().nullable(),
-          skills: z.array(z.string()).optional(),
-        })
-      )
-      .optional(),
-  })
-  .partial();
+export const employmentFormSchema = z.object({
+  workExperience: z
+    .array(
+      z.object({
+        _id: z.string().optional(),
+        position: z
+          .string({ message: "Position is required" })
+          .min(1, "Position is required"),
+        company: z
+          .string({ message: "Company is required" })
+          .min(1, "Company is required"),
+        startDate: z
+          .string({ message: "Start date is required" })
+          .min(1, "Start date is required"),
+        endDate: z.string().optional(),
+        current: z.boolean().optional(),
+        location: z
+          .string({ message: "Location is required" })
+          .min(1, "Location is required"),
+        description: z.string().optional(),
+        descriptionAr: z.string().optional(),
+        url: z.string().url("Invalid URL").optional().nullable(),
+        employmentType: z.string().optional(),
+        employmentTypeAr: z.string().optional(),
+        department: z.string().optional(),
+        departmentAr: z.string().optional(),
+        jobType: z
+          .string({ message: "Job type is required" })
+          .min(1, "Job type is required"),
+        noticePeriodDays: z.number().int().min(0).optional(),
+        currentCtc: z.number().nonnegative().optional(),
+        ctcCurrency: z.string().optional(),
+        servingNotice: z.boolean().optional(),
+        lastWorkingDay: z.string().optional().nullable(),
+        skills: z.array(z.string()).optional(),
+      }),
+    )
+    .optional(),
+});
 
 export const employmentSchema = z
   .object({
@@ -400,29 +427,33 @@ export type EmploymentFormSchemaType = z.infer<typeof employmentFormSchema>;
 export type EmploymentSchemaType = z.infer<typeof employmentSchema>;
 
 // Form schema for Education (uses form field names)
-export const educationFormSchema = z
-  .object({
-    education: z
-      .array(
-        z.object({
-          _id: z.string().optional(),
-          institution: z.string().optional(),
-          degree: z.string().optional(),
-          fieldOfStudy: z.string().optional(),
-          startDate: z.string().optional(),
-          endDate: z.string().optional(),
-          current: z.boolean().optional(),
-          grade: z.string().optional(),
-          description: z.string().optional(),
-          courseType: z.string().optional(),
-          scoreType: z.string().optional(),
-          score: z.number().nonnegative().optional(),
-          yearOfPassing: z.number().int().min(1900).max(2100).optional(),
-        })
-      )
-      .optional(),
-  })
-  .partial();
+export const educationFormSchema = z.object({
+  education: z
+    .array(
+      z.object({
+        _id: z.string().optional(),
+        institution: z
+          .string({ message: "Institution is required" })
+          .min(1, "Institution is required"),
+        degree: z
+          .string({ message: "Degree is required" })
+          .min(1, "Degree is required"),
+        fieldOfStudy: z.string().optional(),
+        startDate: z
+          .string({ message: "Start date is required" })
+          .min(1, "Start date is required"),
+        endDate: z.string().optional(),
+        current: z.boolean().optional(),
+        grade: z.string().optional(),
+        description: z.string().optional(),
+        courseType: z.string().optional(),
+        scoreType: z.string().optional(),
+        score: z.number().nonnegative().optional(),
+        yearOfPassing: z.number().int().min(1900).max(2100).optional(),
+      }),
+    )
+    .optional(),
+});
 
 export const educationSchema = z
   .object({
@@ -434,26 +465,26 @@ export type EducationFormSchemaType = z.infer<typeof educationFormSchema>;
 export type EducationSchemaType = z.infer<typeof educationSchema>;
 
 // Form schema for Projects (uses form field names)
-export const projectsFormSchema = z
-  .object({
-    portfolio: z
-      .array(
-        z.object({
-          _id: z.string().optional(),
-          name: z.string().optional(),
-          role: z.string().optional(),
-          description: z.string().optional(),
-          startDate: z.string().optional(),
-          endDate: z.string().optional(),
-          url: z.string().url("Invalid URL").optional().or(z.literal("")),
-          techStack: z.array(z.string()).optional(),
-          projectType: z.string().optional(),
-          teamSize: z.number().int().min(1).optional(),
-        })
-      )
-      .optional(),
-  })
-  .partial();
+export const projectsFormSchema = z.object({
+  portfolio: z
+    .array(
+      z.object({
+        _id: z.string().optional(),
+        name: z
+          .string({ message: "Project name is required" })
+          .min(1, "Project name is required"),
+        role: z.string().optional(),
+        description: z.string().optional(),
+        startDate: z.string().optional(),
+        endDate: z.string().optional(),
+        url: z.string().url("Invalid URL").optional().or(z.literal("")),
+        techStack: z.array(z.string()).optional(),
+        projectType: z.string().optional(),
+        teamSize: z.number().int().min(1).optional(),
+      }),
+    )
+    .optional(),
+});
 
 export const projectsSchema = z
   .object({
@@ -465,22 +496,24 @@ export type ProjectsFormSchemaType = z.infer<typeof projectsFormSchema>;
 export type ProjectsSchemaType = z.infer<typeof projectsSchema>;
 
 // Form schema for Languages (uses form field names)
-export const languagesFormSchema = z
-  .object({
-    languages: z
-      .array(
-        z.object({
-          _id: z.string().optional(),
-          name: z.string().optional(),
-          proficiency: z.string().optional(),
-          readLevel: z.number().int().min(0).max(10).optional(),
-          writeLevel: z.number().int().min(0).max(10).optional(),
-          speakLevel: z.number().int().min(0).max(10).optional(),
-        })
-      )
-      .optional(),
-  })
-  .partial();
+export const languagesFormSchema = z.object({
+  languages: z
+    .array(
+      z.object({
+        _id: z.string().optional(),
+        name: z
+          .string({ message: "Language is required" })
+          .min(1, "Language is required"),
+        proficiency: z
+          .string({ message: "Proficiency is required" })
+          .min(1, "Proficiency is required"),
+        readLevel: z.number().int().min(0).max(10).optional(),
+        writeLevel: z.number().int().min(0).max(10).optional(),
+        speakLevel: z.number().int().min(0).max(10).optional(),
+      }),
+    )
+    .optional(),
+});
 
 export const languagesSchema = z
   .object({

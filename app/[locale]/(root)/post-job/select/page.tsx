@@ -43,13 +43,12 @@ export default function SelectJobCategoryPage() {
   useEffect(() => {
 
     if (organizations.length === 0) {
-      toast.error("Please create an organization to post a job");
       // router.push("/organizations/new");
       setShowOrgDialog(true);
     }
     if (!isJobseekerLoading && !jobseekerData?.data) {
-      toast.error("Please create a jobseeker profile to post a job");
-      // router.push("/jobs/jobseeker/new");
+      toast.warning("Please create a jobseeker profile to post a job");
+      router.push("/jobs/jobseeker/me");
     }
   }, [isJobseekerLoading, jobseekerData, router]);
 

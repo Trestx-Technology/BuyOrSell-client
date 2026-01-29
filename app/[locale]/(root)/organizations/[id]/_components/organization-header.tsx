@@ -1,13 +1,15 @@
 "use client";
 
-import React from "react";
 import { Organization } from "@/interfaces/organization.types";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, ExternalLink, Plus } from "lucide-react";
+import { ExternalLink, Plus } from "lucide-react";
 import { FollowOrganizationButton } from "../../../jobs/_components/follow-organization-button";
 import { EmployerProfile } from "@/interfaces/job.types";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "nextjs-toploader/app";
+import Image from "next/image";
+import { ICONS } from "@/constants/icons";
+import { H2, Typography } from "@/components/typography";
 
 interface OrganizationHeaderProps {
   organization: Organization & Partial<EmployerProfile>;
@@ -18,13 +20,16 @@ export const OrganizationHeader = ({ organization }: OrganizationHeaderProps) =>
   const isOwner = session?.user?._id === organization?.owner?._id;
   const router = useRouter()
   return (
-    <div className="px-6 py-8">
-      <h1 className="text-3xl font-bold text-slate-900 mb-2">
+    <div>
+      <H2 className="font-bold text-slate-900 mb-2">
         {organization.tradeName || organization.legalName}
-      </h1>
-      <p className="text-lg text-slate-600 mb-4">
+        {organization.verified && (
+          <Image src={ICONS.auth.verified} width={20} height={20} alt="verified" />
+        )}
+      </H2>
+      <Typography variant="body-small" className="text-slate-600 mb-4">
         {organization.type || "Dubai's Leading Classifieds Platform"}
-      </p>
+      </Typography>
 
       {/* Meta info */}
       <div className="flex items-center gap-2 text-sm text-slate-600 mb-6 flex-wrap">

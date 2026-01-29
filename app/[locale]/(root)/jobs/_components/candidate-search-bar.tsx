@@ -32,6 +32,7 @@ export default function CandidateSearchBar() {
             searchType === 'job' && searchQuery ? { search: searchQuery, limit: 10, adType: "JOB" } : undefined
       );
 
+
       const { data: candidateSuggestions, isPending: candidateSuggestionsPending } = useSearchJobseekerProfiles(
             searchType !== 'job' && searchQuery ? { q: searchQuery, limit: 10 } : undefined
       );
@@ -58,8 +59,15 @@ export default function CandidateSearchBar() {
       };
 
       const suggestions = searchType === 'job'
-            ? (jobSuggestions?.data as any)?.ads?.map((j: any) => ({ label: j.title, value: j.title }))
-            : candidateSuggestions?.data?.items?.map((c: any) => ({ label: `${c.firstName} ${c.lastName}`, value: `${c.firstName} ${c.lastName}` }));
+            ? jobSuggestions?.data?.adds?.map((j: any) => ({
+                  label: j.title,
+                  value: j.title,
+                  relatedCategories: j.relatedCategories
+            }))
+            : candidateSuggestions?.data?.items?.map((c: any) => ({
+                  label: c.name || `${c.firstName || ''} ${c.lastName || ''}`.trim() || 'Unknown Candidate',
+                  value: c.name || `${c.firstName || ''} ${c.lastName || ''}`.trim() || 'Unknown Candidate'
+            }));
 
       return (
             <form onSubmit={handleSearch} className="w-full max-w-[1080px]">
@@ -112,7 +120,7 @@ export default function CandidateSearchBar() {
                                                                   <Skeleton className="h-4 w-full" />
                                                             </div>
                                                       ))
-                                                ) : suggestions?.length > 0 ? (
+                                                ) : suggestions && suggestions?.length > 0 ? (
                                                       suggestions?.map((item: any, idx: number) => (
                                                             <button
                                                                   key={idx}
@@ -121,6 +129,19 @@ export default function CandidateSearchBar() {
                                                                   onClick={() => {
                                                                         setInputSearch(item.value);
                                                                         setOpenSearch(false);
+                                                                        if (searchType === 'job') {
+                                                                              const params = new URLSearchParams();
+                                                                              if (inputLocation) params.set("location", inputLocation);
+                                                                              params.set("search", item.value);
+
+                                                                              // Build path with title and categories
+                                                                              const pathParts = [item.value];
+                                                                              if (item.relatedCategories && Array.isArray(item.relatedCategories)) {
+                                                                                    pathParts.push(...item.relatedCategories);
+                                                                              }
+
+                                                                              router.push(`/jobs/listing/jobs/${slugify(...pathParts)}?${params.toString()}`);
+                                                                        }
                                                                   }}
                                                             >
                                                                   {item.label}

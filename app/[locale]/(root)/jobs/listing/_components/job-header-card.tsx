@@ -16,6 +16,7 @@ import { SaveJobButton } from "../../saved/_components/save-job-button";
 import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 import { useApplyToJob } from "@/hooks/useJobApplications";
 import Image from "next/image";
+import Link from "next/link";
 
 export interface JobHeaderCardProps {
   job: AD;
@@ -179,6 +180,7 @@ export default function JobHeaderCard({
     }
 
     const applicantProfileId = jobseekerProfile?.data?.profile?._id;
+    const resumeUrl = jobseekerProfile?.data?.profile?.resumeFileUrl;
     if (!applicantProfileId) {
       toast.error("Please create a jobseeker profile first");
       return;
@@ -187,7 +189,7 @@ export default function JobHeaderCard({
     apply(
       {
         jobId: job._id,
-        payload: { applicantProfileId },
+        payload: { applicantProfileId, resumeUrl },
       },
       {
         onSuccess: () => {
@@ -253,12 +255,12 @@ export default function JobHeaderCard({
                 {job.title}
               </Typography>
               <div className="flex items-center gap-2 flex-wrap">
-                <Typography
-                  variant="body-small"
+                <Link
+                  href={`/organizations/${job.organization?._id}`}
                   className="text-purple text-sm underline"
                 >
                   {companyName}
-                </Typography>
+                </Link>
               </div>
             </div>
             <div className="flex items-center gap-2">

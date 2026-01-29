@@ -83,12 +83,8 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({ adId }) => {
         }}
       >
         {transformedAds.map((ad) => (
-          <div
-            key={ad.id}
-            className="flex-[0_0_auto] max-w-[220px] sm:max-w-[255px] w-full"
-          >
-            <ListingCard {...ad} />
-          </div>
+
+          <ListingCard {...ad} />
         ))}
       </CardsCarousel>
     </div>

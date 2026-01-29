@@ -10,7 +10,7 @@ interface OrganizationOverviewProps {
 
 export const OrganizationOverview = ({ organization }: OrganizationOverviewProps) => {
   return (
-    <div className="px-6 py-8 text-slate-700 space-y-6">
+    <div className="py-8 text-slate-700 space-y-6">
       <p>
         {organization.companyDescription ||
           "BuyorSell Dubai Is A Leading Classifieds Platform, Boasting Over 100+ Million App Downloads Across Diverse Categories, Including Cars, Bikes, Real Estate, And Electronics. BuyOrSell Is The Online Classified Marketplace Helping Them Maximize The Value Of Their Belongings And Promoting Responsible Consumption, Contributing To A Greener, More Sustainable Future."}

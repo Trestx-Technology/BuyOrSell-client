@@ -46,7 +46,7 @@ export const getConnectionsColumns = ({
                         const profileId = conn.userProfile?._id || otherUser.id;
 
                         return (
-                              <Link href={localePath!(`/jobs/jobseeker/${profileId}?type=profilevisit`)} className="flex items-center gap-3 group">
+                              <Link href={localePath!(`/jobs/jobseeker/${profileId}?type=profileVisit`)} className="flex items-center gap-3 group">
                                     <Avatar className="h-10 w-10 border border-gray-100 group-hover:border-purple/30 transition-colors">
                                           <AvatarImage src={otherUser.image} alt={displayName} />
                                           <AvatarFallback className="bg-purple/5 text-purple text-xs">
@@ -143,7 +143,7 @@ export const getReceivedColumns = ({
                         const profileId = conn.userProfile?._id || sender.id;
 
                         return (
-                              <Link href={localePath!(`/jobs/jobseeker/${profileId}?type=profilevisit`)} className="flex items-center gap-3 group">
+                              <Link href={localePath!(`/jobs/jobseeker/${profileId}?type=profileVisit`)} className="flex items-center gap-3 group">
                                     <Avatar className="h-10 w-10 border border-gray-100 group-hover:border-purple/30 transition-colors">
                                           <AvatarImage src={sender.image} alt={displayName} />
                                           <AvatarFallback className="bg-purple/5 text-purple text-xs">
@@ -238,7 +238,7 @@ export const getSentColumns = ({
                         const profileId = conn.userProfile?._id || receiver.id;
 
                         return (
-                              <Link href={localePath!(`/jobs/jobseeker/${profileId}?type=profilevisit`)} className="flex items-center gap-3 group">
+                              <Link href={localePath!(`/jobs/jobseeker/${profileId}?type=profileVisit`)} className="flex items-center gap-3 group">
                                     <Avatar className="h-10 w-10 border border-gray-100 group-hover:border-purple/30 transition-colors">
                                           <AvatarImage src={receiver.image} alt={displayName} />
                                           <AvatarFallback className="bg-purple/5 text-purple text-xs">

@@ -23,7 +23,6 @@ export interface CommonFiltersProps {
       onLocationChange?: (query: string) => void;
       locationPlaceholder?: string;
       className?: string;
-      dontValidate?: boolean;
 }
 
 export const CommonFilters = ({
@@ -37,7 +36,6 @@ export const CommonFilters = ({
       onLocationChange,
       locationPlaceholder = "Location...",
       className,
-      dontValidate,
 }: CommonFiltersProps) => {
       const { updateUrlParam, searchParams } = useUrlParams();
 
@@ -153,7 +151,7 @@ export const CommonFilters = ({
                                           </div>
                                     ))}
                               {/* Advanced Filters Dialog - GlobalMoreFilters */}
-                                    <GlobalMoreFilters dontValidate={dontValidate} />
+                                    <GlobalMoreFilters />
                               </div>
 
                         </div>

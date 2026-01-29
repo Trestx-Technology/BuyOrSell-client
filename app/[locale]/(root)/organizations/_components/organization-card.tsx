@@ -57,7 +57,7 @@ export default function OrganizationCard({
               >
                 <Heart
                   className={`w-5 h-5 ${
-                    isFavorite ? "fill-red-500 text-red-500" : "text-dark-blue"
+                    isFavorite ? "fill-purple text-purple" : "text-dark-blue"
                   }`}
                 />
               </button>

@@ -26,10 +26,12 @@ import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/For
 import { SkillsChips } from "./skills-chips";
 import { CreatePortfolioItemPayload } from "@/interfaces/job.types";
 
+import { JobseekerProfile } from "@/interfaces/job.types";
+
 type ProjectsFormData = {
   portfolio?: Array<{
     _id?: string;
-    name?: string;
+    name: string;
     role?: string;
     description?: string;
     startDate?: string;
@@ -41,9 +43,12 @@ type ProjectsFormData = {
   }>;
 };
 
-export default function Projects() {
-  const { data: profileData, isLoading: isLoadingProfile } =
-    useGetJobseekerProfile();
+interface ProjectsProps {
+  profile?: JobseekerProfile;
+  isLoadingProfile: boolean;
+}
+
+export default function Projects({ profile, isLoadingProfile }: ProjectsProps) {
   const { mutate: replaceProjects, isPending: isSubmitting } =
     useReplaceProjectsByUserId();
 
@@ -81,10 +86,9 @@ export default function Projects() {
 
   // Load initial data from profile
   useEffect(() => {
-    if (profileData?.data?.profile && !isLoadingProfile) {
-      const profile = profileData.data.profile;
+    if (profile && !isLoadingProfile) {
       const projects = profile.projects || [];
-      const portfolio = projects.map((proj) => ({
+      const portfolio = projects.map((proj: any) => ({
         _id: proj._id,
         name: proj.name,
         role: proj.role,
@@ -101,11 +105,11 @@ export default function Projects() {
         portfolio,
       });
     }
-  }, [profileData, isLoadingProfile, form]);
+  }, [profile, isLoadingProfile, form]);
 
   const onSubmit = useCallback(
     (data: ProjectsFormData) => {
-      const userId = profileData?.data?.profile?.userId;
+      const userId = profile?.userId;
       if (!userId) {
         toast.error("User ID not found");
         return;
@@ -136,21 +140,53 @@ export default function Projects() {
           onSuccess: () => {
             toast.success("Projects updated successfully");
           },
-          onError: (error: unknown) => {
-            const errorMessage =
-              error instanceof Error
-                ? error.message
-                : "Failed to update projects";
-            toast.error(errorMessage);
+          onError: (error: any) => {
+            if (error?.data?.errors) {
+              const firstError = Object.values(error.data.errors)[0] as string;
+              toast.error(firstError || "Validation failed");
+
+              Object.entries(error.data.errors).forEach(([key, value]) => {
+                if (typeof value === 'string') {
+                  form.setError(key as any, { type: 'manual', message: value });
+                }
+              });
+            } else {
+              toast.error(error?.message || "Failed to update projects");
+            }
           },
         }
       );
     },
-    [replaceProjects, profileData]
+    [replaceProjects, profile]
   );
 
+  const onError = useCallback((errors: any) => {
+    let firstMessage = "";
+    if (errors.portfolio && Array.isArray(errors.portfolio)) {
+      const projErrors = errors.portfolio;
+      const firstIndex = projErrors.findIndex((e: any) => e);
+      if (firstIndex !== -1) {
+        const fieldErrors = projErrors[firstIndex];
+        const firstFieldError = Object.values(fieldErrors)[0] as any;
+        firstMessage = firstFieldError?.message || `Error in project #${firstIndex + 1}`;
+      }
+    }
+
+    if (!firstMessage) {
+      const otherErrors = Object.values(errors);
+      if (otherErrors.length > 0) {
+        const firstError = otherErrors[0] as any;
+        firstMessage = firstError.message || "Please fill in all required fields";
+      }
+    }
+
+    if (firstMessage) {
+      toast.error(firstMessage);
+    }
+  }, []);
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit, onError)}>
       <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 space-y-6">
         <div className="flex justify-between items-center">
           <Typography
@@ -213,11 +249,7 @@ export default function Projects() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     label="Project Name"
-                    error={
-                      errors.portfolio?.[index]?.name?.message as
-                        | string
-                        | undefined
-                    }
+                    required={true}
                   >
                     <Input
                       {...register(`portfolio.${index}.name`)}
@@ -226,11 +258,6 @@ export default function Projects() {
                   </FormField>
                   <FormField
                     label="Your Role"
-                    error={
-                      errors.portfolio?.[index]?.role?.message as
-                        | string
-                        | undefined
-                    }
                   >
                     <Input
                       {...register(`portfolio.${index}.role`)}
@@ -239,11 +266,6 @@ export default function Projects() {
                   </FormField>
                   <FormField
                     label="Start Date"
-                    error={
-                      errors.portfolio?.[index]?.startDate?.message as
-                        | string
-                        | undefined
-                    }
                   >
                     <Controller
                       name={`portfolio.${index}.startDate`}
@@ -264,11 +286,6 @@ export default function Projects() {
                   </FormField>
                   <FormField
                     label="End Date"
-                    error={
-                      errors.portfolio?.[index]?.endDate?.message as
-                        | string
-                        | undefined
-                    }
                   >
                     <Controller
                       name={`portfolio.${index}.endDate`}
@@ -293,11 +310,6 @@ export default function Projects() {
                   </FormField>
                   <FormField
                     label="Project URL"
-                    error={
-                      errors.portfolio?.[index]?.url?.message as
-                        | string
-                        | undefined
-                    }
                   >
                     <Input
                       {...register(`portfolio.${index}.url`)}
@@ -307,11 +319,6 @@ export default function Projects() {
                   </FormField>
                   <FormField
                     label="Project Type"
-                    error={
-                      errors.portfolio?.[index]?.projectType?.message as
-                        | string
-                        | undefined
-                    }
                   >
                     <Controller
                       name={`portfolio.${index}.projectType`}
@@ -338,11 +345,6 @@ export default function Projects() {
                   </FormField>
                   <FormField
                     label="Team Size"
-                    error={
-                      errors.portfolio?.[index]?.teamSize?.message as
-                        | string
-                        | undefined
-                    }
                   >
                     <Input
                       {...register(`portfolio.${index}.teamSize`, {
@@ -357,11 +359,6 @@ export default function Projects() {
 
                 <FormField
                   label="Description"
-                  error={
-                    errors.portfolio?.[index]?.description?.message as
-                      | string
-                      | undefined
-                  }
                 >
                   <Controller
                     name={`portfolio.${index}.description`}
@@ -378,11 +375,6 @@ export default function Projects() {
 
                 <FormField
                   label="Tech Stack"
-                  error={
-                    errors.portfolio?.[index]?.techStack?.message as
-                      | string
-                      | undefined
-                  }
                 >
                   <Controller
                     name={`portfolio.${index}.techStack`}

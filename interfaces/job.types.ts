@@ -685,6 +685,8 @@ export interface UpdateJobPreferencesPayload {
 
 export interface ApplyToJobPayload {
   applicantProfileId: string;
+  resumeUrl?: string;
+  coverLetter?: string;
 }
 
 export interface AcceptApplicationPayload {

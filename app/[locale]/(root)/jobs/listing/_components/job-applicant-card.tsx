@@ -68,7 +68,7 @@ interface JobApplicantCardProps {
 export default function JobApplicantCard({
   applicant,
   jobId,
-  className,
+  // className,
   onViewProfile,
 }: JobApplicantCardProps) {
   const { locale } = useLocale();

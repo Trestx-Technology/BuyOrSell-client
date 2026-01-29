@@ -18,7 +18,6 @@ import {
 import { Plus, Trash2 } from "lucide-react";
 import { SelectableTabsInput } from "@/app/[locale]/(root)/post-ad/details/_components/SelectableTabsInput";
 import {
-  useGetJobseekerProfile,
   useReplaceEducationsByUserId,
 } from "@/hooks/useJobseeker";
 import { educationFormSchema, type EducationFormSchemaType } from "@/schemas/jobseeker.schema";
@@ -27,13 +26,15 @@ import { toast } from "sonner";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 import { CreateEducationPayload } from "@/interfaces/job.types";
 
+import { JobseekerProfile } from "@/interfaces/job.types";
+
 type EducationFormData = {
   education?: Array<{
     _id?: string;
-    institution?: string;
-    degree?: string;
+    institution: string;
+    degree: string;
     fieldOfStudy?: string;
-    startDate?: string;
+    startDate: string;
     endDate?: string;
     current?: boolean;
     grade?: string;
@@ -45,8 +46,12 @@ type EducationFormData = {
   }>;
 };
 
-export default function EducationForm() {
-  const { data: profileData, isLoading: isLoadingProfile } = useGetJobseekerProfile();
+interface EducationFormProps {
+  profile?: JobseekerProfile;
+  isLoadingProfile: boolean;
+}
+
+export default function EducationForm({ profile, isLoadingProfile }: EducationFormProps) {
   const { mutate: replaceEducations, isPending: isSubmitting } =
     useReplaceEducationsByUserId();
 
@@ -82,10 +87,9 @@ export default function EducationForm() {
 
   // Load initial data from profile
   useEffect(() => {
-    if (profileData?.data?.profile && !isLoadingProfile) {
-      const profile = profileData.data.profile;
+    if (profile && !isLoadingProfile) {
       const educations = profile.educations || [];
-      const education = educations.map((edu) => ({
+      const education = educations.map((edu: any) => ({
         _id: edu._id,
         institution: edu.institution,
         degree: edu.degree,
@@ -105,11 +109,11 @@ export default function EducationForm() {
         education,
       });
     }
-  }, [profileData, isLoadingProfile, form]);
+  }, [profile, isLoadingProfile, form]);
 
   const onSubmit = useCallback(
     (data: EducationFormData) => {
-      const userId = profileData?.data?.profile?.userId;
+      const userId = profile?.userId;
       if (!userId) {
         toast.error("User ID not found");
         return;
@@ -143,21 +147,53 @@ export default function EducationForm() {
           onSuccess: () => {
             toast.success("Education updated successfully");
           },
-          onError: (error: unknown) => {
-            const errorMessage =
-              error instanceof Error
-                ? error.message
-                : "Failed to update education";
-            toast.error(errorMessage);
+          onError: (error: any) => {
+            if (error?.data?.errors) {
+              const firstError = Object.values(error.data.errors)[0] as string;
+              toast.error(firstError || "Validation failed");
+
+              // Optionally set errors in react-hook-form
+              Object.entries(error.data.errors).forEach(([key, value]) => {
+                if (typeof value === 'string') {
+                  form.setError(key as any, { type: 'manual', message: value });
+                }
+              });
+            } else {
+              toast.error(error?.message || "Failed to update education");
+            }
           },
         }
       );
     },
-    [replaceEducations, profileData]
+    [replaceEducations, profile]
   );
 
+  const onError = useCallback((errors: any) => {
+    let firstMessage = "";
+    if (errors.education && Array.isArray(errors.education)) {
+      const firstIndex = errors.education.findIndex((e: any) => e);
+      if (firstIndex !== -1) {
+        const fieldErrors = errors.education[firstIndex];
+        const firstFieldError = Object.values(fieldErrors)[0] as any;
+        firstMessage = firstFieldError?.message || `Error in entry #${firstIndex + 1}`;
+      }
+    }
+
+    if (!firstMessage) {
+      const otherErrors = Object.values(errors);
+      if (otherErrors.length > 0) {
+        const firstError = otherErrors[0] as any;
+        firstMessage = firstError.message || "Please fill in all required fields";
+      }
+    }
+
+    if (firstMessage) {
+      toast.error(firstMessage);
+    }
+  }, []);
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit, onError)}>
       <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 space-y-6">
         <div className="flex justify-between items-center">
           <Typography
@@ -215,11 +251,8 @@ export default function EducationForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     label="Institution"
-                    error={
-                      errors.education?.[index]?.institution?.message as
-                        | string
-                        | undefined
-                    }
+                    required={true}
+                    error={errors.education?.[index]?.institution?.message}
                   >
                     <Input
                       {...register(`education.${index}.institution`)}
@@ -228,11 +261,8 @@ export default function EducationForm() {
                   </FormField>
                   <FormField
                     label="Degree"
-                    error={
-                      errors.education?.[index]?.degree?.message as
-                        | string
-                        | undefined
-                    }
+                    required={true}
+                    error={errors.education?.[index]?.degree?.message}
                   >
                     <Input
                       {...register(`education.${index}.degree`)}
@@ -241,11 +271,7 @@ export default function EducationForm() {
                   </FormField>
                   <FormField
                     label="Field of Study"
-                    error={
-                      errors.education?.[index]?.fieldOfStudy?.message as
-                        | string
-                        | undefined
-                    }
+                    error={errors.education?.[index]?.fieldOfStudy?.message}
                   >
                     <Input
                       {...register(`education.${index}.fieldOfStudy`)}
@@ -254,11 +280,7 @@ export default function EducationForm() {
                   </FormField>
                   <FormField
                     label="Course Type"
-                    error={
-                      errors.education?.[index]?.courseType?.message as
-                        | string
-                        | undefined
-                    }
+                    error={errors.education?.[index]?.courseType?.message}
                   >
                     <Controller
                       name={`education.${index}.courseType`}
@@ -281,11 +303,8 @@ export default function EducationForm() {
                   </FormField>
                   <FormField
                     label="Start Date"
-                    error={
-                      errors.education?.[index]?.startDate?.message as
-                        | string
-                        | undefined
-                    }
+                    required={true}
+                    error={errors.education?.[index]?.startDate?.message}
                   >
                     <Controller
                       name={`education.${index}.startDate`}
@@ -304,7 +323,7 @@ export default function EducationForm() {
                       }}
                     />
                   </FormField>
-                  <FormField label="Current">
+                  <FormField label="Current" error={errors.education?.[index]?.current?.message}>
                     <Controller
                       name={`education.${index}.current`}
                       control={control}
@@ -335,11 +354,7 @@ export default function EducationForm() {
                   {!isCurrent && (
                     <FormField
                       label="End Date"
-                      error={
-                        errors.education?.[index]?.endDate?.message as
-                          | string
-                          | undefined
-                      }
+                      error={errors.education?.[index]?.endDate?.message}
                     >
                       <Controller
                         name={`education.${index}.endDate`}
@@ -365,11 +380,7 @@ export default function EducationForm() {
                   )}
                   <FormField
                     label="Grade"
-                    error={
-                      errors.education?.[index]?.grade?.message as
-                        | string
-                        | undefined
-                    }
+                    error={errors.education?.[index]?.grade?.message}
                   >
                     <Input
                       {...register(`education.${index}.grade`)}
@@ -378,11 +389,6 @@ export default function EducationForm() {
                   </FormField>
                   <FormField
                     label="Score Type"
-                    error={
-                      errors.education?.[index]?.scoreType?.message as
-                        | string
-                        | undefined
-                    }
                   >
                     <Controller
                       name={`education.${index}.scoreType`}
@@ -407,11 +413,7 @@ export default function EducationForm() {
                   </FormField>
                   <FormField
                     label="Score"
-                    error={
-                      errors.education?.[index]?.score?.message as
-                        | string
-                        | undefined
-                    }
+                    error={errors.education?.[index]?.score?.message}
                   >
                     <Input
                       {...register(`education.${index}.score`, {
@@ -424,11 +426,7 @@ export default function EducationForm() {
                   </FormField>
                   <FormField
                     label="Year of Passing"
-                    error={
-                      errors.education?.[index]?.yearOfPassing?.message as
-                        | string
-                        | undefined
-                    }
+                    error={errors.education?.[index]?.yearOfPassing?.message}
                   >
                     <Input
                       {...register(`education.${index}.yearOfPassing`, {

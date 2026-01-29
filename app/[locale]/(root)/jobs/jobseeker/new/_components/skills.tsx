@@ -17,9 +17,14 @@ import { toast } from "sonner";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 import { SkillsChips } from "./skills-chips";
 
-export default function Skills() {
-  const { data: profileData, isLoading: isLoadingProfile } =
-    useGetJobseekerProfile();
+import { JobseekerProfile } from "@/interfaces/job.types";
+
+interface SkillsProps {
+  profile?: JobseekerProfile;
+  isLoadingProfile: boolean;
+}
+
+export default function Skills({ profile, isLoadingProfile }: SkillsProps) {
   const { mutate: createOrUpdateProfile, isPending: isSubmitting } =
     useCrateOrUpdateJobseekerProfilePartialMe();
 
@@ -35,8 +40,7 @@ export default function Skills() {
 
   // Load initial data from profile
   useEffect(() => {
-    if (profileData?.data?.profile && !isLoadingProfile) {
-      const profile = profileData.data.profile;
+    if (profile && !isLoadingProfile) {
       const skills = (profile.skills || []) as Array<
         string | { name?: string }
       >;
@@ -51,7 +55,7 @@ export default function Skills() {
         skills: skillNames,
       });
     }
-  }, [profileData, isLoadingProfile, form]);
+  }, [profile, isLoadingProfile, form]);
 
   const watchedSkills = watch("skills");
   const skillsAsStrings = (watchedSkills || []) as string[];
@@ -66,10 +70,19 @@ export default function Skills() {
         onSuccess: () => {
           toast.success("Skills updated successfully");
         },
-        onError: (error: unknown) => {
-          const errorMessage =
-            error instanceof Error ? error.message : "Failed to update skills";
-          toast.error(errorMessage);
+        onError: (error: any) => {
+          if (error?.data?.errors) {
+            const firstError = Object.values(error.data.errors)[0] as string;
+            toast.error(firstError || "Validation failed");
+
+            Object.entries(error.data.errors).forEach(([key, value]) => {
+              if (typeof value === 'string') {
+                form.setError(key as any, { type: 'manual', message: value });
+              }
+            });
+          } else {
+            toast.error(error?.message || "Failed to update skills");
+          }
         },
       });
     },

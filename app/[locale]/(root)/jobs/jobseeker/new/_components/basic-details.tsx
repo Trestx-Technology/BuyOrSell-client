@@ -23,7 +23,6 @@ import { useSendPhoneOtp, useVerifyPhoneOtp } from "@/hooks/useUsers";
 import Image from "next/image";
 import { ICONS } from "@/constants/icons";
 import {
-  useGetJobseekerProfile,
   useCrateOrUpdateJobseekerProfilePartialMe,
 } from "@/hooks/useJobseeker";
 import { useAuthStore } from "@/stores/authStore";
@@ -33,6 +32,7 @@ import {
   workStatusSchema,
 } from "@/schemas/jobseeker.schema";
 import { toast } from "sonner";
+import { JobseekerProfile } from "@/interfaces/job.types";
 
 const NOTICE_PERIOD_OPTIONS = [
   { value: "15-days", label: "15 Days or less" },
@@ -44,10 +44,8 @@ const NOTICE_PERIOD_OPTIONS = [
 ] as const;
 
 const WORK_STATUS_OPTIONS = [
-  { value: "fresher", label: "Fresher" },
-  { value: "experienced", label: "Experienced" },
-  { value: "open_to_opportunities", label: "Open to Opportunities" },
   { value: "actively_looking", label: "Actively Looking" },
+  { value: "open_to_opportunities", label: "Open to Opportunities" },
   { value: "not_looking", label: "Not Looking" },
 ] as const;
 
@@ -56,11 +54,14 @@ const LOCATION_OPTIONS = [
   { value: "abroad", label: "Abroad" },
 ] as const;
 
-export default function BasicDetails() {
-  const { session } = useAuthStore();
+interface BasicDetailsProps {
+  profile?: JobseekerProfile;
+  isLoadingProfile: boolean;
+}
+
+export default function BasicDetails({ profile, isLoadingProfile }: BasicDetailsProps) {
+  const session = useAuthStore((state) => state.session);
   const user = session?.user;
-  const { data: profileData, isLoading: isLoadingProfile } =
-    useGetJobseekerProfile();
   const { mutate: updateProfile, isPending: isSubmitting } =
     useCrateOrUpdateJobseekerProfilePartialMe();
 
@@ -74,36 +75,42 @@ export default function BasicDetails() {
           ""
         : "",
       contactEmail: user?.email || "",
-      contactPhone: "",
-      resumeFileUrl: "",
-      workStatus: "experienced",
+      contactPhone: undefined,
+      resumeFileUrl: undefined,
+      workStatus: "actively_looking",
       experienceYears: undefined,
       currentCtc: undefined,
-      location: "",
+      location: undefined,
       noticePeriodDays: undefined,
     },
   });
 
-  const { register, watch, setValue, control, handleSubmit } = form;
+  const {
+    register,
+    watch,
+    setValue,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = form;
 
   // Load profile data into form
   useEffect(() => {
-    if (profileData?.data?.profile && !isLoadingProfile) {
-      const profile = profileData.data.profile;
+    if (profile && !isLoadingProfile) {
       form.reset({
         name: profile.name || "",
         contactEmail: profile.contactEmail || user?.email || "",
-        contactPhone: profile.contactPhone || "",
-        resumeFileUrl: profile.resumeFileUrl || "",
+        contactPhone: profile.contactPhone || undefined,
+        resumeFileUrl: profile.resumeFileUrl || undefined,
         workStatus:
           profile.workStatus as (typeof workStatusSchema.options)[number],
         experienceYears: profile.experienceYears,
         currentCtc: profile.currentCtc,
-        location: profile.location || "",
+        location: profile.location || undefined,
         noticePeriodDays: profile.noticePeriodDays,
       });
     }
-  }, [profileData, isLoadingProfile, form, user?.email]);
+  }, [profile, isLoadingProfile, form, user?.email]);
 
   // Watch form values
   const contactPhone = watch("contactPhone");
@@ -116,7 +123,7 @@ export default function BasicDetails() {
 
   const handleResumeUploadComplete = useCallback(
     (fileUrl: string, fileName: string) => {
-      setValue("resumeFileUrl", fileUrl, { shouldDirty: true });
+      setValue("resumeFileUrl", fileUrl, { shouldDirty: true, shouldValidate: true });
     },
     [setValue]
   );
@@ -157,8 +164,8 @@ export default function BasicDetails() {
           ? `${user.firstName} ${user.lastName}`.trim()
           : user?.email || ""),
       contactEmail: data.contactEmail || user?.email || "",
-      contactPhone: data.contactPhone || "",
-      resumeFileUrl: data.resumeFileUrl || "",
+      contactPhone: data.contactPhone || undefined,
+      resumeFileUrl: data.resumeFileUrl || undefined,
       workStatus: data.workStatus,
       experienceYears: data.experienceYears,
       currentCtc: data.currentCtc,
@@ -170,14 +177,24 @@ export default function BasicDetails() {
       onSuccess: () => {
         toast.success("Basic details updated successfully");
       },
-      onError: (error) => {
-        toast.error(error?.message || "Failed to update basic details");
-      },
     });
   };
 
+  const onError = useCallback((errors: any) => {
+    const errorMessages = Object.values(errors);
+    if (errorMessages.length > 0) {
+      const firstError = errorMessages[0] as any;
+      if (firstError.message) {
+        toast.error(firstError.message);
+      } else {
+        const nestedError = Object.values(firstError)[0] as any;
+        toast.error(nestedError?.message || "Please check the required fields");
+      }
+    }
+  }, []);
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit, onError)}>
       <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 space-y-6">
         <Typography
           variant="h2"
@@ -191,6 +208,7 @@ export default function BasicDetails() {
           isRequired
           onUploadComplete={handleResumeUploadComplete}
           initialFileName={resumeFileUrl ? "Resume uploaded" : undefined}
+          error={errors.resumeFileUrl?.message}
         />
 
         {/* Name and Email */}
@@ -200,6 +218,7 @@ export default function BasicDetails() {
             label="Name"
             isRequired
             placeholder="Your Full Name"
+            error={errors.name?.message}
           />
           <Input
             {...register("contactEmail")}
@@ -207,18 +226,24 @@ export default function BasicDetails() {
             isRequired
             placeholder="your.email@example.com"
             type="email"
+            error={errors.contactEmail?.message}
           />
         </div>
 
         {/* Work Status */}
-        <FormField label="Work Status" htmlFor="workStatus" required={true}>
+        <FormField
+          label="Work Status"
+          htmlFor="workStatus"
+          required={true}
+          error={errors.workStatus?.message}
+        >
           <Controller
             name="workStatus"
             control={control}
-            defaultValue="experienced"
+            defaultValue="actively_looking"
             render={({ field }) => (
               <RadioGroup
-                value={field.value || "experienced"}
+                value={field.value}
                 onValueChange={field.onChange}
                 className="flex gap-6"
               >
@@ -243,6 +268,7 @@ export default function BasicDetails() {
           label="Experience (Years)"
           htmlFor="experienceYears"
           required={true}
+          error={errors.experienceYears?.message}
         >
           <Controller
             name="experienceYears"
@@ -250,9 +276,10 @@ export default function BasicDetails() {
             render={({ field }) => (
               <Select
                 value={field.value?.toString() || ""}
-                onValueChange={(value) =>
-                  field.onChange(Number.parseInt(value, 10))
-                }
+                onValueChange={(value) => {
+                  const parsed = Number.parseInt(value, 10);
+                  field.onChange(isNaN(parsed) ? undefined : parsed);
+                }}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select years of experience" />
@@ -274,6 +301,7 @@ export default function BasicDetails() {
           label="Current Salary in Dirham (Monthly)"
           htmlFor="currentCtc"
           required={true}
+          error={errors.currentCtc?.message}
         >
           <Controller
             name="currentCtc"
@@ -284,7 +312,8 @@ export default function BasicDetails() {
                 value={field.value?.toString() || ""}
                 onChange={(e) => {
                   const value = e.target.value;
-                  field.onChange(value ? Number.parseFloat(value) : undefined);
+                  const parsed = Number.parseFloat(value);
+                  field.onChange(isNaN(parsed) ? undefined : parsed);
                 }}
                 leftIcon={
                   <Image
@@ -302,7 +331,12 @@ export default function BasicDetails() {
         </FormField>
 
         {/* Location */}
-        <FormField label="Location" htmlFor="location" required={true}>
+        <FormField
+          label="Location"
+          htmlFor="location"
+          required={true}
+          error={errors.location?.message}
+        >
           <Controller
             name="location"
             control={control}
@@ -330,6 +364,7 @@ export default function BasicDetails() {
 
         {/* Mobile Number */}
         <PhoneNumberWithVerification
+          error={errors.contactPhone?.message}
           value={contactPhone || ""}
           onPhoneVerified={handlePhoneVerified}
           onSendOTP={handleSendOTP}
@@ -344,6 +379,7 @@ export default function BasicDetails() {
           label="Notice Period"
           htmlFor="noticePeriodDays"
           required={true}
+          error={errors.noticePeriodDays?.message}
         >
           <Typography variant="caption" className="text-grey-blue mb-3 block">
             Lets recruiters know your availability to join.

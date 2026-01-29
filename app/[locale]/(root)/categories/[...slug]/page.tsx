@@ -30,6 +30,8 @@ import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
 import { getStaticFilterConfig } from "@/constants/filters.constants";
 import { NoDataCard } from "@/components/global/fallback-cards";
 
+import { unSlugify } from "@/utils/slug-utils";
+
 const ITEMS_PER_PAGE = 12;
 
 export default function CategoryListingPage() {
@@ -47,7 +49,7 @@ export default function CategoryListingPage() {
     ? [params.slug]
     : [];
   const currentCategory = slugSegments[slugSegments.length - 1] || "";
-  const categoryName = decodeURIComponent(currentCategory) || "Category";
+  const categoryName = currentCategory ? unSlugify(decodeURIComponent(currentCategory)) : "Category";
 
   // Initialize filters
   const [filters, setFilters] = useState<

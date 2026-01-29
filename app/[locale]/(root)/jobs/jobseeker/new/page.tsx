@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { BreadcrumbItem, Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,6 +12,7 @@ import ProfileSummary from "./_components/profile-summary";
 import LanguageProficiency from "./_components/language-proficiency";
 import BasicDetails from "./_components/basic-details";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 
 type FormSection =
   | "basic-details"
@@ -37,27 +37,28 @@ const formSections: Array<{
 ];
 
 export default function NewJobseekerProfilePage() {
-  const router = useRouter();
-
   const [activeSection, setActiveSection] =
     useState<FormSection>("basic-details");
 
+  const { data: profileData, isLoading: isLoadingProfile } = useGetJobseekerProfile();
+  const profile = profileData?.data?.profile;
+  console.log(profile)
   const renderSection = () => {
     switch (activeSection) {
       case "basic-details":
-        return <BasicDetails />;
+        return <BasicDetails profile={profile} isLoadingProfile={isLoadingProfile} />;
       case "employment":
-        return <Employment />;
+        return <Employment profile={profile} isLoadingProfile={isLoadingProfile} />;
       case "education":
-        return <EducationForm />;
+        return <EducationForm profile={profile} isLoadingProfile={isLoadingProfile} />;
       case "skills":
-        return <Skills />;
+        return <Skills profile={profile} isLoadingProfile={isLoadingProfile} />;
       case "projects":
-        return <Projects />;
+        return <Projects profile={profile} isLoadingProfile={isLoadingProfile} />;
       case "profile-summary":
-        return <ProfileSummary />;
+        return <ProfileSummary profile={profile} isLoadingProfile={isLoadingProfile} />;
       case "language-proficiency":
-        return <LanguageProficiency />;
+        return <LanguageProficiency profile={profile} isLoadingProfile={isLoadingProfile} />;
       default:
         return null;
     }
@@ -68,7 +69,7 @@ export default function NewJobseekerProfilePage() {
     {
       id: "my profile",
       label: "My Profile",
-      href: "/jobs/jobseeker/new",
+      href: "/jobs/jobseeker/me",
       isActive: true,
     },
   ];

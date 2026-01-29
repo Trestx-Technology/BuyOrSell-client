@@ -97,7 +97,7 @@ export default function JobListingCard({
       onClick={onClick}
       role="button"
       className={cn(
-        "bg-white w-full sm:max-w-[270px] rounded-2xl cursor-pointer transition-all relative p-4",
+        "bg-white w-full sm:min-w-[220px] sm:max-w-[270px] rounded-2xl cursor-pointer transition-all relative p-4",
         "border shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] hover:shadow-[0px_2.67px_7.11px_#309689/20]",
         isSelected ? "border-purple border-[1px]" : "border-[#E2E2E2]"
       )}

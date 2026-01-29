@@ -28,6 +28,7 @@ import Image from "next/image";
 import { useApplyToJob } from "@/hooks/useJobApplications";
 import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 import { useLocale } from "@/hooks/useLocale";
+import Link from "next/link";
 
 export interface MobileJobHeaderCardProps {
   job: AD;
@@ -233,6 +234,7 @@ export default function MobileJobHeaderCard({
     }
 
     const applicantProfileId = jobseekerProfile?.data?.profile?._id;
+    const resumeUrl = jobseekerProfile?.data?.profile?.resumeFileUrl;
     if (!applicantProfileId) {
       toast.error("Please create a jobseeker profile first");
       return;
@@ -241,7 +243,7 @@ export default function MobileJobHeaderCard({
     apply(
       {
         jobId: job._id,
-        payload: { applicantProfileId },
+        payload: { applicantProfileId, resumeUrl },
       },
       {
         onSuccess: () => {
@@ -345,12 +347,12 @@ export default function MobileJobHeaderCard({
             >
               {jobTitle}
             </Typography>
-            <Typography
-              variant="body-small"
+            <Link
+              href={`/organizations/${job.organization?._id}`}
               className="text-purple text-sm font-medium"
             >
               {companyName}
-            </Typography>
+            </Link>
           </div>
         </div>
 

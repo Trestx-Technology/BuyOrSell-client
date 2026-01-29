@@ -180,7 +180,6 @@ export default function ViewJobPage() {
                               onLocationChange={handleLocationChange}
                               locationPlaceholder="Dubai"
                               className="mb-4"
-                              dontValidate
                         />
 
                         <ActiveFilters

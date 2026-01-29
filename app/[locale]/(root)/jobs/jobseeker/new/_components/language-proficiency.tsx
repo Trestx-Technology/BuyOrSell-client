@@ -15,30 +15,33 @@ import {
 } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
 import {
-  useGetJobseekerProfile,
   useReplaceLanguagesByUserId,
 } from "@/hooks/useJobseeker";
 import {
   languagesFormSchema,
-  type LanguagesFormSchemaType,
 } from "@/schemas/jobseeker.schema";
 import { toast } from "sonner";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 
+import { JobseekerProfile } from "@/interfaces/job.types";
+
 type LanguageFormData = {
   languages?: Array<{
     _id?: string;
-    name?: string;
-    proficiency?: string;
+    name: string;
+    proficiency: string;
     readLevel?: number;
     writeLevel?: number;
     speakLevel?: number;
   }>;
 };
 
-export default function LanguageProficiency() {
-  const { data: profileData, isLoading: isLoadingProfile } =
-    useGetJobseekerProfile();
+interface LanguageProficiencyProps {
+  profile?: JobseekerProfile;
+  isLoadingProfile: boolean;
+}
+
+export default function LanguageProficiency({ profile, isLoadingProfile }: LanguageProficiencyProps) {
   const { mutate: replaceLanguages, isPending: isSubmitting } =
     useReplaceLanguagesByUserId();
 
@@ -58,10 +61,9 @@ export default function LanguageProficiency() {
 
   // Load initial data from profile
   useEffect(() => {
-    if (profileData?.data?.profile && !isLoadingProfile) {
-      const profile = profileData.data.profile;
+    if (profile && !isLoadingProfile) {
       const languages = profile.languages || [];
-      const formLanguages = languages.map((lang) => ({
+      const formLanguages = languages.map((lang: any) => ({
         _id: lang._id,
         name: lang.name,
         proficiency: lang.proficiency,
@@ -74,7 +76,7 @@ export default function LanguageProficiency() {
         languages: formLanguages,
       });
     }
-  }, [profileData, isLoadingProfile, form]);
+  }, [profile, isLoadingProfile, form]);
 
   const languageOptions = [
     "English",
@@ -102,7 +104,7 @@ export default function LanguageProficiency() {
 
   const onSubmit = useCallback(
     (data: LanguageFormData) => {
-      const userId = profileData?.data?.profile?.userId;
+      const userId = profile?.userId;
       if (!userId) {
         toast.error("User ID not found");
         return;
@@ -130,21 +132,53 @@ export default function LanguageProficiency() {
           onSuccess: () => {
             toast.success("Languages updated successfully");
           },
-          onError: (error: unknown) => {
-            const errorMessage =
-              error instanceof Error
-                ? error.message
-                : "Failed to update languages";
-            toast.error(errorMessage);
+          onError: (error: any) => {
+            if (error?.data?.errors) {
+              const firstError = Object.values(error.data.errors)[0] as string;
+              toast.error(firstError || "Validation failed");
+
+              Object.entries(error.data.errors).forEach(([key, value]) => {
+                if (typeof value === 'string') {
+                  form.setError(key as any, { type: 'manual', message: value });
+                }
+              });
+            } else {
+              toast.error(error?.message || "Failed to update languages");
+            }
           },
         }
       );
     },
-    [replaceLanguages, profileData]
+    [replaceLanguages, profile]
   );
 
+  const onError = useCallback((errors: any) => {
+    let firstMessage = "";
+    if (errors.languages && Array.isArray(errors.languages)) {
+      const langErrors = errors.languages;
+      const firstIndex = langErrors.findIndex((e: any) => e);
+      if (firstIndex !== -1) {
+        const fieldErrors = langErrors[firstIndex];
+        const firstFieldError = Object.values(fieldErrors)[0] as any;
+        firstMessage = firstFieldError?.message || `Error in language entry #${firstIndex + 1}`;
+      }
+    }
+
+    if (!firstMessage) {
+      const otherErrors = Object.values(errors);
+      if (otherErrors.length > 0) {
+        const firstError = otherErrors[0] as any;
+        firstMessage = firstError.message || "Please fill in all required fields";
+      }
+    }
+
+    if (firstMessage) {
+      toast.error(firstMessage);
+    }
+  }, []);
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit, onError)}>
       <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 space-y-6">
         <div className="flex justify-between items-center">
           <Typography
@@ -206,11 +240,8 @@ export default function LanguageProficiency() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     label="Language"
-                    error={
-                      errors.languages?.[index]?.name?.message as
-                        | string
-                        | undefined
-                    }
+                    required={true}
+                    error={errors.languages?.[index]?.name?.message}
                   >
                     <Controller
                       name={`languages.${index}.name`}
@@ -236,11 +267,8 @@ export default function LanguageProficiency() {
                   </FormField>
                   <FormField
                     label="Proficiency Level"
-                    error={
-                      errors.languages?.[index]?.proficiency?.message as
-                        | string
-                        | undefined
-                    }
+                    required={true}
+                    error={errors.languages?.[index]?.proficiency?.message}
                   >
                     <Controller
                       name={`languages.${index}.proficiency`}

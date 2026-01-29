@@ -107,7 +107,7 @@ export const SaveJobButton = ({
                   <Heart
                         className={cn(
                               "w-5 h-5",
-                              isCurrentlySaved ? "fill-red-500 text-red-500" : "text-grey-blue"
+                              isCurrentlySaved ? "fill-purple text-purple" : "text-grey-blue"
                         )}
                         strokeWidth={1.5}
                   />

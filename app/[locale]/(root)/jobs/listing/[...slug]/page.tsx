@@ -1,18 +1,15 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
+import { useState, useMemo, useCallback } from "react";
+import { useParams, useSearchParams, } from "next/navigation";
+import { Breadcrumbs, } from "@/components/ui/breadcrumbs";
 import { Typography } from "@/components/typography";
 import { useAds, useFilterAds, useAdById } from "@/hooks/useAds";
 import {
   AD,
   AdFilterPayload,
   AdFilters,
-  ProductExtraField,
 } from "@/interfaces/ad";
-import { JobData } from "@/interfaces/job.types";
-import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
 import JobListingCard from "../_components/job-listing-card";
 import JobHeaderCard from "../_components/job-header-card";
 import MobileJobHeaderCard from "../_components/mobile-job-header-card";
@@ -21,7 +18,6 @@ import Disclaimer from "../_components/disclaimer";
 import Pagination from "@/components/global/pagination";
 import { defaultJobFilters } from "@/constants/job.constants";
 import { Container1080 } from "@/components/layouts/container-1080";
-import { useLocale } from "@/hooks/useLocale";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 import { cn } from "@/lib/utils";
 import { CommonFilters } from "@/components/common/common-filters";
@@ -41,6 +37,8 @@ const ITEMS_PER_PAGE = 12;
 
 export default function JobsListingPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
+  const jobId = searchParams.get("jobId");
   const { clearUrlQueries } = useUrlParams();
   const { extraFields, hasDynamicFilters } = useUrlFilters();
 
@@ -61,7 +59,7 @@ export default function JobsListingPage() {
     Record<string, string | string[] | number | number[] | undefined>
   >({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(jobId || null);
 
   // Define static filters config based on defaultJobFilters
   const staticFilterConfig: FilterConfig[] = useMemo(() => {
@@ -218,7 +216,7 @@ export default function JobsListingPage() {
               <div
                     className={cn("flex flex-wrap gap-4", selectedJobId && "block")}
               >
-                {jobs.map((job) => (
+                    {jobs.sort((a,) => jobId === a._id ? -1 : 1).map((job) => (
                   <JobListingCard
                     key={job._id}
                     job={job}

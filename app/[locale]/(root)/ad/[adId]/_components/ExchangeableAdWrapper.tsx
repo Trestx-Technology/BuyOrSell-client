@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip"
 import { Info } from "lucide-react"
 import Image from "next/image"
+import { cn } from "@/lib/utils"
 
 interface ExchangeableAdWrapperProps {
   children?: React.ReactNode
@@ -20,7 +21,7 @@ interface ExchangeableAdWrapperProps {
 
 export function ExchangeableAdWrapper({ children, exchangeAd, className }: ExchangeableAdWrapperProps) {
   return (
-    <div className={className}>
+    <div className={cn("p-2", className)}>
         <Card className="border-2 border-dashed border-primary/30 bg-accent/10 py-4">
           <CardHeader>
             <div className="flex items-start justify-between gap-4">

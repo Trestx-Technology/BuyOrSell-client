@@ -27,8 +27,8 @@ export default function JobCard({
   const owner = job?.owner;
   const isSaved = job?.isSaved;
   const title = job?.title;
-  const logo = organization?.logoUrl || owner?.image;
-  const company = organization?.tradeName || organization?.legalName || owner?.firstName + " " + owner?.lastName;
+  const logo = organization?.logoUrl;
+  const company = organization?.tradeName || organization?.legalName;
   const location = address?.city || address?.state || address?.country;
   const createdAt = job?.createdAt;
 
@@ -73,7 +73,7 @@ export default function JobCard({
           {logo ? (
             <Image
               src={logo}
-              alt={company}
+              alt={company || "Organization"}
               width={32}
               height={32}
               className="object-cover w-10 h-10 rounded-full"
@@ -108,12 +108,11 @@ export default function JobCard({
             height={16}
           />
           <div className="flex items-center gap-1">
-            <span className="text-[9.19px]">AED</span>
             <Typography
               variant="body-small"
               className="text-dark-blue text-xs font-medium"
             >
-              {job?.price || "Not specified"}
+              {`${job?.minSalary} - ${job?.maxSalary}` || "Not specified"}
             </Typography>
           </div>
         </div>

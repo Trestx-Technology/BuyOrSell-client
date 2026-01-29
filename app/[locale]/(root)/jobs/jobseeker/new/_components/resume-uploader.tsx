@@ -14,6 +14,7 @@ interface ResumeUploaderProps {
   className?: string;
   initialFileName?: string;
   isRequired?: boolean;
+  error?: string;
 }
 
 const RESUME_FILE_TYPES = [
@@ -30,7 +31,8 @@ export default function ResumeUploader({
   isRequired = true,
   className,
   initialFileName,
-}: ResumeUploaderProps & { isRequired?: boolean }) {
+  error,
+}: ResumeUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string>(initialFileName || "");
   const [isDragging, setIsDragging] = useState(false);
@@ -92,7 +94,7 @@ export default function ResumeUploader({
   }, []);
 
   return (
-    <FormField label={label} htmlFor="resume" required={isRequired}>
+    <FormField label={label} htmlFor="resume" required={isRequired} error={error}>
       <div
         className={cn(
           "border-2 border-dashed rounded-lg p-6 transition-colors cursor-pointer",

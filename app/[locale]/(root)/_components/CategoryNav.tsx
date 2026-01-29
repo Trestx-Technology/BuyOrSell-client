@@ -35,6 +35,7 @@ import { Typography } from "@/components/typography";
 import SearchHistoryPopover from "../user/search-history/_components/SearchHistoryPopover";
 import NotificationsPopover from "../user/notifications/_components/NotificationsPopover";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { toSlug, slugify } from "@/utils/slug-utils";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -182,9 +183,11 @@ const buildCategoryUrl = (
   const isJobSub = isJobsSubcategory(category, allCategories);
   const pathNames = buildPathRecursive(category, allCategories, isJobSub);
 
+  const slugifiedPath = slugify(...pathNames);
+
   const url = isJobSub
-    ? `/jobs/listing/Jobs/${pathNames.join("/")}`
-    : `/categories/${pathNames.join("/")}`;
+    ? `/jobs/listing/jobs/${slugifiedPath}`
+    : `/categories/${slugifiedPath}`;
 
   categoryUrlCache.set(cacheKey, url);
   return url;

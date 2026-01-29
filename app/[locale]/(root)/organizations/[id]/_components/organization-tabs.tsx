@@ -12,7 +12,7 @@ export const OrganizationTabs = ({ activeTab, onTabChange }: OrganizationTabsPro
   const tabs = ["home", "about", "jobs"] as const;
 
   return (
-    <div className="px-6 flex items-center gap-8 border-b border-slate-200">
+    <div className="flex items-center gap-8 border-b border-slate-200">
       {tabs.map((tab) => (
         <button
           key={tab}

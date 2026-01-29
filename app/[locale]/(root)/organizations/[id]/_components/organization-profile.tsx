@@ -35,7 +35,7 @@ export default function OrganizationProfile({
                               <OrganizationBanner organization={organization} />
 
                               {/* Main Content */}
-                              <div className="max-w-5xl mx-auto">
+                              <div className="max-w-5xl mx-auto mt-10">
                                     {/* Header Info */}
                                     <OrganizationHeader organization={organization} />
 
@@ -46,7 +46,7 @@ export default function OrganizationProfile({
                                     {activeTab === "home" && <OrganizationOverview organization={organization} />}
 
                                     {activeTab === "about" && (
-                                          <div className="px-6 py-8 text-slate-700">
+                                          <div className="py-8 text-slate-700">
                                                 <Typography variant="h2" className="text-xl font-bold text-dark-blue mb-4">
                                                       About {organization.tradeName}
                                                 </Typography>

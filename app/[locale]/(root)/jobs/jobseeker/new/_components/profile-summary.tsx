@@ -8,17 +8,21 @@ import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  useGetJobseekerProfile,
   useCrateOrUpdateJobseekerProfilePartialMe,
 } from "@/hooks/useJobseeker";
 import { profileSummarySchema, type ProfileSummarySchemaType } from "@/schemas/jobseeker.schema";
 import { toast } from "sonner";
 import { jobseekerQueries } from "@/app/api/jobseeker/index";
 
-export default function ProfileSummary() {
+import { JobseekerProfile } from "@/interfaces/job.types";
+
+interface ProfileSummaryProps {
+  profile?: JobseekerProfile;
+  isLoadingProfile: boolean;
+}
+
+export default function ProfileSummary({ profile, isLoadingProfile }: ProfileSummaryProps) {
   const queryClient = useQueryClient();
-  const { data: profileData, isLoading: isLoadingProfile } =
-    useGetJobseekerProfile();
   const { mutate: createOrUpdateProfile, isPending: isSubmitting } =
     useCrateOrUpdateJobseekerProfilePartialMe();
 
@@ -33,13 +37,12 @@ export default function ProfileSummary() {
 
   // Load initial data from profile
   useEffect(() => {
-    if (profileData?.data?.profile && !isLoadingProfile) {
-      const profile = profileData.data.profile;
+    if (profile && !isLoadingProfile) {
       form.reset({
         summary: profile.summary || "",
       });
     }
-  }, [profileData, isLoadingProfile, form]);
+  }, [profile, isLoadingProfile, form]);
 
   const summary = watch("summary") || "";
   const characterCount = summary.length;
@@ -58,12 +61,19 @@ export default function ProfileSummary() {
           });
           toast.success("Profile summary updated successfully");
         },
-        onError: (error: unknown) => {
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : "Failed to update profile summary";
-          toast.error(errorMessage);
+        onError: (error: any) => {
+          if (error?.data?.errors) {
+            const firstError = Object.values(error.data.errors)[0] as string;
+            toast.error(firstError || "Validation failed");
+
+            Object.entries(error.data.errors).forEach(([key, value]) => {
+              if (typeof value === "string") {
+                form.setError(key as any, { type: "manual", message: value });
+              }
+            });
+          } else {
+            toast.error(error?.message || "Failed to update profile summary");
+          }
         },
       });
     },

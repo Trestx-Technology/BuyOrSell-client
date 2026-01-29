@@ -18,7 +18,6 @@ import {
 import { Plus, Trash2 } from "lucide-react";
 import { SelectableTabsInput } from "@/app/[locale]/(root)/post-ad/details/_components/SelectableTabsInput";
 import {
-  useGetJobseekerProfile,
   useReplaceExperiencesByUserId,
 } from "@/hooks/useJobseeker";
 import { employmentFormSchema } from "@/schemas/jobseeker.schema";
@@ -28,23 +27,25 @@ import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/For
 import { SkillsChips } from "./skills-chips";
 import { CreateWorkExperiencePayload } from "@/interfaces/job.types";
 
+import { JobseekerProfile } from "@/interfaces/job.types";
+
 type EmploymentFormData = {
   workExperience?: Array<{
     _id?: string;
-    position?: string;
-    company?: string;
-    startDate?: string;
+    position: string;
+    company: string;
+    startDate: string;
     endDate?: string;
     current?: boolean;
-    location?: string;
+    location: string;
     description?: string;
     descriptionAr?: string;
-    url?: string;
+    url?: string | null;
     employmentType?: string;
     employmentTypeAr?: string;
     department?: string;
     departmentAr?: string;
-    jobType?: string;
+    jobType: string;
     noticePeriodDays?: number;
     currentCtc?: number;
     ctcCurrency?: string;
@@ -54,9 +55,12 @@ type EmploymentFormData = {
   }>;
 };
 
-export default function Employment() {
-  const { data: profileData, isLoading: isLoadingProfile } =
-    useGetJobseekerProfile();
+interface EmploymentProps {
+  profile?: JobseekerProfile;
+  isLoadingProfile: boolean;
+}
+
+export default function Employment({ profile, isLoadingProfile }: EmploymentProps) {
   const { mutate: replaceExperiences, isPending: isSubmitting } =
     useReplaceExperiencesByUserId();
 
@@ -116,10 +120,9 @@ export default function Employment() {
 
   // Load initial data from profile
   useEffect(() => {
-    if (profileData?.data?.profile && !isLoadingProfile) {
-      const profile = profileData.data.profile;
+    if (profile && !isLoadingProfile) {
       const experiences = profile.experiences || [];
-      const workExperience = experiences.map((exp) => ({
+      const workExperience = experiences.map((exp: any) => ({
         _id: exp._id,
         position: exp.title,
         company: exp.company,
@@ -144,11 +147,11 @@ export default function Employment() {
         workExperience,
       });
     }
-  }, [profileData, isLoadingProfile, form]);
+  }, [profile, isLoadingProfile, form]);
 
   const onSubmit = useCallback(
     (data: EmploymentFormData) => {
-      const userId = profileData?.data?.profile?.userId;
+      const userId = profile?.userId;
       if (!userId) {
         toast.error("User ID not found");
         return;
@@ -189,21 +192,57 @@ export default function Employment() {
           onSuccess: () => {
             toast.success("Employment history updated successfully");
           },
-          onError: (error: unknown) => {
-            const errorMessage =
-              error instanceof Error
-                ? error.message
-                : "Failed to update employment history";
-            toast.error(errorMessage);
+          onError: (error: any) => {
+            if (error?.data?.errors) {
+              const firstError = Object.values(error.data.errors)[0] as string;
+              toast.error(firstError || "Validation failed");
+
+              // Optionally set errors in react-hook-form
+              Object.entries(error.data.errors).forEach(([key, value]) => {
+                if (typeof value === 'string') {
+                  form.setError(key as any, { type: 'manual', message: value });
+                }
+              });
+            } else {
+              toast.error(error?.message || "Failed to update employment history");
+            }
           },
         }
       );
     },
-    [replaceExperiences, profileData]
+    [replaceExperiences, profile]
   );
 
+  const onError = useCallback((errors: any) => {
+    let firstMessage = "";
+    if (errors.workExperience) {
+      const expErrors = errors.workExperience;
+      if (Array.isArray(expErrors)) {
+        // Find the first index with an error
+        const firstIndex = expErrors.findIndex((e: any) => e);
+        if (firstIndex !== -1) {
+          const fieldErrors = expErrors[firstIndex];
+          const firstFieldError = Object.values(fieldErrors)[0] as any;
+          firstMessage = firstFieldError?.message || `Error in entry #${firstIndex + 1}`;
+        }
+      }
+    }
+
+    if (!firstMessage) {
+      const otherErrors = Object.values(errors);
+      if (otherErrors.length > 0) {
+        const firstError = otherErrors[0] as any;
+        firstMessage = firstError.message || "Please fill in all required fields";
+      }
+    }
+
+    if (firstMessage) {
+      toast.error(firstMessage);
+    }
+  }, []);
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit, onError)}>
       <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 space-y-6">
         <div className="flex justify-between items-center">
           <Typography
@@ -272,11 +311,8 @@ export default function Employment() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     label="Position"
-                    error={
-                      errors.workExperience?.[index]?.position?.message as
-                        | string
-                        | undefined
-                    }
+                    required={true}
+                    error={errors.workExperience?.[index]?.position?.message}
                   >
                     <Input
                       {...register(`workExperience.${index}.position`)}
@@ -285,11 +321,8 @@ export default function Employment() {
                   </FormField>
                   <FormField
                     label="Company"
-                    error={
-                      errors.workExperience?.[index]?.company?.message as
-                        | string
-                        | undefined
-                    }
+                    required={true}
+                    error={errors.workExperience?.[index]?.company?.message}
                   >
                     <Input
                       {...register(`workExperience.${index}.company`)}
@@ -298,11 +331,8 @@ export default function Employment() {
                   </FormField>
                   <FormField
                     label="Job Type"
-                    error={
-                      errors.workExperience?.[index]?.jobType?.message as
-                        | string
-                        | undefined
-                    }
+                    required={true}
+                    error={errors.workExperience?.[index]?.jobType?.message}
                   >
                     <Controller
                       name={`workExperience.${index}.jobType`}
@@ -324,11 +354,9 @@ export default function Employment() {
                   </FormField>
                   <FormField
                     label="Location"
-                    error={
-                      errors.workExperience?.[index]?.location?.message as
-                        | string
-                        | undefined
-                    }
+                    required={true}
+                    error={errors.workExperience?.[index]?.location?.message}
+
                   >
                     <Input
                       {...register(`workExperience.${index}.location`)}
@@ -337,11 +365,8 @@ export default function Employment() {
                   </FormField>
                   <FormField
                     label="Start Date"
-                    error={
-                      errors.workExperience?.[index]?.startDate?.message as
-                        | string
-                        | undefined
-                    }
+                    required={true}
+                    error={errors.workExperience?.[index]?.startDate?.message}
                   >
                     <Controller
                       name={`workExperience.${index}.startDate`}
@@ -360,7 +385,7 @@ export default function Employment() {
                       }}
                     />
                   </FormField>
-                  <FormField label="Current">
+                  <FormField label="Current" error={errors.workExperience?.[index]?.current?.message}>
                     <Controller
                       name={`workExperience.${index}.current`}
                       control={control}
@@ -398,11 +423,7 @@ export default function Employment() {
                   {!isCurrent && (
                     <FormField
                       label="End Date"
-                      error={
-                        errors.workExperience?.[index]?.endDate?.message as
-                          | string
-                          | undefined
-                      }
+                      error={errors.workExperience?.[index]?.endDate?.message}
                     >
                       <Controller
                         name={`workExperience.${index}.endDate`}
@@ -428,10 +449,7 @@ export default function Employment() {
                   )}
                   <FormField
                     label="Employment Type"
-                    error={
-                      errors.workExperience?.[index]?.employmentType
-                        ?.message as string | undefined
-                    }
+                    error={errors.workExperience?.[index]?.employmentType?.message}
                   >
                     <Controller
                       name={`workExperience.${index}.employmentType`}
@@ -569,7 +587,7 @@ export default function Employment() {
                   </FormField>
                   {isCurrent && (
                     <>
-                      <FormField label="Serving Notice">
+                      <FormField label="Serving Notice" error={errors.workExperience?.[index]?.servingNotice?.message}>
                         <Controller
                           name={`workExperience.${index}.servingNotice`}
                           control={control}
@@ -592,7 +610,7 @@ export default function Employment() {
                           )}
                         />
                       </FormField>
-                      <FormField label="Last Working Day">
+                      <FormField label="Last Working Day" error={errors.workExperience?.[index]?.lastWorkingDay?.message}>
                         <Controller
                           name={`workExperience.${index}.lastWorkingDay`}
                           control={control}
