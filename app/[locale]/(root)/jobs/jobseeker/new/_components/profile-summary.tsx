@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { TextareaInput } from "@/app/[locale]/(root)/post-ad/details/_components/TextareaInput";
 import {
   useCrateOrUpdateJobseekerProfilePartialMe,
 } from "@/hooks/useJobseeker";
@@ -104,17 +104,15 @@ export default function ProfileSummary({ profile, isLoadingProfile }: ProfileSum
         </div>
 
         <div className="space-y-2">
-          <Textarea
-            {...register("summary")}
+          <TextareaInput
+            value={form.watch("summary") || ""}
+            onChange={(val) => form.setValue("summary", val, { shouldValidate: true })}
             placeholder="Type here..."
-            className="min-h-[200px] w-full resize-none"
+            className="min-h-[200px]"
             maxLength={2000}
+            showAI={true}
+            categoryPath="Jobseeker Profile Summary"
           />
-          <div className="flex justify-end">
-            <Typography variant="caption" className="text-grey-blue">
-              {characterCount} / 2000 characters
-            </Typography>
-          </div>
         </div>
       </div>
     </form>

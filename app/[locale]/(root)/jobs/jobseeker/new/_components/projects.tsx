@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { TextareaInput } from "@/app/[locale]/(root)/post-ad/details/_components/TextareaInput";
 import {
   Select,
   SelectContent,
@@ -364,10 +364,13 @@ export default function Projects({ profile, isLoadingProfile }: ProjectsProps) {
                     name={`portfolio.${index}.description`}
                     control={control}
                     render={({ field }) => (
-                      <Textarea
-                        {...field}
+                      <TextareaInput
+                        value={field.value || ""}
+                        onChange={(val) => field.onChange(val)}
                         placeholder="Describe your project..."
                         className="min-h-[100px]"
+                        showAI={true}
+                        categoryPath={`Project > ${watch(`portfolio.${index}.name`) || "Description"}`}
                       />
                     )}
                   />

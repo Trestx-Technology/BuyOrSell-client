@@ -75,6 +75,7 @@ const EditOrganizationPage = () => {
         contactEmail: data.contactEmail,
         contactPhone: data.contactPhone,
         website: data.website || undefined,
+        description: data.description || undefined,
         logoUrl: data.logoUrl || undefined,
         businessHours:
           data.businessHours?.map((bh) => ({

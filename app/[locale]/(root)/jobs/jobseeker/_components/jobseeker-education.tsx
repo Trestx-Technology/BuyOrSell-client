@@ -1,11 +1,10 @@
 "use client";
 
-import React from "react";
 import { GraduationCap, Calendar, Plus, Trash2 } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { TextareaInput } from "@/app/[locale]/(root)/post-ad/details/_components/TextareaInput";
 import type { JobseekerEducation } from "@/interfaces/job.types";
 import { UseFormReturn, useFieldArray, Control } from "react-hook-form";
 import { JobseekerProfile } from "@/interfaces/job.types";
@@ -131,10 +130,13 @@ export default function JobseekerEducation({
                   </label>
                 </div>
               </div>
-              <Textarea
-                {...register(`educations.${index}.description`)}
+              <TextareaInput
+                value={form.watch(`educations.${index}.description`) || ""}
+                onChange={(val) => form.setValue(`educations.${index}.description`, val)}
                 placeholder="Additional details about your education..."
                 className="min-h-[100px]"
+                showAI={true}
+                categoryPath={`Education > ${form.watch(`educations.${index}.degree`) || "Degree"}`}
               />
             </div>
           ))}

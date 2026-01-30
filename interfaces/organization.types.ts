@@ -66,6 +66,7 @@ export interface Organization {
   activeAds?: number;
   expiredAds?: number;
   totalJobsPosted?: number;
+  description?: string;
   featuredJobs?: any[];
   latestJobs?: any[];
   createdAt: string;
@@ -133,6 +134,7 @@ export interface CreateOrganizationPayload {
   contactEmail: string;
   contactPhone: string;
   website?: string;
+  description?: string;
   logoUrl?: string;
   locations?: Omit<OrganizationLocation, "_id">[];
   tags?: string[];

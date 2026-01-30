@@ -12,11 +12,11 @@ export const OrganizationOverview = ({ organization }: OrganizationOverviewProps
   return (
     <div className="py-8 text-slate-700 space-y-6">
       <p>
-        {organization.companyDescription ||
+        {organization.description ||
           "BuyorSell Dubai Is A Leading Classifieds Platform, Boasting Over 100+ Million App Downloads Across Diverse Categories, Including Cars, Bikes, Real Estate, And Electronics. BuyOrSell Is The Online Classified Marketplace Helping Them Maximize The Value Of Their Belongings And Promoting Responsible Consumption, Contributing To A Greener, More Sustainable Future."}
       </p>
 
-      {!organization.companyDescription && (
+      {!organization.description && (
         <p>
           BuyorSell Is Now Part Of The CarTrade Tech Group, Which Is India's Largest Online Auto Platform. It Encompasses Brands Such As CarWale, CarTrade, Shriram Automobll, BikeWale, CarTrade Exchange, And Adroit Auto. Together, These Brands Offer A Comprehensive Suite Of Tools And Services Aimed At Enhancing The Car Selling And Buying Experience, Attracting An Average Of 70 Million Monthly Unique And A Staggering 1.4 Million Listings For Auction.
         </p>

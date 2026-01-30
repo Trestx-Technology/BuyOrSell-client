@@ -29,7 +29,8 @@ export const organizationSchema = z.object({
   emirate: z.string().min(1, "Emirate is required"),
   tradeLicenseNumber: z.string().min(1, "Trade license number is required"),
   tradeLicenseExpiry: z.string().min(1, "Trade license expiry is required"),
-  trn: z.string()
+  trn: z
+    .string()
     .min(1, "TRN is required")
     .regex(/^\d{15}$/, "TRN must be exactly 15 digits"),
   legalName: z.string().min(1, "Legal name is required"),
@@ -43,6 +44,7 @@ export const organizationSchema = z.object({
   contactEmail: z.string().email("Invalid email address"),
   contactPhone: z.string().min(1, "Contact phone is required"),
   website: z.string().url("Invalid website URL").optional().or(z.literal("")),
+  description: z.string().optional(),
   logoUrl: z.string().optional(),
   businessHours: z.array(businessHourSchema).optional(),
   certificates: z.array(certificateSchema).optional(),

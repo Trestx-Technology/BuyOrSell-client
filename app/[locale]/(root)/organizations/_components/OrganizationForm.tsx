@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 import { TextInput } from "@/app/[locale]/(root)/post-ad/details/_components/TextInput";
 import { SelectInput } from "@/app/[locale]/(root)/post-ad/details/_components/SelectInput";
+import { TextareaInput } from "@/app/[locale]/(root)/post-ad/details/_components/TextareaInput";
 import { DatePicker } from "./DatePicker";
 import {
   SingleImageUpload,
@@ -57,6 +58,7 @@ export const OrganizationForm = ({
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<OrganizationFormData>({
     resolver: zodResolver(organizationSchema),
@@ -79,6 +81,7 @@ export const OrganizationForm = ({
       contactPhone: "",
       website: "",
       logoUrl: "",
+      description: "",
       businessHours: [],
       certificates: [],
       languages: [],
@@ -166,6 +169,7 @@ export const OrganizationForm = ({
         contactPhone: initialData.contactPhone || "",
         website: initialData.website || "",
         logoUrl: initialData.logoUrl || "",
+        description: initialData.description || "",
         businessHours,
         certificates,
         languages: initialData.languages || [],
@@ -593,6 +597,29 @@ export const OrganizationForm = ({
               maxFileSize={5}
               acceptedFileTypes={["image/jpeg", "image/png", "image/gif"]}
               label={t.organizations.form.uploadLogo}
+            />
+          </FormField>
+
+          {/* Description */}
+          <FormField
+            label={t.organizations.form.description || "Description"}
+            htmlFor="description"
+            error={errors.description?.message}
+            fullWidth
+          >
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <TextareaInput
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                  placeholder={t.organizations.form.enterDescription || "Describe your organization..."}
+                  rows={5}
+                  showAI={true}
+                  categoryPath={`Organization > ${watch("type") || "About"}`}
+                />
+              )}
             />
           </FormField>
 

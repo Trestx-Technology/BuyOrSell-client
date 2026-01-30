@@ -361,7 +361,7 @@ export interface EmployerProfile extends Organization {
   companySize?: string;
   industry?: string;
   foundedYear?: number;
-  companyDescription?: string;
+  description?: string;
   benefits?: string[];
   culture?: string[];
 

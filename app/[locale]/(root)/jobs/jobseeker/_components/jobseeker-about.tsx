@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Typography } from "@/components/typography";
-import { Textarea } from "@/components/ui/textarea";
+import { TextareaInput } from "@/app/[locale]/(root)/post-ad/details/_components/TextareaInput";
 import { JobseekerProfile } from "@/interfaces/job.types";
 import { UseFormReturn } from "react-hook-form";
 
@@ -27,10 +27,13 @@ export default function JobseekerAbout({
         >
           About
         </Typography>
-        <Textarea
-          {...register("summary")}
+        <TextareaInput
+          value={form.watch("summary") || ""}
+          onChange={(val) => form.setValue("summary", val)}
           placeholder="Tell us about yourself, your experience, and what makes you unique..."
           className="min-h-[150px]"
+          showAI={true}
+          categoryPath="Jobseeker Profile Summary"
         />
       </div>
     );

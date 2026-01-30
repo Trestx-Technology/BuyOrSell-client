@@ -71,6 +71,8 @@ export type OrganizationTranslations = {
     enterContactPhone: string;
     website: string;
     enterWebsiteURL: string;
+    description: string;
+    enterDescription: string;
     organizationLogo: string;
     uploadLogo: string;
     businessHours: string;
