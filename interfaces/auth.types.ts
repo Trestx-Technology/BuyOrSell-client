@@ -18,12 +18,34 @@ export interface loginResponse {
   };
 }
 
+export interface GoogleSignInPayload {
+  platform: string;
+  idToken: string;
+  accessToken: string;
+}
+
+export interface AppleSignInPayload {
+  platform: string;
+  idToken: string;
+  appleAuthDevice: string;
+  fullName?: string;
+}
+
 export interface SocialLoginPayload {
   firstName: string;
   lastName: string;
+  phoneNo?: string;
   email: string;
+  age?: number;
+  image?: string;
+  dob?: string;
   verifyEmail: boolean;
   countryCode: string;
   deviceKey: string | null;
-  socialType: "google" | "apple";
+  socialType: "google" | "apple" | "twitter";
+  documents?: {
+    name: string;
+    url: string;
+  };
+  appleDeviceId?: string;
 }

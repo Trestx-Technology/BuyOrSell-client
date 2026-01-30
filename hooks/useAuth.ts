@@ -4,8 +4,10 @@ import {
   signUp,
   login,
   changePassword,
+  socialLogin,
   SignUpPayload,
   SignUpResponse,
+  SocialLoginPayload,
   ChangePasswordPayload,
   ChangePasswordResponse,
 } from "@/app/api/auth/auth.services";
@@ -38,6 +40,23 @@ export const useLogin = () => {
 export const useChangePassword = () => {
   return useMutation<ChangePasswordResponse, Error, ChangePasswordPayload>({
     mutationFn: changePassword,
+  });
+};
+
+export const useSocialLogin = () => {
+  const setSession = useAuthStore((state) => state.setSession);
+  return useMutation<loginResponse, Error, SocialLoginPayload>({
+    mutationFn: (payload) => socialLogin(payload),
+    mutationKey: authQueries.socialLogin.Key,
+    onSuccess: async (data) => {
+      if (data.data.accessToken) {
+        await setSession(
+          data.data.accessToken,
+          data.data.refreshToken,
+          data.data.user as any,
+        );
+      }
+    },
   });
 };
 

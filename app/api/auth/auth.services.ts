@@ -6,6 +6,8 @@ import type {
   SocialLoginPayload,
   User,
 } from '@/interfaces/auth.types';
+
+export type { loginResponse, SocialLoginPayload, User };
 import { CookieService } from '@/services/cookie-service';
 import { AUTH_TOKEN_NAMES } from '@/constants/auth.constants';
 import { LocalStorageService } from '@/services/local-storage';

@@ -1,11 +1,10 @@
 "use client";
-import { Typography } from "@/components/typography";
+import { H2, H5, Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
-import { FcGoogle } from "react-icons/fc";
 import React, { useState, Suspense } from "react";
-import { FaApple } from "react-icons/fa";
 import Link from "next/link";
 import { toast } from "sonner";
+import { FirebaseAuthButtons } from "../_components/firebase-auth-buttons";
 import { ChevronLeft, EyeIcon, EyeOffIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "nextjs-toploader/app";
@@ -166,39 +165,35 @@ const LoginContent = () => {
       >
         {t.auth.login.loginButton}
       </Button>
-      <Typography variant="h3" className="text-center text-sm py-6">
+      <H5 className="text-center py-6">
         {t.auth.login.orContinueWith}
-      </Typography>
-      <div className="space-y-2 text-sm sm:text-md font-medium">
-        <Button
-          variant={"ghost"}
-          size={"lg"}
-          className="w-full bg-white border-[#8B31E18A] border text-dark-blue t text-sm"
-          iconPosition={"center"}
-          icon={<FcGoogle />}
-        >
-          {t.auth.login.continueWithGoogle}
-        </Button>
+      </H5>
 
-        <Button
-          variant={"ghost"}
-          className="w-full bg-white border-[#8B31E18A] border text-dark-blue text-center text-sm"
-          size={"lg"}
-          iconPosition={"center"}
-          icon={<FaApple />}
-        >
-          {t.auth.login.continueWithApple}
-        </Button>
-      </div>
-      <Typography
-        variant="h3"
-        className="text-center text-sm mx-auto  absolute left-1/2 -translate-x-1/2  bottom-20 lg:bottom-16 w-fit"
+      <FirebaseAuthButtons
+        onSuccess={async (data) => {
+          // Success is handled by the buttons internally (session set via hook)
+          // Just need to redirect
+          if (redirectTo) {
+            const hasLocale = locales.some(loc => redirectTo.startsWith(`/${loc}/`) || redirectTo === `/${loc}`);
+            if (hasLocale) {
+              router.push(redirectTo);
+            } else {
+              router.push(localePath(redirectTo));
+            }
+          } else {
+            router.push(localePath("/"));
+          }
+        }}
+        onError={(error) => toast.error(error)}
+      />
+      <H5
+        className="text-center mx-auto  absolute left-1/2 -translate-x-1/2  bottom-20 lg:bottom-16 w-fit"
       >
         {t.auth.login.dontHaveAccount}{" "}
         <Link href={localePath("/signup")} className="text-purple m-custom-8 hover:underline">
           {t.auth.login.signUp}
         </Link>
-      </Typography>
+      </H5>
     </section>
   );
 };

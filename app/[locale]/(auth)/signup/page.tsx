@@ -1,12 +1,11 @@
 "use client";
-import { Typography } from "@/components/typography";
+import { H2, H5, Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { FcGoogle } from "react-icons/fc";
 import React, { useState, useMemo } from "react";
-import { FaApple } from "react-icons/fa";
 import Link from "next/link";
 import { toast } from "sonner";
+import { FirebaseAuthButtons } from "../_components/firebase-auth-buttons";
 import {
   ChevronLeft,
   CircleUserRound,
@@ -176,12 +175,11 @@ const Signup = () => {
       >
         <ChevronLeft className="size-5" /> {t.auth.signup.back}
       </Link>
-      <Typography
-        variant="h1"
-        className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
+      <H2
+        className="py-4 text-left font-extrabold"
       >
         {t.auth.signup.title}
-      </Typography>
+      </H2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
         <div>
           <Input
@@ -327,42 +325,26 @@ const Signup = () => {
         isLoading={isVerifyingOtp || verifyPhoneOtpMutation.isPending || signUpMutation.isPending}
       />
 
-      <Typography variant="h3" className="text-center text-sm py-6">
+      <H5 className="text-center text-sm py-6">
         {t.auth.signup.orContinueWith}
-      </Typography>
+      </H5>
 
-      <div className="space-y-2 text-sm sm:text-md font-medium">
+      <FirebaseAuthButtons
+        onSuccess={async (data) => {
+          router.push(localePath("/"));
+        }}
+        onError={(error) => toast.error(error)}
+        className="space-y-3"
+      />
 
-        <Button
-              variant="ghost"
-              size="lg"
-              className="w-full bg-white border-[#8B31E18A] border text-dark-blue text-sm"
-              iconPosition="center"
-              icon={<FcGoogle />}
-            >
-              {t.auth.signup.continueWithGoogle}
-        </Button>
-
-        <Button
-          variant="ghost"
-          className="w-full bg-white border-[#8B31E18A] border text-dark-blue text-sm"
-          size="lg"
-          iconPosition="center"
-          icon={<FaApple />}
-        >
-          {t.auth.signup.continueWithApple}
-        </Button>
-      </div>
-
-      <Typography
-        variant="h3"
-        className="text-center text-sm mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit"
+      <H5
+        className="text-center mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit"
       >
         {t.auth.signup.alreadyHaveAccount}{" "}
         <Link href={localePath("/login")} className="text-purple m-custom-8 hover:underline">
           {t.auth.signup.logIn}
         </Link>
-      </Typography>
+      </H5>
     </section>
   );
 };

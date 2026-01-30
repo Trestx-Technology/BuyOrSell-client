@@ -1,5 +1,5 @@
 "use client";
-import { Typography } from "@/components/typography";
+import { H2, H4, H5, Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
@@ -56,24 +56,24 @@ const ForgotPasswordContent = () => {
         >
           <ChevronLeft className="size-5" /> {t.auth.forgotPassword.back}
         </Link>
-        <Typography
-          variant="h1"
-          className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
+        <H4
+          className="py-4 text-left font-extrabold"
         >
           {t.auth.forgotPassword.checkEmail}
-        </Typography>
+        </H4>
         <div className="space-y-4">
           <div className="flex items-center justify-center py-8">
             <div className="size-20 rounded-full bg-purple-100 flex items-center justify-center">
               <Mail className="size-10 text-purple" />
             </div>
           </div>
-          <Typography variant="h3" className="text-center text-sm">
+          <H5
+            className="text-center text-sm">
             {t.auth.forgotPassword.emailSent}
-          </Typography>
-          <Typography variant="h3" className="text-center text-sm font-semibold">
+          </H5>
+          <H5 className="text-center text-sm font-semibold">
             {email}
-          </Typography>
+          </H5>
           <Typography
             variant="h3"
             className="text-center text-xs text-gray-600 pt-4"
@@ -115,15 +115,16 @@ const ForgotPasswordContent = () => {
       >
         <ChevronLeft className="size-5" /> {t.auth.forgotPassword.back}
       </Link>
-      <Typography
-        variant="h1"
-        className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
+      <H2
+        className="py-4 text-left font-extrabold"
       >
         {t.auth.forgotPassword.title}
-      </Typography>
-      <Typography variant="h3" className="text-sm text-gray-600 pb-6">
+      </H2>
+      <H5
+        className="text-sm text-gray-600 pb-6"
+      >
         {t.auth.forgotPassword.subtitle}
-      </Typography>
+      </H5>
       <div className="space-y-2">
         <Input
           leftIcon={
@@ -160,15 +161,14 @@ const ForgotPasswordContent = () => {
       >
 {t.auth.forgotPassword.sendResetLink}
       </Button>
-      <Typography
-        variant="h3"
-        className="text-center text-sm mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit"
+      <H5
+        className="text-center mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit"
       >
         {t.auth.forgotPassword.rememberPassword}{" "}
         <Link href={localePath("/login")} className="text-purple m-custom-8 hover:underline">
           {t.auth.forgotPassword.logIn}
         </Link>
-      </Typography>
+      </H5>
     </section>
   );
 };
