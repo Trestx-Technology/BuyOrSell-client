@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "@/hooks/useLocale";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,6 +38,8 @@ export default function JobLeafCategoryPage() {
       const router = useRouter();
       const { session } = useAuthStore((state) => state);
       const { categoryArray } = useAdPostingStore((state) => state);
+      const searchParams = useSearchParams();
+      const initialPrompt = searchParams.get("prompt");
       const createAdMutation = useCreateAd();
       const [selectedLocation, setSelectedLocation] = useState<{
             address: string;
@@ -79,6 +81,13 @@ export default function JobLeafCategoryPage() {
             },
             mode: "onChange",
       });
+
+      // Pre-fill description from AI prompt if available
+      useMemo(() => {
+            if (initialPrompt && category) {
+                  setValue("description", initialPrompt);
+            }
+      }, [initialPrompt, category, setValue]);
 
       // Handle input change (wrapper for setValue)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

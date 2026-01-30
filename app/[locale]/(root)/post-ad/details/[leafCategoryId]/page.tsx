@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "@/hooks/useLocale";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,7 +41,37 @@ export default function LeafCategoryPage() {
   const { leafCategoryId } = useParams<{ leafCategoryId: string }>();
   const router = useRouter();
   const { session } = useAuthStore((state) => state);
-  const { categoryArray } = useAdPostingStore((state) => state);
+  const { categoryArray, addToCategoryArray, clearCategoryArray, setActiveCategory } = useAdPostingStore((state) => state);
+  const searchParams = useSearchParams();
+  const initialPrompt = searchParams.get("prompt");
+  const categoryPathParam = searchParams.get("categoryPath");
+
+  // Hydrate store from URL params if available (handling AI redirection)
+  useMemo(() => {
+    if (categoryPathParam) {
+      try {
+        const hierarchy = JSON.parse(decodeURIComponent(categoryPathParam));
+        // Check if we need to update the store (avoid infinite loops if already matches)
+        const currentIds = categoryArray.map(c => c.id).join(',');
+        const newIds = hierarchy.map((c: any) => c.id).join(',');
+
+        if (currentIds !== newIds) {
+          clearCategoryArray();
+          hierarchy.forEach((cat: any) => {
+            addToCategoryArray({
+              id: cat.id,
+              name: cat.name
+            });
+          });
+          if (hierarchy.length > 0) {
+            setActiveCategory(hierarchy[hierarchy.length - 1].id);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to parse category hierarchy from URL", error);
+      }
+    }
+  }, [categoryPathParam, clearCategoryArray, addToCategoryArray, setActiveCategory, categoryArray]);
   const createAdMutation = useCreateAd();
   const [selectedLocation, setSelectedLocation] = useState<{
     address: string;
@@ -87,6 +117,13 @@ export default function LeafCategoryPage() {
     },
     mode: "onChange",
   });
+
+  // Pre-fill description from AI prompt if available
+  useMemo(() => {
+    if (initialPrompt && category) {
+      setValue("description", initialPrompt);
+    }
+  }, [initialPrompt, category, setValue]);
   
 
 
