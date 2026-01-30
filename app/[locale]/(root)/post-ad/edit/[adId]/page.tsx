@@ -603,7 +603,7 @@ export default function EditAdPage() {
                                                                         handleInputChange("video", videoUrl);
                                                                   }}
                                                                   maxFileSize={5}
-                                                                  maxDuration={30}
+                                                                  maxDuration={300}
                                                                   acceptedFileTypes={[
                                                                         "video/mp4",
                                                                         "video/webm",

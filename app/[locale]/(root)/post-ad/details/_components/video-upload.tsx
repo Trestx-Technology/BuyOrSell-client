@@ -61,7 +61,7 @@ export function VideoUpload({
   video = null,
   onVideoChange,
   maxFileSize = 100,
-  maxDuration = 30,
+  maxDuration = 300, // in seconds (increased from 30)
   acceptedFileTypes = ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo"],
   showUploadArea = true,
   className,

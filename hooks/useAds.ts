@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
 import {
   getAds,
   getAdById,
@@ -40,6 +45,24 @@ export const useAds = (params?: AdFilters) => {
   return useQuery<GetLiveAdsResponse, Error>({
     queryKey: [...adQueries.ads.Key, params],
     queryFn: () => getAds(params),
+  });
+};
+
+// Infinite scroll ads
+export const useInfiniteAds = (params?: AdFilters) => {
+  return useInfiniteQuery<GetLiveAdsResponse, Error>({
+    queryKey: [...adQueries.ads.Key, "infinite", params],
+    queryFn: ({ pageParam = 1 }) =>
+      getAds({ ...params, page: pageParam as number }),
+    getNextPageParam: (lastPage) => {
+      const currentPage = lastPage.data?.page || lastPage.page || 1;
+      const totalPages = Math.ceil(
+        (lastPage.data?.total || lastPage.total || 0) /
+          (lastPage.data?.limit || lastPage.limit || 10),
+      );
+      return currentPage < totalPages ? currentPage + 1 : undefined;
+    },
+    initialPageParam: 1,
   });
 };
 
@@ -232,7 +255,7 @@ export const useFilterAds = (
   payload: AdFilterPayload,
   page?: number,
   limit?: number,
-  enabled: boolean = true
+  enabled: boolean = true,
 ) => {
   return useQuery<GetLiveAdsResponse, Error>({
     queryKey: [...adQueries.filterAds.Key, payload, page, limit],
@@ -246,7 +269,7 @@ export const useAdsByKeyword = (
   keyword: string,
   params?: {
     userId?: string;
-  }
+  },
 ) => {
   return useQuery<GetKeywordSearchResponse, Error>({
     queryKey: [...adQueries.adsByKeyword(keyword, params).Key],
@@ -262,7 +285,7 @@ export const useSimilarAds = (
     viewerId?: string;
     page?: number;
     limit?: number;
-  }
+  },
 ) => {
   return useQuery<GetLiveAdsResponse, Error>({
     queryKey: [...adQueries.similarAds(id).Key, params],

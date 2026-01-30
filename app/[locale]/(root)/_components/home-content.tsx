@@ -12,6 +12,7 @@ import CategoryTabbedCarousel from "@/components/global/category-tabbed-carousel
 import JobsTabbedCarousel from "@/components/global/jobs-tabbed-carousel";
 import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "nextjs-toploader/app";
+import { VideoAdCarousel } from "./video-ad-carousel";
 
 export function HomeContent() {
   const { data: homeData, isLoading } = useHome();
@@ -34,6 +35,9 @@ export function HomeContent() {
           popularCategories={homeData?.data?.popularCategories}
           isLoading={isLoading}
         />
+
+        <VideoAdCarousel />
+
 
         <div className="my-8 space-y-5">
           <HostDeals
