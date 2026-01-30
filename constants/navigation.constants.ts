@@ -83,6 +83,15 @@ export const REGULAR_NAVIGATION_ITEMS: NavigationItem[] = [
     alt: "Offers",
   },
   {
+    id: "my-subscriptions",
+    type: "link",
+    href: "/my-subscriptions",
+    translationKey: "mySubscriptions",
+    icon: ICONS.navigation.offersPackages, // Using same icon as Offers/Packages for now, or maybe a new one if available. Using offersPackages as safe bet.
+    iconType: "image",
+    alt: "My Subscriptions",
+  },
+  {
     id: "settings",
     type: "link",
     href: "/user/profile/settings",

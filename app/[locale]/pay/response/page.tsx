@@ -30,8 +30,8 @@ function ResponseContent() {
 
     if (data?.data?.status === "succeeded") {
       const timer = setTimeout(() => {
-        // router.push("/");
-      }, 3000);
+        router.push("/my-subscriptions");
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [data, router, pathname, searchParams]);
@@ -65,13 +65,13 @@ function ResponseContent() {
           {data.message || "Your payment has been processed successfully."}
         </p>
         <div className="animate-pulse text-sm text-purple-600 font-medium mb-6">
-          Redirecting to home in a few seconds...
+          Redirecting to subscriptions in a few seconds...
         </div>
         <Button 
-          onClick={() => router.push("/")} 
+          onClick={() => router.push("/my-subscriptions")} 
             className="w-full"
         >
-            Return to Home
+          View My Subscriptions
         </Button>
       </div>
     );
