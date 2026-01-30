@@ -15,6 +15,7 @@ import { ColorPickerInput } from "./ColorPickerInput";
 import { MultipleImageInput, ImageItem as MultipleImageItem } from "./MultipleImageInput";
 import { MapComponent } from "./MapComponent";
 import { ImageItem } from "./image-upload";
+import { useAdPostingStore, type CategoryBreadcrumbItem } from "@/stores/adPostingStore";
 
 export type FormValues = Record<string, string | number | boolean | string[] | MultipleImageItem[] | ImageItem[] | {
   state?: string;
@@ -103,6 +104,10 @@ export const DynamicFieldRenderer = ({
 
     case "textArea":
     case "testArea":
+      const isDescriptionField = field.name.toLowerCase().includes("description");
+      const categoryArray = useAdPostingStore.getState().categoryArray;
+      const breadcrumbPath = categoryArray.map((item: CategoryBreadcrumbItem) => item.name).join(" > ");
+
       return (
         <FormField
           key={field.name}
@@ -129,6 +134,8 @@ export const DynamicFieldRenderer = ({
                 rows={4}
                 maxLength={field.max}
                 error={fieldError}
+                showAI={isDescriptionField}
+                categoryPath={breadcrumbPath || field.name}
               />
             )}
           />

@@ -373,24 +373,26 @@ export default function JobLeafCategoryPage() {
                                           error={errors.description?.message as string}
                                           fullWidth
                                     >
-                                          <Controller
-                                                name="description"
-                                                control={control}
-                                                rules={{ required: "Job description is required" }}
-                                                render={({ field }) => (
-                                                      <TextareaInput
-                                                            value={(field.value as string) || ""}
-                                                            onChange={(val) => {
-                                                                  field.onChange(val);
-                                                                  handleInputChange("description", val);
-                                                            }}
-                                                            placeholder="Enter job description"
-                                                            rows={6}
-                                                            maxLength={2000}
-                                                            error={errors.description?.message as string}
-                                                      />
-                                                )}
-                                          />
+                                                <Controller
+                                                      name="description"
+                                                      control={control}
+                                                      rules={{ required: "Job description is required" }}
+                                                      render={({ field }) => (
+                                                            <TextareaInput
+                                                                  value={(field.value as string) || ""}
+                                                                  onChange={(val) => {
+                                                                        field.onChange(val);
+                                                                        handleInputChange("description", val);
+                                                                  }}
+                                                                  placeholder="Enter job description"
+                                                                  rows={6}
+                                                                  maxLength={2000}
+                                                                  error={errors.description?.message as string}
+                                                                  showAI={true}
+                                                                  categoryPath={categoryArray.map((c) => c.name).join(" > ") || category?.name || "Jobs"}
+                                                            />
+                                                      )}
+                                                />
                                     </FormField>
 
                                           {/* Salary Range */}

@@ -460,8 +460,10 @@ export default function LeafCategoryPage() {
                     }}
                     placeholder="Enter ad description"
                     rows={4}
-                    maxLength={500}
+                    maxLength={2000}
                     error={errors.description?.message as string}
+                    showAI={true}
+                    categoryPath={categoryArray.map((c) => c.name).join(" > ") || category?.name || "General"}
                   />
                 )}
               />

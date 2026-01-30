@@ -13,10 +13,6 @@ const MODEL = process.env.OPENAI_MODEL || "gpt-4.1-nano"; // Fallback to valid m
 // Proofread and improve message
 export async function proofreadMessage(message: string): Promise<string> {
   try {
-    console.log("Server action called with message:", message);
-    console.log("API key exists:", !!process.env.OPENAI_API_KEY);
-    console.log("Environment:", process.env.NODE_ENV);
-
     if (!process.env.OPENAI_API_KEY) {
       console.log("No OpenAI API key found, returning fallback message");
       return `[AI Proofread] ${message}`;
@@ -64,8 +60,6 @@ Make it:
 - Error-free and natural`,
         },
       ],
-      max_completion_tokens: 200,
-      temperature: 0.3,
     });
 
     return response.choices[0]?.message?.content || message;
@@ -120,8 +114,6 @@ The message should:
 - Be specific to the item type and category`,
         },
       ],
-      max_completion_tokens: 300,
-      temperature: 0.7,
     });
 
     return (
@@ -136,7 +128,7 @@ The message should:
 
 // Generate negotiation message
 export async function generateNegotiation(
-  originalPrice: string
+  originalPrice: string,
 ): Promise<string> {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -182,8 +174,6 @@ The message should:
 - End with a casual closing`,
         },
       ],
-      max_completion_tokens: 250,
-      temperature: 0.6,
     });
 
     return (
@@ -201,7 +191,7 @@ export async function generateMeetingRequest(): Promise<string> {
   try {
     if (!process.env.OPENAI_API_KEY) {
       console.log(
-        "No OpenAI API key found, returning fallback meeting request"
+        "No OpenAI API key found, returning fallback meeting request",
       );
       return "Hi! I'd like to arrange a meeting to view the item. When would be a convenient time for you?";
     }
@@ -244,8 +234,6 @@ The message should:
 - End with a casual closing`,
         },
       ],
-      max_completion_tokens: 250,
-      temperature: 0.6,
     });
 
     return (
@@ -261,7 +249,7 @@ The message should:
 // Translate message
 export async function translateMessage(
   message: string,
-  targetLanguage: string = "English"
+  targetLanguage: string = "English",
 ): Promise<string> {
   try {
     if (!process.env.OPENAI_API_KEY) {
@@ -310,13 +298,67 @@ Requirements:
 - Keep any technical terms accurate`,
         },
       ],
-      max_completion_tokens: 200,
-      temperature: 0.3,
     });
 
     return response.choices[0]?.message?.content || message;
   } catch (error) {
     console.error("Error translating message:", error);
     return message;
+  }
+}
+
+// Generate ad/job description
+export async function generateDescription(
+  categoryPath: string,
+  userPrompt?: string,
+  existingDescription?: string,
+): Promise<string> {
+  try {
+    if (!process.env.OPENAI_API_KEY) {
+      return (
+        existingDescription ||
+        `Excellent ${categoryPath} for sale. Please contact for details.`
+      );
+    }
+
+    const response = await openai.chat.completions.create({
+      model: MODEL,
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert copywriter for "BuyOrSell".
+Write a high-quality, professional description for a listing.
+
+GUIDELINES:
+1. SAFETY: Do NOT generate offensive or harmful content.
+2. LENGTH: Max 2000 characters.
+3. CONTEXT: Category is "${categoryPath}".
+4. TONE: Professional and appealing.
+5. FORMAT: Use clear paragraphs with double newlines (\n\n) between them. Use bullet points for lists to ensure great readability.
+6. NO LINKS: Do not include external links or contact info.`,
+        },
+        {
+          role: "user",
+          content: `Category: "${categoryPath}"
+${userPrompt ? `Notes: "${userPrompt}"` : ""}
+${existingDescription ? `Original: "${existingDescription}"` : "Create a new description."}`,
+        },
+      ],
+    });
+
+    let content = response.choices[0]?.message?.content || "";
+
+    if (!content && response.choices[0]?.finish_reason === "content_filter") {
+      return "I'm sorry, but I couldn't generate a description for this request. Please try a different or more specific prompt.";
+    }
+
+    // Safety check on the output (redundant but good practice)
+    if (content.length > 2000) {
+      content = content.substring(0, 1997) + "...";
+    }
+
+    return content;
+  } catch (error: any) {
+    return existingDescription || "";
   }
 }
