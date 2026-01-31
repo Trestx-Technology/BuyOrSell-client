@@ -15,6 +15,7 @@ export const transformAdToListingCard = (
   locale?: Locale
 ): ListingCardProps => {
   const isArabic = locale === "ar";
+
   // Extract location
   const getLocation = (): string => {
     // Helper function to safely get and trim string values
@@ -82,25 +83,17 @@ export const transformAdToListingCard = (
   // Convert extraFields array to flat object for ListingCard
   // extraFields can be an array of {name, type, value, optionalArray} or already a flat object
   // extraFields is optional and may not be present in all ads
-  const normalizeExtraFields = (): Record<
-    string,
-    string | number | boolean | string[] | null
-  > => {
+  const normalizeExtraFields = (): Record<string, any> => {
     if (!ad.extraFields) return {};
 
     // If it's already an object (Record), return it
     if (!Array.isArray(ad.extraFields)) {
-      return ad.extraFields as Record<
-        string,
-        string | number | boolean | string[] | null
-      >;
+      return ad.extraFields;
     }
 
-    // If it's an array, convert to flat object
-    const flatFields: Record<
-      string,
-      string | number | boolean | string[] | null
-    > = {};
+    // If it's an array, convert to flat object map where key is name and value is the full field object
+    // This preserves icon and other metadata which normalizeExtraFieldsToArray can now handle
+    const flatFields: Record<string, any> = {};
     ad.extraFields.forEach((field) => {
       if (
         field &&
@@ -108,11 +101,11 @@ export const transformAdToListingCard = (
         "name" in field &&
         "value" in field
       ) {
-        flatFields[field.name] = field.value;
+        flatFields[field.name] = field;
       }
     });
     return flatFields;
-  };
+  };;
 
   const extraFields = normalizeExtraFields();
 

@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ListingActions } from "./listing-actions";
+import { BASE64 } from "@/constants/base64";
 
 interface ListingImageGalleryProps {
   id: string;
@@ -24,6 +25,40 @@ interface ListingImageGalleryProps {
   onToggleSave: (isAdded: boolean) => void;
   isSaved: boolean;
 }
+
+const GalleryImage = ({
+  src,
+  alt,
+  index,
+}: {
+  src: string;
+  alt: string;
+  index: number;
+}) => {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return (
+      <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+        <ImageOff className="text-gray-300 w-10 h-10" />
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      className="object-cover"
+      priority={index === 0}
+      placeholder="blur"
+      blurDataURL={BASE64}
+      loading={index === 0 ? "eager" : "lazy"}
+      onError={() => setHasError(true)}
+    />
+  );
+};
 
 export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
   id,
@@ -118,13 +153,10 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
                 key={`${id}-image-${index}`}
                 className="w-full h-full flex-shrink-0 relative"
               >
-                <Image
+                <GalleryImage
                   src={image}
                   alt={`${title} - Image ${index + 1}`}
-                  fill
-                  className="object-cover"
-                  priority={index === 0}
-                  loading={index === 0 ? "eager" : "lazy"}
+                  index={index}
                 />
               </div>
             ))}

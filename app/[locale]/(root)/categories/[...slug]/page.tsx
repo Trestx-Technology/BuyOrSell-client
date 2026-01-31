@@ -259,7 +259,6 @@ export default function CategoryListingPage() {
                 // Use extraFields as-is from transformed ad (already in correct format)
                 // The transformAdToListingCard already converts it to a flat object
                 const extraFields = ad.extraFields || {};
-
                 // Prepare seller info for MobileHorizontalListViewCard
                 const sellerInfo = ad.seller
                   ? {

@@ -9,7 +9,7 @@ import { ProductExtraField, ProductExtraFields } from "@/interfaces/ad";
  * @returns Array of ProductExtraField objects, or empty array if invalid
  */
 export const normalizeExtraFieldsToArray = (
-  extraFields: ProductExtraFields | undefined | null
+  extraFields: ProductExtraFields | undefined | null,
 ): ProductExtraField[] => {
   // Return empty array if extraFields is null, undefined, or empty
   if (!extraFields) {
@@ -23,13 +23,29 @@ export const normalizeExtraFieldsToArray = (
         field !== null &&
         field !== undefined &&
         typeof field === "object" &&
-        "name" in field
+        "name" in field,
     );
   }
 
   // If it's an object/Record, convert to array format
   if (typeof extraFields === "object") {
-    return Object.entries(extraFields).map(([name, value]) => {
+    return Object.entries(extraFields).map(([name, rawValue]) => {
+      let value = rawValue;
+      let icon: string | undefined = undefined;
+
+      // Check if rawValue is an object with 'value' property (and isn't an array)
+      // This handles cases where the field data is stored as { value: "...", icon: "..." }
+      if (
+        rawValue &&
+        typeof rawValue === "object" &&
+        !Array.isArray(rawValue) &&
+        "value" in rawValue
+      ) {
+        value = (rawValue as any).value;
+        icon = (rawValue as any).icon;
+        name = (rawValue as any).name;
+      }
+
       // Determine type from value
       let fieldType = "string";
       if (typeof value === "number") {
@@ -44,6 +60,7 @@ export const normalizeExtraFieldsToArray = (
         name,
         type: fieldType,
         value,
+        icon,
       } as ProductExtraField;
     });
   }
@@ -62,10 +79,9 @@ export const normalizeExtraFieldsToArray = (
  */
 export const getSpecifications = (
   extraFields: ProductExtraFields | undefined | null,
-  limit?: number
+  limit?: number,
 ): Array<{ name: string; value: string; icon?: string }> => {
   const normalizedFields = normalizeExtraFieldsToArray(extraFields);
-
   return normalizedFields
     .filter((field) => {
       // Only include fields with single values (not arrays)

@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { HotDealsActions } from "./hot-deals-actions";
 import { DealTimer } from "@/components/global/deal-timer";
+import { BASE64 } from "@/constants/base64";
 
 interface HotDealsImageGalleryProps {
   id: string;
@@ -103,6 +104,8 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
                   src={image}
                   alt={`${title} - Image ${index + 1}`}
                   fill
+                  placeholder="blur"
+                  blurDataURL={BASE64}
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
