@@ -2,21 +2,29 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
+import { X, Send } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
-type Message = { role: "assistant" | "user"; content: string };
+type Message = {
+  role: "assistant" | "user";
+  content: string;
+  action?: { label: string; url: string };
+};
+
+import { searchWithAI } from "@/lib/ai/searchWithAI";
 
 export default function FloatingChatCTA() {
   const [open, setOpen] = React.useState(false);
   const [messages, setMessages] = React.useState<Message[]>([
     {
       role: "assistant",
-      content: "Hi! I’m your AI assistant. How can I help today?",
+      content: "Hi! I’m your AI assistant. I can help you find products, navigate the site, or answer questions about BuyOrSell.",
     },
   ]);
   const [input, setInput] = React.useState("");
+  const [isTyping, setIsTyping] = React.useState(false);
   const logRef = React.useRef<HTMLDivElement | null>(null);
   const audioContextRef = React.useRef<AudioContext | null>(null);
 
@@ -95,26 +103,156 @@ export default function FloatingChatCTA() {
       top: logRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages]);
+  }, [messages, isTyping]);
+
+  const processQuery = async (text: string): Promise<{ content: string; action?: { label: string; url: string } }> => {
+    const lower = text.toLowerCase();
+
+    // 1. Job Search & Posting
+    if (lower.match(/(post|create).*(job|vacancy|opening)/)) {
+      return {
+        content: "You can post a new job listing here.",
+        action: { label: "Post a Job", url: "/post-job" }
+      };
+    }
+    if (lower.includes("job") || lower.includes("hiring") || lower.includes("work") || lower.includes("vacancy") || lower.includes("career")) {
+      return {
+        content: "Explore the latest career opportunities on our Jobs page.",
+        action: { label: "Browse Jobs", url: "/jobs/listing" }
+      };
+    }
+
+    // 2. Ad Posting (Selling)
+    if (lower.includes("sell") || lower.match(/(post|create).*(ad|listing)/)) {
+      return {
+        content: "Ready to sell? You can post an ad quickly.",
+        action: { label: "Post an Ad", url: "/post-ad" }
+      };
+    }
+
+    // 3. User & Dashboard
+    if (lower.includes("profile") || lower.includes("account") || lower.includes("settings")) {
+      return {
+        content: "Manage your account and settings in your profile.",
+        action: { label: "Go to Profile", url: "/user/profile" } // Assuming this route
+      };
+    }
+    if (lower.includes("favorite") || lower.includes("saved") || lower.includes("wishlist")) {
+      return {
+        content: "View your saved items and favorites.",
+        action: { label: "My Favorites", url: "/favorites" }
+      };
+    }
+    if (lower.includes("map") || lower.includes("location") || lower.includes("near me")) {
+      return {
+        content: "Explore items and properties on the map view.",
+        action: { label: "Open Map", url: "/map-view" }
+      };
+    }
+
+    // 4. Support & Info
+    if (lower.includes("help") || lower.includes("support") || lower.includes("issue") || lower.includes("ticket")) {
+      return {
+        content: "Need assistance? Our Help Center is here for you.",
+        action: { label: "Visit Help Center", url: "/help-centre" }
+      };
+    }
+    if (lower.includes("contact") || lower.includes("email") || lower.includes("phone")) {
+      return {
+        content: "Get in touch with our support team.",
+        action: { label: "Contact Us", url: "/contact-us" }
+      };
+    }
+    if (lower.includes("about") || lower.includes("who are you")) {
+      return {
+        content: "BuyOrSell is your one-stop marketplace for everything in the UAE.",
+        action: { label: "About Us", url: "/about-us" } // Assuming route
+      };
+    }
+
+    // 5. Search Logic (Products & General)
+    if (lower.includes("find") || lower.includes("search") || lower.includes("looking for") || lower.includes("buy")) {
+      try {
+        const { success, results, searchQuery } = await searchWithAI(text);
+
+        if (success && results && results.length > 0) {
+          const count = results.length;
+          const firstItem = results[0];
+
+          // Intelligent routing based on result type
+          let targetUrl = `/search?search=${encodeURIComponent(searchQuery)}`;
+          let label = `View ${count} Results`;
+
+          if (firstItem.adType === "JOB" || (firstItem.category && firstItem.category.toLowerCase().includes("job"))) {
+            targetUrl = `/jobs/listing?search=${encodeURIComponent(searchQuery)}`;
+            label = "View Job Matches";
+          } else if (firstItem.category) {
+            // If robust category slug is available, use it, else fallback to search
+            // targetUrl = `/categories/${firstItem.category.toLowerCase()}`;
+          }
+
+          const topNames = results.slice(0, 2).map((item: any) => item.title).join(", ");
+
+          return {
+            content: `I found ${count} items matching "${searchQuery}", such as: ${topNames}...`,
+            action: { label: label, url: targetUrl }
+          };
+        } else {
+          return {
+            content: `I couldn't find exact matches for "${searchQuery}". Try browsing our categories.`,
+            action: { label: "Browse Categories", url: "/categories" }
+          };
+        }
+
+      } catch (err) {
+        console.error("AI Search in Chat failed", err);
+        return {
+          content: "I'm having trouble searching specifically right now. Please try our main search.",
+          action: { label: "Search", url: "/search" }
+        };
+      }
+    }
+
+    // Greeting & Fallback
+    if (lower.match(/^(hi|hello|hey|greetings)/)) {
+      return { content: "Hello! I can help you find products, jobs, or guide you around the site." };
+    }
+
+    return {
+      content: "I'm not sure specifically, but you can explore our main sections.",
+      action: { label: "Go Home", url: "/" }
+    };
+  };
 
   function handleSend(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = input.trim();
     if (!trimmed) return;
+
     setMessages((prev) => [...prev, { role: "user", content: trimmed }]);
     setInput("");
+    setIsTyping(true);
 
-    // Mock assistant reply
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            "Thanks! I'm a demo chat. Connect me to your backend or AI SDK when you're ready.",
-        },
-      ]);
-    }, 600);
+    // Process asynchronously
+    // Use an IIFE or similar to handle the async promise without blocking the UI updates above
+    (async () => {
+      // Minimum delay for realism
+      const startTime = Date.now();
+      const response = await processQuery(trimmed);
+      const elapsedTime = Date.now() - startTime;
+      const remainingDelay = Math.max(0, 800 - elapsedTime);
+
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            ...response
+          },
+        ]);
+        setIsTyping(false);
+      }, remainingDelay);
+    })();
   }
 
   // Audio notification function
@@ -235,6 +373,7 @@ export default function FloatingChatCTA() {
                 aria-relevant="additions"
               >
                 <ul className="space-y-2">
+                  {/* Messages */}
                   {messages.map((m, i) => (
                     <li
                       key={i}
@@ -253,8 +392,30 @@ export default function FloatingChatCTA() {
                       >
                         {m.content}
                       </div>
+
+                      {/* Action Link */}
+                      {m.role === "assistant" && m.action && (
+                        <div className="mt-1 text-left">
+                          <Link href={m.action.url} className="inline-flex items-center text-xs text-purple-600 hover:text-purple-700 font-medium bg-purple-50 px-2 py-1 rounded-full border border-purple-100 transition-colors">
+                            {m.action.label} ↗
+                          </Link>
+                        </div>
+                      )}
                     </li>
                   ))}
+
+                  {/* Typing Indicator */}
+                  {isTyping && (
+                    <li className="text-left">
+                      <div className="inline-block rounded-lg px-3 py-2 bg-gray-100 dark:bg-gray-800">
+                        <div className="flex gap-1">
+                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                      </div>
+                    </li>
+                  )}
                 </ul>
               </div>
 
@@ -280,11 +441,11 @@ export default function FloatingChatCTA() {
                 <button
                   type="submit"
                   className={cn(
-                    "inline-flex items-center gap-1 rounded-md bg-purple-600 px-3 py-2 text-sm font-medium text-white",
+                    "inline-flex items-center justify-center gap-1 rounded-md bg-purple-600 p-2 text-sm font-medium text-white",
                     "hover:bg-purple-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
                   )}
                 >
-                  Send
+                  <Send className="h-4 w-4" />
                 </button>
               </form>
             </motion.div>
