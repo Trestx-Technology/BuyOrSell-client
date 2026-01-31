@@ -10,7 +10,7 @@ interface MessageInputProps {
   value: string;
   onChange: (value: string) => void;
   onSend: () => void;
-  onAIMessageGenerated: (message: string) => void;
+  onAIMessageGenerated?: (message: string) => void;
   itemTitle?: string;
   itemPrice?: string;
   placeholder?: string;
@@ -91,7 +91,7 @@ export function MessageInput({
     <div className="border-t border-gray-200 bg-purple/10 p-4">
       <div className="flex items-center gap-3">
         <AIFeaturesPopover
-          onMessageGenerated={onAIMessageGenerated}
+          onMessageGenerated={onAIMessageGenerated ? onAIMessageGenerated : () => { }}
           currentMessage={value}
           itemTitle={itemTitle}
           itemPrice={itemPrice}

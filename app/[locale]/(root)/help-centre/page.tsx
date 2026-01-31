@@ -1,317 +1,94 @@
 "use client";
 
-import { useState } from "react";
-import { mockAds } from "@/constants/sample-listings";
-import { ChatSidebar } from "./_components/ChatSidebar";
-import { ChatHeader } from "./_components/ChatHeader";
-import { MessagesList } from "./_components/MessagesList";
-import { MessageInput } from "./_components/MessageInput";
+import { useTicketStats, useUserTickets } from "@/hooks/useTickets";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Plus, Ticket as TicketIcon } from "lucide-react";
+import { TicketsList } from "@/components/help-center/TicketsList";
+import { useAuthStore } from "@/stores/authStore";
+import React from "react";
+import { H2, H5 } from "@/components/typography";
 
-// Mock chat data
-const mockChats = [
-  {
-    id: "1",
-    name: "Premium Auto Collection",
-    avatar: mockAds[0].images[0],
-    lastMessage: "Dubai, I/A. Sharjah...",
-    time: "00:13",
-    unreadCount: 1,
-    isVerified: true,
-    isOnline: true,
-  },
-  {
-    id: "2",
-    name: "Giana Carder",
-    avatar: mockAds[1].images[0],
-    lastMessage: "Hey",
-    time: "00:17",
-    unreadCount: 0,
-    isVerified: false,
-    isOnline: false,
-  },
-  {
-    id: "3",
-    name: "Alena Passaquindici Ar..",
-    avatar: mockAds[2].images[0],
-    lastMessage: "Hey",
-    time: "18:56",
-    unreadCount: 1,
-    isVerified: false,
-    isOnline: false,
-  },
-  {
-    id: "4",
-    name: "Jocelyn Carder",
-    avatar: mockAds[3].images[0],
-    lastMessage: "Please join.",
-    time: "Yesterday",
-    unreadCount: 0,
-    isVerified: false,
-    isOnline: false,
-    isRead: true,
-  },
-  {
-    id: "5",
-    name: "Kaylynn Vetrovs",
-    avatar: mockAds[4].images[0],
-    lastMessage: "Thank you.",
-    time: "Yesterday",
-    unreadCount: 0,
-    isVerified: false,
-    isOnline: false,
-    isRead: true,
-  },
-  {
-    id: "6",
-    name: "Mira Passaquindici Ar..",
-    avatar: mockAds[5].images[0],
-    lastMessage: "Okay.",
-    time: "Yesterday",
-    unreadCount: 1,
-    isVerified: false,
-    isOnline: false,
-  },
-  {
-    id: "7",
-    name: "Giana Carder",
-    avatar: mockAds[6].images[0],
-    lastMessage: "Fine.",
-    time: "10/16/20",
-    unreadCount: 0,
-    isVerified: false,
-    isOnline: false,
-    isRead: true,
-  },
-  {
-    id: "8",
-    name: "Giana Carder",
-    avatar: mockAds[7].images[0],
-    lastMessage: "Let's see.",
-    time: "10/16/20",
-    unreadCount: 0,
-    isVerified: false,
-    isOnline: false,
-    isRead: true,
-  },
-];
+export default function HelpCenterDashboard() {
+  const session = useAuthStore((state) => state.session);
+  const userId = session?.user?._id || (session?.user as any)?.id;
 
-// Initial messages for the active chat
-const initialMessages = [
-  {
-    id: "1",
-    text: "Thanks!",
-    time: "18:16",
-    isFromUser: true,
-    isRead: true,
-  },
-  {
-    id: "2",
-    text: "What's your shop address?",
-    time: "18:16",
-    isFromUser: true,
-    isRead: true,
-  },
-  {
-    id: "3",
-    text: "What's the price?",
-    time: "18:16",
-    isFromUser: false,
-    isRead: true,
-  },
-  {
-    id: "4",
-    text: "Okay wil reach there 😄",
-    time: "18:16",
-    isFromUser: true,
-    isRead: true,
-  },
-  {
-    id: "5",
-    text: "Dubai, 1/A, Sharjah street",
-    time: "18:12",
-    isFromUser: false,
-    isRead: true,
-  },
-];
-
-export default function ChatPage() {
-  const [activeChat, setActiveChat] = useState("");
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState(initialMessages);
-  const [isTyping, setIsTyping] = useState(false);
-
-  const currentChat = mockChats.find((chat) => chat.id === activeChat);
-
-  const getCurrentTime = () => {
-    const now = new Date();
-    return now.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-  };
-
-  const handleSendMessage = () => {
-    if (message.trim()) {
-      const newMessage = {
-        id: Date.now().toString(),
-        text: message.trim(),
-        time: getCurrentTime(),
-        isFromUser: true,
-        isRead: false,
-      };
-
-      setMessages((prev) => [...prev, newMessage]);
-      setMessage("");
-
-      // Show typing indicator
-      setIsTyping(true);
-
-      // Simulate a response after 1-2 seconds
-      setTimeout(() => {
-        setIsTyping(false);
-
-        const responses = [
-          "Thanks for your message!",
-          "I'll get back to you soon.",
-          "Let me check that for you.",
-          "That sounds good!",
-          "I understand. Let me help you with that.",
-        ];
-
-        const randomResponse =
-          responses[Math.floor(Math.random() * responses.length)];
-        const responseMessage = {
-          id: (Date.now() + 1).toString(),
-          text: randomResponse,
-          time: getCurrentTime(),
-          isFromUser: false,
-          isRead: true,
-        };
-
-        setMessages((prev) => [...prev, responseMessage]);
-      }, 1000 + Math.random() * 1000);
-    }
-  };
-
-  const handleAIMessageGenerated = (generatedMessage: string) => {
-    setMessage(generatedMessage);
-  };
-
-  const handleChatSelect = (chatId: string) => {
-    setActiveChat(chatId);
-  };
-
-  const handleBackToSidebar = () => {
-    setActiveChat(""); // Reset to no chat selected
-  };
-
-  const handleBack = () => {
-    // Handle back navigation
-    console.log("Navigate back");
-  };
-
-  const handleSearch = () => {
-    // Handle search functionality
-    console.log("Search messages");
-  };
-
-  const handleCall = () => {
-    // Handle call functionality
-    console.log("Start call");
-  };
-
-  const handleMoreOptions = () => {
-    // Handle more options
-    console.log("Show more options");
-  };
-
+  const stats = useTicketStats(userId || "");
+  const { tickets, isLoading } = useUserTickets(userId || "");
+  console.log(tickets);
   return (
-    <Container1080 className="h-full flex relative">
-      {/* Full Width Sidebar - When no chat is selected */}
-      {!currentChat && (
-        <div className="w-full flex h-full bg-white">
-          {/* Sidebar */}
-          <div className="w-80 lg:w-96 border-r border-gray-200">
-            <ChatSidebar
-              chats={mockChats}
-              activeChat={activeChat}
-              onChatSelect={handleChatSelect}
-              onBack={handleBack}
-            />
-          </div>
-
-          {/* Empty State Message */}
-          <div className="flex-1 flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg
-                  className="w-8 h-8 text-purple-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Select a chat to continue
-              </h3>
-              <p className="text-gray-500 max-w-sm">
-                Choose a conversation from the left sidebar to start chatting
-                with other users.
-              </p>
-            </div>
-          </div>
+    <Container1080 className="py-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Help Center</h1>
+          <p className="text-gray-500 mt-1">Manage your support tickets and get help.</p>
         </div>
-      )}
+        <div className="flex gap-3">
+          <Link href="/help-centre/messages">
+            <Button variant="outline">Messages</Button>
+          </Link>
+          <Link href="/help-centre/my-tickets">
+            <Button variant="outline">My Tickets</Button>
+          </Link>
+          <Link href="/help-centre/new">
+            <Button
+              icon={
+                <Plus className="w-4 h-4 -mr-2" />
+              }
+              iconPosition="center"
+              className="bg-purple-600 hover:bg-purple-700">
+              New Ticket
+            </Button>
+          </Link>
+        </div>
+      </div>
 
-      {/* Desktop Layout - When chat is selected */}
-      {currentChat && (
-        <>
-          <div className=" lg:flex w-80 lg:w-96 border-r border-gray-200 flex flex-col h-full bg-white">
-            <ChatSidebar
-              chats={mockChats}
-              activeChat={activeChat}
-              onChatSelect={handleChatSelect}
-              onBack={handleBack}
-            />
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <StatCard label="Total Tickets" value={stats.total} icon={<TicketIcon className="w-5 h-5 text-purple-600" />} />
+        <StatCard label="Open" value={stats.open} icon={<div className="w-3 h-3 rounded-full bg-blue-500 ring-2 ring-blue-100" />} />
+        <StatCard label="In Progress" value={stats.inProgress} icon={<div className="w-3 h-3 rounded-full bg-yellow-500 ring-2 ring-yellow-100" />} />
+        <StatCard label="Resolved" value={stats.resolved} icon={<div className="w-3 h-3 rounded-full bg-green-500 ring-2 ring-green-100" />} />
+      </div>
+
+      {/* Recent Tickets */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-gray-900">Recent Tickets</h2>
+          <Link href="/help-centre/my-tickets" className="text-purple-600 text-sm font-medium hover:underline">
+            View All
+          </Link>
+        </div>
+        <TicketsList tickets={tickets.slice(0, 5)} isLoading={isLoading} emptyMessage="No recent support tickets." />
+      </div>
+
+      {/* Help Resources / FAQ Section (Placeholder) */}
+      <div className="mt-12">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Common Topics</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {['Account Settings', 'Billing & Payments', 'Security & Privacy'].map((topic) => (
+            <Card key={topic} className="p-4 hover:shadow-sm cursor-pointer border-gray-200">
+              <h3 className="font-medium text-gray-800">{topic}</h3>
+              <p className="text-sm text-gray-500 mt-1">Learn more about {topic.toLowerCase()}</p>
+            </Card>
+          ))}
           </div>
-
-          {/* Chat Area */}
-          <div className="flex-1 w-full flex flex-col min-h-0 bg-white">
-            <ChatHeader
-              currentChat={currentChat}
-              onSearch={handleSearch}
-              onCall={handleCall}
-              onMoreOptions={handleMoreOptions}
-              onBackToSidebar={handleBackToSidebar}
-              showBackButton={true}
-            />
-
-            <div className="flex-1 min-h-0">
-              <MessagesList messages={messages} isTyping={isTyping} />
-            </div>
-
-            <MessageInput
-              value={message}
-              onChange={setMessage}
-              onSend={handleSendMessage}
-              onAIMessageGenerated={handleAIMessageGenerated}
-              itemTitle={currentChat.name}
-              itemPrice="$15,000"
-              maxRows={5}
-              minRows={1}
-            />
-          </div>
-        </>
-      )}
+      </div>
     </Container1080>
   );
+}
+
+function StatCard({ label, value, icon }: { label: string, value: number, icon: React.ReactNode }) {
+  return (
+    <Card className="p-4 flex items-center justify-between border-gray-100 shadow-sm">
+      <div className="flex items-center gap-2">
+        {icon}
+        <H5 className="font-bold">{label}</H5>
+      </div>
+      <H5 className="text-2xl font-bold text-gray-900 mt-1">{value}</H5>
+    </Card>
+  )
 }
