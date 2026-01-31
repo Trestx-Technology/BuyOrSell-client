@@ -9,6 +9,7 @@ import { Container1280 } from "@/components/layouts/container-1280";
 import LatestJobsSection from "./_components/latest-jobs-section";
 import FeaturedJobsSection from "./_components/featured-jobs-section";
 import TopEmployersSection from "./_components/top-employers-section";
+import { Container1080 } from "@/components/layouts/container-1080";
 
 export default function JobsHomePage() {
   return (
@@ -28,7 +29,9 @@ export default function JobsHomePage() {
         <CompaniesToFollow />
 
         {/* Jobs CTA Section */}
+        <Container1080>
         <JobsCTASection />
+        </Container1080>
 
         {/* Featured Jobs Section */}
         {/* <FeaturedJobsSection /> */}

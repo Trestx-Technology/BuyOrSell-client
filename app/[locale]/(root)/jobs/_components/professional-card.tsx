@@ -54,6 +54,8 @@ export default function ProfessionalCard({
       .toUpperCase()
       .slice(0, 2) || "P";
 
+  const [imgError, setImgError] = React.useState(false);
+
   return (
     <motion.div
       whileHover={{ y: -4 }}
@@ -64,13 +66,14 @@ export default function ProfessionalCard({
       {/* Profile Picture */}
         <div className="relative">
         <div className="size-24 bg-gradient-to-br from-purple/20 to-purple/10 rounded-full flex items-center justify-center overflow-hidden border-4 border-white shadow-lg ring-2 ring-purple/10 group-hover:ring-purple/20 transition-all">
-          {photoUrl ? (
+            {photoUrl && !imgError ? (
             <Image
               src={photoUrl}
               alt={name || "Professional"}
               width={96}
               height={96}
               className="rounded-full object-cover w-full h-full"
+                onError={() => setImgError(true)}
             />
           ) : (
             <span className="text-purple font-bold text-3xl">{initials}</span>

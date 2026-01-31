@@ -49,8 +49,6 @@ export default function MySavedJobs() {
                                           const owner = job.job?.owner;
                                           const isSaved = job.job?.isSaved;
                                           const title = job.job?.title;
-                                          const logo = organization?.logoUrl || owner?.image;
-                                          const company = organization?.tradeName || organization?.legalName || owner?.firstName + " " + owner?.lastName;
                                           const location = address?.city || address?.state || address?.country;
                                           const createdAt = job.job?.createdAt;
                                           return (
@@ -59,7 +57,7 @@ export default function MySavedJobs() {
                                                             organization,
                                                             address,
                                                             owner,
-                                                            isSaved,
+                                                            isSaved: true,
                                                             title,
                                                             location,
                                                             createdAt

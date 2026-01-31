@@ -16,6 +16,7 @@ import { MyAdCardProps } from "../_components/my-ads-card";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { useRouter } from "nextjs-toploader/app";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 // Transform AD to MyAdCard props
 const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
@@ -183,12 +184,11 @@ const ProfilePage = () => {
       <MobileStickyHeader title={t.user.profile.myProfile} />
 
       <div className="flex flex-col gap-5 py-8 px-4 xl:px-0">
-        <Link
-          href={localePath("/user/profile")}
-          className="text-purple-600 font-semibold text-sm w-fit hover:underline"
-        >
-          {t.user.profile.myProfile}
-        </Link>
+        <Breadcrumbs
+          items={[
+            { id: "profile", label: t.user.profile.myProfile, href: localePath("/user/profile") },
+          ]}
+        />
 
         {/* Profile Card */}
         {isLoadingProfile ? (
@@ -224,64 +224,14 @@ const ProfilePage = () => {
           />
         ) : null}
 
-        <Tabs
-          defaultValue="ads"
-          className="w-full mx-auto flex justify-center flex-col items-center"
-        >
-          <TabsList className="w-full">
-            <TabsTrigger className="w-full sm:w-[150px]" value="ads">
-              {t.user.profile.myAds}
-            </TabsTrigger>
-            <TabsTrigger className="w-full sm:w-[150px]" value="reviews">
-              {t.user.profile.myRatings}
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent
-            className=" w-full grid grid-cols-2 sm:flex flex-wrap gap-3 justify-center mt-4"
-            value="ads"
-          >
-            {isLoadingAds ? (
-              <div className="col-span-2 w-full flex items-center justify-center py-8">
-                <Typography variant="body-small" className="text-gray-500">
-                  {t.common.loading}
-                </Typography>
-              </div>
-            ) : adsError ? (
-              <div className="col-span-2 w-full flex items-center justify-center py-8">
-                <Typography variant="body-small" className="text-red-500">
-                  {t.common.error}
-                </Typography>
-              </div>
-            ) : transformedAds.length === 0 ? (
-              <div className="col-span-2 w-full flex items-center justify-center py-8">
-                <Typography variant="body-small" className="text-gray-500">
-                  {t.user.profile.noAds}
-                </Typography>
-              </div>
-            ) : (
-              transformedAds.map((ad) => (
-                <MyAdCard
-                  key={ad.id}
-                  {...ad}
-                  onFavorite={(id) => console.log("Favorited:", id)}
-                  onShare={(id) => console.log("Shared:", id)}
-                  onClick={(id) => router.push(`/ad/${id}`)}
-                  className="min-h-[284px] w-full max-w-[255px]"
-                />
-              ))
-            )}
-          </TabsContent>
-          <TabsContent className=" w-full" value="reviews">
-            <UserReviews
-              userId={user?._id || "1"}
-              reviewsData={reviewsResponse}
-              isLoadingReviews={isLoadingReviews}
-              reviewsError={reviewsError}
-              sortBy={sortBy}
-              onSort={setSortBy}
-            />
-          </TabsContent>
-        </Tabs>
+        <UserReviews
+          userId={user?._id || "1"}
+          reviewsData={reviewsResponse}
+          isLoadingReviews={isLoadingReviews}
+          reviewsError={reviewsError}
+          sortBy={sortBy}
+          onSort={setSortBy}
+        />
       </div>
     </Container1080>
   );

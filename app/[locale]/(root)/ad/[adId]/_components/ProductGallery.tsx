@@ -13,6 +13,7 @@ import {
   Repeat,
   Info,
   Play,
+  ImageOff,
 } from "lucide-react";
 import CollectionDrawer from "../../../favorites/_components/collection-drawer";
 import { AD } from "@/interfaces/ad";
@@ -20,6 +21,7 @@ import GalleryDialog, { MediaItem } from "./GalleryDialog";
 import { ShareDialog } from "@/components/ui/share-dialog";
 import { ExchangeableAdWrapper } from "./ExchangeableAdWrapper";
 import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
+import { BASE64 } from "@/constants/base64";
 import {
   Tooltip,
   TooltipContent,
@@ -30,6 +32,49 @@ import {
 interface ProductGalleryProps {
   ad: AD;
 }
+
+const GalleryImage = ({
+  src,
+  alt,
+  fill,
+  className,
+  quality,
+  sizes,
+  priority,
+}: {
+  src: string;
+  alt: string;
+  fill?: boolean;
+  className?: string;
+  quality?: number;
+  sizes?: string;
+  priority?: boolean;
+}) => {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return (
+      <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+        <ImageOff className="text-gray-300 w-10 h-10" />
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill={fill}
+      className={className}
+      quality={quality}
+      sizes={sizes}
+      priority={priority}
+      placeholder="blur"
+      blurDataURL={BASE64}
+      onError={() => setHasError(true)}
+    />
+  );
+};
 
 const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -110,7 +155,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
           <div className="relative w-full h-full">
             {mediaItems[currentImageIndex].type === "video" ? (
               <div className="relative w-full h-full">
-                <Image
+                <GalleryImage
                   src={mediaItems[currentImageIndex].thumbnail}
                   alt={mediaItems[currentImageIndex].alt}
                   fill
@@ -136,7 +181,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                 </div>
               </div>
             ) : (
-              <Image
+                <GalleryImage
                 src={mediaItems[currentImageIndex].src}
                 alt={mediaItems[currentImageIndex].alt}
                 fill

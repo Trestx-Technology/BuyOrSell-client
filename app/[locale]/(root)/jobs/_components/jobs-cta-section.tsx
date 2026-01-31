@@ -51,7 +51,7 @@ function CTACard({
   return (
     <motion.div
       variants={cardVariants}
-      className={`max-w-[530px] w-full p-6 h-[202px] flex flex-col gap-3 rounded-2xl border-[0.5px] border-[#E2E2E2] shadow-[0px_2.67px_7.11px_0px_rgba(48,150,137,0.08)] ${isJobSeekers ? "bg-slate-100" : "bg-purple"
+      className={`w-full p-6 h-[202px] flex flex-col gap-3 rounded-2xl border-[0.5px] border-[#E2E2E2] shadow-[0px_2.67px_7.11px_0px_rgba(48,150,137,0.08)] ${isJobSeekers ? "bg-slate-100" : "bg-purple"
       } relative overflow-hidden`}
     >
       {/* Title - positioned at x:26, y:30.5 */}
@@ -102,7 +102,7 @@ export default function JobsCTASection() {
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
     >
-      <Container1080 className="px-4 py-10 flex flex-col md:flex-row items-center justify-center gap-6">
+      <section className="w-full px-4 py-10 flex flex-col md:flex-row items-center justify-center gap-6">
         <CTACard
           title="For Job Seekers"
           description="Finding jobs on BuyOrSell is easier than ever. Download the mobile apps to your smartphone device and enjoy for free!"
@@ -117,7 +117,7 @@ export default function JobsCTASection() {
           buttonHref="/post-job"
           variant="employers"
         />
-      </Container1080>
+      </section>
     </motion.section>
   );
 }

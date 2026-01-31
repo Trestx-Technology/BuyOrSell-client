@@ -7,6 +7,7 @@ import { Typography } from "@/components/typography";
 import { UI_ICONS } from "@/constants/icons";
 import { SaveOrganizationButton } from "./save-organization-button";
 import { FollowOrganizationButton } from "./follow-organization-button";
+import { useState } from "react";
 
 interface EmployerCardProps {
   logo: string;
@@ -29,6 +30,15 @@ export function EmployerCard({
   isWishlisted = false,
   href,
 }: EmployerCardProps) {
+  const [imgError, setImgError] = useState(false);
+
+  const initials = name
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2) || "O";
+
   const formatFollowers = (count: number) => {
     if (count >= 1000) {
       return `${(count / 1000).toFixed(1)}k`;
@@ -40,21 +50,19 @@ export function EmployerCard({
     <div className="w-[240px] rounded-3xl bg-gradient-to-br from-purple-100 to-purple-50 py-2 px-4 shadow-lg relative">
       {/* Header with Logo and Wishlist */}
       <div className="flex items-center justify-between">
-        <div className="size-[32px] rounded-full">
-          <Image
-            src={logo || UI_ICONS.company}
-            alt={`${name} logo`}
-            width={32}
-            height={32}
-            className="h-full w-full object-cover rounded-full"
-            onError={(e) => {
-              // Fallback to company icon if logo fails to load
-              const target = e.target as HTMLImageElement;
-              if (target.src !== UI_ICONS.company) {
-                target.src = UI_ICONS.company;
-              }
-            }}
-          />
+        <div className="size-[32px] rounded-full flex items-center justify-center bg-white overflow-hidden border border-purple/10 shadow-sm">
+          {logo && !imgError ? (
+            <Image
+              src={logo}
+              alt={`${name} logo`}
+              width={32}
+              height={32}
+              className="h-full w-full object-cover"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <span className="text-purple font-bold text-xs">{initials}</span>
+          )}
         </div>
         <SaveOrganizationButton
           organizationId={employerId}

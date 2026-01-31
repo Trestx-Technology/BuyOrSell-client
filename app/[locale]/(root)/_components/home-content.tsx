@@ -13,6 +13,7 @@ import JobsTabbedCarousel from "@/components/global/jobs-tabbed-carousel";
 import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "nextjs-toploader/app";
 import { VideoAdCarousel } from "./video-ad-carousel";
+import JobsCTASection from "../jobs/_components/jobs-cta-section";
 
 export function HomeContent() {
   const { data: homeData, isLoading } = useHome();
@@ -60,6 +61,8 @@ export function HomeContent() {
               isLoading={isLoading}
             />
           )}
+
+        <JobsCTASection />
 
         {/* PhonePe-Style Stacking Animation Container */}
         {homeData?.data.subCategoryList?.map((category, i) => {

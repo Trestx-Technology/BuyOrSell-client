@@ -379,19 +379,9 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
           className={`max-w-md w-[95%] overflow-y-auto max-h-[500px] rounded-lg ${className}`}
         >
           <ResponsiveModalHeader className="pb-4">
-            <div className="flex items-center justify-between">
               <ResponsiveModalTitle className="text-xl font-bold text-dark-blue">
                 {t.favorites?.myFavorites || "Favorites"}
-              </ResponsiveModalTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setOpen(false)}
-                className="h-8 w-8 p-0 hover:bg-gray-100"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+            </ResponsiveModalTitle>
           </ResponsiveModalHeader>
           {content}
         </ResponsiveModalContent>

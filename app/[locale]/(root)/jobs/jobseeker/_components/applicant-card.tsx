@@ -15,6 +15,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ICONS } from "@/constants/icons";
 
+import { useState } from "react";
+
 export interface ApplicantCardProps {
   id: string;
   name: string;
@@ -48,6 +50,15 @@ export default function ApplicantCard({
   onFavorite,
   onShare,
 }: ApplicantCardProps) {
+  const [imgError, setImgError] = useState(false);
+  const initials =
+    name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "A";
+
   return (
     <div className="bg-white flex flex-col justify-between border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full lg:max-w-[256px] space-y-4 relative">
       {/* Header with Badge and Actions */}
@@ -104,19 +115,20 @@ export default function ApplicantCard({
               working in {company}
             </Typography>
           </div>
-            <div className="w-8 h-8 rounded-full border-[1px] border-purple flex items-center justify-center">
-          {logo ? (
-            <Image
-              src={logo}
-              alt={name}
-              width={32}
-              height={32}
-                  className="rounded-full object-cover"
-            />
+            <div className="w-8 h-8 rounded-full border-[1px] border-purple flex items-center justify-center bg-white overflow-hidden shadow-sm">
+              {logo && !imgError ? (
+                <Image
+                  src={logo}
+                  alt={name}
+                  width={32}
+                  height={32}
+                  className="h-full w-full object-cover"
+                  onError={() => setImgError(true)}
+                />
               ) : (
-                  <span className="text-purple text-xs font-semibold">
-                {name.charAt(0)}
-              </span>
+                  <span className="text-purple text-[10px] font-bold">
+                    {initials}
+                  </span>
               )}
             </div>
           </div>

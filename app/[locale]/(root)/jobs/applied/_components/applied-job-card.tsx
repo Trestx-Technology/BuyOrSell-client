@@ -13,6 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatDate } from "@/utils/format-date";
 import { cn } from "@/lib/utils";
+import { ICONS } from "@/constants/icons";
 
 export default function AppliedJobCard({ application, className }: { application: MyAppliedJob, className?: string }) {
   const { job } = application;
@@ -86,14 +87,13 @@ export default function AppliedJobCard({ application, className }: { application
         </div>
 
         <div className="flex items-center gap-1.5">
-          {/* <Image
+          <Image
             src={ICONS.currency.aed}
             alt="currency icon"
             width={16}
             height={16}
-          /> */}
+          />
           <div className="flex items-center gap-1">
-            <span className="text-[9.19px]">AED</span>
             <Typography
               variant="body-small"
               className="text-dark-blue text-xs font-medium"
@@ -102,7 +102,6 @@ export default function AppliedJobCard({ application, className }: { application
             </Typography>
 
             <span className="text-[#8A8A8A] text-[10.83px]">-</span>
-            <span className="text-[9.19px]">AED</span>
             <Typography
               variant="body-small"
               className="text-dark-blue text-xs font-medium"
