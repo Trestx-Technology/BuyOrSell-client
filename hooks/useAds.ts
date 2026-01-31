@@ -14,6 +14,7 @@ import {
   getAdsByUser,
   getAdsByCategory,
   searchAds,
+  searchAdsAI,
   getFeaturedAds,
   getMyAds,
   uploadAdImages,
@@ -124,6 +125,17 @@ export const useSearchAds = (params: {
     queryKey: [...adQueries.searchAds.Key, params],
     queryFn: () => searchAds(params),
     enabled: !!params.query && params.query.trim() !== "",
+  });
+};
+
+// Search ads using AI
+export const useSearchAdsAI = () => {
+  return useMutation<
+    any, // Response type - likely { filters: AdFilters, ads: ... }
+    Error,
+    { query: string; userId?: string }
+  >({
+    mutationFn: ({ query, userId }) => searchAdsAI(query, userId),
   });
 };
 

@@ -67,4 +67,8 @@ export const adQueries = {
     Key: ["ads", "keyword", keyword, params],
     endpoint: `/ad/keyword/${keyword}`,
   }),
+  searchAdsAI: {
+    Key: ["ads", "search", "ai"],
+    endpoint: "/ad/search/ai",
+  },
 };

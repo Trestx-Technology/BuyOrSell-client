@@ -13,17 +13,25 @@ import { COLORS } from "./constants";
 import { SimpleSearchInput } from "./simple-search-input";
 import { AISearchInput } from "./ai-search-input";
 import { AISuggestions } from "./ai-suggestions";
+import { AISearchResults } from "./ai-search-results";
+import { searchWithAI } from "@/lib/ai/searchWithAI";
+import { toast } from "sonner";
+import { AD } from "@/interfaces/ad";
+import { slugify } from "@/utils/slug-utils";
 
 export function SearchAnimated() {
   const [isAI, setIsAI] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [aiResults, setAiResults] = React.useState<any[]>([]);
+  const [isSearching, setIsSearching] = React.useState(false);
+  const [extractedKeywords, setExtractedKeywords] = React.useState<string[]>([]);
+  const [optimizedQuery, setOptimizedQuery] = React.useState("");
   const searchRef = React.useRef<HTMLDivElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const nextRouter = useNextRouter();
-  const [selectedCategory, setSelectedCategory] =
-    React.useState("All Categories");
+  const [selectedCategory, setSelectedCategory] = React.useState("All Categories");
 
   // Initialize category and search query from URL query parameters
   useQueryParams(searchParams, {
@@ -33,27 +41,89 @@ export function SearchAnimated() {
 
   // Update URL when search query changes
   const handleSearchQueryChange = (value: string) => {
-    const handler = createUrlParamHandler(
-      searchParams,
-      pathname,
-      nextRouter,
-      "search",
-      setSearchQuery
-    );
-    handler(value);
+    if (isAI) {
+      setSearchQuery(value); // Only update local state for AI search
+      if (aiResults.length > 0 && value !== searchQuery) {
+        setAiResults([]); // Clear previous results when typing new query
+        setExtractedKeywords([]); // Clear keywords
+        setOptimizedQuery(""); // Clear optimized query
+      }
+    } else {
+      const handler = createUrlParamHandler(
+        searchParams,
+        pathname,
+        nextRouter,
+        "search",
+        setSearchQuery
+      );
+      handler(value);
+    }
   };
 
   const handleTrigger = () => setIsAI(true);
+
   const handleReset = () => {
     setIsAI(false);
+    setAiResults([]);
+    setExtractedKeywords([]);
+    setOptimizedQuery("");
   };
 
-  const handleSearch = (query: string) => {
-    if (query.trim()) {
-      // Convert search query to URL-friendly format
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) return;
+
+    if (isAI) {
+      setIsSearching(true);
+      try {
+        // Call the AI search function
+        const { keywords, searchQuery: optimized, results, success } = await searchWithAI(query.trim());
+
+        if (success && results && results.length > 0) {
+          setAiResults(results);
+          setExtractedKeywords(keywords);
+          setOptimizedQuery(optimized);
+          toast.success(`Found ${results.length} results using AI search`);
+        } else if (success && results.length === 0) {
+          toast.info("No matching ads found with AI search.");
+          setAiResults([]);
+          setExtractedKeywords(keywords);
+          setOptimizedQuery(optimized);
+        } else {
+          // Fallback to regular search if AI search fails
+          toast.error("AI Search failed. Falling back to regular search.");
+          const searchTerm = query.trim().toLowerCase().replace(/\s+/g, "-");
+          router.push(`/categories/${searchTerm}`);
+        }
+      } catch (error) {
+        console.error("AI search error:", error);
+        toast.error("AI Search failed. Please try again.");
+        // Fallback to regular search
+        const searchTerm = query.trim().toLowerCase().replace(/\s+/g, "-");
+        router.push(`/categories/${searchTerm}`);
+      } finally {
+        setIsSearching(false);
+      }
+    } else {
+  // Regular search
       const searchTerm = query.trim().toLowerCase().replace(/\s+/g, "-");
       router.push(`/categories/${searchTerm}`);
     }
+  };
+
+  const handleResultSelect = (ad: AD) => {
+    console.log(ad);
+
+    // Navigate to ad details or category
+    if (ad._id) {
+      router.push(`/ad/${ad._id}`); // Navigate to ad detail page
+    } else {
+      router.push(`/categories/${ad.relatedCategories.map((category) => slugify(category)).join("/")}`); // Navigate to category
+    }
+
+    setIsAI(false); // Close search
+    setAiResults([]); // Clear results
+    setExtractedKeywords([]); // Clear keywords
+    setOptimizedQuery(""); // Clear optimized query
   };
 
   const handleSuggestionClick = (label: string) => {
@@ -70,11 +140,14 @@ export function SearchAnimated() {
   // Close AI mode when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Don't close if currently searching (waiting for AI response)
+      if (isSearching) return;
+
       if (
         searchRef.current &&
         !searchRef.current.contains(event.target as Node)
       ) {
-        setIsAI(false);
+        handleReset();
       }
     };
 
@@ -85,16 +158,17 @@ export function SearchAnimated() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isAI]);
+  }, [isAI, isSearching]);
 
   return (
     <div
       ref={searchRef}
       className={cn(
-        "relative flex items-center  border border-gray-300 rounded-lg h-10 flex-1 z-50 bg-white"
-        // !isAI && "overflow-hidden"
+        "relative flex items-center border border-gray-300 rounded-lg min-h-10 flex-1 z-50 bg-white"
       )}
     >
+      <div className="h-fit absolute top-0 left-0 right-0">
+
       <motion.section
         layout
         aria-label="Search"
@@ -110,8 +184,7 @@ export function SearchAnimated() {
         transition={{ type: "spring", stiffness: 140, damping: 18 }}
       >
         <motion.div layout className="relative overflow-visible">
-          <motion.div layout aria-live="polite">
-            {/* Left: leading icon or dropdown + input label */}
+            <motion.div layout aria-live="polite">
             <motion.div layout className="flex items-center flex-1 h-full">
               {!isAI ? (
                 <SimpleSearchInput
@@ -126,14 +199,61 @@ export function SearchAnimated() {
                   onSearchQueryChange={handleSearchQueryChange}
                   onKeyDown={handleKeyDown}
                   onReset={handleReset}
+                      onSearch={() => handleSearch(searchQuery)}
+                      isSearching={isSearching}
                 />
               )}
             </motion.div>
 
-            <AISuggestions
-              isAI={isAI}
-              onSuggestionClick={handleSuggestionClick}
-            />
+              {/* Show extracted keywords if AI search was performed */}
+              {/* {isAI && extractedKeywords.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="absolute top-full left-0 right-0 mt-2 bg-white border border-purple-200 rounded-lg p-3 shadow-lg z-50"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs font-semibold text-purple-700">
+                      AI Keywords:
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {extractedKeywords.map((keyword, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium"
+                      >
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
+                  {optimizedQuery && optimizedQuery !== searchQuery && (
+                    <div className="mt-2 pt-2 border-t border-purple-100">
+                      <span className="text-xs text-gray-600">
+                        Optimized: <span className="font-medium">{optimizedQuery}</span>
+                      </span>
+                    </div>
+                  )}
+                </motion.div>
+              )} */}
+
+              {isSearching ? (
+                <div className="bg-dark-blue mt-3 flex flex-col items-center justify-center p-8 rounded-lg">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400 mb-3"></div>
+                  <span className="text-sm text-gray-300">Analyzer thinking...</span>
+                </div>
+              ) : aiResults.length > 0 ? (
+                <AISearchResults
+                  results={aiResults}
+                  onSelect={handleResultSelect}
+                // keywords={extractedKeywords}
+                />
+              ) : (
+                    <AISuggestions
+                      isAI={isAI}
+                      onSuggestionClick={handleSuggestionClick}
+                    />
+              )}
 
             {isAI && (
               <BorderBeam
@@ -147,6 +267,7 @@ export function SearchAnimated() {
           </motion.div>
         </motion.div>
       </motion.section>
+    </div>
     </div>
   );
 }

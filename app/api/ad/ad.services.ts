@@ -279,3 +279,22 @@ export const getSimilarAds = async (
   );
   return response.data;
 };
+
+// Search ads using AI
+export const searchAdsAI = async (
+  query: string,
+  userId?: string
+) => {
+  if (!query) return null;
+
+  const params: Record<string, any> = { q: query };
+  if (userId) {
+    params.userId = userId;
+  }
+
+  const response = await axiosInstance.get(
+    adQueries.searchAdsAI.endpoint,
+    { params }
+  );
+  return response.data;
+};
