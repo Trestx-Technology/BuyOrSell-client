@@ -36,7 +36,7 @@ export function CreateTicketForm() {
   const onSubmit = async (data: FormData) => {
     // Check for user ID, handling potential different auth structures or partial session load
     const user = session?.user;
-    const userId = user && (user._id || user.id);
+    const userId = user && user._id 
 
     if (!userId) {
        toast.error("You must be logged in to create a ticket");
