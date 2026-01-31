@@ -14,17 +14,28 @@ import {
   ArrowUp,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "../ui/button";
 import {
   fastContainerVariants,
   fastItemVariants,
 } from "@/utils/animation-variants";
+import { useEmirates } from "@/hooks/useLocations";
+import { Emirate } from "@/interfaces/location.types";
+import { HomeCategory } from "@/interfaces/home.types";
+import { useGetMainCategories } from "@/hooks/useCategories";
+import { Skeleton } from "../ui/skeleton";
+import { ShareDialog } from "../ui/share-dialog";
+import { slugify } from "@/utils/slug-utils";
 
 interface FooterProps {
   className?: string;
 }
 
 export function Footer({ className }: FooterProps) {
+  const { data: categories, isLoading: categoriesLoading } = useGetMainCategories();
+  const { data: emirates, isLoading: emiratesLoading } = useEmirates();
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -119,54 +130,27 @@ export function Footer({ className }: FooterProps) {
               UAE
             </Typography>
             <div className="space-y-3">
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Dubai
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Abu Dhabi
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Ras Al Khaimah
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Sharjah
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Fujairah
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Ajman
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Umm Al Quwain
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Al Ain
-              </Typography>
+              {emiratesLoading ? (
+                // Skeleton for emirates
+                Array.from({ length: 8 }).map((_, i) => (
+                  <Skeleton key={i} className="h-6 w-30 rounded" />
+                ))
+              ) : (
+                (emirates || []).slice(0, 8).map((emirateObj: Emirate, idx: number) => (
+                  <Link
+                    href={`/categories/${slugify(categories?.[idx]?.name)}?location=${emirateObj.emirate}`}
+                    key={idx}
+                    className="block"
+                  >
+                    <Typography
+                      variant="body"
+                      className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                    >
+                      {emirateObj.emirate}
+                    </Typography>
+                  </Link>
+                ))
+              )}
             </div>
           </motion.div>
 
@@ -179,54 +163,27 @@ export function Footer({ className }: FooterProps) {
               Categories
             </Typography>
             <div className="space-y-3">
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Motors
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Property
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Classifieds
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Furniture
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Electronics
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Jobs
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Community
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Others
-              </Typography>
+              {categoriesLoading ? (
+                // Skeleton for categories
+                Array.from({ length: 8 }).map((_, i) => (
+                  <Skeleton key={i} className="h-6 w-30 rounded" />
+                ))
+              ) : (
+                categories?.map((cat, idx: number) => (
+                  <Link
+                    href={`/categories/${slugify(cat.name)}`}
+                    key={idx}
+                    className="block"
+                  >
+                    <Typography
+                      variant="body"
+                      className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                    >
+                      {cat.name}
+                    </Typography>
+                  </Link>
+                ))
+              )}
             </div>
           </motion.div>
 
@@ -326,37 +283,47 @@ export function Footer({ className }: FooterProps) {
             <Typography variant="h6" className="font-medium text-sm">
               Subscribe
             </Typography>
-            <div className="space-y-3">
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Help
+            <div className="space-y-3 flex flex-col">
+              <Link href="/help-centre" className="block">
+                <Typography
+                  variant="body"
+                  className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                >
+                  Help
+                </Typography>
+              </Link>
+              <Link href="/contact-us" className="block">
+                <Typography
+                  variant="body"
+                  className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                >
+                  Contact Us
+                </Typography>
+              </Link>
+              <Link href="/contact-us" className="block">
+                <Typography
+                  variant="body"
+                  className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                >
+                  Call Us
+                </Typography>
+              </Link>
+              <Link href="/rate-us" className="block">
+                <Typography
+                  variant="body"
+                  className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                >
+                  Rate Us
               </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Contact Us
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Call Us
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Rate Us
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-              >
-                Share
-              </Typography>
+              </Link>
+              <ShareDialog title="Share" url={"https://buyorsell.ae"}>
+                <Typography
+                  variant="body"
+                  className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                >
+                  Share
+                </Typography>
+              </ShareDialog>
             </div>
           </motion.div>
 
@@ -368,19 +335,19 @@ export function Footer({ className }: FooterProps) {
             <Typography variant="h6" className="font-medium text-sm">
               Language
             </Typography>
-            <div className="space-y-3">
-              <Typography
-                variant="body"
+            <div className="space-y-3 flex flex-col">
+              <Link
+                href="/en-US"
                 className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
               >
                 English
-              </Typography>
-              <Typography
-                variant="body"
+              </Link>
+              <Link
+                href="/ar"
                 className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
               >
                 Arabic
-              </Typography>
+              </Link>
             </div>
           </motion.div>
         </div>
