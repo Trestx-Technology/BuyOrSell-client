@@ -8,6 +8,8 @@ import { AutosizeTextarea } from "@/components/global/autosize-textarea";
 import { toast } from "sonner";
 import { LocationSelectorDialog } from "./LocationSelectorDialog"; // Import new component
 
+import { useUploadFile } from "@/hooks/useUploadFile";
+
 interface MessageInputProps {
   value: string;
   onChange: (value: string) => void;
@@ -38,9 +40,22 @@ export function MessageInput({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [, setRows] = useState(minRows);
-  const [isUploading, setIsUploading] = useState(false);
-  // const [isLocating, setIsLocating] = useState(false); // Removed direct locating state
   const [isLocationDialogOpen, setIsLocationDialogOpen] = useState(false);
+
+  const { upload, isUploading } = useUploadFile({
+    maxFileSize: 5,
+    acceptedFileTypes: ["image/jpeg", "image/png", "image/gif", "image/webp"],
+    onSuccess: (url) => {
+      onSend({
+        type: "file",
+        fileUrl: url,
+        text: "Shared an image",
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    },
+  });
 
   // Auto-resize textarea based on content
   const adjustTextareaHeight = useCallback(() => {
@@ -122,56 +137,7 @@ export function MessageInput({
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image file");
-      return;
-    }
-
-    // Validate file size (e.g., 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size should be less than 5MB");
-      return;
-    }
-
-    handleImageUpload(file);
-  };
-
-  const handleImageUpload = async (file: File) => {
-    setIsUploading(true);
-    try {
-      // Create FormData
-      const formData = new FormData();
-      formData.append("file", file);
-
-      // Upload to your API endpoint
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const data = await response.json();
-
-      onSend({
-        type: "file",
-        fileUrl: data.url || data.fileUrl, // Adjust based on your API response
-        text: "Shared an image",
-      });
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      toast.error("Failed to upload image. Please try again.");
-    } finally {
-      setIsUploading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
+    upload(file);
   };
 
   return (

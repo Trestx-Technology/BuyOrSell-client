@@ -6,7 +6,6 @@ import dynamic from "next/dynamic";
 import { ChatService } from "@/lib/firebase/chat.service";
 import { Chat as FirebaseChat, Message } from "@/lib/firebase/types";
 import { useAuthStore } from "@/stores/authStore";
-import { usePresence } from "@/lib/firebase/presence.hook";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useLocale } from "@/hooks/useLocale";
@@ -63,6 +62,7 @@ export default function ChatPage() {
     handleDeleteMessage,
     handleDeleteChat,
     router,
+    dateHeaderText,
   } = useChat();
 
   // Show loading state
@@ -123,6 +123,7 @@ export default function ChatPage() {
         onEditMessage={handleEditMessage}
         onDeleteMessage={handleDeleteMessage}
         onDeleteChat={handleDeleteChat}
+        dateHeaderText={dateHeaderText}
         className={!urlChatId ? "hidden md:flex" : "flex w-full"}
       />
     </Container1080>

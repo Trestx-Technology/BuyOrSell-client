@@ -36,6 +36,7 @@ export interface Chat {
   ad?: AdDetails;
   amIAdOwner?: boolean;
   organisation?: OrganisationDetails;
+  initiatorId?: string;
 }
 
 interface ChatSidebarProps {
@@ -91,6 +92,7 @@ export function ChatSidebar({
   onChatTypeChange,
   className,
 }: ChatSidebarProps) {
+  console.log(chats);
   const handleChatSelect = (chatId: string) => {
     // Also call the onChatSelect callback for state management
     onChatSelect(chatId);
@@ -137,14 +139,8 @@ export function ChatSidebar({
           </div>
         ) : (
             chats.map((chat) => {
-              let displayName = chat.name;
-              let displayImage = chat.avatar;
-
-              // Only override for Organisation. For Ads, we strictly want User Name + Ad Image overlay.
-              if (chat.chatType === "organisation" && chat.organisation) {
-                displayName = chat.organisation.orgTradeName;
-                displayImage = chat.organisation.orgImage;
-              }
+              const displayName = chat.name;
+              const displayImage = chat.avatar;
 
               return (
                 <div

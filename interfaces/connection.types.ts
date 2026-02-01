@@ -3,6 +3,7 @@ import { JobseekerProfile } from "./job.types";
 export interface SendConnectionRequestPayload {
   receiverId: string;
   message?: string;
+  organisationId?: string;
 }
 
 export type ConnectionStatus = "PENDING" | "ACCEPTED" | "REJECTED" | null;

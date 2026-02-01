@@ -44,7 +44,6 @@ export default function MyAppliedJobs() {
       // Let's stick to the requested tabs.
       
       const applications = data?.data?.items || [];
-      console.log(applications)
 
       const handleTabChange = (type: string) => {
             const params = new URLSearchParams(searchParams);

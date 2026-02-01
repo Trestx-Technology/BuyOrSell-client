@@ -42,6 +42,7 @@ interface ChatAreaProps {
   onEditMessage?: (messageId: string, newText: string) => void;
   onDeleteMessage?: (messageId: string) => void;
   onDeleteChat?: () => void;
+  dateHeaderText?: string;
   className?: string;
 }
 
@@ -60,6 +61,7 @@ export function ChatArea({
   onEditMessage,
   onDeleteMessage,
   onDeleteChat,
+  dateHeaderText,
   className,
 }: ChatAreaProps) {
   // Empty State - Only shown on desktop when no chat is selected
@@ -157,6 +159,7 @@ export function ChatArea({
           isTyping={isTyping}
           onEditMessage={onEditMessage}
           onDeleteMessage={onDeleteMessage}
+          dateHeaderText={dateHeaderText}
         />
       </div>
 

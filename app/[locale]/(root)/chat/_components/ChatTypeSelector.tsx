@@ -1,6 +1,7 @@
 "use client";
 
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useUrlParams } from "@/hooks/useUrlParams";
 
 export type ChatType = "ad" | "dm" | "organisation";
 
@@ -10,8 +11,14 @@ interface ChatTypeSelectorProps {
 }
 
 export function ChatTypeSelector({ value, onChange }: ChatTypeSelectorProps) {
+  const { clearUrlQueries } = useUrlParams()
+  const removeChatId = () => {
+    if (clearUrlQueries) {
+      clearUrlQueries()
+    }
+  }
   return (
-    <Tabs value={value} onValueChange={(value) => onChange(value as ChatType)} className="w-full">
+    <Tabs value={value} onValueChange={(value) => { removeChatId(); onChange(value as ChatType) }} className="w-full">
       <TabsList className="w-full grid grid-cols-3 h-10 gap-2 bg-gray-100 p-1 bg-purple">
         <TabsTrigger
           value="ad"
@@ -21,7 +28,7 @@ export function ChatTypeSelector({ value, onChange }: ChatTypeSelectorProps) {
         </TabsTrigger>
         <TabsTrigger
           value="dm"
-          className="flex-1 text-xs sm:text-sm "
+          className="flex-1 text-xs sm:text-sm"
         >
           DM
         </TabsTrigger>

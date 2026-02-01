@@ -27,7 +27,7 @@ Stores chat metadata, participants, and real-time status.
 
 ```typescript
 {
-  id: string;                    // Chat ID (auto-generated)
+  id: string;                    // Chat ID (Format: type_typeId_user1_user2)
   type: "ad" | "dm" | "organisation";    // Chat type
   title: string;                 // Chat title (e.g. Ad title or Organisation name)
   titleAr: string;               // Arabic Chat title
@@ -102,17 +102,6 @@ Optimized index for quick access to user's chats, nested within the user's docum
 }
 ```
 
-### 5. Online Status Collection (`presence/{userId}`)
-Tracks user online/offline status in real-time.
-
-```typescript
-{
-  userId: string;                // User ID
-  online: boolean;               // Online status
-  lastSeen: Timestamp;           // Last seen timestamp
-  updatedAt: Timestamp;          // Last update timestamp
-}
-```
 
 ## Indexes Required
 
@@ -163,12 +152,6 @@ service cloud.firestore {
                          request.auth.uid == request.resource.data.senderId;
       }
     }
-    
-    // Presence collection
-    match /presence/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
   }
 }
 ```
@@ -202,8 +185,8 @@ service cloud.firestore {
    - Listen to changes in real-time
 
 4. **Online Status**:
-   - Update `presence/{userId}` when user comes online/offline
-   - Use Firestore onDisconnect to handle offline status
+   - Update `chats/{chatId}.onlineStatus.{userId}` when user enters/leaves the chat
+   - Uses Firestore real-time listeners for updates
 
 5. **Reading Messages**:
    - Mark message as read in `messages/{messageId}.readBy`

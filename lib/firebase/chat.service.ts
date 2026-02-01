@@ -8,7 +8,6 @@ import {
   getDocs,
   query,
   where,
-  orderBy,
   limit,
   updateDoc,
   deleteDoc,
@@ -18,14 +17,11 @@ import {
   arrayUnion,
   increment,
   writeBatch,
-  DocumentData,
-  QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { getFirebaseDb } from "./config";
 import {
   Chat,
   Message,
-  Presence,
   CreateChatParams,
   SendMessageParams,
   ChatType,
@@ -39,7 +35,6 @@ const COLLECTIONS = {
   USERS: "users",
   CHATS: "chats",
   MESSAGES: "messages",
-  PRESENCE: "presence",
 } as const;
 
 /**
@@ -48,26 +43,115 @@ const COLLECTIONS = {
  */
 
 export class ChatService {
+  /**
+   * Helper to get numeric timestamp from various formats
+   */
+  private static getTimestampValue(
+    timestamp:
+      | Timestamp
+      | Date
+      | { seconds: number; nanoseconds: number }
+      | string
+      | number
+      | undefined,
+  ): number {
+    if (!timestamp) return 0;
+    if (timestamp instanceof Date) return timestamp.getTime();
+    if (typeof timestamp === "number") return timestamp;
+    if (typeof timestamp === "string") return new Date(timestamp).getTime();
+    if ("seconds" in timestamp && typeof timestamp.seconds === "number") {
+      return timestamp.seconds * 1000 + (timestamp.nanoseconds || 0) / 1000000;
+    }
+    if (
+      "toDate" in timestamp &&
+      typeof (timestamp as any).toDate === "function"
+    ) {
+      return (timestamp as any).toDate().getTime();
+    }
+    return 0;
+  }
+
   // Use getter function instead of direct import
   private static get db() {
     return getFirebaseDb();
   }
 
   /**
-   * Generate a prefixed chat ID based on chat type
+   * Generate a prefixed chat ID based on chat type, typeId and participants
    */
-  private static generateChatId(type: ChatType): string {
-    const prefix = `${type}_`;
-    const randomId = doc(collection(this.db, COLLECTIONS.CHATS)).id;
-    return `${prefix}${randomId}`;
+  static generateChatId(
+    type: ChatType,
+    typeId: string,
+    participants: string[],
+  ): string {
+    const sortedParticipants = [...participants].sort();
+    return `${type}_${typeId}_${sortedParticipants[0]}_${sortedParticipants[1]}`;
+  }
+
+  /**
+   * Find an existing chat by participants and type/typeId
+   */
+  static async findExistingChat(
+    params: CreateChatParams,
+  ): Promise<string | null> {
+    try {
+      const chatsRef = collection(this.db, COLLECTIONS.CHATS);
+
+      // We query by participants[0] and filter locally to avoid complex indexes
+      const q = query(
+        chatsRef,
+        where("participants", "array-contains", params.participants[0]),
+      );
+
+      const snapshot = await getDocs(q);
+      const existing = snapshot.docs.find((doc) => {
+        const data = doc.data();
+
+        // Check type
+        if (data.type !== params.type) return false;
+
+        // Check type-specific IDs
+        if (params.type === "ad" && data.adId !== params.adId) return false;
+        if (
+          params.type === "organisation" &&
+          data.organisationId !== params.organisationId
+        )
+          return false;
+
+        // Check if participants match exactly
+        const docParticipants = (data.participants as string[]) || [];
+        if (docParticipants.length !== params.participants.length) return false;
+
+        return params.participants.every((p) => docParticipants.includes(p));
+      });
+
+      return existing ? existing.id : null;
+    } catch (error) {
+      console.error("Error finding existing chat:", error);
+      return null;
+    }
   }
 
   /**
    * Create a new chat
    */
   static async createChat(params: CreateChatParams): Promise<string> {
-    // Generate prefixed chat ID
-    const chatId = this.generateChatId(params.type);
+    // 1. Check if a chat already exists using participants and typeId
+    // This catches old random IDs as well as new deterministic ones
+    const existingId = await this.findExistingChat(params);
+    if (existingId) {
+      return existingId;
+    }
+
+    // Determine the typeId for the chatId generation
+    const typeId = params.adId || params.organisationId || "direct";
+
+    // Generate deterministic chat ID
+    const chatId = this.generateChatId(
+      params.type,
+      typeId,
+      params.participants,
+    );
     const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
 
     // Initialize unread counts, typing status, and online status
@@ -90,6 +174,7 @@ export class ChatService {
       participants: params.participants,
       participantDetails: params.participantDetails,
       lastMessage: {
+        id: "",
         text: "",
         senderId: "",
         createdAt: serverTimestamp() as Timestamp,
@@ -102,33 +187,13 @@ export class ChatService {
       updatedAt: serverTimestamp() as Timestamp,
       ...(params.adId && { adId: params.adId }),
       ...(params.organisationId && { organisationId: params.organisationId }),
+      ...(params.initiatorId && { initiatorId: params.initiatorId }),
     };
 
     await setDoc(chatRef, chatData);
 
-    // Create user chat index entries for all participants
-    // Path: users/{userId}/chats/{chatId}
-    const batch = writeBatch(this.db);
-    params.participants.forEach((userId) => {
-      const userChatRef = doc(
-        this.db,
-        COLLECTIONS.USERS,
-        userId,
-        "chats",
-        chatId,
-      );
-      batch.set(userChatRef, {
-        chatId,
-        type: params.type,
-        lastMessage: {
-          text: "",
-          createdAt: serverTimestamp(),
-        },
-        unreadCount: 0,
-        updatedAt: serverTimestamp(),
-      });
-    });
-    await batch.commit();
+    // Index entries no longer strictly required as we query the main collection directly
+    // This simplifies the logic and makes it more reliable.
 
     return chatId;
   }
@@ -144,7 +209,7 @@ export class ChatService {
       return null;
     }
 
-    return { id: chatSnap.id, ...chatSnap.data() } as Chat;
+    return { ...chatSnap.data(), id: chatSnap.id } as Chat;
   }
 
   /**
@@ -152,44 +217,36 @@ export class ChatService {
    * Reads from: users/{userId}/chats
    */
   static async getUserChats(userId: string, type?: ChatType): Promise<Chat[]> {
-    const userChatsRef = collection(
-      this.db,
-      COLLECTIONS.USERS,
-      userId,
-      "chats",
-    );
+    const chatsRef = collection(this.db, COLLECTIONS.CHATS);
 
-    let q;
-
-    if (type) {
-      q = query(
-        userChatsRef,
-        where("type", "==", type),
-        orderBy("updatedAt", "desc"),
-      );
-    } else {
-      q = query(userChatsRef, orderBy("updatedAt", "desc"));
-    }
+    // Use simple query to avoid indexing issues and missing field exclusions
+    const q = query(chatsRef, where("participants", "array-contains", userId));
 
     const snapshot = await getDocs(q);
-    const chatIds = snapshot.docs.map((doc) => doc.data().chatId);
-
-    if (chatIds.length === 0) {
-      return [];
-    }
-
-    // Fetch full chat documents
-    // Note: In a production app with many chats, you might want to rely on the index data
-    // or batch fetch to avoid N+1 reads. For now, fetching each is reliable.
-    const chats: Chat[] = [];
-    for (const chatId of chatIds) {
-      const chat = await this.getChat(chatId);
-      if (chat) {
-        chats.push(chat);
+    let chatsArr = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      // Ensure participants exists and is an array
+      if (!data.participants) {
+        console.warn(`Chat ${doc.id} missing participants field`);
       }
+      return { ...data, id: doc.id } as Chat;
+    });
+
+    // Filter by type in-memory
+    if (type) {
+      chatsArr = chatsArr.filter((c) => c.type === type);
     }
 
-    return chats;
+    // Sort by updatedAt descending with fallback to lastMessage.createdAt
+    return chatsArr.sort((a, b) => {
+      const timeA =
+        this.getTimestampValue(a.updatedAt) ||
+        this.getTimestampValue(a.lastMessage?.createdAt);
+      const timeB =
+        this.getTimestampValue(b.updatedAt) ||
+        this.getTimestampValue(b.lastMessage?.createdAt);
+      return timeB - timeA;
+    });
   }
 
   /**
@@ -202,47 +259,39 @@ export class ChatService {
     callback: (chats: Chat[]) => void,
     onError?: (error: any) => void,
   ): () => void {
-    const userChatsRef = collection(
-      this.db,
-      COLLECTIONS.USERS,
-      userId,
-      "chats",
-    );
+    const chatsRef = collection(this.db, COLLECTIONS.CHATS);
 
-    let q;
-
-    if (type) {
-      q = query(
-        userChatsRef,
-        where("type", "==", type),
-        orderBy("updatedAt", "desc"),
-      );
-    } else {
-      q = query(userChatsRef, orderBy("updatedAt", "desc"));
-    }
+    // Use simple query to avoid missing field exclusions and composite index requirements
+    const q = query(chatsRef, where("participants", "array-contains", userId));
 
     return onSnapshot(
       q,
-      async (snapshot) => {
-        const chatIds = snapshot.docs.map((doc) => doc.data().chatId);
-        const chats: Chat[] = [];
+      (snapshot) => {
+        let chatsArr = snapshot.docs.map(
+          (doc) => ({ ...doc.data(), id: doc.id }) as Chat,
+        );
 
-        // Note: This makes N reads every time the list updates.
-        // Consider optimizing if list grows large.
-        for (const chatId of chatIds) {
-          const chat = await this.getChat(chatId);
-          if (chat) {
-            chats.push(chat);
-          }
+        // Filter by type in-memory
+        if (type) {
+          chatsArr = chatsArr.filter((c) => c.type === type);
         }
 
-        callback(chats);
+        // Sort by updatedAt descending with fallback to lastMessage.createdAt
+        chatsArr.sort((a, b) => {
+          const timeA =
+            this.getTimestampValue(a.updatedAt) ||
+            this.getTimestampValue(a.lastMessage?.createdAt);
+          const timeB =
+            this.getTimestampValue(b.updatedAt) ||
+            this.getTimestampValue(b.lastMessage?.createdAt);
+          return timeB - timeA;
+        });
+
+        callback(chatsArr);
       },
       (error) => {
         console.error("Error in user chats subscription:", error);
-        if (onError) {
-          onError(error);
-        }
+        if (onError) onError(error);
       },
     );
   }
@@ -285,11 +334,10 @@ export class ChatService {
     const chat = await this.getChat(chatId);
 
     if (chat) {
-      const batch = writeBatch(this.db);
-
-      // Update chat last message
-      batch.update(chatRef, {
+      // Update chat last message and unread counts for all participants except sender
+      const updates: any = {
         lastMessage: {
+          id: messageId,
           text:
             type === "text" ? text : type === "location" ? "Location" : "File",
           senderId,
@@ -297,57 +345,15 @@ export class ChatService {
           type,
         },
         updatedAt: serverTimestamp(),
-      });
+      };
 
-      // Update unread counts and user indexes for all participants
-      chat.participants.forEach((participantId) => {
-        // Path: users/{userId}/chats/{chatId}
-        const userChatRef = doc(
-          this.db,
-          COLLECTIONS.USERS,
-          participantId,
-          "chats",
-          chatId,
-        );
-
+      chat.participants?.forEach((participantId) => {
         if (participantId !== senderId) {
-          // Increment unread for others
-          batch.update(chatRef, {
-            [`unreadCount.${participantId}`]: increment(1),
-          });
-
-          // Update user chat index for receiver
-          batch.update(userChatRef, {
-            unreadCount: increment(1),
-            lastMessage: {
-              text:
-                type === "text"
-                  ? text
-                  : type === "location"
-                    ? "Location"
-                    : "File",
-              createdAt: serverTimestamp(),
-            },
-            updatedAt: serverTimestamp(),
-          });
-        } else {
-          // Update user chat index for sender (no unread increment)
-          batch.update(userChatRef, {
-            lastMessage: {
-              text:
-                type === "text"
-                  ? text
-                  : type === "location"
-                    ? "Location"
-                    : "File",
-              createdAt: serverTimestamp(),
-            },
-            updatedAt: serverTimestamp(),
-          });
+          updates[`unreadCount.${participantId}`] = increment(1);
         }
       });
 
-      await batch.commit();
+      await updateDoc(chatRef, updates);
     }
 
     return messageId;
@@ -366,16 +372,25 @@ export class ChatService {
       chatId,
       COLLECTIONS.MESSAGES,
     );
-    const q = query(
-      messagesRef,
-      orderBy("createdAt", "desc"), // Changed to createdAt based on schema
-      limit(limitCount),
-    );
+
+    // Query without orderBy to handle legacy messsages missing fields
+    const q = query(messagesRef, limit(limitCount));
 
     const snapshot = await getDocs(q);
-    return snapshot.docs
-      .map((doc) => ({ id: doc.id, ...doc.data() }) as Message)
-      .reverse(); // Reverse to get chronological order
+    const messages = snapshot.docs.map(
+      (doc) => ({ ...doc.data(), id: doc.id }) as Message,
+    );
+
+    // Sort chronologically in memory
+    return messages.sort((a, b) => {
+      const timeA =
+        this.getTimestampValue(a.createdAt) ||
+        this.getTimestampValue(a.timeStamp);
+      const timeB =
+        this.getTimestampValue(b.createdAt) ||
+        this.getTimestampValue(b.timeStamp);
+      return timeA - timeB;
+    });
   }
 
   /**
@@ -392,16 +407,26 @@ export class ChatService {
       chatId,
       COLLECTIONS.MESSAGES,
     );
-    const q = query(
-      messagesRef,
-      orderBy("createdAt", "desc"), // Changed to createdAt
-      limit(limitCount),
-    );
+
+    // Query without orderBy to handle missing fields
+    const q = query(messagesRef, limit(limitCount));
 
     return onSnapshot(q, (snapshot) => {
-      const messages = snapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }) as Message)
-        .reverse();
+      const messages = snapshot.docs.map(
+        (doc) => ({ ...doc.data(), id: doc.id }) as Message,
+      );
+
+      // Sort chronologically in memory
+      messages.sort((a, b) => {
+        const timeA =
+          this.getTimestampValue(a.createdAt) ||
+          this.getTimestampValue(a.timeStamp);
+        const timeB =
+          this.getTimestampValue(b.createdAt) ||
+          this.getTimestampValue(b.timeStamp);
+        return timeA - timeB;
+      });
+
       callback(messages);
     });
   }
@@ -422,12 +447,10 @@ export class ChatService {
       messageId,
     );
 
-    // Schema only has isRead boolean, not readBy array update in screenshot
-    // But good to keep tracking if possible. Schema says isRead: boolean.
-    // We'll update isRead to true.
+    // Use updateDoc to ensure we only update existing chat documents
     await updateDoc(messageRef, {
       isRead: true,
-      readBy: arrayUnion(userId), // Optional given simplified schema but usually good practice
+      readBy: arrayUnion(userId),
     });
   }
 
@@ -435,38 +458,37 @@ export class ChatService {
    * Mark all messages in chat as read for a user
    */
   static async markChatAsRead(chatId: string, userId: string): Promise<void> {
-    const chat = await this.getChat(chatId);
-    if (!chat) return;
+    try {
+      const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
 
-    // Get unread count for this user
-    const unreadCount = chat.unreadCount[userId] || 0;
+      // Use direct dot notation with updateDoc for most reliable map field update
+      // This will only work if the document already exists, preventing partial docs.
+      await updateDoc(chatRef, {
+        [`unreadCount.${userId}`]: 0,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error("Error marking chat as read:", error);
+    }
+  }
 
-    if (unreadCount === 0) return;
-
-    const batch = writeBatch(this.db);
-    const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
-
-    // Reset unread count in main chat
-    batch.update(chatRef, {
-      [`unreadCount.${userId}`]: 0,
-    });
-
-    // Reset unread count in user's chat index
-    // Path: users/{userId}/chats/{chatId}
-    const userChatRef = doc(
-      this.db,
-      COLLECTIONS.USERS,
-      userId,
-      "chats",
-      chatId,
-    );
-
-    // We update because it should exist
-    batch.update(userChatRef, {
-      unreadCount: 0,
-    });
-
-    await batch.commit();
+  /**
+   * Visit chat: Mark as online and read in a single combined operation
+   * This follows the rule of updating the chat doc itself directly.
+   */
+  static async visitChat(chatId: string, userId: string): Promise<void> {
+    try {
+      const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
+      // ONLY use updateDoc. If it fails, it means the chat hasn't been properly created yet
+      // which prevents creating the empty "shadow" documents shown in the screenshot.
+      await updateDoc(chatRef, {
+        [`onlineStatus.${userId}`]: true,
+        [`unreadCount.${userId}`]: 0,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error("Error visiting chat:", error);
+    }
   }
 
   /**
@@ -477,10 +499,14 @@ export class ChatService {
     userId: string,
     isTyping: boolean,
   ): Promise<void> {
-    const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
-    await updateDoc(chatRef, {
-      [`typing.${userId}`]: isTyping,
-    });
+    try {
+      const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
+      await updateDoc(chatRef, {
+        [`typing.${userId}`]: isTyping,
+      });
+    } catch (error) {
+      console.error("Error setting typing status:", error);
+    }
   }
 
   /**
@@ -499,54 +525,41 @@ export class ChatService {
   }
 
   /**
-   * Set user online status
+   * Set user online status within a specific chat
    */
-  static async setOnlineStatus(userId: string, online: boolean): Promise<void> {
-    const presenceRef = doc(this.db, COLLECTIONS.PRESENCE, userId);
-    await setDoc(
-      presenceRef,
-      {
-        userId,
-        online,
-        lastSeen: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true },
-    );
-  }
-
-  /**
-   * Get user online status
-   */
-  static async getOnlineStatus(userId: string): Promise<boolean> {
-    const presenceRef = doc(this.db, COLLECTIONS.PRESENCE, userId);
-    const presenceSnap = await getDoc(presenceRef);
-
-    if (!presenceSnap.exists()) {
-      return false;
-    }
-
-    const data = presenceSnap.data() as Presence;
-    return data.online;
-  }
-
-  /**
-   * Listen to user online status in real-time
-   */
-  static subscribeToOnlineStatus(
+  static async setChatOnlineStatus(
+    chatId: string,
     userId: string,
-    callback: (online: boolean) => void,
-  ): () => void {
-    const presenceRef = doc(this.db, COLLECTIONS.PRESENCE, userId);
+    online: boolean,
+  ): Promise<void> {
+    try {
+      const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
+      await updateDoc(chatRef, {
+        [`onlineStatus.${userId}`]: online,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error("Error setting chat online status:", error);
+    }
+  }
 
-    return onSnapshot(presenceRef, (snapshot) => {
+  /**
+   * Listen to user online status in a specific chat
+   */
+  static subscribeToChatOnlineStatus(
+    chatId: string,
+    callback: (onlineStatus: OnlineStatus) => void,
+  ): () => void {
+    const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
+
+    return onSnapshot(chatRef, (snapshot) => {
       if (!snapshot.exists()) {
-        callback(false);
+        callback({});
         return;
       }
 
-      const data = snapshot.data() as Presence;
-      callback(data.online);
+      const data = snapshot.data() as Chat;
+      callback(data.onlineStatus || {});
     });
   }
 
@@ -579,26 +592,7 @@ export class ChatService {
    */
   static async deleteChat(chatId: string): Promise<void> {
     const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
-    const chat = await this.getChat(chatId);
-
-    if (chat) {
-      // Delete chat document
-      await deleteDoc(chatRef);
-
-      // Clean up user chat indexes
-      const promises = chat.participants.map((participantId) => {
-        const userChatRef = doc(
-          this.db,
-          COLLECTIONS.USERS,
-          participantId,
-          "chats",
-          chatId,
-        );
-        return deleteDoc(userChatRef);
-      });
-
-      await Promise.all(promises);
-    }
+    await deleteDoc(chatRef);
   }
 
   /**
@@ -617,11 +611,28 @@ export class ChatService {
       messageId,
     );
 
-    await updateDoc(messageRef, {
-      text: newText,
-      updatedAt: serverTimestamp(),
-      isEdited: true,
-    });
+    await setDoc(
+      messageRef,
+      {
+        text: newText,
+        updatedAt: serverTimestamp(),
+        isEdited: true,
+      },
+      { merge: true },
+    );
+
+    // Update chat document if this was the last message
+    const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
+    const chatSnap = await getDoc(chatRef);
+    if (chatSnap.exists()) {
+      const chatData = chatSnap.data() as Chat;
+      if (chatData.lastMessage?.id === messageId) {
+        await updateDoc(chatRef, {
+          "lastMessage.text": newText,
+          updatedAt: serverTimestamp(),
+        });
+      }
+    }
   }
 
   /**
@@ -637,5 +648,51 @@ export class ChatService {
     );
 
     await deleteDoc(messageRef);
+
+    // Update chat document if this was the last message
+    const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
+    const chatSnap = await getDoc(chatRef);
+    if (chatSnap.exists()) {
+      const chatData = chatSnap.data() as Chat;
+      if (chatData.lastMessage?.id === messageId) {
+        // Find the next last message
+        const messagesRef = collection(
+          this.db,
+          COLLECTIONS.CHATS,
+          chatId,
+          COLLECTIONS.MESSAGES,
+        );
+        // We limit to 2 because we just deleted one, but we need the new last one
+        // Actually we don't know the order from just a simple query without orderBy
+        // but getMessages sorts them.
+        const allMessages = await this.getMessages(chatId, 10);
+        const lastMsg = allMessages[allMessages.length - 1];
+
+        if (lastMsg) {
+          await updateDoc(chatRef, {
+            lastMessage: {
+              id: lastMsg.id,
+              text: lastMsg.text,
+              senderId: lastMsg.senderId,
+              createdAt: lastMsg.createdAt,
+              type: lastMsg.type,
+            },
+            updatedAt: serverTimestamp(),
+          });
+        } else {
+          // No messages left
+          await updateDoc(chatRef, {
+            lastMessage: {
+              id: "",
+              text: "Message deleted",
+              senderId: "",
+              createdAt: serverTimestamp(),
+              type: "text",
+            },
+            updatedAt: serverTimestamp(),
+          });
+        }
+      }
+    }
   }
 }

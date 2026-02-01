@@ -4,6 +4,7 @@ import { Typography } from "@/components/typography";
 import { AvatarImage, Chat } from "./ChatSidebar";
 import Image from "next/image";
 import { ICONS } from "@/constants/icons";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -67,35 +68,37 @@ export function ChatHeader({
             </div>
             <div>
               <div className="flex items-center gap-2">
-
                 <Typography
                   variant="body-small"
                   className="font-semibold text-gray-900"
                 >
                   {currentChat?.name || "Unknown"}
                 </Typography>
-                {currentChat?.isVerified && <div className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center p-[2px]">
-                  <Image
-                    src={ICONS.auth.verified}
-                    alt="Verified"
-                    width={10}
-                    height={10}
-                    className="w-full h-full object-cover"
-                  />
-                </div>}
+                {currentChat?.isVerified && (
+                  <div className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center p-[2px]">
+                    <Image
+                      src={ICONS.auth.verified}
+                      alt="Verified"
+                      width={10}
+                      height={10}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                {currentChat?.isOnline && (
+                  <div className="w-2.5 h-2.5 bg-green-500 rounded-full border border-white shadow-sm" />
+                )}
               </div>
-              <Typography variant="caption" className="text-gray-500">
-                last seen 5 mins ago
+              <Typography
+                variant="caption"
+                className={cn(
+                  "text-gray-500 transition-colors duration-300",
+                  currentChat?.isOnline && "text-green-600 font-medium"
+                )}
+              >
+                {currentChat?.isOnline ? "Online" : "Last seen recently"}
               </Typography>
             </div>
-            {currentChat?.isOnline && (
-              <div
-                className={`absolute ${currentChat?.chatType === "ad" && currentChat?.ad
-                  ? "top-0 right-0"
-                  : "bottom-0 right-0"
-                  } w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full z-20`}
-              ></div>
-            )}
           </div>
 
           <div className="flex items-center gap-2">

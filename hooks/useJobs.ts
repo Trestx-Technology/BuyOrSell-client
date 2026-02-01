@@ -47,14 +47,6 @@ export const useGetAllJobs = (params?: JobFilters) => {
   });
 };
 
-export const useGetJobById = (id: string) => {
-  return useQuery<SingleJobResponse, Error>({
-    queryKey: jobQueries.getJobById(id).Key,
-    queryFn: () => getJobById(id),
-    enabled: !!id,
-  });
-};
-
 export const useGetJobsByOrganization = (
   organizationId: string,
   params?: {

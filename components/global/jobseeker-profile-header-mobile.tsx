@@ -33,9 +33,13 @@ import {
 } from "./jobseeker-profile-header";
 import { ConnectButton } from "@/app/[locale]/(root)/jobs/_components/connect-button";
 import { useCanChat } from "@/hooks/useConnections";
-import { findOrCreateDmChat } from "@/lib/firebase/chat.utils";
-import { useState } from "react";
+import { findOrCreateDmChat, findOrCreateOrganisationChat } from "@/lib/firebase/chat.utils";
+import { useState, useEffect, useRef } from "react";
 import { CURRENCY_ICONS } from "@/constants/icons";
+import { useAdById } from "@/hooks/useAds";
+import { OrganisationSelectionDialog } from "./organisation-selection-dialog";
+import { Organization } from "@/interfaces/organization.types";
+import { useMyOrganization } from "@/hooks/useOrganizations";
 
 export interface JobseekerProfileHeaderMobileProps {
   jobseeker: JobseekerProfile;
@@ -86,10 +90,25 @@ export default function JobseekerProfileHeaderMobile({
   const { data: canChatData } = useCanChat(jobseeker.userId);
   const canChat = canChatData?.data?.canChat || false;
   const [isMessageLoading, setIsMessageLoading] = useState(false);
+  const [isOrgDialogOpen, setIsOrgDialogOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<"chat" | "connect">("chat");
+  const [selectedConnectOrgId, setSelectedConnectOrgId] = useState<string | undefined>(undefined);
+  const connectHandlerRef = useRef<((e: any) => void) | null>(null);
+
+  // My organizations hook
+  const { data: orgData } = useMyOrganization();
+  const hasOrganisations = (orgData?.data?.length ?? 0) > 0;
 
   // Application hooks
   const acceptApplicationMutation = useAcceptApplication();
   const rejectApplicationMutation = useRejectApplication();
+
+  // Fetch job details to get organization info if available
+  const { data: jobData } = useAdById(jobId || "");
+  const job = jobData?.data;
+  const organisationId = job?.organization?._id;
+  const organisationName = job?.organization?.tradeName || job?.organization?.legalName;
+  const organisationImage = job?.organization?.logoUrl;
 
   // Get connection status from jobseeker profile or props
   const isActuallyConnected = isConnected ?? jobseeker.isConnected;
@@ -184,10 +203,65 @@ export default function JobseekerProfileHeaderMobile({
       return;
     }
 
-    if (!canChat) {
-      toast.error("You can only message users you are connected with");
+    // If it's an applicant list view, allow chatting through the job's organization
+    if (type === "applicantsList") {
+      if (organisationId) {
+        await initiateOrganisationChat(
+          organisationId,
+          organisationName,
+          organisationImage
+        );
+      } else {
+        setDialogMode("chat");
+        setIsOrgDialogOpen(true);
+      }
       return;
     }
+
+    // If already connected, can chat personally or via organization
+    if (canChat) {
+      if (organisationId) {
+        // We already have a specific job context
+        await initiateOrganisationChat(
+          organisationId,
+          organisationName,
+          organisationImage
+        );
+      } else if (hasOrganisations) {
+        setDialogMode("chat");
+        setIsOrgDialogOpen(true);
+      } else {
+        // Just a regular DM
+        await initiatePersonalChat();
+      }
+      return;
+    }
+
+    // Not connected personally - only allow if they use an organization
+    if (hasOrganisations) {
+      setDialogMode("chat");
+      setIsOrgDialogOpen(true);
+    } else {
+      toast.error("You can only message users you are connected with");
+    }
+  };
+
+  // Handle Organization Selection
+  const handleOrgSelect = async (org: Organization) => {
+    if (dialogMode === "chat") {
+      await initiateOrganisationChat(org._id, org.tradeName || org.legalName, org.logoUrl);
+    } else {
+      setSelectedConnectOrgId(org._id);
+      setTimeout(() => {
+        if (connectHandlerRef.current) {
+          connectHandlerRef.current({ stopPropagation: () => { } } as any);
+        }
+      }, 0);
+    }
+  };
+
+  const initiatePersonalChat = async () => {
+    if (!session?.user) return;
 
     setIsMessageLoading(true);
     try {
@@ -197,6 +271,36 @@ export default function JobseekerProfileHeaderMobile({
         image: jobseeker.photoUrl || "",
       });
       router.push(`/chat?chatId=${chatId}&type=dm`);
+    } catch (error) {
+      console.error("Error creating chat:", error);
+      toast.error("Failed to start conversation");
+    } finally {
+      setIsMessageLoading(false);
+    }
+  };
+
+  const initiateOrganisationChat = async (
+    orgId: string,
+    orgName?: string,
+    orgImage?: string
+  ) => {
+    if (!session?.user) return;
+
+    setIsMessageLoading(true);
+    try {
+      const chatId = await findOrCreateOrganisationChat(
+        session.user,
+        {
+          id: jobseeker.userId,
+          name: jobseeker.name || "User",
+          image: jobseeker.photoUrl || "",
+        },
+        orgId,
+        orgName,
+        orgImage
+      );
+
+      router.push(`/chat?chatId=${chatId}&type=organisation`);
     } catch (error) {
       console.error("Error creating chat:", error);
       toast.error("Failed to start conversation");
@@ -409,7 +513,7 @@ export default function JobseekerProfileHeaderMobile({
       </div>
 
       {/* Profile Details - Compact Grid */}
-      <div className="grid max-[450px]:grid-cols-1 grid-cols-2 gap-3 mb-4">
+      <div className="grid max-[350px]:grid-cols-1 grid-cols-2 gap-3 mb-4">
         {jobType && (
           <div className="flex items-center gap-1.5">
             <Clock className="w-4 h-4 text-grey-blue flex-shrink-0" />
@@ -547,47 +651,58 @@ export default function JobseekerProfileHeaderMobile({
                 <ConnectButton
                   receiverId={jobseeker.userId}
                   professionalId={jobseeker._id}
+                  organisationId={selectedConnectOrgId}
                   initialConnectionStatus={connectionStatus}
                   initialRequestId={requestId as string}
-                  render={({ connectionStatus, handleConnection, isLoading }) => (
-                    <Button
-                      onClick={handleConnection}
-                      isLoading={isLoading}
-                      disabled={isLoading}
-                      className={
-                        connectionStatus === "PENDING" ||
-                          connectionStatus === "ACCEPTED"
-                          ? "bg-white text-dark-blue border border-gray-300 hover:bg-gray-50 w-full"
-                          : "bg-purple text-white hover:bg-purple/90 w-full"
-                      }
-                      size="sm"
-                      icon={<UserPlus className="w-4 h-4" />}
-                      iconPosition="center"
-                      variant={
-                        connectionStatus === "PENDING" ||
-                          connectionStatus === "ACCEPTED"
-                          ? "outline"
-                          : "primary"
-                      }
-                    >
-                      {connectionStatus === "ACCEPTED"
-                        ? "Connected"
-                        : connectionStatus === "PENDING"
-                          ? "Cancel Request"
-                          : connectionStatus === "REJECTED"
-                            ? "Send Request"
-                            : "Connect"}
-                    </Button>
-                  )}
+                  render={({ connectionStatus, handleConnection, isLoading }) => {
+                    connectHandlerRef.current = handleConnection;
+                    return (
+                      <Button
+                        onClick={(e) => {
+                          if (!canChat && hasOrganisations && !selectedConnectOrgId) {
+                            setDialogMode("connect");
+                            setIsOrgDialogOpen(true);
+                            return;
+                          }
+                          handleConnection(e);
+                        }}
+                        isLoading={isLoading}
+                        disabled={isLoading}
+                        className={
+                          connectionStatus === "PENDING" ||
+                            connectionStatus === "ACCEPTED"
+                            ? "bg-white text-dark-blue border border-gray-300 hover:bg-gray-50 w-full"
+                            : "bg-purple text-white hover:bg-purple/90 w-full"
+                        }
+                        size="sm"
+                        icon={<UserPlus className="w-4 h-4" />}
+                        iconPosition="center"
+                        variant={
+                          connectionStatus === "PENDING" ||
+                            connectionStatus === "ACCEPTED"
+                            ? "outline"
+                            : "primary"
+                        }
+                      >
+                        {connectionStatus === "ACCEPTED"
+                          ? "Connected"
+                          : connectionStatus === "PENDING"
+                            ? "Cancel Request"
+                            : connectionStatus === "REJECTED"
+                              ? "Send Request"
+                              : "Connect"}
+                      </Button>
+                    );
+                  }}
                 />
                 <Button
                   onClick={handleMessage}
                   isLoading={isMessageLoading}
-                  disabled={isMessageLoading || !canChat}
+                  disabled={isMessageLoading || (!canChat && !hasOrganisations)}
                   variant="outline"
                   className={cn(
                     "bg-white text-dark-blue border border-gray-300 hover:bg-gray-50 w-full",
-                    !canChat && "opacity-50 cursor-not-allowed"
+                    (!canChat && !hasOrganisations) && "opacity-50 cursor-not-allowed"
                   )}
                   size="sm"
                   icon={<MessageCircle className="w-4 h-4" />}
@@ -661,6 +776,17 @@ export default function JobseekerProfileHeaderMobile({
           Profile last updated - {lastUpdated}
         </Typography>
       )}
+
+      <OrganisationSelectionDialog
+        open={isOrgDialogOpen}
+        onOpenChange={setIsOrgDialogOpen}
+        onSelect={handleOrgSelect}
+        title={dialogMode === "chat" ? "Select Organisation to Message" : "Connect as Organisation"}
+        description={dialogMode === "chat"
+          ? "Choose which organisation account you want to use to message this jobseeker."
+          : "Select the organisation you want to represent when connecting with this professional."
+        }
+      />
     </div>
   );
 }

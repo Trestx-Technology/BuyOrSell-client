@@ -114,8 +114,15 @@ export default function JobApplicantCard({
     handleAccept();
   };
   const profile = applicant.applicantProfileId;
-  const userName = isArabic && profile?.nameAr ? profile.nameAr : (profile?.name || profile?.headline || "Unknown User");
-  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+  const userName =
+    isArabic && profile?.nameAr
+      ? profile.nameAr
+      : profile?.name || profile?.headline || applicant.user?.name || "Unknown User";
+
+  // Try to get a real image from the profile or user object
+  const realImageUrl = (profile as any)?.photoUrl || applicant.user?.image;
+
+  const avatarUrl = realImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(
     userName
   )}&background=random`;
 

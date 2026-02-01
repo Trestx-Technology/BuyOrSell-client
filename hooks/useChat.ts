@@ -3,7 +3,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { ChatService } from "@/lib/firebase/chat.service";
 import { Chat as FirebaseChat, Message } from "@/lib/firebase/types";
 import { useAuthStore } from "@/stores/authStore";
-import { usePresence } from "@/lib/firebase/presence.hook";
 import { toast } from "sonner";
 import { useLocale } from "@/hooks/useLocale";
 import type { ChatType } from "@/app/[locale]/(root)/chat/_components/ChatTypeSelector";
@@ -18,7 +17,7 @@ export function useChat() {
 
   const [chats, setChats] = useState<FirebaseChat[]>([]);
   const [currentChatData, setCurrentChatData] = useState<FirebaseChat | null>(
-    null
+    null,
   );
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
@@ -55,38 +54,21 @@ export function useChat() {
 
     const currentUserId = session.user._id;
 
-    // Check if chat already exists
-    // Get all chats for current user of type "ad"
-    const userChats = await ChatService.getUserChats(currentUserId, "ad");
-
-    // Find chat that matches this ad
-    const existingChat = userChats.find(
-      (chat) =>
-        chat.adId === ad._id &&
-        chat.participants.includes(adOwnerId) &&
-        chat.participants.includes(currentUserId)
-    );
-
-    if (existingChat) {
-      return existingChat.id;
-    }
-
-    // Create new chat
+    // Create new chat (deterministic ID handled in ChatService)
     const adOwner = typeof ad.owner === "string" ? null : ad.owner;
     const adOwnerName = adOwner
       ? `${adOwner.firstName} ${adOwner.lastName}`.trim() ||
         adOwner.name ||
         "Seller"
       : "Seller";
-    // Assuming arabic name isn't readily available in adOwner fields shown, reusing name
     const adOwnerNameAr = adOwnerName;
     const adOwnerAvatar = adOwner?.image || "";
     const adOwnerVerified = adOwner?.emailVerified || false;
 
     const currentUserName =
       `${session.user.firstName} ${session.user.lastName}`.trim();
-    const currentUserNameAr = currentUserName; // Fallback
-    const currentUserAvatar = ""; // You may need to get this from user profile
+    const currentUserNameAr = currentUserName;
+    const currentUserAvatar = session.user.image || "";
     const currentUserVerified = session.user.emailVerified || false;
 
     const chatId = await ChatService.createChat({
@@ -116,9 +98,48 @@ export function useChat() {
     return chatId;
   };
 
-  // Set up presence hook on mount for currentUser
-  const userId = session.user?._id || null;
-  usePresence(userId);
+  // Set up presence for currentUser in the current chat
+  useEffect(() => {
+    const userId = session.user?._id;
+    const chatId = currentChatData?.id;
+
+    if (!userId || !chatId) return;
+
+    let isSubscribed = true;
+
+    // Set user online when component mounts/chat changes
+    const setOnline = async () => {
+      try {
+        console.log(
+          `[Presence] Setting ONLINE: User(${userId}) Chat(${chatId})`,
+        );
+        await ChatService.visitChat(chatId, userId);
+      } catch (err) {
+        if (isSubscribed) console.error("Presence error (mount):", err);
+      }
+    };
+
+    setOnline();
+
+    const handleBeforeUnload = () => {
+      ChatService.setChatOnlineStatus(chatId, userId, false).catch(() => {});
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      isSubscribed = false;
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+
+      // Only mark offline if we are actually leaving this chat ID or unmounting
+      console.log(
+        `[Presence] Cleanup (OFFLINE): User(${userId}) Chat(${chatId})`,
+      );
+      ChatService.setChatOnlineStatus(chatId, userId, false).catch((err) =>
+        console.error("Presence cleanup error:", err),
+      );
+    };
+  }, [session.user?._id, currentChatData?.id]);
 
   // Subscribe to user chats in real-time
   useEffect(() => {
@@ -139,7 +160,7 @@ export function useChat() {
       (error) => {
         console.error("Subscription error:", error);
         setLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();
@@ -147,16 +168,53 @@ export function useChat() {
 
   // Load current chat data when chatId is in URL
   useEffect(() => {
-    if (!urlChatId || !session.user?._id) {
+    if (!urlChatId || urlChatId === "undefined" || !session.user?._id) {
       setCurrentChatData(null);
       setMessages([]);
       setMessage("");
       return;
     }
 
+    // First, try to find the chat in our already loaded 'chats' array
+    const existingChat = chats.find((c) => c.id === urlChatId);
+    if (existingChat) {
+      if (currentChatData?.id !== existingChat.id) {
+        setCurrentChatData(existingChat);
+        // Load messages for this chat
+        ChatService.getMessages(existingChat.id)
+          .then(setMessages)
+          .catch(console.error);
+
+        // Mark as read and set online using the resolved ID
+        if (session.user?._id) {
+          ChatService.visitChat(existingChat.id, session.user._id).catch(
+            console.error,
+          );
+        }
+      }
+      return;
+    }
+
     const loadChat = async () => {
       try {
-        const chatData = await ChatService.getChat(urlChatId);
+        // Try to get chat by ID
+        let chatData = await ChatService.getChat(urlChatId);
+
+        // Transition logic: If not found and it looks like an adId/orgId (hex ID without underscores)
+        // search for a chat document that references this ad/org.
+        if (!chatData && !urlChatId.includes("_")) {
+          const chatByAdOrOrg = chats.find(
+            (c) => c.adId === urlChatId || c.organisationId === urlChatId,
+          );
+          if (chatByAdOrOrg) {
+            router.replace(
+              `${localePath("/chat")}?chatId=${chatByAdOrOrg.id}&type=${
+                chatByAdOrOrg.type
+              }`,
+            );
+            return;
+          }
+        }
 
         if (!chatData) {
           toast.error(t.chat.chatNotFound);
@@ -164,16 +222,18 @@ export function useChat() {
           return;
         }
 
-        setCurrentChatData(chatData);
-        setChatType(chatData.type);
+        if (currentChatData?.id !== chatData.id) {
+          setCurrentChatData(chatData);
+          setChatType(chatData.type);
 
-        // Load messages
-        const chatMessages = await ChatService.getMessages(urlChatId);
-        setMessages(chatMessages);
+          // Load messages using the actual chat ID from the doc
+          const chatMessages = await ChatService.getMessages(chatData.id);
+          setMessages(chatMessages);
 
-        // Mark chat as read for current user if needed
-        if (session.user?._id && chatData.unreadCount[session.user._id] > 0) {
-          await ChatService.markChatAsRead(urlChatId, session.user._id);
+          // Mark chat as read and set online for current user using the actual ID
+          if (session.user?._id) {
+            await ChatService.visitChat(chatData.id, session.user._id);
+          }
         }
       } catch (error) {
         console.error("Error loading chat:", error);
@@ -184,92 +244,99 @@ export function useChat() {
 
     loadChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlChatId, session.user?._id]);
+  }, [urlChatId, session.user?._id, chats.length]);
 
   // Subscribe to real-time messages
   useEffect(() => {
-    if (!urlChatId) return;
+    if (!currentChatData?.id) return;
 
     const unsubscribe = ChatService.subscribeToMessages(
-      urlChatId,
+      currentChatData.id,
       (newMessages) => {
         setMessages(newMessages);
-        // Mark chat as read when new messages arrive
+        // Mark chat as read and set online when new messages arrive
         if (session.user?._id) {
-          ChatService.markChatAsRead(urlChatId, session.user._id).catch(
-            console.error
+          ChatService.visitChat(currentChatData.id, session.user._id).catch(
+            console.error,
           );
         }
-      }
+      },
     );
 
     return () => unsubscribe();
-  }, [urlChatId, session.user?._id]);
+  }, [currentChatData?.id, session.user?._id]);
 
   // Subscribe to typing status
   useEffect(() => {
-    if (!urlChatId) return;
+    if (!currentChatData?.id) return;
 
     const unsubscribe = ChatService.subscribeToTypingStatus(
-      urlChatId,
+      currentChatData.id,
       (typing) => {
         setTypingStatus(typing);
-      }
+      },
     );
 
     return () => unsubscribe();
-  }, [urlChatId]);
+  }, [currentChatData?.id]);
 
   // Subscribe to other user's online status (for current chat)
   useEffect(() => {
-    if (!currentChatData || !session.user?._id) return;
-
-    const otherParticipantId = currentChatData.participants.find(
-      (id) => id !== session.user?._id
-    );
-    if (!otherParticipantId) return;
-
-    const unsubscribe = ChatService.subscribeToOnlineStatus(
-      otherParticipantId,
-      (isOnline) => {
-        setIsOtherUserOnline(isOnline);
-      }
-    );
-
-    return () => unsubscribe();
-  }, [currentChatData, session.user?._id]);
-
-  // Subscribe to online status for all participants
-  useEffect(() => {
+    const participants = currentChatData?.participants;
     const userId = session.user?._id;
-    if (!userId || chats.length === 0) return;
 
-    const unsubscribes: (() => void)[] = [];
-    const statusMap: { [userId: string]: boolean } = {};
+    if (!participants || !userId) {
+      setIsOtherUserOnline(false);
+      return;
+    }
 
+    const otherParticipantId = participants.find(
+      (id) => String(id) !== String(userId),
+    );
+
+    if (!otherParticipantId) {
+      setIsOtherUserOnline(false);
+      return;
+    }
+
+    const otherStatus =
+      currentChatData.onlineStatus?.[otherParticipantId] || false;
+
+    console.log(
+      `[StatusDetect] Me: ${userId}, Other: ${otherParticipantId}, online: ${otherStatus}`,
+    );
+
+    setIsOtherUserOnline(otherStatus);
+  }, [
+    currentChatData?.onlineStatus,
+    currentChatData?.participants,
+    session.user?._id,
+  ]);
+
+  // Subscribe to online status for all participants (from chat documents)
+  useEffect(() => {
+    if (chats.length === 0) return;
+
+    // Online status is now part of the chat document, so we don't need separate subscriptions
+    // for each participant. It's already updated in the 'chats' state when the chat doc changes.
+    const userId = session.user?._id;
+    if (!userId) return;
+
+    const newOnlineStatus: { [key: string]: boolean } = {};
     chats.forEach((chat) => {
-      chat.participants.forEach((participantId) => {
-        if (participantId !== userId) {
-          const unsubscribe = ChatService.subscribeToOnlineStatus(
-            participantId,
-            (online) => {
-              statusMap[participantId] = online;
-              setOnlineStatus((prev) => ({ ...prev, [participantId]: online }));
-            }
-          );
-          unsubscribes.push(unsubscribe);
+      chat.participants?.forEach((participantId) => {
+        if (participantId !== userId && chat.onlineStatus) {
+          newOnlineStatus[participantId] =
+            chat.onlineStatus[participantId] || false;
         }
       });
     });
-
-    return () => {
-      unsubscribes.forEach((unsub) => unsub());
-    };
+    setOnlineStatus(newOnlineStatus);
   }, [chats, session.user?._id]);
 
   // Helper function to format timestamp
   const formatTimestamp = (
-    timestamp: Date | { toDate?: () => Date } | string | number | undefined
+    timestamp: Date | { toDate?: () => Date } | string | number | undefined,
   ): string => {
     if (!timestamp) return "";
 
@@ -320,12 +387,13 @@ export function useChat() {
     if (!userId) return [];
 
     return chats.map((firebaseChat) => {
-      const otherParticipantId = firebaseChat.participants.find(
-        (id) => id !== userId
+      const otherParticipantId = firebaseChat.participants?.find(
+        (id) => id !== userId,
       );
-      const otherParticipant = otherParticipantId
-        ? firebaseChat.participantDetails[otherParticipantId]
-        : null;
+      const otherParticipant =
+        otherParticipantId && firebaseChat.participantDetails
+          ? firebaseChat.participantDetails[otherParticipantId]
+          : null;
 
       const chatType = firebaseChat.type as ChatType;
 
@@ -351,27 +419,30 @@ export function useChat() {
       if (!otherParticipant) {
         return {
           id: firebaseChat.id,
-          name: "Unknown",
-          avatar: "",
-          lastMessage: firebaseChat.lastMessage.text || "",
-          time: formatTimestamp(firebaseChat.lastMessage.createdAt),
-          unreadCount: firebaseChat.unreadCount[userId] || 0,
+          name: firebaseChat.title || "Unknown",
+          avatar: firebaseChat.image || "",
+          lastMessage: firebaseChat.lastMessage?.text || "",
+          time: formatTimestamp(firebaseChat.lastMessage?.createdAt),
+          unreadCount: firebaseChat.unreadCount?.[userId] || 0,
           isVerified: false,
           isOnline: false,
           chatType: chatType,
           ad: adDetails,
           organisation: orgDetails,
+          initiatorId: firebaseChat.initiatorId,
         };
       }
 
+      const showOrgDetails = chatType === "organisation" && userId !== firebaseChat.initiatorId;
+
       return {
         id: firebaseChat.id,
-        name: otherParticipant.name,
-        avatar: otherParticipant.image || "",
-        lastMessage: firebaseChat.lastMessage.text || "",
-        time: formatTimestamp(firebaseChat.lastMessage.createdAt),
-        unreadCount: firebaseChat.unreadCount[userId] || 0,
-        isVerified: otherParticipant.isVerified,
+        name: showOrgDetails ? (firebaseChat.title || otherParticipant.name) : otherParticipant.name,
+        avatar: showOrgDetails ? (firebaseChat.image || otherParticipant.image || "") : (otherParticipant.image || ""),
+        lastMessage: firebaseChat.lastMessage?.text || "",
+        time: formatTimestamp(firebaseChat.lastMessage?.createdAt),
+        unreadCount: firebaseChat.unreadCount?.[userId] || 0,
+        isVerified: showOrgDetails ? false : otherParticipant.isVerified,
         isOnline: otherParticipantId
           ? onlineStatus[otherParticipantId] ||
             (firebaseChat.onlineStatus &&
@@ -382,21 +453,23 @@ export function useChat() {
         ad: adDetails,
         organisation: orgDetails,
         amIAdOwner: userId === firebaseChat.adOwnerId,
+        initiatorId: firebaseChat.initiatorId,
       };
     });
   }, [chats, session.user?._id, onlineStatus]);
 
   // Convert Firebase Chat to component Chat format (for current chat)
   const currentChat = useMemo(() => {
-    if (!currentChatData || !session.user?._id) return undefined;
+    if (!currentChatData?.participants || !session.user?._id) return undefined;
 
     const userId = session.user._id;
     const otherParticipantId = currentChatData.participants.find(
-      (id) => id !== userId
+      (id) => id !== userId,
     );
-    const otherParticipant = otherParticipantId
-      ? currentChatData.participantDetails[otherParticipantId]
-      : null;
+    const otherParticipant =
+      otherParticipantId && currentChatData.participantDetails
+        ? currentChatData.participantDetails[otherParticipantId]
+        : null;
 
     if (!otherParticipant) return undefined;
 
@@ -421,14 +494,16 @@ export function useChat() {
       };
     }
 
+    const showOrgDetails = chatType === "organisation" && userId !== currentChatData.initiatorId;
+
     return {
       id: currentChatData.id,
-      name: otherParticipant.name,
-      avatar: otherParticipant.image || "",
-      lastMessage: currentChatData.lastMessage.text,
-      time: formatTimestamp(currentChatData.lastMessage.createdAt),
-      unreadCount: currentChatData.unreadCount[session.user._id] || 0,
-      isVerified: otherParticipant.isVerified,
+      name: showOrgDetails ? (currentChatData.title || otherParticipant.name) : otherParticipant.name,
+      avatar: showOrgDetails ? (currentChatData.image || otherParticipant.image || "") : (otherParticipant.image || ""),
+      lastMessage: currentChatData.lastMessage?.text || "",
+      time: formatTimestamp(currentChatData.lastMessage?.createdAt),
+      unreadCount: currentChatData.unreadCount?.[session.user._id] || 0,
+      isVerified: showOrgDetails ? false : otherParticipant.isVerified,
       isOnline:
         isOtherUserOnline ||
         (otherParticipantId &&
@@ -438,6 +513,7 @@ export function useChat() {
       chatType: chatType,
       ad: adDetails,
       organisation: orgDetails,
+      initiatorId: currentChatData.initiatorId,
     };
   }, [currentChatData, session.user?._id, isOtherUserOnline]);
 
@@ -446,7 +522,7 @@ export function useChat() {
     return messages.map((msg) => ({
       id: msg.id,
       text: msg.text,
-      time: formatTimestamp(msg.createdAt),
+      time: formatTimestamp(msg.createdAt || msg.timeStamp),
       isFromUser: msg.senderId === session.user?._id,
       isRead: msg.isRead,
       type: msg.type || "text",
@@ -455,12 +531,21 @@ export function useChat() {
     }));
   }, [messages, session.user?._id]);
 
+  const dateHeaderText = useMemo(() => {
+    if (formattedMessages.length === 0) return "Today";
+    return formattedMessages[0].time
+      ? `Today ${formattedMessages[0].time}`
+      : "Today";
+  }, [formattedMessages]);
+
   const handleChatTypeChange = (type: ChatType) => {
     setChatType(type);
   };
 
-  const handleChatSelect = (chatId: string) => {
-    router.push(`${localePath("/chat")}?chatId=${chatId}&type=${chatType}`);
+  const handleChatSelect = (chatId: string, type?: ChatType) => {
+    const selectedChat = chats.find((c) => c.id === chatId);
+    const finalType = type || selectedChat?.type || chatType;
+    router.push(`${localePath("/chat")}?chatId=${chatId}&type=${finalType}`);
   };
 
   const handleBack = () => {
@@ -473,7 +558,7 @@ export function useChat() {
     fileUrl?: string;
     coordinates?: { latitude: number; longitude: number };
   }) => {
-    if (!urlChatId || !session.user?._id) return;
+    if (!currentChatData?.id || !session.user?._id) return;
 
     // Default to text message from state if no data provided
     const msgText = data?.text ?? message.trim();
@@ -483,7 +568,7 @@ export function useChat() {
 
     try {
       await ChatService.sendMessage({
-        chatId: urlChatId,
+        chatId: currentChatData.id,
         senderId: session.user._id,
         text: msgText,
         type: msgType,
@@ -495,7 +580,11 @@ export function useChat() {
         setMessage("");
       }
 
-      await ChatService.setTypingStatus(urlChatId, session.user._id, false);
+      await ChatService.setTypingStatus(
+        currentChatData.id,
+        session.user._id,
+        false,
+      );
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error(t.chat.failedToSendMessage);
@@ -504,9 +593,9 @@ export function useChat() {
 
   const handleMessageChange = async (value: string) => {
     setMessage(value);
-    if (session.user?._id && urlChatId) {
+    if (session.user?._id && currentChatData?.id) {
       await ChatService.setTypingStatus(
-        urlChatId,
+        currentChatData.id,
         session.user._id,
         !!value.trim(),
       );
@@ -534,9 +623,9 @@ export function useChat() {
   };
 
   const handleEditMessage = async (messageId: string, newText: string) => {
-    if (!urlChatId) return;
+    if (!currentChatData?.id) return;
     try {
-      await ChatService.editMessage(urlChatId, messageId, newText);
+      await ChatService.editMessage(currentChatData.id, messageId, newText);
       toast.success(t.chat?.messageEdited || "Message edited");
     } catch (error) {
       console.error("Error editing message:", error);
@@ -545,9 +634,9 @@ export function useChat() {
   };
 
   const handleDeleteMessage = async (messageId: string) => {
-    if (!urlChatId) return;
+    if (!currentChatData?.id) return;
     try {
-      await ChatService.deleteMessage(urlChatId, messageId);
+      await ChatService.deleteMessage(currentChatData.id, messageId);
       toast.success(t.chat?.messageDeleted || "Message deleted");
     } catch (error) {
       console.error("Error deleting message:", error);
@@ -556,9 +645,9 @@ export function useChat() {
   };
 
   const handleDeleteChat = async () => {
-    if (!urlChatId) return;
+    if (!currentChatData?.id) return;
     try {
-      await ChatService.deleteChat(urlChatId);
+      await ChatService.deleteChat(currentChatData.id);
       toast.success(t.chat?.chatDeleted || "Chat deleted");
       router.push(localePath("/chat"));
     } catch (error) {
@@ -595,5 +684,6 @@ export function useChat() {
     localePath,
     t,
     findOrCreateAdChat,
+    dateHeaderText,
   };
 }

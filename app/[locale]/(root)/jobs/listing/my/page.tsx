@@ -213,7 +213,9 @@ export default function MyJobsPage() {
                   key={job._id}
                   job={job}
                   isSelected={selectedJobId === job._id}
-                  onClick={() => console.log(job._id)}
+                  onClick={() => {
+                    router.push(`/jobs/listing/${job._id}/applicants`);
+                  }}
                   transformAdToJobCardProps={transformAdToJobCardProps}
                 />
               ))}

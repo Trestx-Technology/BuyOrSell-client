@@ -33,6 +33,7 @@ export const sendConnectionRequest = async (
     {
       receiverId: payload.receiverId,
       message: payload.message,
+      organisationId: payload.organisationId,
     },
   );
   return response.data;

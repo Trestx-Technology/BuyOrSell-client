@@ -24,6 +24,7 @@ export interface ParticipantDetails {
 }
 
 export interface LastMessage {
+  id: string;
   text: string;
   senderId: string;
   createdAt: Timestamp | Date;
@@ -60,6 +61,7 @@ export interface Chat {
   adId?: string;
   adOwnerId?: string;
   organisationId?: string;
+  initiatorId?: string;
 }
 
 export interface Message {
@@ -91,13 +93,6 @@ export interface UserChat {
   updatedAt: Timestamp | Date;
 }
 
-export interface Presence {
-  userId: string;
-  online: boolean;
-  lastSeen: Timestamp | Date;
-  updatedAt: Timestamp | Date;
-}
-
 export interface CreateChatParams {
   type: ChatType;
   title: string;
@@ -108,6 +103,7 @@ export interface CreateChatParams {
   adId?: string;
   adOwnerId?: string;
   organisationId?: string;
+  initiatorId?: string;
 }
 
 export interface SendMessageParams {

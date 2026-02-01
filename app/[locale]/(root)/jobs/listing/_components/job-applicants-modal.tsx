@@ -40,12 +40,15 @@ export default function JobApplicantsModal({
   // Get avatars from applicants - use real profile images if available
   const avatars: string[] = applicants.slice(0, 3).map((applicant) => {
     const profile = applicant.applicantProfileId;
-    // Check for photoUrl in the profile (it exists in API response but not in TypeScript interface)
+    const user = applicant.user;
+
+    // Check for photoUrl in the profile or image in the user object
     const photoUrl =
-      profile && typeof profile === "object" && "photoUrl" in profile
+      (profile && typeof profile === "object" && "photoUrl" in profile
         ? (profile as { photoUrl?: string }).photoUrl
-        : undefined;
-    const profileName = profile?.name || "Unknown User";
+        : undefined) || user?.image;
+
+    const profileName = profile?.name || user?.name || "Unknown User";
 
     // Use real photo if available, otherwise fallback to generated avatar
     if (photoUrl) {
@@ -103,6 +106,7 @@ export default function JobApplicantsModal({
                       jobId={jobId}
                       onViewProfile={() => {
                         const params = new URLSearchParams({
+                          status: applicant.status,
                           type: "applicantsList",
                           applicationId: applicant._id,
                           jobId: jobId,

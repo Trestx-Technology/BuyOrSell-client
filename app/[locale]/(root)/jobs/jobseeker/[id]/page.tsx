@@ -2,9 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { Typography } from "@/components/typography";
-import { JobseekerProfile } from "@/interfaces/job.types";
 import JobseekerProfileHeader from "@/components/global/jobseeker-profile-header";
-import CandidateBasicInfo from "./_components/candidate-basic-info";
 import CandidateResume from "./_components/candidate-resume";
 import CandidateEmployment from "./_components/candidate-employment";
 import CandidateEducation from "./_components/candidate-education";
@@ -59,16 +57,6 @@ export default function JobseekerProfilePage() {
   // }, [error, profileData, router]);
 
   // Using dummy data
-
-  const handleShortlist = () => {
-    // TODO: Implement shortlist functionality
-    console.log("Shortlist jobseeker:", userId);
-  };
-
-  const handleReject = () => {
-    // TODO: Implement reject functionality
-    console.log("Reject jobseeker:", userId);
-  };
 
   const handleChat = () => {
     // TODO: Implement chat functionality
@@ -150,9 +138,6 @@ export default function JobseekerProfilePage() {
           actions={{
             onChat: handleChat,
             onReport: handleReport,
-            onShortlist: handleShortlist,
-
-            onReject: handleReject,
             chatButtonText: "Chat With Jobseeker",
           }}
           containerClassName="mb-6"

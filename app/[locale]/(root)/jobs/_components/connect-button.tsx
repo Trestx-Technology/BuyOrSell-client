@@ -23,6 +23,7 @@ export type ConnectButtonRenderProps = {
 interface ConnectButtonProps {
       receiverId: string; // The userId of the professional
       professionalId: string; // The _id of the professional profile
+      organisationId?: string; // Optional organization identity
       initialIsConnected?: boolean;
       initialConnectionStatus?: ConnectionStatus;
       initialRequestId?: string;
@@ -34,6 +35,7 @@ interface ConnectButtonProps {
 export const ConnectButton = ({
       receiverId,
       professionalId,
+      organisationId,
       initialIsConnected = false,
       initialConnectionStatus,
       initialRequestId,
@@ -121,7 +123,10 @@ export const ConnectButton = ({
                   setIsConnected(false);
 
                   try {
-                        const response = await sendRequest({ receiverId });
+                        const response = await sendRequest({
+                              receiverId,
+                              organisationId
+                        });
                         // Accessing response.data.id based on ConnectionRequestResponse interface
                         if (response.data?.id) {
                               setRequestId(response.data.id);

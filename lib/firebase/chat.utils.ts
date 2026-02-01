@@ -13,50 +13,34 @@ import { SessionUser } from "@/stores/authStore";
  */
 export async function findOrCreateAdChat(
   ad: AD,
-  currentUser: SessionUser
+  currentUser: SessionUser,
 ): Promise<string> {
   // Get ad owner ID
-  const adOwnerId =
-    typeof ad.owner === "string" ? ad.owner : ad.owner?._id;
-  
+  const adOwnerId = typeof ad.owner === "string" ? ad.owner : ad.owner?._id;
+
   if (!adOwnerId) {
     throw new Error("Ad owner not found");
   }
 
   const currentUserId = currentUser._id;
 
-  // Check if chat already exists
-  // Get all chats for current user of type "ad"
-  const userChats = await ChatService.getUserChats(currentUserId, "ad");
+  // With deterministic IDs and ChatService.createChat checking for existence,
+  // we can just prepare the data and call createChat.
 
-  // Find chat that matches this ad
-  const existingChat = userChats.find(
-    (chat) =>
-      chat.adId === ad._id &&
-      chat.participants.includes(adOwnerId) &&
-      chat.participants.includes(currentUserId)
-  );
-
-  if (existingChat) {
-    return existingChat.id;
-  }
-
-  // Create new chat
   const adOwner = typeof ad.owner === "string" ? null : ad.owner;
   const adOwnerName = adOwner
     ? `${adOwner.firstName} ${adOwner.lastName}`.trim() ||
       adOwner.name ||
       "Seller"
     : "Seller";
-  // Assuming arabic name isn't readily available in adOwner fields shown, reusing name
   const adOwnerNameAr = adOwnerName;
   const adOwnerAvatar = adOwner?.image || "";
   const adOwnerVerified = adOwner?.emailVerified || false;
 
   const currentUserName =
     `${currentUser.firstName} ${currentUser.lastName}`.trim();
-  const currentUserNameAr = currentUserName; // Fallback
-  const currentUserAvatar = ""; // You may need to get this from user profile
+  const currentUserNameAr = currentUserName;
+  const currentUserAvatar = currentUser.image || "";
   const currentUserVerified = currentUser.emailVerified || false;
 
   const chatId = await ChatService.createChat({
@@ -80,6 +64,7 @@ export async function findOrCreateAdChat(
       },
     },
     adId: ad._id,
+    adOwnerId: adOwnerId,
   });
 
   return chatId;
@@ -93,7 +78,7 @@ export async function findOrCreateAdChat(
  */
 export async function findOrCreateDmChat(
   currentUser: SessionUser,
-  otherUser: { id: string; name: string; image?: string; isVerified?: boolean }
+  otherUser: { id: string; name: string; image?: string; isVerified?: boolean },
 ): Promise<string> {
   const currentUserId = currentUser._id;
   const otherUserId = otherUser.id;
@@ -102,24 +87,8 @@ export async function findOrCreateDmChat(
     throw new Error("Target user ID not found");
   }
 
-  // Check if DM chat already exists
-  // Get all chats for current user of type "dm"
-  const userChats = await ChatService.getUserChats(currentUserId, "dm");
-
-  // Find chat where participants are exactly these two users
-  const existingChat = userChats.find(
-    (chat) =>
-      chat.participants.length === 2 &&
-      chat.participants.includes(otherUserId) &&
-      chat.participants.includes(currentUserId)
-  );
-
-  if (existingChat) {
-    return existingChat.id;
-  }
-
-  // Create new DM chat
-  const currentUserName = `${currentUser.firstName} ${currentUser.lastName}`.trim();
+  const currentUserName =
+    `${currentUser.firstName} ${currentUser.lastName}`.trim();
   const currentUserNameAr = currentUserName;
   const currentUserAvatar = currentUser.image || "";
   const currentUserVerified = currentUser.emailVerified || false;
@@ -144,6 +113,61 @@ export async function findOrCreateDmChat(
         isVerified: otherUser.isVerified || false,
       },
     },
+    initiatorId: currentUserId,
+  });
+
+  return chatId;
+}
+
+/**
+ * Find or create an organization-based chat
+ * @param currentUser - The current authenticated user
+ * @param otherUser - Information about the user to chat with
+ * @param organisationId - The ID of the organization initiating the chat
+ * @returns The chat ID
+ */
+export async function findOrCreateOrganisationChat(
+  currentUser: SessionUser,
+  otherUser: { id: string; name: string; image?: string; isVerified?: boolean },
+  organisationId: string,
+  organisationName?: string,
+  organisationImage?: string,
+): Promise<string> {
+  const currentUserId = currentUser._id;
+  const otherUserId = otherUser.id;
+
+  if (!otherUserId) {
+    throw new Error("Target user ID not found");
+  }
+
+  const currentUserName =
+    `${currentUser.firstName} ${currentUser.lastName}`.trim();
+  const currentUserNameAr = currentUserName;
+  const currentUserAvatar = currentUser.image || "";
+  const currentUserVerified = currentUser.emailVerified || false;
+
+  const chatId = await ChatService.createChat({
+    type: "organisation",
+    title: organisationName || otherUser.name,
+    titleAr: organisationName || otherUser.name,
+    image: organisationImage || otherUser.image || "",
+    participants: [currentUserId, otherUserId],
+    participantDetails: {
+      [currentUserId]: {
+        name: currentUserName,
+        nameAr: currentUserNameAr,
+        image: currentUserAvatar,
+        isVerified: currentUserVerified,
+      },
+      [otherUserId]: {
+        name: otherUser.name,
+        nameAr: otherUser.name,
+        image: otherUser.image || "",
+        isVerified: otherUser.isVerified || false,
+      },
+    },
+    organisationId: organisationId,
+    initiatorId: currentUserId,
   });
 
   return chatId;

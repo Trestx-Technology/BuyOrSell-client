@@ -5,6 +5,7 @@ import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer
 import Map from "@/app/[locale]/(root)/map-view/_components/map"; // Updated import
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
 
 interface LocationSelectorDialogProps {
   open: boolean;
@@ -96,14 +97,16 @@ export function LocationSelectorDialog({
       dialogContentClassName="sm:max-w-[700px] w-full"
       drawerContentClassName="h-[90dvh]"
     >
-      <div className="flex flex-col h-full md:h-auto gap-4 p-4 md:p-0">
+      <GoogleMapsProvider>
+
+        <div className="flex flex-col h-full p-4 md:h-auto gap-4">
         <div className="flex-1 min-h-[400px] w-full relative rounded-lg overflow-hidden border border-gray-200">
           <Map
             className="w-full h-full min-h-[400px]"
             onMapClick={handleMapClick}
             markers={markers}
             center={selectedLocation?.coordinates} // Option to center on selection or keep default
-          />
+            />
         </div>
 
         {selectedLocation && (
@@ -120,11 +123,12 @@ export function LocationSelectorDialog({
             onClick={handleConfirm}
             disabled={!selectedLocation || isGeocoding}
             className="bg-purple text-white hover:bg-purple/90"
-          >
+            >
             {isGeocoding ? "Locating..." : "Send Location"}
           </Button>
         </div>
       </div>
+      </GoogleMapsProvider>
     </ResponsiveDialogDrawer>
   );
 }
