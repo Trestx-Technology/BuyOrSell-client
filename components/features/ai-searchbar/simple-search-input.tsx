@@ -11,6 +11,7 @@ import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { Input } from "@/components/ui/input";
 import { CategoryDropdown } from "./category-dropdown";
+import { slugify } from "@/utils/slug-utils";
 
 interface SearchResult {
   adCount: number;
@@ -75,7 +76,11 @@ export function SimpleSearchInput({
 
   const handleSearch = (relatedCategories: string[]) => {
     if (relatedCategories.length > 0) {
-      router.push(`/categories/${relatedCategories.join("/")}`);
+      if (relatedCategories[0] === "Jobs") {
+        router.push(`/jobs/listing/${relatedCategories.map((category) => slugify(category)).join("/")}`);
+      } else {
+        router.push(`/categories/${relatedCategories.map((category) => slugify(category)).join("/")}`);
+      }
     }
   };
 
@@ -146,7 +151,7 @@ export function SimpleSearchInput({
           }
           type="text"
           inputSize="sm"
-          placeholder="Search any product.."
+          placeholder="Search anything"
           value={localSearchQuery}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}

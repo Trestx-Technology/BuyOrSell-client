@@ -36,18 +36,18 @@ const DescriptionSection: React.FC<DescriptionSectionProps> = ({ ad }) => {
         </Typography>
 
         {/* Description Text */}
+        {/* Description Text */}
         <Typography
           variant="body-small"
-          className={`text-dark-blue leading-relaxed ${
-            isExpanded ? "" : "line-clamp-3"
+          className={`text-dark-blue leading-relaxed whitespace-pre-wrap ${isExpanded ? "" : "line-clamp-3 max-h-[4.5rem] overflow-hidden"
           }`}
         >
           {description}
         </Typography>
 
         {/* Only show Read More/Less if description is long enough */}
-        {description.length > 150 && (
-          <div className="flex justify-end">
+        {(description.length > 300 || (description.match(/\n/g) || []).length > 3) && (
+          <div className="flex justify-end mt-1">
             <button
               onClick={toggleExpanded}
               className="text-purple hover:underline text-xs font-medium transition-colors cursor-pointer"
