@@ -67,6 +67,10 @@ export const userQueries = {
     Key: ["user", "me", "emarati"],
     endpoint: "/users/me/emarati",
   },
+  getMyEmaratiStatus: {
+    Key: ["user", "me", "emarati-status"],
+    endpoint: "/users/me/emarati-status",
+  },
   adminUpdateEmarati: (id: string) => ({
     Key: ["user", id, "emarati"],
     endpoint: `/users/${id}/emarati`,

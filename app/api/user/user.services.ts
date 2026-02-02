@@ -212,6 +212,14 @@ export const updateMyEmarati = async (
   return response.data;
 };
 
+// Get my Emarati status
+export const getMyEmaratiStatus = async (): Promise<UserResponse> => {
+  const response = await axiosInstance.get<UserResponse>(
+    userQueries.getMyEmaratiStatus.endpoint
+  );
+  return response.data;
+};
+
 // Admin update Emarati status
 export const adminUpdateEmarati = async (
   id: string,

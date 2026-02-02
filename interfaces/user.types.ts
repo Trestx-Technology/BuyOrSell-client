@@ -44,7 +44,12 @@ export interface User {
   loggedIn?: boolean;
   appleDeviceId?: string;
   isEmarati?: boolean;
-  emaratiDetails?: string;
+  emaratiDetails?: {
+    eidNumber: string;
+    eidExpiry: string;
+    eidFrontUrl: string;
+    eidBackUrl: string;
+  };
   emaratiStatus?: "PENDING" | "VERIFIED" | "REJECTED" | "NOT_SET";
   blockedReason?: string[];
   recentlyViewed?: Array<{
@@ -214,7 +219,12 @@ export interface AddUserTypePayload {
 
 export interface UpdateEmaratiPayload {
   status: "PENDING" | "VERIFIED" | "REJECTED";
-  details?: string;
+  details?: {
+    eidNumber: string;
+    eidExpiry: string;
+    eidFrontUrl: string;
+    eidBackUrl: string;
+  };
 }
 
 export interface BlockUserPayload {

@@ -38,6 +38,15 @@ export const REGULAR_NAVIGATION_ITEMS: NavigationItem[] = [
     alt: "Jobs",
   },
   {
+    id: "emarati-status",
+    type: "link",
+    href: "/user/emarati-status",
+    translationKey: "Emarati Status",
+    icon: ICONS.ui.emaratiStatus,
+    iconType: "image",
+    alt: "Emarati Status",
+  },
+  {
     id: "my-searches",
     type: "link",
     href: "/user/search-history",
@@ -86,8 +95,8 @@ export const REGULAR_NAVIGATION_ITEMS: NavigationItem[] = [
     id: "my-subscriptions",
     type: "link",
     href: "/my-subscriptions",
-    translationKey: "mySubscriptions",
-    icon: ICONS.navigation.offersPackages, // Using same icon as Offers/Packages for now, or maybe a new one if available. Using offersPackages as safe bet.
+    translationKey: "My Subscriptions",
+    icon: ICONS.navigation.mySubscriptions,
     iconType: "image",
     alt: "My Subscriptions",
   },

@@ -30,6 +30,7 @@ export const UI_ICONS = {
   Map: `${S3_BASE_URL}/icons/map.svg`,
   chat: `${S3_BASE_URL}/icons/chat.png`,
   connections: `${S3_BASE_URL}/icons/connection.png`,
+  emaratiStatus: `${S3_BASE_URL}/icons/uae-flag.png`,
 } as const;
 
 // ============================================================================
@@ -60,7 +61,6 @@ export const AUTH_ICONS = {
   verified: `/verified-seller.svg`,
 } as const;
 
-
 // =============================================================================
 // FALLBACK ICONS
 // =============================================================================
@@ -68,11 +68,7 @@ export const AUTH_ICONS = {
 export const FALLBACK_ICONS = {
   noData: `${S3_BASE_URL}/icons/no-data.png`,
   "404": `${S3_BASE_URL}/icons/404-error.png`,
-}
-
-
-
-
+};
 
 // ============================================================================
 // NAVIGATION & MENU ICONS
@@ -86,6 +82,7 @@ export const NAVIGATION_ICONS = {
   notificationBell: `${S3_BASE_URL}/icons/notification-bell.svg`,
   jobsDashboard: `${S3_BASE_URL}/icons/jobs-dashboard.svg`,
   offersPackages: `${S3_BASE_URL}/icons/offers-packages.svg`,
+  mySubscriptions: `${S3_BASE_URL}/icons/subscription.png`,
   settings: `${S3_BASE_URL}/icons/settings.svg`,
   helpCenter: `${S3_BASE_URL}/icons/help-center.svg`,
   privacyPolicy: `${S3_BASE_URL}/icons/privacy-policy.svg`,

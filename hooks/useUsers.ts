@@ -19,6 +19,7 @@ import {
   updateMyEmarati,
   adminUpdateEmarati,
   assignRole,
+  getMyEmaratiStatus,
 } from "@/app/api/user/user.services";
 import {
   CreateUserPayload,
@@ -74,7 +75,7 @@ export const useFindAllUsersWithAdsCount = (
     filter?: string;
     page?: number;
     limit?: number;
-  }
+  },
 ) => {
   return useQuery<UsersListResponse, Error>({
     queryKey: [...userQueries.findAllUsersWithAdsCount(minCount).Key, params],
@@ -266,6 +267,15 @@ export const useUpdateMyEmarati = () => {
         queryKey: userQueries.getProfile.Key,
       });
     },
+  });
+};
+
+export const useGetMyEmaratiStatus = () => {
+  const isAuthenticated = useIsAuthenticated();
+  return useQuery<UserResponse, Error>({
+    queryKey: userQueries.getMyEmaratiStatus.Key,
+    queryFn: () => getMyEmaratiStatus(),
+    enabled: isAuthenticated,
   });
 };
 
