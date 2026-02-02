@@ -15,7 +15,8 @@ import {
   Play,
   ImageOff,
 } from "lucide-react";
-import CollectionDrawer from "../../../favorites/_components/collection-drawer";
+import CollectionManager from "@/components/global/collection-manager";
+import { cn } from "@/lib/utils";
 import { AD } from "@/interfaces/ad";
 import GalleryDialog, { MediaItem } from "./GalleryDialog";
 import { ShareDialog } from "@/components/ui/share-dialog";
@@ -219,16 +220,19 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                 </button>
               </ShareDialog>
 
-              <CollectionDrawer
-                trigger={
+              <CollectionManager
+                itemId={ad._id}
+                itemTitle={ad.title}
+                itemImage={images[0]}
+                className="w-full"
+              >
                   <button className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110">
-                    <Heart className="h-5 w-5" />
+                  <Heart className={cn("h-5 w-5", ad.isAddedInCollection && "fill-purple text-purple")} />
                     <span className="text-sm font-medium sm:block hidden">
-                      Save
+                    {ad.isAddedInCollection ? "Saved" : "Save"}
                     </span>
                   </button>
-                }
-              />
+              </CollectionManager>
             </div>
 
             {/* Media Counter - Opens Gallery */}

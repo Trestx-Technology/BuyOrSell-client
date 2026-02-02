@@ -73,13 +73,13 @@ export function FirebaseAuthButtons({
         />
 
         {/* Firebase Twitter Sign-In */}
-        <FirebaseTwitterLoginButton
+        {/* <FirebaseTwitterLoginButton
           onSuccess={(data) => handleSuccess(data, "twitter")}
           onError={(error) => handleError(error)}
           onLoadingStart={() => updateLoading(true)}
           disabled={disabled || isLoading}
           className={btnClassName}
-        />
+        /> */}
       </div>
     </div>
   );

@@ -278,9 +278,9 @@ export const SideMenu: React.FC<SideMenuProps> = ({
 
             {/* User Info (if logged in) */}
             {isLoggedIn && user && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full border-2 border-white overflow-hidden">
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-9 h-9 rounded-full border-2 border-white overflow-hidden flex-shrink-0">
                     {user.avatar ? (
                       <Image
                         src={user.avatar}
@@ -295,13 +295,23 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                       </div>
                     )}
                   </div>
-                  <div className="flex-1 max-w-[120px]">
-                    <Typography
-                      variant="sm-semibold-inter"
-                      className="text-white truncate"
-                    >
-                      {user.name}
-                    </Typography>
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <Typography
+                        variant="sm-semibold-inter"
+                        className="text-white truncate"
+                      >
+                        {user.name}
+                      </Typography>
+                      {user.isVerified && (
+                        <Image
+                          src={ICONS.auth.verified}
+                          alt="Verified"
+                          width={16}
+                          height={16}
+                        />
+                      )}
+                    </div>
                     <Typography
                       variant="xs-regular-inter"
                       className="text-white/80 text-xs truncate"
@@ -309,25 +319,28 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                       {user.email}
                     </Typography>
                   </div>
-                  {!user.isVerified ? (
+                </div>
+
+                <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                  {!user.isVerified && (
                     <Button
                       variant="outline"
                       size="sm"
-                      className="bg-transparent border-white text-white text-xs px-3 py-1 hover:bg-white hover:text-purple"
+                      className="bg-transparent border-white text-white text-[10px] px-2 h-7 hover:bg-white hover:text-purple whitespace-nowrap"
                     >
                       Verify Account
                     </Button>
-                  ) : <Image src={ICONS.auth.verified} alt="Verified" width={20} height={20} />}
+                  )}
+                  <SheetTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`px-2 text-white hover:bg-gray-100`}
+                    >
+                      <X className="w-5 h-5" />
+                    </Button>
+                  </SheetTrigger>
                 </div>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`px-2 text-white hover:bg-gray-100`}
-                  >
-                    <X className="w-5 h-5" />
-                  </Button>
-                </SheetTrigger>
               </div>
             )}
           </div>

@@ -29,12 +29,16 @@ export interface ListingCardProps {
   className?: string;
   showSocials?: boolean;
   seller?: {
+    id?: string;
     name?: string;
     firstName?: string;
     lastName?: string;
     type?: "Agent" | "Individual";
     isVerified?: boolean;
     image?: string | null;
+    phoneNumber?: string;
+    canCall?: boolean;
+    canWhatsapp?: boolean;
   };
   isAddedInCollection?: boolean;
 }

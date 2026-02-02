@@ -177,13 +177,22 @@ export const transformAdToListingCard = (
       ad.owner.phoneVerified ||
       false;
 
+    const phoneNumber = ad.contactPhoneNumber || ad.owner.phoneNo;
+    const connectionTypes = ad.connectionTypes || [];
+    const canCall = connectionTypes.includes("call");
+    const canWhatsapp = connectionTypes.includes("whatsapp");
+
     return {
+      id: ad.owner._id,
       name: sellerName,
       firstName: ad.owner.firstName,
       lastName: ad.owner.lastName,
       type: sellerType,
       isVerified,
       image: ad.owner.image || null,
+      phoneNumber,
+      canCall,
+      canWhatsapp,
     };
   };
 

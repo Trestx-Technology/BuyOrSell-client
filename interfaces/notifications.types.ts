@@ -14,10 +14,10 @@ export interface Notification {
 }
 
 export interface SendNotificationPayload {
-  deviceId: string;
+  token: string;
   title: string;
   message: string;
-  type?: 'job_match' | 'message' | 'system' | 'other';
+  type?: "job_match" | "message" | "system" | "other";
 }
 
 export interface MarkNotificationsReadPayload {

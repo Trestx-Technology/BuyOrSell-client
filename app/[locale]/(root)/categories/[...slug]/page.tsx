@@ -14,6 +14,7 @@ import ListingCard from "@/components/features/listing-card/listing-card";
 import { Typography } from "@/components/typography";
 import { Bell, ChevronLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import SortAndViewControls, {
   ViewMode,
 } from "@/app/[locale]/(root)/post-ad/_components/SortAndViewControls";
@@ -41,6 +42,11 @@ export default function CategoryListingPage() {
   const { clearUrlQueries } = useUrlParams();
   const { extraFields, hasDynamicFilters } = useUrlFilters();
   const [searchQuery, setSearchQuery] = useState("");
+  const [inputValue, setInputValue] = useDebouncedValue(
+    searchQuery,
+    setSearchQuery,
+    500
+  );
 
   // Get category from URL params - use the last slug segment
   const slugSegments = Array.isArray(params.slug)
@@ -151,28 +157,31 @@ export default function CategoryListingPage() {
       {/* Mobile Header */}
       <div className="w-full bg-purple sm:hidden p-4 space-y-4">
         <div className="flex items-center justify-between">
+
           <Button
             icon={<ChevronLeft />}
             iconPosition="left"
             className="bg-white text-purple w-8 rounded-full"
             size={"icon-sm"}
+            onClick={() => router.back()}
           />
-          <Button
+          {/* <Button
             icon={<Bell />}
             iconPosition="left"
             className="w-8 rounded-full"
             size={"icon-sm"}
-          />
+          /> */}
         </div>
 
         {/* Search Bar */}
         <Input
           leftIcon={<Search className="h-4 w-4" />}
           placeholder={t.categories.search}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
           className="pl-10 bg-gray-100 border-0"
         />
+
       </div>
 
       <div className="max-w-7xl mx-auto py-6">
@@ -208,8 +217,8 @@ export default function CategoryListingPage() {
           staticFilters={staticFilterConfig}
           onStaticFilterChange={handleFilterChange}
           onClearFilters={clearFilters}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          searchQuery={inputValue}
+          onSearchChange={setInputValue}
           searchPlaceholder={`${t.categories.search} ${categoryName}...`}
           className="mb-4"
         />
@@ -234,7 +243,7 @@ export default function CategoryListingPage() {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="px-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="px-4 sm:px-0 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
               <ListingCardSkeleton className="w-full" key={i} />
             ))}
@@ -246,7 +255,7 @@ export default function CategoryListingPage() {
           <div className="space-y-6 ">
             <div
               className={cn(
-                `px-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3`,
+                `px-4 sm:px-0 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3`,
                 view === "list" && "flex flex-col"
               )}
             >
@@ -265,6 +274,7 @@ export default function CategoryListingPage() {
                       name: ad.seller.name || "Unknown",
                       isVerified: ad.seller.isVerified || false,
                       type: ad.seller.type || "Individual",
+                    id: ad.seller.id,
                     }
                   : undefined;
 

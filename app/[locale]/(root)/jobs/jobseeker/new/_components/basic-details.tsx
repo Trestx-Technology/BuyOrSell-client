@@ -24,6 +24,7 @@ import Image from "next/image";
 import { ICONS } from "@/constants/icons";
 import {
   useCrateOrUpdateJobseekerProfilePartialMe,
+  useCreateJobseekerProfile,
 } from "@/hooks/useJobseeker";
 import { useAuthStore } from "@/stores/authStore";
 import {
@@ -62,8 +63,12 @@ interface BasicDetailsProps {
 export default function BasicDetails({ profile, isLoadingProfile }: BasicDetailsProps) {
   const session = useAuthStore((state) => state.session);
   const user = session?.user;
-  const { mutate: updateProfile, isPending: isSubmitting } =
+  const { mutate: updateProfile, isPending: isUpdating } =
     useCrateOrUpdateJobseekerProfilePartialMe();
+  const { mutate: createProfile, isPending: isCreating } =
+    useCreateJobseekerProfile();
+
+  const isSubmitting = isUpdating || isCreating;
 
   const form = useForm<BasicDetailsSchemaType>({
     resolver: zodResolver(basicDetailsSchema),
@@ -173,9 +178,15 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
       noticePeriodDays: data.noticePeriodDays,
     };
 
-    updateProfile(payload, {
+    const mutation = profile?._id ? updateProfile : createProfile;
+
+    mutation(payload, {
       onSuccess: () => {
-        toast.success("Basic details updated successfully");
+        toast.success(
+          profile?._id
+            ? "Basic details updated successfully"
+            : "Jobseeker profile created successfully"
+        );
       },
     });
   };

@@ -237,7 +237,13 @@ export const SIDE_MENU_ACTIVITY_ITEMS: SideMenuItem[] = [
     id: "my-chats",
     label: "My Chats",
     icon: ICONS.ui.chat,
-    href: "/chats",
+    href: "/chat",
+  },
+  {
+    id: "emarati-status",
+    label: "Emarati Status",
+    icon: ICONS.ui.emaratiStatus,
+    href: "/user/emarati-status",
   },
   {
     id: "view-on-map",
@@ -274,6 +280,12 @@ export const SIDE_MENU_ACTIVITY_ITEMS: SideMenuItem[] = [
     label: "Offers & Packages",
     icon: ICONS.navigation.offersPackages,
     href: "/plans",
+  },
+  {
+    id: "my-subscriptions",
+    label: "My Subscriptions",
+    icon: ICONS.navigation.mySubscriptions,
+    href: "/my-subscriptions",
   },
   {
     id: "settings",

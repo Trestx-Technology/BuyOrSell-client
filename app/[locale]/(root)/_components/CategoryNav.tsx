@@ -576,7 +576,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
             </div>
           ) : (
             <TooltipProvider delayDuration={200}>
-              <div className="min-w-fit xl:min-w-[350px] min-[1080px]:w-full min-[1080px]:flex items-center justify-between lg:gap-5 ml-2">
+                <div className="min-w-fit xl:min-w-[350px] min-[1080px]:w-full min-[1080px]:flex items-center justify-start lg:gap-5 ml-2">
                 <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
                   <SearchHistoryPopover />
                 </div>

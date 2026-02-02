@@ -77,6 +77,16 @@ export class ChatService {
   }
 
   /**
+   * Get user by ID
+   */
+  static async getUser(userId: string): Promise<any> {
+    const userRef = doc(this.db, COLLECTIONS.USERS, userId);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) return null;
+    return userSnap.data();
+  }
+
+  /**
    * Generate a prefixed chat ID based on chat type, typeId and participants
    */
   static generateChatId(

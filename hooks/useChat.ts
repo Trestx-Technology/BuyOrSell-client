@@ -8,6 +8,7 @@ import { useLocale } from "@/hooks/useLocale";
 import type { ChatType } from "@/app/[locale]/(root)/chat/_components/ChatTypeSelector";
 import type { Chat } from "@/app/[locale]/(root)/chat/_components/ChatSidebar";
 import { AD } from "@/interfaces/ad";
+import { useSendNotification } from "@/hooks/useNotifications";
 
 export function useChat() {
   const { t, localePath } = useLocale();
@@ -30,6 +31,7 @@ export function useChat() {
     [userId: string]: boolean;
   }>({});
   const [isOtherUserOnline, setIsOtherUserOnline] = useState(false);
+  const { mutate: sendNotification } = useSendNotification();
 
   // Get chat type and chatId from URL
   const urlChatType = searchParams.get("type") as ChatType | null;
@@ -433,12 +435,17 @@ export function useChat() {
         };
       }
 
-      const showOrgDetails = chatType === "organisation" && userId !== firebaseChat.initiatorId;
+      const showOrgDetails =
+        chatType === "organisation" && userId !== firebaseChat.initiatorId;
 
       return {
         id: firebaseChat.id,
-        name: showOrgDetails ? (firebaseChat.title || otherParticipant.name) : otherParticipant.name,
-        avatar: showOrgDetails ? (firebaseChat.image || otherParticipant.image || "") : (otherParticipant.image || ""),
+        name: showOrgDetails
+          ? firebaseChat.title || otherParticipant.name
+          : otherParticipant.name,
+        avatar: showOrgDetails
+          ? firebaseChat.image || otherParticipant.image || ""
+          : otherParticipant.image || "",
         lastMessage: firebaseChat.lastMessage?.text || "",
         time: formatTimestamp(firebaseChat.lastMessage?.createdAt),
         unreadCount: firebaseChat.unreadCount?.[userId] || 0,
@@ -494,12 +501,17 @@ export function useChat() {
       };
     }
 
-    const showOrgDetails = chatType === "organisation" && userId !== currentChatData.initiatorId;
+    const showOrgDetails =
+      chatType === "organisation" && userId !== currentChatData.initiatorId;
 
     return {
       id: currentChatData.id,
-      name: showOrgDetails ? (currentChatData.title || otherParticipant.name) : otherParticipant.name,
-      avatar: showOrgDetails ? (currentChatData.image || otherParticipant.image || "") : (otherParticipant.image || ""),
+      name: showOrgDetails
+        ? currentChatData.title || otherParticipant.name
+        : otherParticipant.name,
+      avatar: showOrgDetails
+        ? currentChatData.image || otherParticipant.image || ""
+        : otherParticipant.image || "",
       lastMessage: currentChatData.lastMessage?.text || "",
       time: formatTimestamp(currentChatData.lastMessage?.createdAt),
       unreadCount: currentChatData.unreadCount?.[session.user._id] || 0,
@@ -585,6 +597,37 @@ export function useChat() {
         session.user._id,
         false,
       );
+
+      // Send push notification if other user is offline
+      if (!isOtherUserOnline && currentChatData.participants) {
+        const otherUserId = currentChatData.participants.find(
+          (id) => id !== session.user?._id,
+        );
+
+        if (otherUserId) {
+          try {
+            // Get other user's token
+            const otherUser = await ChatService.getUser(otherUserId);
+
+            // Assuming the token is stored as 'fcmToken' or 'deviceToken'
+            const token = otherUser?.fcmToken || otherUser?.deviceToken;
+
+            if (token) {
+              const senderName =
+                `${session.user.firstName} ${session.user.lastName}`.trim();
+
+              sendNotification({
+                token,
+                type: "message",
+                title: senderName || "New Message",
+                message: msgType === "text" ? msgText : `Sent a ${msgType}`,
+              });
+            }
+          } catch (error) {
+            console.error("Failed to send notification:", error);
+          }
+        }
+      }
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error(t.chat.failedToSendMessage);

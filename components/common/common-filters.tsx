@@ -108,7 +108,7 @@ export const CommonFilters = ({
       return (
             <Card
                   className={cn(
-                        "shadow-none bg-transparent sm:bg-white sm:shadow-sm border border-none sm:border sm:border-[#F5EBFF] rounded-xl",
+                        "shadow-none pl-4 sm:pl-0 bg-transparent sm:bg-white sm:shadow-sm border border-none sm:border sm:border-[#F5EBFF] rounded-xl",
                         className
                   )}
             >

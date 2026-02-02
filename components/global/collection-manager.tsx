@@ -320,7 +320,8 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
             </Typography>
           </div>
         ) : localCollections.length > 0 ? (
-          localCollections.map(renderCollectionItem)
+            localCollections.filter((collection) => collection.name !== "Favourites")
+              .map(renderCollectionItem)
         ) : (
           <div className="text-center py-8">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
