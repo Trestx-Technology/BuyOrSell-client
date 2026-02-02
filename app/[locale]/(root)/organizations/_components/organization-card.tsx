@@ -34,7 +34,7 @@ export default function OrganizationCard({
   }`;
 
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full max-w-[256px] space-y-4 relative">
+    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full max-w-[256px] space-y-4 relative flex flex-col">
       {/* Header with Badge and Actions */}
       <div className="flex flex-col gap-[21.33px]">
         <div className="flex justify-between items-start">
@@ -109,7 +109,7 @@ export default function OrganizationCard({
       </div>
 
       {/* Organization Details */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-1 flex-col gap-3">
         <div className="flex items-center gap-1.5">
           <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
           <Typography

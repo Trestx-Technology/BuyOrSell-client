@@ -2,11 +2,13 @@ import { Organization } from "./organization.types";
 
 export interface SavedOrganization {
   _id: string;
-  userId: string;
-  organizationId: string | Organization;
+  user: any; // Using any or specific User type if available, to match populated object
+  organization: Organization; // Changed from organizationId to organization
   notes?: string;
   createdAt: string;
   updatedAt: string;
+  organizationObjectId?: string;
+  userObjectId?: string;
 }
 
 export interface CreateSavedOrganizationPayload {
@@ -29,13 +31,7 @@ export interface SavedOrganizationResponse {
 export interface SavedOrganizationsListResponse {
   statusCode: number;
   message: string;
-  data: {
-    items: SavedOrganization[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  data: SavedOrganization[]; // Corrected to be an array directly
   timestamp: string;
 }
 

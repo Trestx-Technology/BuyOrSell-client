@@ -55,6 +55,7 @@ export const REGULAR_NAVIGATION_ITEMS: NavigationItem[] = [
     iconType: "image",
     alt: "Searches",
   },
+
   {
     id: "my-ads",
     type: "link",
@@ -197,6 +198,15 @@ export const JOB_NAVIGATION_ITEMS: NavigationItem[] = [
     alt: "Organizations",
   },
   {
+    id: "saved-organizations",
+    type: "link",
+    href: "/organizations/saved",
+    translationKey: "Saved Organizations",
+    icon: ICONS.navigation.favorites, // reusing favorites icon or similar
+    iconType: "image",
+    alt: "Saved Organizations",
+  },
+  {
     id: "my-job-profile",
     type: "link",
     href: "/jobs/my-profile",
@@ -256,6 +266,12 @@ export const SIDE_MENU_ACTIVITY_ITEMS: SideMenuItem[] = [
     label: "My Ads",
     icon: ICONS.navigation.myAds,
     href: "/user/profile",
+  },
+  {
+    id: "saved-organizations",
+    label: "Saved Organizations",
+    icon: ICONS.navigation.favorites, // reusing favorites icon or similar
+    href: "/organizations/saved",
   },
   {
     id: "favorites",
