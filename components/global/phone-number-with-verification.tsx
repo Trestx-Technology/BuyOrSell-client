@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Edit, CheckCircle2 } from "lucide-react";
@@ -74,6 +74,17 @@ export default function PhoneNumberWithVerification({
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [pendingPhoneNumber, setPendingPhoneNumber] = useState("");
   const [pendingCountryCode, setPendingCountryCode] = useState("");
+
+  // Sync state with value prop when it changes
+  useEffect(() => {
+    const newParsed = parsePhoneNumber(value, countryCode);
+    setPhoneNumber(newParsed.phoneNumber);
+    setSelectedCountryCode(newParsed.countryCode);
+    setIsVerified(!!value);
+    if (value) {
+      setIsEditing(false);
+    }
+  }, [value, countryCode]);
 
   const handlePhoneChange = useCallback(
     (newPhoneNumber: string, newCountryCode: string) => {

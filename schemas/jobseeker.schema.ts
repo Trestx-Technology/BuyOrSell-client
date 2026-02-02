@@ -350,9 +350,11 @@ export const basicDetailsSchema = z.object({
     .trim()
     .min(1, "Location is required"),
   noticePeriodDays: z
-    .number({ message: "Notice period is required" })
-    .int()
-    .min(0, "Invalid notice period"),
+    .union([
+      z.number().int().min(0, "Invalid notice period"),
+      z.literal("serving"),
+    ])
+    .optional(),
 });
 
 export type BasicDetailsSchemaType = z.infer<typeof basicDetailsSchema>;

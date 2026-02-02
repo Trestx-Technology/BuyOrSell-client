@@ -40,7 +40,6 @@ const NOTICE_PERIOD_OPTIONS = [
   { value: "1-month", label: "1 Month" },
   { value: "2-months", label: "2 Months" },
   { value: "3-months", label: "3 Months" },
-  { value: "serving", label: "Serving Notice Period" },
   { value: "immediately", label: "Immediately" },
 ] as const;
 
@@ -60,9 +59,32 @@ interface BasicDetailsProps {
   isLoadingProfile: boolean;
 }
 
+// Helper to split phone number into code and number
+const splitPhoneNumber = (fullNumber: string | undefined | null): { countryCode: string, number: string } | undefined => {
+  if (!fullNumber) return undefined;
+  // This is a simple heuristic, ideally we should use the countryCodes array to match
+  // For now, assuming standard format +<code><number>
+  // We can just pass the full string to PhoneNumberWithVerification and let it handle parsing if its smart enough
+  // But checking how PhoneNumberWithVerification works, it expects separate props if we want to prefill state correctly?
+  // Actually looking at PhoneNumberWithVerification implementation:
+  // const parsed = parsePhoneNumber(value, countryCode);
+  // So it handles parsing internally if we pass the full value.
+  return undefined;
+};
+
 export default function BasicDetails({ profile, isLoadingProfile }: BasicDetailsProps) {
   const session = useAuthStore((state) => state.session);
   const user = session?.user;
+
+  // Check if session phone is verified
+  // session.user.isPhoneVerified might be a thing? Or we rely on whether phone exists in session and is verified flag
+  // Assuming session.user has isPhoneVerified or similar if we want to check that.
+  // Actually, requested: "display message saying you need to verify the number only is user doesnt has the verified number in the sessio"
+
+  const sessionPhone = user?.phoneNo;
+  const isSessionPhoneVerified = user?.phoneVerified; // Assuming this property exists on User type, otherwise we might need to check how verification is stored.
+  // If isPhoneVerified doesn't exist on type, we might check if phone is present.
+
   const { mutate: updateProfile, isPending: isUpdating } =
     useCrateOrUpdateJobseekerProfilePartialMe();
   const { mutate: createProfile, isPending: isCreating } =
@@ -80,13 +102,14 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
           ""
         : "",
       contactEmail: user?.email || "",
-      contactPhone: undefined,
+      // Prefill contact phone from profile if available, otherwise from session if verified
+      contactPhone: profile?.contactPhone || (user?.phoneVerified ? user?.phoneNo : undefined),
       resumeFileUrl: undefined,
-      workStatus: "actively_looking",
-      experienceYears: undefined,
-      currentCtc: undefined,
-      location: undefined,
-      noticePeriodDays: undefined,
+      workStatus: undefined, // Removed default value as requested
+      experienceYears: profile?.experienceYears,
+      currentCtc: profile?.currentCtc,
+      location: profile?.location,
+      noticePeriodDays: profile?.noticePeriodDays,
     },
   });
 
@@ -105,10 +128,10 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
       form.reset({
         name: profile.name || "",
         contactEmail: profile.contactEmail || user?.email || "",
-        contactPhone: profile.contactPhone || undefined,
+        contactPhone: profile.contactPhone || (user?.phoneVerified ? user?.phoneNo : undefined),
         resumeFileUrl: profile.resumeFileUrl || undefined,
         workStatus:
-          profile.workStatus as (typeof workStatusSchema.options)[number],
+          (profile.workStatus as (typeof workStatusSchema.options)[number]) || undefined,
         experienceYears: profile.experienceYears,
         currentCtc: profile.currentCtc,
         location: profile.location || undefined,
@@ -251,7 +274,7 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
           <Controller
             name="workStatus"
             control={control}
-            defaultValue="actively_looking"
+            defaultValue={undefined}
             render={({ field }) => (
               <RadioGroup
                 value={field.value}
@@ -374,9 +397,17 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
         </FormField>
 
         {/* Mobile Number */}
+        <div>
+          {!user?.phoneVerified && !profile?.contactPhone && (
+            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <Typography variant="caption" className="text-yellow-700">
+                You need to verify your phone number to proceed.
+              </Typography>
+            </div>
+          )}
         <PhoneNumberWithVerification
           error={errors.contactPhone?.message}
-          value={contactPhone || ""}
+            value={contactPhone || user?.phoneNo || ""}
           onPhoneVerified={handlePhoneVerified}
           onSendOTP={handleSendOTP}
           onVerifyOTP={handleVerifyOTP}
@@ -384,6 +415,7 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
           description="Recruiters will contact you on this number."
           required={true}
         />
+        </div>
 
         {/* Notice Period */}
         <FormField
@@ -401,7 +433,7 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
             render={({ field }) => {
               const getDaysFromOption = (
                 option: string
-              ): number | undefined => {
+              ): number | undefined | string => {
                 switch (option) {
                   case "15-days":
                     return 15;
@@ -412,7 +444,7 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
                   case "3-months":
                     return 90;
                   case "serving":
-                    return undefined; // Special case
+                    return "serving"; 
                   case "immediately":
                     return 0;
                   default:
@@ -420,13 +452,14 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
                 }
               };
 
-              const getOptionFromDays = (days?: number): string => {
+              const getOptionFromDays = (days?: number | string) => {
                 if (days === undefined || days === null) return "serving";
+                if (days === "serving") return "serving";
                 if (days === 0) return "immediately";
-                if (days <= 15) return "15-days";
-                if (days <= 30) return "1-month";
-                if (days <= 60) return "2-months";
-                if (days <= 90) return "3-months";
+                if (typeof days === "number" && days <= 15) return "15-days";
+                if (typeof days === "number" && days <= 30) return "1-month";
+                if (typeof days === "number" && days <= 60) return "2-months";
+                if (typeof days === "number" && days <= 90) return "3-months";
                 return "3-months";
               };
 

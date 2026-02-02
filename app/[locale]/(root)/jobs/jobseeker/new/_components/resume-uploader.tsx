@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
@@ -36,6 +36,12 @@ export default function ResumeUploader({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string>(initialFileName || "");
   const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    if (initialFileName) {
+      setFileName(initialFileName);
+    }
+  }, [initialFileName]);
 
   const { upload: uploadResume, isUploading: isUploadingResume } =
     useUploadFile({
@@ -128,13 +134,13 @@ export default function ResumeUploader({
             <div className="relative w-fit">
               <Button
                 type="button"
-                variant="ghost"
+                variant={initialFileName ? "success" : "ghost"}
                 onClick={(e) => {
                   e.stopPropagation();
                   fileInputRef.current?.click();
                 }}
                 size={"sm"}
-                className="bg-white border w-fit -mt-2"
+                className=" border w-fit -mt-2"
                 disabled={isUploadingResume}
               >
                 {isUploadingResume
