@@ -210,11 +210,11 @@ export default function JobsListingPage() {
           <div className="flex items-start gap-5">
                 {/* Left Column - Job Listings Sidebar */}
             <div
-                  className={`space-y-5 w-full sm:w-auto ${selectedJobId ? "hidden md:block" : "flex"
+                  className={`space-y-5 w-full sm:w-auto ${selectedJobId ? "hidden md:block" : "flex flex-col"
                     }`}
             >
               <div
-                    className={cn("flex flex-wrap gap-4", selectedJobId && "block")}
+                    className={cn("flex flex-wrap gap-4", selectedJobId && "block space-y-4")}
               >
                     {jobs.sort((a,) => jobId === a._id ? -1 : 1).map((job) => (
                   <JobListingCard

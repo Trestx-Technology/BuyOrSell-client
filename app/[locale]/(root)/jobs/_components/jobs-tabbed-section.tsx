@@ -9,6 +9,7 @@ import JobsTabbedCarousel from "@/components/global/jobs-tabbed-carousel";
 import { CategoryWithSubCategories, HomeSubCategory } from "@/interfaces/home.types";
 import { AD } from "@/interfaces/ad";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { slugify } from "@/utils/slug-utils";
 
 export default function JobsTabbedSection({ title, titleClassName }: { title?: string, titleClassName?: string }) {
       const router = useRouter();
@@ -90,7 +91,7 @@ export default function JobsTabbedSection({ title, titleClassName }: { title?: s
                         title={title}
                         viewAllText={locale === "ar" ? "عرض الكل" : "View all"}
                         onViewAll={(categoryName) =>
-                              router.push(localePath(`/jobs/listing/${categoryName}`))
+                              router.push(localePath(`/jobs/listing/Jobs/${slugify(categoryName)}`))
                         }
                         onTabChange={(tabId) => setActiveTabId(tabId)}
                   />

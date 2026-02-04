@@ -328,7 +328,7 @@ export default function JobsTabbedCarousel({
         >
           <Button
             variant="filled"
-            onClick={() => onViewAll?.(categoryName)}
+            onClick={() => onViewAll?.(subCategories?.find((sub) => sub._id === activeTab)?.name || categoryName)}
             className="md:block hidden transition-colors px-5 py-2 h-8 text-xs font-medium"
           >
             {viewAllText}
