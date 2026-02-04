@@ -46,8 +46,8 @@ let refreshPromise: Promise<string> | null = null;
 let isRedirecting = false;
 
 const EXP_SKEW_MS = 30_000; // 30s buffer before expiry
-const REFRESH_TIMEOUT_MS = 20_000;
-const REQUEST_TIMEOUT_MS = 30_000;
+const REFRESH_TIMEOUT_MS = 30_000;
+const REQUEST_TIMEOUT_MS = 60_000;
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // ============================================================================
