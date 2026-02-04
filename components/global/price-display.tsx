@@ -22,6 +22,7 @@ interface PriceDisplayProps {
   currentPriceClassName?: string;
   originalPriceClassName?: string;
   discountBadgeClassName?: string;
+  isCompact?: boolean;
 }
 
 /**
@@ -30,6 +31,17 @@ interface PriceDisplayProps {
 const formatPrice = (amount: number): string => {
   return new Intl.NumberFormat("en-AE", {
     minimumFractionDigits: 0,
+  }).format(amount);
+};
+
+/**
+ * Formats a price number in a compact way (e.g. 1K, 1M)
+ */
+const formatCompactPrice = (amount: number): string => {
+  return new Intl.NumberFormat("en-AE", {
+    notation: "compact",
+    compactDisplay: "short",
+    maximumFractionDigits: 1,
   }).format(amount);
 };
 
@@ -50,6 +62,7 @@ export function PriceDisplay({
   currentPriceClassName = "",
   originalPriceClassName = "",
   discountBadgeClassName = "",
+  isCompact = true,
 }: PriceDisplayProps) {
   // Calculate discount info from ad if provided, otherwise use individual props
   const discountInfo = useMemo((): DiscountInfo => {
@@ -130,7 +143,7 @@ export function PriceDisplay({
         <H4
           className={`font-bold text-purple-600 ${currentPriceClassName}`}
         >
-          {formatPrice(currentPrice)}
+          {isCompact ? formatCompactPrice(currentPrice) : formatPrice(currentPrice)}
         </H4>
       </div>
       {hasDiscount && (
@@ -138,7 +151,7 @@ export function PriceDisplay({
           <H5
             className={cn(discountBadgeClassName, "text-grey-blue line-through")}
           >
-            {formatPrice(discountOriginalPrice!)}
+            {isCompact ? formatCompactPrice(discountOriginalPrice!) : formatPrice(discountOriginalPrice!)}
           </H5>
           {discountPercentage && (
             <H5
