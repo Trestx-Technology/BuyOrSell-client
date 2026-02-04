@@ -1,39 +1,112 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback, TouchEvent, useMemo } from "react";
+import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Volume2, VolumeX, ChevronUp, ChevronDown, Play, Pause } from "lucide-react";
+import {
+      ArrowLeft,
+      Volume2,
+      VolumeX,
+      ChevronUp,
+      ChevronDown,
+      Play,
+      Pause,
+      Heart,
+      Share2,
+      MoreVertical,
+      User,
+} from "lucide-react";
 import { useInfiniteAds } from "@/hooks/useAds";
 import { Video } from "./video-card";
 import { InfiniteScrollContainer } from "@/components/global/infinite-scroll-container";
+import { useGetMainCategories } from "@/hooks/useCategories";
+import {
+      Select,
+      SelectContent,
+      SelectItem,
+      SelectTrigger,
+      SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { CollectionManager } from "@/components/global/collection-manager";
+import { NoDataCard } from "@/components/global/fallback-cards";
+import { useQueryClient } from "@tanstack/react-query";
+import { adQueries } from "@/app/api/ad/index";
+import { Skeleton } from "@/components/ui/skeleton";
+
+function VideoViewerSkeleton() {
+      return (
+            <div className="h-full w-full snap-center relative flex-shrink-0">
+                  <div className="relative w-full h-full sm:h-[90%] sm:max-w-md sm:absolute sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4">
+                        <Skeleton className="w-full h-full sm:aspect-[9/16] sm:rounded-2xl bg-zinc-900" />
+
+                        {/* Video Info Skeleton */}
+                        <div className="absolute bottom-10 left-8 right-20 z-20 space-y-2 pointer-events-none">
+                              <Skeleton className="h-6 w-3/4 bg-white/10" />
+                              <Skeleton className="h-4 w-1/2 bg-white/10" />
+                              <div className="flex gap-2">
+                                    <Skeleton className="h-4 w-16 rounded-full bg-white/10" />
+                                    <Skeleton className="h-4 w-16 bg-white/10" />
+                              </div>
+                        </div>
+
+                        {/* Sidebar Actions Skeleton */}
+                        <div className="absolute right-4 bottom-20 flex flex-col gap-6 z-40 sm:right-[-40px] sm:bottom-0">
+                              {[1, 2, 3, 4, 5].map((i) => (
+                                    <div key={i} className="flex flex-col items-center gap-1">
+                                          <Skeleton className="w-12 h-12 rounded-full bg-white/10" />
+                                          <Skeleton className="h-2 w-8 bg-white/10" />
+                                    </div>
+                              ))}
+                        </div>
+                  </div>
+            </div>
+      );
+}
 
 export function VideoViewer() {
       const router = useRouter();
       const searchParams = useSearchParams();
+      const queryClient = useQueryClient();
       const containerRef = useRef<HTMLDivElement>(null);
       const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+
+      const [selectedCategory, setSelectedCategory] = useState<string>("all");
+
+      const {
+            data: categoriesData,
+            isLoading: isCategoriesLoading
+      } = useGetMainCategories();
 
       const {
             data: adsData,
             fetchNextPage,
             hasNextPage,
             isFetchingNextPage,
-            isLoading
-      } = useInfiniteAds({ hasVideo: true, limit: 10 });
+            isLoading,
+      } = useInfiniteAds({
+            hasVideo: true,
+            limit: 10,
+            category: selectedCategory === "all" ? undefined : selectedCategory
+      });
 
       // Map AD to Video interface
       const videos: Video[] = useMemo(() => {
-            return adsData?.pages.flatMap((page) => {
-                  const ads = page.data?.adds || page.ads || [];
-                  return ads.map((ad: any) => ({
-                        id: ad._id,
-                        title: ad.title,
-                        description: ad.description,
-                        thumbnail: ad.images[0] || "",
-                        videoUrl: ad.videoUrl || "",
-                        views: ad.views?.toString() || "0",
-                  }));
-            }) || [];
+            return (
+                  adsData?.pages.flatMap((page) => {
+                        const ads = page.data?.adds || page.ads || [];
+                        return ads.map((ad: any) => ({
+                              id: ad._id,
+                              title: ad.title,
+                              description: ad.description,
+                              thumbnail: ad.images[0] || "",
+                              videoUrl: ad.videoUrl || "",
+                              views: ad.views?.toString() || "0",
+                              owner: ad.owner,
+                              isSaved: ad.isSaved || false,
+                        }));
+                  }) || []
+            );
       }, [adsData]);
 
       const adId = searchParams.get("adId");
@@ -52,43 +125,58 @@ export function VideoViewer() {
             return `${minutes}:${seconds.toString().padStart(2, "0")}`;
       };
 
-      const handleTimeUpdate = useCallback((index: number, e: React.SyntheticEvent<HTMLVideoElement>) => {
-            const video = e.currentTarget;
-            if (video.duration) {
-                  const currentProgress = (video.currentTime / video.duration) * 100;
-                  setProgress(currentProgress);
-                  setCurrentTimes(prev => ({ ...prev, [index]: formatTime(video.currentTime) }));
-            }
-      }, []);
+      const handleTimeUpdate = useCallback(
+            (index: number, e: React.SyntheticEvent<HTMLVideoElement>) => {
+                  const video = e.currentTarget;
+                  if (video.duration) {
+                        const currentProgress = (video.currentTime / video.duration) * 100;
+                        setProgress(currentProgress);
+                        setCurrentTimes((prev) => ({
+                              ...prev,
+                              [index]: formatTime(video.currentTime),
+                        }));
+                  }
+            },
+            []
+      );
 
-      const handleSeek = useCallback((index: number, e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
-            e.stopPropagation();
-            const video = videoRefs.current[index];
-            if (!video) return;
+      const handleSeek = useCallback(
+            (
+                  index: number,
+                  e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+            ) => {
+                  e.stopPropagation();
+                  const video = videoRefs.current[index];
+                  if (!video) return;
 
-            const rect = e.currentTarget.getBoundingClientRect();
-            let clickX;
-            if ('touches' in e) {
-                  clickX = e.touches[0].clientX - rect.left;
-            } else {
-                  clickX = e.clientX - rect.left;
-            }
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  let clickX;
+                  if ("touches" in e) {
+                        clickX = e.touches[0].clientX - rect.left;
+                  } else {
+                        clickX = e.clientX - rect.left;
+                  }
 
-            const percentage = Math.max(0, Math.min(1, clickX / rect.width));
-            video.currentTime = percentage * video.duration;
-            setProgress(percentage * 100);
-      }, []);
+                  const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+                  video.currentTime = percentage * video.duration;
+                  setProgress(percentage * 100);
+            },
+            []
+      );
 
-      const handleLoadedMetadata = useCallback((index: number, e: React.SyntheticEvent<HTMLVideoElement>) => {
-            const video = e.currentTarget;
-            const duration = video.duration;
-            if (duration && !isNaN(duration)) {
-                  const minutes = Math.floor(duration / 60);
-                  const seconds = Math.floor(duration % 60);
-                  const formatted = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-                  setDurations(prev => ({ ...prev, [index]: formatted }));
-            }
-      }, []);
+      const handleLoadedMetadata = useCallback(
+            (index: number, e: React.SyntheticEvent<HTMLVideoElement>) => {
+                  const video = e.currentTarget;
+                  const duration = video.duration;
+                  if (duration && !isNaN(duration)) {
+                        const minutes = Math.floor(duration / 60);
+                        const seconds = Math.floor(duration % 60);
+                        const formatted = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+                        setDurations((prev) => ({ ...prev, [index]: formatted }));
+                  }
+            },
+            []
+      );
 
       // Touch handling
       const touchStartY = useRef(0);
@@ -97,7 +185,7 @@ export function VideoViewer() {
       // Set initial index based on adId
       useEffect(() => {
             if (adId && videos.length > 0) {
-                  const index = videos.findIndex(v => v.id === adId);
+                  const index = videos.findIndex((v) => v.id === adId);
                   if (index !== -1 && index !== currentIndex) {
                         setCurrentIndex(index);
                   }
@@ -105,19 +193,22 @@ export function VideoViewer() {
       }, [adId, videos]);
 
       // Navigate to video
-      const goToVideo = useCallback((index: number) => {
-            if (index < 0 || index >= videos.length || isTransitioning) return;
+      const goToVideo = useCallback(
+            (index: number) => {
+                  if (index < 0 || index >= videos.length || isTransitioning) return;
 
-            setIsTransitioning(true);
-            setCurrentIndex(index);
+                  setIsTransitioning(true);
+                  setCurrentIndex(index);
 
-            // Update URL without full reload
-            const params = new URLSearchParams(window.location.search);
-            params.set("adId", videos[index].id);
-            window.history.replaceState(null, "", `?${params.toString()}`);
+                  // Update URL without full reload
+                  const params = new URLSearchParams(window.location.search);
+                  params.set("adId", videos[index].id);
+                  window.history.replaceState(null, "", `?${params.toString()}`);
 
-            setTimeout(() => setIsTransitioning(false), 400);
-      }, [isTransitioning, videos]);
+                  setTimeout(() => setIsTransitioning(false), 400);
+            },
+            [isTransitioning, videos]
+      );
 
       // Scroll snap handling
       useEffect(() => {
@@ -130,7 +221,11 @@ export function VideoViewer() {
                   if (itemHeight === 0) return;
                   const newIndex = Math.round(scrollTop / itemHeight);
 
-                  if (newIndex !== currentIndex && newIndex >= 0 && newIndex < videos.length) {
+                  if (
+                        newIndex !== currentIndex &&
+                        newIndex >= 0 &&
+                        newIndex < videos.length
+                  ) {
                         setCurrentIndex(newIndex);
                         const params = new URLSearchParams(window.location.search);
                         params.set("adId", videos[newIndex].id);
@@ -213,11 +308,11 @@ export function VideoViewer() {
       }, []);
 
       // Touch handlers
-      const handleTouchStart = (e: TouchEvent) => {
+      const handleTouchStart = (e: React.TouchEvent) => {
             touchStartY.current = e.touches[0].clientY;
       };
 
-      const handleTouchMove = (e: TouchEvent) => {
+      const handleTouchMove = (e: React.TouchEvent) => {
             touchEndY.current = e.touches[0].clientY;
       };
 
@@ -238,72 +333,81 @@ export function VideoViewer() {
 
       // Wheel handler for trackpad
       const wheelTimeout = useRef<any>(null);
-      const handleWheel = useCallback((e: React.WheelEvent) => {
-            if (wheelTimeout.current) return;
+      const handleWheel = useCallback(
+            (e: React.WheelEvent) => {
+                  if (wheelTimeout.current) return;
 
-            wheelTimeout.current = setTimeout(() => {
-                  wheelTimeout.current = null;
-            }, 500);
+                  wheelTimeout.current = setTimeout(() => {
+                        wheelTimeout.current = null;
+                  }, 500);
 
-            if (e.deltaY > 30) {
-                  goToVideo(currentIndex + 1);
-            } else if (e.deltaY < -30) {
-                  goToVideo(currentIndex - 1);
+                  if (e.deltaY > 30) {
+                        goToVideo(currentIndex + 1);
+                  } else if (e.deltaY < -30) {
+                        goToVideo(currentIndex - 1);
+                  }
+            },
+            [currentIndex, goToVideo]
+      );
+
+      const handleShare = (video: Video) => {
+            if (navigator.share) {
+                  navigator.share({
+                        title: video.title,
+                        text: video.description,
+                        url: window.location.href,
+                  }).catch(() => { });
+            } else {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success("Link copied to clipboard");
             }
-      }, [currentIndex, goToVideo]);
+      };
 
-      if (isLoading && videos.length === 0) {
-            return (
-                  <div className="fixed inset-0 bg-background flex items-center justify-center">
-                        <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
-                  </div>
-            );
-      }
+
 
       return (
             <div className="fixed flex flex-col h-dvh inset-0 bg-black z-50 overflow-hidden hide-scrollbar">
                   {/* Header Controls */}
-                  <div className="absolute top-0 left-0 right-0 z-20 p-4 flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent">
+                  <div className="absolute top-0 left-0 right-0 z-40 p-4 flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent">
                         <button
                               onClick={() => router.back()}
                               className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
                         >
                               <ArrowLeft className="w-6 h-6" />
-                              <span className="text-sm font-medium">Back</span>
+                              <span className="text-sm font-medium hidden sm:inline">Back</span>
                         </button>
 
-                        <div className="flex items-center gap-3">
-                              <button
-                                    onClick={(e) => {
-                                          e.stopPropagation();
-                                          togglePlay();
-                                    }}
-                                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors"
+                        <div className="flex-1 max-w-[200px] mx-4">
+                              <Select
+                                    value={selectedCategory}
+                                    onValueChange={setSelectedCategory}
                               >
-                                    {isPlaying ? (
-                                          <Pause className="w-5 h-5 text-white" />
-                                    ) : (
-                                          <Play className="w-5 h-5 text-white fill-current" />
-                                    )}
-                              </button>
-                              <button
-                                    onClick={(e) => {
-                                          e.stopPropagation();
-                                          setIsMuted((prev) => !prev);
-                                    }}
-                                    className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors"
-                              >
-                                    {isMuted ? (
-                                          <VolumeX className="w-5 h-5 text-white" />
-                                    ) : (
-                                          <Volume2 className="w-5 h-5 text-white" />
-                                    )}
-                              </button>
+                                    <SelectTrigger className="bg-white/10 border-white/20 text-white backdrop-blur-md h-9">
+                                          <SelectValue placeholder="All Categories" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                                          <SelectItem value="all">All Categories</SelectItem>
+                                          {categoriesData?.map((category) => (
+                                                <SelectItem key={category._id} value={category.name}>
+                                                      {category.name}
+                                                </SelectItem>
+                                          ))}
+                                    </SelectContent>
+                              </Select>
                         </div>
+
+                        <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm text-white sm:hidden">
+                              <MoreVertical className="w-5 h-5" />
+                        </button>
                   </div>
 
-                  {/* Video Container */}
-                  <InfiniteScrollContainer
+                  {/* Content Area */}
+                  {isLoading ? (
+                        <div className="h-full w-full flex flex-col overflow-hidden">
+                              <VideoViewerSkeleton />
+                        </div>
+                  ) : videos.length > 0 ? (
+                        <InfiniteScrollContainer
                         ref={containerRef}
                         onLoadMore={async () => {
                               if (hasNextPage && !isFetchingNextPage) {
@@ -325,8 +429,8 @@ export function VideoViewer() {
                                     className="h-full w-full snap-center relative flex-shrink-0"
                               >
                                     {/* Mobile: Full screen cover | Desktop: Centered with aspect ratio */}
-                                    <div className="relative w-full h-full sm:h-auto sm:max-w-md sm:absolute sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4">
-                                          {/* Video Container */}
+                                    <div className="relative w-full h-full sm:h-[90%] sm:max-w-md sm:absolute sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4">
+                                          {/* Video Content Wrapper */}
                                           <div
                                                 className="relative w-full h-full sm:aspect-[9/16] sm:rounded-2xl overflow-hidden sm:shadow-2xl bg-black cursor-pointer"
                                                 onClick={togglePlay}
@@ -340,7 +444,6 @@ export function VideoViewer() {
                                                       loop
                                                       playsInline
                                                       muted={isMuted}
-                                                      // Preload current, previous, and next videos
                                                       preload={Math.abs(index - currentIndex) <= 1 ? "auto" : "none"}
                                                       onLoadedMetadata={(e) => handleLoadedMetadata(index, e)}
                                                       onTimeUpdate={(e) => handleTimeUpdate(index, e)}
@@ -349,81 +452,159 @@ export function VideoViewer() {
 
                                                 {/* Play/Pause Indicator Overlay */}
                                                 {!isPlaying && index === currentIndex && (
-                                                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
-                                                            <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center animate-in zoom-in duration-200">
-                                                                  <Play className="w-10 h-10 text-white fill-purple" />
+                                                      <div className="absolute inset-0 flex items-center justify-center bg-transparent pointer-events-none">
+                                                            <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center animate-in zoom-in duration-200">
+                                                                  <Play className="w-8 h-8 text-white fill-white" />
                                                             </div>
                                                       </div>
                                                 )}
 
-                                                {/* Gradient Overlay for text readability */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/50 pointer-events-none" />
+                                                {/* Gradient Overlay */}
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none" />
 
-                                                {/* Progress Bar Container */}
-                                                <div
-                                                      className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/20 cursor-pointer group/progress z-30"
-                                                      onClick={(e) => handleSeek(index, e)}
-                                                >
-                                                      <div
-                                                            className="h-full bg-purple transition-all duration-100 relative"
-                                                            style={{ width: `${index === currentIndex ? progress : 0}%` }}
-                                                      >
-                                                            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-lg scale-0 group-hover/progress:scale-100 transition-transform" />
-                                                      </div>
-                                                </div>
-
-                                                {/* Mobile Video Info Overlay - Positioned at bottom */}
-                                                <div className="absolute bottom-1.5 left-0 right-0 p-4 pb-12 sm:hidden z-10">
-                                                      <h2 className="text-xl font-bold text-white drop-shadow-lg">{video.title}</h2>
-                                                      <p className="text-sm text-white/90 mt-2 line-clamp-2 drop-shadow-md">{video.description}</p>
-                                                      <div className="flex items-center gap-3 mt-3">
-                                                            <span className="text-xs text-white/70">{video.views} views</span>
+                                                {/* Video Info (Left Bottom) */}
+                                                <div className="absolute bottom-4 left-4 right-16 z-20 pointer-events-none">
+                                                      <h2 className="text-white font-bold text-lg leading-tight mb-1 drop-shadow-lg">
+                                                            {video.title}
+                                                      </h2>
+                                                      <p className="text-white/80 text-sm line-clamp-2 drop-shadow-md">
+                                                            {video.description}
+                                                      </p>
+                                                      <div className="flex items-center gap-2 mt-2">
+                                                            <span className="text-xs text-white/60 bg-white/10 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                                                                  {video.views} views
+                                                            </span>
                                                             {durations[index] && (
-                                                                  <span className="text-xs text-white/70">
-                                                                        • {currentTimes[index] || "0:00"} / {durations[index]}
+                                                                  <span className="text-xs text-white/40">
+                                                                        {currentTimes[index] || "0:00"} / {durations[index]}
                                                                   </span>
                                                             )}
                                                       </div>
                                                 </div>
+
+                                                {/* Progress Bar Container */}
+                                                <div
+                                                      className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 cursor-pointer z-30"
+                                                      onClick={(e) => handleSeek(index, e)}
+                                                >
+                                                      <div
+                                                            className="h-full bg-purple"
+                                                            style={{ width: `${index === currentIndex ? progress : 0}%` }}
+                                                      />
+                                                </div>
                                           </div>
 
-                                          {/* Desktop Video Info - Below video */}
-                                          <div className="hidden sm:block mt-4 animate-fade-in text-white">
-                                                <h2 className="text-xl font-bold">{video.title}</h2>
-                                                <p className="text-sm text-white/70 mt-1 line-clamp-2">{video.description}</p>
-                                                <div className="flex items-center gap-3 mt-2">
-                                                      <span className="text-xs text-white/50">{video.views} views</span>
-                                                      {durations[index] && (
-                                                            <span className="text-xs text-white/50">
-                                                                  • {currentTimes[index] || "0:00"} / {durations[index]}
-                                                            </span>
-                                                      )}
+                                          {/* Sidebar Toolbar (Right Side) */}
+                                          <div className="absolute right-2 bottom-20 flex flex-col items-center gap-5 z-40 sm:right-[-48px] sm:bottom-0">
+                                                {/* Profile Circle */}
+                                                <div className="flex flex-col items-center gap-1 group">
+                                                      <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden bg-zinc-800 flex items-center justify-center transition-transform active:scale-90">
+                                                            {video.owner?.image ? (
+                                                                  <img src={video.owner.image} alt="" className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                  <User className="w-6 h-6 text-white/50" />
+                                                            )}
+                                                      </div>
+                                                </div>
+
+                                                {/* Like/Save */}
+                                                <div className="flex flex-col items-center gap-1">
+                                                      <CollectionManager
+                                                            itemId={video.id}
+                                                            itemTitle={video.title}
+                                                            itemImage={video.thumbnail}
+                                                            onSuccess={() => {
+                                                                  queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
+                                                            }}
+                                                      >
+                                                            <button
+                                                                  className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-95"
+                                                            >
+                                                                  <Heart className={cn("w-6 h-6", video.isSaved && "fill-red-500 text-red-500")} />
+                                                            </button>
+                                                      </CollectionManager>
+                                                      <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">Save</span>
+                                                </div>
+
+                                                {/* Play/Pause */}
+                                                <div className="flex flex-col items-center gap-1">
+                                                      <button
+                                                            onClick={(e) => {
+                                                                  e.stopPropagation();
+                                                                  togglePlay();
+                                                            }}
+                                                            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-95"
+                                                      >
+                                                            {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 fill-current" />}
+                                                      </button>
+                                                      <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">
+                                                            {isPlaying ? "Pause" : "Play"}
+                                                      </span>
+                                                </div>
+
+                                                {/* Mute/Unmute */}
+                                                <div className="flex flex-col items-center gap-1">
+                                                      <button
+                                                            onClick={(e) => {
+                                                                  e.stopPropagation();
+                                                                  setIsMuted(!isMuted);
+                                                            }}
+                                                            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-95"
+                                                      >
+                                                            {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+                                                      </button>
+                                                      <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">
+                                                            {isMuted ? "Mute" : "Unmute"}
+                                                      </span>
+                                                </div>
+
+                                                {/* Share */}
+                                                <div className="flex flex-col items-center gap-1">
+                                                      <button
+                                                            onClick={(e) => {
+                                                                  e.stopPropagation();
+                                                                  handleShare(video);
+                                                            }}
+                                                            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-95"
+                                                      >
+                                                            <Share2 className="w-6 h-6" />
+                                                      </button>
+                                                      <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">Share</span>
                                                 </div>
                                           </div>
                                     </div>
                               </div>
                         ))}
-                  </InfiniteScrollContainer>
+                              </InfiniteScrollContainer>
+                  ) : !isLoading && (
+                        <div className="flex-1 flex items-center justify-center p-6 text-center">
+                              <NoDataCard
+                                    title="No Videos Found"
+                                    description={`We couldn't find any video ads in the ${selectedCategory === "all" ? "selected" : `"${selectedCategory}"`} category. Try another one!`}
+                                    className="text-white [&_h1]:text-white [&_p]:text-white/60"
+                              />
+                        </div>
+                  )}
 
-                  {/* Navigation Indicators - Hidden on mobile for cleaner view */}
-                  <div className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1 sm:gap-4 z-20">
+                  {/* Desktop Navigation Indicators */}
+                  <div className="absolute right-6 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-4 z-40">
                         <button
                               onClick={() => goToVideo(currentIndex - 1)}
                               disabled={currentIndex === 0}
-                              className="w-10 h-10 hidden sm:flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"
+                              className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/10 disabled:opacity-20 hover:bg-white/20 transition-all"
                         >
-                              <ChevronUp className="w-5 h-5 text-white" />
+                              <ChevronUp className="w-6 h-6 text-white" />
                         </button>
 
-                        <div className="flex flex-col gap-2 py-2">
+                        <div className="flex flex-col gap-2 py-4">
                               {videos.map((_, index) => (
                                     <button
                                           key={index}
                                           onClick={() => goToVideo(index)}
-                                          className={`w-1.5 rounded-full transition-all duration-300 ${index === currentIndex
-                                                ? "bg-accent h-6"
-                                                : "bg-white/30 hover:bg-white/50 h-1.5"
-                                                }`}
+                                          className={cn(
+                                                "w-1 rounded-full transition-all duration-300",
+                                                index === currentIndex ? "bg-purple h-8" : "bg-white/20 hover:bg-white/40 h-1.5"
+                                          )}
                                     />
                               ))}
                         </div>
@@ -431,19 +612,11 @@ export function VideoViewer() {
                         <button
                               onClick={() => goToVideo(currentIndex + 1)}
                               disabled={currentIndex === videos.length - 1}
-                              className="w-10 h-10 hidden sm:flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/20 transition-colors"
+                              className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/10 disabled:opacity-20 hover:bg-white/20 transition-all"
                         >
-                              <ChevronDown className="w-5 h-5 text-white" />
+                              <ChevronDown className="w-6 h-6 text-white" />
                         </button>
                   </div>
-
-                  {/* Swipe Hint (only on first video, mobile only) */}
-                  {currentIndex === 0 && (
-                        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-white/50 animate-pulse z-20 sm:hidden">
-                              <ChevronUp className="w-5 h-5" />
-                              <span className="text-xs">Swipe up</span>
-                        </div>
-                  )}
             </div>
       );
 }

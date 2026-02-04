@@ -9,6 +9,8 @@ export interface Video {
       videoUrl: string;
       duration?: string;
       views: string;
+      owner?: any;
+      isSaved?: boolean;
 }
 
 export const videos: Video[] = [];
