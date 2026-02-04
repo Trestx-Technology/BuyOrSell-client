@@ -42,7 +42,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
       const strValue = String(field.value || "");
       if (strValue) {
         return strValue
-          .split(/[,;]/)
+          .split(/[,;\n]/)
           .map((s) => s.trim())
           .filter(Boolean);
       }
@@ -59,7 +59,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
       ? getFieldValueArray("responsibilities")
       : getFieldValue("responsibilities")
       ? getFieldValue("responsibilities")
-          .split(/[,;]/)
+          .split(/[,;\n]/)
           .map((s) => s.trim())
           .filter(Boolean)
       : [];
@@ -72,12 +72,12 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
       ? getFieldValueArray("required skills")
       : getFieldValue("skills")
       ? getFieldValue("skills")
-          .split(/[,;]/)
+            .split(/[,;\n]/)
           .map((s) => s.trim())
           .filter(Boolean)
       : getFieldValue("required skills")
       ? getFieldValue("required skills")
-          .split(/[,;]/)
+              .split(/[,;\n]/)
           .map((s) => s.trim())
           .filter(Boolean)
       : [];
@@ -90,12 +90,12 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
       ? getFieldValueArray("requirements")
       : getFieldValue("qualifications")
       ? getFieldValue("qualifications")
-          .split(/[,;]/)
+            .split(/[,;\n]/)
           .map((s) => s.trim())
           .filter(Boolean)
       : getFieldValue("requirements")
       ? getFieldValue("requirements")
-          .split(/[,;]/)
+              .split(/[,;\n]/)
           .map((s) => s.trim())
           .filter(Boolean)
       : [];
@@ -106,7 +106,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
       ? getFieldValueArray("benefits")
       : getFieldValue("benefits")
       ? getFieldValue("benefits")
-          .split(/[,;]/)
+          .split(/[,;\n]/)
           .map((s) => s.trim())
           .filter(Boolean)
       : [];
@@ -128,7 +128,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
           </Typography>
           <Typography
             variant="sm-regular-inter"
-            className="text-dark-blue text-sm"
+            className="text-dark-blue text-sm leading-[1.75] whitespace-pre-line"
           >
             {description}
           </Typography>

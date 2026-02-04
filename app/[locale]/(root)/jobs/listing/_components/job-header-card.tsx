@@ -245,12 +245,12 @@ export default function JobHeaderCard({
         )}
         <div className="space-y-4">
           {/* Job Title and Company Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-start gap-4">
             {/* Job Title and Company Info */}
-            <div className="">
+            <div className="max-w-sm">
               <Typography
                 variant="h1"
-                className="text-black font-semibold text-[28.56px] leading-tight mb-2"
+                className="text-black font-semibold text-[28.56px] leading-tight line-clamp-2 mb-2"
               >
                 {job.title}
               </Typography>

@@ -12,6 +12,9 @@ import { useAuthStore } from "@/stores/authStore";
 import { SaveJobButton } from "../../saved/_components/save-job-button";
 import { formatDate } from "@/utils/format-date";
 import { useLocale } from "@/hooks/useLocale";
+import { ICONS } from "@/constants/icons";
+
+import { formatCompactPrice } from "@/utils/price-formatter";
 
 export interface JobListingCardProps {
   job: AD;
@@ -97,7 +100,7 @@ export default function JobListingCard({
       onClick={onClick}
       role="button"
       className={cn(
-        "bg-white w-full sm:min-w-[220px] sm:max-w-[270px] rounded-2xl cursor-pointer transition-all relative p-4",
+        "bg-white w-full rounded-2xl cursor-pointer transition-all relative p-4",
         "border shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] hover:shadow-[0px_2.67px_7.11px_#309689/20]",
         isSelected ? "border-purple border-[1px]" : "border-[#E2E2E2]"
       )}
@@ -191,15 +194,14 @@ export default function JobListingCard({
 
         {/* Salary - y: 158.06 */}
         <div className="flex items-center gap-1.5">
-          <FaMoneyBillWave className="w-5 h-5 text-[#8A8A8A]" />
+          <Image src={ICONS.currency.aed} alt="" width={16} height={16} />
           <div className="flex items-center gap-1">
-            <span className="text-[10px] text-[#8A8A8A]">{currency}</span>
             <Typography
               variant="body-small"
               className="text-[#1D2939] text-xs font-medium leading-[1.21]"
             >
-              {jobProps.salaryMin} -
-              {jobProps.salaryMax || "Not specified"}
+              {formatCompactPrice(jobProps.salaryMin)} -
+              {jobProps.salaryMax ? formatCompactPrice(jobProps.salaryMax) : "Not specified"}
             </Typography>
           </div>
         </div>

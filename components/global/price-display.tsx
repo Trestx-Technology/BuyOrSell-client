@@ -7,6 +7,7 @@ import { AD } from "@/interfaces/ad";
 import { getDiscountInfo, DiscountInfo } from "@/utils/get-discount-info";
 import { H4, H5 } from "../typography";
 import { cn } from "@/lib/utils";
+import { formatPrice, formatCompactPrice } from "@/utils/price-formatter";
 
 interface PriceDisplayProps {
   // Option 1: Pass full AD object
@@ -24,26 +25,6 @@ interface PriceDisplayProps {
   discountBadgeClassName?: string;
   isCompact?: boolean;
 }
-
-/**
- * Formats a price number with locale-specific formatting
- */
-const formatPrice = (amount: number): string => {
-  return new Intl.NumberFormat("en-AE", {
-    minimumFractionDigits: 0,
-  }).format(amount);
-};
-
-/**
- * Formats a price number in a compact way (e.g. 1K, 1M)
- */
-const formatCompactPrice = (amount: number): string => {
-  return new Intl.NumberFormat("en-AE", {
-    notation: "compact",
-    compactDisplay: "short",
-    maximumFractionDigits: 1,
-  }).format(amount);
-};
 
 /**
  * Reusable component for displaying product price with discount information
