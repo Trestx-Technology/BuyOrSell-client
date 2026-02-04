@@ -810,7 +810,7 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = (props) => {
                   }
 
                   if (chatId) {
-                        router.push(`/chat?id=${chatId}`);
+                        router.push(`/chat?chatId=${chatId}&type=ad`);
                   }
             } catch (error) {
                   console.error("Failed to initiate chat", error);

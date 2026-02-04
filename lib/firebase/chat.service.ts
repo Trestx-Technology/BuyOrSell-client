@@ -95,7 +95,15 @@ export class ChatService {
     participants: string[],
   ): string {
     const sortedParticipants = [...participants].sort();
-    return `${type}_${typeId}_${sortedParticipants[0]}_${sortedParticipants[1]}`;
+    
+    // Safety check: Avoid double prefixing (e.g., "ad_ad_...")
+    // If typeId already starts with the type prefix, we remove it
+    let cleanTypeId = typeId;
+    if (typeId.startsWith(`${type}_`)) {
+      cleanTypeId = typeId.substring(type.length + 1);
+    }
+    
+    return `${type}_${cleanTypeId}_${sortedParticipants[0]}_${sortedParticipants[1]}`;
   }
 
   /**
