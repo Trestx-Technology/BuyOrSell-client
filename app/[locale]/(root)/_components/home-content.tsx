@@ -90,7 +90,7 @@ export function HomeContent() {
                   showViewAll={true}
                   viewAllText={t.common.viewAll}
                   onViewAll={(categoryName) =>
-                    router.push(localePath(`/jobs/listing/${categoryName}`))
+                    router.push(localePath(`/jobs/listing/${category.category}/${categoryName}`))
                   }
                   onTabChange={(tabId) => console.log("Tab changed to:", tabId)}
                 />
@@ -108,7 +108,7 @@ export function HomeContent() {
                   showViewAll={true}
                   viewAllText={t.common.viewAll}
                   onViewAll={(categoryName) =>
-                    router.push(`/categories/${categoryName}`)
+                    router.push(`/categories/${category.category}/${categoryName}`)
                   }
                   onTabChange={(tabId) => console.log("Tab changed to:", tabId)}
                 />

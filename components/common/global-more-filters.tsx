@@ -30,7 +30,6 @@ export const GlobalMoreFilters = ({
             ? params.slug.map((s) => unSlugify(s)).join("/")
             : unSlugify(params.slug as string);
 
-
       const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
       const [dynamicFilters, setDynamicFilters] = useState<FilterConfig[]>([]);
       const [pendingExtraFields, setPendingExtraFields] = useState<
