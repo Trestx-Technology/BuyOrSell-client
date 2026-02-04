@@ -42,29 +42,16 @@ export interface MapViewFilters {
 export interface MapViewFilterProps {
   className?: string;
   extraFields?: ProductExtraFields; // Array of extraFields from ads
-  onFilterChange?: (filters: MapViewFilters) => void;
+  filters: MapViewFilters; // Controlled filters from parent
+  onFilterChange: (filters: MapViewFilters) => void;
 }
 
 export default function MapViewFilter({
   className,
   extraFields,
+  filters,
   onFilterChange,
 }: MapViewFilterProps) {
-  const [filters, setFilters] = useState<MapViewFilters>({
-    location: "",
-    price: "",
-    datePosted: "",
-    priceFrom: "",
-    priceTo: "",
-    deal: undefined,
-    fromDate: "",
-    toDate: "",
-    isFeatured: undefined,
-    hasVideo: undefined,
-    showMap: true,
-    extraFields: {},
-  });
-
   // Extract extraFields and use optionalArray for filter options
   const dynamicFilters = useMemo(() => {
     if (
@@ -99,8 +86,7 @@ export default function MapViewFilter({
     value: string | boolean | Record<string, string> | undefined
   ) => {
     const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-    onFilterChange?.(newFilters);
+    onFilterChange(newFilters);
   };
 
   const handleExtraFieldChange = (fieldName: string, value: string) => {

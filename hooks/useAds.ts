@@ -42,15 +42,19 @@ import { adQueries } from "@/app/api/ad/index";
 // ============================================================================
 
 // Get all ads with optional filters
-export const useAds = (params?: AdFilters) => {
+export const useAds = (params?: AdFilters, options?: { enabled?: boolean }) => {
   return useQuery<GetLiveAdsResponse, Error>({
     queryKey: [...adQueries.ads.Key, params],
     queryFn: () => getAds(params),
+    ...options,
   });
 };
 
 // Infinite scroll ads
-export const useInfiniteAds = (params?: AdFilters) => {
+export const useInfiniteAds = (
+  params?: AdFilters,
+  options?: { enabled?: boolean },
+) => {
   return useInfiniteQuery<GetLiveAdsResponse, Error>({
     queryKey: [...adQueries.ads.Key, "infinite", params],
     queryFn: ({ pageParam = 1 }) =>
@@ -64,6 +68,7 @@ export const useInfiniteAds = (params?: AdFilters) => {
       return currentPage < totalPages ? currentPage + 1 : undefined;
     },
     initialPageParam: 1,
+    ...options,
   });
 };
 

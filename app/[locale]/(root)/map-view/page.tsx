@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import MapViewFilter, { MapViewFilters } from "./_components/map-view-filter";
 import ProductsGrid from "./_components/products-grid";
 import Map from "./_components/map";
 import { cn } from "@/lib/utils";
 import { HorizontalCarouselSlider } from "@/components/global/horizontal-carousel-slider";
-import { useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
 import { AdFilterPayload, ProductExtraFields } from "@/interfaces/ad";
 import { useLocale } from "@/hooks/useLocale";
@@ -14,25 +14,67 @@ import { Container1080 } from "@/components/layouts/container-1080";
 import { useAds, useFilterAds } from "@/hooks/useAds";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
+import { useUrlFilters } from "@/hooks/useUrlFilters";
+
+const MAP_CENTER = { lat: 25.2048, lng: 55.2708 };
+const MAP_ZOOM = 12;
 
 const MapView = () => {
   const { t } = useLocale();
-  const searchParams = useSearchParams();
-  const category = searchParams.get("category");
-  const emirate = searchParams.get("emirate");
-  const [filters, setFilters] = useState<MapViewFilters>({
-    location: "",
-    price: "",
-    datePosted: "",
-    priceFrom: "",
-    deal: undefined,
-    fromDate: "",
-    toDate: "",
-    isFeatured: undefined,
-    hasVideo: undefined,
-    showMap: true,
-    extraFields: {},
-  });
+  const {
+    query,
+    extraFields: urlExtraFields,
+    updateUrlParams,
+    hasDynamicFilters,
+  } = useUrlFilters();
+
+  const category = query.category as string;
+  const emirate = query.emirate as string;
+
+  const [mapCenter] = useState(MAP_CENTER);
+  const [mapZoom] = useState(MAP_ZOOM);
+
+  // Sync state with URL. This ensures MapViewFilter reflects the current URL.
+  const filters = useMemo(
+    (): MapViewFilters => ({
+      location: (query.location as string) || "",
+      price: (query.price as string) || "",
+      datePosted: (query.datePosted as string) || "",
+      priceFrom: (query.priceFrom as string) || "",
+      priceTo: (query.priceTo as string) || "",
+      deal:
+        query.deal === "true" ? true : query.deal === "false" ? false : undefined,
+      fromDate: (query.fromDate as string) || "",
+      toDate: (query.toDate as string) || "",
+      isFeatured:
+        query.isFeatured === "true"
+          ? true
+          : query.isFeatured === "false"
+            ? false
+            : undefined,
+      hasVideo:
+        query.hasVideo === "true"
+          ? true
+          : query.hasVideo === "false"
+            ? false
+            : undefined,
+      showMap: query.showMap !== "false", // Default to true
+      extraFields: urlExtraFields || {},
+    }),
+    [query, urlExtraFields]
+  );
+
+  const [mapGeoFilter, setMapGeoFilter] = useState<{
+    coordinates: number[];
+    distance: number;
+  } | null>(null);
+
+  const [selectedAreaMarkerIds, setSelectedAreaMarkerIds] = useState<string[]>(
+    []
+  );
+  const [selectedAreaPath, setSelectedAreaPath] = useState<
+    { lat: number; lng: number }[] | null
+  >(null);
 
   // Store extraFields in state so filters persist even when no ads are found
   const [savedExtraFields, setSavedExtraFields] = useState<ProductExtraFields>(
@@ -46,74 +88,86 @@ const MapView = () => {
     }
   }, [category]);
 
+  const hasActiveFilters = useMemo(() => {
+    const advancedFilters = [
+      "price",
+      "priceFrom",
+      "priceTo",
+      "deal",
+      "datePosted",
+      "fromDate",
+      "toDate",
+      "isFeatured",
+      "hasVideo",
+    ];
+    const hasAdvancedUrlFilter = Object.keys(query).some((key) =>
+      advancedFilters.includes(key)
+    );
+    const hasExtraFields = Object.keys(urlExtraFields).length > 0;
+
+    return (
+      hasAdvancedUrlFilter ||
+      hasExtraFields ||
+      !!mapGeoFilter ||
+      (selectedAreaPath !== null && selectedAreaPath.length > 0)
+    );
+  }, [query, urlExtraFields, mapGeoFilter, selectedAreaPath]);
+
   // Transform filters to API payload format
   const filterPayload = useMemo((): AdFilterPayload => {
-    const payload: AdFilterPayload = {
-      // page: 1,
-      // limit: 50,
-    };
+    const payload: AdFilterPayload = {};
 
-    // Basic filters
     if (category) payload.category = category;
     if (emirate) payload.neighbourhood = emirate;
     if (filters.location) payload.city = filters.location;
 
-    // Price filters - use priceFrom/priceTo if provided, otherwise parse price range
-    if (filters.priceFrom) {
-      payload.priceFrom = Number(filters.priceFrom);
-    }
-    if (filters.priceTo) {
-      payload.priceTo = Number(filters.priceTo);
-    }
+    if (filters.priceFrom) payload.priceFrom = Number(filters.priceFrom);
+    if (filters.priceTo) payload.priceTo = Number(filters.priceTo);
 
-    // Handle preset price ranges if priceFrom/priceTo not set
     if (!filters.priceFrom && !filters.priceTo && filters.price) {
-      // Parse preset price ranges (e.g., "Under 500K", "500K - 1M")
       const priceRange = filters.price;
       if (priceRange.includes("Under")) {
-        const match = priceRange.match(/(\d+)/);
+        const match = priceRange.match(/(\d+)([KM])?/);
         if (match) {
-          const value = parseInt(match[1]) * 1000; // Convert K to actual number
-          payload.priceTo = value;
+          const val = parseInt(match[1]);
+          const mult = match[2] === "M" ? 1000000 : 1000;
+          payload.priceTo = val * mult;
         }
       } else if (priceRange.includes("+")) {
-        const match = priceRange.match(/(\d+)/);
+        const match = priceRange.match(/(\d+)([KM])?/);
         if (match) {
-          const value = parseInt(match[1]) * 1000;
-          payload.priceFrom = value;
+          const val = parseInt(match[1]);
+          const mult = match[2] === "M" ? 1000000 : 1000;
+          payload.priceFrom = val * mult;
         }
       } else if (priceRange.includes("-")) {
-        const matches = priceRange.match(/(\d+)\s*[KM]?\s*-\s*(\d+)\s*[KM]?/);
-        if (matches) {
-          const from =
-            parseInt(matches[1]) * (priceRange.includes("M") ? 1000000 : 1000);
-          const to =
-            parseInt(matches[2]) * (priceRange.includes("M") ? 1000000 : 1000);
-          payload.priceFrom = from;
-          payload.priceTo = to;
+        const rangeParts = priceRange.split("-").map((s) => s.trim());
+        if (rangeParts.length === 2) {
+          const parsePart = (v: string) => {
+            const m = v.match(/(\d+)([KM])?/);
+            if (!m) return 0;
+            const val = parseInt(m[1]);
+            const mult = m[2] === "M" ? 1000000 : 1000;
+            return val * mult;
+          };
+          payload.priceFrom = parsePart(rangeParts[0]);
+          payload.priceTo = parsePart(rangeParts[1]);
         }
       }
     }
 
-    // Boolean filters
     if (filters.deal !== undefined) payload.deal = filters.deal;
     if (filters.isFeatured !== undefined)
       payload.isFeatured = filters.isFeatured;
     if (filters.hasVideo !== undefined) payload.hasVideo = filters.hasVideo;
-
-    // Date filters
-    if (filters.fromDate) {
+    if (filters.fromDate)
       payload.fromDate = new Date(filters.fromDate).toISOString();
-    }
-    if (filters.toDate) {
+    if (filters.toDate)
       payload.toDate = new Date(filters.toDate).toISOString();
-    }
 
-    // Handle datePosted filter (convert to fromDate/toDate range)
     if (filters.datePosted && !filters.fromDate && !filters.toDate) {
       const now = new Date();
       let fromDate: Date;
-
       switch (filters.datePosted) {
         case "Last 24 hours":
           fromDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -128,47 +182,28 @@ const MapView = () => {
           fromDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
           break;
         default:
-          fromDate = new Date(0); // Beginning of time
+          fromDate = new Date(0);
       }
-
       payload.fromDate = fromDate.toISOString();
       payload.toDate = now.toISOString();
     }
 
-    // ExtraFields filters
-    if (filters.extraFields && Object.keys(filters.extraFields).length > 0) {
+    if (filters.extraFields && Object.keys(filters.extraFields).length > 0)
       payload.extraFields = filters.extraFields;
+    if (mapGeoFilter) {
+      payload.coordinates = mapGeoFilter.coordinates;
+      payload.distance = mapGeoFilter.distance;
     }
 
     return payload;
-  }, [category, emirate, filters]);
+  }, [category, emirate, filters, mapGeoFilter]);
 
-  // Check if any filters are selected (excluding showMap, category, and emirate)
-  // Category and emirate are URL params, not user-selected filters
-  const hasActiveFilters = useMemo(() => {
-    return !!(
-      filters.location ||
-      filters.price ||
-      filters.datePosted ||
-      filters.priceFrom ||
-      filters.priceTo ||
-      filters.deal !== undefined ||
-      filters.fromDate ||
-      filters.toDate ||
-      filters.isFeatured !== undefined ||
-      filters.hasVideo !== undefined ||
-      (filters.extraFields && Object.keys(filters.extraFields).length > 0)
-    );
-  }, [filters]);
-
-  // Use filter API if filters are selected, otherwise use regular ads API
   const { data: filterAdsData, isLoading: isFilterLoading } = useFilterAds(
     filterPayload,
-    1, // page
-    50, // limit
+    1,
+    50,
     hasActiveFilters
   );
-
   const { data: regularAdsData, isLoading: isRegularLoading } = useAds(
     hasActiveFilters
       ? undefined
@@ -176,85 +211,45 @@ const MapView = () => {
           limit: 50,
           page: 1,
           category: category || "",
-          neighbourhood: emirate || "",
-        }
+        neighbourhood: (emirate || query.neighbourhood) as string || "",
+        location: query.location as string || "",
+      },
+    { enabled: !hasActiveFilters }
   );
 
-  // Use filter results if filters are active, otherwise use regular ads
   const adsData = hasActiveFilters ? filterAdsData : regularAdsData;
   const isLoading = hasActiveFilters ? isFilterLoading : isRegularLoading;
-
-  const ads = useMemo(() => adsData?.data?.adds || [], [adsData?.data?.adds]);
-
-  // Get extraFields from the first ad if category is selected
-  // This gives us the field structure with optionalArray for filter options
-  const categoryExtraFields = useMemo(() => {
-    // Only get extraFields from first ad if category is selected and ads exist
-    if (category && ads.length > 0 && ads[0].extraFields) {
-      return normalizeExtraFieldsToArray(ads[0].extraFields);
-    }
-    // If no ads but we have saved extraFields, use those
-    if (savedExtraFields.length > 0) {
-      return savedExtraFields;
-    }
-    return [];
-  }, [category, ads, savedExtraFields]);
-
-  // Save extraFields to state when they're found (separate from useMemo to avoid re-render loop)
-  useEffect(() => {
-    if (category && ads.length > 0 && ads[0].extraFields) {
-      const normalized = normalizeExtraFieldsToArray(ads[0].extraFields);
-      if (normalized.length > 0) {
-        setSavedExtraFields(normalized);
-      }
-    }
-  }, [category, ads]);
+  const rawAds = useMemo(
+    () => adsData?.data?.adds || [],
+    [adsData?.data?.adds]
+  );
 
   const mapMarkers = useMemo(() => {
-    return ads.map((ad) => {
-      // Default Dubai coordinates
-      let lat = 25.2048;
-      let lng = 55.2708;
-
-      // Helper function to extract coordinates from AdLocation object
-      const extractCoordinates = (
-        locationData: typeof ad.location | typeof ad.address
-      ): void => {
-        if (typeof locationData === "object" && locationData?.coordinates) {
-          const coords = locationData.coordinates;
-
-          // Check if coordinates is a valid number array (not null)
-          if (Array.isArray(coords) && coords.length >= 2) {
-            // GeoJSON format is [lng, lat]
-            const [lngCoord, latCoord] = coords;
-
-            // Validate that both are numbers and not NaN
-            if (
-              typeof lngCoord === "number" &&
-              typeof latCoord === "number" &&
-              !isNaN(lngCoord) &&
-              !isNaN(latCoord)
-            ) {
-              lat = latCoord;
-              lng = lngCoord;
-            }
+    return rawAds.map((ad) => {
+      let lat = 25.2048,
+        lng = 55.2708;
+      const extractCoords = (data: any) => {
+        if (
+          data?.coordinates &&
+          Array.isArray(data.coordinates) &&
+          data.coordinates.length >= 2
+        ) {
+          const [lonC, latC] = data.coordinates;
+          if (
+            typeof lonC === "number" &&
+            typeof latC === "number" &&
+            !isNaN(lonC) &&
+            !isNaN(latC)
+          ) {
+            lat = latC;
+            lng = lonC;
           }
         }
       };
+      extractCoords(ad.location);
+      if (lat === 25.2048 && lng === 55.2708) extractCoords(ad.address);
 
-      // Check location field first, then address field
-      extractCoordinates(ad.location);
-
-      // If no coordinates found in location, check address field
-      if (lat === 25.2048 && lng === 55.2708) {
-        extractCoordinates(ad.address);
-      }
-
-      // Only use default coordinates if no valid coordinates found
-      // Do NOT generate random coordinates to prevent markers from moving on refresh
-
-      // Get location string for tooltip
-      const locationString =
+      const locStr =
         typeof ad.location === "string"
           ? ad.location
           : ad.location?.address ||
@@ -268,63 +263,110 @@ const MapView = () => {
         title: ad.title,
         price: ad.price.toString(),
         image: ad.images?.[0],
-        location: locationString,
+        location: locStr,
       };
     });
-  }, [ads]);
+  }, [rawAds]);
 
-  const handleMarkerClick = (markerId: string) => {
-    console.log("Marker clicked:", markerId);
-    // Here you could scroll to the corresponding listing or show details
-  };
+  const ads = useMemo(() => {
+    if (selectedAreaMarkerIds.length > 0)
+      return rawAds.filter((ad) => selectedAreaMarkerIds.includes(ad._id));
+    return rawAds;
+  }, [rawAds, selectedAreaMarkerIds]);
 
-  const handleMapClick = (position: { lat: number; lng: number }) => {
-    console.log("Map clicked at:", position);
-    // Here you could add a new marker or perform other actions
-  };
+  const categoryExtraFields = useMemo(() => {
+    if (category && rawAds.length > 0 && rawAds[0].extraFields)
+      return normalizeExtraFieldsToArray(rawAds[0].extraFields);
+    if (savedExtraFields.length > 0) return savedExtraFields;
+    return [];
+  }, [category, rawAds, savedExtraFields]);
 
-  const handleFilterChange = (filters: MapViewFilters) => {
-    setFilters(filters);
-  };
+  useEffect(() => {
+    if (category && rawAds.length > 0 && rawAds[0].extraFields) {
+      const normalized = normalizeExtraFieldsToArray(rawAds[0].extraFields);
+      if (normalized.length > 0) setSavedExtraFields(normalized);
+    }
+  }, [category, rawAds]);
+
+  const handleMarkerClick = useCallback(
+    (id: string) => console.log("Marker clicked:", id),
+    []
+  );
+  const handleMapClick = useCallback(
+    (pos: any) => console.log("Map clicked at:", pos),
+    []
+  );
+  const handleFilterChange = useCallback(
+    (f: MapViewFilters) => {
+      const { extraFields, ...rest } = f;
+      const updates: Record<string, any> = { ...rest };
+      if (extraFields && Object.keys(extraFields).length > 0) {
+        updates.extraFields = JSON.stringify(extraFields);
+      } else {
+        updates.extraFields = null;
+      }
+      updateUrlParams(updates);
+    },
+    [updateUrlParams]
+  );
+  const handleBoundsChange = useCallback((center: any, radius: number) => {
+    setMapGeoFilter({
+      coordinates: [center.lng, center.lat],
+      distance: Math.round(radius),
+    });
+  }, []);
+  const handleClearGeofence = useCallback(() => {
+    setMapGeoFilter(null);
+    setSelectedAreaMarkerIds([]);
+    setSelectedAreaPath(null);
+  }, []);
+  const handleAreaSelect = useCallback(
+    (markerIds: string[], polygonPath: any[]) => {
+      setSelectedAreaMarkerIds(markerIds);
+      setSelectedAreaPath(polygonPath);
+    },
+    []
+  );
 
   return (
     <GoogleMapsProvider>
       <section className="w-full flex flex-col relative h-full">
-        {/* Filter Section */}
         <div className="w-full border bg-white">
           <MapViewFilter
+            filters={filters}
             extraFields={categoryExtraFields}
             onFilterChange={handleFilterChange}
           />
         </div>
 
-        {/* Main Content */}
         <Container1080 className="flex items-start justify-between gap-4 relative p-2 h-[calc(100vh-180px)] overflow-y-auto">
-          {/* Products Grid */}
           <ProductsGrid
             ads={ads}
             isLoading={isLoading}
             title={t.mapView.title}
             showReturnButton={true}
             className={cn(filters.showMap && "max-w-md hidden md:flex")}
-            gridClassName={cn(
-              !filters.showMap && "md:grid-cols-3 lg:grid-cols-5"
-            )}
+            gridClassName={cn(!filters.showMap && "md:grid-cols-3 lg:grid-cols-5")}
           />
 
-          {/* Map Section */}
           {filters.showMap && (
-            <div className="w-full sticky top-4 h-full">
+            <div className="flex-1 sticky top-4 h-full min-h-[500px]">
               <Map
                 markers={mapMarkers}
                 onMarkerClick={handleMarkerClick}
                 onMapClick={handleMapClick}
-                center={{ lat: 25.2048, lng: 55.2708 }}
-                zoom={12}
+                onBoundsChange={handleBoundsChange}
+                onAreaSelect={handleAreaSelect}
+                onClearGeofence={handleClearGeofence}
+                isGeofenceActive={!!mapGeoFilter}
+                initialPolygonPath={selectedAreaPath || undefined}
+                center={mapCenter}
+                zoom={mapZoom}
                 className="h-full"
               />
             </div>
           )}
+
           <HorizontalCarouselSlider
             items={ads.slice(0, 10).map((ad) => {
               const transformed = transformAdToListingCard(ad);
@@ -338,20 +380,17 @@ const MapView = () => {
                 images: transformed.images,
                 extraFields: transformed.extraFields,
                 postedTime: transformed.postedTime,
-                // isFavorite: transformed.isFavorite || false,
                 onFavorite: () => { },
               };
             })}
             showNavigation={false}
             autoScroll={false}
-            autoScrollInterval={4000}
             cardWidth={280}
             gap={16}
             showScrollbar={true}
-            className="md:hidden "
+            className="md:hidden"
           />
         </Container1080>
-        {/* Horizontal Carousel Slider at Bottom */}
       </section>
     </GoogleMapsProvider>
   );

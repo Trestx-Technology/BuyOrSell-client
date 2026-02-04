@@ -41,7 +41,7 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
             <GoogleMapsContext.Provider value={{ isLoaded, error }}>
                   <Script
                     id="google-maps-script"
-                    src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY}&libraries=places`}
+                        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY}&libraries=places,geometry,drawing`}
                     strategy="afterInteractive"
                     onLoad={() => setIsLoaded(true)}
                     onError={() => setError(true)}

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { MapPin, Navigation, ZoomIn, ZoomOut } from "lucide-react";
+import { MapPin, Navigation, ZoomIn, ZoomOut, Square, Trash2 } from "lucide-react";
 import { UI_ICONS } from "@/constants/icons";
 import { useGoogleMaps } from "@/components/providers/google-maps-provider";
 
@@ -21,6 +21,11 @@ export interface MapProps {
   }>;
   onMarkerClick?: (markerId: string) => void;
   onMapClick?: (position: { lat: number; lng: number }) => void;
+  onBoundsChange?: (center: { lat: number; lng: number }, radius: number) => void;
+  onAreaSelect?: (markerIds: string[], polygonPath: { lat: number; lng: number }[]) => void;
+  onClearGeofence?: () => void;
+  initialPolygonPath?: { lat: number; lng: number }[];
+  isGeofenceActive?: boolean;
 }
 
 declare global {
@@ -36,6 +41,11 @@ export default function Map({
   markers = [],
   onMarkerClick,
   onMapClick,
+  onBoundsChange,
+  onAreaSelect,
+  onClearGeofence,
+  initialPolygonPath,
+  isGeofenceActive,
 }: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<any>(null);
@@ -43,6 +53,17 @@ export default function Map({
   const infoWindowsRef = useRef<any[]>([]);
   const { isLoaded } = useGoogleMaps();
   const isLoading = !isLoaded;
+
+  // Polygon drawing state
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [drawnPolygons, setDrawnPolygons] = useState<any[]>([]);
+  const drawingManagerRef = useRef<any>(null);
+  const markersRef = useRef(markers);
+
+  // Keep markers ref in sync
+  useEffect(() => {
+    markersRef.current = markers;
+  }, [markers]);
 
   // Initialize map
   useEffect(() => {
@@ -75,6 +96,235 @@ export default function Map({
     setMap(mapInstance);
   }, [isLoading, map]); // Removed center/zoom from init dependencies to prevent loops
 
+  // Initialize Drawing Manager
+  useEffect(() => {
+    if (!map || !window.google?.maps?.drawing?.DrawingManager) return;
+
+    const drawingManager = new window.google.maps.drawing.DrawingManager({
+      drawingMode: null,
+      drawingControl: false,
+      polygonOptions: {
+        fillColor: "#8b31e1",
+        fillOpacity: 0.3,
+        strokeWeight: 2,
+        strokeColor: "#8b31e1",
+        clickable: true,
+        editable: true,
+        zIndex: 1,
+      },
+    });
+
+    drawingManager.setMap(map);
+    drawingManagerRef.current = drawingManager;
+
+    // Listen for polygon complete
+    window.google.maps.event.addListener(
+      drawingManager,
+      "polygoncomplete",
+      (polygon: any) => {
+        // Disable drawing mode after polygon is drawn
+        setIsDrawingMode(false);
+        drawingManager.setDrawingMode(null);
+
+        // Add the polygon to state
+        setDrawnPolygons((prev) => [...prev, polygon]);
+
+        // Get the path of the polygon
+        const path = polygon.getPath();
+        const polygonPath: { lat: number; lng: number }[] = [];
+        for (let i = 0; i < path.getLength(); i++) {
+          const point = path.getAt(i);
+          polygonPath.push({ lat: point.lat(), lng: point.lng() });
+        }
+
+        // Calculate center and radius for backend search
+        const bounds = new window.google.maps.LatLngBounds();
+        for (let i = 0; i < path.getLength(); i++) bounds.extend(path.getAt(i));
+        const center = bounds.getCenter();
+        const ne = bounds.getNorthEast();
+        const radius = window.google.maps.geometry.spherical.computeDistanceBetween(center, ne);
+
+        // Find markers inside the polygon
+        const markersInside = findMarkersInsidePolygon(polygon, markersRef.current);
+
+        // Call the callback with marker IDs and polygon path
+        if (onAreaSelect) {
+          onAreaSelect(
+            markersInside.map((m) => m.id),
+            polygonPath
+          );
+        }
+
+        // Trigger backend search for this area
+        if (onBoundsChange) {
+          onBoundsChange({ lat: center.lat(), lng: center.lng() }, radius);
+        }
+
+        // Add click listener to polygon for re-selection
+        polygon.addListener("click", () => {
+          const markersInside = findMarkersInsidePolygon(polygon, markersRef.current);
+          if (onAreaSelect) {
+            const path = polygon.getPath();
+            const polygonPath: { lat: number; lng: number }[] = [];
+            for (let i = 0; i < path.getLength(); i++) {
+              const point = path.getAt(i);
+              polygonPath.push({ lat: point.lat(), lng: point.lng() });
+            }
+            onAreaSelect(
+              markersInside.map((m) => m.id),
+              polygonPath
+            );
+          }
+        });
+
+        // Listen for path changes (when user edits the polygon)
+        const pathChangedListener = () => {
+          const markersInside = findMarkersInsidePolygon(polygon, markersRef.current);
+          if (onAreaSelect) {
+            const path = polygon.getPath();
+            const polygonPath: { lat: number; lng: number }[] = [];
+            for (let i = 0; i < path.getLength(); i++) {
+              const point = path.getAt(i);
+              polygonPath.push({ lat: point.lat(), lng: point.lng() });
+            }
+            onAreaSelect(
+              markersInside.map((m) => m.id),
+              polygonPath
+            );
+          }
+        };
+
+        polygon.getPath().addListener("set_at", pathChangedListener);
+        polygon.getPath().addListener("insert_at", pathChangedListener);
+        polygon.getPath().addListener("remove_at", pathChangedListener);
+      }
+    );
+
+    // Listen for circle complete
+    window.google.maps.event.addListener(
+      drawingManager,
+      "circlecomplete",
+      (circle: any) => {
+        setIsDrawingMode(false);
+        drawingManager.setDrawingMode(null);
+
+        const center = circle.getCenter();
+        const radius = circle.getRadius();
+
+        // Convert circle to a polygon for frontend persistence? 
+        // For now, let's just trigger the search
+        if (onBoundsChange) {
+          onBoundsChange({ lat: center.lat(), lng: center.lng() }, radius);
+        }
+
+        // Remove the temporary circle overlay as we deal in payloads
+        circle.setMap(null);
+      }
+    );
+
+    return () => {
+      if (drawingManager) {
+        drawingManager.setMap(null);
+      }
+    };
+  }, [map, onAreaSelect]);
+
+  // Handle Initial Polygon Path / Polygon Persistence
+  useEffect(() => {
+    if (!map || !initialPolygonPath || initialPolygonPath.length === 0 || !window.google?.maps?.Polygon) return;
+
+    // Check if this path is already drawn to avoid duplicates
+    // (Simplistic check: just check first point)
+    const isAlreadyDrawn = drawnPolygons.some(p => {
+      const firstPoint = p.getPath().getAt(0);
+      return firstPoint.lat() === initialPolygonPath[0].lat && firstPoint.lng() === initialPolygonPath[0].lng;
+    });
+
+    if (isAlreadyDrawn) return;
+
+    const polygon = new window.google.maps.Polygon({
+      paths: initialPolygonPath,
+      fillColor: "#8b31e1",
+      fillOpacity: 0.3,
+      strokeWeight: 2,
+      strokeColor: "#8b31e1",
+      clickable: true,
+      editable: true,
+      zIndex: 1,
+      map: map
+    });
+
+    setDrawnPolygons(prev => [...prev, polygon]);
+
+    // Setup listeners for the new polygon
+    const updateSelection = () => {
+      const markersInside = findMarkersInsidePolygon(polygon, markersRef.current);
+      if (onAreaSelect) {
+        const path = polygon.getPath();
+        const coords: { lat: number; lng: number }[] = [];
+        for (let i = 0; i < path.getLength(); i++) {
+          coords.push({ lat: path.getAt(i).lat(), lng: path.getAt(i).lng() });
+        }
+        onAreaSelect(markersInside.map(m => m.id), coords);
+      }
+    };
+
+    polygon.addListener("click", updateSelection);
+    polygon.getPath().addListener("set_at", updateSelection);
+    polygon.getPath().addListener("insert_at", updateSelection);
+    polygon.getPath().addListener("remove_at", updateSelection);
+  }, [map, initialPolygonPath, onAreaSelect]);
+
+  // Function to check if a point is inside a polygon
+  const findMarkersInsidePolygon = (
+    polygon: any,
+    allMarkers: typeof markers
+  ) => {
+    if (!window.google?.maps?.geometry?.poly) return [];
+
+    return allMarkers.filter((marker) => {
+      const point = new window.google.maps.LatLng(
+        marker.position.lat,
+        marker.position.lng
+      );
+      return window.google.maps.geometry.poly.containsLocation(
+        point,
+        polygon
+      );
+    });
+  };
+
+  // Toggle drawing mode
+  const toggleDrawingMode = () => {
+    if (!drawingManagerRef.current) return;
+
+    const newDrawingMode = !isDrawingMode;
+    setIsDrawingMode(newDrawingMode);
+
+    if (newDrawingMode) {
+      drawingManagerRef.current.setDrawingMode(
+        window.google.maps.drawing.OverlayType.POLYGON
+      );
+    } else {
+      drawingManagerRef.current.setDrawingMode(null);
+    }
+  };
+
+  // Clear all polygons
+  const clearPolygons = () => {
+    drawnPolygons.forEach((polygon) => {
+      polygon.setMap(null);
+    });
+    setDrawnPolygons([]);
+    setHasMapMoved(false);
+    if (onAreaSelect) {
+      onAreaSelect([], []);
+    }
+    if (onClearGeofence) {
+      onClearGeofence();
+    }
+  };
+
   // Handle center updates
   useEffect(() => {
     if (map && center) {
@@ -104,6 +354,49 @@ export default function Map({
       window.google.maps.event.removeListener(listener);
     };
   }, [map, onMapClick]);
+
+  // Track if map has moved from initial view to show "Search this area" button
+  const [hasMapMoved, setHasMapMoved] = useState(false);
+  const initialLoadRef = useRef(true);
+
+  // Sync markers ref
+  useEffect(() => {
+    markersRef.current = markers;
+  }, [markers]);
+
+  // Handle map idle event to detect movement
+  useEffect(() => {
+    if (!map) return;
+
+    const listener = map.addListener("idle", () => {
+      if (initialLoadRef.current) {
+        initialLoadRef.current = false;
+        return;
+      }
+      setHasMapMoved(true);
+    });
+
+    return () => {
+      window.google.maps.event.removeListener(listener);
+    };
+  }, [map]);
+
+  const handleManualSearch = () => {
+    if (!map || !onBoundsChange || !window.google?.maps?.geometry?.spherical) return;
+
+    const bounds = map.getBounds();
+    if (!bounds) return;
+
+    const currentCenter = bounds.getCenter();
+    const ne = bounds.getNorthEast();
+    const radius = window.google.maps.geometry.spherical.computeDistanceBetween(
+      currentCenter,
+      ne
+    );
+
+    onBoundsChange({ lat: currentCenter.lat(), lng: currentCenter.lng() }, radius);
+    setHasMapMoved(false); // Hide the button after search
+  };
 
   // Update markers
   useEffect(() => {
@@ -174,9 +467,8 @@ export default function Map({
           overflow: hidden;
           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         ">
-          ${
-            hasImage
-              ? `
+          ${hasImage
+          ? `
             <div style="
               width: 100%;
               height: 160px;
@@ -206,7 +498,7 @@ export default function Map({
               />
             </div>
           `
-              : `
+        : `
             <div style="
               width: 100%;
               height: 120px;
@@ -220,7 +512,7 @@ export default function Map({
               </svg>
             </div>
           `
-          }
+        }
           <div style="padding: 12px; background: white;">
             <h3 style="
               font-size: 14px;
@@ -233,9 +525,8 @@ export default function Map({
               -webkit-box-orient: vertical;
               overflow: hidden;
             ">${safeTitle}</h3>
-            ${
-              safePrice
-                ? `
+            ${safePrice
+          ? `
               <div style="margin-bottom: 8px;">
                 <span style="
                   font-size: 16px;
@@ -250,11 +541,10 @@ export default function Map({
                 ">AED</span>
               </div>
             `
-                : ""
-            }
-            ${
-              safeLocation
-                ? `
+        : ""
+        }
+            ${safeLocation
+          ? `
               <div style="
                 display: flex;
                 align-items: center;
@@ -276,8 +566,8 @@ export default function Map({
                 ">${safeLocation}</span>
               </div>
             `
-                : ""
-            }
+        : ""
+        }
           </div>
         </div>
       `;
@@ -391,6 +681,19 @@ export default function Map({
       {/* Map Container */}
       <div ref={mapRef} className="w-full h-full" />
 
+      {/* Manual Search Button */}
+      {hasMapMoved && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+          <button
+            onClick={handleManualSearch}
+            className="bg-white text-purple-600 px-4 py-2 rounded-full shadow-xl border border-purple-100 font-medium text-sm flex items-center gap-2 hover:bg-purple-50 transition-all transform active:scale-95"
+          >
+            <Navigation className="w-4 h-4" />
+            Search in this area
+          </button>
+        </div>
+      )}
+
       {/* Map Controls */}
       <motion.div
         variants={controlsVariants}
@@ -419,6 +722,34 @@ export default function Map({
         >
           <Navigation className="w-5 h-5 text-gray-700" />
         </button>
+
+        {/* Divider */}
+        <div className="h-px bg-gray-200 my-1"></div>
+
+        {/* Drawing Mode Toggle */}
+        <button
+          onClick={toggleDrawingMode}
+          className={cn(
+            "w-10 h-10 rounded-lg shadow-lg flex items-center justify-center transition-colors",
+            isDrawingMode
+              ? "bg-purple-600 hover:bg-purple-700 text-white"
+              : "bg-white hover:bg-gray-50 text-gray-700"
+          )}
+          title={isDrawingMode ? "Stop Drawing" : "Draw Area"}
+        >
+          <Square className="w-5 h-5" />
+        </button>
+
+        {/* Clear Polygons */}
+        {(drawnPolygons.length > 0 || isGeofenceActive) && (
+          <button
+            onClick={clearPolygons}
+            className="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-red-50 text-red-600 transition-colors"
+            title="Clear Area Search"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+        )}
       </motion.div>
 
       {/* Map Info */}
@@ -435,7 +766,27 @@ export default function Map({
         <div className="text-xs text-gray-500 mt-1">
           {markers.length} properties found
         </div>
+        {drawnPolygons.length > 0 && (
+          <div className="text-xs text-purple-600 mt-1">
+            {drawnPolygons.length} area{drawnPolygons.length > 1 ? "s" : ""} selected
+          </div>
+        )}
       </motion.div>
+
+      {/* Drawing Instructions */}
+      {isDrawingMode && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="absolute top-4 left-4 bg-purple-600 text-white rounded-lg shadow-lg px-4 py-3 max-w-xs"
+        >
+          <p className="text-sm font-medium">Drawing Mode Active</p>
+          <p className="text-xs mt-1 opacity-90">
+            Click on the map to draw a polygon. Click the first point again to complete.
+          </p>
+        </motion.div>
+      )}
     </motion.div>
   );
 }

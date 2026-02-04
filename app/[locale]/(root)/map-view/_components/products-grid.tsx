@@ -88,7 +88,7 @@ export default function ProductsGrid({
                   variants={itemVariants}
                   initial="hidden"
                   animate="visible"
-                  className="group cursor-pointer"
+                  className="group cursor-pointer h-full"
                   onClick={() => handleProductClick(ad)}
                 >
                   <ListingCard {...listingCard} className="w-full" />

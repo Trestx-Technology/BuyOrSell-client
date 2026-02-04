@@ -1,8 +1,10 @@
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
+import { useUrlParams } from "./useUrlParams";
 
 export const useUrlFilters = () => {
   const searchParams = useSearchParams();
+  const { updateUrlParam, updateUrlParams, clearUrlQueries } = useUrlParams();
 
   return useMemo(() => {
     const filters: Record<string, string | string[]> = {};
@@ -33,6 +35,9 @@ export const useUrlFilters = () => {
       search: searchParams.get("search") || "",
       location: searchParams.get("location") || "",
       hasDynamicFilters,
+      updateUrlParam,
+      updateUrlParams,
+      clearUrlQueries,
     };
-  }, [searchParams]);
+  }, [searchParams, updateUrlParam, updateUrlParams, clearUrlQueries]);
 };
