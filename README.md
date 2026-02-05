@@ -1,6 +1,8 @@
+# BuyOrSell Client
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## 🚀 Getting Started
 
 First, run the development server:
 
@@ -18,249 +20,150 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📂 Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+### Root Directory
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `actions/`: Server actions for Next.js.
+- `app/`: Next.js App Router directory and API route handlers.
+- `components/`: Reusable React components (auth, common, features, global, ui, etc.).
+- `constants/`: Global constants and configuration values.
+- `hooks/`: Custom React hooks.
+- `interfaces/`: TypeScript interfaces and types.
+- `lib/`: Utility libraries and configurations.
+- `public/`: Static assets such as images and fonts.
+- `schemas/`: Validation schemas (Zod).
+- `services/`: API client services (AI, HTTP, Cookies, Logger).
+- `stores/`: State management (Zustand).
+- `translations/`: Internationalization files.
+- `utils/`: Miscellaneous utility functions.
 
 ---
 
-Infrastructure (AWS CloudFormation)
+## 🗺️ Application Pages
 
-An AWS CloudFormation template is provided to provision the AWS resources needed to run this app on ECS Fargate and to host its Docker image on ECR.
+The application is localized under `/[locale]` and organized into route groups:
 
-- Template path: infra/cloudformation/ecr-ecs-fargate.yml
+### Authentication (`(auth)`)
+- `forgot-password/`: Request password reset.
+- `login/`: Standard login.
+- `methods/`: Social/Alternative login options.
+- `reset-password/`: Reset credentials.
+- `signup/`: New user registration.
 
-What it creates:
-- ECR repository (with scan on push and simple lifecycle policy)
-- ECS Cluster
-- IAM roles (task execution role and task role)
-- CloudWatch Logs log group
-- Security group to allow ingress to the app port
-- Fargate Task Definition (awsvpc, configurable CPU/memory)
-- ECS Service (Fargate) in your provided subnets
+### Ads & Listings (`(root)`)
+- `/`: Main landing page.
+- `ad/[adId]/`: **(Dynamic)** Detailed view of an advertisement.
+- `ai-ad-post/`: AI-assisted ad creation.
+- `categories/[...slug]/`: **(Dynamic Catch-all)** Browse ads by category/subcategory hierarchy.
+- `favorites/`: User's saved ads list.
+  - `[id]/`: **(Dynamic)** Specific favorites collection.
+- `post-ad/`: entry point for posting.
+  - `select/`: Step 1: Category selection.
+  - `details/`: Step 2: Form entry.
+  - `details/[leafCategoryId]/`: **(Dynamic)** Category-specific fields.
+  - `edit/[adId]/`: **(Dynamic)** Edit an existing ad.
+  - `success/`: Post-submission confirmation.
+  - `[...slug]/`: **(Dynamic Catch-all)** posting logic routes.
 
-Required parameters when deploying:
-- RepositoryName: ECR repository name to create/use
-- VpcId: Your VPC ID
-- SubnetIds: Comma-separated subnet IDs (use public subnets if AssignPublicIp=ENABLED)
+### Job Portal (`jobs`)
+- `jobs/`: Jobs hub.
+- `jobs/applied/`: List of applications sent.
+- `jobs/saved/`: Bookmarked job listings.
+- `jobs/my-profile/`: Jobseeker professional profile.
+- `jobs/jobseeker/`: Jobseeker directory.
+  - `new/`: Create jobseeker profile.
+  - `[id]/`: **(Dynamic)** View specific jobseeker.
+- `jobs/listing/`: Employer job management.
+  - `my/`: Jobs posted by current user.
+  - `[jobId]/applicants/`: **(Dynamic)** Manage candidates for a job.
+  - `[...slug]/`: **(Dynamic Catch-all)** Job search results.
+- `jobs/[category]/`: **(Dynamic)** Jobs within a specific industry.
 
-Common optional parameters:
-- ClusterName (default: app-cluster)
-- ServiceName (default: app-service)
-- AppPort (default: 3000)
-- DesiredCount (default: 1)
-- Cpu (default: 512), Memory (default: 1024)
-- ImageTag (default: latest)
-- AssignPublicIp (ENABLED|DISABLED, default: ENABLED)
+### Organizations
+- `organizations/`: Directory of registered businesses.
+- `organizations/my/`: User's business profiles.
+- `organizations/new/`: Register a new organization.
+- `organizations/saved/`: Organizations the user follows.
+- `organizations/edit/[id]/`: **(Dynamic)** Modify organization details.
+- `organizations/[id]/`: **(Dynamic)** Public organization profile.
 
-Example deploy command:
+### User Account (`user`)
+- `user/profile/`: Dashboard summary.
+- `user/profile/edit/`: Update user info.
+- `user/profile/settings/`: Account preferences.
+  - `blocked-users/`: Blocked list.
+  - `change-password/`: Security settings.
+  - `notification-settings/`: Alert preferences.
+- `user/address/`: Saved locations.
+  - `new/`: Add location.
+  - `[id]/`: **(Dynamic)** View/Edit location.
+- `user/my-ads/`: User's active/inactive listings.
+- `user/notifications/`: System/Activity inbox.
+- `user/search-history/`: Recent search queries.
+- `user/emarati-status/`: Verification for UAE nationals.
 
+### Help & Support
+- `help-centre/`: Support home.
+- `help-centre/my-tickets/`: Status of user requests.
+- `help-centre/new/`: Submit a new support ticket.
+- `help-centre/messages/`: Support chat history.
+- `help-centre/ticket/[ticketId]/`: **(Dynamic)** Ticket details and updates.
+
+### Payments & System
+- `pay/`: Payment checkout.
+- `pay/response/`: Transaction status (Success/Fail).
+- `plans/`: Subscription tier details.
+- `my-subscriptions/`: Active billing plans.
+- `map-view/`: Map-based ad exploration.
+- `watch/`: Video feed of products/ads.
+- `connections/`: User networking.
+- `deals/`: Promotions and offers.
+- `rate-us/`: App feedback.
+- `no-internet/`: Offline fallback.
+
+
+---
+
+## 🪵 Logging
+
+This project uses [Pino](https://getpino.io/) for structured logging.
+
+### Usage
+```typescript
+import { log } from '@/services/logger';
+
+log.info('User action', { userId: '123', action: 'purchase' });
+log.error('API failed', error, { endpoint: '/api/data' });
+```
+- **Development**: Pretty-printed logs (`pino-pretty`).
+- **Production**: Structured JSON logs.
+- **Log Levels**: Trace, Debug, Info, Warn, Error, Fatal (controlled via `NEXT_PUBLIC_LOG_LEVEL`).
+
+---
+
+## 🏗️ Infrastructure & Deployment
+
+### AWS ECS Fargate
+An AWS CloudFormation template is provided at `infra/cloudformation/ecr-ecs-fargate.yml` to provision:
+- ECR Repository
+- ECS Cluster & Service (Fargate)
+- IAM Roles & CloudWatch Log Groups
+
+### Deployment Command Example
 ```bash
-STACK_NAME=buy-or-sell-ecs
-REGION=us-east-1
-
 aws cloudformation deploy \
-  --region "$REGION" \
-  --stack-name "$STACK_NAME" \
   --template-file infra/cloudformation/ecr-ecs-fargate.yml \
-  --capabilities CAPABILITY_IAM \
-  --parameter-overrides \
-    RepositoryName=buy-or-sell-client \
-    ClusterName=buy-or-sell-cluster \
-    ServiceName=buy-or-sell-client-svc \
-    VpcId=vpc-0123456789abcdef0 \
-    SubnetIds=subnet-aaa111bbb222,subnet-ccc333ddd444 \
-    AssignPublicIp=ENABLED \
-    AppPort=3000 \
-    DesiredCount=1 \
-    Cpu=512 \
-    Memory=1024
+  --stack-name buy-or-sell-ecs \
+  --parameter-overrides RepositoryName=buy-or-sell-client VpcId=vpc-xxx SubnetIds=subnet-xxx
 ```
-
-After the stack is created:
-- Push your Docker image to the created ECR repository. The included GitHub Actions workflow (.github/workflows/ecr-ecs-deploy.yml) already builds and pushes images tagged with latest and the commit SHA.
-- The ECS service uses the ImageTag parameter (default latest). Ensure your task definition image tag matches what you push or update the stack with a different ImageTag to roll out.
 
 ---
 
-## Logging
+## 📖 Learn More
 
-This project uses [Pino](https://getpino.io/) for structured logging across both client and server environments. The logger is configured to work seamlessly in Next.js with automatic environment detection.
-
-### Features
-
-- ✅ **Universal**: Works in both browser and server environments
-- ✅ **Structured Logging**: JSON format in production, pretty-printed in development
-- ✅ **Environment-aware**: Automatic log level configuration based on environment
-- ✅ **Type-safe**: Full TypeScript support
-- ✅ **Performance**: Pino is one of the fastest Node.js loggers
-
-### Installation
-
-The logger is already installed. If you need to reinstall:
-
-```bash
-yarn add pino pino-pretty
-```
-
-### Basic Usage
-
-Import the logger convenience methods:
-
-```typescript
-import { log } from '@/services/logger';
-
-// Debug logging (only in development)
-log.debug('Debug message', { userId: '123', action: 'login' });
-
-// Info logging
-log.info('User logged in', { userId: '123', email: 'user@example.com' });
-
-// Warning logging
-log.warn('Token expiring soon', { timeUntilExpiry: 300 });
-
-// Success logging
-log.success('Operation completed successfully', { operationId: 'op-123' });
-
-// Error logging with Error object
-try {
-  // Some operation
-  throw new Error('Something went wrong');
-} catch (error) {
-  log.error('Operation failed', error, { 
-    operationId: 'op-123',
-    userId: '123' 
-  });
-}
-
-// Error logging without Error object
-log.error('API call failed', undefined, { 
-  endpoint: '/api/users',
-  statusCode: 500 
-});
-```
-
-### Advanced Usage
-
-For advanced features like child loggers with context:
-
-```typescript
-import logger from '@/services/logger';
-
-// Create a child logger with persistent context
-const authLogger = logger.child({ component: 'AuthService' });
-authLogger.info('Authentication service initialized');
-
-// Create a request-scoped logger
-const requestLogger = logger.child({ requestId: 'req-123' });
-requestLogger.debug('Processing request');
-```
-
-### Configuration
-
-#### Environment Variables
-
-Set the log level using the `NEXT_PUBLIC_LOG_LEVEL` environment variable:
-
-```bash
-# .env.local
-NEXT_PUBLIC_LOG_LEVEL=debug  # Options: trace, debug, info, warn, error, fatal
-```
-
-#### Default Log Levels
-
-- **Development**: `debug` (shows all logs)
-- **Production**: `warn` (only warnings and errors)
-
-#### Log Levels (from lowest to highest priority)
-
-1. `trace` - Very detailed debugging information
-2. `debug` - Debugging information
-3. `info` - General informational messages
-4. `warn` - Warning messages
-5. `error` - Error messages
-6. `fatal` - Fatal errors
-
-### Best Practices
-
-1. **Use appropriate log levels**:
-   - `debug`: Detailed information for debugging
-   - `info`: General information about application flow
-   - `warn`: Warning messages that don't stop execution
-   - `error`: Error messages that need attention
-
-2. **Include context**:
-   ```typescript
-   // Good: Includes relevant context
-   log.error('API call failed', error, { 
-     endpoint: '/api/users',
-     statusCode: 500,
-     userId: '123'
-   });
-
-   // Bad: No context
-   log.error('API call failed', error);
-   ```
-
-3. **Use structured data**:
-   ```typescript
-   // Good: Structured context object
-   log.info('User action', { userId: '123', action: 'purchase', itemId: '456' });
-
-   // Bad: String concatenation
-   log.info(`User 123 purchased item 456`);
-   ```
-
-4. **Don't log sensitive information**:
-   ```typescript
-   // Bad: Logging sensitive data
-   log.info('User login', { password: userPassword, token: accessToken });
-
-   // Good: Logging safe data
-   log.info('User login', { userId: user.id, email: user.email });
-   ```
-
-5. **Use child loggers for components**:
-   ```typescript
-   // Create a component-specific logger
-   const componentLogger = logger.child({ component: 'ProductGallery' });
-   componentLogger.debug('Gallery opened', { imageCount: 5 });
-   ```
-
-### Server vs Client Behavior
-
-- **Server**: Logs are pretty-printed in development using `pino-pretty`, JSON format in production
-- **Client**: Logs are sent to browser console with appropriate console methods (console.info, console.error, etc.)
-
-### Example: Replacing console.log
-
-```typescript
-// Before
-console.log('User logged in');
-console.error('Login failed', error);
-
-// After
-import { log } from '@/services/logger';
-
-log.info('User logged in', { userId: user.id });
-log.error('Login failed', error, { email: user.email });
-```
-
-### File Location
-
-The logger service is located at: `services/logger.ts`
-
-For usage examples, see: `services/logger.example.ts`
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Pino Documentation](https://getpino.io/)
+- [Vercel Deployment](https://nextjs.org/docs/app/building-your-application/deploying)
