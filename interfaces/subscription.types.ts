@@ -9,9 +9,11 @@ export interface ISubscription {
   plan: IPlan; // Use IPlan if it matches, otherwise define strict shape here
   startDate: string;
   endDate: string;
-  status: "created" | "active" | "inactive" | "expired"; // Updated status enum based on sample 'created'
+  status: "created" | "active" | "inactive" | "expired" | "confirmed"; // Updated status enum based on sample 'confirmed'
   addsAvailable: number;
   adsUsed: number;
+  featuredAdsAvailable?: number;
+  featuredAdsUsed?: number;
   createdAt: string;
   updatedAt: string;
   __v?: number;

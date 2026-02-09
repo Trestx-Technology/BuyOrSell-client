@@ -12,6 +12,8 @@ import { hasOrganization } from "@/validations/post-ad.validation";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { toast } from "sonner";
 import { H2 } from "@/components/typography";
+import { useAdAvailability } from "@/hooks/useAdAvailability";
+import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
 
 export default function SelectJobCategoryPage() {
   const router = useRouter();
@@ -23,6 +25,9 @@ export default function SelectJobCategoryPage() {
     clearCategoryArray,
   } = useAdPostingStore((state) => state);
   const [showOrgDialog, setShowOrgDialog] = useState(false);
+
+  // Availability Hook
+  const { checkAvailability, dialogProps } = useAdAvailability();
 
   // Fetch categories using the hook
   const {
@@ -41,9 +46,7 @@ export default function SelectJobCategoryPage() {
     useGetJobseekerProfile();
 
   useEffect(() => {
-
     if (organizations.length === 0) {
-      // router.push("/organizations/new");
       setShowOrgDialog(true);
     }
     if (!isJobseekerLoading && !jobseekerData?.data) {
@@ -52,16 +55,20 @@ export default function SelectJobCategoryPage() {
     }
   }, [isJobseekerLoading, jobseekerData, router]);
 
-
   const handleCategorySelect = (categoryId: string) => {
     const selectedCategory = categories.find((cat) => cat._id === categoryId);
 
     if (selectedCategory) {
-        // Ensure user has organization for jobs
-        if (!hasOrganization(organizations)) {
-          setShowOrgDialog(true);
-          return; 
-        }
+      // Ensure user has organization for jobs
+      if (!hasOrganization(organizations)) {
+        setShowOrgDialog(true);
+        return;
+      }
+
+      // Check ad availability for "Jobs" plan type and this category
+      if (!checkAvailability("Jobs", selectedCategory.name)) {
+        return;
+      }
 
       addToCategoryArray({
         id: selectedCategory._id,
@@ -87,6 +94,7 @@ export default function SelectJobCategoryPage() {
         isOpen={showOrgDialog}
         onClose={() => setShowOrgDialog(false)}
       />
+      <InsufficientAdsDialog {...dialogProps} />
       <div className=" w-full max-w-[888px] flex-1 mx-auto bg-white">
         <div className="w-full mx-auto bg-white">
           <div className="pb-8">

@@ -5,8 +5,9 @@ import Image from "next/image";
 import { useGetMainCategories } from "@/hooks/useCategories";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { useRouter } from "nextjs-toploader/app";
-
 import { Container1080 } from "@/components/layouts/container-1080";
+import { useAdAvailability } from "@/hooks/useAdAvailability";
+import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
 
 export default function SelectCategoryPage() {
   const router = useRouter();
@@ -18,6 +19,9 @@ export default function SelectCategoryPage() {
     clearCategoryArray,
   } = useAdPostingStore((state) => state);
   const [showOrgDialog, setShowOrgDialog] = useState(false);
+
+  // Availability Hook
+  const { checkAvailability, dialogProps } = useAdAvailability();
 
   // Fetch categories using the hook
   const {
@@ -34,16 +38,10 @@ export default function SelectCategoryPage() {
     const selectedCategory = categories.find((cat) => cat._id === categoryId);
 
     if (selectedCategory) {
-      // // Check if it's a job category
-      // if (isJobCategory(selectedCategory.name)) {
-      //   // Check if user has organizations
-      //   if (!hasOrganization(organizations)) {
-      //     // Show dialog if no organizations
-      //     setShowOrgDialog(true);
-      //     return; // Don't proceed
-      //   }
-      //   // If user has organizations, proceed normally
-      // }
+      // Check ad availability for regular "Ads" plan type and this category
+      if (!checkAvailability("Ads", selectedCategory.name)) {
+        return;
+      }
 
       // Add to category array for breadcrumbs
       addToCategoryArray({
@@ -70,6 +68,7 @@ export default function SelectCategoryPage() {
 
   return (
     <Container1080>
+      <InsufficientAdsDialog {...dialogProps} />
 
       <div className=" w-full max-w-[888px] flex-1 mx-auto bg-white">
         {/* Main Container */}
