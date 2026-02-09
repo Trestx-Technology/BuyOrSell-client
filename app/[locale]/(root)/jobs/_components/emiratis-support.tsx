@@ -5,8 +5,10 @@ import Link from "next/link";
 import { H1, H3 } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { useLocale } from "@/hooks/useLocale";
 
 const EmiratisSupport = () => {
+  const { localePath } = useLocale();
   return (
     <Container1080 className="px-4 my-10">
       <div className="relative h-[388px] bg-[#CEFFF2] rounded-2xl border-[0.5px] border-[#E2E2E2] shadow-[0px_2.67px_7.11px_0px_rgba(48,150,137,0.08)] overflow-hidden">
@@ -27,7 +29,7 @@ const EmiratisSupport = () => {
           </div>
 
           {/* Button - positioned at y:187 from content top */}
-          <Link href="/jobs/listing/Jobs" className="w-[165px]">
+          <Link href={localePath("/jobs/listing/Jobs")} className="w-[165px]">
             <Button
               className="w-[165px] h-10 px-[17.78px] py-[12.44px] rounded-[7.11px] text-[14.22px] font-bold leading-[1.21] uppercase bg-purple text-white border border-purple hover:bg-purple/90 transition-all"
               variant="primary"

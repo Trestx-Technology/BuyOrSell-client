@@ -17,11 +17,13 @@ import { formatDate } from "@/utils/format-date";
 import { AD } from "@/interfaces/ad";
 import ShareJobDialog from "../../listing/_components/share-job-dialog";
 import { slugify } from "@/utils/slug-utils";
+import { useLocale } from "@/hooks/useLocale";
 
 
 export default function JobCard({
   job
 }: { job: Partial<AD> }) {
+  const { localePath } = useLocale();
   const organization = job?.organization;
   const address = job?.address;
   const owner = job?.owner;
@@ -139,7 +141,7 @@ export default function JobCard({
       </div>
 
       {/* Action Button */}
-      <Link href={(`jobs/listing/${job?.relatedCategories?.map((category) => slugify(category))?.join("/")}?jobId=${job?._id}`)}>
+      <Link href={localePath(`/jobs/listing/${job?.relatedCategories?.map((category) => slugify(category))?.join("/")}?jobId=${job?._id}`)}>
         <Button size={"sm"} className="w-full uppercase font-medium text-xs">
           Job details
         </Button>

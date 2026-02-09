@@ -25,6 +25,7 @@ import {
   JobSubcategoriesApiResponse,
   JobSubcategory,
 } from "@/interfaces/categories.types";
+import { unSlugify } from "@/utils/slug-utils";
 
 // Query Hooks
 
@@ -210,9 +211,10 @@ export const useJobSubcategories = (params?: {
 };
 
 export const useValidateCategoryPath = (path: string) => {
+  const unslugifiedPath = unSlugify(path);
   return useQuery<CategoryApiResponse, Error>({
-    queryKey: [...categoriesQueries.validateCategoryPath(path).Key],
-    queryFn: () => validateCategoryPath(path),
+    queryKey: [...categoriesQueries.validateCategoryPath(unslugifiedPath).Key],
+    queryFn: () => validateCategoryPath(unslugifiedPath),
     enabled: !!path,
   });
 };

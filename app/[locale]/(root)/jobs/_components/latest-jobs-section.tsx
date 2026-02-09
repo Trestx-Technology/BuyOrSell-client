@@ -10,8 +10,10 @@ import JobsSectionTitle from "@/app/[locale]/(root)/jobs/_components/jobs-sectio
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAds } from "@/hooks/useAds";
 import { AD } from "@/interfaces/ad";
+import { useLocale } from "@/hooks/useLocale";
 
 export default function LatestJobsSection() {
+  const { localePath } = useLocale();
   const { data, isPending: isLoading } = useAds({
     adType: "JOB",
     limit: 10,
@@ -49,7 +51,7 @@ export default function LatestJobsSection() {
           {/* Header */}
           <div className="flex justify-between items-center gap-[35.56px] w-full">
             <JobsSectionTitle>Recent Jobs</JobsSectionTitle>
-            <Link href="/jobs/listing">
+            <Link href={localePath("/jobs/listing")}>
               <Typography
                 variant="body-large"
                 className="text-purple font-semibold text-base hover:underline"

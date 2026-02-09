@@ -8,12 +8,15 @@ import { AD } from "@/interfaces/ad";
 import { Organization } from "@/interfaces/organization.types";
 import { EmployerProfile } from "@/interfaces/job.types";
 
+import { useLocale } from "@/hooks/useLocale";
+
 interface EmployerJobsProps {
   employerId: string;
   organization: Organization & Partial<EmployerProfile>;
 }
 
 export default function EmployerJobs({ employerId, organization }: EmployerJobsProps) {
+  const { localePath } = useLocale();
   // Use jobs from organization data
   const jobs = (organization.latestJobs || []) as AD[];
 
@@ -47,7 +50,7 @@ export default function EmployerJobs({ employerId, organization }: EmployerJobsP
         >
           Active Job Postings by {organization.tradeName}
         </Typography>
-        <Link href={`/jobs/listing?employer=${employerId}`}>
+        <Link href={localePath(`/jobs/listing/Jobs?employer=${employerId}`)}>
           <Typography
             variant="body-large"
             className="text-purple font-semibold text-base hover:underline"

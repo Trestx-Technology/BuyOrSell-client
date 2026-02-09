@@ -23,22 +23,23 @@ export function toSlug(text: string): string {
 
   return text
     .trim()
+    .replace(/\//g, "~") // Replace forward slash with tilde (RFC 3986 unreserved)
     .replace(/\s+/g, "-")
-    .replace(/[^A-Za-z0-9\(\)\[\]\{\}\-]+/g, "")
+    .replace(/[^A-Za-z0-9\(\)\[\]\{\}\-\~\_\.]+/g, "") // Added ~ and . to whitelist
     .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
 
 /**
  * Transforms a slug back to a human-readable string
- * Replaces hyphens with spaces
+ * Replaces tildes with slashes and hyphens with spaces
  *
  * @param slug - The slug to convert back
  * @returns A human-readable string
  */
 export function unSlugify(slug: string): string {
   if (!slug) return "";
-  return slug.replace(/-/g, " ");
+  return slug.replace(/~/g, "/").replace(/-/g, " ");
 }
 
 /**
