@@ -84,7 +84,6 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
   const website = organization?.website;
   const locations = organization?.locations || [];
   const tags = organization?.tags || [];
-  const brands = organization?.brands || [];
   const address = organization
     ? [
         organization.addressLine1,
@@ -265,7 +264,6 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
             contactInfo ||
             locations.length > 0 ||
             tags.length > 0 ||
-            brands.length > 0 ||
             reraNumber ||
             tradeLicenseNumber) && (
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6">
@@ -483,32 +481,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                 </div>
               )}
 
-              {/* Brands */}
-              {brands.length > 0 && (
-                <div>
-                  <Typography
-                    variant="h3"
-                    className="text-base font-semibold text-dark-blue mb-3"
-                  >
-                    {t.seller.info.brands || "Brands"}
-                  </Typography>
-                  <div className="flex flex-wrap gap-3">
-                    {brands.map((brand) => (
-                      <div
-                        key={brand}
-                        className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
-                      >
-                        <Typography
-                          variant="body"
-                          className="text-sm font-medium text-dark-blue"
-                        >
-                          {brand}
-                        </Typography>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+
 
               {/* Business Hours */}
               {formattedBusinessHours && (
