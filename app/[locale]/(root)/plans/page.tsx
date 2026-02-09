@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { Typography } from "@/components/typography";
-import { Star, Zap, Award, Building2, CheckCircle2 } from "lucide-react";
+import { Star, Zap, Award, Building2, CheckCircle2, Gem, Crown, Rocket, Sparkles, Diamond, ShieldCheck, Medal } from "lucide-react";
 import { useLocale } from "@/hooks/useLocale";
 import { PlanCard } from "./_components/PlanCard";
 import { useGetPlans } from "@/hooks/usePlans";
@@ -12,6 +12,7 @@ import { useGetMySubscription } from "@/hooks/useSubscriptions";
 import { PlanSkeleton } from "./_components/plancard-skeleton";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/authStore";
 import {
   Select,
   SelectContent,
@@ -26,8 +27,10 @@ export default function PlansPage() {
   const { data: plansData, isLoading, error } = useGetPlans();
   const { data: mySubscription } = useGetMySubscription();
   const router = useRouter();
+  const user = useAuthStore((state) => state.session.user);
+  const isVerifiedEmarati = user?.emaratiStatus === "VERIFIED";
 
-  const getPlanIcon = (planName: string) => {
+  const getPlanIcon = (planName: string, index: number) => {
     const normalizeName = planName.toLowerCase();
     if (normalizeName.includes("silver") || normalizeName.includes("basic"))
       return Star;
@@ -35,7 +38,25 @@ export default function PlansPage() {
       return Zap;
     if (normalizeName.includes("platinum") || normalizeName.includes("premium"))
       return Award;
-    return Star;
+    if (normalizeName.includes("diamond")) return Diamond;
+    if (normalizeName.includes("pro") || normalizeName.includes("professional"))
+      return Crown;
+    if (normalizeName.includes("starter")) return Rocket;
+
+    const fallbackIcons = [
+      Star,
+      Zap,
+      Award,
+      Gem,
+      Crown,
+      Rocket,
+      Sparkles,
+      Diamond,
+      ShieldCheck,
+      Medal,
+    ];
+
+    return fallbackIcons[index % fallbackIcons.length];
   };
 
   const getFeatures = (plan: IPlan) => {
@@ -92,6 +113,33 @@ export default function PlansPage() {
           >
             {t.plans.subtitle}
           </Typography>
+
+          {/* Emirati Discount Info */}
+          <div className="mb-8 flex justify-center">
+            {isVerifiedEmarati ? (
+              <div className="bg-emerald-50 text-emerald-700 px-4 py-3 rounded-2xl text-sm font-medium flex items-center gap-3 border border-emerald-100 shadow-sm transition-all hover:bg-emerald-100/50">
+                <div className="bg-emerald-500 rounded-full p-1">
+                  <CheckCircle2 className="size-4 text-white" />
+                </div>
+                Emiratisation discount of 10% has been applied to all plans!
+              </div>
+            ) : (
+              <div className="bg-purple-50 text-purple-700 px-4 py-3 rounded-2xl text-sm font-medium flex items-center gap-3 border border-purple-100 shadow-sm transition-all hover:bg-purple-100/50">
+                <div className="bg-purple-500 rounded-full p-1">
+                  <ShieldCheck className="size-4 text-white" />
+                </div>
+                <span>
+                  Become an Emirati for an additional 10% discount!{" "}
+                  <button
+                    onClick={() => router.push(`/${locale}/profile`)}
+                    className="underline font-bold ml-1 hover:text-purple-900 decoration-2 underline-offset-2"
+                  >
+                    Verify Now
+                  </button>
+                </span>
+              </div>
+            )}
+          </div>
 
           {/* Plan Types Tabs */}
           {!isLoading && planTypes.length > 0 && (
@@ -150,7 +198,7 @@ export default function PlansPage() {
         {/* Plans Grid */}
         {!isLoading && !error && (
             <div className="flex flex-wrap justify-center gap-8 mx-auto">
-            {displayPlans.map((plan) => {
+              {displayPlans.map((plan, index) => {
               const features = getFeatures(plan);
               const planName = locale === "ar" && plan.planAr ? plan.planAr : plan.plan;
 
@@ -162,20 +210,21 @@ export default function PlansPage() {
                 : "";
 
               const isCurrentPlan = currentPlanId === plan._id;
+                const description = locale === "ar" && plan.descriptionAr ? plan.descriptionAr : (plan.description || "");
 
               const cardProps = {
                 id: plan._id,
                 validation: plan.validation,
                 validationPeriod: plan.validationPeriod,
                 name: planName,
-                icon: getPlanIcon(plan.plan),
+                icon: getPlanIcon(plan.plan, index),
                 price: displayPrice,
                 originalPrice: displayOriginalPrice,
-                description: "",
+                description: description,
                 features: features,
                 buttonText: isCurrentPlan ? "Current Plan" : "Subscribe",
                 isPopular: plan.isPopular,
-                isPremium: plan.plan.toLowerCase() === "platinum",
+                isPremium: plan.plan.toLowerCase() === "platinum" || plan.plan.toLowerCase() === "premium",
                 isCurrent: isCurrentPlan
               };
 
@@ -225,7 +274,7 @@ export default function PlansPage() {
                     "SLA Agreement"
                   ].map((feature, featureIndex) => (
                     <div key={featureIndex} className="flex items-start gap-3">
-                      <CheckCircle2 className="size-6 mt-0.5 flex-shrink-0 text-purple fill-white border-black" />
+                      <CheckCircle2 className="size-6 mt-0.5 flex-shrink-0 text-purple fill-white" />
                       <Typography variant="sm-regular" className="text-gray-600">
                         {feature}
                       </Typography>

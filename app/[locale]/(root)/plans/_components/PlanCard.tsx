@@ -108,11 +108,16 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
 
       return (
         <div
-              className={`w-full sm:max-w-xs rounded-2xl flex flex-col p-8 transition-all duration-300 ${plan.isPremium
+                  className={`w-full sm:max-w-xs rounded-2xl flex flex-col p-8 transition-all duration-300 relative ${plan.isPremium
                     ? "bg-purple-600 text-white"
                     : "bg-white border border-gray-200 hover:shadow-lg"
-                    }`}
+                        } ${plan.isPopular ? "border-purple shadow-md shadow-purple" : ""}`}
         >
+                  {plan.isPopular && (
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm z-10">
+                              Most Popular
+                        </div>
+                  )}
               {/* Icon */}
               <div className="flex justify-start mb-6">
                     <div
@@ -163,15 +168,19 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
                                       className={`line-through ${plan.isPremium ? "text-purple-200" : "text-gray-400"
                                             }`}
                                 >
-                                      {plan.originalPrice}
+                                          {plan.originalPrice && plan.originalPrice !== "0" && plan.originalPrice !== plan.price ? plan.originalPrice : ""}
                                 </Typography>
                                 <Typography
                                       variant="sm-regular"
-                                      className={
-                                            plan.isPremium ? "text-purple-200" : "text-gray-500"
-                                      }
+                                          className={cn(
+                                                "font-medium",
+                                                plan.isPremium ? "text-purple-100" : "text-purple-600",
+                                                plan.validation > 1 && "bg-purple-100/50 text-purple-700 px-2 py-0.5 rounded-md mt-1 inline-block"
+                                          )}
                                 >
-                                      {perMonthText}
+                                          {plan.validation > 1
+                                                ? `For ${plan.validation} ${plan.validationPeriod.toLowerCase()}${plan.validation > 1 ? 's' : ''}`
+                                                : perMonthText}
                                 </Typography>
                           </div>
                     </div>
@@ -190,10 +199,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
               <div className="space-y-3 flex-1 mb-8">
                     {plan.features.map((feature, featureIndex) => (
                           <div key={featureIndex} className="flex items-start gap-3">
-                                <CheckCircle2
-                                      className={`size-6 mt-0.5 flex-shrink-0 ${plan.isPremium ? "fill-white text-purple" : "text-white fill-purple"
-                                            }`}
-                                />
+                                <CheckCircle2 className="size-6 mt-0.5 flex-shrink-0 text-purple fill-white border-black" />
                                 <Typography
                                       variant="sm-regular"
                                       className={plan.isPremium ? "text-white" : "text-gray-600"}
@@ -218,5 +224,3 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
         </div>
   );
 };
-
-

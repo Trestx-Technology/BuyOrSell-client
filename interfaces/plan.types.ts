@@ -20,6 +20,8 @@ export interface IPlan {
   __v: number;
   planAr: string;
   planType: string;
+  description: string;
+  descriptionAr: string;
 }
 
 export interface PlanListResponse {
