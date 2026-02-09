@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Typography } from "@/components/typography";
+import { H1, H3 } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Container1080 } from "@/components/layouts/container-1080";
 
@@ -15,18 +14,16 @@ const EmiratisSupport = () => {
         <div className="absolute left-11 top-[83px] flex flex-col gap-6 w-[659px]">
           {/* Title and Subtitle Group */}
           <div className="flex flex-col gap-6">
-            <Typography
-              variant="h1"
-              className="text-[42px] font-bold leading-[1.21] uppercase text-[#1D2939]"
+            <H1
+              className="font-bold leading-[1.21] uppercase text-[#1D2939]"
             >
-              Supporting Emiratis
-            </Typography>
-            <Typography
-              variant="h2"
-              className="text-[28px] font-normal leading-[1.21] uppercase text-[#1D2939] h-[77px]"
+              Supporting Emiratisation
+            </H1>
+            <H3
+              className="font-normal leading-[1.21] uppercase text-[#1D2939]"
             >
               Connecting UAE citizens to jobs & Opportunities
-            </Typography>
+            </H3>
           </div>
 
           {/* Button - positioned at y:187 from content top */}
