@@ -84,6 +84,24 @@ export const REGULAR_NAVIGATION_ITEMS: NavigationItem[] = [
     alt: "Notifications",
   },
   {
+    id: "organizations",
+    type: "link",
+    href: "/organizations/my",
+    translationKey: "organizations",
+    icon: ICONS.jobNavigation.organizations,
+    iconType: "image",
+    alt: "Organizations",
+  },
+  {
+    id: "saved-organizations",
+    type: "link",
+    href: "/organizations/saved",
+    translationKey: "Saved Organizations",
+    icon: ICONS.navigation.favorites, // reusing favorites icon or similar
+    iconType: "image",
+    alt: "Saved Organizations",
+  },
+  {
     id: "offers",
     type: "link",
     href: "/plans",
