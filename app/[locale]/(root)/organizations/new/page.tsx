@@ -47,7 +47,10 @@ const NewOrganizationPage = () => {
         emirate: data.emirate,
         tradeLicenseNumber: data.tradeLicenseNumber,
         tradeLicenseExpiry: data.tradeLicenseExpiry,
-        trn: data.trn,
+        tradeLicenseUrl: data.tradeLicenseUrl,
+        ownerDocsUrl: data.ownerDocsUrl,
+        poaUrl: data.poaUrl || undefined,
+        trn: data.trn || undefined,
         legalName: data.legalName,
         tradeName: data.tradeName,
         reraNumber: data.reraNumber || undefined,
@@ -72,19 +75,14 @@ const NewOrganizationPage = () => {
         certificates:
           data.certificates?.map((cert) => ({
             name: cert.name,
-            issuedBy: cert.issuer,
-            issueDate: cert.issuedOn,
-            expiryDate: cert.expiresOn || undefined,
-            certificateUrl: cert.url || undefined,
+            issuer: cert.issuer,
+            issuedOn: cert.issuedOn,
+            expiresOn: cert.expiresOn || undefined,
+            url: cert.url || undefined,
           })) || undefined,
         languages:
           data.languages && data.languages.length > 0
             ? data.languages
-            : undefined,
-        brands: data.brands && data.brands.length > 0 ? data.brands : undefined,
-        dealershipCodes:
-          data.dealershipCodes && data.dealershipCodes.length > 0
-            ? data.dealershipCodes
             : undefined,
       };
 

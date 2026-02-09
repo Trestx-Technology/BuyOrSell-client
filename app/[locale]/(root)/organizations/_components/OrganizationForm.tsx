@@ -47,6 +47,9 @@ export const OrganizationForm = ({
   const { locale, t } = useLocale();
   const { data: emirates = [], isLoading: isLoadingEmirates } = useEmirates();
   const [logoImage, setLogoImage] = useState<SingleImageItem | null>(null);
+  const [tradeLicenseImage, setTradeLicenseImage] = useState<SingleImageItem | null>(null);
+  const [ownerDocsImage, setOwnerDocsImage] = useState<SingleImageItem | null>(null);
+  const [poaImage, setPoaImage] = useState<SingleImageItem | null>(null);
 
   const emirateOptions = emirates.map((emirate) => ({
     value: emirate.emirate,
@@ -68,6 +71,9 @@ export const OrganizationForm = ({
       emirate: "",
       tradeLicenseNumber: "",
       tradeLicenseExpiry: "",
+      tradeLicenseUrl: "",
+      ownerDocsUrl: "",
+      poaUrl: "",
       trn: "",
       legalName: "",
       tradeName: "",
@@ -85,17 +91,26 @@ export const OrganizationForm = ({
       businessHours: [],
       certificates: [],
       languages: [],
-      brands: [],
-      dealershipCodes: [],
     },
   });
 
   // Update logoUrl when image is uploaded
   useEffect(() => {
-    if (logoImage?.presignedUrl) {
-      setValue("logoUrl", logoImage.presignedUrl);
-    }
+    if (logoImage?.presignedUrl) setValue("logoUrl", logoImage.presignedUrl);
   }, [logoImage, setValue]);
+
+  useEffect(() => {
+    if (tradeLicenseImage?.presignedUrl) setValue("tradeLicenseUrl", tradeLicenseImage.presignedUrl);
+  }, [tradeLicenseImage, setValue]);
+
+  useEffect(() => {
+    if (ownerDocsImage?.presignedUrl) setValue("ownerDocsUrl", ownerDocsImage.presignedUrl);
+  }, [ownerDocsImage, setValue]);
+
+  useEffect(() => {
+    if (poaImage?.presignedUrl) setValue("poaUrl", poaImage.presignedUrl);
+    else if (poaImage === null) setValue("poaUrl", "");
+  }, [poaImage, setValue]);
 
   // Populate form when initialData changes
   useEffect(() => {
@@ -106,6 +121,30 @@ export const OrganizationForm = ({
           id: "logo",
           url: initialData.logoUrl,
           presignedUrl: initialData.logoUrl,
+        });
+      }
+
+      if (initialData.tradeLicenseUrl) {
+        setTradeLicenseImage({
+          id: "trade-license",
+          url: initialData.tradeLicenseUrl,
+          presignedUrl: initialData.tradeLicenseUrl,
+        });
+      }
+
+      if (initialData.ownerDocsUrl) {
+        setOwnerDocsImage({
+          id: "owner-docs",
+          url: initialData.ownerDocsUrl,
+          presignedUrl: initialData.ownerDocsUrl,
+        });
+      }
+
+      if (initialData.poaUrl) {
+        setPoaImage({
+          id: "poa",
+          url: initialData.poaUrl,
+          presignedUrl: initialData.poaUrl,
         });
       }
 
@@ -127,11 +166,11 @@ export const OrganizationForm = ({
       const certificates =
         initialData.certificates?.map((cert) => ({
           name: cert.name,
-          issuer: cert.issuedBy,
-          issuedOn: cert.issueDate,
-          expiresOn: cert.expiryDate || "",
-          fileId: "",
-          url: cert.certificateUrl || "",
+          issuer: cert.issuer,
+          issuedOn: cert.issuedOn,
+          expiresOn: cert.expiresOn || "",
+          fileId: cert.fileId || "",
+          url: cert.url || "",
         })) || [];
 
       // Ensure organization type matches enum value exactly
@@ -156,6 +195,9 @@ export const OrganizationForm = ({
         emirate: validEmirate,
         tradeLicenseNumber: initialData.tradeLicenseNumber || "",
         tradeLicenseExpiry: initialData.tradeLicenseExpiry || "",
+        tradeLicenseUrl: initialData.tradeLicenseUrl || "",
+        ownerDocsUrl: initialData.ownerDocsUrl || "",
+        poaUrl: initialData.poaUrl || "",
         trn: initialData.trn || "",
         legalName: initialData.legalName || "",
         tradeName: initialData.tradeName || "",
@@ -173,8 +215,6 @@ export const OrganizationForm = ({
         businessHours,
         certificates,
         languages: initialData.languages || [],
-        brands: initialData.brands || [],
-        dealershipCodes: initialData.dealershipCodes || [],
       });
       
       // Secondary update for selects after potential reset async behavior
@@ -361,7 +401,6 @@ export const OrganizationForm = ({
             <FormField
               label={t.organizations.form.trn}
               htmlFor="trn"
-              required
               error={errors.trn?.message}
             >
               <Controller
@@ -369,7 +408,7 @@ export const OrganizationForm = ({
                 control={control}
                 render={({ field }) => (
                   <TextInput
-                    value={field.value}
+                    value={field.value || ""}
                     onChange={field.onChange}
                     placeholder={t.organizations.form.enterTRN}
                   />
@@ -600,6 +639,51 @@ export const OrganizationForm = ({
             />
           </FormField>
 
+          {/* Documents Upload */}
+          <FormField
+            label="Trade License Image"
+            htmlFor="tradeLicenseUrl"
+            required
+            error={errors.tradeLicenseUrl?.message}
+          >
+            <SingleImageUpload
+              image={tradeLicenseImage}
+              onImageChange={setTradeLicenseImage}
+              maxFileSize={10}
+              acceptedFileTypes={["image/jpeg", "image/png", "application/pdf"]}
+              label="Upload Trade License"
+            />
+          </FormField>
+
+          <FormField
+            label="Owner Documents"
+            htmlFor="ownerDocsUrl"
+            required
+            error={errors.ownerDocsUrl?.message}
+          >
+            <SingleImageUpload
+              image={ownerDocsImage}
+              onImageChange={setOwnerDocsImage}
+              maxFileSize={10}
+              acceptedFileTypes={["image/jpeg", "image/png", "application/pdf"]}
+              label="Upload Owner Docs"
+            />
+          </FormField>
+
+          <FormField
+            label="POA (if applicable)"
+            htmlFor="poaUrl"
+            error={errors.poaUrl?.message}
+          >
+            <SingleImageUpload
+              image={poaImage}
+              onImageChange={setPoaImage}
+              maxFileSize={10}
+              acceptedFileTypes={["image/jpeg", "image/png", "application/pdf"]}
+              label="Upload POA"
+            />
+          </FormField>
+
           {/* Description */}
           <FormField
             label={t.organizations.form.description || "Description"}
@@ -683,46 +767,6 @@ export const OrganizationForm = ({
                   value={field.value || []}
                   onChange={field.onChange}
                   placeholder={t.organizations.form.addLanguages}
-                />
-              )}
-            />
-          </FormField>
-
-          {/* Brands */}
-          <FormField
-            label={t.organizations.form.brands}
-            htmlFor="brands"
-            error={errors.brands?.message}
-          >
-            <Controller
-              name="brands"
-              control={control}
-              render={({ field }) => (
-                <ChipsInput
-                  options={[]} // Free-text chips
-                  value={field.value || []}
-                  onChange={field.onChange}
-                  placeholder={t.organizations.form.addBrands}
-                />
-              )}
-            />
-          </FormField>
-
-          {/* Dealership Codes */}
-          <FormField
-            label={t.organizations.form.dealershipCodes}
-            htmlFor="dealershipCodes"
-            error={errors.dealershipCodes?.message}
-          >
-            <Controller
-              name="dealershipCodes"
-              control={control}
-              render={({ field }) => (
-                <ChipsInput
-                  options={[]} // Free-text chips
-                  value={field.value || []}
-                  onChange={field.onChange}
-                  placeholder={t.organizations.form.addDealershipCodes}
                 />
               )}
             />

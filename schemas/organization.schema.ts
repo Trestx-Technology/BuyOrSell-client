@@ -29,10 +29,15 @@ export const organizationSchema = z.object({
   emirate: z.string().min(1, "Emirate is required"),
   tradeLicenseNumber: z.string().min(1, "Trade license number is required"),
   tradeLicenseExpiry: z.string().min(1, "Trade license expiry is required"),
+  tradeLicenseUrl: z.string().min(1, "Trade license image is required"),
+  ownerDocsUrl: z.string().min(1, "Owner documents are required"),
+  poaUrl: z.string().optional(),
   trn: z
     .string()
-    .min(1, "TRN is required")
-    .regex(/^\d{15}$/, "TRN must be exactly 15 digits"),
+    .optional()
+    .refine((val) => !val || /^\d{15}$/.test(val), {
+      message: "TRN must be exactly 15 digits",
+    }),
   legalName: z.string().min(1, "Legal name is required"),
   tradeName: z.string().min(1, "Trade name is required"),
   reraNumber: z.string().optional(),
@@ -49,8 +54,6 @@ export const organizationSchema = z.object({
   businessHours: z.array(businessHourSchema).optional(),
   certificates: z.array(certificateSchema).optional(),
   languages: z.array(z.string()).optional(),
-  brands: z.array(z.string()).optional(),
-  dealershipCodes: z.array(z.string()).optional(),
 });
 
 export type OrganizationFormData = z.infer<typeof organizationSchema>;

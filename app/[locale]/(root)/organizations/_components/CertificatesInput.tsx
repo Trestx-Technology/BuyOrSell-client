@@ -124,7 +124,7 @@ export function CertificatesInput({
                 onChange={(value) =>
                   updateCertificate(index, "name", value)
                 }
-                placeholder="e.g., ISO 9001"
+                placeholder="e.g., ISO, ICV"
                 disabled={disabled}
               />
             </FormField>
@@ -135,7 +135,7 @@ export function CertificatesInput({
                 onChange={(value) =>
                   updateCertificate(index, "issuer", value)
                 }
-                placeholder="e.g., Bureau Veritas"
+                placeholder="e.g., Bureau Veritas, ADNOC"
                 disabled={disabled}
               />
             </FormField>

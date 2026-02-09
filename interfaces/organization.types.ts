@@ -20,6 +20,9 @@ export interface Organization {
   tradeName: string;
   legalNameAr?: string;
   tradeNameAr?: string;
+  tradeLicenseUrl?: string; // Newly added
+  ownerDocsUrl?: string; // Newly added
+  poaUrl?: string; // Newly added
   reraNumber?: string;
   addressLine1: string;
   addressLine2?: string;
@@ -40,9 +43,6 @@ export interface Organization {
   tags?: string[];
   tagsAr?: string[];
   verified?: boolean;
-  brands?: string[];
-  brandsAr?: string[];
-  dealershipCodes?: string[];
   languages?: string[];
   businessHours?: BusinessHours[];
   certificates?: Certificate[];
@@ -99,10 +99,10 @@ export interface BusinessHours {
 export interface Certificate {
   _id?: string;
   name: string;
-  issuedBy: string;
-  issueDate: string;
-  expiryDate?: string;
-  certificateUrl?: string;
+  issuer: string;
+  issuedOn: string; // YYYY-MM-DD
+  expiresOn?: string; // YYYY-MM-DD
+  url?: string;
   fileId?: string;
 }
 
@@ -122,7 +122,7 @@ export interface CreateOrganizationPayload {
   emirate: string;
   tradeLicenseNumber: string;
   tradeLicenseExpiry: string;
-  trn: string;
+  trn?: string;
   legalName: string;
   tradeName: string;
   reraNumber?: string;
@@ -130,6 +130,9 @@ export interface CreateOrganizationPayload {
   addressLine2?: string;
   city: string;
   poBox?: string;
+  tradeLicenseUrl: string;
+  ownerDocsUrl: string;
+  poaUrl?: string;
   contactName: string;
   contactEmail: string;
   contactPhone: string;
@@ -138,8 +141,6 @@ export interface CreateOrganizationPayload {
   logoUrl?: string;
   locations?: Omit<OrganizationLocation, "_id">[];
   tags?: string[];
-  brands?: string[];
-  dealershipCodes?: string[];
   languages?: string[];
   businessHours?: BusinessHours[];
   certificates?: Omit<Certificate, "_id">[];
