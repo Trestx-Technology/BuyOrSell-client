@@ -285,7 +285,7 @@ export default function JobsTabbedCarousel({
       viewport={{ once: true, margin: "-100px" }}
       className="mb-4 flex items-center justify-between px-5"
     >
-      <div className="flex flex-1 items-center gap-3 overflow-x-auto scrollbar-hide">
+      <div className="flex flex-1 items-center gap-3 overflow-hidden overflow-x-auto scrollbar-hide">
         {subCategories.map((subCategory, index) => {
           const subCategoryName = isArabic
             ? subCategory.nameAr || subCategory.name
