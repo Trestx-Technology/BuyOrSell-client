@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { AIFeaturesPopover } from "./AIFeaturesPopover";
 import { AutosizeTextarea } from "@/components/global/autosize-textarea";
 import { toast } from "sonner";
-import { LocationSelectorDialog } from "./LocationSelectorDialog"; // Import new component
+import { LocationSelectorDialog } from "./LocationSelectorDialog";
+import { EmojiPopover } from "./EmojiPopover";
 
 import { useUploadFile } from "@/hooks/useUploadFile";
 
@@ -134,6 +135,12 @@ export function MessageInput({
     setIsLocationDialogOpen(false);
   };
 
+  const handleEmojiSelect = (emoji: string) => {
+    onChange(value + emoji);
+    // Refocus textarea after selection
+    textareaRef.current?.focus();
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -193,13 +200,10 @@ export function MessageInput({
             disabled={isUploading}
           />
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1"
-          >
-            <Smile className="h-5 w-5 text-gray-400" />
-          </Button>
+          <EmojiPopover
+            onEmojiSelect={handleEmojiSelect}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+          />
         </div>
 
         <Button
