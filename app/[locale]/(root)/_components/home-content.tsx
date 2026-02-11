@@ -14,6 +14,7 @@ import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "nextjs-toploader/app";
 import { VideoAdCarousel } from "./video-ad-carousel";
 import JobsCTASection from "../jobs/_components/jobs-cta-section";
+import { slugify } from "@/utils/slug-utils";
 
 export function HomeContent() {
   const { data: homeData, isLoading } = useHome();
@@ -90,7 +91,7 @@ export function HomeContent() {
                   showViewAll={true}
                   viewAllText={t.common.viewAll}
                   onViewAll={(categoryName) =>
-                    router.push(localePath(`/jobs/listing/${category.category}/${categoryName}`))
+                    router.push(localePath(`/jobs/listing/${category.category}/${slugify(categoryName)}`))
                   }
                   onTabChange={(tabId) => console.log("Tab changed to:", tabId)}
                 />
