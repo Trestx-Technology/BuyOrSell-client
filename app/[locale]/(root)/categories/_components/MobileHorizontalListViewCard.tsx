@@ -25,6 +25,7 @@ import {
 } from "@/components/global/specifications-display";
 import { useMemo } from "react";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
+import { ChatInit } from "@/components/global/chat-init";
 
 export interface MobileHorizontalListViewCardProps {
   id: string;
@@ -43,6 +44,7 @@ export interface MobileHorizontalListViewCardProps {
     name: string;
     isVerified: boolean;
     type: string;
+    id?: string;
   };
   // Discount and timer props
   discountText?: string;
@@ -131,6 +133,8 @@ const MobileHorizontalListViewCard: React.FC<
 
     return () => clearInterval(interval);
   }, [showTimer, endTime]);
+
+
 
   const handleCardClick = () => {
     onClick?.(id);
@@ -359,7 +363,26 @@ const MobileHorizontalListViewCard: React.FC<
 
         <div className="flex items-center gap-4">
           <Phone size={24} className="fill-purple stroke-0" />
-          <MessageSquareText size={24} className="text-purple" />
+          <ChatInit
+            adId={id}
+            adTitle={title}
+            adImage={images[0]}
+            sellerId={seller?.id}
+            sellerName={seller?.name}
+            sellerIsVerified={seller?.isVerified}
+          >
+            {({ isLoading, onClick }) => (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 hover:bg-purple/10 p-0"
+                onClick={onClick}
+                isLoading={isLoading}
+              >
+                <MessageSquareText size={24} className="text-purple" />
+              </Button>
+            )}
+          </ChatInit>
           <FaWhatsapp className="text-purple" size={24} />
         </div>
       </div>

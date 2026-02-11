@@ -35,13 +35,19 @@ export interface Collection {
   isSelected?: boolean;
 }
 
+export type CollectionManagerChildrenProps = {
+  isSaved: boolean;
+  isLoading: boolean;
+};
+
 export interface CollectionManagerProps {
-  children: React.ReactNode;
+  children: React.ReactNode | ((props: CollectionManagerChildrenProps) => React.ReactNode);
   itemId: string;
   itemTitle?: string;
   itemImage?: string;
   onSuccess?: (isAdded: boolean) => void;
   className?: string;
+  initialIsSaved?: boolean;
 }
 
 /**
@@ -61,6 +67,7 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
   itemImage,
   onSuccess,
   className,
+  initialIsSaved,
 }) => {
   const { t } = useLocale();
   const [open, setOpen] = useState(false);
@@ -70,10 +77,10 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Only fetch collections when dialog is open and user is authenticated
+  // Fetch collections when user is authenticated to support isSaved status
   const { data: collectionsResponse, isLoading: isLoadingCollections } =
     useGetMyCollections(undefined, {
-      enabled: open && isAuthenticated,
+      enabled: isAuthenticated,
     });
 
   const addToCollectionMutation = useAddAdsToCollection();
@@ -204,6 +211,16 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
     },
     [itemId]
   );
+
+  // Determine if the item is in any collection
+  const isSaved = React.useMemo(() => {
+    // If we have local collections data (meaning we fetched it), use that as source of truth
+    if (collectionsResponse?.data) {
+      return localCollections.some((col) => col.adIds?.includes(itemId));
+    }
+    // Fallback to initialIsSaved if we are still loading or have no data
+    return initialIsSaved ?? false;
+  }, [localCollections, itemId, collectionsResponse?.data, initialIsSaved]);
 
   const renderCollectionItem = (collection: Collection) => {
     const isInCollection = isItemInCollection(collection);
@@ -357,19 +374,28 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
     return search ? `${pathname}?${search}` : pathname;
   }, [pathname, searchParams]);
 
+  // Handle children rendering (support render props)
+  const renderChildren = () => {
+    if (typeof children === "function") {
+      return children({ isSaved, isLoading: isLoadingCollections });
+    }
+    return children;
+  };
+
   // Clone children to add onClick handler
-  const triggerElement = React.isValidElement(children) ? (
-    React.cloneElement(children as React.ReactElement<any>, {
+  const triggerElement = React.isValidElement(renderChildren()) ? (
+    React.cloneElement(renderChildren() as React.ReactElement<any>, {
       onClick: (e: React.MouseEvent) => {
         // Call original onClick if it exists
-        if ((children as React.ReactElement<any>).props.onClick) {
-          (children as React.ReactElement<any>).props.onClick(e);
+        const childProps = (renderChildren() as React.ReactElement<any>).props;
+        if (childProps && childProps.onClick) {
+          childProps.onClick(e);
         }
         handleTriggerClick(e);
       },
     })
   ) : (
-    <div onClick={handleTriggerClick}>{children}</div>
+      <div onClick={handleTriggerClick}>{renderChildren()}</div>
   );
 
   return (

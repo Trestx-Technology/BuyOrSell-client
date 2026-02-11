@@ -22,8 +22,7 @@ interface ListingImageGalleryProps {
   isExchange?: boolean;
   views?: number;
   handleShare: (e: React.MouseEvent) => void;
-  onToggleSave: (isAdded: boolean) => void;
-  isSaved: boolean;
+  isSaved?: boolean;
 }
 
 const GalleryImage = ({
@@ -68,7 +67,6 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
   isExchange,
   views,
   handleShare,
-  onToggleSave,
   isSaved,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -269,9 +267,8 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
         title={title}
         image={images?.[0]}
         isExchange={isExchange}
-        isSaved={isSaved}
         handleShare={handleShare}
-        onToggleSave={onToggleSave}
+        isSaved={isSaved}
       />
     </div>
   );

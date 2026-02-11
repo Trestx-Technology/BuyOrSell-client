@@ -23,6 +23,7 @@ import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
 import { FaWhatsapp } from "react-icons/fa";
 import Link from "next/link";
+import { ChatInit } from "@/components/global/chat-init";
 import { ProductExtraFields } from "@/interfaces/ad";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
 import {
@@ -52,7 +53,16 @@ export interface ListingCardProps {
   className?: string;
   showSeller?: boolean;
   showSocials?: boolean;
-  isAddedInCollection?: boolean;
+  isSaved?: boolean;
+  seller?: {
+    name?: string;
+    firstName?: string;
+    lastName?: string;
+    type?: "Agent" | "Individual";
+    isVerified?: boolean;
+    image?: string | null;
+    id?: string;
+  };
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({
@@ -72,21 +82,22 @@ const ListingCard: React.FC<ListingCardProps> = ({
   className,
   showSeller,
   showSocials,
-  isAddedInCollection,
+  isSaved: initialIsSaved,
+  seller,
 }) => {
   const { share } = useShare();
   const { data: collectionsByAdResponse } = useGetCollectionsByAd(
-    isAddedInCollection === undefined ? id : ""
+    initialIsSaved === undefined ? id : ""
   );
   const apiIsAddedInCollection =
     collectionsByAdResponse?.data?.isAddedInCollection ?? false;
   const [isSaved, setIsSaved] = useState(
-    isAddedInCollection ?? apiIsAddedInCollection
+    initialIsSaved ?? apiIsAddedInCollection
   );
 
   useEffect(() => {
-    setIsSaved(isAddedInCollection ?? apiIsAddedInCollection);
-  }, [isAddedInCollection, apiIsAddedInCollection]);
+    setIsSaved(initialIsSaved ?? apiIsAddedInCollection);
+  }, [initialIsSaved, apiIsAddedInCollection]);
 
   // Get specifications from extraFields and transform to Specification[] format
   const specifications = useMemo((): Specification[] => {
@@ -137,6 +148,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
   const handleCardClick = () => {
     onClick?.(id);
   };
+
+
 
   const formatPrice = (amount: number) => {
     return new Intl.NumberFormat("en-AE", {
@@ -378,26 +391,44 @@ const ListingCard: React.FC<ListingCardProps> = ({
           <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-start justify-between">
             {showSeller && (
               <div className="hidden sm:flex items-center gap-2">
-                <CircleUser size={22} className="text-purple" />
+                {seller?.image ? (
+                  <div className="relative w-[22px] h-[22px] rounded-full overflow-hidden flex-shrink-0">
+                    <Image
+                      src={seller.image}
+                      alt={seller.name || "Seller"}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <CircleUser size={22} className="text-purple flex-shrink-0" />
+                )}
                 <div>
                   <Typography
                     variant="sm-black-inter"
                     className="text-xs text-gray-500 font-medium flex items-center gap-1 truncate"
                   >
-                    Premium Motors
-                    <Image
-                      src={"/verified-seller.svg"}
-                      alt="Premium"
-                      width={16}
-                      height={16}
-                    />
+                    {seller?.name ||
+                      `${seller?.firstName || ""} ${seller?.lastName || ""
+                        }`.trim() ||
+                      "Seller"}
+                    {seller?.isVerified && (
+                      <Image
+                        src={"/verified-seller.svg"}
+                        alt="Verified"
+                        width={16}
+                        height={16}
+                      />
+                    )}
                   </Typography>
-                  <Typography
-                    variant="body-small"
-                    className="text-xs text-grey-blue"
-                  >
-                    By Agent
-                  </Typography>
+                  {seller?.type && (
+                    <Typography
+                      variant="body-small"
+                      className="text-xs text-grey-blue"
+                    >
+                      By {seller.type}
+                    </Typography>
+                  )}
                 </div>
               </div>
             )}
@@ -409,10 +440,27 @@ const ListingCard: React.FC<ListingCardProps> = ({
                   stroke="0"
                   className="fill-purple hover:scale-110 transition-all duration-300"
                 />
-                <MessageSquareText
-                  size={18}
-                  className="text-purple hover:scale-110 transition-all duration-300"
-                />
+                <ChatInit
+                  adId={id}
+                  adTitle={title}
+                  adImage={images[0]}
+                  sellerId={seller?.id}
+                  sellerName={seller?.name}
+                  sellerImage={seller?.image || undefined}
+                  sellerIsVerified={seller?.isVerified}
+                >
+                  {({ isLoading, onClick }) => (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 hover:bg-purple/10 p-0"
+                      onClick={onClick}
+                      isLoading={isLoading}
+                    >
+                      <MessageSquareText size={18} className="text-purple" />
+                    </Button>
+                  )}
+                </ChatInit>
                 <FaWhatsapp
                   size={18}
                   className="text-purple hover:scale-110 transition-all duration-300"

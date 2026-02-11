@@ -220,7 +220,7 @@ export default function CategoryListingPage() {
           searchQuery={inputValue}
           onSearchChange={setInputValue}
           searchPlaceholder={`${t.categories.search} ${categoryName}...`}
-          className="mb-4"
+          className="mb-4 mx-4"
         />
 
         <ActiveFilters
@@ -255,7 +255,7 @@ export default function CategoryListingPage() {
           <div className="space-y-6 ">
             <div
               className={cn(
-                `px-4 sm:px-0 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3`,
+                `px-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3`,
                 view === "list" && "flex flex-col"
               )}
             >
@@ -291,7 +291,6 @@ export default function CategoryListingPage() {
                           {...ad}
                           extraFields={extraFields}
                           seller={sellerInfo}
-                          onFavorite={(id) => console.log("Favorited:", id)}
                           onShare={(id) => console.log("Shared:", id)}
                           onClick={handleCardClick}
                         />

@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useMemo, useCallback } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ProductExtraFields } from "@/interfaces/ad";
 import { useShare } from "@/hooks/useShare";
-import { useGetCollectionsByAd } from "@/hooks/useCollections";
 import { Specification } from "@/components/global/specifications-display";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
 
@@ -40,7 +39,7 @@ export interface ListingCardProps {
     canCall?: boolean;
     canWhatsapp?: boolean;
   };
-  isAddedInCollection?: boolean;
+  isSaved?: boolean;
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({
@@ -59,21 +58,9 @@ const ListingCard: React.FC<ListingCardProps> = ({
   className,
   showSocials,
   seller,
-  isAddedInCollection,
+  isSaved,
 }) => {
   const { share } = useShare();
-  const { data: collectionsByAdResponse } = useGetCollectionsByAd(
-    isAddedInCollection === undefined ? id : ""
-  );
-  const apiIsAddedInCollection =
-    collectionsByAdResponse?.data?.isAddedInCollection ?? false;
-  const [isSaved, setIsSaved] = useState(
-    isAddedInCollection ?? apiIsAddedInCollection
-  );
-
-  useEffect(() => {
-    setIsSaved(isAddedInCollection ?? apiIsAddedInCollection);
-  }, [isAddedInCollection, apiIsAddedInCollection]);
 
   // Dynamically extract specifications from extraFields - memoized to prevent recalculation
   const specifications = useMemo((): Specification[] => {
@@ -121,7 +108,6 @@ const ListingCard: React.FC<ListingCardProps> = ({
           isExchange={isExchange}
           views={views}
           handleShare={handleShare}
-          onToggleSave={(isAdded) => setIsSaved(isAdded)}
           isSaved={isSaved}
         />
 

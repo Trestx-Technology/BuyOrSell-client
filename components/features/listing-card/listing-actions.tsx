@@ -8,9 +8,8 @@ interface ListingActionsProps {
   title: string;
   image?: string;
   isExchange?: boolean;
-  isSaved: boolean;
   handleShare: (e: React.MouseEvent) => void;
-  onToggleSave: (isAdded: boolean) => void;
+  isSaved?: boolean;
 }
 
 export const ListingActions: React.FC<ListingActionsProps> = ({
@@ -18,9 +17,8 @@ export const ListingActions: React.FC<ListingActionsProps> = ({
   title,
   image,
   isExchange,
-  isSaved,
   handleShare,
-  onToggleSave,
+  isSaved,
 }) => {
   return (
     <div className="hidden absolute top-3 right-3 sm:flex gap-2">
@@ -42,25 +40,27 @@ export const ListingActions: React.FC<ListingActionsProps> = ({
         itemId={id}
         itemTitle={title}
         itemImage={image || ""}
-        onSuccess={onToggleSave}
+        initialIsSaved={isSaved}
       >
-        <button
-          className="h-8 w-8 opacity-100 hover:scale-125 transition-transform cursor-pointer rounded-full"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          aria-label={isSaved ? "Remove from collection" : "Add to collection"}
-        >
-          <Heart
-            size={24}
-            className={cn(
-              "mx-auto fill-white stroke-slate-400",
-              isSaved && "fill-purple"
-            )}
-            strokeWidth={1}
-          />
-        </button>
+        {({ isSaved }) => (
+          <button
+            className="h-8 w-8 opacity-100 hover:scale-125 transition-transform cursor-pointer rounded-full"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            aria-label={isSaved ? "Remove from collection" : "Add to collection"}
+          >
+            <Heart
+              size={24}
+              className={cn(
+                "mx-auto fill-white stroke-slate-400",
+                isSaved && "fill-purple"
+              )}
+              strokeWidth={1}
+            />
+          </button>
+        )}
       </CollectionManager>
     </div>
   );

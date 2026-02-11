@@ -327,7 +327,7 @@ export default function FavoritesPage() {
                       {view === "grid" ? (
                         <ListingCard
                           {...listingCardProps}
-                          isFavorite={true}
+                          isAddedInCollection={true}
                           onShare={(id) => console.log("Shared:", id)}
                           onClick={(id) => router.push(`/ad/${id}`)}
                           className="min-h-[284px]"
@@ -351,8 +351,7 @@ export default function FavoritesPage() {
                               ad.createdAt
                             ).toLocaleDateString()}
                             views={ad.views}
-                            isFavorite={true}
-                            onFavorite={(id) => console.log("Favorited:", id)}
+                            isAddedInCollection={true}
                             onShare={(id) => console.log("Shared:", id)}
                             onClick={(id) => router.push(`/ad/${id}`)}
                             className="hidden sm:block"

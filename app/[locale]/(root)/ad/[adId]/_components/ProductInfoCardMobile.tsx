@@ -24,8 +24,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { findOrCreateAdChat } from "@/lib/firebase/chat.utils";
 import { toast } from "sonner";
+import { ChatInit } from "@/components/global/chat-init";
 
 interface ProductInfoCardMobileProps {
   ad: AD;
@@ -34,7 +34,6 @@ interface ProductInfoCardMobileProps {
 const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({ ad }) => {
   const router = useRouter();
   const { session, isAuthenticated } = useAuthStore((state) => state);
-  const [isLoading, setIsLoading] = useState(false);
 
   // Check if current user is the owner or organization owner
   const isOwner = useMemo(() => {
@@ -71,35 +70,7 @@ const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({ ad }) => 
     }
   };
 
-  const handleMessage = async () => {
-    // Check if user is authenticated
-    if (!isAuthenticated || !session.user) {
-      toast.error("Please login to send a message");
-      router.push("/login");
-      return;
-    }
 
-    // Check if ad has an owner
-    const adOwnerId = typeof ad.owner === "string" ? ad.owner : ad.owner?._id;
-    if (!adOwnerId) {
-      toast.error("Unable to find ad owner");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Find or create chat
-      const chatId = await findOrCreateAdChat(ad, session.user);
-
-      // Navigate to chat page with the chat ID
-      router.push(`/chat?chatId=${chatId}&type=ad`);
-    } catch (error) {
-      console.error("Error creating chat:", error);
-      toast.error("Failed to start conversation. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleWhatsApp = () => {
     if (ad.contactPhoneNumber) {
@@ -242,21 +213,26 @@ const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({ ad }) => 
 
           {/* Message Button */}
           {ad.owner?._id && (
-            <Button
-              onClick={handleMessage}
-              disabled={isLoading}
-              variant="outline"
-              icon={
-                <MdMessage
-                  className="h-5 w-5 -mr-2 fill-dark-blue"
-                  stroke="white"
-                />
-              }
-              iconPosition="center"
-              className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-12 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? "Loading..." : "Send Message"}
-            </Button>
+            <ChatInit ad={ad}>
+              {({ isLoading, onClick }) => (
+                <Button
+                  onClick={onClick}
+                  disabled={isLoading}
+                  isLoading={isLoading}
+                  variant="outline"
+                  icon={
+                    <MdMessage
+                      className="h-5 w-5 -mr-2 fill-dark-blue"
+                      stroke="white"
+                    />
+                  }
+                  iconPosition="center"
+                  className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-12 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Send Message
+                </Button>
+              )}
+            </ChatInit>
           )}
 
           {/* WhatsApp Button */}

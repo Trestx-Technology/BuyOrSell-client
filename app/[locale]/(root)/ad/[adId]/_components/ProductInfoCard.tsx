@@ -21,7 +21,8 @@ import { SpecificationsDisplay } from "@/components/global/specifications-displa
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { useLocale } from "@/hooks/useLocale";
-import { useChat } from "@/hooks/useChat";
+import { useAuthStore } from "@/stores/authStore";
+import { ChatInit } from "@/components/global/chat-init";
 
 interface ProductInfoCardProps {
   ad: AD;
@@ -29,8 +30,7 @@ interface ProductInfoCardProps {
 
 const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
   const router = useRouter();
-  const { session, isAuthenticated, findOrCreateAdChat } = useChat();
-  const [isLoading, setIsLoading] = useState(false);
+  const { session, isAuthenticated } = useAuthStore((state) => state);
 
   // Check if current user is the owner or organization owner
   const isOwner = useMemo(() => {
@@ -69,35 +69,7 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
     }
   };
 
-  const handleMessage = async () => {
-    // Check if user is authenticated
-    if (!isAuthenticated || !session.user) {
-      toast.error("Please login to send a message");
-      router.push(localePath("/login"));
-      return;
-    }
 
-    // Check if ad has an owner
-    const adOwnerId = typeof ad.owner === "string" ? ad.owner : ad.owner?._id;
-    if (!adOwnerId) {
-      toast.error("Unable to find ad owner");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Find or create chat
-      const chatId = await findOrCreateAdChat(ad);
-
-      // Navigate to chat page with the chat ID
-      router.push(localePath(`/chat?chatId=${chatId}&type=ad`));
-    } catch (error) {
-      console.error("Error creating chat:", error);
-      toast.error("Failed to start conversation. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleWhatsApp = () => {
     if (ad.contactPhoneNumber) {
@@ -240,21 +212,26 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
 
           {/* Message Button */}
           {ad.owner?._id && (
-            <Button
-              onClick={handleMessage}
-              disabled={isLoading}
-              variant="outline"
-              icon={
-                <MdMessage
-                  className="h-5 w-5 -mr-2 fill-dark-blue"
-                  stroke="white"
-                />
-              }
-              iconPosition="center"
-              className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-12 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? "Loading..." : "Send Message"}
-            </Button>
+            <ChatInit ad={ad}>
+              {({ isLoading, onClick }) => (
+                <Button
+                  onClick={onClick}
+                  disabled={isLoading}
+                  isLoading={isLoading}
+                  variant="outline"
+                  icon={
+                    <MdMessage
+                      className="h-5 w-5 -mr-2 fill-dark-blue"
+                      stroke="white"
+                    />
+                  }
+                  iconPosition="center"
+                  className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-12 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Send Message
+                </Button>
+              )}
+            </ChatInit>
           )}
 
           {/* WhatsApp Button */}

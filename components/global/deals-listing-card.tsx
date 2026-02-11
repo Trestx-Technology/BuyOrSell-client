@@ -30,6 +30,7 @@ import {
 import { useShare } from "@/hooks/useShare";
 import { CollectionManager } from "./collection-manager";
 import { useGetCollectionsByAd } from "@/hooks/useCollections";
+import { ChatInit } from "@/components/global/chat-init";
 
 export interface DealsListingCardProps {
   id: string;
@@ -44,7 +45,7 @@ export interface DealsListingCardProps {
   postedTime: string;
   views?: number;
   isFavorite?: boolean;
-  isAddedInCollection?: boolean;
+  isSaved?: boolean;
   onFavorite?: (id: string) => void;
   onShare?: (id: string) => void;
   onClick?: (id: string) => void;
@@ -58,6 +59,7 @@ export interface DealsListingCardProps {
     type?: "Agent" | "Individual";
     isVerified?: boolean;
     image?: string | null;
+    id?: string;
   };
   // Deals specific props
   dealValidThrough?: string | null; // ISO date string for deal expiration
@@ -77,7 +79,7 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
   postedTime,
   views,
   isFavorite = false,
-  isAddedInCollection,
+  isSaved: initialIsSaved,
   onFavorite,
   onShare,
   onClick,
@@ -92,15 +94,15 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
 
   // Use isAddedInCollection flag from ad data if provided, otherwise check via API
   const { data: collectionsByAdResponse } = useGetCollectionsByAd(
-    isAddedInCollection === undefined ? id : ""
+    initialIsSaved === undefined ? id : ""
   );
   const apiIsAddedInCollection =
     collectionsByAdResponse?.data?.isAddedInCollection ?? false;
 
-  // Use isAddedInCollection prop if provided, otherwise use API result, fallback to isFavorite
+  // Use initialIsSaved prop if provided, otherwise use API result, fallback to isFavorite
   const effectiveIsFavorite =
-    isAddedInCollection !== undefined
-      ? isAddedInCollection
+    initialIsSaved !== undefined
+      ? initialIsSaved
       : collectionsByAdResponse !== undefined
       ? apiIsAddedInCollection
       : isFavorite;
@@ -224,6 +226,8 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
     }
     onShare?.(id);
   };
+
+
 
   const handleCardClick = () => {
     onClick?.(id);
@@ -590,10 +594,27 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
                   stroke="0"
                   className="fill-purple hover:scale-110 transition-all duration-300"
                 />
-                <MessageSquareText
-                  size={18}
-                  className="text-purple hover:scale-110 transition-all duration-300"
-                />
+                <ChatInit
+                  adId={id}
+                  adTitle={title}
+                  adImage={images[0]}
+                  sellerId={seller?.id}
+                  sellerName={seller?.name}
+                  sellerImage={seller?.image || undefined}
+                  sellerIsVerified={seller?.isVerified}
+                >
+                  {({ isLoading, onClick }) => (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 hover:bg-purple/10 p-0"
+                      onClick={onClick}
+                      isLoading={isLoading}
+                    >
+                      <MessageSquareText size={18} className="text-purple" />
+                    </Button>
+                  )}
+                </ChatInit>
                 <FaWhatsapp
                   size={18}
                   className="text-purple hover:scale-110 transition-all duration-300"

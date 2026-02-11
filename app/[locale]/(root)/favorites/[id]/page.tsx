@@ -16,8 +16,7 @@ import SortAndViewControls, {
   ViewMode,
 } from "@/app/[locale]/(root)/post-ad/_components/SortAndViewControls";
 import Image from "next/image";
-import HorizontalListingCard from "../../categories/_components/desktop-horizontal-list-card";
-import MobileHorizontalListViewCard from "../../categories/_components/MobileHorizontalListViewCard";
+import HorizontalListingCard from "../../categories/_components/horizontal-listing-card";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 import { formatDate } from "@/utils/format-date";
@@ -280,47 +279,9 @@ export default function CollectionDetailPage() {
                       ) : (
                         <>
                           <HorizontalListingCard
-                            id={ad._id}
-                            title={ad.title}
-                            price={ad.price || 0}
-                            location={
-                              typeof ad.location === "string"
-                                ? ad.location
-                                : ad.location?.city ||
-                                  ad.address?.city ||
-                                  "Location not specified"
-                            }
-                            images={ad.images || []}
-                            extraFields={ad.extraFields as ProductExtraFields}
-                            postedTime={new Date(
-                              ad.createdAt
-                            ).toLocaleDateString()}
-                            views={ad.views}
-                            isFavorite={true}
-                            onFavorite={(id) => console.log("Favorited:", id)}
+                              {...listingCardProps}
                             onShare={(id) => console.log("Shared:", id)}
-                            onClick={(id) => router.push(`/ad/${id}`)}
-                            className="hidden sm:block"
-                          />
-                          <MobileHorizontalListViewCard
-                            id={ad._id}
-                            title={ad.title}
-                            price={ad.price || 0}
-                            location={
-                              typeof ad.location === "string"
-                                ? ad.location
-                                : ad.location?.city ||
-                                  ad.address?.city ||
-                                  "Location not specified"
-                            }
-                            images={ad.images || []}
-                            extraFields={ad.extraFields as ProductExtraFields}
-                            postedTime={new Date(
-                              ad.createdAt
-                            ).toLocaleDateString()}
-                            views={ad.views}
-                            onClick={(id) => router.push(`/ad/${id}`)}
-                            className="block sm:hidden"
+                              onClick={(id) => router.push(`/ad/${id}`)}
                           />
                         </>
                       )}

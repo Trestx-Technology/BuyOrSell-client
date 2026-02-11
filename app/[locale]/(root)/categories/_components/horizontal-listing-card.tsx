@@ -28,11 +28,8 @@ import { FaWhatsapp } from "react-icons/fa";
 import { cn } from "@/lib/utils";
 import CollectionManager from "@/components/global/collection-manager";
 import { useAuthStore } from "@/stores/authStore";
-import { ChatService } from "@/lib/firebase/chat.service";
+import { ChatInit } from "@/components/global/chat-init";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { CreateChatParams, ChatType } from "@/lib/firebase/types";
-import { useGetCollectionsByAd } from "@/hooks/useCollections";
 
 export interface HorizontalListingCardProps {
       id: string;
@@ -47,13 +44,12 @@ export interface HorizontalListingCardProps {
       postedTime: string;
       views?: number;
       isPremium?: boolean;
-      isFavorite?: boolean;
       seller?: {
             id?: string;
-            name: string;
-            image?: string;
-            isVerified: boolean;
-            type: string;
+            name?: string;
+            image?: string | null;
+            isVerified?: boolean;
+            type?: string;
             phoneNumber?: string;
             canCall?: boolean;
             canWhatsapp?: boolean;
@@ -67,14 +63,10 @@ export interface HorizontalListingCardProps {
       timerBg?: string;
       timerTextColor?: string;
       endTime?: Date;
-      /**
-       * @deprecated use isAddedInCollection instead
-       */
-      onFavorite?: (id: string) => void;
       onShare?: (id: string) => void;
       onClick?: (id: string) => void;
       className?: string;
-      isAddedInCollection?: boolean;
+      isSaved?: boolean;
 }
 
 interface InternalCardProps extends HorizontalListingCardProps {
@@ -86,13 +78,12 @@ interface InternalCardProps extends HorizontalListingCardProps {
       handleNextImage?: (e: React.MouseEvent) => void;
       handleImageSwipe?: (direction: "next" | "prev") => void;
       handleCardClick: () => void;
-      handleFavorite: (e: React.MouseEvent) => void;
-      handleChat: (e: React.MouseEvent) => void;
       handleCall: (e: React.MouseEvent) => void;
       handleWhatsapp: (e: React.MouseEvent) => void;
       showChat: boolean;
       showCall: boolean;
       showWhatsapp: boolean;
+      id: string;
 }
 
 const DesktopCardLayout: React.FC<InternalCardProps> = ({
@@ -105,7 +96,6 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
       postedTime,
       views,
       isPremium,
-      isFavorite,
       seller,
       discountText,
       discountBadgeBg,
@@ -116,20 +106,19 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
       timerTextColor,
       className,
       specifications,
-      currentImageIndex,
       isTransitioning,
       timeLeft,
+      currentImageIndex,
       handlePreviousImage,
       handleNextImage,
       handleCardClick,
-      handleFavorite,
-      handleChat,
       handleCall,
       handleWhatsapp,
       showChat,
       showCall,
       showWhatsapp,
       id,
+      isSaved,
 }) => {
       return (
             <div
@@ -168,19 +157,25 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                                     </div>
                               ) : (
                                     <div className="w-full h-full flex items-center justify-center">
-                                          <div className="text-center text-gray-400">
+                                                <div className="text-center text-gray-400" onClick={(e) => e.stopPropagation()}>
                                                       <CollectionManager
                                                             itemId={id}
                                                             itemTitle={title}
                                                             itemImage={images[0]}
+                                                            initialIsSaved={isSaved}
                                                             className="w-full"
                                                       >
-                                                            <button className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110">
-                                                                  <Heart className={cn("h-5 w-5", isFavorite && "fill-purple text-purple")} />
-                                                                  <span className="text-sm font-medium sm:block hidden">
-                                                                        {isFavorite ? "Saved" : "Save"}
-                                                                  </span>
-                                                            </button>
+                                                            {({ isSaved }) => (
+                                                                  <button
+                                                                        className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110"
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                  >
+                                                                        <Heart className={cn("h-5 w-5", isSaved && "fill-purple text-purple")} />
+                                                                        <span className="text-sm font-medium sm:block hidden">
+                                                                              {isSaved ? "Saved" : "Save"}
+                                                                        </span>
+                                                                  </button>
+                                                            )}
                                                       </CollectionManager>
                                                 <span className="text-xs">No Image</span>
                                           </div>
@@ -213,25 +208,28 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                                     </div>
                               )}
                               {/* Favorite Button */}
-                              <div className="absolute top-2 right-2 z-20">
+                              <div className="absolute top-2 right-2 z-20" onClick={(e) => e.stopPropagation()}>
                                     <CollectionManager
                                           itemId={id}
                                           itemTitle={title}
                                           itemImage={images[0]}
+                                          initialIsSaved={isSaved}
                                     >
-                                          <button
-                                                className="h-8 w-8 hover:scale-125 transition-all cursor-pointer flex items-center justify-center p-0"
-                                                onClick={(e) => e.stopPropagation()}
-                                          >
-                                                <Heart
-                                                      size={22}
-                                                      className={cn(
-                                                            isFavorite
-                                                                  ? "fill-red-500 text-red-500"
-                                                                  : "text-slate-300 fill-white stroke-1"
-                                                      )}
-                                                />
-                                          </button>
+                                          {({ isSaved }) => (
+                                                <button
+                                                      className="h-8 w-8 hover:scale-125 transition-all cursor-pointer flex items-center justify-center p-0"
+                                                      onClick={(e) => e.stopPropagation()}
+                                                >
+                                                      <Heart
+                                                            size={22}
+                                                            className={cn(
+                                                                  isSaved
+                                                                        ? "fill-red-500 text-red-500"
+                                                                        : "text-slate-300 fill-white stroke-1"
+                                                            )}
+                                                      />
+                                                </button>
+                                          )}
                                     </CollectionManager>
                               </div>
 
@@ -360,6 +358,50 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                                           {location}
                                     </Typography>
                               </div>
+
+                              <div className="flex items-center text-purple gap-2">
+
+                                    {showChat && (
+                                          <ChatInit
+                                                adId={id}
+                                                adTitle={title}
+                                                adImage={images[0]}
+                                                sellerId={seller?.id}
+                                                sellerName={seller?.name}
+                                                sellerImage={seller?.image || undefined}
+                                                sellerIsVerified={seller?.isVerified}
+                                          >
+                                                {({ isLoading, onClick }) => (
+                                                      <Button
+                                                            size={"icon-sm"}
+                                                            variant="ghost"
+                                                            onClick={onClick}
+                                                            isLoading={isLoading}
+                                                            icon={<MessageSquareText className="h-4 w-4" />}
+                                                            iconPosition="center"
+                                                      />
+                                                )}
+                                          </ChatInit>
+                                    )}
+                                    {showWhatsapp && (
+                                          <Button
+                                                size={"icon-sm"}
+                                                variant="ghost"
+                                                onClick={handleWhatsapp}
+                                                icon={<FaWhatsapp className="h-4 w-4" />}
+                                                iconPosition="center"
+                                          />
+                                    )}
+                                    {showCall && (
+                                          <Button
+                                                size={"icon-sm"}
+                                                variant="ghost"
+                                                onClick={handleCall}
+                                                icon={<Phone className="h-4 w-4" />}
+                                                iconPosition="center"
+                                          />
+                                    )}
+                              </div>
                         </div>
 
                         {/* Right Side - Seller & Actions */}
@@ -401,39 +443,6 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                               >
                                     View Details
                               </Button>
-                              {showChat && (
-                                    <Button
-                                          size={"default"}
-                                          variant="outline"
-                                          className="max-w-[117px] w-full"
-                                          onClick={handleChat}
-                                    >
-                                          <MessageSquareText className="mr-2 h-4 w-4" />
-                                          Chat
-                                    </Button>
-                              )}
-                              {showWhatsapp && (
-                                    <Button
-                                          size={"default"}
-                                          variant="outline"
-                                          className="max-w-[117px] w-full hover:bg-green-50 hover:text-green-600 hover:border-green-200"
-                                          onClick={handleWhatsapp}
-                                    >
-                                          <FaWhatsapp className="mr-2 h-4 w-4" />
-                                          WhatsApp
-                                    </Button>
-                              )}
-                              {showCall && (
-                                    <Button
-                                          size={"default"}
-                                          variant="outline"
-                                          className="max-w-[117px] w-full"
-                                          onClick={handleCall}
-                                    >
-                                          <Phone className="mr-2 h-4 w-4" />
-                                          Call
-                                    </Button>
-                              )}
                         </div>
                   </div>
             </div>
@@ -465,14 +474,13 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
       timeLeft,
       handleImageSwipe,
       handleCardClick,
-      handleChat,
       handleCall,
       handleWhatsapp,
       showChat,
       showCall,
       showWhatsapp,
       id,
-      isFavorite,
+      isSaved,
 }) => {
       return (
             <div
@@ -573,25 +581,28 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
                                           </div>
                                     )}
                                     {/* Favorite Button - Mobile */}
-                                    <div className="absolute top-2 right-2 z-10">
+                                    <div className="absolute top-2 right-2 z-10" onClick={(e) => e.stopPropagation()}>
                                           <CollectionManager
                                                 itemId={id}
                                                 itemTitle={title}
                                                 itemImage={images[0]}
+                                                initialIsSaved={isSaved}
                                           >
-                                                <button
-                                                      className="h-7 w-7 rounded-full bg-white/80 flex items-center justify-center hover:bg-white transition-colors shadow-sm"
-                                                      onClick={(e) => e.stopPropagation()}
-                                                >
-                                                      <Heart
-                                                            size={16}
-                                                            className={cn(
-                                                                  isFavorite
-                                                                        ? "fill-red-500 text-red-500"
-                                                                        : "text-gray-500"
-                                                            )}
-                                                      />
-                                                </button>
+                                                {({ isSaved }) => (
+                                                      <button
+                                                            className="h-7 w-7 rounded-full bg-white/80 flex items-center justify-center hover:bg-white transition-colors shadow-sm"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                      >
+                                                            <Heart
+                                                                  size={16}
+                                                                  className={cn(
+                                                                        isSaved
+                                                                              ? "fill-red-500 text-red-500"
+                                                                              : "text-gray-500"
+                                                                  )}
+                                                            />
+                                                      </button>
+                                                )}
                                           </CollectionManager>
                                     </div>
                               </div>
@@ -700,14 +711,27 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
                                     </Button>
                               )}
                               {showChat && (
-                                    <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          className="h-8 w-8 hover:bg-purple/10"
-                                          onClick={handleChat}
+                                    <ChatInit
+                                          adId={id}
+                                          adTitle={title}
+                                          adImage={images[0]}
+                                          sellerId={seller?.id}
+                                          sellerName={seller?.name}
+                                          sellerImage={seller?.image || undefined}
+                                          sellerIsVerified={seller?.isVerified}
                                     >
-                                          <MessageSquareText className="text-purple size-5" />
-                                    </Button>
+                                          {({ isLoading, onClick }) => (
+                                                <Button
+                                                      variant="ghost"
+                                                      size="icon"
+                                                      className="h-8 w-8 hover:bg-purple/10"
+                                                      onClick={onClick}
+                                                      isLoading={isLoading}
+                                                >
+                                                      <MessageSquareText className="text-purple size-5" />
+                                                </Button>
+                                          )}
+                                    </ChatInit>
                               )}
                               {showWhatsapp && (
                                     <Button
@@ -719,13 +743,6 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
                                           <FaWhatsapp className="text-purple size-5" />
                                     </Button>
                               )}
-                              <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 hover:bg-purple/10"
-                              >
-                                    <FaWhatsapp className="text-purple size-5" />
-                              </Button>
                         </div>
                   </div>
             </div>
@@ -737,113 +754,45 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = (props) => {
             id,
             images,
             extraFields,
-            showTimer,
+            showTimer,  
             endTime,
-            onFavorite,
-            title,
             onClick,
-            isAddedInCollection,
+            title, // Added for ChatInit
+            seller, // Added for ChatInit, handleCall, handleWhatsapp, showCall, showWhatsapp
       } = props;
 
       const user = useAuthStore((state) => state.session.user);
-      const router = useRouter();
-
-      // Similar to ListingCard, use API to check/sync collection status
-      const { data: collectionsByAdResponse } = useGetCollectionsByAd(
-            isAddedInCollection === undefined ? id : ""
-      );
-      const apiIsAddedInCollection = collectionsByAdResponse?.data?.isAddedInCollection ?? false;
-
-      // Local state for favorite status
-      const [isFavorite, setIsFavorite] = useState(
-            isAddedInCollection ?? apiIsAddedInCollection
-      );
-
-      // Sync with prop or API changes
-      useEffect(() => {
-            setIsFavorite(isAddedInCollection ?? apiIsAddedInCollection);
-      }, [isAddedInCollection, apiIsAddedInCollection]);
-
       const showChat = React.useMemo(() => {
-            if (!user || !props.seller?.id) return false;
-            return user._id !== props.seller.id;
-      }, [user, props.seller?.id]);
-
-      const handleChat = async (e: React.MouseEvent) => {
-            e.stopPropagation();
-            if (!user) {
-                  toast.error("Please login to chat");
-                  return;
-            }
-            if (!props.seller?.id) return;
-
-            try {
-                  const chatParams: CreateChatParams = {
-                        type: "ad",
-                        title: props.title,
-                        titleAr: props.title,
-                        image: images[0] || "",
-                        participants: [user._id, props.seller.id],
-                        participantDetails: {
-                              [user._id]: {
-                                    name: `${user.firstName} ${user.lastName}`.trim(),
-                                    nameAr: `${user.firstName} ${user.lastName}`.trim(),
-                                    image: user.image || "",
-                                    isVerified: false // Assuming user verification status isn't readily available or needed for this immediate check
-                              },
-                              [props.seller.id]: {
-                                    name: props.seller.name,
-                                    nameAr: props.seller.name,
-                                    image: props.seller.image || "",
-                                    isVerified: props.seller.isVerified
-                              }
-                        },
-                        adId: id,
-                        adOwnerId: props.seller.id,
-                        initiatorId: user._id
-                  };
-
-                  let chatId = await ChatService.findExistingChat(chatParams);
-
-                  if (!chatId) {
-                        chatId = await ChatService.createChat(chatParams);
-                  }
-
-                  if (chatId) {
-                        router.push(`/chat?chatId=${chatId}&type=ad`);
-                  }
-            } catch (error) {
-                  console.error("Failed to initiate chat", error);
-                  toast.error("Failed to start chat. Please try again.");
-            }
-      };
+            if (!user || !seller?.id) return false;
+            return user._id !== seller.id;
+      }, [user, seller?.id]);
 
       const handleCall = (e: React.MouseEvent) => {
             e.stopPropagation();
-            if (!props.seller?.phoneNumber) return;
-            window.open(`tel:${props.seller.phoneNumber}`);
+            if (!seller?.phoneNumber) return;
+            window.open(`tel:${seller.phoneNumber}`);
       };
 
       const handleWhatsapp = (e: React.MouseEvent) => {
             e.stopPropagation();
-            if (!props.seller?.phoneNumber) return;
-            // Basic cleanup for WhatsApp url
-            const cleanNumber = props.seller.phoneNumber.replace(/\D/g, "");
-            window.open(`https://wa.me/${cleanNumber}`, "_blank");
+            if (!seller?.phoneNumber) return;
+            const phoneNumber = seller.phoneNumber.replace(/[^0-9]/g, "");
+            window.open(`https://wa.me/${phoneNumber}`, "_blank");
       };
 
       const showCall = React.useMemo(() => {
-            if (!props.seller?.id || !user) return false;
+            if (!seller?.id || !user) return false;
             // Also check if user is not the owner
-            if (user._id === props.seller.id) return false;
-            return !!(props.seller.canCall && props.seller.phoneNumber);
-      }, [user, props.seller]);
+            if (user._id === seller.id) return false;
+            return !!(seller?.canCall && seller?.phoneNumber);
+      }, [user, seller]);
 
       const showWhatsapp = React.useMemo(() => {
-            if (!props.seller?.id || !user) return false;
-            if (user._id === props.seller.id) return false;
-            return !!(props.seller.canWhatsapp && props.seller.phoneNumber);
-      }, [user, props.seller]);
+            if (!seller?.id || !user) return false;
+            // Also check if user is not the owner
+            if (user._id === seller.id) return false;
+            return !!(seller?.canWhatsapp && seller?.phoneNumber);
+      }, [user, seller]);
 
       // Shared Logic
       const specifications = useMemo((): Specification[] => {
@@ -912,11 +861,6 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = (props) => {
             onClick?.(id);
       };
 
-      const handleFavorite = (e: React.MouseEvent) => {
-            e.stopPropagation();
-            onFavorite?.(id);
-      };
-
       const handleImageSwipe = (direction: "next" | "prev") => {
             if (isTransitioning || images.length <= 1) return;
             setIsTransitioning(true);
@@ -942,15 +886,11 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = (props) => {
             isTransitioning,
             timeLeft,
             handleCardClick,
-            handleFavorite: handleFavorite, // Override internal handleFavorite if needed, but we rely on CollectionManager mainly.
-            handleChat,
             handleCall,
             handleWhatsapp,
             showChat,
             showCall,
             showWhatsapp,
-            // Override with local state
-            isFavorite, 
       };
 
       return (

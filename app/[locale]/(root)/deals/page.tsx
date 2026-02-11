@@ -377,6 +377,7 @@ export default function HotDealsPage() {
                         type: "Agent" as const,
                         isVerified: ad.organization.verified,
                         image: ad.organization.logoUrl || null,
+                      id: ad.organization._id || ad.owner?._id,
                       }
                     : ad.owner
                     ? {
@@ -389,6 +390,7 @@ export default function HotDealsPage() {
                         type: "Individual" as const,
                         isVerified: (ad.owner as any).isVerified,
                         image: ad.owner.image || null,
+                        id: ad.owner?._id,
                       }
                     : undefined;
 

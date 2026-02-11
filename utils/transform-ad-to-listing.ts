@@ -202,7 +202,6 @@ export const transformAdToListingCard = (
     price: currentPrice,
     originalPrice,
     discount: discountPercentage,
-    isAddedInCollection: ad.isAddedInCollection,
     location: getLocation(),
     images: ad.images || [],
     extraFields: extraFields as ProductExtraFields, // Cast to ProductExtraFields for compatibility
@@ -211,6 +210,7 @@ export const transformAdToListingCard = (
     views: ad.views || 0, // Use views from AD if available
     isPremium: ad.isFeatured || false,
     seller: getSellerInfo(),
+    isSaved: ad.isSaved,
   };
 };
 
