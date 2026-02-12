@@ -211,6 +211,7 @@ export const transformAdToListingCard = (
     isPremium: ad.isFeatured || false,
     seller: getSellerInfo(),
     isSaved: ad.isSaved,
+    isAddedInCollection: ad.isAddedInCollection,
   };
 };
 

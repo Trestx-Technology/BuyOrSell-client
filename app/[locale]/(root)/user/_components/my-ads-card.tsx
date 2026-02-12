@@ -142,7 +142,6 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
               isPremium={isPremium}
               views={views}
               isSaved={isSaved}
-              onToggleSave={() => { }}
               handleShare={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

@@ -40,6 +40,7 @@ export interface ListingCardProps {
     canWhatsapp?: boolean;
   };
   isSaved?: boolean;
+  isAddedInCollection?: boolean;
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({
@@ -59,6 +60,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
   showSocials,
   seller,
   isSaved,
+  isAddedInCollection,
 }) => {
   const { share } = useShare();
 
