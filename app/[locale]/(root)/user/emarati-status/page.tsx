@@ -193,9 +193,9 @@ export default function EmaratiStatusPage() {
                                     id: "3"
                               },
                         ]} />
-                        <div className="max-w-2xl mx-auto bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100">
+                        <div className="max-w-2xl mx-auto bg-white dark:bg-gray-900 rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100 dark:border-gray-800">
                               <div className="flex items-center justify-between mb-6">
-                                    <h1 className="text-2xl font-bold text-dark-blue">
+                                    <h1 className="text-2xl font-bold text-dark-blue dark:text-white">
                                           Emarati Status Verification
                                     </h1>
                                     {getStatusBadge(emaratiStatusData?.data?.emaratiStatus)}
@@ -238,7 +238,7 @@ export default function EmaratiStatusPage() {
                                                                   <Button
                                                                         variant={"outline"}
                                                                         className={cn(
-                                                                              "w-full pl-3 text-left font-normal border-gray-200",
+                                                                              "w-full pl-3 text-left font-normal border-gray-200 dark:border-gray-700",
                                                                               !field.value && "text-muted-foreground"
                                                                         )}
                                                                         icon={<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />}
@@ -278,7 +278,7 @@ export default function EmaratiStatusPage() {
                                                       >
                                                             <div className="space-y-2">
                                                                   {field.value ? (
-                                                                        <div className="relative w-full h-40 rounded-lg overflow-hidden border border-gray-200">
+                                                                        <div className="relative w-full h-40 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                                                                               <Image
                                                                                     src={field.value}
                                                                                     alt="EID Front"
@@ -294,7 +294,7 @@ export default function EmaratiStatusPage() {
                                                                               </button>
                                                                         </div>
                                                                   ) : (
-                                                                        <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
+                                                                              <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer relative">
                                                                               <input
                                                                                     type="file"
                                                                                     accept="image/*"
@@ -333,7 +333,7 @@ export default function EmaratiStatusPage() {
                                                       >
                                                             <div className="space-y-2">
                                                                   {field.value ? (
-                                                                        <div className="relative w-full h-40 rounded-lg overflow-hidden border border-gray-200">
+                                                                        <div className="relative w-full h-40 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                                                                               <Image
                                                                                     src={field.value}
                                                                                     alt="EID Back"
@@ -349,7 +349,7 @@ export default function EmaratiStatusPage() {
                                                                               </button>
                                                                         </div>
                                                                   ) : (
-                                                                        <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
+                                                                              <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer relative">
                                                                               <input
                                                                                     type="file"
                                                                                     accept="image/*"

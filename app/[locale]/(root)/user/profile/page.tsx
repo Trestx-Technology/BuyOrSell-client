@@ -192,7 +192,7 @@ const ProfilePage = () => {
 
         {/* Profile Card */}
         {isLoadingProfile ? (
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
             <div className="flex items-center justify-center py-8">
               <Typography variant="body-small" className="text-gray-500">
                 {t.common.loading}
@@ -200,7 +200,7 @@ const ProfilePage = () => {
             </div>
           </div>
         ) : profileError ? (
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
             <div className="flex items-center justify-center py-8">
               <Typography variant="body-small" className="text-red-500">
                 {t.common.error}

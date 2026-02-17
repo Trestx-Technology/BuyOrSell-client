@@ -100,19 +100,19 @@ const ChangePasswordPage = () => {
           className="text-sm"
         />
 
-        <div className="sm:bg-white sm:rounded-2xl border-0 sm:border border-gray-200 sm:shadow-sm max-w-2xl w-full mx-auto">
+        <div className="sm:bg-white dark:bg-gray-900 sm:rounded-2xl border-0 sm:border border-gray-200 dark:border-gray-800 sm:shadow-sm max-w-2xl w-full mx-auto">
           <div className="hidden sm:block text-center py-6">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               {t.user.changePassword.changePassword}
             </h2>
           </div>
 
           <div className="px-4">
-            <div className="bg-gray-50 rounded-xl border p-4 mb-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl border p-4 mb-6 dark:border-gray-700">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
                 {t.user.changePassword.keepAccountSecure}
               </h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
+              <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                 {t.user.changePassword.securityNotice}
               </p>
             </div>
@@ -141,7 +141,7 @@ const ChangePasswordPage = () => {
                         }
                         type={showPasswords.current ? "text" : "password"}
                         placeholder={t.user.changePassword.enterCurrentPassword}
-                        className="w-full pr-10"
+                        className="w-full pr-10 bg-white dark:bg-gray-800 dark:border-gray-700"
                         error={errors.currentPassword?.message}
                       />
                     )}
@@ -170,7 +170,7 @@ const ChangePasswordPage = () => {
                         onRightIconClick={() => togglePasswordVisibility("new")}
                         type={showPasswords.new ? "text" : "password"}
                         placeholder={t.user.changePassword.enterNewPassword}
-                        className="w-full pr-10"
+                        className="w-full pr-10 bg-white dark:bg-gray-800 dark:border-gray-700"
                         error={errors.newPassword?.message}
                       />
                     )}
@@ -201,7 +201,7 @@ const ChangePasswordPage = () => {
                         }
                         type={showPasswords.confirm ? "text" : "password"}
                         placeholder={t.user.changePassword.confirmNewPassword}
-                        className="w-full pr-10"
+                        className="w-full pr-10 bg-white dark:bg-gray-800 dark:border-gray-700"
                         error={errors.confirmPassword?.message}
                       />
                     )}
@@ -209,11 +209,11 @@ const ChangePasswordPage = () => {
                 </div>
               </FormField>
 
-              <div className="bg-gray-50 rounded-xl p-4">
-                <h3 className="text-sm font-medium text-gray-900 mb-3">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
                   {t.user.changePassword.securityTips}
                 </h3>
-                <ul className="space-y-1 text-xs text-gray-600">
+                <ul className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
                   <li>• {t.user.changePassword.securityTip1}</li>
                   <li>• {t.user.changePassword.securityTip2}</li>
                   <li>• {t.user.changePassword.securityTip3}</li>

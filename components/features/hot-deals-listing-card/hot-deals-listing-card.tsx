@@ -112,7 +112,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
 
   return (
     <div
-      className={`w-[220px] h-full overflow-hidden rounded-2xl bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
+      className={`w-[220px] h-full overflow-hidden rounded-2xl bg-white dark:bg-gray-900 hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
       onClick={handleCardClick}
     >
       <Link href={`/ad/${id}`} className="absolute inset-0 z-10"></Link>

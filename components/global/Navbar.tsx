@@ -220,7 +220,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
 //-------------- Main Navbar component with Suspense wrapper---------- */}
 const Navbar = ({ className }: { className?: string }) => {
   return (
-    <Suspense fallback={<div className="h-16 bg-white border-b" />}>
+    <Suspense fallback={<div className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800" />}>
       <NavbarContent className={className} />
     </Suspense>
   );

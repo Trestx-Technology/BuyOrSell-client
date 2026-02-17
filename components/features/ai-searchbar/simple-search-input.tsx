@@ -159,7 +159,7 @@ export function SimpleSearchInput({
         />
 
         {showDropdown && (
-          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto z-50">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 max-h-96 overflow-y-auto z-50">
             {isKeywordLoading ? (
               <div className="px-4 py-8 text-center">
                 <p className="text-sm text-gray-500">Searching...</p>
@@ -184,14 +184,14 @@ export function SimpleSearchInput({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                           {result.name}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
                           {result.category}
                         </p>
                       </div>
-                      <span className="flex-shrink-0 text-xs font-semibold text-purple bg-gray-100 px-2 py-1 rounded">
+                      <span className="flex-shrink-0 text-xs font-semibold text-purple bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                         {result.adCount} {result.adCount === 1 ? "ad" : "ads"}
                       </span>
                     </div>

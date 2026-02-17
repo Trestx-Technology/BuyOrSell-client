@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import { useState } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import {
@@ -40,32 +41,31 @@ function SettingsItem({
   return (
     <>
       <div
-        className={`flex items-center justify-between py-4 px-6 cursor-pointer hover:bg-gray-50 transition-colors ${
-          danger ? "hover:bg-red-50" : ""
+        className={`flex items-center justify-between py-4 px-6 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${danger ? "hover:bg-red-50 dark:hover:bg-red-900/10" : ""
         }`}
         onClick={onClick}
       >
         <div className="flex items-center gap-4">
           <div
             className={`p-2 rounded-lg ${
-              danger ? "bg-red-100" : "bg-gray-100"
+              danger ? "bg-red-100 dark:bg-red-900/20" : "bg-gray-100 dark:bg-gray-800"
             }`}
           >
-            <div className={danger ? "text-red-600" : "text-gray-600"}>
+            <div className={danger ? "text-red-600 dark:text-red-400" : "text-gray-600 dark:text-gray-400"}>
               {icon}
             </div>
           </div>
           <div>
             <h3
               className={`text-sm font-medium ${
-                danger ? "text-red-900" : "text-gray-900"
+                danger ? "text-red-900 dark:text-red-300" : "text-gray-900 dark:text-gray-100"
               }`}
             >
               {title}
             </h3>
             <p
               className={`text-xs ${
-                danger ? "text-red-600" : "text-gray-500"
+                danger ? "text-red-600 dark:text-red-400" : "text-gray-500 dark:text-gray-400"
               } leading-relaxed`}
             >
               {description}
@@ -78,16 +78,17 @@ function SettingsItem({
           />
         )}
       </div>
-      <div className="border-b border-gray-200 mx-6" />
+      <div className="border-b border-gray-200 dark:border-gray-800 mx-6" />
     </>
   );
 }
+
 
 export default function SettingsCard() {
   const router = useRouter();
   const { t, localePath } = useLocale();
   const { clearSession } = useAuthStore();
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
@@ -159,14 +160,14 @@ export default function SettingsCard() {
   };
 
   return (
-    <div className="sm:bg-white sm:rounded-2xl border-0 sm:border border-gray-200 sm:shadow-sm max-w-2xl w-full mx-auto">
+    <div className="sm:bg-white sm:dark:bg-gray-900 sm:rounded-2xl border-0 sm:border border-gray-200 sm:dark:border-gray-800 sm:shadow-sm max-w-2xl w-full mx-auto">
       <div className="hidden sm:block text-center py-6">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
           {t.user.settings.settings}
         </h2>
       </div>
 
-      <div className="border-t border-gray-200">
+      <div className="border-t border-gray-200 dark:border-gray-800">
         <SettingsItem
           icon={<User className="w-5 h-5" />}
           title={t.user.profile.myProfile}
@@ -211,30 +212,30 @@ export default function SettingsCard() {
 
         <div className="flex items-center justify-between py-4 px-6">
           <div className="flex items-center gap-4">
-            <div className="p-2 rounded-lg bg-gray-100">
-              <Moon className="w-5 h-5 text-gray-600" />
+            <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
+              <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-900">Dark Mode</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Dark Mode</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                 Toggle dark mode theme
               </p>
             </div>
           </div>
           <button
-            onClick={() => setDarkMode(!darkMode)}
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              darkMode ? "bg-purple-600" : "bg-gray-200"
+              theme === "dark" ? "bg-purple-600" : "bg-gray-200 dark:bg-gray-700"
             }`}
           >
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                darkMode ? "translate-x-6" : "translate-x-1"
+                theme === "dark" ? "translate-x-6" : "translate-x-1"
               }`}
             />
           </button>
         </div>
-        <div className="border-b border-gray-200 mx-6" />
+        <div className="border-b border-gray-200 dark:border-gray-800 mx-6" />
 
         <SettingsItem
           icon={<Trash2 className="w-5 h-5" />}

@@ -152,7 +152,7 @@ export function MidBannerCarousel({
     <div
       ref={ref as any}
       className={cn(
-        "mx-auto flex flex-col items-center justify-center p-4 md:p-0 relative overflow-visible bg-white reveal-on-scroll",
+        "mx-auto flex flex-col items-center justify-center p-4 md:p-0 relative overflow-visible bg-white dark:bg-gray-950 reveal-on-scroll",
         maxWidth,
         containerClassName,
         isVisible ? "is-visible" : ""

@@ -174,10 +174,10 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
         {/* Left Column - Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Seller Statistics */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-6">
             <Typography
               variant="h3"
-              className="text-base font-semibold text-dark-blue mb-6"
+              className="text-base font-semibold text-dark-blue dark:text-white mb-6"
             >
               {t.seller.info.sellerStatistics}
             </Typography>
@@ -185,51 +185,51 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {/* Total Ads */}
-              <div className="bg-gray-50 rounded-lg p-6 flex flex-col items-center gap-2">
-                <FileText className="h-10 w-10 text-blue-600" />
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 flex flex-col items-center gap-2">
+                <FileText className="h-10 w-10 text-blue-600 dark:text-blue-400" />
                 <Typography
                   variant="h2"
-                  className="text-xl font-semibold text-black"
+                  className="text-xl font-semibold text-black dark:text-white"
                 >
                   {sellerStats.totalAds}
                 </Typography>
                 <Typography
                   variant="body"
-                  className="text-sm text-grey-blue text-center"
+                  className="text-sm text-grey-blue dark:text-gray-400 text-center"
                 >
                   {t.seller.info.totalAds}
                 </Typography>
               </div>
 
               {/* Active Listings */}
-              <div className="bg-gray-50 rounded-lg p-6 flex flex-col items-center gap-2">
-                <CheckCircle className="h-10 w-10 text-green-600" />
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 flex flex-col items-center gap-2">
+                <CheckCircle className="h-10 w-10 text-green-600 dark:text-green-400" />
                 <Typography
                   variant="h2"
-                  className="text-xl font-semibold text-black"
+                  className="text-xl font-semibold text-black dark:text-white"
                 >
                   {sellerStats.activeListings}
                 </Typography>
                 <Typography
                   variant="body"
-                  className="text-sm text-grey-blue text-center"
+                  className="text-sm text-grey-blue dark:text-gray-400 text-center"
                 >
                   {t.seller.info.activeListings}
                 </Typography>
               </div>
 
               {/* Total Reviews */}
-              <div className="bg-gray-50 rounded-lg p-6 flex flex-col items-center gap-2">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 flex flex-col items-center gap-2">
                 <Star className="h-10 w-10 text-yellow-500 fill-current" />
                 <Typography
                   variant="h2"
-                  className="text-xl font-semibold text-black"
+                  className="text-xl font-semibold text-black dark:text-white"
                 >
                   {sellerStats.totalReviews}
                 </Typography>
                 <Typography
                   variant="body"
-                  className="text-sm text-grey-blue text-center"
+                  className="text-sm text-grey-blue dark:text-gray-400 text-center"
                 >
                   {t.seller.info.totalReviews}
                 </Typography>
@@ -266,13 +266,13 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
             tags.length > 0 ||
             reraNumber ||
             tradeLicenseNumber) && (
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 space-y-6">
               {/* Contact Information */}
               {contactInfo && (
                 <div>
                   <Typography
                     variant="h3"
-                    className="text-base font-semibold text-dark-blue mb-3"
+                    className="text-base font-semibold text-dark-blue dark:text-white mb-3"
                   >
                     {t.seller.info.contactInfo || "Contact Information"}
                   </Typography>
@@ -282,7 +282,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                         <Users className="h-4 w-4 text-grey-blue" />
                         <Typography
                           variant="body"
-                          className="text-sm text-grey-blue"
+                          className="text-sm text-grey-blue dark:text-gray-400"
                         >
                           {contactInfo.name}
                         </Typography>
@@ -293,7 +293,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                         <Phone className="h-4 w-4 text-grey-blue" />
                         <Typography
                           variant="body"
-                          className="text-sm text-grey-blue"
+                          className="text-sm text-grey-blue dark:text-gray-400"
                         >
                           {contactInfo.phone}
                         </Typography>
@@ -304,7 +304,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                         <Mail className="h-4 w-4 text-grey-blue" />
                         <Typography
                           variant="body"
-                          className="text-sm text-grey-blue"
+                          className="text-sm text-grey-blue dark:text-gray-400"
                         >
                           {contactInfo.email}
                         </Typography>
@@ -319,7 +319,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                 <div>
                   <Typography
                     variant="h3"
-                    className="text-base font-semibold text-dark-blue mb-3"
+                    className="text-base font-semibold text-dark-blue dark:text-white mb-3"
                   >
                     {t.seller.info.address || "Address"}
                   </Typography>
@@ -327,7 +327,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                     <MapPin className="h-4 w-4 text-grey-blue mt-0.5" />
                     <Typography
                       variant="body"
-                      className="text-sm text-grey-blue"
+                      className="text-sm text-grey-blue dark:text-gray-400"
                     >
                       {address}
                     </Typography>
@@ -340,7 +340,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                 <div>
                   <Typography
                     variant="h3"
-                    className="text-base font-semibold text-dark-blue mb-3"
+                    className="text-base font-semibold text-dark-blue dark:text-white mb-3"
                   >
                     {t.seller.info.website || "Website"}
                   </Typography>
@@ -350,7 +350,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                       href={website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline"
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                     >
                       {website}
                     </a>
@@ -363,7 +363,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                 <div>
                   <Typography
                     variant="h3"
-                    className="text-base font-semibold text-dark-blue mb-3"
+                    className="text-base font-semibold text-dark-blue dark:text-white mb-3"
                   >
                     {t.seller.info.locations || "Locations"}
                   </Typography>
@@ -378,14 +378,14 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                           {location.name && (
                             <Typography
                               variant="body"
-                              className="text-sm font-medium text-dark-blue"
+                              className="text-sm font-medium text-dark-blue dark:text-white"
                             >
                               {location.name}
                             </Typography>
                           )}
                           <Typography
                             variant="body"
-                            className="text-sm text-grey-blue"
+                            className="text-sm text-grey-blue dark:text-gray-400"
                           >
                             {[location.address, location.city, location.emirate]
                               .filter(Boolean)
@@ -403,7 +403,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                 <div>
                   <Typography
                     variant="h3"
-                    className="text-base font-semibold text-dark-blue mb-3"
+                    className="text-base font-semibold text-dark-blue dark:text-white mb-3"
                   >
                     {t.seller.info.languageSpoken}
                   </Typography>
@@ -411,11 +411,11 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                     {languages.map((language) => (
                       <div
                         key={language}
-                        className="px-4 py-2 border border-gray-200 rounded-lg bg-white"
+                        className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
                       >
                         <Typography
                           variant="body"
-                          className="text-sm font-medium text-dark-blue"
+                          className="text-sm font-medium text-dark-blue dark:text-gray-200"
                         >
                           {language}
                         </Typography>
@@ -430,7 +430,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                 <div>
                   <Typography
                     variant="h3"
-                    className="text-base font-semibold text-dark-blue mb-3"
+                    className="text-base font-semibold text-dark-blue dark:text-white mb-3"
                   >
                     {t.seller.info.certifications}
                   </Typography>
@@ -438,12 +438,12 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                     {certifications.map((cert) => (
                       <div
                         key={cert}
-                        className="flex items-center gap-2 px-3 py-2 bg-purple/10 rounded-lg"
+                        className="flex items-center gap-2 px-3 py-2 bg-purple/10 dark:bg-purple/5 rounded-lg"
                       >
-                        <Shield className="h-4 w-4 text-purple" />
+                        <Shield className="h-4 w-4 text-purple dark:text-purple-400" />
                         <Typography
                           variant="body"
-                          className="text-xs font-medium text-purple"
+                          className="text-xs font-medium text-purple dark:text-purple-400"
                         >
                           {cert}
                         </Typography>
@@ -458,7 +458,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                 <div>
                   <Typography
                     variant="h3"
-                    className="text-base font-semibold text-dark-blue mb-3"
+                    className="text-base font-semibold text-dark-blue dark:text-white mb-3"
                   >
                     {t.seller.info.tags || "Tags"}
                   </Typography>
@@ -466,12 +466,12 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                     {tags.map((tag) => (
                       <div
                         key={tag}
-                        className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg"
+                        className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg"
                       >
-                        <Tag className="h-4 w-4 text-grey-blue" />
+                        <Tag className="h-4 w-4 text-grey-blue dark:text-gray-400" />
                         <Typography
                           variant="body"
-                          className="text-xs font-medium text-dark-blue"
+                          className="text-xs font-medium text-dark-blue dark:text-gray-300"
                         >
                           {tag}
                         </Typography>
@@ -488,11 +488,11 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                 <div>
                   <Typography
                     variant="h3"
-                    className="text-base font-semibold text-dark-blue mb-3"
+                    className="text-base font-semibold text-dark-blue dark:text-white mb-3"
                   >
                     {t.seller.info.businessHours}
                   </Typography>
-                  <Typography variant="body" className="text-sm text-grey-blue">
+                  <Typography variant="body" className="text-sm text-grey-blue dark:text-gray-400">
                     {formattedBusinessHours}
                   </Typography>
                 </div>
@@ -503,17 +503,17 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                 <div>
                   <Typography
                     variant="h3"
-                    className="text-base font-semibold text-dark-blue mb-3"
+                    className="text-base font-semibold text-dark-blue dark:text-white mb-3"
                   >
                     {t.seller.info.licenseInfo || "License Information"}
                   </Typography>
                   <div className="space-y-2">
                     {tradeLicenseNumber && (
                       <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-grey-blue" />
+                        <Building2 className="h-4 w-4 text-grey-blue dark:text-gray-400" />
                         <Typography
                           variant="body"
-                          className="text-sm text-grey-blue"
+                          className="text-sm text-grey-blue dark:text-gray-400"
                         >
                           <span className="font-medium">Trade License:</span>{" "}
                           {tradeLicenseNumber}
@@ -522,10 +522,10 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                     )}
                     {reraNumber && (
                       <div className="flex items-center gap-2">
-                        <Shield className="h-4 w-4 text-grey-blue" />
+                        <Shield className="h-4 w-4 text-grey-blue dark:text-gray-400" />
                         <Typography
                           variant="body"
-                          className="text-sm text-grey-blue"
+                          className="text-sm text-grey-blue dark:text-gray-400"
                         >
                           <span className="font-medium">RERA Number:</span>{" "}
                           {reraNumber}
@@ -543,10 +543,10 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
         <div className="space-y-6">
           {/* Trust Score */}
           {sellerStats.trustScore > 0 && sellerStats.reviewCount > 0 && (
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-6">
               <Typography
                 variant="h3"
-                className="text-base font-semibold text-dark-blue mb-6"
+                className="text-base font-semibold text-dark-blue dark:text-white mb-6"
               >
                 {t.seller.info.trustScore}
               </Typography>
@@ -556,7 +556,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                 {renderStars(sellerStats.trustScore, "large")}
                 <Typography
                   variant="h2"
-                  className="text-xl font-bold text-dark-blue"
+                  className="text-xl font-bold text-dark-blue dark:text-white"
                 >
                   {sellerStats.trustScore.toFixed(1)}/5.0
                 </Typography>
@@ -564,7 +564,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
 
               <Typography
                 variant="body"
-                className="text-sm text-grey-blue mb-6"
+                className="text-sm text-grey-blue dark:text-gray-400 mb-6"
               >
                 {t.seller.info.basedOnReviews.replace(
                   "{count}",
@@ -581,23 +581,23 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                       <div className="flex items-center gap-1 w-8">
                         <Typography
                           variant="body"
-                          className="text-sm text-dark-blue"
+                          className="text-sm text-dark-blue dark:text-gray-200"
                         >
                           {rating.stars}
                         </Typography>
                         <Star className="h-4 w-4 text-yellow-500 fill-current" />
                       </div>
 
-                      <div className="flex-1 bg-gray-200 rounded-full h-3 relative">
+                      <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-3 relative">
                         <div
-                          className="bg-dark-blue rounded-full h-3 absolute left-0"
+                          className="bg-dark-blue dark:bg-blue-400 rounded-full h-3 absolute left-0"
                           style={{ width: `${rating.percentage}%` }}
                         />
                       </div>
 
                       <Typography
                         variant="body"
-                        className="text-sm text-dark-blue w-8 text-right"
+                        className="text-sm text-dark-blue dark:text-gray-200 w-8 text-right"
                       >
                         {rating.count}
                       </Typography>
@@ -638,10 +638,10 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
           )}
 
           {/* Safety Features */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-6">
             <Typography
               variant="h3"
-              className="text-base font-semibold text-dark-blue mb-6"
+              className="text-base font-semibold text-dark-blue dark:text-white mb-6"
             >
               {t.seller.info.safetyFeatures}
             </Typography>
@@ -652,10 +652,10 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ organization, user }) => {
                   key={feature}
                   className="flex items-center justify-between"
                 >
-                  <Typography variant="body" className="text-sm text-dark-blue">
+                  <Typography variant="body" className="text-sm text-dark-blue dark:text-gray-200">
                     {feature}
                   </Typography>
-                  <div className="w-6 h-6 bg-green-100 rounded flex items-center justify-center">
+                  <div className="w-6 h-6 bg-green-100 dark:bg-green-900/40 rounded flex items-center justify-center">
                     <svg
                       width="12"
                       height="12"

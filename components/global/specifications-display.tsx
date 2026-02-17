@@ -97,7 +97,7 @@ export function SpecificationsDisplay({
           <Typography
             variant="body-small"
             className={cn(
-              "text-black text-xs",
+              "text-black dark:text-gray-200 text-xs",
               truncate && "max-w-lg truncate"
             )}
           >
@@ -129,7 +129,7 @@ export function SpecificationsDisplay({
             <div className="space-y-2">
               <Typography
                 variant="h3"
-                className="text-sm font-semibold text-dark-blue mb-3"
+                className="text-sm font-semibold text-dark-blue dark:text-white mb-3"
               >
                 {popoverTitle}
               </Typography>
@@ -168,13 +168,13 @@ export function SpecificationsDisplay({
                     <div className="flex-1">
                       <Typography
                         variant="body-small"
-                        className="text-xs text-grey-blue"
+                        className="text-xs text-grey-blue dark:text-gray-400"
                       >
                         {spec.name}
                       </Typography>
                       <Typography
                         variant="body-small"
-                        className="text-sm text-dark-blue font-medium"
+                        className="text-sm text-dark-blue dark:text-white font-medium"
                       >
                         {isColor(spec.value) ? (
                           <div

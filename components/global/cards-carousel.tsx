@@ -88,7 +88,7 @@ export function CardsCarousel({
       {title && (
         <h2
           className={cn(
-            "sm:text-lg text-base font-semibold sm:font-medium text-dark-blue mx-5",
+            "sm:text-lg text-base font-semibold sm:font-medium text-dark-blue dark:text-gray-100 mx-5",
             titleClassName
           )}
         >
@@ -105,7 +105,7 @@ export function CardsCarousel({
               onClick={scrollPrev}
               disabled={!canScrollPrev}
               className={cn(
-                "absolute left-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full shadow-xl border-0 shadow-purple/20 text-dark-blue hover:bg-purple hover:text-white disabled:opacity-50 disabled:cursor-not-allowed hidden md:flex",
+                "absolute left-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full shadow-xl border-0 shadow-purple/20 text-dark-blue dark:text-gray-200 hover:bg-purple hover:text-white disabled:opacity-50 disabled:cursor-not-allowed hidden md:flex",
                 !canScrollPrev && "md:hidden"
               )}
             >
@@ -117,7 +117,7 @@ export function CardsCarousel({
               onClick={scrollNext}
               disabled={!canScrollNext}
               className={cn(
-                "absolute right-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full shadow-xl border-0 shadow-purple/20 text-dark-blue hover:bg-purple hover:text-white disabled:opacity-50 disabled:cursor-not-allowed hidden md:flex",
+                "absolute right-2 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full shadow-xl border-0 shadow-purple/20 text-dark-blue dark:text-gray-200 hover:bg-purple hover:text-white disabled:opacity-50 disabled:cursor-not-allowed hidden md:flex",
                 !canScrollNext && "md:hidden"
               )}
             >

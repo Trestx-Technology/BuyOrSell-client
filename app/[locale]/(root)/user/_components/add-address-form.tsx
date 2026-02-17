@@ -134,16 +134,16 @@ export default function AddAddressForm({
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 max-w-2xl w-full mx-auto">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 max-w-2xl w-full mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
           {t.user.address.addressDetails}
         </h2>
       </div>
 
       <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6">
         <div className="space-y-3">
-          <Label className="text-sm font-medium text-gray-900">
+          <Label className="text-sm font-medium text-gray-900 dark:text-white">
             Address Type
           </Label>
           {errors.addressType && (
@@ -196,7 +196,7 @@ export default function AddAddressForm({
             control={control}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="w-full bg-gray-50 border-gray-200">
+                <SelectTrigger className="w-full bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                   <SelectValue placeholder="Select emirates" />
                 </SelectTrigger>
                 <SelectContent>
@@ -221,7 +221,7 @@ export default function AddAddressForm({
                 onValueChange={field.onChange}
                 disabled={!selectedEmirate}
               >
-                <SelectTrigger className="w-full bg-gray-50 border-gray-200">
+                <SelectTrigger className="w-full bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                   <SelectValue
                     placeholder={
                       selectedEmirate ? "Select city" : "Select emirate first"
@@ -250,7 +250,7 @@ export default function AddAddressForm({
                 onValueChange={field.onChange}
                 disabled={!selectedEmirate}
               >
-                <SelectTrigger className="w-full bg-gray-50 border-gray-200">
+                <SelectTrigger className="w-full bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                   <SelectValue
                     placeholder={
                       selectedEmirate ? "Select area" : "Select emirate first"
@@ -278,7 +278,7 @@ export default function AddAddressForm({
                 {...field}
                 error={errors.pincode?.message}
                 placeholder="00000"
-                className="bg-gray-50"
+                className="bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
                 maxLength={6}
               />
             )}
@@ -294,7 +294,7 @@ export default function AddAddressForm({
                 {...field}
                 error={errors.street?.message}
                 placeholder="Enter street address"
-                className="bg-gray-50"
+                className="bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
               />
             )}
           />
@@ -314,7 +314,7 @@ export default function AddAddressForm({
           />
           <Label
             htmlFor="primary"
-            className="text-sm font-medium text-gray-900 cursor-pointer"
+            className="text-sm font-medium text-gray-900 dark:text-white cursor-pointer"
           >
             Set as {t.user.address.primary.toLowerCase()} address
           </Label>

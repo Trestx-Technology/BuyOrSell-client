@@ -82,7 +82,7 @@ const NotificationsPopover: React.FC<NotificationsPopoverProps> = ({
         <div className="space-y-4">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-900">
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
               {t.notifications?.title || "Notifications"}
             </h3>
             <button
@@ -112,14 +112,14 @@ const NotificationsPopover: React.FC<NotificationsPopoverProps> = ({
                   onClick={() => !notification.read && handleMarkRead(notification._id)}
                   className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
                     notification.read
-                      ? "bg-white border border-gray-200"
-                      : "bg-gray-50 hover:bg-gray-100"
+                    ? "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800"
+                    : "bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
                 >
                   {getNotificationIcon(notification.type)}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
                         {notification.title}
                       </p>
                       {!notification.read && (

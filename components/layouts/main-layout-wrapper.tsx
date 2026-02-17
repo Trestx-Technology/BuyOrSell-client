@@ -57,8 +57,8 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
   }, [isRootPage, shouldShowNav, shouldHideNavOnMobile]);
 
   return (
-    <main className="min-h-[600px] relative flex flex-col bg-white">
-      <div className="sticky top-0 z-50 border-b flex flex-col bg-white items-center">
+    <main className="min-h-[600px] relative flex flex-col bg-white dark:bg-gray-950">
+      <div className="sticky top-0 z-50 border-b dark:border-gray-800 flex flex-col bg-white dark:bg-gray-900 items-center">
         <Navbar className={navbarClassName} />
         <CategoryNav className={categoryNavClassName} />
       </div>

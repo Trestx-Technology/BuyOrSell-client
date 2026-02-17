@@ -214,7 +214,7 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
   <HoverCard openDelay={0} closeDelay={100}>
     <HoverCardTrigger asChild>
       <button
-        className="h-9 cursor-pointer text-xs font-regular rounded-sm text-gray-500 hover:bg-white hover:text-purple transition-colors  data-[state=open]:text-purple"
+        className="h-9 cursor-pointer text-xs font-regular rounded-sm text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:text-purple transition-colors  data-[state=open]:text-purple"
       >
         {label}
       </button>
@@ -229,7 +229,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
 }) => {
   const { t, locale } = useLocale();
   return (
-    <div className="w-full min-w-[400px] flex-1 bg-purple/10 overflow-y-auto max-h-[500px]">
+    <div className="w-full min-w-[400px] flex-1 bg-purple/10 dark:bg-purple/5 overflow-y-auto max-h-[500px]">
       <div className="flex flex-col w-full">
         {subcategories.map((subcategory) => {
           const hasChildren =
@@ -242,8 +242,8 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
             >
               {hasChildren ? (
                 <>
-                  <div className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300">
-                    <Typography variant="xs-bold" className="text-gray-600">
+                  <div className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 dark:border-gray-700">
+                    <Typography variant="xs-bold" className="text-gray-600 dark:text-gray-300">
                       {locale === "ar"
                         ? subcategory.nameAr || subcategory.name
                         : subcategory.name}
@@ -274,7 +274,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                         <div key={child._id}>
                           <Link
                             href={buildCategoryUrl(child, allCategories)}
-                            className="text-sm text-grey-blue hover:text-purple hover:underline cursor-pointer transition-colors"
+                            className="text-sm text-grey-blue dark:text-gray-400 hover:text-purple hover:underline cursor-pointer transition-colors"
                           >
                             {childName}
                           </Link>
@@ -286,7 +286,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
               ) : (
                 <Link
                   href={buildCategoryUrl(subcategory, allCategories)}
-                  className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 hover:bg-purple/10 hover:text-purple transition-colors"
+                    className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-purple/10 hover:text-purple transition-colors"
                 >
                   <Typography variant="xs-bold">
                     {locale === "ar"
@@ -316,7 +316,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
   if (isOtherCategory) {
     return (
       <HoverCardContent
-        className="bg-white rounded-none rounded-b-xl shadow-lg border border-gray-200 overflow-hidden max-h-[500px] p-0 w-fit"
+        className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[500px] p-0 w-fit"
         align="start"
         sideOffset={4}
       >
@@ -339,7 +339,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                       ? `/jobs`
                       : buildCategoryUrl(category, allCategories)
                   }
-                  className="text-gray-600 group-hover:text-purple text-xs w-full"
+                  className="text-gray-600 dark:text-gray-300 group-hover:text-purple text-xs w-full"
                 >
                   {displayName}
                 </Link>
@@ -353,12 +353,12 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
 
   return (
     <HoverCardContent
-      className="bg-white rounded-none rounded-b-xl shadow-lg border border-gray-200 overflow-hidden max-h-[500px] p-0 w-fit"
+      className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[500px] p-0 w-fit"
       align="start"
       sideOffset={0}
     >
       <div className="flex w-full">
-        <div className="w-60 border-r border-gray-300 overflow-y-auto max-h-[500px]">
+        <div className="w-60 border-r border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[500px]">
           {categoryData.map((category) => {
             const hasChildren =
               category.children && category.children.length > 0;
@@ -380,7 +380,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                     <Typography
                       variant="xs-regular-inter"
                       className={cn(
-                        "text-gray-600 group-hover:text-purple text-xs",
+                        "text-gray-600 dark:text-gray-300 group-hover:text-purple text-xs",
                         isActive && "text-purple font-semibold"
                       )}
                     >
@@ -405,7 +405,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                 <Typography
                   variant="xs-regular-inter"
                   className={cn(
-                    "text-gray-600 group-hover:text-purple text-xs",
+                    "text-gray-600 dark:text-gray-300 group-hover:text-purple text-xs",
                     isActive && "text-purple font-semibold"
                   )}
                 >

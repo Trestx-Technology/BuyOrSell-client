@@ -160,7 +160,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
     <>
       <div
         className={cn(
-          "w-full overflow-hidden rounded-2xl bg-white shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer group relative flex flex-col",
+          "w-full overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer group relative flex flex-col",
           className
         )}
         // onClick={handleCardClick}
@@ -202,7 +202,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
           />
 
           {/* Actions Footer */}
-          <div className="mt-auto border-t border-gray-100 p-3 flex items-center justify-between gap-2 z-20 relative bg-white">
+          <div className="mt-auto border-t border-gray-100 dark:border-gray-800 p-3 flex items-center justify-between gap-2 z-20 relative bg-white dark:bg-gray-900">
             <Button
               variant="outline"
               size="sm"

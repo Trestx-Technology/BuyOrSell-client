@@ -65,14 +65,14 @@ export const ListingCardSkeleton: React.FC<ListingCardSkeletonProps> = ({
   return (
     <div
       className={cn(
-        "w-[220px] overflow-hidden rounded-2xl border-purple-100 bg-white",
+        "w-[220px] overflow-hidden rounded-2xl border-purple-100 dark:border-gray-800 bg-white dark:bg-gray-900",
         maxWidth,
         className
       )}
     >
       <div className="p-0">
         {/* Image Section */}
-        <div className="relative aspect-[3/3] sm:aspect-[4/3] bg-gray-200 w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
+        <div className="relative aspect-[3/3] sm:aspect-[4/3] bg-gray-200 dark:bg-gray-800 w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
           {/* Main Image Skeleton */}
           <Skeleton className="w-full h-full rounded-none" />
 
@@ -156,7 +156,7 @@ export const ListingCardSkeleton: React.FC<ListingCardSkeletonProps> = ({
           )}
 
           {/* Seller Info Section */}
-          <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-start justify-between">
+          <div className="text-xs text-grey-blue dark:text-gray-400 font-regular border-t border-grey-blue/20 dark:border-gray-700 p-2.5 flex items-start justify-between">
             {showSeller && (
               <div className="hidden sm:flex items-center gap-2">
                 <Skeleton className="w-[22px] h-[22px] rounded-full flex-shrink-0" />

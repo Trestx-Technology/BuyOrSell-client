@@ -13,7 +13,7 @@ export const buttonVariants = cva(
         // Primary variants using our design system colors
         primary: "bg-purple text-white hover:bg-purple/90 active:bg-purple/80",
         outline:
-          "bg-white hover:bg-purple/10 border border-purple text-purple active:bg-purple/20",
+          "bg-white dark:bg-gray-800 hover:bg-purple/10 border border-purple text-purple active:bg-purple/20",
         secondary:
           "bg-purple/10 text-purple border-0 border-purple hover:bg-purple/20 active:bg-purple/20",
         warning:
@@ -33,7 +33,7 @@ export const buttonVariants = cva(
         // Design system variants (our custom ones)
         filled: "bg-purple text-white hover:bg-purple/90 active:bg-purple/80",
         outlined:
-          "border border-purple bg-white text-purple hover:bg-purple/10 active:bg-purple/20",
+          "border border-purple bg-white dark:bg-gray-800 text-purple hover:bg-purple/10 active:bg-purple/20",
 
         // Additional semantic variants
         cancel:
@@ -132,7 +132,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           variant === "filled" &&
             "bg-[#C1C1C1] text-white cursor-not-allowed opacity-60",
           variant === "outlined" &&
-            "bg-white text-[#C1C1C1] border-[#C1C1C1] border-2 cursor-not-allowed opacity-60",
+        "bg-white dark:bg-gray-800 text-[#C1C1C1] border-[#C1C1C1] border-2 cursor-not-allowed opacity-60",
           variant === "primary" &&
             "bg-grey-blue/20 text-grey-blue cursor-not-allowed opacity-60",
           // Remove hover effects for disabled state

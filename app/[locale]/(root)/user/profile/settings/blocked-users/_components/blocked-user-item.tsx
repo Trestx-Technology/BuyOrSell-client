@@ -31,7 +31,7 @@ export function BlockedUserItem({
   const { t } = useLocale();
 
   return (
-    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
       <div className="flex items-start gap-4">
         <button
           onClick={() => onSelect(id)}
@@ -48,7 +48,7 @@ export function BlockedUserItem({
           <div className="flex items-center justify-between mb-2">
             <Typography
               variant="body-small"
-              className="text-sm font-semibold text-gray-900"
+              className="text-sm font-semibold text-gray-900 dark:text-white"
             >
               {name}
             </Typography>
@@ -62,24 +62,24 @@ export function BlockedUserItem({
 
           <Typography
             variant="body-small"
-            className="text-sm text-gray-700 mb-1"
+            className="text-sm text-gray-700 dark:text-gray-300 mb-1"
           >
             {email}
           </Typography>
           {company && (
             <Typography
               variant="body-small"
-              className="text-xs text-gray-500 mb-2"
+              className="text-xs text-gray-500 dark:text-gray-400 mb-2"
             >
               {company}
             </Typography>
           )}
 
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400">
               {reason}
             </span>
-            <Typography variant="body-small" className="text-xs text-gray-500">
+            <Typography variant="body-small" className="text-xs text-gray-500 dark:text-gray-400">
               {t.user.blockedUsers.blockedOn} {blockedDate}
             </Typography>
           </div>

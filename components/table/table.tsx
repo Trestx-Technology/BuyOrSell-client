@@ -115,18 +115,18 @@ export function Table<T>({
   return (
     <div
       className={cn(
-        "rounded-md bg-white relative flex flex-col w-full p-4",
+        "rounded-md bg-white dark:bg-gray-900 relative flex flex-col w-full p-4",
         containerClassName
       )}
     >
       {/* ✅ Fixed: Removed p-2, added proper table container */}
       <div className="overflow-x-auto flex-1">
         <TableComponent className={cn("h-full w-full", className)}>
-          <TableHeader className="bg-primary-100 z-10">
+          <TableHeader className="bg-primary-100 dark:bg-gray-800 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
-                className="bg-primary-100 text-primary-500"
+                className="bg-primary-100 dark:bg-gray-800 text-primary-500 dark:text-white"
               >
                 {headerGroup.headers.map((header) => (
                   <TableHead
@@ -135,7 +135,7 @@ export function Table<T>({
                   >
                     <Typography
                       variant="sm-medium"
-                      className="text-primary-600"
+                      className="text-primary-600 dark:text-gray-200"
                     >
                       {header.isPlaceholder
                         ? null
@@ -191,7 +191,7 @@ export function Table<T>({
                     >
                       <Typography
                         variant="sm-semibold"
-                        className="text-primary-500"
+                        className="text-primary-500 dark:text-gray-200"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -224,7 +224,7 @@ export function Table<T>({
 
       {/* ✅ Better spacing for pagination and action buttons */}
       {showPagination && (
-        <div className="flex justify-center px-4 py-0 sticky bottom-0 bg-white ">
+        <div className="flex justify-center px-4 py-0 sticky bottom-0 bg-white dark:bg-gray-900">
           <DataTablePagination table={table} />
         </div>
       )}

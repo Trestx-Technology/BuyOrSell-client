@@ -250,7 +250,7 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
 
   return (
     <div
-      className={`w-full overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
+      className={`w-full overflow-hidden rounded-2xl border border-purple-100 bg-white dark:bg-gray-900 dark:border-gray-800 hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
@@ -451,7 +451,7 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
           {/* Title */}
           <Typography
             variant="h3"
-            className="text-sm font-semibold text-dark-blue leading-tight px-2.5 line-clamp-1"
+            className="text-sm font-semibold text-dark-blue dark:text-gray-100 leading-tight px-2.5 line-clamp-1"
           >
             {title}
           </Typography>
@@ -461,11 +461,11 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
             <MapPin
               size={22}
               stroke="white"
-              className="w-fit min-w-6 fill-dark-blue text-dark-blue"
+              className="w-fit min-w-6 fill-dark-blue text-dark-blue dark:fill-gray-100 dark:text-gray-100"
             />
             <Typography
               variant="body-small"
-              className="text-xs text-[#667085] truncate"
+              className="text-xs text-[#667085] dark:text-gray-400 truncate"
             >
               {location}
             </Typography>
@@ -502,7 +502,7 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
                       )}
                       <Typography
                         variant="body-small"
-                        className="text-xs text-[#667085] truncate min-w-0 flex-1"
+                        className="text-xs text-[#667085] dark:text-gray-400 truncate min-w-0 flex-1"
                       >
                         {displayValue}
                       </Typography>
@@ -514,7 +514,7 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
           </div>
 
           {/* Time ago */}
-          <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-start justify-between">
+          <div className="text-xs text-grey-blue dark:text-gray-400 font-regular border-t border-grey-blue/20 dark:border-white/10 p-2.5 flex items-start justify-between">
             {seller && showSeller !== false && (
               <TooltipProvider delayDuration={200}>
                 <Tooltip>

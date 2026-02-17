@@ -187,9 +187,9 @@ const BlockedUsersPage = () => {
           />
         </div>
 
-        <div className="sm:bg-white sm:rounded-2xl border-0 sm:border border-gray-200 sm:shadow-sm max-w-4xl w-full mx-auto">
+        <div className="sm:bg-white dark:bg-gray-900 sm:rounded-2xl border-0 sm:border border-gray-200 dark:border-gray-800 sm:shadow-sm max-w-4xl w-full mx-auto">
           <div className="hidden sm:block text-center py-6">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               {t.user.blockedUsers.blockedUsers}
             </h2>
           </div>
@@ -203,7 +203,7 @@ const BlockedUsersPage = () => {
                   placeholder={t.user.blockedUsers.searchBlockedUsers}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-12 bg-white"
+                  className="w-full h-12 bg-white dark:bg-gray-800 dark:text-white dark:border-gray-700"
                 />
               </div>
             </div>
@@ -221,7 +221,7 @@ const BlockedUsersPage = () => {
                   >
                     {isSelectAll && <Check className="w-3 h-3 text-white" />}
                   </button>
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
                     {t.user.blockedUsers.selectAll} ({filteredUsers.length})
                   </span>
                 </div>

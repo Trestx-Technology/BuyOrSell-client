@@ -268,7 +268,7 @@ export default function ProfileEditForm() {
   const isLoading = updateUserMutation.isPending || isSubmitting;
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 max-w-xl w-full mx-auto">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 max-w-xl w-full mx-auto">
       {/* Profile Header */}
       <div className="flex flex-col items-center space-y-2">
         <div className="relative">
@@ -299,7 +299,7 @@ export default function ProfileEditForm() {
         </div>
 
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-poppins font-semibold text-gray-900">
+          <h2 className="text-lg font-poppins font-semibold text-gray-900 dark:text-white">
             {displayName}
           </h2>
           {user?.isVerified && (
@@ -337,7 +337,7 @@ export default function ProfileEditForm() {
                 {...field}
                 error={errors.firstName?.message}
                 placeholder="Enter your first name"
-                className="bg-gray-50"
+                className="bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               />
             )}
           />
@@ -351,7 +351,7 @@ export default function ProfileEditForm() {
                 {...field}
                 error={errors.lastName?.message}
                 placeholder="Enter your last name"
-                className="bg-gray-50"
+                className="bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               />
             )}
           />
@@ -379,7 +379,7 @@ export default function ProfileEditForm() {
                 type="email"
                 error={errors.email?.message}
                 placeholder="Enter your email address"
-                className="bg-gray-50"
+                className="bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               />
             )}
           />
@@ -391,7 +391,7 @@ export default function ProfileEditForm() {
             control={control}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="bg-gray-50 border-gray-200 w-full">
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 w-full">
                   <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
                 <SelectContent>
@@ -405,9 +405,9 @@ export default function ProfileEditForm() {
         </FormField>
 
         <FormField label="Password">
-          <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+          <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2">
             <Lock className="size-5 text-dark-blue" />
-            <span className="text-sm mt-1 ml-1 text-gray-700 flex-1">
+            <span className="text-sm mt-1 ml-1 text-gray-700 dark:text-gray-300 flex-1">
               ********
             </span>
             <Button
@@ -425,9 +425,9 @@ export default function ProfileEditForm() {
         </FormField>
 
         <FormField label="Address">
-          <div className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+          <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2">
             <MapPin className="w-6 h-6 fill-dark-blue text-white" />
-            <span className="text-sm text-gray-700 flex-1">Mariana, Dubai</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300 flex-1">Mariana, Dubai</span>
             <Button
               type="button"
               variant="ghost"

@@ -71,12 +71,12 @@ export function AIDescriptionAssistant({
             <ResponsiveDialogDrawer
                   open={isOpen}
                   onOpenChange={(open) => !open && onClose()}
-                  dialogContentClassName="sm:max-w-[640px] bg-white rounded-xl overflow-hidden p-0 gap-0"
-                  drawerContentClassName="bg-white rounded-t-2xl p-0"
+                  dialogContentClassName="sm:max-w-[640px] bg-white dark:bg-gray-900 rounded-xl overflow-hidden p-0 gap-0"
+                  drawerContentClassName="bg-white dark:bg-gray-900 rounded-t-2xl p-0"
             >
                   <div className="flex flex-col h-full max-h-[90vh]">
                         {/* Header */}
-                        <div className="bg-purple/5 p-6 border-b border-[#F5EBFF] shrink-0">
+                        <div className="bg-purple/5 p-6 border-b border-[#F5EBFF] dark:border-purple/10 shrink-0">
                               <div className="flex items-center gap-2 text-purple font-bold text-lg mb-1">
                                     <Sparkles className="size-5" />
                                     AI Description Assistant
@@ -91,14 +91,14 @@ export function AIDescriptionAssistant({
                               <div className="space-y-3">
                                     <label className="text-sm font-semibold text-gray-700 flex items-center justify-between">
                                           What should the AI focus on?
-                                          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold bg-gray-50 px-2 py-0.5 rounded">Optional</span>
+                                          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded">Optional</span>
                                     </label>
                                     <div className="relative group">
                                           <Input
                                                 value={prompt}
                                                 onChange={(e) => setPrompt(e.target.value)}
                                                 placeholder="Ex: Mention the warranty, include some features, or use a friendly tone..."
-                                                className="pr-12 h-12 border-[#F5EBFF] focus-visible:ring-purple/20 transition-all duration-300 group-hover:border-purple/30"
+                                                className="pr-12 h-12 border-[#F5EBFF] dark:border-gray-700 bg-white dark:bg-gray-900 focus-visible:ring-purple/20 transition-all duration-300 group-hover:border-purple/30"
                                                 disabled={isGenerating}
                                                 onKeyDown={(e) => {
                                                       if (e.key === "Enter" && !isGenerating) {
@@ -128,7 +128,7 @@ export function AIDescriptionAssistant({
                                     <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
                                           <label className="text-sm font-semibold text-gray-700">AI Suggestion</label>
                                           <div className="relative">
-                                                <div className={`p-5 rounded-xl border-2 transition-all duration-300 min-h-[200px] max-h-[400px] overflow-y-auto text-sm leading-relaxed ${isGenerating ? 'border-dashed border-purple/20 bg-purple/5 opacity-60' : 'border-[#F5EBFF] bg-white text-slate-700 whitespace-pre-wrap'}`}>
+                                                <div className={`p-5 rounded-xl border-2 transition-all duration-300 min-h-[200px] max-h-[400px] overflow-y-auto text-sm leading-relaxed ${isGenerating ? 'border-dashed border-purple/20 bg-purple/5 opacity-60' : 'border-[#F5EBFF] dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-700 dark:text-gray-100 whitespace-pre-wrap'}`}>
                                                       {isGenerating ? (
                                                             <div className="flex flex-col items-center justify-center h-[160px] text-purple/40">
                                                                   <Loader2 className="size-8 animate-spin mb-2" />
@@ -144,7 +144,7 @@ export function AIDescriptionAssistant({
                                                 {generatedResult && !isGenerating && (
                                                       <Button
                                                             onClick={() => setGeneratedResult("")}
-                                                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-white border border-gray-200 p-0 text-gray-400 hover:text-red-500 shadow-sm"
+                                                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-0 text-gray-400 hover:text-red-500 shadow-sm"
                                                       >
                                                             <X className="size-3" />
                                                       </Button>
@@ -160,7 +160,7 @@ export function AIDescriptionAssistant({
                         </div>
 
                         {/* Footer */}
-                        <div className="p-6 border-t border-[#F5EBFF] bg-gray-50/50 flex flex-col sm:flex-row justify-end gap-3 shrink-0">
+                        <div className="p-6 border-t border-[#F5EBFF] dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex flex-col sm:flex-row justify-end gap-3 shrink-0">
                               <Button
                                     variant="ghost"
                                     onClick={onClose}

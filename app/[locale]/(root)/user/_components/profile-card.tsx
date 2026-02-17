@@ -25,7 +25,7 @@ export default function ProfileCard({
   const { t } = useLocale();
 
   return (
-    <div className="bg-white rounded-2xl p-6 relative shadow-sm border border-gray-100">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 relative shadow-sm border border-gray-100 dark:border-gray-800">
       {/* Edit Button */}
       <Button
         variant={"ghost"}
@@ -55,7 +55,7 @@ export default function ProfileCard({
 
         {/* Name and Verification */}
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-poppins font-semibold text-gray-900">
+          <h2 className="text-lg font-poppins font-semibold text-gray-900 dark:text-white">
             {name}
           </h2>
           {isVerified && (
@@ -76,7 +76,7 @@ export default function ProfileCard({
         {/* Rating */}
         <div className="flex items-center gap-1">
           <StarIcon className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-          <span className="text-sm font-medium text-gray-900">
+          <span className="text-sm font-medium text-gray-900 dark:text-white">
             {typeof rating === "number" ? `${rating}/${totalRatings}` : rating}
           </span>
         </div>

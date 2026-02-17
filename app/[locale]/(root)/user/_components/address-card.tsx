@@ -25,7 +25,7 @@ export default function AddressCard({
   const { t } = useLocale();
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4 relative flex gap-3 items-center">
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 relative flex gap-3 items-center">
       <div className="absolute top-4 right-6 flex gap-2">
         {onEdit && (
           <Button
@@ -55,7 +55,7 @@ export default function AddressCard({
       <RadioGroupItem value="home" id="home" />
       <Label htmlFor="home">
         <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-gray-900">{label}</h3>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{label}</h3>
           <p className="text-sm font-medium text-gray-400 leading-relaxed break-words">
             {address}
           </p>

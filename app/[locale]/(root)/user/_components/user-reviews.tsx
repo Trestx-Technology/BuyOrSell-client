@@ -129,10 +129,10 @@ const UserReviews: React.FC<UserReviewsProps> = ({
   };
 
   return (
-    <div className="relative bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+    <div className="relative bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-4">
       <Typography
         variant="h3"
-        className="text-base font-semibold text-dark-blue mb-6"
+        className="text-base font-semibold text-dark-blue dark:text-white mb-6"
       >
         {t.user.profile.ratingAndReviews.replace(
           "{count}",
@@ -168,7 +168,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({
               <Star className="size-6 text-yellow-500" fill="#FFB319" />
               <Typography
                 variant="h2"
-                className="text-2xl font-semibold text-dark-blue"
+              className="text-2xl font-semibold text-dark-blue dark:text-white"
               >
                 {overallRating.toFixed(1)}
               </Typography>
@@ -178,7 +178,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({
                 </Typography>
                 <Typography
                   variant="sm-regular"
-                  className="text-black font-semibold"
+                className="text-black dark:text-gray-100 font-semibold"
                 >
                   {t.user.profile.basedOnReviews.replace(
                     "{count}",
@@ -189,7 +189,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({
             </div>
 
             <div className="flex items-center justify-between mb-6">
-              <Typography variant="md-semibold" className="text-dark-blue">
+            <Typography variant="md-semibold" className="text-dark-blue dark:text-white">
                 {t.user.profile.ratingAndReviews.replace(
                   "{count}",
                   totalReviews.toString()
@@ -246,7 +246,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({
                       <div className="mb-2">
                         <Typography
                           variant="body-small"
-                          className="text-dark-blue font-semibold text-sm"
+                          className="text-dark-blue dark:text-white font-semibold text-sm"
                         >
                           {review.userName}
                         </Typography>
@@ -254,7 +254,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({
                           {renderStars(review.rating, "small")}
                           <Typography
                             variant="body-small"
-                            className="text-dark-blue font-semibold text-xs"
+                            className="text-dark-blue dark:text-white font-semibold text-xs"
                           >
                             {review.rating}
                           </Typography>
@@ -264,7 +264,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({
                       {review.comment && (
                         <Typography
                           variant="body-small"
-                          className="text-dark-blue font-semibold text-sm mb-1"
+                          className="text-dark-blue dark:text-white font-semibold text-sm mb-1"
                         >
                           {review.comment}
                         </Typography>
@@ -272,7 +272,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({
 
                       <Typography
                         variant="body-small"
-                        className="text-black text-sm leading-relaxed"
+                        className="text-black dark:text-gray-300 text-sm leading-relaxed"
                       >
                         {review.fullComment}
                       </Typography>

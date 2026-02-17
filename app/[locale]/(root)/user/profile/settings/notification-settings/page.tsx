@@ -154,14 +154,14 @@ const NotificationSettingsPage = () => {
           className="text-sm px-4"
         />
 
-        <div className="sm:bg-white sm:rounded-2xl border-0 sm:border border-gray-200 sm:shadow-sm max-w-2xl w-full mx-auto">
+        <div className="sm:bg-white dark:bg-gray-900 sm:rounded-2xl border-0 sm:border border-gray-200 dark:border-gray-800 sm:shadow-sm max-w-2xl w-full mx-auto">
           <div className="hidden sm:block text-center py-6">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               {t.user.notificationSettings.notificationSettings}
             </h2>
           </div>
 
-          <div className="border-t border-gray-200">
+          <div className="border-t border-gray-200 dark:border-gray-800">
             {notificationItems.map((item, index) => (
               <React.Fragment key={item.key}>
                 <div
@@ -171,10 +171,10 @@ const NotificationSettingsPage = () => {
                   )}
                 >
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900">
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                       {item.title}
                     </h3>
-                    <p className="text-xs text-gray-500 leading-relaxed">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                       {item.description}
                     </p>
                   </div>
@@ -182,7 +182,7 @@ const NotificationSettingsPage = () => {
                     onClick={() => handleToggle(item.key)}
                     disabled={item.enabled}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      notifications[item.key] ? "bg-purple-600" : "bg-gray-200"
+                      notifications[item.key] ? "bg-purple-600" : "bg-gray-200 dark:bg-gray-700"
                     }`}
                   >
                     <span
@@ -195,7 +195,7 @@ const NotificationSettingsPage = () => {
                   </button>
                 </div>
                 {index < notificationItems.length - 1 && (
-                  <div className="border-b border-gray-200 mx-6" />
+                  <div className="border-b border-gray-200 dark:border-gray-800 mx-6" />
                 )}
               </React.Fragment>
             ))}

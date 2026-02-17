@@ -82,7 +82,7 @@ export default function PhoneNumberInput({
           onValueChange={handleCountryCodeChange}
           disabled={disabled || isVerified}
         >
-          <SelectTrigger className="min-w-fit border-grey-blue/30 hover:border-purple/50 bg-white text-dark-blue text-sm font-medium py-5">
+          <SelectTrigger className="min-w-fit border-grey-blue/30 hover:border-purple/50 bg-white dark:bg-gray-800 text-dark-blue dark:text-white dark:border-gray-700 text-sm font-medium py-5">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -103,9 +103,9 @@ export default function PhoneNumberInput({
             inputMode="numeric"
             placeholder="Enter phone number"
             className={cn(
-              "flex-1",
+              "flex-1 bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700",
               error && "border-destructive",
-              isVerified && "bg-muted"
+              isVerified && "bg-muted dark:bg-gray-800"
             )}
             maxLength={validation.maxLength}
           />

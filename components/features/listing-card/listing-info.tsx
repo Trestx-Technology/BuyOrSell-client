@@ -35,14 +35,14 @@ export const ListingInfo: React.FC<ListingInfoProps> = ({
           currencyIconWidth={16}
           currencyIconHeight={16}
           className="gap-1"
-          currentPriceClassName="text-sm font-bold text-purple"
-          originalPriceClassName="text-xs text-grey-blue line-through text-sm"
-          discountBadgeClassName="text-xs text-teal text-sm font-semibold"
+          currentPriceClassName="text-sm font-bold text-purple dark:text-purple-400"
+          originalPriceClassName="text-xs text-grey-blue dark:text-gray-500 line-through text-sm"
+          discountBadgeClassName="text-xs text-teal dark:text-teal-400 text-sm font-semibold"
         />
       </div>
 
       {/* Title */}
-      <H6 className="font-semibold text-dark-blue leading-normal px-2.5 line-clamp-2">
+      <H6 className="font-semibold text-dark-blue dark:text-gray-100 leading-normal px-2.5 line-clamp-2">
         {title}
       </H6>
 
@@ -51,11 +51,11 @@ export const ListingInfo: React.FC<ListingInfoProps> = ({
         <MapPin
           size={22}
           stroke="white"
-          className="w-fit min-w-6 fill-dark-blue text-dark-blue flex-shrink-0"
+          className="w-fit min-w-6 fill-dark-blue text-dark-blue dark:fill-gray-700 dark:text-gray-700 flex-shrink-0"
         />
         <Typography
           variant="body-small"
-          className="text-xs text-[#667085] truncate"
+          className="text-xs text-[#667085] dark:text-gray-400 truncate"
         >
           {location}
         </Typography>

@@ -95,7 +95,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
   return (
     <div
       className={cn(
-        "w-[220px] overflow-hidden rounded-2xl bg-white shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer group relative flex flex-col",
+        "w-[220px] overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer group relative flex flex-col",
         className
       )}
     >

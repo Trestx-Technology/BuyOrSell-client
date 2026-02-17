@@ -109,8 +109,8 @@ const AddressPage = () => {
         className="text-sm px-4"
       />
 
-      <div className="bg-white mx-auto w-full max-w-2xl shadow p-4 rounded-lg my-8">
-        <h3 className="text-md font-semibold text-gray-900 font-poppins text-center">
+      <div className="bg-white dark:bg-gray-900 mx-auto w-full max-w-2xl shadow p-4 rounded-lg my-8">
+        <h3 className="text-md font-semibold text-gray-900 dark:text-white font-poppins text-center">
           {t.user.address.myAddresses}
         </h3>
         {/* Address Cards */}

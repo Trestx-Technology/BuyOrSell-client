@@ -130,9 +130,9 @@ const MyAdsPage = () => {
                               }
                         ]} />
 
-                        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 min-h-[400px]">
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 min-h-[400px]">
                               <div className="flex items-center justify-between mb-6">
-                                    <H2 className="font-bold text-dark-blue">
+                                    <H2 className="font-bold text-dark-blue dark:text-white">
                                           {t.user.profile.myAds} ({transformedAds.length})
                                     </H2>
                               </div>

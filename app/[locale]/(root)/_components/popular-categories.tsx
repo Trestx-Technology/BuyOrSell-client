@@ -28,23 +28,23 @@ interface PopularCategoriesProps {
 
 // Skeleton component for loading state
 const CategorySkeleton = () => (
-  <div className="bg-white w-full border border-[#F5EBFF] rounded-lg overflow-hidden">
+  <div className="bg-white dark:bg-gray-900 w-full border border-[#F5EBFF] dark:border-gray-800 rounded-lg overflow-hidden">
     <div className="px-5 py-3">
       {/* Icon and Name Section */}
       <div className="flex flex-col items-center text-center mb-5">
-        <div className="w-[50px] h-[50px] bg-gray-200 rounded-full mb-1"></div>
-        <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
+        <div className="w-[50px] h-[50px] bg-gray-200 dark:bg-gray-800 rounded-full mb-1"></div>
+        <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-16 mb-1"></div>
       </div>
 
       {/* Description */}
       <div className="space-y-2">
-        <div className="h-3 bg-gray-200 rounded w-full"></div>
-        <div className="h-3 bg-gray-200 rounded w-3/4 mx-auto"></div>
+        <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-full"></div>
+        <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-3/4 mx-auto"></div>
       </div>
     </div>
 
     {/* Bottom Section */}
-    <div className="h-[56px] bg-gray-200 border-t"></div>
+    <div className="h-[56px] bg-gray-200 dark:bg-gray-800 border-t"></div>
   </div>
 );
 
@@ -109,7 +109,7 @@ const PopularCategories = ({
     >
       {/* Section Title */}
       <h2
-        className="text-[18px] font-medium text-[#1D2939] mb-3 font-poppins"
+        className="text-[18px] font-medium text-[#1D2939] dark:text-white mb-3 font-poppins"
       >
         {t.home.popularCategories.title}
       </h2>
@@ -139,13 +139,13 @@ const PopularCategories = ({
               >
                 <Link
                   href={category.href}
-                  className="bg-white w-full md:border border-[#F5EBFF] rounded-md shadow-purple/20 hover:shadow-purple/30 block relative hover:bg-purple/10 transition-all duration-300 group"
+                  className="bg-white dark:bg-gray-900 w-full md:border border-[#F5EBFF] dark:border-gray-800 rounded-md shadow-purple/20 hover:shadow-purple/30 block relative hover:bg-purple/10 dark:hover:bg-gray-800 transition-all duration-300 group"
                 >
                   {/* Category Content */}
                   <div className="px-2 py-2 h-full">
                     {/* Icon and Name Section */}
                     <div className="flex flex-col items-center text-center mb-2">
-                      <div className="size-[60px] bg-[#FAFAFC] rounded-full flex items-center justify-center mb-1">
+                      <div className="size-[60px] bg-[#FAFAFC] dark:bg-gray-800 rounded-full flex items-center justify-center mb-1">
                         {category.icon ? (
                           <Image
                             src={category.icon}
@@ -161,13 +161,13 @@ const PopularCategories = ({
                           <div className="size-12 bg-gray-200 rounded-full" />
                         )}
                       </div>
-                      <h3 className="text-xs font-medium text-black font-inter leading-tight">
+                      <h3 className="text-xs font-medium text-black dark:text-white font-inter leading-tight">
                         {category.name}
                       </h3>
                     </div>
 
                     {/* Description */}
-                    <p className="text-xs text-slate-400 text-center font-inter leading-tight line-clamp-2 md:block hidden truncate">
+                    <p className="text-xs text-slate-400 dark:text-gray-500 text-center font-inter leading-tight line-clamp-2 md:block hidden truncate">
                       {category.description}
                     </p>
                   </div>
@@ -176,7 +176,7 @@ const PopularCategories = ({
                   <div className="flex items-center justify-center">
                     <Typography
                       variant="xs-black-inter"
-                      className="hidden items-center text-xs justify-center gap-1 text-purple text-center hover:underline p-2.5 w-full border-t group-hover:border-purple/20 font-medium md:flex"
+                      className="hidden items-center text-xs justify-center gap-1 text-purple dark:text-purple-400 text-center hover:underline p-2.5 w-full border-t border-gray-100 dark:border-gray-800 group-hover:border-purple/20 font-medium md:flex"
                     >
                       {category.activeAds}
                       <ArrowRight className="w-4 h-4" />

@@ -244,7 +244,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
       <SheetContent side="left" className="min-w-[250px] p-0 gap-0">
         <SheetHeader className="p-0">
           {/* Header Section */}
-          <div className={`${isLoggedIn ? "bg-purple" : "bg-white"} px-4 py-4`}>
+          <div className={`${isLoggedIn ? "bg-purple" : "bg-white dark:bg-gray-900"} px-4 py-4`}>
             {!isLoggedIn && (
               <div className="flex items-center justify-between">
                 {/* Logo */}
@@ -267,7 +267,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                     className={`${
                       isLoggedIn
                         ? "text-white hover:bg-white/10"
-                        : "text-black hover:bg-gray-100"
+                      : "text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
                     }`}
                   >
                     <X className="w-5 h-5" />
@@ -378,7 +378,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
               <div className="flex items-center justify-between px-6 py-3">
                 <Typography
                   variant="sm-semibold-inter"
-                  className="text-sm font-semibold text-[#1D2939]"
+                  className="text-sm font-semibold text-[#1D2939] dark:text-white"
                 >
                   My Organizations
                 </Typography>

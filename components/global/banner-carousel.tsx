@@ -282,7 +282,7 @@ export function BannerCarousel({
             <Button
               variant="ghost"
               className={cn(
-                "hidden md:flex absolute left-[7%] bottom-1/4 bg-white rounded-full size-8 items-center justify-center border-grey-blue hover:bg-purple hover:text-white transition-colors",
+                "hidden md:flex absolute left-[7%] bottom-1/4 bg-white dark:bg-gray-800 rounded-full size-8 items-center justify-center border-grey-blue dark:border-gray-700 hover:bg-purple hover:text-white transition-colors",
                 buttonClassName,
                 prevButtonClassName,
                 isTransitioning && "pointer-events-none opacity-50"
@@ -297,7 +297,7 @@ export function BannerCarousel({
             <Button
               variant="ghost"
               className={cn(
-                "hidden md:flex absolute right-[7%] bottom-1/4 bg-white rounded-full size-8 items-center justify-center border-grey-blue hover:bg-purple hover:text-white transition-colors",
+                "hidden md:flex absolute right-[7%] bottom-1/4 bg-white dark:bg-gray-800 rounded-full size-8 items-center justify-center border-grey-blue dark:border-gray-700 hover:bg-purple hover:text-white transition-colors",
                 buttonClassName,
                 nextButtonClassName,
                 isTransitioning && "pointer-events-none opacity-50"

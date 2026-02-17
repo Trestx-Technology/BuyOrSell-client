@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 import { Toaster } from "sonner";
 import NextTopLoader from "nextjs-toploader";
 import QueryProvider from "@/services/query-client";
+import { ThemeProvider } from "@/components/provider/theme-provider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -32,9 +33,16 @@ export default function RootLayout({
       <body className={`${inter.className} ${poppins.variable} antialiased`}>
         <NextTopLoader color="#8B31E1" showSpinner={false} />
         <Toaster position="top-center" richColors duration={2000} />
-        <QueryProvider>
-          {children}
-        </QueryProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <QueryProvider>
+            {children}
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
