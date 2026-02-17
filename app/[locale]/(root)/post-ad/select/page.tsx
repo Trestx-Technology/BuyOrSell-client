@@ -21,7 +21,7 @@ export default function SelectCategoryPage() {
   const [showOrgDialog, setShowOrgDialog] = useState(false);
 
   // Availability Hook
-  const { checkAvailability, dialogProps } = useAdAvailability();
+  const { checkAvailability, dialogProps, isLoading: subscriptionsLoading } = useAdAvailability();
 
   // Fetch categories using the hook
   const {
@@ -38,8 +38,23 @@ export default function SelectCategoryPage() {
     const selectedCategory = categories.find((cat) => cat._id === categoryId);
 
     if (selectedCategory) {
-      // Check ad availability for regular "Ads" plan type and this category
-      if (!checkAvailability("Ads", selectedCategory.name)) {
+      // Determine the plan type based on the category name
+      const categoryName = selectedCategory.name.toLowerCase();
+      let typeToPass = "Ads"; // Default for most categories
+
+      if (categoryName.includes("property") || categoryName === "properties") {
+        typeToPass = "Properties";
+      } else if (
+        categoryName.includes("motor") ||
+        categoryName === "motors" ||
+        categoryName === "cars" ||
+        categoryName === "vehicles"
+      ) {
+        typeToPass = "Motors";
+      }
+
+      // Check ad availability for the determined plan type and this category
+      if (!checkAvailability(typeToPass, selectedCategory.name)) {
         return;
       }
 
@@ -78,7 +93,7 @@ export default function SelectCategoryPage() {
 
               {/* First Row */}
             <div className="flex flex-wrap justify-center items-center gap-[13px]">
-              {categoriesLoading ? (
+              {categoriesLoading || subscriptionsLoading ? (
                   // Loading skeleton
                   Array.from({ length: 10 }).map((_, index) => (
                     <div

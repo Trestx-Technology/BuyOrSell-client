@@ -12,6 +12,8 @@ export type AdQueryParamsOptions = {
   >;
   sortBy?: string;
   adType?: "JOB" | "AD";
+  isExchangable?: boolean;
+  deal?: boolean;
 };
 
 export const buildAdQueryParams = ({
@@ -23,12 +25,16 @@ export const buildAdQueryParams = ({
   filters,
   sortBy,
   adType,
+  isExchangable,
+  deal,
 }: AdQueryParamsOptions): AdFilters => {
   const apiParams: AdFilters = {
     page: currentPage,
     limit: itemsPerPage,
     category: categoryName,
     adType,
+    isExchangable,
+    deal,
   };
 
   // Add search query if present

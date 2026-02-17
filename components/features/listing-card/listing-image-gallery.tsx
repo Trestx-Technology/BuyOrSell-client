@@ -179,7 +179,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
       )}
 
       {isExchange && (
-        <Badge className="absolute h-6 bg-[#FE9800] top-3 left-2 ">
+        <Badge className="absolute h-6 bg-[#FE9800] top-3 left-2 z-20 pointer-events-none">
           <Repeat size={22} />
           Exchange Available
         </Badge>
@@ -187,7 +187,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
 
       {/* Image Counter */}
       {images?.length > 1 && (
-        <div className="absolute bottom-3 left-3 w-fit ">
+        <div className="absolute bottom-3 left-3 w-fit z-20 pointer-events-none">
           <div className="bg-[#777777] rounded-lg px-2 py-1 flex items-center gap-1 w-fit">
             <ImageIcon className="size-3 sm:size-4 text-white" />
             <span className="text-[10px] text-white font-medium">
@@ -198,7 +198,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
       )}
 
       {/* Views Counter */}
-      <div className="absolute bottom-3 right-3">
+      <div className="absolute bottom-3 right-3 z-20 pointer-events-none">
         <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
           <Eye className="size-3 sm:size-4 text-white" />
           <span className="text-[10px] text-white font-medium">

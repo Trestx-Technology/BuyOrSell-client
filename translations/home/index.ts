@@ -17,9 +17,11 @@ export const homeTranslations = createTranslationNamespace<HomeTranslations>({
       loading: "Loading deals...",
       noDealsAvailableForThisCategory: "No deals available for this category",
       sponsored: "Sponsored",
+      viewAll: "View All",
     },
     exchangeDeals: {
       title: "Exchange Deals",
+      viewAll: "View All",
     },
     categoryNav: {
       viewAll: "View all",
@@ -59,9 +61,11 @@ export const homeTranslations = createTranslationNamespace<HomeTranslations>({
       noDealsAvailableForThisCategory:
         "Geen deals beschikbaar voor deze categorie",
       sponsored: "Gesponsord",
+      viewAll: "Alles Bekijken",
     },
     exchangeDeals: {
       title: "Ruil Deals",
+      viewAll: "Alles Bekijken",
     },
     categoryNav: {
       viewAll: "Alles bekijken",
@@ -101,9 +105,11 @@ export const homeTranslations = createTranslationNamespace<HomeTranslations>({
       noDealsAvailableForThisCategory:
         "Geen deals beschikbaar voor deze categorie",
       sponsored: "Gesponsord",
+      viewAll: "Alles Bekijken",
     },
     exchangeDeals: {
       title: "Ruil Deals",
+      viewAll: "Alles Bekijken",
     },
     categoryNav: {
       viewAll: "Alles bekijken",
@@ -142,9 +148,11 @@ export const homeTranslations = createTranslationNamespace<HomeTranslations>({
       loading: "جاري تحميل الصفقات...",
       noDealsAvailableForThisCategory: "لا توجد صفقات متاحة لهذه الفئة",
       sponsored: "ممول",
+      viewAll: "عرض الكل",
     },
     exchangeDeals: {
       title: "صفقات التبادل",
+      viewAll: "عرض الكل",
     },
     categoryNav: {
       viewAll: "عرض الكل",

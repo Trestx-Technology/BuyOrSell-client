@@ -96,7 +96,7 @@ export function ChatHeader({
                   currentChat?.isOnline && "text-green-600 font-medium"
                 )}
               >
-                {currentChat?.isOnline ? "Online" : "Last seen recently"}
+                {currentChat?.isOnline ? "Online" : currentChat?.lastSeen ? `Last seen ${currentChat.lastSeen}` : "Last seen recently"}
               </Typography>
             </div>
           </div>

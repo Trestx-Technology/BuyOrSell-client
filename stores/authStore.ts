@@ -181,6 +181,11 @@ export const useAuthStore = create<AuthStore>()(
           isAuthenticated: false,
         });
 
+        // Clear subscriptions
+        const { useSubscriptionStore } =
+          await import("@/stores/subscriptionStore");
+        useSubscriptionStore.getState().clearSubscriptions();
+
         // Clear localStorage
         LocalStorageService.clear();
 

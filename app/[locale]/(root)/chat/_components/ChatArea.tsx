@@ -15,6 +15,7 @@ interface Message {
   id: string;
   text: string;
   time: string;
+  createdAt: any;
   isFromUser: boolean;
   isRead: boolean;
   type?: "text" | "location" | "file";
@@ -159,7 +160,6 @@ export function ChatArea({
           isTyping={isTyping}
           onEditMessage={onEditMessage}
           onDeleteMessage={onDeleteMessage}
-          dateHeaderText={dateHeaderText}
         />
       </div>
 

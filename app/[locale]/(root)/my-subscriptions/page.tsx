@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { Typography } from "@/components/typography";
 import { useLocale } from "@/hooks/useLocale";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
@@ -9,19 +9,33 @@ import { PlanSkeleton } from "@/app/[locale]/(root)/plans/_components/plancard-s
 import { SubscriptionCard } from "./_components/SubscriptionCard";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default function MySubscriptionsPage() {
   const { t } = useLocale();
   const { data: mySubscriptionData, isLoading, error } = useGetMySubscription();
+  const [activeTab, setActiveTab] = useState("All");
 
-  const subscriptions = Array.isArray(mySubscriptionData?.data) ? mySubscriptionData?.data : [];
+  const subscriptions = useMemo(() => {
+    return Array.isArray(mySubscriptionData?.data) ? mySubscriptionData.data : [];
+  }, [mySubscriptionData]);
+
+  const categories = useMemo(() => {
+    const types = new Set(subscriptions.map(sub => sub.plan?.type).filter(Boolean));
+    return ["All", ...Array.from(types).sort()];
+  }, [subscriptions]);
+
+  const filteredSubscriptions = useMemo(() => {
+    if (activeTab === "All") return subscriptions;
+    return subscriptions.filter(sub => sub.plan?.type === activeTab);
+  }, [subscriptions, activeTab]);
 
   return (
     <div className="min-h-screen bg-white">
       <MobileStickyHeader title={"My Subscriptions"} />
       <div className="container mx-auto px-4 py-8 md:py-16">
         {/* Header Section */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-10">
           <div className="inline-block bg-black text-white px-3 py-1 rounded-full text-sm font-medium mb-6">
             Manage
           </div>
@@ -36,6 +50,28 @@ export default function MySubscriptionsPage() {
             Manage your active plans and subscriptions.
           </Typography>
         </div>
+
+        {/* Tabs */}
+        {!isLoading && !error && categories.length > 2 && (
+          <div className="w-full flex justify-center mb-10">
+            <div className="flex bg-gray-100 p-1.5 rounded-full items-center overflow-x-auto no-scrollbar">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setActiveTab(category)}
+                  className={cn(
+                    "px-6 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap",
+                    activeTab === category
+                      ? "bg-white text-black shadow-sm"
+                      : "text-gray-500 hover:text-gray-900"
+                  )}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Loading State */}
         {isLoading && (
@@ -69,7 +105,7 @@ export default function MySubscriptionsPage() {
         {/* Subscriptions Grid */}
         {!isLoading && !error && subscriptions.length > 0 && (
           <div className="flex flex-wrap justify-center gap-8 mx-auto">
-            {subscriptions.map((sub) => (
+            {filteredSubscriptions.map((sub) => (
               <SubscriptionCard
                 key={sub._id}
                 subscription={sub}

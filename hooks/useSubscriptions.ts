@@ -6,6 +6,7 @@ import {
   getMySubscription,
   getSubscriptionUsers,
   updateSubscription,
+  stopRecurringSubscription,
 } from "@/app/api/subscription/subscription.services";
 import {
   CreateSubscriptionPayload,
@@ -62,7 +63,11 @@ export const useGetSubscriptionUsers = (planId: string) => {
 export const useCreateSubscription = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<SingleSubscriptionResponse, Error, CreateSubscriptionPayload>({
+  return useMutation<
+    SingleSubscriptionResponse,
+    Error,
+    CreateSubscriptionPayload
+  >({
     mutationFn: createSubscription,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -92,6 +97,22 @@ export const useUpdateSubscription = () => {
         queryKey: subscriptionQueries.getMySubscription.Key,
       });
       // Invalidate specific if needed, though getMySubscription might cover it
+    },
+  });
+};
+
+export const useStopRecurring = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<any, Error, string>({
+    mutationFn: (id: string) => stopRecurringSubscription(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: subscriptionQueries.getMySubscription.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: subscriptionQueries.getMyActiveSubscription.Key,
+      });
     },
   });
 };

@@ -21,6 +21,7 @@ import { AIAdPostTranslations } from "../ai-ad-post/types";
 import { ChatTranslations } from "../chat/types";
 import { JobsTranslations } from "../jobs/types";
 import { MapViewTranslations } from "../map-view/types";
+import { ExchangeTranslations } from "../exchange/types";
 export type { CommonTranslations } from "../common/types";
 
 // Re-export commonly used types
@@ -51,4 +52,5 @@ export type Translations = {
   chat: ChatTranslations;
   jobs: JobsTranslations;
   mapView: MapViewTranslations;
+  exchange: ExchangeTranslations;
 };

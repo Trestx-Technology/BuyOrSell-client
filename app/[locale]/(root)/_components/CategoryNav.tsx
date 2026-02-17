@@ -7,6 +7,8 @@ import {
   ArrowRight,
   Heart,
   MapPin,
+  MessageSquare,
+  UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -211,13 +213,11 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
 }) => (
   <HoverCard openDelay={0} closeDelay={100}>
     <HoverCardTrigger asChild>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-9 px-2 lg:px-5 text-xs font-regular rounded-sm text-white hover:bg-white hover:text-purple transition-colors data-[state=open]:bg-white data-[state=open]:text-purple"
+      <button
+        className="h-9 cursor-pointer text-xs font-regular rounded-sm text-gray-500 hover:bg-white hover:text-purple transition-colors  data-[state=open]:text-purple"
       >
         {label}
-      </Button>
+      </button>
     </HoverCardTrigger>
     {children}
   </HoverCard>
@@ -229,7 +229,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
 }) => {
   const { t, locale } = useLocale();
   return (
-    <div className="w-full min-w-[400px] flex-1 bg-purple/10 overflow-y-auto">
+    <div className="w-full min-w-[400px] flex-1 bg-purple/10 overflow-y-auto max-h-[500px]">
       <div className="flex flex-col w-full">
         {subcategories.map((subcategory) => {
           const hasChildren =
@@ -331,7 +331,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
             return (
               <div
                 key={category._id}
-                className="flex items-center justify-between p-3 hover:bg-purple/10 cursor-pointer transition-colors group"
+                className="flex items-center text-purple justify-between p-3 hover:bg-purple/10 cursor-pointer transition-colors group"
               >
                 <Link
                   href={
@@ -442,7 +442,6 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
 
 const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   const { localePath } = useLocale();
-  const isMobile = useIsMobile();
   const router = useRouter();
   const pathname = usePathname();
   const { locale } = useLocale();
@@ -516,15 +515,11 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   };
 
   return (
-    <div
-      className={cn("relative md:bg-purple animate-fade-in", className)}
-    >
-      <div className="max-w-[1080px] mx-auto px-4 xl:px-0">
-        <nav className={cn("flex items-center bg-white sm:bg-transparent justify-between py-1 w-full")}>
+    <nav className={cn(" container-1080 px-3 animate-fade-in flex gap-2  items-center justify-between py-1", className)}>
           {categoriesError ? (
             <div className="hidden md:flex flex-1 items-center justify-center">
               <Typography variant="sm-regular" className="text-red-500">
-                Failed to load categories. Please try again.
+            Note: Failed to load categories. Please try again.
               </Typography>
             </div>
           ) : categoriesLoading ? (
@@ -532,7 +527,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
           ) : (
             <div
               key={isJobsPage ? "jobs-nav" : "main-nav"}
-                  className="hidden w-full md:flex gap-1 flex-1 items-center justify-between"
+              className="hidden w-full md:flex flex-1 gap-10 items-center"
             >
               {visibleCategoriesList.map(({ type, label }) => (
                 <div key={type}>
@@ -576,7 +571,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
             </div>
           ) : (
             <TooltipProvider delayDuration={200}>
-                <div className="min-w-fit xl:min-w-[350px] min-[1080px]:w-full min-[1080px]:flex items-center justify-start lg:gap-5 ml-2">
+            <div className="max-[1000px]:hidden flex items-center justify-start gap-5 ml-2">
                 <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
                   <SearchHistoryPopover />
                 </div>
@@ -586,15 +581,9 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     <TooltipTrigger asChild>
                       <Link
                           href="/user/my-ads"
-                        className="min-w-6 min-[1080px]:block hidden"
+                      className="min-w-6 md:block hidden"
                       >
-                        <Image
-                          src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/help.svg"
-                          alt="help"
-                          className="size-6 hover:scale-110 transition-all duration-300"
-                          width={24}
-                          height={24}
-                        />
+                      <UserPlus className="text-purple hover:scale-110 transition-all duration-300" />
                       </Link>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -608,15 +597,9 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     <TooltipTrigger asChild>
                       <Link
                         href={localePath("/chat")}
-                        className="min-w-6 min-[1080px]:block hidden"
+                      className="min-w-6 md:block hidden"
                       >
-                        <Image
-                          src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/unread_chat.svg"
-                          alt="unread_chat"
-                          className="size-6 hover:scale-110 transition-all duration-300"
-                          width={24}
-                          height={24}
-                        />
+                      <MessageSquare className="text-purple hover:scale-110 transition-all duration-300" />
                       </Link>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -630,9 +613,9 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                     <TooltipTrigger asChild>
                       <Link
                         href="/favorites"
-                        className="min-w-6 min-[1080px]:block hidden"
+                      className="min-w-6 md:block hidden"
                       >
-                        <Heart className="size-6 hover:scale-110 transition-all duration-300 text-white" />
+                      <Heart className="size-6 hover:scale-110 transition-all duration-300 text-purple" />
                       </Link>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -645,35 +628,28 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                   <NotificationsPopover />
                 </div>
 
-                <div
-                  hidden={isJobsPage}
-                  className="animate-fade-in"
-                  style={{ animationDelay: '350ms' }}
-                >
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        icon={<MapPin className="w-4 h-4 -mr-3" />}
-                        iconPosition="center"
-                          className={cn("hidden sm:flex", "text-purple py-5 md:py-4")}
-                        variant={isMobile ? "filled" : "outline"}
-                        size="sm"
-                        onClick={() => router.push("/map-view")}
-                      >
-                          <span className="hidden sm:block">Map View</span>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>View on Map</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              </div>
-            </TooltipProvider>
-          )}
-        </nav>
+
+          </div>
+        </TooltipProvider>
+      )}
+      <div
+        hidden={isJobsPage}
+        className="animate-fade-in"
+        style={{ animationDelay: '350ms' }}
+      >
+
+        <Button
+          icon={<MapPin className="w-4 h-4 -mr-3" />}
+          iconPosition="center"
+          className={cn("py-5 md:py-4")}
+          variant={"filled"}
+          size="sm"
+          onClick={() => router.push("/map-view")}
+        >
+          Map View
+        </Button>
       </div>
-    </div>
+    </nav>
   );
 };
 

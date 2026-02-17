@@ -43,6 +43,10 @@ export interface OnlineStatus {
   [userId: string]: boolean;
 }
 
+export interface LastSeen {
+  [userId: string]: Timestamp | Date;
+}
+
 export interface Chat {
   id: string;
   type: ChatType;
@@ -55,6 +59,7 @@ export interface Chat {
   unreadCount: UnreadCount;
   typing: TypingStatus;
   onlineStatus: OnlineStatus;
+  lastSeen: LastSeen;
   createdAt: Timestamp | Date;
   updatedAt: Timestamp | Date;
   // Optional references if needed for navigation, though specific data is now flat

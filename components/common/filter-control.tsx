@@ -2,6 +2,7 @@
 "use client";
 
 import React from "react";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -36,12 +37,14 @@ interface FilterControlProps {
   filterConfig: FilterConfig;
   currentValues: Record<string, any>;
   onChange: (key: string, value: any) => void;
+  variant?: "light" | "dark";
 }
 
 export const FilterControl = ({
   filterConfig,
   currentValues,
   onChange,
+  variant = "light",
 }: FilterControlProps) => {
   const {
     key,
@@ -62,11 +65,18 @@ export const FilterControl = ({
 
   const labelWithClear = (
     <div className="flex justify-between items-center w-full">
-      <span>{filterConfig.label}</span>
+      <span className={cn(variant === "dark" && "text-white/70")}>
+        {filterConfig.label}
+      </span>
       {isValueSelected && (
         <button
           onClick={handleClear}
-          className="text-[10px] text-purple hover:text-purple-700 font-medium"
+          className={cn(
+            "text-[10px] font-medium transition-colors",
+            variant === "dark"
+              ? "text-white hover:text-white/80"
+              : "text-purple hover:text-purple-700"
+          )}
         >
           Clear
         </button>
@@ -86,7 +96,14 @@ export const FilterControl = ({
             value={value || ""}
             onValueChange={(newValue) => onChange(key, newValue)}
           >
-            <SelectTrigger className="w-full bg-gray-100 border-none text-black font-semibold hover:bg-gray-200 cursor-pointer">
+            <SelectTrigger
+              className={cn(
+                "w-full border-none font-semibold cursor-pointer",
+                variant === "dark"
+                  ? "bg-white/10 text-white hover:bg-white/20"
+                  : "bg-gray-100 text-black hover:bg-gray-200"
+              )}
+            >
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>
@@ -108,8 +125,18 @@ export const FilterControl = ({
           className="-space-y-2"
         >
           <div className="w-40">
-            <div className="py-2  rounded-md bg-white">
-              <div className="text-xs text-gray-600 mb-2">
+            <div
+              className={cn(
+                "py-2 rounded-md",
+                variant === "dark" ? "bg-transparent" : "bg-white"
+              )}
+            >
+              <div
+                className={cn(
+                  "text-xs mb-2",
+                  variant === "dark" ? "text-white/60" : "text-gray-600"
+                )}
+              >
                 {value && Array.isArray(value) && value.length === 2
                   ? `${value[0].toLocaleString()} - ${value[1].toLocaleString()}`
                   : `${min.toLocaleString()} - ${max.toLocaleString()}`}
@@ -140,7 +167,14 @@ export const FilterControl = ({
                 }
               }}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger
+                className={cn(
+                  "w-full border-none font-semibold cursor-pointer",
+                  variant === "dark"
+                    ? "bg-white/10 text-white hover:bg-white/20"
+                    : "bg-gray-100 text-black hover:bg-gray-200"
+                )}
+              >
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
               <SelectContent>
@@ -162,7 +196,12 @@ export const FilterControl = ({
             placeholder={placeholder}
             value={value || ""}
             onChange={(e) => onChange(key, e.target.value)}
-            className="w-40"
+            className={cn(
+              "w-40 border-none",
+              variant === "dark"
+                ? "bg-white/10 text-white placeholder:text-white/40"
+                : "bg-gray-100"
+            )}
           />
         </FormField>
       );
@@ -175,6 +214,10 @@ export const FilterControl = ({
               value={value || ""}
               onChange={(newValue) => onChange(key, newValue)}
               placeholder={placeholder || "Tomorrow"}
+              className={cn(
+                variant === "dark" &&
+                "bg-white/10 text-white border-none hover:bg-white/20"
+              )}
             />
           </div>
         </FormField>

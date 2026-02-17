@@ -1,5 +1,5 @@
-import { useGetMySubscription } from "./useSubscriptions";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
 
 export interface AdAvailability {
   normalAvailable: number;
@@ -9,28 +9,57 @@ export interface AdAvailability {
 }
 
 export const useAdAvailability = () => {
-  const { data: subscriptionsData, isLoading } = useGetMySubscription();
-  const subscriptions = subscriptionsData?.data || [];
+  const {
+    subscriptions,
+    fetchSubscriptions,
+    isLoading,
+    getActiveSubscriptions,
+  } = useSubscriptionStore();
 
   const [dialogState, setDialogState] = useState<{
     isOpen: boolean;
     type: "normal" | "featured";
+    categoryType?: string;
   }>({
     isOpen: false,
     type: "normal",
   });
 
+  useEffect(() => {
+    // Initial fetch if empty
+    if (subscriptions.length === 0) {
+      fetchSubscriptions();
+    }
+  }, [fetchSubscriptions, subscriptions.length]);
+
   const activeSubscriptions = useMemo(() => {
-    return subscriptions.filter(
-      (sub) =>
-        sub.isActive &&
-        (sub.status === "active" || (sub.status as string) === "confirmed"),
-    );
-  }, [subscriptions]);
+    return getActiveSubscriptions();
+  }, [subscriptions, getActiveSubscriptions]);
 
   const getAvailability = (type: string, category: string): AdAvailability => {
     let normalAvailableTotal = 0;
     let featuredAvailableTotal = 0;
+
+    const propertyCategories = [
+      "property for sale",
+      "property for rent",
+      "properties",
+      "properties for sale",
+      "properties for rent",
+      "real estate",
+    ];
+    const motorCategories = [
+      "motors",
+      "motor",
+      "cars",
+      "vehicles",
+      "auto",
+      "motorcycles",
+    ];
+    const isPropertyCategory = propertyCategories.includes(
+      category.toLowerCase(),
+    );
+    const isMotorCategory = motorCategories.includes(category.toLowerCase());
 
     activeSubscriptions.forEach((sub) => {
       const subType = sub.plan?.type?.toLowerCase();
@@ -40,9 +69,20 @@ export const useAdAvailability = () => {
         const coversCategory =
           !sub.plan.categories ||
           sub.plan.categories.length === 0 ||
-          sub.plan.categories.some(
-            (cat) => cat.toLowerCase() === category.toLowerCase(),
-          );
+          sub.plan.categories.some((cat) => {
+            const catLower = cat.toLowerCase();
+            if (catLower === category.toLowerCase()) return true;
+
+            // If user has a "Properties" plan, it covers sub-property categories
+            if (isPropertyCategory && propertyCategories.includes(catLower))
+              return true;
+
+            // If user has a "Motors" plan, it covers sub-motor categories
+            if (isMotorCategory && motorCategories.includes(catLower))
+              return true;
+
+            return false;
+          });
 
         if (coversCategory) {
           const available = (sub.addsAvailable || 0) - (sub.adsUsed || 0);
@@ -70,11 +110,11 @@ export const useAdAvailability = () => {
   ): boolean => {
     const availability = getAvailability(type, category);
     if (isFeatured && !availability.canFeature) {
-      setDialogState({ isOpen: true, type: "featured" });
+      setDialogState({ isOpen: true, type: "featured", categoryType: type });
       return false;
     }
     if (!isFeatured && !availability.canPost) {
-      setDialogState({ isOpen: true, type: "normal" });
+      setDialogState({ isOpen: true, type: "normal", categoryType: type });
       return false;
     }
     return true;
@@ -89,6 +129,7 @@ export const useAdAvailability = () => {
     dialogProps: {
       isOpen: dialogState.isOpen,
       type: dialogState.type,
+      categoryType: dialogState.categoryType,
       onClose: () => setDialogState((prev) => ({ ...prev, isOpen: false })),
     },
   };

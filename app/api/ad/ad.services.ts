@@ -53,14 +53,14 @@ export const updateAd = async (
   id: string,
   payload: Partial<PostAdPayload>
 ): Promise<PostAdResponse> => {
-  const response = await axiosInstance.put<PostAdResponse>(
+  const response = await axiosInstance.patch<PostAdResponse>(
     adQueries.updateAd(id).endpoint,
     payload,
     {
       headers: {
         "Content-Type": "application/json",
       },
-    }
+    },
   );
   return response.data;
 };

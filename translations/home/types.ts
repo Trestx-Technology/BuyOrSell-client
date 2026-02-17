@@ -16,9 +16,11 @@ export type HomeTranslations = {
     loading: string;
     noDealsAvailableForThisCategory: string;
     sponsored: string;
+    viewAll: string;
   };
   exchangeDeals: {
     title: string;
+    viewAll: string;
   };
   categoryNav: {
     viewAll: string;

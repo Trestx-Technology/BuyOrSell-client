@@ -427,8 +427,12 @@ export interface CategoryHierarchy {
  */
 export async function identifyCategory(
   userPrompt: string,
-  imageUrls: string[] = []
-): Promise<{ redirectUrl: string | null; categoryPath: CategoryHierarchy[] }> {
+  imageUrls: string[] = [],
+): Promise<{
+  redirectUrl: string | null;
+  categoryPath: CategoryHierarchy[];
+  suggestedTitle?: string;
+}> {
   try {
     if (!process.env.OPENAI_API_KEY) {
       return { redirectUrl: null, categoryPath: [] };
@@ -453,7 +457,7 @@ export async function identifyCategory(
       cats: any[],
       path: string = "",
       rootId: string | null = null,
-      hierarchy: CategoryHierarchy[] = []
+      hierarchy: CategoryHierarchy[] = [],
     ) {
       cats.forEach((cat) => {
         const currentPath = path ? `${path} > ${cat.name}` : cat.name;
@@ -463,7 +467,8 @@ export async function identifyCategory(
           {
             id: cat._id,
             name: cat.name,
-            parentId: hierarchy.length > 0 ? hierarchy[hierarchy.length - 1].id : null,
+            parentId:
+              hierarchy.length > 0 ? hierarchy[hierarchy.length - 1].id : null,
           },
         ];
 
@@ -500,6 +505,7 @@ export async function identifyCategory(
         type: "image_url",
         image_url: {
           url: url,
+          detail: "low",
         },
       });
     });
@@ -510,23 +516,48 @@ export async function identifyCategory(
         {
           role: "system",
           content: `You are an expert category classifier for "BuyOrSell".
-Your task is to analyze a user's ad description and any provided images, then select the MOST SPECIFIC leaf category.
+Your task is to analyze a user's ad description and any provided images, then:
+1. Select the MOST SPECIFIC leaf category ID.
+2. Generate a catchy, short Title (max 60 chars) for the ad.
+
+Return ONLY a JSON object with this format:
+{
+  "categoryId": "string (the ID)",
+  "title": "string (the catchy title)"
+}
 
 IMPORTANT:
-1. Return ONLY the category ID (e.g., 68ef5f3c10fe86b65d1c9ea6).
-2. Choose ONLY from the leaf categories.
-3. If no category fits well, return "none".
-4. Be as specific as possible.
-5. If images are provided, use them to confirm the category choice.`,
+- Use the list of categories provided.
+- If no category fits well, set "categoryId" to "none".
+- Be specific.
+- Do not wrap in markdown code blocks.`,
         },
         {
           role: "user",
           content: content,
         },
       ],
+      response_format: { type: "json_object" },
     });
 
-    const matchedId = aiResponse.choices[0]?.message?.content?.trim() || null;
+    const responseContent = aiResponse.choices[0]?.message?.content || "{}";
+    let parsedResponse: { categoryId: string; title: string } = {
+      categoryId: "none",
+      title: "",
+    };
+
+    try {
+      parsedResponse = JSON.parse(responseContent);
+    } catch (e) {
+      console.error("Error parsing JSON from AI:", e);
+      // Fallback: try to extract ID if JSON fails (regex for ID-like string)
+      const idMatch = responseContent.match(/[a-f0-9]{24}/);
+      if (idMatch) {
+        parsedResponse.categoryId = idMatch[0];
+      }
+    }
+
+    const { categoryId: matchedId, title: suggestedTitle } = parsedResponse;
 
     if (!matchedId || matchedId.toLowerCase() === "none") {
       return { redirectUrl: null, categoryPath: [] };
@@ -539,17 +570,19 @@ IMPORTANT:
 
     // Determine adType (prefix) based on root category (Jobs check)
     const JOBS_ROOT_ID = categories.find((c: any) => c.name === "Jobs")?._id;
-    const pathPrefix = matchedCategory.rootId === JOBS_ROOT_ID ? "post-job" : "post-ad";
+    const pathPrefix =
+      matchedCategory.rootId === JOBS_ROOT_ID ? "post-job" : "post-ad";
 
     const categoryPathParam = encodeURIComponent(
-      JSON.stringify(matchedCategory.hierarchy)
+      JSON.stringify(matchedCategory.hierarchy),
     );
-    
+
     const redirectUrl = `/${pathPrefix}/details/${matchedId}?categoryPath=${categoryPathParam}`;
 
     return {
       redirectUrl,
       categoryPath: matchedCategory.hierarchy,
+      suggestedTitle,
     };
   } catch (error) {
     console.error("Error identifying category:", error);

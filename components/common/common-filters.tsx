@@ -23,6 +23,7 @@ export interface CommonFiltersProps {
       onLocationChange?: (query: string) => void;
       locationPlaceholder?: string;
       className?: string;
+      variant?: "light" | "dark";
 }
 
 export const CommonFilters = ({
@@ -36,6 +37,7 @@ export const CommonFilters = ({
       onLocationChange,
       locationPlaceholder = "Location...",
       className,
+      variant = "light",
 }: CommonFiltersProps) => {
       const { updateUrlParam, searchParams } = useUrlParams();
 
@@ -109,11 +111,12 @@ export const CommonFilters = ({
             <Card
                   className={cn(
                         "shadow-none pl-4 sm:pl-0 bg-transparent sm:bg-white sm:shadow-sm border border-none sm:border sm:border-[#F5EBFF] rounded-xl",
+                        variant === "dark" && "sm:bg-white/5 sm:border-white/10 sm:text-white",
                         className
                   )}
             >
                   <CardContent className=" p-0">
-                        <div className="border-b p-4 hidden sm:block">
+                        <div className="border-b p-4 hidden sm:block border-faint">
                               <div className="flex gap-3">
                                     {/* Search Bar */}
                                     {onSearchChange && (
@@ -122,7 +125,10 @@ export const CommonFilters = ({
                                                 placeholder={searchPlaceholder}
                                                 value={localSearchQuery}
                                                 onChange={(e) => setLocalSearchQuery(e.target.value)}
-                                                className="pl-10 bg-gray-100 border-0 flex-1"
+                                                className={cn(
+                                                      "pl-10 border-0 flex-1",
+                                                      variant === "dark" ? "bg-white/10 text-white placeholder:text-white/50" : "bg-gray-100"
+                                                )}
                                           />
                                     )}
                                     {/* Location Bar */}
@@ -132,7 +138,10 @@ export const CommonFilters = ({
                                                 placeholder={locationPlaceholder}
                                                 value={locationQuery}
                                                 onChange={(e) => handleLocationChange(e.target.value)}
-                                                className="pl-10 bg-gray-100 border-0 flex-1"
+                                                className={cn(
+                                                      "pl-10 border-0 flex-1",
+                                                      variant === "dark" ? "bg-white/10 text-white placeholder:text-white/50" : "bg-gray-100"
+                                                )}
                                           />
                                     )}
                               </div>
@@ -147,6 +156,7 @@ export const CommonFilters = ({
                                                       filterConfig={filterConfig}
                                                       currentValues={filters}
                                                       onChange={handleStaticChange}
+                                                      variant={variant}
                                                 />
                                           </div>
                                     ))}

@@ -18,12 +18,14 @@ interface InsufficientAdsDialogProps {
       isOpen: boolean;
       onClose: () => void;
       type?: "normal" | "featured";
+      categoryType?: string;
 }
 
 export const InsufficientAdsDialog: React.FC<InsufficientAdsDialogProps> = ({
       isOpen,
       onClose,
       type = "normal",
+      categoryType,
 }) => {
       const router = useRouter();
       const { locale, t } = useLocale();
@@ -54,27 +56,29 @@ export const InsufficientAdsDialog: React.FC<InsufficientAdsDialogProps> = ({
                                     className="w-full rounded-xl h-10 text-base font-semibold transition-all flex gap-3 items-center justify-center group"
                                     onClick={() => {
                                           onClose();
-                                          router.push(`/${locale}/plans`);
-                                    }}
-                                    icon={
-                                          <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
-
-                                    }
-                                    iconPosition="center"
-                                    size={"small"}
-                              >
-                                    Check Plans
-                              </Button>
-                              <Button
-                                    variant="dangerOutlined"
-                                    className="w-full h-10 font-medium"
-                                    onClick={onClose}
-                                    size={"small"}
-                              >
-                                    Maybe Later
-                              </Button>
-                        </ResponsiveModalFooter>
-                  </ResponsiveModalContent>
-            </ResponsiveModal>
-      );
+                                      const plansUrl = categoryType
+                                            ? `/${locale}/plans?type=${categoryType}`
+                                            : `/${locale}/plans`;
+                                      router.push(plansUrl);
+                                }}
+                                icon={
+                                      <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
+            }
+                                iconPosition="center"
+                                size={"small"}
+                          >
+                                Check Plans
+                          </Button>
+                          <Button
+                                variant="dangerOutlined"
+                                className="w-full h-10 font-medium"
+                                onClick={onClose}
+                                size={"small"}
+                          >
+                                Maybe Later
+                          </Button>
+                    </ResponsiveModalFooter>
+              </ResponsiveModalContent>
+        </ResponsiveModal>
+  );
 };

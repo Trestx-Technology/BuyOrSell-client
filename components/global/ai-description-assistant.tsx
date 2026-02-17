@@ -8,6 +8,7 @@ import { Typography } from "@/components/typography";
 import { generateDescription } from "@/lib/ai-actions";
 import { toast } from "sonner";
 import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
 
 interface AIDescriptionAssistantProps {
       isOpen: boolean;
@@ -29,7 +30,14 @@ export function AIDescriptionAssistant({
       const [generatedResult, setGeneratedResult] = useState("");
       const [error, setError] = useState<string | null>(null);
 
+      const { useAi, canUseAi } = useSubscriptionStore();
+
       const handleGenerate = async () => {
+            if (!canUseAi()) {
+                  toast.error("No AI tokens available. Please upgrade your plan.");
+                  return;
+            }
+
             try {
                   setIsGenerating(true);
                   setError(null);
@@ -38,6 +46,9 @@ export function AIDescriptionAssistant({
                   if (!result) {
                         throw new Error("No description was generated. Please try a different prompt.");
                   }
+
+                  // Increment AI usage on success
+                  await useAi();
 
                   setGeneratedResult(result);
             } catch (err: any) {

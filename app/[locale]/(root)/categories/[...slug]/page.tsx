@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Breadcrumbs, } from "@/components/ui/breadcrumbs";
 import { useLocale } from "@/hooks/useLocale";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,9 @@ import { buildAdQueryParams } from "@/utils/ad-query-params";
 import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
 import { getStaticFilterConfig } from "@/constants/filters.constants";
 import { NoDataCard } from "@/components/global/fallback-cards";
+import { LocalStorageService } from "@/services/local-storage";
+import { EMIRATE_STORAGE_KEY } from "@/components/global/EmirateSelector";
+import { useEmirates } from "@/hooks/useLocations";
 
 import { unSlugify } from "@/utils/slug-utils";
 
@@ -57,6 +60,22 @@ export default function CategoryListingPage() {
   const currentCategory = slugSegments[slugSegments.length - 1] || "";
   const categoryName = currentCategory ? unSlugify(decodeURIComponent(currentCategory)) : "Category";
 
+  const { data: emirates } = useEmirates();
+  const searchParams = useSearchParams();
+
+  const selectedEmirate = useMemo(() => {
+    const fromUrl = searchParams.get("emirate");
+    if (fromUrl) return fromUrl;
+    return LocalStorageService.get<string>(EMIRATE_STORAGE_KEY) || "";
+  }, [searchParams]);
+
+  const emirateDisplayName = useMemo(() => {
+    if (!selectedEmirate) return locale === "ar" ? "الإمارات" : "UAE";
+    if (!emirates) return selectedEmirate;
+    const emirate = emirates.find(e => e.emirate === selectedEmirate);
+    return emirate ? (locale === "ar" ? emirate.emirateAr : emirate.emirate) : selectedEmirate;
+  }, [selectedEmirate, emirates, locale]);
+
   // Initialize filters
   const [filters, setFilters] = useState<
     Record<string, string | number | string[] | number[] | undefined>
@@ -81,10 +100,11 @@ export default function CategoryListingPage() {
       currentPage,
       itemsPerPage: ITEMS_PER_PAGE,
       searchQuery,
+      locationQuery: selectedEmirate,
       filters,
       sortBy,
     });
-  }, [categoryName, currentPage, searchQuery, filters, sortBy]);
+  }, [categoryName, currentPage, searchQuery, selectedEmirate, filters, sortBy]);
 
 
   // Build filter payload for useFilterAds (only used if hasDynamicFilters)
@@ -92,12 +112,13 @@ export default function CategoryListingPage() {
     if (!hasDynamicFilters) return {};
 
     return buildAdFilterPayload({
-      currentCategory,
+      categoryName: currentCategory,
       searchQuery,
+      locationQuery: selectedEmirate,
       filters,
       extraFields,
     });
-  }, [hasDynamicFilters, currentCategory, filters, searchQuery, extraFields]);
+  }, [hasDynamicFilters, currentCategory, filters, searchQuery, selectedEmirate, extraFields]);
 
   // Use filter API if dynamic filters are active, otherwise use regular ads API
   const { data: filterAdsResponse, isLoading: isFilterLoading } = useFilterAds(
@@ -197,6 +218,7 @@ export default function CategoryListingPage() {
                 "{{category}}",
                 categoryName.charAt(0).toUpperCase() + categoryName.slice(1)
               )
+              .replace("{{emirate}}", emirateDisplayName)
               .replace("{{count}}", totalAds.toString())}
           </Typography>
 

@@ -4,13 +4,11 @@ import React, { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/global/Navbar";
 import CategoryNav from "@/app/[locale]/(root)/_components/CategoryNav";
-import { Footer } from "@/components/global/footer";
 import {
   PAGES_WITH_NAV,
   PAGES_WITH_NAV_MOBILE,
   shouldShowComponent,
 } from "@/constants/layout.constants";
-import { cn } from "@/lib/utils";
 
 interface MainLayoutWrapperProps {
   children: React.ReactNode;
@@ -59,8 +57,8 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
   }, [isRootPage, shouldShowNav, shouldHideNavOnMobile]);
 
   return (
-    <main className="min-h-[600px] relative flex flex-col bg-[#F9FAFC]">
-      <div className="sticky top-0 z-50">
+    <main className="min-h-[600px] relative flex flex-col bg-white">
+      <div className="sticky top-0 z-50 border-b flex flex-col bg-white items-center">
         <Navbar className={navbarClassName} />
         <CategoryNav className={categoryNavClassName} />
       </div>

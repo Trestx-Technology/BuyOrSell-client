@@ -66,11 +66,11 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   showSeller = false,
   seller,
   discountText,
-  discountBadgeBg = "bg-white",
-  discountBadgeTextColor = "text-black",
+  discountBadgeBg = "bg-[#FE9800]",
+  discountBadgeTextColor = "text-white",
   showDiscountBadge = true,
   showTimer = true,
-  timerBg = "bg-[#4A4A4A]",
+  timerBg = "bg-[#FF4D00]",
   timerTextColor = "text-white",
   dealValidThrough,
 }) => {
@@ -115,7 +115,7 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
       className={`w-[220px] h-full overflow-hidden rounded-2xl bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
       onClick={handleCardClick}
     >
-      <Link href={`/ad/${id}`} className="absolute inset-0 "></Link>
+      <Link href={`/ad/${id}`} className="absolute inset-0 z-10"></Link>
       <div className="p-0 flex flex-col flex-1 h-full">
         {/* Image Section */}
         <HotDealsImageGallery

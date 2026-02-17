@@ -88,7 +88,7 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
   return (
     <div className="relative aspect-[3/3] sm:aspect-[4/3] bg-primary w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
       {images.length > 0 ? (
-        <div className="relative w-full h-full overflow-hidden z-10">
+        <div className="relative w-full h-full overflow-hidden">
           <div
             className="flex transition-transform duration-500 ease-in-out h-full"
             style={{
@@ -137,7 +137,7 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
 
       {/* Image Counter */}
       {images?.length > 0 && (
-        <div className="absolute bottom-3 left-3 w-fit z-20">
+        <div className="absolute bottom-3 left-3 w-fit z-20 pointer-events-none">
           <div className="bg-[#777777] rounded-lg px-2 py-1 flex items-center gap-1 w-fit">
             <ImageIcon className="size-3 sm:size-4 text-white" />
             <span className="text-[10px] text-white font-medium">
@@ -149,7 +149,7 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
 
       {/* Views Counter */}
       {views && (
-        <div className="absolute bottom-3 right-3 z-20">
+        <div className="absolute bottom-3 right-3 z-20 pointer-events-none">
           <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
             <Eye className="size-3 sm:size-4 text-white" />
             <span className="text-[10px] text-white font-medium">
@@ -231,12 +231,12 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
       {showDiscountBadge && discount && discount > 0 && (
         <div
           className={cn(
-            "absolute top-0 left-0 px-2 py-1 rounded-tl-lg rounded-br-lg text-xs font-semibold shadow-lg z-20",
+            "absolute top-0 left-0 px-3 py-1.5 rounded-br-2xl text-[10px] sm:text-xs font-bold shadow-lg z-20 uppercase tracking-wider pointer-events-none",
             discountBadgeBg,
             discountBadgeTextColor
           )}
         >
-          {discountText || `${Math.round(discount)}%`}
+          {discountText || `FLAT ${Math.round(discount)}% OFF`}
         </div>
       )}
 
@@ -244,9 +244,8 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
       {showTimer && dealValidThrough && (
         <div
           className={cn(
-            "absolute bottom-0 right-0 px-2 py-1 rounded-tl-lg text-xs font-semibold shadow-lg z-20",
-            timerBg,
-            timerTextColor
+            "absolute bottom-0 right-0 px-3 py-1 rounded-tl-2xl shadow-lg z-20 pointer-events-none",
+            timerBg
           )}
         >
           <DealTimer
@@ -255,7 +254,7 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
             showIcon={true}
             iconColor={timerTextColor}
             textColor={timerTextColor}
-            className="text-xs"
+            className="text-[10px] sm:text-xs font-bold"
           />
         </div>
       )}

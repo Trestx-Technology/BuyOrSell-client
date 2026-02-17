@@ -176,11 +176,13 @@ export class ChatService {
     const unreadCount: UnreadCount = {};
     const typing: TypingStatus = {};
     const onlineStatus: OnlineStatus = {};
+    const lastSeen: any = {};
 
     params.participants.forEach((userId) => {
       unreadCount[userId] = 0;
       typing[userId] = false;
       onlineStatus[userId] = false;
+      lastSeen[userId] = serverTimestamp();
     });
 
     // Build base chat data object
@@ -201,6 +203,7 @@ export class ChatService {
       unreadCount,
       typing,
       onlineStatus,
+      lastSeen,
       createdAt: serverTimestamp() as Timestamp,
       updatedAt: serverTimestamp() as Timestamp,
       ...(params.adId && { adId: params.adId }),
@@ -502,7 +505,7 @@ export class ChatService {
       await updateDoc(chatRef, {
         [`onlineStatus.${userId}`]: true,
         [`unreadCount.${userId}`]: 0,
-        updatedAt: serverTimestamp(),
+        [`lastSeen.${userId}`]: serverTimestamp(),
       });
     } catch (error) {
       console.error("Error visiting chat:", error);
@@ -554,7 +557,7 @@ export class ChatService {
       const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
       await updateDoc(chatRef, {
         [`onlineStatus.${userId}`]: online,
-        updatedAt: serverTimestamp(),
+        [`lastSeen.${userId}`]: serverTimestamp(),
       });
     } catch (error) {
       console.error("Error setting chat online status:", error);

@@ -347,6 +347,7 @@ export interface PostAdPayload {
   availability: string;
   organizationId?: string;
   adType: "AD" | "JOB";
+  isFeatured?: boolean;
 }
 
 export interface PostAdResponse {
@@ -427,6 +428,8 @@ export interface AdFilters {
   topChoice?: boolean;
   isFeatured?: boolean;
   hasVideo?: boolean;
+  upForExchange?: boolean;
+  isExchangable?: boolean;
 
   // String dropdown filter (only non-boolean dropdown)
   adType?: "JOB" | "AD";
@@ -475,6 +478,9 @@ export interface AdFilterPayload {
   dealType?: string;
   state?: string;
   hasVideo?: boolean;
+  upForExchange?: boolean;
+  isExchangable?: boolean;
+  discountedPrice?: boolean;
   page?: number;
   limit?: number;
 }

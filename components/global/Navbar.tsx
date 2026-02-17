@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import EmirateSelector from "./EmirateSelector";
 
 import SideMenu from "./SideMenu";
 import { SearchAnimated } from "./ai-search-bar";
@@ -28,9 +29,6 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { logout as LogoutAPI } from "@/app/api/auth/auth.services";
 import { toast } from "sonner";
-import { useEmirates } from "@/hooks/useLocations";
-import { createUrlParamHandler } from "@/utils/url-params";
-import { useQueryParam } from "@/hooks/useQueryParam";
 import { useLocale } from "@/hooks/useLocale";
 
 // Internal component that uses useSearchParams
@@ -38,25 +36,11 @@ const NavbarContent = ({ className }: { className?: string }) => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const [city, setCity] = useState("");
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.session.user);
   const clearSession = useAuthStore((state) => state.clearSession);
-  const { data: emirates, isLoading: isLoadingEmirates } = useEmirates();
   const { t, locale } = useLocale();
   const [popoverOpen, setPopoverOpen] = useState(false);
-
-  // Initialize city from URL query parameter
-  useQueryParam(searchParams, "emirate", setCity);
-
-  // Update URL when city changes
-  const handleCityChange = createUrlParamHandler(
-    searchParams,
-    pathname,
-    router,
-    "emirate",
-    setCity
-  );
 
   const handleLogout = async () => {
     // Call API logout endpoint (clears server-side session, localStorage, and cookies)
@@ -69,7 +53,6 @@ const NavbarContent = ({ className }: { className?: string }) => {
   };
 
   return (
-    <div className="w-full bg-white">
       <nav
         className={cn(
           "flex container-1080 gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between overflow-visible",
@@ -114,7 +97,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
             <Image
               src={ICONS.logo.main}
               alt="BuyOrSell Logo"
-              width={156}
+            width={150}
               height={49}
             />
           </Link>
@@ -131,59 +114,8 @@ const NavbarContent = ({ className }: { className?: string }) => {
           />
 
           {/*---------- Location Selector for desktop devices---------- */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                icon={<ChevronDown className="-ml-3" />}
-                iconPosition="right"
-                className="py-2 text-xs text-secondary-40 hover:text-purple transition-colors whitespace-nowrap border-0 px-0 shadow-none data-[state=open]:text-purple focus:outline-none focus:ring-0 hover:bg-transparent"
-              >
-                {city || "UAE"}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              className="w-fit text-xs max-h-[300px] overflow-y-auto z-[60]"
-              align="start"
-            >
-              <DropdownMenuItem onClick={() => handleCityChange("")}>
-                All Cities (UAE)
-              </DropdownMenuItem>
-              {/* TODO: fix this */}
-              {isLoadingEmirates
-                ? Array.from({ length: 5 }).map((_, i) => (
-                    <DropdownMenuItem key={i}>
-                      <div className="animate-pulse bg-gray-300 h-5 w-full rounded-sm"></div>
-                    </DropdownMenuItem>
-                  ))
-                : emirates?.map((emirate) => {
-                    // Extract emirate properties
-                    const emirateName = emirate.emirate;
-                    const emirateNameAr = emirate.emirateAr;
-
-                    // Display Arabic if locale is ar, otherwise English
-                    const displayName =
-                      locale === "ar" ? emirateNameAr : emirateName;
-                    // Use English name for URL/state (consistent identifier)
-                    const emirateValue = emirateName;
-
-                    return (
-                      <DropdownMenuItem
-                        key={emirateName}
-                        onClick={() => handleCityChange(emirateValue)}
-                        className={cn(
-                          "cursor-pointer",
-                          city === emirateValue
-                            ? "bg-purple/20 text-purple"
-                            : ""
-                        )}
-                      >
-                        {displayName}
-                      </DropdownMenuItem>
-                    );
-                  })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+        {/*---------- Location Selector for desktop devices---------- */}
+        <EmirateSelector />
 
           <div className="hidden md:flex flex-1 ">
             <SearchAnimated />
@@ -281,8 +213,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
             </Button>
           </PostAdDialog>
         </div>
-      </nav>
-    </div>
+    </nav>
   );
 };
 

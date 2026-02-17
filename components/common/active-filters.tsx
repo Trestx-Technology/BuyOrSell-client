@@ -14,6 +14,7 @@ interface ActiveFiltersProps {
       categoryPath: string;
       className?: string;
       onClearAll?: () => void;
+      variant?: "light" | "dark";
 }
 
 export const ActiveFilters = ({
@@ -21,6 +22,7 @@ export const ActiveFilters = ({
       categoryPath,
       className,
       onClearAll,
+      variant = "light",
 }: ActiveFiltersProps) => {
       const { query, extraFields } = useUrlFilters();
       const { updateUrlParam } = useUrlParams();
@@ -173,13 +175,21 @@ export const ActiveFilters = ({
                         <Badge
                               key={`${filter.isDynamic ? "dyn" : "static"}-${filter.key}`}
                               variant="secondary"
-                              className="flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple border-purple-100"
+                              className={cn(
+                                    "flex items-center gap-1 px-3 py-1",
+                                    variant === "dark"
+                                          ? "bg-white/10 text-white border-white/20"
+                                          : "bg-purple-50 text-purple border-purple-100"
+                              )}
                         >
                               {filter.label}
                               <div
                                     role="button"
                                     onClick={() => removeFilter(filter)}
-                                    className="cursor-pointer ml-1 hover:text-purple-700"
+                                    className={cn(
+                                          "cursor-pointer ml-1",
+                                          variant === "dark" ? "hover:text-white/80" : "hover:text-purple-700"
+                                    )}
                               >
                                     <X className="h-3 w-3" />
                               </div>
@@ -188,10 +198,13 @@ export const ActiveFilters = ({
 
                   {activeFilters.length > 0 && (
                         <Button
-                              variant="dangerOutlined"
+                              variant={variant === "dark" ? "ghost" : "dangerOutlined"}
                               size="sm"
                               onClick={onClearAll}
-                              className="text-destructive text-xs h-6 ml-auto sm:ml-0"
+                              className={cn(
+                                    "text-xs h-6 ml-auto sm:ml-0",
+                                    variant === "dark" ? "text-white/70 hover:text-white" : "text-destructive"
+                              )}
                         >
                               Clear All
                         </Button>

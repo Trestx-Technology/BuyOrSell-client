@@ -14,6 +14,11 @@ export interface ISubscription {
   adsUsed: number;
   featuredAdsAvailable?: number;
   featuredAdsUsed?: number;
+  aiAvailable: number;
+  numberOfAiUsed: number;
+  paymentType?: string;
+  cancelAtPeriodEnd?: boolean;
+  stripeSubscriptionId?: string;
   createdAt: string;
   updatedAt: string;
   __v?: number;

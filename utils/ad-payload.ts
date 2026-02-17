@@ -1,5 +1,5 @@
 export type FilterPayloadOptions = {
-  currentCategory?: string;
+  categoryName?: string;
   searchQuery?: string;
   filters: Record<
     string,
@@ -7,19 +7,21 @@ export type FilterPayloadOptions = {
   >;
   extraFields?: Record<string, any>;
   locationQuery?: string;
+  exchangable?: boolean;
 };
 
 export const buildAdFilterPayload = ({
-  currentCategory,
+  categoryName,
   searchQuery,
   filters,
   extraFields = {},
   locationQuery,
+  exchangable,
 }: FilterPayloadOptions) => {
   const payload: any = {};
 
-  if (currentCategory) {
-    payload.category = currentCategory;
+  if (categoryName) {
+    payload.category = categoryName;
   }
 
   // Search
@@ -77,6 +79,8 @@ export const buildAdFilterPayload = ({
 
   if (filters.hasVideo === "true") payload.hasVideo = true;
   else if (filters.hasVideo === "false") payload.hasVideo = false;
+
+  if (exchangable) payload.isExchangable = true;
 
   // Dates
   if (filters.fromDate && typeof filters.fromDate === "string") {

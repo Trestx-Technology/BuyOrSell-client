@@ -62,7 +62,6 @@ export default function ChatPage() {
     handleDeleteMessage,
     handleDeleteChat,
     router,
-    dateHeaderText,
   } = useChat();
 
   // Show loading state
@@ -123,7 +122,6 @@ export default function ChatPage() {
         onEditMessage={handleEditMessage}
         onDeleteMessage={handleDeleteMessage}
         onDeleteChat={handleDeleteChat}
-        dateHeaderText={dateHeaderText}
         className={!urlChatId ? "hidden md:flex" : "flex w-full"}
       />
     </Container1080>

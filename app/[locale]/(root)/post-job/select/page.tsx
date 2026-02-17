@@ -27,7 +27,7 @@ export default function SelectJobCategoryPage() {
   const [showOrgDialog, setShowOrgDialog] = useState(false);
 
   // Availability Hook
-  const { checkAvailability, dialogProps } = useAdAvailability();
+  const { checkAvailability, dialogProps, isLoading: subscriptionsLoading } = useAdAvailability();
 
   // Fetch categories using the hook
   const {
@@ -105,7 +105,7 @@ export default function SelectJobCategoryPage() {
             
             <div className="space-y-[13px]">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-[13px]">
-                {categoriesLoading || organizationsLoading || isJobseekerLoading ? (
+                {categoriesLoading || organizationsLoading || isJobseekerLoading || subscriptionsLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
                     <div
                       key={index}

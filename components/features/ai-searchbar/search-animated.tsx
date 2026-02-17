@@ -18,6 +18,7 @@ import { searchWithAI } from "@/lib/ai/searchWithAI";
 import { toast } from "sonner";
 import { AD } from "@/interfaces/ad";
 import { slugify } from "@/utils/slug-utils";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
 
 export function SearchAnimated() {
   const [isAI, setIsAI] = React.useState(false);
@@ -69,25 +70,38 @@ export function SearchAnimated() {
     setOptimizedQuery("");
   };
 
+  const { useAi, canUseAi } = useSubscriptionStore();
+
   const handleSearch = async (query: string) => {
     if (!query.trim()) return;
 
     if (isAI) {
+      if (!canUseAi()) {
+        toast.error("No AI tokens available. Please upgrade your plan.");
+        setIsAI(false);
+        return;
+      }
+
       setIsSearching(true);
       try {
         // Call the AI search function
         const { keywords, searchQuery: optimized, results, success } = await searchWithAI(query.trim());
 
-        if (success && results && results.length > 0) {
-          setAiResults(results);
-          setExtractedKeywords(keywords);
-          setOptimizedQuery(optimized);
-          toast.success(`Found ${results.length} results using AI search`);
-        } else if (success && results.length === 0) {
-          toast.info("No matching ads found with AI search.");
-          setAiResults([]);
-          setExtractedKeywords(keywords);
-          setOptimizedQuery(optimized);
+        if (success) {
+          // Increment AI usage on success
+          await useAi();
+
+          if (results && results.length > 0) {
+            setAiResults(results);
+            setExtractedKeywords(keywords);
+            setOptimizedQuery(optimized);
+            toast.success(`Found ${results.length} results using AI search`);
+          } else {
+            toast.info("No matching ads found with AI search.");
+            setAiResults([]);
+            setExtractedKeywords(keywords);
+            setOptimizedQuery(optimized);
+          }
         } else {
           // Fallback to regular search if AI search fails
           toast.error("AI Search failed. Falling back to regular search.");
@@ -104,7 +118,7 @@ export function SearchAnimated() {
         setIsSearching(false);
       }
     } else {
-  // Regular search
+      // Regular search
       const searchTerm = query.trim().toLowerCase().replace(/\s+/g, "-");
       router.push(`/categories/${searchTerm}`);
     }
@@ -164,7 +178,7 @@ export function SearchAnimated() {
     <div
       ref={searchRef}
       className={cn(
-        "relative flex items-center border border-gray-300 rounded-lg min-h-10 flex-1 z-50 bg-white"
+        "relative flex items-center shadow rounded-lg flex flex-col flex-1 z-50 "
       )}
     >
       <div className="h-fit absolute top-0 left-0 right-0">
@@ -173,7 +187,7 @@ export function SearchAnimated() {
         layout
         aria-label="Search"
         className={cn(
-          "w-full bg-transparent rounded-lg rounded-b-none h-full relative"
+          "w-full bg-transparent rounded-lg h-full relative"
         )}
         animate={{
           backgroundColor: isAI ? COLORS.slate900 : "transparent",
@@ -183,8 +197,9 @@ export function SearchAnimated() {
         }}
         transition={{ type: "spring", stiffness: 140, damping: 18 }}
       >
-        <motion.div layout className="relative overflow-visible">
-            <motion.div layout aria-live="polite">
+          <motion.div layout
+            className="relative"
+            aria-live="polite">
             <motion.div layout className="flex items-center flex-1 h-full">
               {!isAI ? (
                 <SimpleSearchInput
@@ -204,38 +219,6 @@ export function SearchAnimated() {
                 />
               )}
             </motion.div>
-
-              {/* Show extracted keywords if AI search was performed */}
-              {/* {isAI && extractedKeywords.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="absolute top-full left-0 right-0 mt-2 bg-white border border-purple-200 rounded-lg p-3 shadow-lg z-50"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-semibold text-purple-700">
-                      AI Keywords:
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {extractedKeywords.map((keyword, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium"
-                      >
-                        {keyword}
-                      </span>
-                    ))}
-                  </div>
-                  {optimizedQuery && optimizedQuery !== searchQuery && (
-                    <div className="mt-2 pt-2 border-t border-purple-100">
-                      <span className="text-xs text-gray-600">
-                        Optimized: <span className="font-medium">{optimizedQuery}</span>
-                      </span>
-                    </div>
-                  )}
-                </motion.div>
-              )} */}
 
               {isSearching ? (
                 <div className="bg-dark-blue mt-3 flex flex-col items-center justify-center p-8 rounded-lg">
@@ -265,7 +248,6 @@ export function SearchAnimated() {
               />
             )}
           </motion.div>
-        </motion.div>
       </motion.section>
     </div>
     </div>

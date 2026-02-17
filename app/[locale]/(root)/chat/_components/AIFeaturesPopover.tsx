@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/popover";
 import { Typography } from "@/components/typography";
 import { AIService } from "@/services/ai-service";
+import { toast } from "sonner";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
 
 interface AIFeaturesPopoverProps {
   onMessageGenerated: (message: string) => void;
@@ -35,6 +37,15 @@ export function AIFeaturesPopover({
     action: (text: string) => Promise<string>;
   }) => {
     console.log("feature: ", feature);
+
+    // Check for AI credits
+    const { canUseAi, useAi } = useSubscriptionStore.getState();
+
+    if (!canUseAi()) {
+      toast.error("No AI tokens available. Please upgrade your plan.");
+      return;
+    }
+
     setIsLoading(feature.id);
 
     try {
@@ -63,6 +74,10 @@ export function AIFeaturesPopover({
       }
 
       console.log("result: ", result);
+
+      // Increment AI usage
+      await useAi();
+
       onMessageGenerated(result);
       setIsOpen(false);
     } catch (error) {

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Clock, X } from "lucide-react";
+import { Clock, SearchIcon, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Popover,
@@ -56,17 +56,9 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <button
-          className={`min-w-6 min-[1080px]:block hidden p-1 rounded transition-colors cursor-pointer ${className}`}
+          className={`min-w-6 md:block hidden p-1 rounded transition-colors cursor-pointer ${className}`}
         >
-          <Image
-            src={
-              "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/mystery.svg"
-            }
-            alt="search history"
-            className="size-6 hover:scale-110 transition-all duration-300"
-            width={24}
-            height={24}
-          />
+          <SearchIcon className="text-purple" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-4" align="end">
@@ -76,15 +68,17 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
             <h3 className="text-sm font-medium text-gray-900">
               {t.searchHistory.mySearches}
             </h3>
-            <button
-              onClick={handleClearAll}
-              disabled={deleteAllMutation.isPending}
-              className="text-xs text-purple-600 hover:text-purple-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {deleteAllMutation.isPending
-                ? t.searchHistory.clearing
-                : t.searchHistory.clearAll}
-            </button>
+            {searchHistory?.data && searchHistory.data.length > 0 && (
+              <button
+                onClick={handleClearAll}
+                disabled={deleteAllMutation.isPending}
+                className="text-xs text-purple-600 hover:text-purple-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deleteAllMutation.isPending
+                  ? t.searchHistory.clearing
+                  : t.searchHistory.clearAll}
+              </button>
+            )}
           </div>
 
           {/* Search Items */}
@@ -124,14 +118,16 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
             )}
           </div>
 
-          <div className="flex justify-center">
-            <Link
-              href={localePath("/user/search-history")}
-              className="text-xs text-purple-600 hover:text-purple-700 font-medium mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              View All
-            </Link>
-          </div>
+          {searchHistory?.total && searchHistory.total > 5 && (
+            <div className="flex justify-center">
+              <Link
+                href={localePath("/user/search-history")}
+                className="text-xs text-purple-600 hover:text-purple-700 font-medium mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                View All
+              </Link>
+            </div>
+          )}
         </div>
       </PopoverContent>
     </Popover>

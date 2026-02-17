@@ -20,8 +20,17 @@ export interface IPlan {
   __v: number;
   planAr: string;
   planType: string;
+  planTypeAr?: string;
   description: string;
   descriptionAr: string;
+  aiAvailable?: number;
+  emiratiDiscount?: number;
+  stripeProductId?: string;
+  stripePriceId?: string;
+  currency?: string;
+  userType?: string;
+  userTypeAr?: string;
+  typeAr?: string;
 }
 
 export interface PlanListResponse {

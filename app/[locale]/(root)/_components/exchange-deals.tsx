@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { Typography } from "@/components/typography";
+import { ArrowRight } from "lucide-react";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ListingCard from "@/components/features/listing-card/listing-card";
@@ -111,7 +112,7 @@ export default function ExchangeDeals({
   categoryTreeWithExchangeAds = [],
   isLoading = false,
 }: ExchangeDealsProps) {
-  const { t, locale } = useLocale();
+  const { t, locale, localePath } = useLocale();
   const { ref, isVisible } = useIntersectionObserver({ threshold: 0.1, rootMargin: "-50px" });
 
   // Transform and filter exchange ads from categoryTreeWithExchangeAds
@@ -229,6 +230,16 @@ export default function ExchangeDeals({
           >
             {t.home.exchangeDeals.title}
           </Typography>
+
+          <div className="flex items-center gap-2 px-5">
+            <button
+              onClick={() => (window.location.href = localePath("/exchange"))}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/10 rounded-full transition-colors group"
+            >
+              {t.home.exchangeDeals.viewAll}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          </div>
         </div>
 
         {/* Category Tabs */}

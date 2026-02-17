@@ -93,3 +93,21 @@ export const getMyActiveSubscription = async (): Promise<SingleSubscriptionRespo
   );
   return response.data;
 };
+
+export const incrementAiUsage = async (
+  subscriptionId: string,
+): Promise<any> => {
+  const response = await axiosInstance.post(
+    subscriptionQueries.incrementAiUsage(subscriptionId).endpoint,
+  );
+  return response.data;
+};
+
+export const stopRecurringSubscription = async (
+  subscriptionId: string,
+): Promise<any> => {
+  const response = await axiosInstance.put(
+    subscriptionQueries.stopRecurringSubscription(subscriptionId).endpoint,
+  );
+  return response.data;
+};

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Clock } from "lucide-react";
+import { Clock, ArrowRight } from "lucide-react";
 import { Typography } from "@/components/typography";
 import HotDealsListingCard from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
 import { CardsCarousel } from "@/components/global/cards-carousel";
@@ -28,7 +28,7 @@ export default function HostDeals({
   categoryTreeWithDealAds = [],
   isLoading = false,
 }: HostDealsProps) {
-  const { t, locale } = useLocale();
+  const { t, locale, localePath } = useLocale();
 
   // Move hook to top level
   const { ref, isVisible } = useIntersectionObserver({ threshold: 0.1, rootMargin: "-50px" });
@@ -203,6 +203,16 @@ export default function HostDeals({
 
             {/* Main Timer */}
             <DealTimer  validThrough={biggestDealValidity} />
+          </div>
+
+          <div className="flex items-center gap-2 px-5">
+            <button
+              onClick={() => (window.location.href = localePath("/deals"))}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/10 rounded-full transition-colors group"
+            >
+              {t.home.hostDeals.viewAll}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </button>
           </div>
         </div>
 

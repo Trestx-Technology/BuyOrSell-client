@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Star, Zap, Award } from "lucide-react";
+import { CheckCircle2, Star, Zap, Award, BrainCircuit } from "lucide-react";
 import Image from "next/image";
 import { ICONS } from "@/constants/icons";
 import { cn } from "@/lib/utils";
@@ -11,8 +11,9 @@ import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
 import { useRouter, useParams } from "next/navigation";
 import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
-import { useUpdateSubscription } from "@/hooks/useSubscriptions";
 import { ISubscription } from "@/interfaces/subscription.types";
+import { useStopRecurring } from "@/hooks/useSubscriptions";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
 
 interface SubscriptionCardProps {
   subscription: ISubscription;
@@ -26,8 +27,9 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
   const params = useParams();
   const locale = params?.locale || "en-US";
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { fetchSubscriptions } = useSubscriptionStore();
 
-  const { mutate: updateSubscription, isPending } = useUpdateSubscription();
+  const { mutate: stopRecurring, isPending } = useStopRecurring();
 
   const getPlanIcon = (planName: string) => {
     const normalizeName = planName.toLowerCase();
@@ -63,23 +65,18 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
     : "";
 
   const handleCancelSubscription = () => {
-    updateSubscription(
-      {
-        id: subscription._id,
-        data: { isActive: false, status: "inactive" }, // Assuming this cancels/deactivates it
+    stopRecurring(subscription._id, {
+      onSuccess: () => {
+        toast.success("Auto-renewal stopped successfully");
+        setIsDialogOpen(false);
+        fetchSubscriptions();
+        router.refresh();
       },
-      {
-        onSuccess: () => {
-          toast.success("Subscription cancelled successfully");
-          setIsDialogOpen(false);
-          router.refresh();
-        },
-        onError: (error) => {
-          console.error("Failed to cancel subscription", error);
-          toast.error("Failed to cancel subscription");
-        },
-      }
-    );
+      onError: (error: any) => {
+        console.error("Failed to stop recurring subscription", error);
+        toast.error(error.message || "Failed to stop auto-renewal");
+      },
+    });
   };
 
   return (
@@ -154,14 +151,50 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
       </div>
 
       {/* Status Badge */}
-      <div className="mb-4">
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-              subscription.isActive 
-              ? "bg-green-100 text-green-700" 
-              : "bg-red-100 text-red-700"
-          }`}>
-              {subscription.isActive ? "Active" : "Inactive"}
+      <div className="mb-4 flex flex-wrap gap-2">
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-medium ${subscription.isActive
+            ? "bg-green-100 text-green-700"
+            : "bg-red-100 text-red-700"
+            }`}
+        >
+          {subscription.isActive ? "Active" : "Inactive"}
+        </span>
+        {subscription.cancelAtPeriodEnd && (
+          <span className="px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700">
+            Auto-renewal Off
           </span>
+        )}
+      </div>
+
+      {/* AI Credits */}
+      <div className={cn(
+        "mb-4 p-3 rounded-lg flex items-center gap-3",
+        isPremium ? "bg-white/10" : "bg-purple-50"
+      )}>
+        <BrainCircuit className={cn("size-5", isPremium ? "text-white" : "text-purple-600")} />
+        <div>
+          <Typography variant="xs-regular" className={isPremium ? "text-purple-100" : "text-gray-500 uppercase font-bold"}>
+            AI Tokens
+          </Typography>
+          <Typography variant="sm-semibold" className={isPremium ? "text-white" : "text-black"}>
+            {subscription.numberOfAiUsed || 0} / {subscription.aiAvailable || 0}
+          </Typography>
+        </div>
+      </div>
+
+      {/* Plan Category */}
+      <div className="mb-6 flex flex-wrap gap-1.5">
+        <span
+          className={cn(
+            "px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-tight border",
+            isPremium
+              ? "bg-white/20 border-white/10 text-white"
+              : "bg-purple-50 border-purple/10 text-purple"
+          )}
+        >
+          {plan.type || "General Ads"}
+        </span>
       </div>
 
       {/* Features List */}
@@ -183,12 +216,12 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
       </div>
 
       {/* CTA Button */}
-      {subscription.isActive && (
+      {subscription.isActive && !subscription.cancelAtPeriodEnd && (
         <ResponsiveDialogDrawer
           open={isDialogOpen}
           onOpenChange={setIsDialogOpen}
-          title="Cancel Subscription?"
-          description="Your plan will be deactivated from the next billing period. Are you sure you want to continue?"
+          title="Stop Auto-Renewal?"
+          description="Your subscription will remain active until the end of your current billing period, but it will not renew automatically. Are you sure?"
           trigger={
             <Button
               className={`w-full rounded-lg font-medium ${isPremium
@@ -196,24 +229,24 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
                 : "bg-red-50 text-red-600 hover:bg-red-100"
                 }`}
             >
-              Cancel Subscription
+              Stop Recurring
             </Button>
           }
         >
           <div className="p-4 pt-0 flex flex-col gap-3">
-            <Button 
-              variant="danger" 
-                onClick={handleCancelSubscription}
-                disabled={isPending}
+            <Button
+              variant="danger"
+              onClick={handleCancelSubscription}
+              disabled={isPending}
             >
-                {isPending ? "Cancelling..." : "Confirm Cancellation"}
+              {isPending ? "Stopping..." : "Confirm Stop Auto-Renewal"}
             </Button>
-            <Button 
-                variant="outline" 
-                onClick={() => setIsDialogOpen(false)}
-                disabled={isPending}
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+              disabled={isPending}
             >
-                Go Back
+              Go Back
             </Button>
           </div>
         </ResponsiveDialogDrawer>

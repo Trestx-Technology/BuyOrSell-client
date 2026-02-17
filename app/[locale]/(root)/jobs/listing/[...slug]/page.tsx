@@ -103,7 +103,7 @@ export default function JobsListingPage() {
   // Build filter payload for useFilterAds
   const filterPayload = useMemo((): AdFilterPayload => {
     return buildAdFilterPayload({
-      currentCategory: categoryName ?? undefined,
+      categoryName: categoryName ?? undefined,
       searchQuery,
       locationQuery,
       filters,

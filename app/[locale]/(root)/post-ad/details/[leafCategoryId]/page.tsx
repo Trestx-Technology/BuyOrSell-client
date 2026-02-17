@@ -10,6 +10,7 @@ import { useCreateAd } from "@/hooks/useAds";
 import { useMyOrganization } from "@/hooks/useOrganizations";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { useAuthStore } from "@/stores/authStore";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
 import { Button } from "@/components/ui/button";
 import { PostAdPayload } from "@/interfaces/ad";
 import { ImageGallery, ImageItem } from "../_components/image-upload";
@@ -42,8 +43,11 @@ export default function LeafCategoryPage() {
   const router = useRouter();
   const { session } = useAuthStore((state) => state);
   const { categoryArray, addToCategoryArray, clearCategoryArray, setActiveCategory } = useAdPostingStore((state) => state);
+  const { canFeatureAd } = useSubscriptionStore();
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt");
+  const initialTitle = searchParams.get("title");
+  const initialImagesParam = searchParams.get("images");
   const categoryPathParam = searchParams.get("categoryPath");
 
   // Hydrate store from URL params if available (handling AI redirection)
@@ -123,7 +127,31 @@ export default function LeafCategoryPage() {
     if (initialPrompt && category) {
       setValue("description", initialPrompt);
     }
-  }, [initialPrompt, category, setValue]);
+    if (initialTitle && category) {
+      setValue("title", initialTitle);
+    }
+  }, [initialPrompt, initialTitle, category, setValue]);
+
+  // Pre-fill images from AI redirect if available
+  useMemo(() => {
+    if (initialImagesParam && category) {
+      try {
+        const imageUrls = JSON.parse(decodeURIComponent(initialImagesParam));
+        if (Array.isArray(imageUrls) && imageUrls.length > 0) {
+          const imageItems: ImageItem[] = imageUrls.map((url: string) => ({
+            id: `ai-${Math.random().toString(36).substr(2, 9)}`,
+            url: url,
+            presignedUrl: url,
+            name: 'Uploaded Image',
+            uploading: false
+          }));
+          setValue("images", imageItems);
+        }
+      } catch (error) {
+        console.error("Failed to parse images from URL", error);
+      }
+    }
+  }, [initialImagesParam, category, setValue]);
   
 
 
@@ -510,11 +538,22 @@ export default function LeafCategoryPage() {
             <FormField
               label="Ad Images"
               htmlFor="images"
+                required
               fullWidth={true}
+                error={errors.images?.message as string}
             >
               <Controller
                 name="images"
                 control={control}
+                  rules={{
+                    validate: (value) => {
+                      const images = value as ImageItem[];
+                      if (!images || images.length === 0) {
+                        return "At least one image is required";
+                      }
+                      return true;
+                    }
+                  }}
                 render={({ field }) => (
                   <ImageGallery
                     images={(field.value as ImageItem[]) || []}
@@ -580,7 +619,7 @@ export default function LeafCategoryPage() {
 
             {/* Price */}
             <FormField
-              label="Price"
+                label="Price (in Dirhams)"
               htmlFor="price"
               required
               error={errors.price?.message as string}
@@ -704,25 +743,27 @@ export default function LeafCategoryPage() {
             </FormField>
 
             {/* Is Featured */}
-            <FormField
-              label="Is Featured"
-              htmlFor="isFeatured"
-              error={errors.isFeatured?.message as string}
-            >
-              <Controller
-                name="isFeatured"
-                control={control}
-                render={({ field }) => (
-                  <BooleanInput
-                    value={field.value === true || field.value === "true"}
-                    onChange={(val) => {
-                      field.onChange(val);
-                      handleInputChange("isFeatured", val);
-                    }}
+              {canFeatureAd() && (
+                <FormField
+                  label="Is Featured"
+                  htmlFor="isFeatured"
+                  error={errors.isFeatured?.message as string}
+                >
+                  <Controller
+                    name="isFeatured"
+                    control={control}
+                    render={({ field }) => (
+                      <BooleanInput
+                        value={field.value === true || field.value === "true"}
+                        onChange={(val) => {
+                          field.onChange(val);
+                          handleInputChange("isFeatured", val);
+                        }}
+                      />
+                    )}
                   />
-                )}
-              />
-            </FormField>
+                </FormField>
+              )}
 
             {/* Dynamic Fields from Category */}
             {category.fields && category.fields.length > 0 && (

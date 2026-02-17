@@ -57,6 +57,7 @@ import { aiAdPostTranslations } from "./ai-ad-post";
 import { chatTranslations } from "./chat";
 import { jobsTranslations } from "./jobs";
 import { mapViewTranslations } from "./map-view";
+import { exchangeTranslations } from "./exchange";
 import type { Translations } from "./types";
 import { DEFAULT_LOCALE } from "../validations/utils";
 
@@ -80,6 +81,7 @@ const translationRegistry = {
   chat: chatTranslations,
   jobs: jobsTranslations,
   mapView: mapViewTranslations,
+  exchange: exchangeTranslations,
 } as const;
 
 /**
@@ -92,7 +94,7 @@ export function getTranslations(locale: Locale): Translations {
   const translations = {} as Translations;
 
   for (const [namespace, translationData] of Object.entries(
-    translationRegistry
+    translationRegistry,
   )) {
     (translations as any)[namespace] = translationData[locale];
   }
@@ -111,7 +113,7 @@ export function getTranslationsWithFallback(locale: Locale): Translations {
   } catch (error) {
     // Fallback to default locale if requested locale is not available
     console.warn(
-      `Translations not found for locale: ${locale}, falling back to ${DEFAULT_LOCALE}`
+      `Translations not found for locale: ${locale}, falling back to ${DEFAULT_LOCALE}`,
     );
     return getTranslations(DEFAULT_LOCALE);
   }
@@ -125,7 +127,7 @@ export function getTranslationsWithFallback(locale: Locale): Translations {
  */
 export function getTranslationNamespace<K extends keyof Translations>(
   locale: Locale,
-  namespace: K
+  namespace: K,
 ): Translations[K] {
   const translations = getTranslations(locale);
   return translations[namespace];
@@ -150,6 +152,7 @@ export { aiAdPostTranslations } from "./ai-ad-post";
 export { chatTranslations } from "./chat";
 export { jobsTranslations } from "./jobs";
 export { mapViewTranslations } from "./map-view";
+export { exchangeTranslations } from "./exchange";
 
 // Export types
 export type { Translations } from "./types";

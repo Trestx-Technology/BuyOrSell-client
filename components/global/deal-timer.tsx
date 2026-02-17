@@ -45,18 +45,17 @@ export function DealTimer({
                         const seconds = totalSeconds % 60;
 
                         // Format based on remaining time for better readability
+                        // Screenshot style: "00h : 59 m"
                         let timeString = "";
+                        const pad = (n: number) => n.toString().padStart(2, "0");
+
                         if (days > 0) {
-                              // Show days and hours (e.g., "5d 12h 30m 10s remaining")
-                              timeString = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-                        } else if (totalHours > 0) {
-                              // Show hours and minutes (e.g., "12h 30m 45s remaining")
-                              timeString = `${totalHours}h ${minutes}m ${seconds}s`;
+                              timeString = `${days}d ${pad(hours)}h : ${pad(minutes)}m`;
                         } else {
-                              // Show minutes and seconds (e.g., "30m 45s remaining")
-                              timeString = `${totalMinutes}m ${seconds}s`;
+                              timeString = `${pad(hours)}h : ${pad(minutes)}m`;
                         }
-                        setTimeLeft(timeString + (variant === "tag" ? " remaining" : ""));
+
+                        setTimeLeft(timeString);
                   } else {
                         setTimeLeft("EXPIRED");
                   }

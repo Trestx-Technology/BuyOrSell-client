@@ -25,3 +25,10 @@ export const generateCategoryBreadcrumbs = (
 ): BreadcrumbItem[] => {
   return generateBreadcrumbs(slugSegments, "/categories");
 };
+
+
+export const generateExchangeBreadcrumbs = (
+  slugSegments: string[],
+): BreadcrumbItem[] => {
+  return generateBreadcrumbs(slugSegments, "/exchange");
+};

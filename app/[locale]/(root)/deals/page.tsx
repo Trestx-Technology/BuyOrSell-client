@@ -1,434 +1,289 @@
 "use client";
 
+import React, { useState, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { useLocale } from "@/hooks/useLocale";
 import { Button } from "@/components/ui/button";
-import HotDealsCarousel from "./_components/hot-deals-banners-carousel";
-import { ChevronLeft, Search } from "lucide-react";
+import { useUrlParams } from "@/hooks/useUrlParams";
 import { Typography } from "@/components/typography";
+import { ChevronLeft, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import HotDealsListingCard from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
-import AdCard from "@/app/[locale]/(root)/categories/_components/AdCard";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import SortAndViewControls, {
   ViewMode,
 } from "@/app/[locale]/(root)/post-ad/_components/SortAndViewControls";
-import React, { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { useLocale } from "@/hooks/useLocale";
-import { useRouter } from "next/navigation";
-import { useAds } from "@/hooks/useAds";
-import { AD } from "@/interfaces/ad";
-import { formatDistanceToNow } from "date-fns";
-import { Container1280 } from "@/components/layouts/container-1280";
+import HorizontalListingCard from "../categories/_components/horizontal-listing-card";
+import HotDealsListingCard from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
+import Pagination from "@/components/global/pagination";
+import { useAds, useFilterAds } from "@/hooks/useAds";
+import { transformAdToHotDealsCard } from "@/utils/transform-ad-to-listing";
+import { AdFilters } from "@/interfaces/ad";
+import { Container1080 } from "@/components/layouts/container-1080";
+import { buildAdFilterPayload } from "@/utils/ad-payload";
+import { buildAdQueryParams } from "@/utils/ad-query-params";
+import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
+import { NoDataCard } from "@/components/global/fallback-cards";
+import { LocalStorageService } from "@/services/local-storage";
+import { EMIRATE_STORAGE_KEY } from "@/components/global/EmirateSelector";
+import { useEmirates } from "@/hooks/useLocations";
+import HotDealsCarousel from "./_components/hot-deals-banners-carousel";
+import { BrowseByCategory } from "./_components/browse-by-category";
+
+const ITEMS_PER_PAGE = 12;
 
 export default function HotDealsPage() {
-  const { t, localePath } = useLocale();
+      const { t, locale } = useLocale();
   const router = useRouter();
-  const [view, setView] = useState<ViewMode>("grid");
-  const [sortBy, setSortBy] = useState("default");
-  const [searchQuery] = useState("");
+      const searchParams = useSearchParams();
+      const { clearUrlQueries } = useUrlParams();
 
-  // Sort options with translations
-  const sortOptions = useMemo(
-    () => [
-      { value: "default", label: t.deals.sortOptions.default },
-      { value: "newest", label: t.deals.sortOptions.newest },
-      { value: "oldest", label: t.deals.sortOptions.oldest },
-      { value: "price-asc", label: t.deals.sortOptions.priceAsc },
-      { value: "price-desc", label: t.deals.sortOptions.priceDesc },
-    ],
-    [t.deals.sortOptions]
+      const [selectedCategory, setSelectedCategory] = useState("");
+      const [searchQuery, setSearchQuery] = useState("");
+      const [inputValue, setInputValue] = useDebouncedValue(
+            searchQuery,
+            setSearchQuery,
+            500
   );
 
-  // Fetch ads with deal filter
-  const { data: adsResponse, isLoading } = useAds({
-    deal: true,
-    limit: 100, // Fetch more ads for sorting/filtering
-  });
+      const { data: emirates } = useEmirates();
 
-  // Extract ads from response
-  const ads = useMemo(() => {
-    if (!adsResponse?.data) return [];
+      const selectedEmirate = useMemo(() => {
+            const fromUrl = searchParams.get("emirate");
+            if (fromUrl) return fromUrl;
+            return LocalStorageService.get<string>(EMIRATE_STORAGE_KEY) || "";
+      }, [searchParams]);
 
-    // Handle different response structures
-    if (Array.isArray(adsResponse.data)) {
-      return adsResponse.data;
-    }
-    if (adsResponse.data.ads && Array.isArray(adsResponse.data.ads)) {
-      return adsResponse.data.ads;
-    }
-    if (adsResponse.data.adds && Array.isArray(adsResponse.data.adds)) {
-      return adsResponse.data.adds;
-    }
-    return [];
-  }, [adsResponse]);
+      const emirateDisplayName = useMemo(() => {
+            if (!selectedEmirate) return locale === "ar" ? "الإمارات" : "UAE";
+            if (!emirates) return selectedEmirate;
+            const emirate = emirates.find((e) => e.emirate === selectedEmirate);
+            return emirate
+                  ? locale === "ar"
+                        ? emirate.emirateAr
+                        : emirate.emirate
+                  : selectedEmirate;
+      }, [selectedEmirate, emirates, locale]);
 
-  // Filter ads by search query
-  const filteredAds = useMemo(() => {
-    if (!searchQuery) return ads;
+      const [view, setView] = useState<ViewMode>("grid");
+      const [sortBy, setSortBy] = useState("default");
+      const [currentPage, setCurrentPage] = useState(1);
 
-    return ads.filter((ad: AD) => {
-      const title = ad.title?.toLowerCase() || "";
-      const description = ad.description?.toLowerCase() || "";
-      const query = searchQuery.toLowerCase();
 
-      return title.includes(query) || description.includes(query);
+      const breadcrumbItems = [
+            { id: "home", label: "Home", href: "/" },
+            { id: "deals", label: t.deals.title, href: "/deals" },
+      ];
+
+      const apiFilters = useMemo<AdFilters>(() => {
+            return buildAdQueryParams({
+                  categoryName: selectedCategory || undefined,
+                  currentPage,
+                  itemsPerPage: ITEMS_PER_PAGE,
+                  searchQuery,
+                  locationQuery: selectedEmirate,
+                  filters: {},
+                  sortBy,
+                  deal: true,
     });
-  }, [ads, searchQuery]);
+      }, [selectedCategory, currentPage, searchQuery, selectedEmirate, sortBy]);
 
-  // Sort the filtered ads
-  const sortedAds = useMemo(() => {
-    const sorted = [...filteredAds];
+      const filterPayload = useMemo(() => {
+            if (!selectedCategory) return null;
+            return buildAdFilterPayload({
+                  categoryName: selectedCategory || undefined,
+                  searchQuery,
+                  locationQuery: selectedEmirate,
+                  filters: { deal: "true" },
+                  extraFields: {},
+            });
+      }, [selectedCategory, searchQuery, selectedEmirate]);
 
-    switch (sortBy) {
-      case "newest":
-        return sorted.sort(
-          (a, b) =>
-            new Date(b.createdAt || 0).getTime() -
-            new Date(a.createdAt || 0).getTime()
-        );
-      case "oldest":
-        return sorted.sort(
-          (a, b) =>
-            new Date(a.createdAt || 0).getTime() -
-            new Date(b.createdAt || 0).getTime()
-        );
-      case "price-asc":
-        return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
-      case "price-desc":
-        return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
-      default:
-        return sorted;
-    }
-  }, [filteredAds, sortBy]);
+      // Use filter API if dynamic filters are active, otherwise use regular ads API
+      const { data: filterAdsResponse, isLoading: isFilterLoading } = useFilterAds(
+            filterPayload as any,
+            currentPage,
+            ITEMS_PER_PAGE,
+            !!filterPayload
+      );
 
-  // Format posted time
-  const formatPostedTime = (dateString: string | undefined) => {
-    if (!dateString) return "";
-    try {
-      const date = new Date(dateString);
-      return formatDistanceToNow(date, { addSuffix: true });
-    } catch {
-      return "";
-    }
+      const { data: adsResponse, isLoading: isAdsLoading } = useAds(
+            apiFilters,
+            { enabled: !filterPayload }
+      );
+
+      const currentResponse = filterPayload ? filterAdsResponse : adsResponse;
+      const isLoading = filterPayload ? isFilterLoading : isAdsLoading;
+
+      const ads = useMemo(() => {
+            if (!currentResponse?.data) return [];
+            const data = currentResponse.data;
+            if (Array.isArray(data)) return data;
+            return data.ads || data.adds || [];
+      }, [currentResponse]);
+
+      const totalAds = currentResponse?.data?.total || ads.length;
+      const totalPages = Math.ceil(totalAds / ITEMS_PER_PAGE);
+
+      const clearFilters = () => {
+            setSelectedCategory("");
+            setSearchQuery("");
+            setCurrentPage(1);
+            clearUrlQueries();
   };
 
-  const handleBack = () => {
-    router.push(localePath("/"));
-  };
-
-  const handleAdClick = (id: string) => {
-    router.push(localePath(`/ad/${id}`));
+      const handlePageChange = (page: number) => {
+            setCurrentPage(page);
+            window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <Container1280 className="flex flex-col">
-      <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
-        <Button
-          variant={"ghost"}
-          icon={<ChevronLeft className="h-4 w-4 -mr-2" />}
-          iconPosition="center"
-          size={"icon-sm"}
-          className="absolute left-4 text-purple"
-          onClick={handleBack}
-        />
-        <Typography variant="lg-semibold" className="text-dark-blue">
-          {t.deals.title}
-        </Typography>
-      </div>
-      <div className="bg-purple block md:hidden p-4">
-        <div className="flex items-center gap-4">
-          <Input
-            leftIcon={<Search className="h-4 w-4" />}
-            placeholder={t.deals.searchPlaceholder}
-            className="bg-white border-gray-200"
-          />
-        </div>
-      </div>
-      <HotDealsCarousel />
+        <Container1080 className="min-h-[calc(100dvh)]">
+              {/* Mobile Header */}
+              <div className="w-full bg-purple sm:hidden p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                          <Button
+                                icon={<ChevronLeft />}
+                                iconPosition="left"
+                                className="bg-white text-purple w-8 rounded-full"
+                                size={"icon-sm"}
+                                onClick={() => router.back()}
+                          />
+                    </div>
 
-      <div className="w-full max-w-[1080px] mx-auto px-4 lg:px-0 mt-8">
-        {/* <div className="mb-12 space-y-4">
-          <Typography variant="md-medium" className="text-white">
-            {t.deals.browseCategories}
-          </Typography>
-          <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
-            <Button
-              className="px-3"
-              icon={
-                <Badge variant={"secondary"} className="font-bold">
-                  247
-                </Badge>
-              }
-              iconPosition="right"
-            >
-              Electronics
-            </Button>
-            <Button
-              className="bg-transparent border-white border px-3 hover:border-none"
-              icon={
-                <Badge variant={"secondary"} className="font-bold">
-                  247
-                </Badge>
-              }
-              iconPosition="right"
-            >
-              Electronics
-            </Button>
-            <Button
-              className="bg-transparent border-white border px-3 hover:border-none"
-              icon={
-                <Badge variant={"secondary"} className="font-bold">
-                  247
-                </Badge>
-              }
-              iconPosition="right"
-            >
-              Electronics
-            </Button>
-            <Button
-              className="bg-transparent border-white border px-3 hover:border-none"
-              icon={
-                <Badge variant={"secondary"} className="font-bold">
-                  247
-                </Badge>
-              }
-              iconPosition="right"
-            >
-              Electronics
-            </Button>
-            <Button
-              className="bg-transparent border-white border px-3 hover:border-none"
-              icon={
-                <Badge variant={"secondary"} className="font-bold">
-                  247
-                </Badge>
-              }
-              iconPosition="right"
-            >
-              Electronics
-            </Button>
-            <Button
-              className="bg-transparent border-white border px-3 hover:border-none"
-              icon={
-                <Badge variant={"secondary"} className="font-bold">
-                  247
-                </Badge>
-              }
-              iconPosition="right"
-            >
-              Electronics
-            </Button>
-            <Button
-              className="bg-transparent border-white border px-3 hover:border-none"
-              icon={
-                <Badge variant={"secondary"} className="font-bold">
-                  247
-                </Badge>
-              }
-              iconPosition="right"
-            >
-              Electronics
-            </Button>
-          </div>
-        </div> */}
+                    {/* Search Bar */}
+                    <Input
+                          leftIcon={<Search className="h-4 w-4" />}
+                          placeholder={t.categories.search}
+                          value={inputValue}
+                          onChange={(e) => setInputValue(e.target.value)}
+                          className="pl-10 bg-gray-100 border-0"
+                    />
+              </div>
 
-        {/* Favorites Section */}
-        <div className=" rounded-xl md:p-0 shadow-sm md:shadow-none">
-          <div className="flex items-center justify-end md:justify-between mb-6">
-            <div className="hidden md:block">
-              <Typography variant="3xl-semibold" className="text-white">
-                {t.deals.title}
+              <div className="max-w-7xl mx-auto py-6">
+                    <HotDealsCarousel />
+
+                    <div className="hidden px-4 sm:block mb-8 mt-6">
+                          <Breadcrumbs items={breadcrumbItems} showSelectCategoryLink={false} />
+                    </div>
+
+                    {/* Browse by Category Section */}
+                    <div className="mb-8 items-center bg-transparent">
+                          <BrowseByCategory
+                                selectedCategory={selectedCategory}
+                                onCategoryChange={(cat) => {
+                                      setSelectedCategory(cat);
+                                      setCurrentPage(1);
+                                }}
+                                totalAds={totalAds}
+                          />
+                    </div>
+
+                    {/* Page Header */}
+                    <div className="px-4 mb-6">
+                          <div className="flex items-center justify-between">
+                                <div>
+                                      <Typography variant="h3" className="text-white font-bold">
+                                            Hot Deals
               </Typography>
-              <Typography variant="sm-regular" className="text-white">
-                {t.deals.subtitle}
+                                      <Typography variant="body-small" className="text-white/60">
+                                            Limited time offers you don&apos;t want to miss
               </Typography>
             </div>
 
-            {/* Sort Dropdown */}
             <SortAndViewControls
-              variant="dark"
-              sortOptions={sortOptions}
-              sortValue={sortBy}
-              onSortChange={setSortBy}
-              viewMode={view}
-              onViewChange={setView}
-              showViewToggle={true}
-              showFilterButton={false}
-              size="fit"
-              className="flex justify-end mb-4"
-            />
-          </div>
+                                      sortValue={sortBy}
+                                      onSortChange={setSortBy}
+                                      viewMode={view}
+                                      onViewChange={setView}
+                                      showViewToggle={true}
+                                      showFilterButton={false}
+                                      size="fit"
+                                      className="hidden sm:flex"
+                                      variant="dark"
+                                />
+                          </div>
+                    </div>
 
-          {/* Ads Grid */}
-          <div className="space-y-6">
-            {isLoading ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-[400px] bg-gray-200 rounded-2xl animate-pulse"
-                  />
-                ))}
-              </div>
-            ) : sortedAds.length === 0 ? (
-              <div className="text-center py-12">
-                <Typography variant="body" className="text-white">
-                  No deals available at the moment
-                </Typography>
-              </div>
-            ) : (
+
+                    <SortAndViewControls
+                          sortValue={sortBy}
+                          onSortChange={setSortBy}
+                          viewMode={view}
+                          onViewChange={setView}
+                          showViewToggle={true}
+                          showFilterButton={false}
+                          size="fit"
+                          className="px-4 flex justify-end mb-4 sm:hidden"
+                          variant="dark"
+                    />
+
+                    {/* Main Content */}
+                    <main className="flex-1">
+                          {isLoading ? (
+                                <div className="px-4 sm:px-0 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                                      {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
+                                            <ListingCardSkeleton key={i} />
+                                      ))}
+                                </div>
+                          ) : ads.length > 0 ? (
+                                <div className="space-y-8">
               <div
                 className={cn(
-                  `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3`,
+                      "px-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5",
                   view === "list" && "flex flex-col"
                 )}
               >
-                {sortedAds.map((ad: AD, index: number) => {
-                  // Insert AdCard at the 4th position (index 3)
-                  if (index === 3) {
-                    return (
-                      <React.Fragment key={`ad-card-${index}`}>
-                        {view === "grid" ? (
-                          <AdCard className="min-h-[284px]" />
-                        ) : (
-                          <AdCard className="min-h-[120px]" />
-                        )}
-                      </React.Fragment>
-                    );
-                  }
-
-                  // Transform extraFields
-                  const extraFieldsArray = Array.isArray(ad.extraFields)
-                    ? ad.extraFields
-                    : ad.extraFields
-                    ? Object.entries(ad.extraFields).map(([name, value]) => ({
-                        name,
-                        type: typeof value === "number" ? "number" : "string",
-                        value: value as string | number,
-                      }))
-                    : [];
-
-                  // Get location string
-                  const locationString =
-                    typeof ad.location === "string"
-                      ? ad.location
-                      : ad.location?.city ||
-                        ad.address?.city ||
-                        "Location not specified";
-
-                  // Calculate discount info - prioritize discountedPrice, then discountedPercent from extraFields
-                  const extraFieldsObj = Array.isArray(ad.extraFields)
-                    ? ad.extraFields.reduce((acc, field) => {
-                        if (
-                          field &&
-                          typeof field === "object" &&
-                          "name" in field &&
-                          "value" in field
-                        ) {
-                          acc[field.name] = field.value;
-                        }
-                        return acc;
-                      }, {} as Record<string, any>)
-                    : (ad.extraFields as Record<string, any>) || {};
-
-                  // Use discountedPrice if available (this is the actual discounted price)
-                  // If discountedPrice exists, price is the original price
-                  let currentPrice = ad.price;
-                  let originalPrice: number | undefined = undefined;
-                  let discountPercentage: number | undefined = undefined;
-
-                  if (
-                    ad.discountedPrice !== null &&
-                    ad.discountedPrice !== undefined &&
-                    ad.discountedPrice < ad.price
-                  ) {
-                    // discountedPrice is available and is less than price
-                    currentPrice = ad.discountedPrice;
-                    originalPrice = ad.price;
-                    // Calculate discount percentage
-                    discountPercentage = Math.round(
-                      ((ad.price - ad.discountedPrice) / ad.price) * 100
-                    );
-                  } else {
-                    // Try to get discount from extraFields
-                    const discountedPercent = extraFieldsObj.discountedPercent
-                      ? Number(extraFieldsObj.discountedPercent)
-                      : undefined;
-
-                    if (
-                      discountedPercent &&
-                      discountedPercent > 0 &&
-                      ad.price
-                    ) {
-                      // Calculate original price from discount percentage
-                      originalPrice = Math.round(
-                        ad.price / (1 - discountedPercent / 100)
-                      );
-                      currentPrice = ad.price; // price is already the discounted price
-                      discountPercentage = Math.round(discountedPercent);
-                    }
-                  }
-
-                  // Get seller info
-                  const seller = ad.organization
-                    ? {
-                        name:
-                          ad.organization.tradeName ||
-                          ad.organization.legalName,
-                        type: "Agent" as const,
-                        isVerified: ad.organization.verified,
-                        image: ad.organization.logoUrl || null,
-                      id: ad.organization._id || ad.owner?._id,
-                      }
-                    : ad.owner
-                    ? {
-                        name:
-                          ad.owner.firstName && ad.owner.lastName
-                            ? `${ad.owner.firstName} ${ad.owner.lastName}`
-                            : ad.owner.firstName || ad.owner.name,
-                        firstName: ad.owner.firstName,
-                        lastName: ad.owner.lastName,
-                        type: "Individual" as const,
-                        isVerified: (ad.owner as any).isVerified,
-                        image: ad.owner.image || null,
-                        id: ad.owner?._id,
-                      }
-                    : undefined;
-
-                  return (
-                    <HotDealsListingCard
+                                                  {ads.map((ad: any) => {
+                                                        const cardProps = transformAdToHotDealsCard(ad, locale);
+                                                        const handleCardClick = (id: string) => {
+                                                              router.push(`/ad/${id}`);
+                                                        };
+                                                        return view === "grid" ? (
+                                                              <HotDealsListingCard
+                                                                    key={ad._id}
+                                                                    className="w-full border-0 shadow-lg"
+                                                                    {...cardProps}
+                                                                    onClick={handleCardClick}
+                                                              />
+                                                        ) : (
+                                                                    <HorizontalListingCard
                       key={ad._id}
-                      id={ad._id}
-                      title={ad.title}
-                      price={currentPrice}
-                      originalPrice={originalPrice}
-                      discount={discountPercentage}
-                      currency="AED"
-                      location={locationString}
-                      images={ad.images || []}
-                      extraFields={extraFieldsArray}
-                      isExchange={ad.upForExchange || ad.isExchangable}
-                      postedTime={formatPostedTime(ad.createdAt)}
-                      views={ad.views}
-                      isPremium={ad.isFeatured}
-                      className="border-none"
-                      showSeller={true}
-                      seller={seller}
-                      showDiscountBadge={!!discountPercentage}
-                      discountText={
-                        discountPercentage
-                          ? `FLAT ${discountPercentage}% OFF`
-                          : undefined
-                      }
-                      showTimer={!!ad.dealValidThru}
-                      dealValidThrough={ad.dealValidThru || null}
+                                                                          {...transformAdToHotDealsCard(ad, locale)}
+                                                                          onClick={handleCardClick}
                     />
                   );
                 })}
               </div>
-            )}
-          </div>
-        </div>
+
+                                            {totalPages > 1 && (
+                                                  <div className="mt-12 flex justify-center">
+                                                        <Pagination
+                                                              currentPage={currentPage}
+                                                              totalPages={totalPages}
+                                                              onPageChange={handlePageChange}
+                                                              variant="dark"
+                                                        />
+                                                  </div>
+                                            )}
+                                      </div>
+                                ) : (
+                                      <div className="py-20 text-center">
+                                            <NoDataCard
+                                                  title={t.categories.noAdsFound}
+                                                  description={t.categories.clearFilters}
+                                                  action={
+                                                        <Button onClick={clearFilters} variant="filled">
+                                                              {t.categories.clearFilters}
+                                                        </Button>
+                                                  }
+                                            />
+                                            </div>
+                          )}
+                    </main>
       </div>
-    </Container1280>
+        </Container1080>
   );
 }

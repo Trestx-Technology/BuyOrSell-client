@@ -30,6 +30,7 @@ import CollectionManager from "@/components/global/collection-manager";
 import { useAuthStore } from "@/stores/authStore";
 import { ChatInit } from "@/components/global/chat-init";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export interface HorizontalListingCardProps {
       id: string;
@@ -124,11 +125,12 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
             <div
                   role="button"
                   className={cn(
-                        "hidden md:flex overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group",
+                        "hidden md:flex overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative",
                         className
                   )}
                   onClick={handleCardClick}
             >
+                  <Link href={`/ad/${id}`} className="absolute inset-0 z-10" />
                   <div className="flex w-full">
                         {/* Image Section - Left Side */}
                         <div className="relative w-full max-w-[226px] h-full flex-shrink-0">
@@ -184,7 +186,7 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
 
                               {/* Premium Badge */}
                               {isPremium && (
-                                    <div className="absolute top-2 left-2 z-10">
+                                    <div className="absolute top-2 left-2 z-20 pointer-events-none">
                                           <Image src={"/premium.svg"} alt="Premium" width={24} height={24} />
                                     </div>
                               )}
@@ -192,7 +194,7 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                               {/* Discount Badge */}
                               {showDiscountBadge && discount && discount > 0 && (
                                     <div
-                                          className={`absolute top-0 left-0 ${discountBadgeBg} ${discountBadgeTextColor} px-2 py-1 rounded-tl-lg rounded-br-lg text-xs font-semibold shadow-lg z-10`}
+                                          className={`absolute top-0 left-0 ${discountBadgeBg} ${discountBadgeTextColor} px-2 py-1 rounded-tl-lg rounded-br-lg text-xs font-semibold shadow-lg z-20 pointer-events-none`}
                                     >
                                           {discountText || `${Math.round(discount)}%`}
                                     </div>
@@ -201,7 +203,7 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                               {/* Timer */}
                               {showTimer && timeLeft && (
                                     <div
-                                          className={`absolute bottom-0 right-0 ${timerBg} ${timerTextColor} px-2 py-1 rounded-tl-lg text-xs font-semibold shadow-lg flex items-center gap-1 z-10`}
+                                          className={`absolute bottom-0 right-0 ${timerBg} ${timerTextColor} px-2 py-1 rounded-tl-lg text-xs font-semibold shadow-lg flex items-center gap-1 z-20 pointer-events-none`}
                                     >
                                           <Clock className="w-3 h-3" />
                                           {timeLeft}
@@ -234,7 +236,7 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                               </div>
 
                               {/* Image Counter */}
-                              <div className="absolute bottom-2 left-2 z-10">
+                              <div className="absolute bottom-2 left-2 z-20 pointer-events-none">
                                     <div className="bg-[#777777] rounded px-1.5 py-0.5 flex items-center gap-1">
                                           <ImageIcon size={12} className="text-white" />
                                           <span className="text-xs text-white font-medium">
@@ -245,7 +247,7 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
 
                               {/* Views Counter (only if no timer) */}
                               {!showTimer && (
-                                    <div className="absolute bottom-2 right-2 z-10">
+                                    <div className="absolute bottom-2 right-2 z-20 pointer-events-none">
                                           <div className="bg-black rounded px-1.5 py-0.5 flex items-center gap-1">
                                                 <Eye size={12} className="text-white" />
                                                 <span className="text-xs text-white font-medium">{views}</span>
@@ -486,11 +488,12 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
             <div
                   role="button"
                   className={cn(
-                        "w-full flex md:hidden flex-col overflow-hidden rounded-xl border border-purple-100 bg-white hover:shadow-md transition-all duration-300 cursor-pointer group active:scale-[0.98] space-y-2",
+                        "w-full flex md:hidden flex-col overflow-hidden rounded-xl border border-purple-100 bg-white hover:shadow-md transition-all duration-300 cursor-pointer group active:scale-[0.98] space-y-2 relative",
                         className
                   )}
                   onClick={handleCardClick}
             >
+                  <Link href={`/ad/${id}`} className="absolute inset-0 z-10" />
                   <div className="flex p-2 items-center gap-3">
                         {/* Mobile Image Section */}
                         <div className="w-[110px] flex-shrink-0 space-y-1">
@@ -557,7 +560,7 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
 
                                     {/* Premium Badge */}
                                     {!showDiscountBadge && isPremium && (
-                                          <div className="absolute top-2 left-2 z-10">
+                                          <div className="absolute top-2 left-2 z-20 pointer-events-none">
                                                 <Image src={"/premium.svg"} alt="Premium" width={24} height={24} />
                                           </div>
                                     )}
@@ -565,7 +568,7 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
                                     {/* Discount */}
                                     {showDiscountBadge && discount && discount > 0 && (
                                           <div
-                                                className={`absolute top-0 left-0 ${discountBadgeBg} ${discountBadgeTextColor} px-1.5 py-0.5 rounded-br-lg text-[10px] font-semibold shadow-lg z-10`}
+                                                className={`absolute top-0 left-0 ${discountBadgeBg} ${discountBadgeTextColor} px-1.5 py-0.5 rounded-br-lg text-[10px] font-semibold shadow-lg z-20 pointer-events-none`}
                                           >
                                                 {discountText || `${Math.round(discount)}%`}
                                           </div>
@@ -574,7 +577,7 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
                                     {/* Timer */}
                                     {showTimer && timeLeft && (
                                           <div
-                                                className={`absolute bottom-0 right-0 ${timerBg} ${timerTextColor} px-1.5 py-0.5 rounded-tl-lg text-[10px] font-semibold shadow-lg flex items-center gap-1 z-10`}
+                                                className={`absolute bottom-0 right-0 ${timerBg} ${timerTextColor} px-1.5 py-0.5 rounded-tl-lg text-[10px] font-semibold shadow-lg flex items-center gap-1 z-20 pointer-events-none`}
                                           >
                                                 <Clock className="w-2.5 h-2.5" />
                                                 {timeLeft}
