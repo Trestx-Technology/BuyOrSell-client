@@ -14,7 +14,7 @@ export interface Notification {
 }
 
 export interface SendNotificationPayload {
-  token: string;
+  userId: string;
   title: string;
   message: string;
   type?: "job_match" | "message" | "system" | "other";

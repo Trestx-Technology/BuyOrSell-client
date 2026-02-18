@@ -297,15 +297,14 @@ export function useChat() {
         const otherId = currentChatData.participants?.find(
           (id) => id !== session.user?._id,
         );
-        const otherUser = otherId ? await ChatService.getUser(otherId) : null;
-        const token = otherUser?.fcmToken || otherUser?.deviceToken;
-        if (token)
+        if (otherId) {
           sendNotification({
-            token,
+            userId: otherId,
             type: "message",
             title: `${session.user.firstName} ${session.user.lastName}`.trim(),
             message: type === "text" ? text : `Sent a ${type}`,
           });
+        }
       }
     } catch {
       toast.error(t.chat.failedToSendMessage);
