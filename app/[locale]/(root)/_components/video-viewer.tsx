@@ -15,7 +15,7 @@ import {
       MoreVertical,
       User,
 } from "lucide-react";
-import { useInfiniteAds } from "@/hooks/useAds";
+import { useInfiniteAds, useAdById } from "@/hooks/useAds";
 import { Video } from "./video-card";
 import { InfiniteScrollContainer } from "@/components/global/infinite-scroll-container";
 import { useGetMainCategories } from "@/hooks/useCategories";
@@ -71,6 +71,7 @@ export function VideoViewer() {
       const containerRef = useRef<HTMLDivElement>(null);
       const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
+      const adId = searchParams.get("adId");
       const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
       const {
@@ -90,33 +91,60 @@ export function VideoViewer() {
             category: selectedCategory === "all" ? undefined : selectedCategory
       });
 
+      const { data: targetAdData } = useAdById(adId || "");
+
       // Map AD to Video interface
       const videos: Video[] = useMemo(() => {
-            return (
-                  adsData?.pages.flatMap((page) => {
-                        const ads = page.data?.adds || page.ads || [];
-                        return ads.map((ad: any) => ({
-                              id: ad._id,
-                              title: ad.title,
-                              description: ad.description,
-                              thumbnail: ad.images[0] || "",
-                              videoUrl: ad.videoUrl || "",
-                              views: ad.views?.toString() || "0",
-                              owner: ad.owner,
-                              isSaved: ad.isSaved || false,
-                        }));
-                  }) || []
-            );
-      }, [adsData]);
+            const rawVideos = adsData?.pages.flatMap((page) => {
+                  const ads = page.data?.adds || page.ads || [];
+                  return ads.map((ad: any) => ({
+                        id: ad._id,
+                        title: ad.title,
+                        description: ad.description,
+                        thumbnail: ad.images?.[0] || "",
+                        videoUrl: ad.videoUrl || "",
+                        views: ad.views?.toString() || "0",
+                        owner: ad.owner,
+                        isSaved: ad.isSaved || false,
+                  }));
+            }) || [];
 
-      const adId = searchParams.get("adId");
+            if (adId && targetAdData?.data) {
+                  const targetAd = targetAdData.data;
+                  // Only inject if it has a video
+                  if (!targetAd.videoUrl) return rawVideos;
+
+                  const mappedTarget: Video = {
+                        id: targetAd._id,
+                        title: targetAd.title,
+                        description: targetAd.description,
+                        thumbnail: targetAd.images?.[0] || "",
+                        videoUrl: targetAd.videoUrl || "",
+                        views: targetAd.views?.toString() || "0",
+                        owner: targetAd.owner,
+                        isSaved: targetAd.isSaved || false,
+                  };
+
+                  const exists = rawVideos.some(v => v.id === adId);
+                  if (!exists) {
+                        return [mappedTarget, ...rawVideos];
+                  } else {
+                        // Move it to the first position to match expectations
+                        const filtered = rawVideos.filter(v => v.id !== adId);
+                        return [mappedTarget, ...filtered];
+                  }
+            }
+
+            return rawVideos;
+      }, [adsData, targetAdData, adId]);
+
       const [currentIndex, setCurrentIndex] = useState(0);
       const [isMuted, setIsMuted] = useState(true);
       const [isPlaying, setIsPlaying] = useState(true);
       const [isTransitioning, setIsTransitioning] = useState(false);
-      const [durations, setDurations] = useState<Record<number, string>>({});
+      const [durations, setDurations] = useState<Record<string, string>>({});
       const [progress, setProgress] = useState(0);
-      const [currentTimes, setCurrentTimes] = useState<Record<number, string>>({});
+      const [currentTimes, setCurrentTimes] = useState<Record<string, string>>({});
 
       const formatTime = (time: number) => {
             if (isNaN(time)) return "0:00";
@@ -126,14 +154,14 @@ export function VideoViewer() {
       };
 
       const handleTimeUpdate = useCallback(
-            (index: number, e: React.SyntheticEvent<HTMLVideoElement>) => {
+            (id: string, e: React.SyntheticEvent<HTMLVideoElement>) => {
                   const video = e.currentTarget;
                   if (video.duration) {
                         const currentProgress = (video.currentTime / video.duration) * 100;
                         setProgress(currentProgress);
                         setCurrentTimes((prev) => ({
                               ...prev,
-                              [index]: formatTime(video.currentTime),
+                              [id]: formatTime(video.currentTime),
                         }));
                   }
             },
@@ -165,14 +193,14 @@ export function VideoViewer() {
       );
 
       const handleLoadedMetadata = useCallback(
-            (index: number, e: React.SyntheticEvent<HTMLVideoElement>) => {
+            (id: string, e: React.SyntheticEvent<HTMLVideoElement>) => {
                   const video = e.currentTarget;
                   const duration = video.duration;
                   if (duration && !isNaN(duration)) {
                         const minutes = Math.floor(duration / 60);
                         const seconds = Math.floor(duration % 60);
                         const formatted = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-                        setDurations((prev) => ({ ...prev, [index]: formatted }));
+                        setDurations((prev) => ({ ...prev, [id]: formatted }));
                   }
             },
             []
@@ -242,10 +270,22 @@ export function VideoViewer() {
             const container = containerRef.current;
             if (!container) return;
 
-            container.scrollTo({
-                  top: currentIndex * container.clientHeight,
-                  behavior: "smooth",
-            });
+            // Use requestAnimationFrame to ensure the DOM is ready and clientHeight is accurately reported
+            const scroll = () => {
+                  const itemHeight = container.clientHeight;
+                  if (itemHeight === 0) {
+                        requestAnimationFrame(scroll);
+                        return;
+                  }
+
+                  container.scrollTo({
+                        top: currentIndex * itemHeight,
+                        behavior: "smooth",
+                  });
+            };
+
+            const animationId = requestAnimationFrame(scroll);
+            return () => cancelAnimationFrame(animationId);
       }, [currentIndex]);
 
       const togglePlay = useCallback(() => {
@@ -276,7 +316,7 @@ export function VideoViewer() {
                         video.currentTime = 0;
                   }
             });
-      }, [currentIndex, isMuted, isPlaying]);
+      }, [currentIndex, isMuted, isPlaying, videos]);
 
       // Keyboard navigation
       useEffect(() => {
@@ -445,8 +485,8 @@ export function VideoViewer() {
                                                       playsInline
                                                       muted={isMuted}
                                                       preload={Math.abs(index - currentIndex) <= 1 ? "auto" : "none"}
-                                                      onLoadedMetadata={(e) => handleLoadedMetadata(index, e)}
-                                                      onTimeUpdate={(e) => handleTimeUpdate(index, e)}
+                                                      onLoadedMetadata={(e) => handleLoadedMetadata(video.id, e)}
+                                                      onTimeUpdate={(e) => handleTimeUpdate(video.id, e)}
                                                       className="w-full h-full object-cover"
                                                 />
 
@@ -474,9 +514,9 @@ export function VideoViewer() {
                                                             <span className="text-xs text-white/60 bg-white/10 px-2 py-0.5 rounded-full backdrop-blur-sm">
                                                                   {video.views} views
                                                             </span>
-                                                            {durations[index] && (
+                                                            {durations[video.id] && (
                                                                   <span className="text-xs text-white/40">
-                                                                        {currentTimes[index] || "0:00"} / {durations[index]}
+                                                                        {currentTimes[video.id] || "0:00"} / {durations[video.id]}
                                                                   </span>
                                                             )}
                                                       </div>
