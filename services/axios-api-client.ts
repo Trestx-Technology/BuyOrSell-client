@@ -374,9 +374,9 @@ axiosInstance.interceptors.request.use(
         // Add header
         const headers = config.headers as any;
         if (headers && typeof headers.set === "function") {
-          headers.set("Emirate", emirate);
+          headers.set("x-emirate", emirate);
         } else {
-          headers["Emirate"] = emirate;
+          headers["x-emirate"] = emirate;
         }
       }
     }
