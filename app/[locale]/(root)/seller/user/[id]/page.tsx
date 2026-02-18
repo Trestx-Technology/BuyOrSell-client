@@ -1,113 +1,87 @@
-"use client";
+import { Metadata } from 'next';
+import UserSellerContent from "./_components/UserSellerContent";
+import { getUserById } from "@/app/api/user/user.services";
+import { getSeoByRoute } from "@/app/api/seo/seo.services";
 
-import React from "react";
-import { useParams } from "next/navigation";
-import SellerHeader from "../../_components/SellerHeader";
-import SellerReviews from "../../_components/SellerReviews";
-import SellerInfo from "../../_components/SellerInfo";
-import SellerListings from "../../_components/SellerListings";
-import SellerListingsMobileHeader from "../../_components/SellerListingsMobileHeader";
-import Image from "next/image";
-import { useGetUserById } from "@/hooks/useUsers";
-import { Typography } from "@/components/typography";
-import { User } from "@/interfaces/user.types";
-import { Container1080 } from "@/components/layouts/container-1080";
-
-const UserSellerPage: React.FC = () => {
-  const { id } = useParams();
-  const userId = id as string;
-
-  // Fetch user data
-  const {
-    data: userData,
-    isLoading,
-    error: userError,
-    isError: isUserError,
-  } = useGetUserById(userId);
-
-  const user = userData?.data;
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="bg-[#F9FAFC] relative">
-        <div className="pb-6 md:py-6">
-          <div className="animate-pulse space-y-8">
-            <div className="bg-gray-200 h-40 rounded-2xl" />
-            <div className="bg-gray-200 h-64 rounded-xl" />
-            <div className="bg-gray-200 h-48 rounded-xl" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error state if user not found
-  if (!user) {
-    return (
-      <div className="bg-[#F9FAFC] relative">
-        <div className="pb-6 md:py-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <Typography variant="h2" className="text-dark-blue mb-2">
-              User Not Found
-            </Typography>
-            <Typography variant="body" className="text-grey-blue">
-              The user profile you're looking for doesn't exist.
-            </Typography>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <Container1080 className="relative">
-      <div className="pb-6 md:py-6">
-        {/* Seller Header */}
-        <div className="hidden sm:block">
-          <SellerHeader
-            sellerId={userId}
-            organization={undefined}
-            user={user}
-          />
-        </div>
-
-        {/* Seller Header Mobile */}
-        <div className="block sm:hidden">
-          <div className="sticky top-0 h-40 overflow-hidden">
-            {/* TODO: Add cover image for individual seller */}
-            <Typography variant="h2" className="text-dark-blue mb-2">
-              {user?.firstName} {user?.lastName}
-            </Typography>
-          </div>
-          <SellerListingsMobileHeader
-            sellerId={userId}
-            organization={undefined}
-            user={user}
-          />
-        </div>
-
-        {/* Seller Information */}
-        <div className="mt-8">
-          <SellerInfo sellerId={userId} organization={undefined} user={user} />
-        </div>
-
-        {/* Seller Reviews */}
-        <div className="mt-8">
-          <SellerReviews sellerId={userId} organization={undefined} />
-        </div>
-
-        {/* Seller Listings */}
-        <div className="mt-8">
-          <SellerListings
-            sellerId={userId}
-            organization={undefined}
-            user={user}
-          />
-        </div>
-      </div>
-    </Container1080>
-  );
+type Props = {
+  params: Promise<{ locale: string; id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default UserSellerPage;
+export async function generateMetadata(
+  { params, searchParams }: Props
+): Promise<Metadata> {
+  const { id } = await params;
+  const route = `/seller/user/${id}`;
+
+  try {
+    // Try to get explicit SEO for this seller user route
+    const seoResponse = await getSeoByRoute(route);
+    const seo = seoResponse.data;
+
+    return {
+      title: seo.title,
+      description: seo.description,
+      keywords: seo.keywords,
+      openGraph: {
+        title: seo.ogTitle || seo.title,
+        description: seo.ogDescription || seo.description,
+        images: seo.ogImage ? [{ url: seo.ogImage }] : [],
+      },
+      twitter: {
+        title: seo.twitterTitle || seo.title,
+        description: seo.twitterDescription || seo.description,
+        images: seo.twitterImage ? [seo.twitterImage] : [],
+      },
+      alternates: {
+        canonical: seo.canonicalUrl,
+      },
+      robots: {
+        index: seo.robots?.includes("noindex") ? false : true,
+        follow: seo.robots?.includes("nofollow") ? false : true,
+      },
+    };
+  } catch (seoError) {
+    // Fallback: Fetch user details and generate metadata
+    try {
+      const userResponse = await getUserById(id);
+      const user = userResponse.data;
+
+      if (!user) {
+        return {
+          title: "User Not Found | BuyOrSell",
+          description: "The requested user profile could not be found.",
+        };
+      }
+
+      const fullname = `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'User';
+      const title = `${fullname} | BuyOrSell Seller`;
+      const description = `Check out ${fullname}'s profile and items for sale on BuyOrSell.`;
+      const images = user.image ? [{ url: user.image }] : [];
+
+      return {
+        title: title,
+        description: description,
+        openGraph: {
+          title: title,
+          description: description,
+          images: images,
+        },
+        twitter: {
+          title: title,
+          description: description,
+          images: images,
+        },
+      };
+    } catch (userError) {
+      return {
+        title: "Seller Profile | BuyOrSell",
+        description: "View seller profile on BuyOrSell.",
+      };
+    }
+  }
+}
+
+export default function UserSellerPage() {
+  return <UserSellerContent />;
+}

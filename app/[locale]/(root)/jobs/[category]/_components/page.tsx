@@ -98,7 +98,7 @@ export default function ViewJobPage() {
       // Build filter payload
       const filterPayload = useMemo((): AdFilterPayload => {
             return buildAdFilterPayload({
-                  currentCategory: categoryName,
+                  categoryName,
                   searchQuery,
                   locationQuery,
                   filters,

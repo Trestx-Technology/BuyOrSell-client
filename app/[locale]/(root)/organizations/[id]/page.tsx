@@ -1,64 +1,86 @@
-"use client";
+import { Metadata } from 'next';
+import OrganizationDetailContent from "./_components/OrganizationDetailContent";
+import { getOrganizationById } from "@/app/api/organization/organization.services";
+import { getSeoByRoute } from "@/app/api/seo/seo.services";
 
-import React, { useMemo } from "react";
-import { useParams } from "next/navigation";
-import { Footer } from "@/components/global/footer";
-import { useOrganizationById } from "@/hooks/useOrganizations";
-import { useAuthStore } from "@/stores/authStore";
-import OrganizationProfile from "./_components/organization-profile";
-import { Organization } from "@/interfaces/organization.types";
-import { EmployerProfile } from "@/interfaces/job.types";
+type Props = {
+  params: Promise<{ locale: string; id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-export default function OrganizationDetailPage() {
-  const params = useParams();
-  const organizationId = params.id as string;
-  const { session } = useAuthStore((state) => state);
-  const currentUserId = session.user?._id;
+export async function generateMetadata(
+  { params, searchParams }: Props
+): Promise<Metadata> {
+  const { id } = await params;
+  const route = `/organizations/${id}`;
 
-  const { data: orgData, isLoading } = useOrganizationById(organizationId);
-  const organization = orgData?.data;
+  try {
+    // Try to get explicit SEO for this organization route
+    const seoResponse = await getSeoByRoute(route);
+    const seo = seoResponse.data;
 
-  // Check if current user is the owner
-  const isOwner = useMemo(() => {
-    if (!currentUserId || !organization) return false;
-    const ownerId = typeof organization.owner === "string"
-      ? organization.owner
-      : organization.owner?._id;
-    return currentUserId === ownerId;
-  }, [currentUserId, organization]);
+    return {
+      title: seo.title,
+      description: seo.description,
+      keywords: seo.keywords,
+      openGraph: {
+        title: seo.ogTitle || seo.title,
+        description: seo.ogDescription || seo.description,
+        images: seo.ogImage ? [{ url: seo.ogImage }] : [],
+      },
+      twitter: {
+        title: seo.twitterTitle || seo.title,
+        description: seo.twitterDescription || seo.description,
+        images: seo.twitterImage ? [seo.twitterImage] : [],
+      },
+      alternates: {
+        canonical: seo.canonicalUrl,
+      },
+      robots: {
+        index: seo.robots?.includes("noindex") ? false : true,
+        follow: seo.robots?.includes("nofollow") ? false : true,
+      },
+    };
+  } catch (seoError) {
+    // Fallback: Fetch organization details and generate metadata
+    try {
+      const orgResponse = await getOrganizationById(id);
+      const organization = orgResponse.data;
 
-  if (isLoading) {
-    return (
-      <main className="min-h-screen bg-[#F2F4F7]">
-        <div className="max-w-[1080px] mx-auto px-4 py-8">
-          <div className="bg-gray-200 rounded-2xl h-96 animate-pulse" />
-        </div>
-      </main>
-    );
+      if (!organization) {
+        return {
+          title: "Organization Not Found | BuyOrSell",
+          description: "The requested organization could not be found.",
+        };
+      }
+
+      const title = `${organization.tradeName} | BuyOrSell`;
+      const description = organization.description || `View ${organization.tradeName}'s profile and listings on BuyOrSell.`;
+      const images = organization.logoUrl ? [{ url: organization.logoUrl }] : [];
+
+      return {
+        title: title,
+        description: description,
+        openGraph: {
+          title: title,
+          description: description,
+          images: images,
+        },
+        twitter: {
+          title: title,
+          description: description,
+          images: images,
+        },
+      };
+    } catch (orgError) {
+      return {
+        title: "Organization Profile | BuyOrSell",
+        description: "View organization profile on BuyOrSell.",
+      };
+    }
   }
-
-  if (!organization) {
-    return (
-      <main className="min-h-screen bg-[#F2F4F7]">
-        <div className="max-w-[1080px] mx-auto px-4 py-8">
-          <div className="bg-white border border-[#E2E2E2] rounded-2xl p-8 text-center">
-            <h1 className="text-2xl font-bold text-dark-blue mb-2">
-              Organization Not Found
-            </h1>
-            <p className="text-[#8A8A8A]">
-              The organization you&apos;re looking for doesn&apos;t exist.
-            </p>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  return (
-    <OrganizationProfile
-      organization={organization as Organization & Partial<EmployerProfile>}
-      isOwner={isOwner}
-    />
-  );
 }
 
+export default function OrganizationDetailPage() {
+  return <OrganizationDetailContent />;
+}

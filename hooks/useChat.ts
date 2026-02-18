@@ -366,17 +366,19 @@ export function useChat() {
         image: ad.images?.[0] || "",
         participants: [
           session.user!._id,
-          typeof ad.owner === "string" ? ad.owner : ad.owner._id,
+          typeof ad.owner === "string" ? ad.owner : ad.owner?._id || "",
         ],
         participantDetails: {
           [session.user!._id]: {
             name: session.user!.firstName,
+            nameAr: session.user!.firstName,
             image: session.user!.image || "",
             isVerified: !!session.user!.emailVerified,
           },
         },
         adId: ad._id,
-        adOwnerId: typeof ad.owner === "string" ? ad.owner : ad.owner._id,
+        adOwnerId:
+          (typeof ad.owner === "string" ? ad.owner : ad.owner?._id) || "",
         initiatorId: session.user!._id,
       });
       return id;

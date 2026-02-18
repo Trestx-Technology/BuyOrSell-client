@@ -1,122 +1,86 @@
-"use client";
+import { Metadata } from 'next';
+import OrganizationSellerContent from "./_components/OrganizationSellerContent";
+import { getOrganizationById } from "@/app/api/organization/organization.services";
+import { getSeoByRoute } from "@/app/api/seo/seo.services";
 
-import React from "react";
-import { useParams } from "next/navigation";
-import SellerHeader from "../../_components/SellerHeader";
-import SellerReviews from "../../_components/SellerReviews";
-import SellerInfo from "../../_components/SellerInfo";
-import SellerListings from "../../_components/SellerListings";
-import SellerListingsMobileHeader from "../../_components/SellerListingsMobileHeader";
-import Image from "next/image";
-import { useOrganizationById } from "@/hooks/useOrganizations";
-import { Typography } from "@/components/typography";
-import { Container1080 } from "@/components/layouts/container-1080";
-
-const OrganizationSellerPage: React.FC = () => {
-  const { id } = useParams();
-  const organizationId = id as string;
-
-  // Fetch organization data
-  const {
-    data: organizationData,
-    isLoading,
-    error: orgError,
-    isError: isOrgError,
-  } = useOrganizationById(organizationId);
-
-  const organization = organizationData?.data;
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="bg-[#F9FAFC] relative">
-        <div className="pb-6 md:py-6">
-          <div className="animate-pulse space-y-8">
-            <div className="bg-gray-200 h-40 rounded-2xl" />
-            <div className="bg-gray-200 h-64 rounded-xl" />
-            <div className="bg-gray-200 h-48 rounded-xl" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error state if organization not found
-  if (!organization) {
-    return (
-      <div className="bg-[#F9FAFC] relative">
-        <div className="pb-6 md:py-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <Typography variant="h2" className="text-dark-blue mb-2">
-              Organization Not Found
-            </Typography>
-            <Typography variant="body" className="text-grey-blue">
-              The organization profile you're looking for doesn't exist.
-            </Typography>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <Container1080 className="relative">
-      <div className="pb-6 md:py-6">
-        {/* Seller Header */}
-        <div className="hidden sm:block">
-          <SellerHeader
-            sellerId={organizationId}
-            organization={organization}
-            user={undefined}
-          />
-        </div>
-
-        {/* Seller Header Mobile */}
-        <div className="block sm:hidden">
-          <div className="sticky top-0 h-40 overflow-hidden">
-            <Image
-              src={organization?.coverImageUrl || "/seller-banner.png"}
-              alt="Seller banner"
-              fill
-              className="object-cover object-center"
-            />
-          </div>
-          <SellerListingsMobileHeader
-            sellerId={organizationId}
-            organization={organization}
-            user={undefined}
-          />
-        </div>
-
-        {/* Seller Information */}
-        <div className="mt-8">
-          <SellerInfo
-            sellerId={organizationId}
-            organization={organization}
-            user={undefined}
-          />
-        </div>
-
-        {/* Seller Reviews */}
-        <div className="mt-8">
-          <SellerReviews
-            sellerId={organizationId}
-            organization={organization}
-          />
-        </div>
-
-        {/* Seller Listings */}
-        <div className="mt-8">
-          <SellerListings
-            sellerId={organizationId}
-            organization={organization}
-            user={undefined}
-          />
-        </div>
-      </div>
-    </Container1080>
-  );
+type Props = {
+  params: Promise<{ locale: string; id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default OrganizationSellerPage;
+export async function generateMetadata(
+  { params, searchParams }: Props
+): Promise<Metadata> {
+  const { id } = await params;
+  const route = `/seller/org/${id}`;
 
+  try {
+    // Try to get explicit SEO for this seller organization route
+    const seoResponse = await getSeoByRoute(route);
+    const seo = seoResponse.data;
+
+    return {
+      title: seo.title,
+      description: seo.description,
+      keywords: seo.keywords,
+      openGraph: {
+        title: seo.ogTitle || seo.title,
+        description: seo.ogDescription || seo.description,
+        images: seo.ogImage ? [{ url: seo.ogImage }] : [],
+      },
+      twitter: {
+        title: seo.twitterTitle || seo.title,
+        description: seo.twitterDescription || seo.description,
+        images: seo.twitterImage ? [seo.twitterImage] : [],
+      },
+      alternates: {
+        canonical: seo.canonicalUrl,
+      },
+      robots: {
+        index: seo.robots?.includes("noindex") ? false : true,
+        follow: seo.robots?.includes("nofollow") ? false : true,
+      },
+    };
+  } catch (seoError) {
+    // Fallback: Fetch organization details and generate metadata
+    try {
+      const orgResponse = await getOrganizationById(id);
+      const organization = orgResponse.data;
+
+      if (!organization) {
+        return {
+          title: "Seller Not Found | BuyOrSell",
+          description: "The requested seller profile could not be found.",
+        };
+      }
+
+      const title = `${organization.tradeName} | BuyOrSell Seller`;
+      const description = organization.description || `Check out ${organization.tradeName}'s items for sale on BuyOrSell.`;
+      const images = organization.coverImageUrl ? [{ url: organization.coverImageUrl }] : [];
+
+      return {
+        title: title,
+        description: description,
+        openGraph: {
+          title: title,
+          description: description,
+          images: images,
+        },
+        twitter: {
+          title: title,
+          description: description,
+          images: images,
+        },
+      };
+    } catch (orgError) {
+      return {
+        title: "Seller Profile | BuyOrSell",
+        description: "View seller profile on BuyOrSell.",
+      };
+    }
+  }
+}
+
+export default function OrganizationSellerPage() {
+  return <OrganizationSellerContent />;
+}
