@@ -79,9 +79,10 @@ export const GlobalMoreFilters = ({
                               field.max !== undefined
                         ) {
                               type = "range";
-                        } else {
-                              // Force everything else to multiselect/searchable select as per request
+                        } else if (field.type === "checkboxes") {
                               type = "multiselect";
+                        } else {
+                              type = "select";
                         }
 
                         if (field.optionalArray) {
