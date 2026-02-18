@@ -68,12 +68,29 @@ export const FilterControl = ({
 
   // Check dependency
   const parentValue = dependsOn ? currentValues[dependsOn] : null;
-  const isDependencyMet = !dependsOn || (parentValue !== undefined && parentValue !== null && parentValue !== "");
+  const isDependencyMet = !dependsOn || (
+    parentValue !== undefined &&
+    parentValue !== null &&
+    (Array.isArray(parentValue) ? parentValue.length > 0 : parentValue !== "")
+  );
 
   // Dynamically calculate options if optionalMapOfArray is present
   const dynamicOptions = React.useMemo(() => {
     if (optionalMapOfArray && dependsOn && parentValue) {
-      const mappedOptions = optionalMapOfArray[parentValue] || [];
+      if (Array.isArray(parentValue)) {
+        // Collect options for all selected parent values
+        const allMappedOptions = parentValue.flatMap(
+          (val) => optionalMapOfArray[val] || []
+        );
+        // Deduplicate
+        const uniqueOptions = [...new Set(allMappedOptions)];
+        return uniqueOptions.map((opt) => ({
+          value: opt,
+          label: opt,
+        }));
+      }
+
+      const mappedOptions = optionalMapOfArray[parentValue as string] || [];
       return mappedOptions.map((opt) => ({
         value: opt,
         label: opt,
