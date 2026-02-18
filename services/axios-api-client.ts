@@ -13,6 +13,7 @@ import { LocalStorageService } from "@/services/local-storage";
 import { useAuthStore } from "@/stores/authStore";
 import { CookieService } from "@/services/cookie-service";
 import { authQueries } from "@/app/api/auth";
+import { EMIRATE_STORAGE_KEY } from "@/components/global/EmirateSelector";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -278,9 +279,28 @@ axiosInstance.interceptors.request.use(
       // Still add emirate if present
       if (typeof window !== "undefined") {
         const urlParams = new URLSearchParams(window.location.search);
-        const emirate = urlParams.get("emirate");
-        if (emirate && !config.params?.emirate) {
-          config.params = { ...config.params, emirate };
+        let emirate = urlParams.get("emirate");
+
+        if (!emirate) {
+          emirate = LocalStorageService.get<string>(EMIRATE_STORAGE_KEY);
+        }
+
+        if (emirate) {
+          if (!config.params) config.params = {};
+          if (!config.headers)
+            config.headers = {} as unknown as AxiosRequestHeaders;
+
+          if (!config.params.emirate) {
+            config.params = { ...config.params, emirate };
+          }
+
+          // Add header
+          const headers = config.headers as any;
+          if (headers && typeof headers.set === "function") {
+            headers.set("Emirate", emirate);
+          } else {
+            headers["Emirate"] = emirate;
+          }
         }
       }
       return config;
@@ -336,14 +356,27 @@ axiosInstance.interceptors.request.use(
     // 3. Add emirate param globally (if not already handled)
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
-      const emirate = urlParams.get("emirate");
+      let emirate = urlParams.get("emirate");
+
+      if (!emirate) {
+        emirate = LocalStorageService.get<string>(EMIRATE_STORAGE_KEY);
+      }
 
       if (emirate) {
-        if (!config.params) {
-          config.params = {};
-        }
+        if (!config.params) config.params = {};
+        if (!config.headers)
+          config.headers = {} as unknown as AxiosRequestHeaders;
+
         if (!config.params.emirate) {
           config.params.emirate = emirate;
+        }
+
+        // Add header
+        const headers = config.headers as any;
+        if (headers && typeof headers.set === "function") {
+          headers.set("Emirate", emirate);
+        } else {
+          headers["Emirate"] = emirate;
         }
       }
     }
