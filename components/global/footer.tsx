@@ -362,18 +362,22 @@ export function Footer({ className }: FooterProps) {
         >
           {/* Left Side - Legal Links */}
           <div className="hidden md:flex items-center gap-6 ">
-            <Typography
-              variant="body"
-              className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-            >
-              Privacy & Policy
-            </Typography>
-            <Typography
-              variant="body"
-              className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
-            >
-              Terms & Conditions
-            </Typography>
+            <Link href="/terms-and-conditions">
+              <Typography
+                variant="body"
+                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+              >
+                Privacy & Policy
+              </Typography>
+            </Link>
+            <Link href="/terms-and-conditions">
+              <Typography
+                variant="body"
+                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+              >
+                Terms & Conditions
+              </Typography>
+            </Link>
             <Typography variant="body" className="text-sm">
               © 2024 BuyOrSell | All Rights Reserved
             </Typography>
