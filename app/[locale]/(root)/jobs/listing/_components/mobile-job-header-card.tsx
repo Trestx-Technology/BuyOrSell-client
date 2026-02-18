@@ -255,9 +255,9 @@ export default function MobileJobHeaderCard({
 
 
   return (
-    <div className={cn("bg-white rounded-2xl shadow", className)}>
+    <div className={cn("bg-card rounded-2xl shadow-sm border border-border", className)}>
       {/* Header with Back Button and Actions */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+      <div className="flex items-center justify-between p-4 border-b border-border">
         <div className="flex items-center gap-2">
           <button onClick={handleBack}>
             <ChevronLeft className="size-6 text-grey-blue" />
@@ -292,9 +292,9 @@ export default function MobileJobHeaderCard({
               <button
                 onClick={handleDeleteClick}
                 disabled={isDeletingAd}
-                className="flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center rounded-full hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Trash2 className="w-5 h-5 text-red-600" />
+                <Trash2 className="w-5 h-5 text-destructive" />
               </button>
             </div>
           )}
@@ -343,7 +343,7 @@ export default function MobileJobHeaderCard({
           <div className="flex-1 min-w-0">
             <Typography
               variant="h2"
-              className="text-black font-semibold text-xl leading-tight mb-1 line-clamp-2"
+              className="text-foreground font-semibold text-xl leading-tight mb-1 line-clamp-2"
             >
               {jobTitle}
             </Typography>
@@ -378,7 +378,7 @@ export default function MobileJobHeaderCard({
             <Briefcase className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
             <Typography
               variant="body-small"
-              className="text-[#1D2939] text-sm font-medium"
+              className="text-foreground text-sm font-medium"
             >
               {experience || "Not specified"}
             </Typography>
@@ -388,7 +388,7 @@ export default function MobileJobHeaderCard({
             <Clock className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
             <Typography
               variant="body-small"
-              className="text-[#1D2939] text-sm font-medium"
+              className="text-foreground text-sm font-medium"
             >
               {jobShift || jobType || "Not specified"}
             </Typography>
@@ -398,7 +398,7 @@ export default function MobileJobHeaderCard({
             <FaMoneyBillWave className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
             <Typography
               variant="body-small"
-              className="text-dark-blue text-sm font-medium"
+              className="text-foreground text-sm font-medium"
             >
               {salaryMin?.toLocaleString() || "0"} -{" "}
               {salaryMax?.toLocaleString() || "Not specified"}
@@ -423,7 +423,7 @@ export default function MobileJobHeaderCard({
               <MapPin className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
               <Typography
                 variant="body-small"
-                className="text-[#1D2939] text-sm font-medium"
+                  className="text-foreground text-sm font-medium"
               >
                 {location || "Not specified"}
               </Typography>
@@ -432,7 +432,7 @@ export default function MobileJobHeaderCard({
         </div>
 
         {/* Action Buttons - Full Width */}
-        <div className="flex flex-col gap-3 pt-4 border-t border-gray-200">
+        <div className="flex flex-col gap-3 pt-4 border-t border-border">
           {isJobOwner ? (
             <JobApplicantsModal jobId={job._id} />
           ) : (

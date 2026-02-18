@@ -203,7 +203,7 @@ export default function JobHeaderCard({
   return (
     <div
       className={cn(
-        "bg-white rounded-2xl border border-[#E2E2E2] p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] relative",
+        "bg-card rounded-2xl border border-border p-4 shadow-sm relative",
         className
       )}
     >
@@ -250,7 +250,7 @@ export default function JobHeaderCard({
             <div className="max-w-sm">
               <Typography
                 variant="h1"
-                className="text-black font-semibold text-[28.56px] leading-tight line-clamp-2 mb-2"
+                className="text-foreground font-semibold text-[28.56px] leading-tight line-clamp-2 mb-2"
               >
                 {job.title}
               </Typography>
@@ -291,7 +291,7 @@ export default function JobHeaderCard({
               <Briefcase className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
               <Typography
                 variant="body-small"
-                className="text-[#1D2939] text-xs font-medium"
+                className="text-foreground text-xs font-medium"
               >
                 {experience || "Not specified"}
               </Typography>
@@ -300,7 +300,7 @@ export default function JobHeaderCard({
               <Clock className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
               <Typography
                 variant="body-small"
-                className="text-[#1D2939] text-xs font-medium"
+                className="text-foreground text-xs font-medium"
               >
                 {jobShift || "Not specified"}
               </Typography>
@@ -343,7 +343,7 @@ export default function JobHeaderCard({
                 <MapPin className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
                 <Typography
                   variant="body-small"
-                  className="text-[#1D2939] text-xs font-medium"
+                    className="text-foreground text-xs font-medium"
                 >
                   {location || "Location not specified"}
                 </Typography>

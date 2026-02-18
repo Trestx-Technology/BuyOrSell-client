@@ -248,7 +248,7 @@ export default function JobsListingContent() {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                      <div className="bg-white rounded-xl p-4">
+                      <div className="bg-card rounded-xl p-4">
                         <Pagination
                           currentPage={currentPage}
                           totalPages={totalPages}

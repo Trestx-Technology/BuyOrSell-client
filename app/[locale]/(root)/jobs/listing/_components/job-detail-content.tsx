@@ -119,16 +119,16 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
     "";
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E2E2E2] p-6 space-y-6 w-full">
+    <div className="bg-card rounded-2xl border border-border p-6 space-y-6 w-full">
       {/* Job Description */}
       {description && (
         <div className="space-y-4">
-          <Typography variant="h3" className="text-black font-semibold text-xl">
+          <Typography variant="h3" className="text-foreground font-semibold text-xl">
             Job Description
           </Typography>
           <Typography
             variant="sm-regular-inter"
-            className="text-dark-blue text-sm leading-[1.75] whitespace-pre-line"
+            className="text-muted-foreground text-sm leading-[1.75] whitespace-pre-line"
           >
             {description}
           </Typography>
@@ -138,7 +138,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
       {/* Key Responsibilities */}
       {responsibilitiesList.length > 0 && (
         <div className="space-y-4">
-          <Typography variant="h3" className="text-black font-semibold text-xl">
+          <Typography variant="h3" className="text-foreground font-semibold text-xl">
             Key Responsibilities
           </Typography>
           <div className="space-y-3">
@@ -150,7 +150,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
                 />
                 <Typography
                   variant="body-small"
-                  className="text-dark-blue text-sm leading-[1.5]"
+                  className="text-muted-foreground text-sm leading-[1.5]"
                 >
                   {responsibility}
                 </Typography>
@@ -163,7 +163,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
       {/* Qualifications/Requirements */}
       {qualificationsList.length > 0 && (
         <div className="space-y-4">
-          <Typography variant="h3" className="text-black font-semibold text-xl">
+          <Typography variant="h3" className="text-foreground font-semibold text-xl">
             Qualifications & Requirements
           </Typography>
           <div className="space-y-3">
@@ -175,7 +175,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
                 />
                 <Typography
                   variant="body-small"
-                  className="text-dark-blue text-sm leading-[1.5]"
+                  className="text-muted-foreground text-sm leading-[1.5]"
                 >
                   {qualification}
                 </Typography>
@@ -188,7 +188,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
       {/* Professional Skills */}
       {skillsList.length > 0 && (
         <div className="space-y-4">
-          <Typography variant="h3" className="text-black font-semibold text-xl">
+          <Typography variant="h3" className="text-foreground font-semibold text-xl">
             Professional Skills
           </Typography>
           <div className="space-y-3">
@@ -200,7 +200,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
                 />
                 <Typography
                   variant="body-small"
-                  className="text-dark-blue text-sm leading-[1.5]"
+                  className="text-muted-foreground text-sm leading-[1.5]"
                 >
                   {skill}
                 </Typography>
@@ -213,7 +213,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
       {/* Benefits */}
       {benefitsList.length > 0 && (
         <div className="space-y-4">
-          <Typography variant="h3" className="text-black font-semibold text-xl">
+          <Typography variant="h3" className="text-foreground font-semibold text-xl">
             Benefits
           </Typography>
           <div className="space-y-3">
@@ -225,7 +225,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
                 />
                 <Typography
                   variant="body-small"
-                  className="text-dark-blue text-sm leading-[1.5]"
+                  className="text-muted-foreground text-sm leading-[1.5]"
                 >
                   {benefit}
                 </Typography>
@@ -238,12 +238,12 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
       {/* Additional Information */}
       {additionalInfo && (
         <div className="space-y-4">
-          <Typography variant="h3" className="text-black font-semibold text-xl">
+          <Typography variant="h3" className="text-foreground font-semibold text-xl">
             Additional Information
           </Typography>
           <Typography
             variant="body-small"
-            className="text-dark-blue text-sm leading-[1.75] whitespace-pre-line"
+            className="text-muted-foreground text-sm leading-[1.75] whitespace-pre-line"
           >
             {additionalInfo}
           </Typography>

@@ -69,8 +69,7 @@ export default function Pagination({
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1 || isLoading}
         className={cn(
-          "border-[#E2E2E2] hover:border-purple hover:text-purple disabled:opacity-50",
-          variant === "dark" ? "bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-white/20" : "bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+          "border-border hover:border-purple hover:text-purple disabled:opacity-50 bg-card text-foreground"
         )}
       >
         <ChevronLeft className="w-4 h-4" />
@@ -104,9 +103,7 @@ export default function Pagination({
               "min-w-[40px]",
               isActive
                 ? "bg-purple text-white hover:bg-purple/90 border-purple"
-                : variant === "dark"
-                  ? "bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-white/20"
-                  : "border-[#E2E2E2] hover:border-purple hover:text-purple bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+                : "border-border hover:border-purple hover:text-purple bg-card text-foreground"
             )}
           >
             {pageNum}
@@ -120,8 +117,7 @@ export default function Pagination({
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages || isLoading}
         className={cn(
-          "border-[#E2E2E2] hover:border-purple hover:text-purple disabled:opacity-50",
-          variant === "dark" ? "bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-white/20" : "bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+          "border-border hover:border-purple hover:text-purple disabled:opacity-50 bg-card text-foreground"
         )}
       >
         <ChevronRight className="w-4 h-4" />
@@ -129,4 +125,3 @@ export default function Pagination({
     </div>
   );
 }
-

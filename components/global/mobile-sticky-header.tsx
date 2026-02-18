@@ -28,7 +28,7 @@ export function MobileStickyHeader({
 
   return (
     <div
-      className={`flex justify-center sm:hidden border sticky top-0 bg-white dark:bg-gray-900 dark:border-gray-800 z-10 py-4 shadow-sm ${
+      className={`flex justify-center sm:hidden border-b sticky top-0 bg-background border-border z-10 py-4 shadow-sm ${
         className || ""
       }`}
     >
@@ -40,7 +40,7 @@ export function MobileStickyHeader({
         className="absolute left-4 text-purple dark:text-purple-400 w-fit"
         onClick={handleBack}
       />
-      <Typography variant="lg-semibold" className="text-dark-blue dark:text-white">
+      <Typography variant="lg-semibold" className="text-foreground">
         {title}
       </Typography>
     </div>

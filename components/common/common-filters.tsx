@@ -110,13 +110,12 @@ export const CommonFilters = ({
       return (
             <Card
                   className={cn(
-                        "shadow-none pl-4 sm:pl-0 bg-transparent sm:bg-white sm:shadow-sm border border-none sm:border sm:border-[#F5EBFF] rounded-xl",
-                        variant === "dark" && "sm:bg-white/5 sm:border-white/10 sm:text-white",
+                        "shadow-none pl-4 sm:pl-0 bg-transparent sm:bg-background sm:shadow-sm border-none sm:border sm:border-border/10 rounded-xl",
                         className
                   )}
             >
                   <CardContent className=" p-0">
-                        <div className="border-b p-4 hidden sm:block border-faint">
+                        <div className="border-b p-4 hidden sm:block border-border">
                               <div className="flex gap-3">
                                     {/* Search Bar */}
                                     {onSearchChange && (
@@ -126,8 +125,8 @@ export const CommonFilters = ({
                                                 value={localSearchQuery}
                                                 onChange={(e) => setLocalSearchQuery(e.target.value)}
                                                 className={cn(
-                                                      "pl-10 border-0 flex-1",
-                                                      variant === "dark" ? "bg-white/10 text-white placeholder:text-white/50" : "bg-gray-100"
+                                                      "pl-10 border-border/20 flex-1 h-11",
+                                                      "bg-background text-foreground placeholder:text-muted-foreground"
                                                 )}
                                           />
                                     )}
@@ -139,8 +138,8 @@ export const CommonFilters = ({
                                                 value={locationQuery}
                                                 onChange={(e) => handleLocationChange(e.target.value)}
                                                 className={cn(
-                                                      "pl-10 border-0 flex-1",
-                                                      variant === "dark" ? "bg-white/10 text-white placeholder:text-white/50" : "bg-gray-100"
+                                                      "pl-10 border-border/20 flex-1 h-11",
+                                                      "bg-background text-foreground placeholder:text-muted-foreground"
                                                 )}
                                           />
                                     )}

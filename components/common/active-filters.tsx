@@ -177,9 +177,7 @@ export const ActiveFilters = ({
                               variant="secondary"
                               className={cn(
                                     "flex items-center gap-1 px-3 py-1",
-                                    variant === "dark"
-                                          ? "bg-white/10 text-white border-white/20"
-                                          : "bg-purple-50 text-purple border-purple-100"
+                                    "bg-muted text-foreground border-border"
                               )}
                         >
                               {filter.label}

@@ -100,9 +100,9 @@ export default function JobListingCard({
       onClick={onClick}
       role="button"
       className={cn(
-        "bg-white w-full rounded-2xl cursor-pointer transition-all relative p-4",
-        "border shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] hover:shadow-[0px_2.67px_7.11px_#309689/20]",
-        isSelected ? "border-purple border-[1px]" : "border-[#E2E2E2]"
+        "bg-card w-full rounded-2xl cursor-pointer transition-all relative p-4",
+        "border shadow-sm hover:shadow-md",
+        isSelected ? "border-purple ring-1 ring-purple" : "border-border"
       )}
     >
       {/* Main content container - matches Figma layout */}
@@ -111,11 +111,11 @@ export default function JobListingCard({
         {/* Badge section */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <Badge className="bg-[#F5EBFF] text-purple px-[7.11px] py-[7.11px] rounded-[24px] text-xs font-normal leading-[1.21]">
+            <Badge className="bg-purple/10 text-purple border-none px-[7.11px] py-[7.11px] rounded-[24px] text-xs font-normal leading-[1.21]">
               {postedTime}
             </Badge>
             {isExpired && (
-              <Badge className="bg-[#FEE2E2] text-destructive px-[7.11px] py-[7.11px] rounded-[24px] text-xs font-semibold leading-[1.21]">
+              <Badge className="bg-destructive/10 text-destructive border-none px-[7.11px] py-[7.11px] rounded-[24px] text-xs font-semibold leading-[1.21]">
                 Expired
               </Badge>
             )}
@@ -164,13 +164,13 @@ export default function JobListingCard({
           <div className="space-y-1">
             <Typography
               variant="h3"
-              className="text-[#1D2939] font-semibold text-[18px] leading-[1.21] line-clamp-1"
+              className="text-foreground font-semibold text-[18px] leading-[1.21] line-clamp-1"
             >
               {jobTitle}
             </Typography>
             <Typography
               variant="body-small"
-              className="text-[#1D2939] text-sm font-normal leading-[1.21]"
+              className="text-muted-foreground text-sm font-normal leading-[1.21]"
             >
               {companyName}
             </Typography>
@@ -186,7 +186,7 @@ export default function JobListingCard({
           <Briefcase className="w-5 h-5 text-[#8A8A8A]" />
           <Typography
             variant="body-small"
-            className="text-[#1D2939] text-xs font-medium leading-[1.21]"
+            className="text-foreground text-xs font-medium leading-[1.21]"
           >
             {jobProps.experience || "Not specified"}
           </Typography>
@@ -198,7 +198,7 @@ export default function JobListingCard({
           <div className="flex items-center gap-1">
             <Typography
               variant="body-small"
-              className="text-[#1D2939] text-xs font-medium leading-[1.21]"
+              className="text-foreground text-xs font-medium leading-[1.21]"
             >
               {formatCompactPrice(jobProps.salaryMin)} -
               {jobProps.salaryMax ? formatCompactPrice(jobProps.salaryMax) : "Not specified"}
@@ -211,7 +211,7 @@ export default function JobListingCard({
           <Clock className="w-5 h-5 text-[#8A8A8A]" />
           <Typography
             variant="body-small"
-            className="text-[#1D2939] text-xs font-medium leading-[1.21]"
+            className="text-foreground text-xs font-medium leading-[1.21]"
           >
             {jobShift || jobProps.jobType || "Not specified"}
           </Typography>
@@ -222,7 +222,7 @@ export default function JobListingCard({
           <MapPin className="w-5 h-5 text-[#8A8A8A]" />
           <Typography
             variant="body-small"
-            className="text-[#1D2939] text-xs font-medium leading-[1.21] truncate"
+            className="text-foreground text-xs font-medium leading-[1.21] truncate"
           >
             {locationDisplay}
           </Typography>
