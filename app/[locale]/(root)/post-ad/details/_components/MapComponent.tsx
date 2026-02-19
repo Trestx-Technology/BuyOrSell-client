@@ -775,7 +775,9 @@ export const MapComponent = ({
     }
   };
 
-  const handleEmirateSelect = (emirate: string) => {
+  const handleEmirateSelect = (value: string | string[]) => {
+    const emirate = Array.isArray(value) ? value[0] : value;
+    if (!emirate) return;
     setSelectedEmirate(emirate);
     setSelectedArea(""); // Reset area when emirate changes
 
@@ -825,7 +827,9 @@ export const MapComponent = ({
     }
   };
 
-  const handleAreaSelect = (area: string) => {
+  const handleAreaSelect = (value: string | string[]) => {
+    const area = Array.isArray(value) ? value[0] : value;
+    if (!area) return;
     setSelectedArea(area);
 
     // Search for the area and update map
