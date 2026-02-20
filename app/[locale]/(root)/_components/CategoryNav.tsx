@@ -241,7 +241,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
 }) => {
   const { t, locale } = useLocale();
   return (
-    <div className="w-full min-w-[400px] flex-1 bg-purple/10 dark:bg-purple/5 overflow-y-auto max-h-[80vh]">
+    <div className="w-full min-w-[400px] flex-1 bg-purple/10 dark:bg-purple/5 overflow-y-auto max-h-[40vh]">
       <div className="flex flex-col w-full">
         {subcategories.map((subcategory) => {
           const hasChildren =
@@ -393,6 +393,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                       "flex items-center text-xs justify-between p-3 hover:bg-purple/10 hover:text-purple cursor-pointer transition-colors group",
                       isActive && "bg-purple/10 text-purple"
                     )}
+                    onClick={onClose}
                   >
                     <Typography
                       variant="xs-regular-inter"
