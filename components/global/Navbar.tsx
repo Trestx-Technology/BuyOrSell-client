@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import EmirateSelector from "./EmirateSelector";
+import { AITokenBalance } from "./AITokenBalance";
 
 import SideMenu from "./SideMenu";
 import { SearchAnimated } from "./ai-search-bar";
@@ -126,6 +127,8 @@ const NavbarContent = ({ className }: { className?: string }) => {
         <div className="hidden md:flex items-center gap-5 ml-2">
           {/*-------------- User Menu---------- */}
           {isAuthenticated && user ? (
+          <div className="flex items-center gap-3">
+            <AITokenBalance />
             <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
               <PopoverTrigger asChild>
                 <button className="flex items-center gap-2 rounded-full p-1 hover:bg-purple-100 transition-colors">
@@ -148,7 +151,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                   <ChevronDown className="size-5 text-purple" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-50 p-0" align="end">
+              <PopoverContent className="w-50 p-0 max-h-[350px] overflow-y-auto" align="end">
                 {pathname?.includes("/jobs") ? (
                   <JobNavigationMenu
                     onLogout={handleLogout}
@@ -177,6 +180,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                       favourites: t.home.navbar.favourites,
                       notifications: t.home.navbar.notifications,
                       offersPackages: t.home.navbar.offersPackages,
+                      aiTokens: "AI Tokens",
                       settings: t.home.navbar.settings,
                       signOut: t.home.navbar.signOut,
                     }}
@@ -184,6 +188,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                 )}
               </PopoverContent>
             </Popover>
+          </div>
           ) : (
             <Link href="/methods" className="text-xs font-medium text-purple">
               {t.home.navbar.logIn}

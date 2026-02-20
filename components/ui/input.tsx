@@ -95,8 +95,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               type="button"
               onClick={onLeftIconClick}
               className={cn(
-                "absolute left-3 top-1/2 -translate-y-1/2 text-grey-blue hover:text-purple transition-colors cursor-pointer p-1 rounded",
-                onLeftIconClick ? "hover:bg-purple/10" : "pointer-events-none"
+                "absolute left-3 top-1/2 -translate-y-1/2 text-grey-blue dark:text-gray-400 hover:text-purple dark:hover:text-purple transition-colors cursor-pointer p-1 rounded",
+                onLeftIconClick ? "hover:bg-purple/10 dark:hover:bg-purple/20" : "pointer-events-none"
               )}
               disabled={!onLeftIconClick}
             >
@@ -114,6 +114,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               rightIcon && "pr-10",
               hasError &&
                 "border-error-100 focus:border-error-100 focus:ring-error-100/20",
+              "bg-transparent dark:bg-gray-800 dark:text-white dark:border-gray-700",
               className
             )}
             ref={ref}
@@ -133,8 +134,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               type="button"
               onClick={onRightIconClick}
               className={cn(
-                "absolute right-3 top-1/2 -translate-y-1/2 text-grey-blue hover:text-purple transition-colors cursor-pointer p-1 rounded",
-                onRightIconClick ? "hover:bg-purple/10" : "pointer-events-none"
+                "absolute right-3 top-1/2 -translate-y-1/2 text-grey-blue dark:text-gray-400 hover:text-purple dark:hover:text-purple transition-colors cursor-pointer p-1 rounded",
+                onRightIconClick ? "hover:bg-purple/10 dark:hover:bg-purple/20" : "pointer-events-none"
               )}
               disabled={!onRightIconClick}
             >

@@ -106,7 +106,7 @@ export const FilterControl = ({
 
   const labelWithClear = (
     <div className="flex justify-between items-center w-full">
-      <span className={cn(variant === "dark" && "text-white/70")}>
+      <span className={cn("text-gray-700 dark:text-gray-200", variant === "dark" && "text-white")}>
         {filterConfig.label}
       </span>
       {isValueSelected && (
@@ -156,14 +156,15 @@ export const FilterControl = ({
             <div
               className={cn(
                 "p-3 rounded-xl border transition-all duration-200",
-                "bg-muted/30 border-muted/20 shadow-none",
-                variant === "dark" && "bg-background/40"
+                "bg-gray-50 dark:bg-gray-900/50 border-gray-100 dark:border-gray-800 shadow-none",
+                variant === "dark" && "bg-gray-900/80 border-gray-700"
               )}
             >
               <div
                 className={cn(
                   "text-[11px] font-bold mb-3 flex items-center gap-1.5",
-                  "text-foreground/90"
+                  "text-gray-900 dark:text-gray-100",
+                  variant === "dark" && "text-white"
                 )}
               >
                 <span className="w-1 h-1 rounded-full bg-purple" />

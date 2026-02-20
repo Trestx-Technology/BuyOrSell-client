@@ -25,7 +25,7 @@ export const ListingSeller: React.FC<ListingSellerProps> = ({
   showSocials,
 }) => {
   return (
-    <div className="hidden text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 sm:flex items-start justify-between mt-auto">
+    <div className="text-xs text-grey-blue font-regular border-t border-grey-blue/20 p-2.5 flex items-start justify-between mt-auto">
       {seller ? (
         <div className="flex items-center gap-2 cursor-pointer z-20 relative">
           {seller.image ? (

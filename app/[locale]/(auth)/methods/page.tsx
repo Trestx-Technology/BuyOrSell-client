@@ -14,7 +14,7 @@ const Login = () => {
   return (
     <section className="w-full lg:w-1/2 max-w-[530px] h-full flex flex-col justify-center relative space-y-8">
       <H1
-        className="text-center lg:text-left text-xl min-[500px]:text-3xl font-extrabold"
+        className="text-center lg:text-left text-xl min-[500px]:text-3xl font-extrabold text-black dark:text-white"
       >
         {t.auth.methods.title} <span className="text-purple">{t.auth.methods.subtitle}</span>
       </H1>
@@ -22,7 +22,7 @@ const Login = () => {
         <Button
           variant={"ghost"}
           size={"small"}
-          className="w-full h-12 bg-white border text-dark-blue border-purple/10"
+          className="w-full h-12 bg-white border text-dark-blue border-purple/10 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
           iconPosition="center"
           onClick={() => router.push(localePath("/login"))}
           icon={
@@ -43,13 +43,13 @@ const Login = () => {
             router.push(localePath("/"));
           }}
           onError={(error) => console.error(error)}
-          btnClassName="border border-purple/10"
+          btnClassName="border border-purple/10 dark:border-gray-700"
         />
 
 
       </div>
       <H5
-        className="text-center text-sm absolute left-1/2 -translate-x-1/2  bottom-16 w-full"
+        className="text-center text-sm absolute left-1/2 -translate-x-1/2  bottom-16 w-full text-gray-600 dark:text-gray-400"
       >
 {t.auth.methods.dontHaveAccount}{" "}
         <Link href={localePath("/signup")} className="text-purple m-custom-16">

@@ -21,7 +21,7 @@ export const ListingActions: React.FC<ListingActionsProps> = ({
   isSaved,
 }) => {
   return (
-    <div className="hidden absolute top-3 right-3 sm:flex gap-2">
+    <div className="hidden absolute top-3 right-3 sm:flex gap-2 z-20 pointer-events-auto">
       {!isExchange && (
         <button
           className="h-8 w-8 opacity-100 hover:scale-125 transition-transform cursor-pointer rounded-full"

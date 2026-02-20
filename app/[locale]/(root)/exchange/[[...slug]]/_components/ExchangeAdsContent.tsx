@@ -189,6 +189,7 @@ export default function ExchangeAdsContent() {
                                                 setCurrentPage(1);
                                           }}
                                           totalAds={totalAds}
+                                          mode="exchange"
                                     />
                               </div>
 
@@ -259,6 +260,7 @@ export default function ExchangeAdsContent() {
                                                                         key={ad._id}
                                                                         className="w-full border-0 shadow-lg"
                                                                         {...cardProps}
+                                                                        showSeller={true}
                                                                         onClick={handleCardClick}
                                                                   />
                                                             ) : (

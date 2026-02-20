@@ -3,13 +3,19 @@
 import React, { useCallback, useRef, useEffect, type ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
-interface InfiniteScrollContainerProps extends React.HTMLAttributes<HTMLDivElement> {
+interface InfiniteScrollContainerProps {
   children: ReactNode
   onLoadMore: () => Promise<void>
   isLoading?: boolean
   hasMore?: boolean
   loadingComponent?: ReactNode
   threshold?: number
+  className?: string
+  style?: React.CSSProperties
+  onTouchStart?: (e: React.TouchEvent) => void
+  onTouchMove?: (e: React.TouchEvent) => void
+  onTouchEnd?: () => void
+  onWheel?: (e: React.WheelEvent) => void
 }
 
 /**
@@ -21,29 +27,17 @@ interface InfiniteScrollContainerProps extends React.HTMLAttributes<HTMLDivEleme
  * - Customizable threshold and loading indicator
  */
 export const InfiniteScrollContainer = React.forwardRef<HTMLDivElement, InfiniteScrollContainerProps>(
-  ({ children, onLoadMore, isLoading = false, hasMore = true, loadingComponent, threshold = 0.1, className, ...props }, ref) => {
-    const internalRef = useRef<HTMLDivElement>(null)
+  ({ children, onLoadMore, isLoading = false, hasMore = true, loadingComponent, threshold = 0.1, className, style, ...props }, ref) => {
+    const containerRef = useRef<HTMLDivElement>(null)
     const loadingRef = useRef<HTMLDivElement>(null)
     const canLoadMoreRef = useRef(true)
 
-    // Sync external ref and internal ref
-    const setRef = useCallback((node: HTMLDivElement | null) => {
-      // @ts-ignore
-      internalRef.current = node
-      if (typeof ref === "function") {
-        ref(node)
-      } else if (ref) {
-        // @ts-ignore
-        ref.current = node
-      }
-    }, [ref])
-
     const handleScroll = useCallback(() => {
-      if (!internalRef.current || isLoading || !hasMore || !canLoadMoreRef.current) {
+      if (!containerRef.current || isLoading || !hasMore || !canLoadMoreRef.current) {
         return
       }
 
-      const { scrollTop, scrollHeight, clientHeight } = internalRef.current
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current
       const distanceToBottom = scrollHeight - (scrollTop + clientHeight)
       const triggerDistance = clientHeight * threshold
 
@@ -56,7 +50,7 @@ export const InfiniteScrollContainer = React.forwardRef<HTMLDivElement, Infinite
     }, [isLoading, hasMore, onLoadMore, threshold])
 
     useEffect(() => {
-      const container = internalRef.current
+      const container = containerRef.current
       if (!container) return
 
       container.addEventListener("scroll", handleScroll)
@@ -76,15 +70,29 @@ export const InfiniteScrollContainer = React.forwardRef<HTMLDivElement, Infinite
             })
           }
         },
-        { root: internalRef.current, threshold: 0 },
+        { root: containerRef.current, threshold: 0 },
       )
 
       observer.observe(loadingRef.current)
       return () => observer.disconnect()
     }, [isLoading, hasMore, onLoadMore])
 
+    // Expose the internal containerRef to the external ref
+    useEffect(() => {
+      if (typeof ref === "function") {
+        ref(containerRef.current)
+      } else if (ref) {
+        (ref as React.MutableRefObject<HTMLDivElement | null>).current = containerRef.current
+      }
+    }, [ref])
+
     return (
-      <div ref={setRef} className={cn("flex flex-1 flex-col overflow-y-auto", className)} {...props}>
+      <div
+        ref={containerRef}
+        className={cn("flex flex-1 flex-col overflow-y-auto", className)}
+        style={style}
+        {...props}
+      >
         {children}
 
         {isLoading && (

@@ -148,7 +148,7 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
       )}
 
       {/* Views Counter */}
-      {views && (
+      {typeof views === "number" && (
         <div className="absolute bottom-3 right-3 z-20 pointer-events-none">
           <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
             <Eye className="size-3 sm:size-4 text-white" />

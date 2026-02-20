@@ -6,29 +6,98 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Banner } from "@/interfaces/banner.types";
+import { useLocale } from "@/hooks/useLocale";
+import Link from "next/link";
 
-interface SponsoredBannerProps {
-  banner: Banner;
+interface SponsoredCarouselProps {
+  banners: Banner[];
   className?: string;
 }
 
-const SponsoredBanner = React.memo(function SponsoredBanner({
-  banner,
+const SponsoredCarousel = React.memo(function SponsoredCarousel({
+  banners,
   className = "",
-}: SponsoredBannerProps) {
+}: SponsoredCarouselProps) {
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const { locale } = useLocale();
+  const isArabic = locale === "ar";
+
+  React.useEffect(() => {
+    if (banners.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % banners.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [banners.length]);
+
+  if (!banners.length) return null;
+
   return (
     <div
-      className={`md:block hidden w-full max-w-[400px] h-full bg-black ${className}`}
+      className={`md:block hidden w-full max-w-[400px] h-full bg-black relative overflow-hidden rounded-xl ${className}`}
     >
-      <Image
-        src={banner.image}
-        alt={banner.title || banner.titleAr || "Sponsored banner"}
-        unoptimized
-        width={400}
-        height={300}
-        className="w-full h-full object-cover"
-        priority
-      />
+      {banners.map((banner, index) => {
+        const ctaText = isArabic ? banner.callToActionAr || banner.callToAction : banner.callToAction;
+
+        const Content = (
+          <div
+            className={cn(
+              "absolute inset-0 w-full h-full transition-opacity duration-500",
+              index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+            )}
+          >
+            <Image
+              src={banner.image}
+              alt={banner.title || banner.titleAr || "Sponsored banner"}
+              unoptimized
+              width={400}
+              height={300}
+              className="w-full h-full object-cover"
+              priority={index === 0}
+            />
+
+            {ctaText && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300">
+                <Button variant="filled" className="bg-white text-black hover:bg-gray-100 border-none px-6 rounded-full font-bold">
+                  {ctaText}
+                </Button>
+              </div>
+            )}
+
+            {!ctaText && banner.title && (
+              <div className="absolute bottom-10 left-0 right-0 z-20 px-4 bg-gradient-to-t from-black/80 to-transparent pt-10 pb-4">
+                <p className="text-white font-bold text-lg truncate">
+                  {isArabic ? banner.titleAr || banner.title : banner.title}
+                </p>
+              </div>
+            )}
+          </div>
+        );
+
+        if (banner.link) {
+          return (
+            <Link key={banner._id || index} href={banner.link} target="_blank">
+              {Content}
+            </Link>
+          );
+        }
+
+        return <React.Fragment key={banner._id || index}>{Content}</React.Fragment>;
+      })}
+
+      {banners.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-1.5 z-30">
+          {banners.map((_, index) => (
+            <div
+              key={index}
+              className={cn(
+                "h-1.5 w-1.5 rounded-full transition-colors duration-300",
+                index === currentIndex ? "bg-white" : "bg-white/50"
+              )}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 });
@@ -42,6 +111,7 @@ export interface BannerCarouselProps {
   showDots?: boolean;
   showNavigation?: boolean;
   showSponsoredBanner?: boolean;
+  sponsoredBanners?: Banner[];
   className?: string;
   containerClassName?: string;
   buttonClassName?: string;
@@ -120,6 +190,7 @@ export function BannerCarousel({
   showDots = true,
   showNavigation = true,
   showSponsoredBanner = false,
+  sponsoredBanners,
   className = "",
   containerClassName = "",
   buttonClassName = "",
@@ -314,12 +385,22 @@ export function BannerCarousel({
       </div>
 
       {/* Sponsored Banner */}
-      {showSponsoredBanner && banners.length > 1 && (
-        <SponsoredBanner
-          banner={banners[1]}
-          className={sponsoredBannerClassName}
-        />
-      )}
+      {showSponsoredBanner &&
+        (sponsoredBanners && sponsoredBanners.length > 0 ? (
+          <SponsoredCarousel
+            banners={sponsoredBanners}
+            className={sponsoredBannerClassName}
+          />
+      ) : (
+        <div
+          className={cn(
+            "md:flex hidden w-[400px] h-full bg-gray-200 dark:bg-gray-800 items-center justify-center text-gray-400 font-bold text-xl rounded-xl md:rounded-none",
+            sponsoredBannerClassName
+            )}
+          >
+            AD
+          </div>
+        ))}
 
       {/* Mobile Dots */}
       {showDots && bannersLength > 1 && (

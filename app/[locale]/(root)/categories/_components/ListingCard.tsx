@@ -33,7 +33,6 @@ import {
 import { useMemo, useEffect } from "react";
 import { useShare } from "@/hooks/useShare";
 import { CollectionManager } from "@/components/global/collection-manager";
-import { useGetCollectionsByAd } from "@/hooks/useCollections";
 import { cn } from "@/lib/utils";
 
 export interface ListingCardProps {
@@ -86,18 +85,12 @@ const ListingCard: React.FC<ListingCardProps> = ({
   seller,
 }) => {
   const { share } = useShare();
-  const { data: collectionsByAdResponse } = useGetCollectionsByAd(
-    initialIsSaved === undefined ? id : ""
-  );
-  const apiIsAddedInCollection =
-    collectionsByAdResponse?.data?.isAddedInCollection ?? false;
-  const [isSaved, setIsSaved] = useState(
-    initialIsSaved ?? apiIsAddedInCollection
-  );
+  // Use isSaved flag directly from ad data instead of making per-card API calls
+  const [isSaved, setIsSaved] = useState(initialIsSaved ?? false);
 
   useEffect(() => {
-    setIsSaved(initialIsSaved ?? apiIsAddedInCollection);
-  }, [initialIsSaved, apiIsAddedInCollection]);
+    setIsSaved(initialIsSaved ?? false);
+  }, [initialIsSaved]);
 
   // Get specifications from extraFields and transform to Specification[] format
   const specifications = useMemo((): Specification[] => {
@@ -312,6 +305,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
               onSuccess={(isAdded) => {
                 setIsSaved(isAdded);
               }}
+              initialIsSaved={isSaved}
             >
               <button
                 className="h-8 w-8 opacity-100 hover:scale-125 transition-all cursor-pointer rounded-full flex items-center justify-center"

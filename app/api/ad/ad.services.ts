@@ -11,15 +11,16 @@ import {
   AdFilters,
   AdFilterPayload,
   GetKeywordSearchResponse,
+  GetCategoryAdsCountResponse,
 } from "@/interfaces/ad";
 
 // Get all ads with optional filters
 export const getAds = async (
-  params?: AdFilters
+  params?: AdFilters,
 ): Promise<GetLiveAdsResponse> => {
   const response = await axiosInstance.get<GetLiveAdsResponse>(
     adQueries.ads.endpoint,
-    { params }
+    { params },
   );
   return response.data;
 };
@@ -27,14 +28,14 @@ export const getAds = async (
 // Get ad by ID
 export const getAdById = async (id: string): Promise<GetAdsByIdResponse> => {
   const response = await axiosInstance.get<GetAdsByIdResponse>(
-    adQueries.adById(id).endpoint
+    adQueries.adById(id).endpoint,
   );
   return response.data;
 };
 
 // Create new ad
 export const createAd = async (
-  payload: PostAdPayload
+  payload: PostAdPayload,
 ): Promise<PostAdResponse> => {
   const response = await axiosInstance.post<PostAdResponse>(
     adQueries.createAd.endpoint,
@@ -43,7 +44,7 @@ export const createAd = async (
       headers: {
         "Content-Type": "application/json",
       },
-    }
+    },
   );
   return response.data;
 };
@@ -51,7 +52,7 @@ export const createAd = async (
 // Update ad
 export const updateAd = async (
   id: string,
-  payload: Partial<PostAdPayload>
+  payload: Partial<PostAdPayload>,
 ): Promise<PostAdResponse> => {
   const response = await axiosInstance.patch<PostAdResponse>(
     adQueries.updateAd(id).endpoint,
@@ -75,7 +76,7 @@ export const deleteAd = async (id: string): Promise<{ message: string }> => {
 export const updateAdStatus = async (
   id: string,
   status: AdStatus,
-  reason?: string
+  reason?: string,
 ): Promise<PostAdResponse> => {
   const response = await axiosInstance.patch<PostAdResponse>(
     adQueries.updateAdStatus(id).endpoint,
@@ -84,7 +85,7 @@ export const updateAdStatus = async (
       headers: {
         "Content-Type": "application/json",
       },
-    }
+    },
   );
   return response.data;
 };
@@ -92,7 +93,7 @@ export const updateAdStatus = async (
 // Renew ad
 export const renewAd = async (
   id: string,
-  days: number
+  days: number,
 ): Promise<PostAdResponse> => {
   const response = await axiosInstance.patch<PostAdResponse>(
     adQueries.renewAd(id).endpoint,
@@ -101,11 +102,10 @@ export const renewAd = async (
       headers: {
         "Content-Type": "application/json",
       },
-    }
+    },
   );
   return response.data;
 };
-
 
 // Get ads by user
 export const getAdsByUser = async (
@@ -114,11 +114,11 @@ export const getAdsByUser = async (
     page?: number;
     limit?: number;
     status?: "live" | "rejected" | "pending";
-  }
+  },
 ): Promise<GetLiveAdsResponse> => {
   const response = await axiosInstance.get<GetLiveAdsResponse>(
     adQueries.adsByUser(userId).endpoint,
-    { params }
+    { params },
   );
   return response.data;
 };
@@ -133,11 +133,11 @@ export const getAdsByCategory = async (
     maxPrice?: number;
     sortBy?: string;
     sortOrder?: "asc" | "desc";
-  }
+  },
 ): Promise<GetLiveAdsResponse> => {
   const response = await axiosInstance.get<GetLiveAdsResponse>(
     adQueries.adsByCategory(categoryId).endpoint,
-    { params }
+    { params },
   );
   return response.data;
 };
@@ -154,7 +154,7 @@ export const searchAds = async (params: {
 }): Promise<GetAdSearchResponseType> => {
   const response = await axiosInstance.get<GetAdSearchResponseType>(
     adQueries.searchAds.endpoint,
-    { params }
+    { params },
   );
   return response.data;
 };
@@ -164,14 +164,14 @@ export const getAdsByKeyword = async (
   keyword: string,
   params?: {
     userId?: string;
-  }
+  },
 ): Promise<GetKeywordSearchResponse> => {
   const queryParams: Record<string, string> = {};
   if (params?.userId) queryParams.userId = params.userId;
 
   const response = await axiosInstance.get<GetKeywordSearchResponse>(
     adQueries.adsByKeyword(keyword, params).endpoint,
-    { params: Object.keys(queryParams).length > 0 ? queryParams : undefined }
+    { params: Object.keys(queryParams).length > 0 ? queryParams : undefined },
   );
   return response.data;
 };
@@ -187,7 +187,7 @@ export const getLiveAds = async (params?: {
 }): Promise<GetLiveAdsResponse> => {
   const response = await axiosInstance.get<GetLiveAdsResponse>(
     adQueries.liveAds.endpoint,
-    { params }
+    { params },
   );
   return response.data;
 };
@@ -200,25 +200,25 @@ export const getFeaturedAds = async (params?: {
 }): Promise<GetLiveAdsResponse> => {
   const response = await axiosInstance.get<GetLiveAdsResponse>(
     adQueries.featuredAds.endpoint,
-    { params }
+    { params },
   );
   return response.data;
 };
 
 // Get my ads (current user's ads)
 export const getMyAds = async (
-  params?: AdFilters
+  params?: AdFilters,
 ): Promise<GetLiveAdsResponse> => {
   const response = await axiosInstance.get<GetLiveAdsResponse>(
     adQueries.myAds.endpoint,
-    { params }
+    { params },
   );
   return response.data;
 };
 
 // Upload ad images
 export const uploadAdImages = async (
-  files: File[]
+  files: File[],
 ): Promise<UploadAdImagesResponse> => {
   const formData = new FormData();
   files.forEach((file) => {
@@ -232,7 +232,7 @@ export const uploadAdImages = async (
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
   return response.data;
 };
@@ -241,7 +241,7 @@ export const uploadAdImages = async (
 export const filterAds = async (
   payload: AdFilterPayload,
   page?: number,
-  limit?: number
+  limit?: number,
 ): Promise<GetLiveAdsResponse> => {
   const params = new URLSearchParams();
   if (page !== undefined) params.append("page", page.toString());
@@ -259,7 +259,7 @@ export const filterAds = async (
       headers: {
         "Content-Type": "application/json",
       },
-    }
+    },
   );
   return response.data;
 };
@@ -271,20 +271,17 @@ export const getSimilarAds = async (
     viewerId?: string;
     page?: number;
     limit?: number;
-  }
+  },
 ): Promise<GetLiveAdsResponse> => {
   const response = await axiosInstance.get<GetLiveAdsResponse>(
     adQueries.similarAds(id).endpoint,
-    { params }
+    { params },
   );
   return response.data;
 };
 
 // Search ads using AI
-export const searchAdsAI = async (
-  query: string,
-  userId?: string
-) => {
+export const searchAdsAI = async (query: string, userId?: string) => {
   if (!query) return null;
 
   const params: Record<string, any> = { q: query };
@@ -292,9 +289,36 @@ export const searchAdsAI = async (
     params.userId = userId;
   }
 
-  const response = await axiosInstance.get(
-    adQueries.searchAdsAI.endpoint,
-    { params }
-  );
+  const response = await axiosInstance.get(adQueries.searchAdsAI.endpoint, {
+    params,
+  });
   return response.data;
 };
+
+// Get regular ads count by parent categories
+export const getCategoryAdsCount =
+  async (): Promise<GetCategoryAdsCountResponse> => {
+    const response = await axiosInstance.get<GetCategoryAdsCountResponse>(
+      adQueries.categoriesCount.endpoint,
+    );
+    return response.data;
+  };
+
+// Get deals ads count by parent categories
+export const getDealsAdsCount =
+  async (): Promise<GetCategoryAdsCountResponse> => {
+    const response = await axiosInstance.get<GetCategoryAdsCountResponse>(
+      adQueries.dealsAdsCount.endpoint,
+    );
+    return response.data;
+  };
+
+// Get exchange ads count by parent categories
+export const getExchangeAdsCount =
+  async (): Promise<GetCategoryAdsCountResponse> => {
+    const response = await axiosInstance.get<GetCategoryAdsCountResponse>(
+      adQueries.exchangeAdsCount.endpoint,
+    );
+    return response.data;
+  };
+

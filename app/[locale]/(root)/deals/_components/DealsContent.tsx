@@ -178,6 +178,7 @@ export default function HotDealsContent() {
                                           setCurrentPage(1);
                                     }}
                                     totalAds={totalAds}
+                                    mode="deals"
                               />
                         </div>
 
@@ -246,6 +247,7 @@ export default function HotDealsContent() {
                                                                   key={ad._id}
                                                                   className="w-full border-0 shadow-lg"
                                                                   {...cardProps}
+                                                                  showSeller={true}
                                                                   onClick={handleCardClick}
                                                             />
                                                       ) : (

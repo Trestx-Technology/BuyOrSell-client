@@ -10,6 +10,7 @@ import { useRouter } from "nextjs-toploader/app";
 import Image from "next/image";
 import { ICONS } from "@/constants/icons";
 import { H2, Typography } from "@/components/typography";
+import { ChatInit } from "@/components/global/chat-init";
 
 interface OrganizationHeaderProps {
   organization: Organization & Partial<EmployerProfile>;
@@ -59,6 +60,22 @@ export const OrganizationHeader = ({ organization }: OrganizationHeaderProps) =>
           initialIsFollowing={organization.isFollowing}
           className="h-10 px-12 text-sm flex items-center gap-2 w-auto"
         />}
+
+        {!isOwner && (
+          <ChatInit
+            type="organisation"
+            organisationId={organization._id}
+            sellerId={organization.owner?._id}
+            sellerName={organization.tradeName || organization.legalName}
+            sellerImage={organization.logoUrl}
+            className="h-10 text-sm flex items-center gap-2 w-auto"
+            variant="outline"
+            size="default"
+            showLabel={true}
+            label="Message"
+            iconSize={18}
+          />
+        )}
 
         {organization.website && (
           <Button

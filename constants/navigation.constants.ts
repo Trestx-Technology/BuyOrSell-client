@@ -120,6 +120,15 @@ export const REGULAR_NAVIGATION_ITEMS: NavigationItem[] = [
     alt: "My Subscriptions",
   },
   {
+    id: "ai-tokens",
+    type: "link",
+    href: "/ai-tokens",
+    translationKey: "aiTokens",
+    icon: ICONS.ai.aiPurpleBg,
+    iconType: "image",
+    alt: "AI Tokens",
+  },
+  {
     id: "settings",
     type: "link",
     href: "/user/profile/settings",
@@ -320,6 +329,12 @@ export const SIDE_MENU_ACTIVITY_ITEMS: SideMenuItem[] = [
     label: "My Subscriptions",
     icon: ICONS.navigation.mySubscriptions,
     href: "/my-subscriptions",
+  },
+  {
+    id: "ai-tokens",
+    label: "AI Tokens",
+    icon: ICONS.ai.aiPurpleBg,
+    href: "/ai-tokens",
   },
   {
     id: "settings",

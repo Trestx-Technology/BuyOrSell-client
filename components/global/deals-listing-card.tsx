@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/tooltip";
 import { useShare } from "@/hooks/useShare";
 import { CollectionManager } from "./collection-manager";
-import { useGetCollectionsByAd } from "@/hooks/useCollections";
 import { ChatInit } from "@/components/global/chat-init";
 
 export interface DealsListingCardProps {
@@ -92,20 +91,13 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
 }) => {
   const { share } = useShare();
 
-  // Use isAddedInCollection flag from ad data if provided, otherwise check via API
-  const { data: collectionsByAdResponse } = useGetCollectionsByAd(
-    initialIsSaved === undefined ? id : ""
-  );
-  const apiIsAddedInCollection =
-    collectionsByAdResponse?.data?.isAddedInCollection ?? false;
+  // Use isSaved flag directly from ad data instead of making per-card API calls
+  // CollectionManager handles fetching collections lazily when the user clicks save
+  const [isSaved, setIsSaved] = useState(initialIsSaved ?? isFavorite ?? false);
 
-  // Use initialIsSaved prop if provided, otherwise use API result, fallback to isFavorite
-  const effectiveIsFavorite =
-    initialIsSaved !== undefined
-      ? initialIsSaved
-      : collectionsByAdResponse !== undefined
-      ? apiIsAddedInCollection
-      : isFavorite;
+  useEffect(() => {
+    setIsSaved(initialIsSaved ?? isFavorite ?? false);
+  }, [initialIsSaved, isFavorite]);
 
   // Normalize extraFields: handle both array and object formats, preserving icon info
   interface FieldWithIcon {
@@ -213,7 +205,8 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
     }, 500);
   };
 
-  const handleCollectionSuccess = () => {
+  const handleCollectionSuccess = (isAdded: boolean) => {
+    setIsSaved(isAdded);
     onFavorite?.(id);
   };
 
@@ -250,7 +243,8 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
 
   return (
     <div
-      className={`w-full overflow-hidden rounded-2xl border border-purple-100 bg-white dark:bg-gray-900 dark:border-gray-800 hover:shadow-lg transition-all duration-300 cursor-pointer group relative ${className}`}
+      role="button"
+      className={`overflow-hidden rounded-2xl border border-purple-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-lg transition-all duration-300 cursor-pointer group ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleCardClick}
@@ -325,7 +319,7 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
           )}
 
           {/* Views Counter */}
-          {views && (
+          {typeof views === "number" && (
             <div className="absolute bottom-3 right-3">
               <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
                 <Eye className="size-3 sm:size-4 text-white" />
@@ -411,6 +405,7 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
               itemTitle={title}
               itemImage={images[0]}
               onSuccess={handleCollectionSuccess}
+              initialIsSaved={isSaved}
             >
               <button
                 className="h-8 w-8 opacity-100 hover:scale-125 transition-all cursor-pointer rounded-full"
@@ -419,7 +414,7 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
                 <Heart
                   size={24}
                   className={`mx-auto fill-white stroke-slate-400 ${
-                    effectiveIsFavorite ? "fill-red-500" : ""
+                    isSaved ? "fill-purple text-purple" : ""
                   }`}
                   strokeWidth={1}
                 />

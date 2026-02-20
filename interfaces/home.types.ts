@@ -105,6 +105,7 @@ export interface LatestAd {
   createdAt: string;
   connectionTypes: string[];
   images: string[];
+  views?: number;
   location: string | null;
   address?: {
     state: string;
@@ -149,6 +150,7 @@ export interface DealAd {
   connectionTypes: string[];
   relatedCategories: string[];
   images: string[];
+  views?: number;
   address: {
     state: {
       state: string;

@@ -4,6 +4,11 @@ import { forwardRef, useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Search, ChevronDown } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface SearchableDropdownInputProps {
   className?: string;
@@ -65,102 +70,101 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
     };
 
     return (
-      <div ref={ref} className={cn("relative w-full", className)}>
-        {/* Trigger */}
-        <button
-          type="button"
-          onClick={() => !disabled && setIsOpen(!isOpen)}
-          disabled={disabled}
-          className={cn(
-            "w-full h-11 px-3 py-2.5 rounded-t-lg border bg-background text-foreground",
-            "flex items-center justify-between text-xs font-medium",
-            "focus:outline-none focus:ring-2 transition-all duration-200",
-            !isOpen && "rounded-b-lg",
-            error
-              ? "border-destructive focus:ring-destructive/20"
-              : !isOpen
-                ? "border-border"
-                : "border-purple",
-            (selectedOption || (isMulti && Array.isArray(value) && value.length > 0)) && !error && "border-purple/50",
-            disabled && "opacity-50 cursor-not-allowed"
-          )}
-        >
-          <div className="w-full flex items-center">
-            <Search className="w-5 h-5 text-purple" />
-            <Input
-              type="text"
-              value={isOpen ? searchQuery : (isMulti ? "" : selectedOption?.label || "")}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={!isOpen && isMulti && Array.isArray(value) && value.length > 0 ? `${value.length} selected` : (selectedOption?.label || placeholder)}
-              onFocus={(e) => {
-                e.stopPropagation();
-                setIsOpen(true);
-              }}
-              className="w-full h-9 px-3 py-2 text-xs border-0 rounded-lg outline-none focus-visible:border-0 focus-visible:ring-0 focus:border-0 focus:ring-0 bg-transparent"
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
-          <ChevronDown
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            disabled={disabled}
             className={cn(
-              "w-5 h-5 text-purple transition-transform",
-              isOpen && "rotate-180"
+              "w-full h-11 px-3 py-2.5 rounded-lg border bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-foreground",
+              "flex items-center justify-between text-xs font-medium",
+              "focus:outline-none focus:ring-2 focus:ring-purple/20 transition-all duration-200",
+              isOpen && "border-purple ring-2 ring-purple/20",
+              error && "border-destructive focus:ring-destructive/20",
+              (selectedOption || (isMulti && Array.isArray(value) && value.length > 0)) && !error && "border-purple/50",
+              disabled && "opacity-50 cursor-not-allowed",
+              className
             )}
-          />
-        </button>
+          >
+            <div className="w-full flex items-center">
+              <Search className="w-4 h-4 text-purple mr-2 shrink-0" />
+              <div className="flex-1 text-left truncate">
+                {isOpen ? (
+                  <span className="text-muted-foreground">{searchQuery || placeholder}</span>
+                ) : (
+                  (isMulti && Array.isArray(value) && value.length > 0) ? (
+                    <span className="text-purple font-semibold">{value.length} selected</span>
+                  ) : (
+                    selectedOption?.label || <span className="text-muted-foreground">{placeholder}</span>
+                  )
+                )}
+              </div>
+            </div>
+            <ChevronDown
+              className={cn(
+                "w-4 h-4 text-purple transition-transform ml-2 shrink-0",
+                isOpen && "rotate-180"
+              )}
+            />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="p-0 w-[var(--radix-popover-trigger-width)] bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 overflow-hidden shadow-xl"
+          align="start"
+          sideOffset={4}
+        >
+          {/* Search Input inside Popover */}
+          <div className="p-2 border-b border-gray-100 dark:border-gray-800">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                autoFocus
+                placeholder="Search options..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-8 pl-8 text-xs bg-gray-50 dark:bg-gray-900 border-none focus-visible:ring-1 focus-visible:ring-purple/30"
+              />
+            </div>
+          </div>
 
-        {/* Dropdown Content */}
-        {isOpen && (
-          <div className="absolute top-full left-0 right-0 z-50 bg-card border border-t-0 rounded-b-lg max-h-[400px] overflow-hidden flex flex-col shadow-[0px_9.71px_24px_0px_rgba(139,49,225,0.15)] border-purple/30">
-            {/* Options List */}
-            <div className="overflow-y-auto max-h-48 custom-scrollbar">
-              {filteredOptions.map((option) => (
+          {/* Options List */}
+          <div className="overflow-y-auto max-h-60 custom-scrollbar">
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((option) => (
                 <button
                   key={option.value}
                   type="button"
                   onClick={() => handleSelect(option.value)}
                   className={cn(
-                    "w-full text-left p-3 cursor-pointer text-xs font-normal border-b border-border last:border-0",
-                    "flex items-center gap-3 transition-colors",
-                    "hover:bg-accent/50 text-foreground",
-                    isSelected(option.value) && "bg-purple/10 text-purple font-medium"
-                  )}
-                >
-                  {isMulti && (
-                    <div className={cn(
-                      "w-4 h-4 rounded border flex items-center justify-center transition-colors",
-                      isSelected(option.value) ? "bg-purple border-purple" : "border-border"
-                    )}>
-                      {isSelected(option.value) && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                      )}
-                    </div>
-                  )}
-                  {option.label}
-                </button>
-              ))}
-              {filteredOptions.length === 0 && (
-                <div className="text-xs text-muted-foreground px-4 py-4 italic text-center">
-                  No options found
+                          "w-full text-left p-3 cursor-pointer text-xs font-normal border-b border-gray-50 dark:border-gray-800 last:border-0",
+                          "flex items-center gap-3 transition-colors",
+                          "hover:bg-purple/5 dark:hover:bg-purple/10 text-foreground",
+                          isSelected(option.value) && "bg-purple/10 text-purple font-medium"
+                        )}
+                  >
+                    {isMulti && (
+                      <div className={cn(
+                        "w-4 h-4 rounded border flex items-center justify-center transition-colors",
+                              isSelected(option.value) ? "bg-purple border-purple" : "border-gray-300 dark:border-gray-600"
+                            )}>
+                        {isSelected(option.value) && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                        )}
+                      </div>
+                    )}
+                    {option.label}
+                  </button>
+                ))
+            ) : (
+              <div className="text-xs text-muted-foreground px-4 py-8 italic text-center">
+                No options found
                 </div>
-              )}
-            </div>
+            )}
           </div>
-        )}
-
-        {/* Overlay to close dropdown */}
-        {isOpen && (
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => {
-              setIsOpen(false);
-              setSearchQuery("");
-            }}
-          />
-        )}
-      </div>
+        </PopoverContent>
+      </Popover>
     );
   }
 );
 
 SearchableDropdownInput.displayName = "SearchableDropdownInput";
-

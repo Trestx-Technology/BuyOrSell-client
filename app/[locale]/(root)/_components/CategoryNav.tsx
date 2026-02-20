@@ -214,7 +214,7 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
   <HoverCard openDelay={0} closeDelay={100}>
     <HoverCardTrigger asChild>
       <button
-        className="h-9 cursor-pointer text-xs font-regular rounded-sm text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:text-purple transition-colors  data-[state=open]:text-purple"
+        className="h-9 px-2 cursor-pointer text-xs font-regular rounded-sm text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:text-purple transition-colors  data-[state=open]:text-purple"
       >
         {label}
       </button>
@@ -229,7 +229,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
 }) => {
   const { t, locale } = useLocale();
   return (
-    <div className="w-full min-w-[400px] flex-1 bg-purple/10 dark:bg-purple/5 overflow-y-auto max-h-[500px]">
+    <div className="w-full min-w-[400px] flex-1 bg-purple/10 dark:bg-purple/5 overflow-y-auto max-h-[40vh]">
       <div className="flex flex-col w-full">
         {subcategories.map((subcategory) => {
           const hasChildren =
@@ -316,11 +316,11 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
   if (isOtherCategory) {
     return (
       <HoverCardContent
-        className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[500px] p-0 w-fit"
+        className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[40vh] p-0 w-fit"
         align="start"
         sideOffset={4}
       >
-        <div className="w-full max-w-md overflow-y-auto scrollbar-hide">
+        <div className="w-full max-w-md overflow-y-auto">
           {categoryData.map((category) => {
             const categoryName =
               locale === "ar"
@@ -353,12 +353,12 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
 
   return (
     <HoverCardContent
-      className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[500px] p-0 w-fit"
+      className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[40vh] p-0 w-fit"
       align="start"
       sideOffset={0}
     >
       <div className="flex w-full">
-        <div className="w-60 border-r border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[500px]">
+        <div className="w-60 border-r border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[70vh]">
           {categoryData.map((category) => {
             const hasChildren =
               category.children && category.children.length > 0;
@@ -527,7 +527,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
           ) : (
             <div
               key={isJobsPage ? "jobs-nav" : "main-nav"}
-              className="hidden w-full md:flex flex-1 gap-10 items-center"
+              className="hidden w-full md:flex flex-1 gap-6 items-center"
             >
               {visibleCategoriesList.map(({ type, label }) => (
                 <div key={type}>

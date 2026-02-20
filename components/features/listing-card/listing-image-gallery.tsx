@@ -136,7 +136,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
   );
 
   return (
-    <div className="relative aspect-[3/3] sm:aspect-[4/3] w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
+    <div className="relative z-10 pointer-events-none aspect-[3/3] sm:aspect-[4/3] w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
       {images.length > 0 ? (
         <div className="relative w-full h-full overflow-hidden">
           <div
@@ -215,7 +215,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
             variant="secondary"
             disabled={isTransitioning}
             className={cn(
-              "absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg z-30 p-0",
+              "absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg z-30 p-0 pointer-events-auto",
               isTransitioning && "opacity-50 cursor-not-allowed"
             )}
             onClick={handlePreviousImage}
@@ -228,7 +228,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
             variant="secondary"
             disabled={isTransitioning}
             className={cn(
-              "absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg p-0",
+              "absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg p-0 pointer-events-auto",
               isTransitioning && "opacity-50 cursor-not-allowed"
             )}
             onClick={handleNextImage}
@@ -241,7 +241,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
 
       {/* Image Dots Indicator */}
       {images.length > 1 && images.length <= 5 && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 pointer-events-auto">
           {images.map((_, index) => (
             <button
               key={`${id}-dot-${index}`}

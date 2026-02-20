@@ -1,18 +1,22 @@
 import { BannerCarousel } from "@/components/global/banner-carousel";
-import { useBannersByLocation } from "@/hooks/useBanners";
+import { useBannersBySlug } from "@/hooks/useBanners";
 
 export function HomeCarousel() {
   const {
     data: bannersData,
     isLoading: isLoadingBanners,
     error: errorBanners,
-  } = useBannersByLocation("homepage-carousel");
+  } = useBannersBySlug("home-page-carousel");
+
+  const { data: exploreDealsBanners, isLoading: isLoadingExploreDeals } =
+    useBannersBySlug("explore-deals");
 
   return (
     <div>
       <BannerCarousel
         banners={bannersData?.data?.banners || []}
-        isLoading={isLoadingBanners}
+        sponsoredBanners={exploreDealsBanners?.data?.banners || []}
+        isLoading={isLoadingBanners || isLoadingExploreDeals}
         error={errorBanners}
         showSponsoredBanner={true}
         autoPlay={true}

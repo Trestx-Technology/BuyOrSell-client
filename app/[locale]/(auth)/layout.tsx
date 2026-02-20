@@ -4,6 +4,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Metadata } from "next";
 import Link from "next/link";
 import { AuthGuard } from "./_components/auth-guard";
+import { ICONS } from "@/constants/icons";
 
 export const metadata: Metadata = {
   title: "Authentication - BuyOrSell",
@@ -20,12 +21,13 @@ const AuthRootLayout = async ({ children, params }: AuthRootLayoutProps) => {
   
   return (
     // <AuthGuard>
+    <div className="bg-white dark:bg-gray-950">
+
+
       <div className="px-[12px] lg:px-[100px] min-h-[750px] h-screen w-screen max-w-[1280px] mx-auto flex flex-col">
         <Link href={`/${locale}`} className=" pt-8">
           <Image
-            src={
-              "https://dev-buyorsell.s3.me-central-1.amazonaws.com/assets/logo.svg"
-            }
+            src={ICONS.logo.main}
             width={156}
             height={49}
             alt="logo"
@@ -44,6 +46,7 @@ const AuthRootLayout = async ({ children, params }: AuthRootLayoutProps) => {
           </div>
         </main>
       </div>
+    </div>
     // </AuthGuard>
 
   );

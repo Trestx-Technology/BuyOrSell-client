@@ -228,13 +228,13 @@ export const OrganizationForm = ({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="bg-white rounded-lg border border-[#E5E5E5] p-6 space-y-6"
+      className="bg-white dark:bg-gray-900 rounded-lg border border-[#E5E5E5] dark:border-gray-800 p-6 space-y-6"
     >
       {/* Basic Information */}
       <div>
         <Typography
           variant="md-semibold-inter"
-          className="text-lg font-semibold text-[#1D2939] mb-4"
+          className="text-lg font-semibold text-[#1D2939] dark:text-gray-100 mb-4"
         >
           {t.organizations.form.basicInformation}
         </Typography>
@@ -352,7 +352,7 @@ export const OrganizationForm = ({
       <div>
         <Typography
           variant="md-semibold-inter"
-          className="text-lg font-semibold text-[#1D2939] mb-4"
+          className="text-lg font-semibold text-[#1D2939] dark:text-gray-100 mb-4"
         >
           {t.organizations.form.licenseInformation}
         </Typography>
@@ -441,7 +441,7 @@ export const OrganizationForm = ({
       <div>
         <Typography
           variant="md-semibold-inter"
-          className="text-lg font-semibold text-[#1D2939] mb-4"
+          className="text-lg font-semibold text-[#1D2939] dark:text-gray-100 mb-4"
         >
           {t.organizations.form.addressInformation}
         </Typography>
@@ -528,7 +528,7 @@ export const OrganizationForm = ({
       <div>
         <Typography
           variant="md-semibold-inter"
-          className="text-lg font-semibold text-[#1D2939] mb-4"
+          className="text-lg font-semibold text-[#1D2939] dark:text-gray-100 mb-4"
         >
           {t.organizations.form.contactInformation}
         </Typography>
@@ -619,7 +619,7 @@ export const OrganizationForm = ({
       <div>
         <Typography
           variant="md-semibold-inter"
-          className="text-lg font-semibold text-[#1D2939] mb-4"
+          className="text-lg font-semibold text-[#1D2939] dark:text-gray-100 mb-4"
         >
           {t.organizations.form.additionalInformation}
         </Typography>

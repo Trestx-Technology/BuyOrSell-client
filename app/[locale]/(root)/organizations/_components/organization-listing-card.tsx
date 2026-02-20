@@ -31,15 +31,15 @@ export default function OrganizationListingCard({
     <div
       onClick={onClick}
       className={cn(
-        "bg-white w-full max-w-[256px] rounded-2xl cursor-pointer transition-all relative p-4",
+        "bg-white dark:bg-gray-800 w-full max-w-[256px] rounded-2xl cursor-pointer transition-all relative p-4",
         "border shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] hover:shadow-[0px_2.67px_7.11px_#309689/20]",
-        isSelected ? "border-purple border-[1px]" : "border-[#E2E2E2]"
+        isSelected ? "border-purple border-[1px]" : "border-[#E2E2E2] dark:border-gray-700"
       )}
     >
       <div className="flex flex-col gap-[21.33px]">
         {/* Badge section */}
         <div>
-          <Badge className="bg-[#F5EBFF] text-purple px-[7.11px] py-[7.11px] rounded-[24px] text-xs font-normal leading-[1.21]">
+          <Badge className="bg-[#F5EBFF] dark:bg-purple/10 text-purple px-[7.11px] py-[7.11px] rounded-[24px] text-xs font-normal leading-[1.21]">
             {postedTime}
           </Badge>
         </div>
@@ -50,7 +50,7 @@ export default function OrganizationListingCard({
             <div className="flex items-center gap-1">
               <Typography
                 variant="h3"
-                className="text-[#1D2939] font-semibold text-[18px] leading-[1.21] truncate"
+                className="text-[#1D2939] dark:text-gray-100 font-semibold text-[18px] leading-[1.21] truncate"
               >
                 {displayName}
               </Typography>
@@ -61,7 +61,7 @@ export default function OrganizationListingCard({
             {organization.type && (
               <Typography
                 variant="body-small"
-                className="text-[#1D2939] text-sm font-normal leading-[1.21]"
+                className="text-[#1D2939] dark:text-gray-400 text-sm font-normal leading-[1.21]"
               >
                 {organization.type}
               </Typography>
@@ -108,7 +108,7 @@ export default function OrganizationListingCard({
             <MapPin className="w-5 h-5 text-[#8A8A8A]" />
             <Typography
               variant="body-small"
-              className="text-[#1D2939] text-xs font-medium leading-[1.21] truncate"
+              className="text-[#1D2939] dark:text-gray-300 text-xs font-medium leading-[1.21] truncate"
             >
               {location}
             </Typography>
@@ -120,7 +120,7 @@ export default function OrganizationListingCard({
           <div className="flex items-center gap-1.5">
             <Typography
               variant="body-small"
-              className="text-[#1D2939] text-xs font-medium leading-[1.21]"
+              className="text-[#1D2939] dark:text-gray-300 text-xs font-medium leading-[1.21]"
             >
               {organization.totalJobsPosted} Jobs Posted
             </Typography>
@@ -132,7 +132,7 @@ export default function OrganizationListingCard({
           <div className="flex items-center gap-1.5">
             <Typography
               variant="body-small"
-              className="text-[#1D2939] text-xs font-medium leading-[1.21]"
+              className="text-[#1D2939] dark:text-gray-300 text-xs font-medium leading-[1.21]"
             >
               {organization.followersCount} Followers
             </Typography>

@@ -124,7 +124,7 @@ export function PriceDisplay({
         <H4
           className={`font-bold text-purple-600 ${currentPriceClassName}`}
         >
-          {isCompact ? formatCompactPrice(currentPrice) : formatPrice(currentPrice)}
+          {isCompact && hasDiscount ? formatCompactPrice(currentPrice) : formatPrice(currentPrice)}
         </H4>
       </div>
       {hasDiscount && (

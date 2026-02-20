@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, UserX, Check, X, ArrowUpRight, ArrowDownLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { ChatInit } from "@/components/global/chat-init";
 
 interface ColumnActionsWrapperProps {
       conn: Connection;
@@ -89,20 +90,19 @@ export const getConnectionsColumns = ({
                         const id = conn.connectionId || conn._id || conn.id || "";
                         if (!otherUser) return null;
 
+                        const displayName = otherUser.name || `${otherUser.firstName || ""} ${otherUser.lastName || ""}`.trim() || "Unknown Professional";
+
                         return (
                               <div className="flex justify-end gap-2">
-                                    <Button
-                                          size="icon"
+                                    <ChatInit
+                                          type="dm"
+                                          sellerId={otherUser.id}
+                                          sellerName={displayName}
+                                          sellerImage={otherUser.image}
                                           variant="ghost"
+                                          size="icon"
                                           className="h-8 text-purple hover:bg-purple-100 transition-all shadow-sm"
-                                          onClick={(e) => {
-                                                e.stopPropagation();
-                                                onMessage?.(otherUser.id);
-                                          }}
-                                          icon={<MessageCircle className="w-3.5 h-3.5" />}
-                                          iconPosition="center"
-                                          isLoading={isMessageLoading === otherUser.id}
-                                          disabled={isMessageLoading === otherUser.id}
+                                          iconSize={14}
                                     />
                                     <Button
                                           size="sm"

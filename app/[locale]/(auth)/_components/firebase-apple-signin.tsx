@@ -114,7 +114,7 @@ export function FirebaseAppleLoginButton({
                   disabled={disabled || isLoading || socialLoginMutation.isPending}
                   variant="outline"
                   className={cn(
-                        "w-full h-12 border-gray-200 justify-center gap-3 bg-white hover:bg-slate-100 text-slate-700",
+                        "w-full h-12 flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-slate-700 border-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 dark:border-gray-700",
                         className
                   )}
                   icon={<FaApple />}

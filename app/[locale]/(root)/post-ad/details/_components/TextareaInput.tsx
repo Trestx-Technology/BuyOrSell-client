@@ -44,11 +44,11 @@ export const TextareaInput = forwardRef<
     return (
       <div className={cn("space-y-1.5", className)}>
         <div className={cn(
-          "relative flex flex-col border rounded-xl overflow-hidden bg-white transition-all duration-200",
+          "relative flex flex-col border rounded-xl overflow-hidden bg-white dark:bg-gray-800 transition-all duration-200",
           error
             ? "border-red-500 ring-2 ring-red-500/10"
-            : "border-[#F5EBFF] focus-within:border-purple/30 focus-within:ring-4 focus-within:ring-purple/5",
-          disabled && "bg-gray-100 cursor-not-allowed opacity-60"
+            : "border-[#F5EBFF] dark:border-gray-700 focus-within:border-purple/30 focus-within:ring-4 focus-within:ring-purple/5",
+          disabled && "bg-gray-100 dark:bg-gray-900/50 cursor-not-allowed opacity-60"
         )}>
           <Textarea
             ref={ref}
@@ -59,14 +59,14 @@ export const TextareaInput = forwardRef<
             rows={rows}
             maxLength={maxLength}
             className={cn(
-              "w-full px-4 py-3 border-none ring-0 focus-visible:ring-0 resize-none",
-              "text-sm leading-relaxed text-[#4A4A4A] placeholder:text-gray-400 font-medium",
+              "w-full px-4 py-3 border-none ring-0 focus-visible:ring-0 resize-none bg-transparent",
+              "text-sm leading-relaxed text-[#4A4A4A] dark:text-gray-200 placeholder:text-gray-400 font-medium",
               "scrollbar-thin scrollbar-thumb-purple/10 scrollbar-track-transparent",
               showAI && "min-h-[160px]"
             )}
           />
 
-          <div className="flex items-center justify-between px-3 py-2 bg-[#FDFBFF] border-t border-[#F5EBFF] shrink-0">
+          <div className="flex items-center justify-between px-3 py-2 bg-[#FDFBFF] dark:bg-gray-900/50 border-t border-[#F5EBFF] dark:border-gray-700 shrink-0">
             <div className="flex items-center gap-2">
               {showAI && (
                 <Button
@@ -88,7 +88,7 @@ export const TextareaInput = forwardRef<
             {maxLength && (
               <div className={cn(
                 "text-[10px] font-bold px-2 py-1 rounded-md transition-colors",
-                value.length >= (maxLength * 0.9) ? "text-red-500 bg-red-50" : "text-gray-400 bg-gray-50"
+                value.length >= (maxLength * 0.9) ? "text-red-500 bg-red-50 dark:bg-red-900/20" : "text-gray-400 bg-gray-50 dark:bg-gray-800"
               )}>
                 {value.length}/{maxLength}
               </div>

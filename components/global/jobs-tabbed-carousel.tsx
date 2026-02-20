@@ -270,7 +270,7 @@ export default function JobsTabbedCarousel({
     >
       <Typography
         variant="lg-black-inter"
-        className={`text-md sm:text-lg font-medium text-dark-blue ${titleClassName}`}
+        className={`text-md sm:text-lg font-medium text-dark-blue dark:text-white ${titleClassName}`}
       >
         {displayTitle}
       </Typography>
@@ -306,7 +306,7 @@ export default function JobsTabbedCarousel({
               className={`px-4 py-2 h-8 text-xs font-medium rounded-lg border transition-colors flex-shrink-0 ${
                 activeTab === subCategory._id
                   ? "bg-purple text-white border-purple shadow-sm"
-                  : "bg-white border-[#F5EBFF] text-[#475467] hover:bg-purple/10"
+                : "bg-white dark:bg-gray-800 border-[#F5EBFF] dark:border-gray-700 text-[#475467] dark:text-gray-300 hover:bg-purple/10 dark:hover:bg-purple/20"
               }`}
             >
               {subCategoryName}
@@ -329,7 +329,7 @@ export default function JobsTabbedCarousel({
           <Button
             variant="filled"
             onClick={() => onViewAll?.(subCategories?.find((sub) => sub._id === activeTab)?.name || categoryName)}
-            className="md:block hidden transition-colors px-5 py-2 h-8 text-xs font-medium"
+            className="md:block hidden transition-colors px-5 py-2 h-8 text-xs font-medium dark:bg-purple dark:text-white"
           >
             {viewAllText}
           </Button>

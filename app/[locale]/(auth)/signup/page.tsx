@@ -176,7 +176,7 @@ const Signup = () => {
         <ChevronLeft className="size-5" /> {t.auth.signup.back}
       </Link>
       <H2
-        className="py-4 text-left font-extrabold"
+        className="py-4 text-left font-extrabold text-black dark:text-white"
       >
         {t.auth.signup.title}
       </H2>
@@ -185,10 +185,10 @@ const Signup = () => {
           <Input
             {...register("fullName")}
             autoComplete="name"
-            leftIcon={<CircleUserRound className="size-6 -ml-0.5" />}
+            leftIcon={<CircleUserRound className="size-6 -ml-0.5 text-grey-blue dark:text-gray-400" />}
             placeholder={t.auth.signup.fullName}
             inputSize="lg"
-            className="w-full text-sm pl-12"
+            className="w-full text-sm pl-12 dark:bg-gray-800 dark:text-white dark:border-gray-700"
             error={errors.fullName?.message}
           />
           {errors.fullName && (
@@ -209,12 +209,12 @@ const Signup = () => {
                   "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/mail.svg"
                 }
                 alt="mail"
-                className="size-5"
+                className="size-5 dark:invert"
               />
             }
             placeholder={t.auth.signup.email}
             inputSize="lg"
-            className="w-full text-sm pl-12"
+            className="w-full text-sm pl-12 dark:bg-gray-800 dark:text-white dark:border-gray-700"
             error={errors.email?.message}
           />
           {errors.email && (
@@ -225,7 +225,7 @@ const Signup = () => {
         {/* Phone Number with Country Code */}
         <div className="flex gap-3">
           <Select value={selectedCountryCode} onValueChange={handleCountryCodeChange}>
-            <SelectTrigger className="min-w-fit border-grey-blue/30 hover:border-purple/50 bg-white text-dark-blue text-sm font-medium py-6">
+            <SelectTrigger className="min-w-fit border-grey-blue/30 hover:border-purple/50 bg-white dark:bg-gray-800 text-dark-blue dark:text-white border-grey-blue/30 dark:border-gray-700 text-sm font-medium py-6">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -247,7 +247,7 @@ const Signup = () => {
               inputMode="numeric"
               name="phoneNumber"
               id="phoneNumber"
-              className="w-full text-sm"
+              className="w-full text-sm dark:bg-gray-800 dark:text-white dark:border-gray-700"
               onChange={handlePhoneNumberChange}
               error={errors.phoneNumber?.message}
             />
@@ -270,7 +270,7 @@ const Signup = () => {
                   "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/key.svg"
                 }
                 alt="key"
-                className="size-5"
+                className="size-5 dark:invert"
               />
             }
             placeholder={t.auth.signup.password}
@@ -278,16 +278,16 @@ const Signup = () => {
             rightIcon={
               !showPassword ? (
                 <EyeIcon
-                  className={`size-5 ${showPassword ? "text-purple" : "text-gray-500"}`}
+                  className={`size-5 ${showPassword ? "text-purple" : "text-gray-500 dark:text-gray-400"}`}
                 />
               ) : (
                 <EyeOffIcon
-                  className={`size-5 ${showPassword ? "text-purple" : "text-gray-500"}`}
+                    className={`size-5 ${showPassword ? "text-purple" : "text-gray-500 dark:text-gray-400"}`}
                 />
               )
             }
             inputSize="lg"
-            className="w-full text-sm pl-12"
+            className="w-full text-sm pl-12 dark:bg-gray-800 dark:text-white dark:border-gray-700"
             error={errors.password?.message}
           />
           {errors.password && (
@@ -296,7 +296,7 @@ const Signup = () => {
 
           {/* Password Strength Indicator with Progress Bar */}
           <div className="space-y-2 mt-2">
-            <div className="text-sm">{t.auth.signup.passwordStrength}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{t.auth.signup.passwordStrength}</div>
             <Progress value={passwordStrength.progress} className="h-2" />
           
           </div>
@@ -325,7 +325,7 @@ const Signup = () => {
         isLoading={isVerifyingOtp || verifyPhoneOtpMutation.isPending || signUpMutation.isPending}
       />
 
-      <H5 className="text-center text-sm py-6">
+      <H5 className="text-center text-sm py-6 text-gray-600 dark:text-gray-400">
         {t.auth.signup.orContinueWith}
       </H5>
 
@@ -338,7 +338,7 @@ const Signup = () => {
       />
 
       <H5
-        className="text-center mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit"
+        className="text-center mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit text-gray-600 dark:text-gray-400"
       >
         {t.auth.signup.alreadyHaveAccount}{" "}
         <Link href={localePath("/login")} className="text-purple m-custom-8 hover:underline">

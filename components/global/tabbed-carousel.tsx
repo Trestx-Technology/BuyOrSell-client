@@ -119,7 +119,7 @@ export default function TabbedCarousel<
 
   // Skeleton components
   const TitleSkeleton = () => (
-    <div className="h-6 bg-gray-200 rounded w-48 animate-pulse"></div>
+    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-48 animate-pulse"></div>
   );
 
   const TabsSkeleton = () => (
@@ -127,14 +127,14 @@ export default function TabbedCarousel<
       {Array.from({ length: 4 }).map((_, index) => (
         <div
           key={index}
-          className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"
+          className="h-8 w-20 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"
         ></div>
       ))}
     </div>
   );
 
   const ViewAllSkeleton = () => (
-    <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+    <div className="h-8 w-20 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
   );
 
   const CardsSkeleton = () => (
@@ -161,7 +161,7 @@ export default function TabbedCarousel<
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className={`max-w-[1220px] bg-white mx-auto py-5 ${className}`}
+      className={`max-w-[1220px] bg-white dark:bg-gray-950 mx-auto py-5 ${className}`}
     >
       <div className="w-full mx-auto px-4 xl:px-5">
         {/* Header with Title and View All Button */}
@@ -180,7 +180,7 @@ export default function TabbedCarousel<
             {/* Section Title */}
             <Typography
               variant="lg-black-inter"
-              className="text-md sm:text-lg font-medium text-dark-blue"
+                className="text-md sm:text-lg font-medium text-dark-blue dark:text-gray-100"
             >
               {title}
             </Typography>
@@ -218,7 +218,7 @@ export default function TabbedCarousel<
                   className={`px-4 py-2 h-8 text-xs font-medium rounded-lg border transition-colors flex-shrink-0 ${
                     activeTab === tab.value
                       ? "bg-purple text-white border-purple shadow-sm"
-                      : "bg-white border-[#F5EBFF] text-[#475467] hover:bg-purple/10"
+                    : "bg-white dark:bg-gray-800 border-[#F5EBFF] dark:border-gray-700 text-[#475467] dark:text-gray-300 hover:bg-purple/10 dark:hover:bg-gray-700"
                   }`}
                 >
                   {tab.label}

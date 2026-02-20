@@ -69,7 +69,7 @@ export const DatePicker = ({
           iconPosition="left"
           disabled={disabled}
           className={cn(
-            "w-full h-11 px-3 py-2.5 border border-[#F5EBFF] rounded-lg text-xs font-medium text-[#8B31E1] bg-white justify-start text-left hover:bg-white focus-visible:border-[#F5EBFF] focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20",
+            "w-full h-11 px-3 py-2.5 border border-[#F5EBFF] dark:border-gray-700 rounded-lg text-xs font-medium text-[#8B31E1] dark:text-purple bg-white dark:bg-gray-800 justify-start text-left hover:bg-white dark:hover:bg-gray-800 focus-visible:border-[#F5EBFF] dark:focus-visible:border-gray-700 focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20",
             !date && "text-muted-foreground",
             className
           )}
@@ -78,7 +78,7 @@ export const DatePicker = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-auto p-0 shadow-lg border border-[#E2E2E2] rounded-lg"
+        className="w-auto p-0 shadow-lg border border-[#E2E2E2] dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg"
         align="start"
       >
         <CalendarComponent

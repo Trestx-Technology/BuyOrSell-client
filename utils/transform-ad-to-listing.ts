@@ -319,6 +319,9 @@ export const transformAdToHotDealsCard = (
 
   return {
     ...baseCard,
+    isAddedInCollection:
+      baseCard.isAddedInCollection || (ad as any).isAddedInCollection,
+    isSaved: baseCard.isSaved || (ad as any).isSaved,
     originalPrice: finalOriginalPrice,
     discount: discountPercentage,
     dealValidThrough,
@@ -402,9 +405,11 @@ const transformLatestAdToCard = (
     extraFields: extraFields as ProductExtraFields,
     isExchange: Boolean(ad.exchanged || ad.isExchangeable),
     postedTime: formatDate(ad.createdAt),
-    views: 0,
+    views: ad.views || 0,
     isPremium: false,
     seller,
+    isSaved: (ad as any).isSaved,
+    isAddedInCollection: (ad as any).isAddedInCollection,
   };
 };
 
@@ -504,8 +509,10 @@ const transformDealAdToCard = (
     extraFields: extraFields as ProductExtraFields,
     isExchange: Boolean(ad.exchanged || ad.isExchangeable),
     postedTime: formatDate(ad.createdAt),
-    views: 0,
+    views: ad.views || 0,
     isPremium: false,
     seller,
+    isSaved: (ad as any).isSaved,
+    isAddedInCollection: (ad as any).isAddedInCollection,
   };
 };

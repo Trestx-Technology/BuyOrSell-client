@@ -85,12 +85,12 @@ export function BusinessHoursInput({
       {hours.map((hour, index) => (
         <div
           key={index}
-          className="border border-[#E5E5E5] rounded-lg p-4 space-y-4 bg-white"
+          className="border border-[#E5E5E5] dark:border-gray-700 rounded-lg p-4 space-y-4 bg-white dark:bg-gray-800"
         >
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-purple" />
-              <span className="text-sm font-medium text-[#1D2939]">
+              <span className="text-sm font-medium text-[#1D2939] dark:text-gray-100">
                 Business Hours {index + 1}
               </span>
             </div>
@@ -100,7 +100,7 @@ export function BusinessHoursInput({
               size="sm"
               onClick={() => removeHour(index)}
               disabled={disabled}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -126,7 +126,7 @@ export function BusinessHoursInput({
                   }
                   disabled={disabled}
                 />
-                <span className="text-sm text-[#1D2939]">Closed</span>
+                <span className="text-sm text-[#1D2939] dark:text-gray-100">Closed</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -137,7 +137,7 @@ export function BusinessHoursInput({
                   }
                   disabled={disabled}
                 />
-                <span className="text-sm text-[#1D2939]">All Day</span>
+                <span className="text-sm text-[#1D2939] dark:text-gray-100">All Day</span>
               </label>
             </div>
           </div>

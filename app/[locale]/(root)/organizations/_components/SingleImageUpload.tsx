@@ -179,8 +179,8 @@ export function SingleImageUpload({
     >
       {/* Image Display */}
       {image && (
-        <div className="relative rounded-lg overflow-hidden group border border-[#F5EBFF] border-dashed p-3">
-          <div className="relative aspect-square w-full max-w-[200px] bg-gray-100 rounded-lg overflow-hidden">
+        <div className="relative rounded-lg overflow-hidden group border border-[#F5EBFF] dark:border-purple/20 border-dashed p-3">
+          <div className="relative aspect-square w-full max-w-[200px] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
             {image.uploading ? (
               <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center z-10">
                 <Loader2 className="w-8 h-8 text-white animate-spin" />
@@ -221,10 +221,10 @@ export function SingleImageUpload({
       {showUploadArea && !image && (
         <div
           className={cn(
-            "border-2 border-dashed border-purple bg-purple/5 p-6 rounded-lg transition-all duration-200",
+            "border-2 border-dashed border-purple bg-purple/5 dark:bg-purple/10 p-6 rounded-lg transition-all duration-200",
             dragOver && "border-purple bg-purple/20 scale-[1.01] shadow-md",
             !disabled &&
-              "cursor-pointer hover:bg-purple/10 hover:border-purple/80",
+            "cursor-pointer hover:bg-purple/10 dark:hover:bg-purple/20 hover:border-purple/80",
             disabled && "cursor-not-allowed opacity-50",
             uploadAreaClassName
           )}
@@ -236,7 +236,7 @@ export function SingleImageUpload({
             </div>
 
             <div className="space-y-1.5 flex flex-col flex-1">
-              <p className="text-left text-sm font-medium text-gray-900">
+              <p className="text-left text-sm font-medium text-gray-900 dark:text-gray-100">
                 Drag & drop image or browse
               </p>
               <p className="text-left text-xs text-muted-foreground">
@@ -248,7 +248,7 @@ export function SingleImageUpload({
                   openFileDialog();
                 }}
                 disabled={disabled}
-                className="pz-2 bg-white text-black border mr-auto hover:bg-gray-50"
+                className="pz-2 bg-white dark:bg-gray-800 text-black dark:text-gray-100 border dark:border-gray-700 mr-auto hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 {label}
               </Button>

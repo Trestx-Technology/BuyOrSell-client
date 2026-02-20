@@ -22,6 +22,9 @@ import {
   getSimilarAds,
   getAdsByKeyword,
   renewAd,
+  getCategoryAdsCount,
+  getDealsAdsCount,
+  getExchangeAdsCount,
 } from "@/app/api/ad/ad.services";
 import {
   PostAdPayload,
@@ -34,6 +37,7 @@ import {
   AdFilters,
   AdFilterPayload,
   GetKeywordSearchResponse,
+  GetCategoryAdsCountResponse,
 } from "@/interfaces/ad";
 import { adQueries } from "@/app/api/ad/index";
 
@@ -308,5 +312,29 @@ export const useSimilarAds = (
     queryKey: [...adQueries.similarAds(id).Key, params],
     queryFn: () => getSimilarAds(id, params),
     enabled: !!id,
+  });
+};
+
+// Get regular ads count by parent categories
+export const useCategoryAdsCount = () => {
+  return useQuery<GetCategoryAdsCountResponse, Error>({
+    queryKey: adQueries.categoriesCount.Key,
+    queryFn: getCategoryAdsCount,
+  });
+};
+
+// Get deals ads count by parent categories
+export const useDealsAdsCount = () => {
+  return useQuery<GetCategoryAdsCountResponse, Error>({
+    queryKey: adQueries.dealsAdsCount.Key,
+    queryFn: getDealsAdsCount,
+  });
+};
+
+// Get exchange ads count by parent categories
+export const useExchangeAdsCount = () => {
+  return useQuery<GetCategoryAdsCountResponse, Error>({
+    queryKey: adQueries.exchangeAdsCount.Key,
+    queryFn: getExchangeAdsCount,
   });
 };

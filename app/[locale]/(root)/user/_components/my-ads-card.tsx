@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, RefreshCw, Star } from "lucide-react";
+import { Pencil, Trash2, RefreshCw, Star, MoreVertical } from "lucide-react";
 import { Typography } from "@/components/typography";
 import Link from "next/link";
 import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
@@ -14,6 +14,12 @@ import {
   ResponsiveModalDescription,
   ResponsiveModalFooter,
 } from "@/components/ui/responsive-modal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -160,7 +166,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
     <>
       <div
         className={cn(
-          "w-full overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer group relative flex flex-col",
+          "w-full rounded-2xl bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer group relative flex flex-col",
           className
         )}
         // onClick={handleCardClick}
@@ -168,7 +174,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
         <Link href={`/ad/${id}`} className="absolute inset-0" />
         <div className="p-0 flex flex-col h-full">
           {/* Image Section */}
-          <div className="relative">
+          <div className="relative overflow-hidden rounded-t-2xl">
             <ListingImageGallery
               id={id}
               title={title}
@@ -202,50 +208,58 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
           />
 
           {/* Actions Footer */}
-          <div className="mt-auto border-t border-gray-100 dark:border-gray-800 p-3 flex items-center justify-between gap-2 z-20 relative bg-white dark:bg-gray-900">
+          {/* Actions Footer */}
+          <div className="mt-auto border-t border-gray-100 dark:border-gray-800 p-3 flex items-center gap-2 z-20 relative bg-white dark:bg-gray-900 rounded-b-2xl">
             <Button
               variant="outline"
               size="sm"
-              className="h-8 px-2 text-xs"
+              className="flex-1 h-8 px-2 text-xs"
               onClick={handleEditClick}
+              icon={<Pencil className="w-3.5 h-3.5" />}
+              iconPosition="left"
             >
               {t.user.profileEdit.editAd}
             </Button>
 
+            {!isExpired && (
+              <Button
+                variant="outline"
+                size="sm"
+                className={cn("h-8 px-2 text-xs text-yellow-600 border-yellow-200 hover:bg-yellow-50 dark:hover:bg-yellow-900/20", isPremium && "bg-yellow-500 text-white border-yellow-200 hover:bg-yellow-600")}
+                onClick={handleFeatureClick}
+                disabled={updateAdMutation.isPending || isPremium}
+                icon={<Star className="w-3.5 h-3.5" />}
+                iconPosition="left"
+              >
+                {isPremium ? "Featured" : "Feature"}
+              </Button>
+            )}
 
-            <Button
-              variant="outline"
-              size="sm"
-              className={cn("h-8 px-2 text-xs text-yellow-600 border-yellow-200 hover:bg-yellow-50", isPremium && "bg-yellow-500 text-white border-yellow-200")}
-              onClick={handleFeatureClick}
-              disabled={updateAdMutation.isPending || isPremium}
-            >
-              {isPremium ? "Featured" : "Feature"}
-            </Button>
+            {isExpired && (
+              <Button
+                size="sm"
+                className="h-8 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
+                onClick={handleRenewClick}
+                icon={<RefreshCw className="w-3.5 h-3.5" />}
+                iconPosition="left"
+              >
+                Renew
+              </Button>
+            )}
 
-            <Button
-              variant="danger"
-              size="sm"
-              className="h-8 px-2 text-xs bg-red-50 text-red-600 hover:bg-red-100 border-red-100"
-              onClick={handleDeleteClick}
-              disabled={deleteAdMutation.isPending}
-            >
-              {t.user.profileEdit.deleteAd}
-            </Button>
-            {/* Renew Action - Show if expired or valid */}
-            {isExpired && <Button
-              size="sm"
-              className={cn(
-                "h-8 px-2 text-xs",
-                isExpired
-                  ? "bg-green-600 hover:bg-green-700 text-white"
-                  : "bg-blue-600 hover:bg-blue-700 text-white"
-              )}
-              onClick={handleRenewClick}
-
-            >
-              Renew
-            </Button>}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-gray-500 hover:text-dark-blue dark:hover:text-white">
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="z-[9999]">
+                <DropdownMenuItem onClick={handleDeleteClick} className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/10 cursor-pointer">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {t.user.profileEdit.deleteAd}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

@@ -145,6 +145,8 @@ export function VideoViewer() {
       const [durations, setDurations] = useState<Record<string, string>>({});
       const [progress, setProgress] = useState(0);
       const [currentTimes, setCurrentTimes] = useState<Record<string, string>>({});
+      const isAutoScrollingRef = useRef(false);
+      const lastScrolledIndex = useRef(0);
 
       const formatTime = (time: number) => {
             if (isNaN(time)) return "0:00";
@@ -206,10 +208,6 @@ export function VideoViewer() {
             []
       );
 
-      // Touch handling
-      const touchStartY = useRef(0);
-      const touchEndY = useRef(0);
-
       // Set initial index based on adId
       useEffect(() => {
             if (adId && videos.length > 0) {
@@ -244,9 +242,12 @@ export function VideoViewer() {
             if (!container) return;
 
             const handleScroll = () => {
+                  if (isAutoScrollingRef.current) return;
+
                   const scrollTop = container.scrollTop;
                   const itemHeight = container.clientHeight;
                   if (itemHeight === 0) return;
+
                   const newIndex = Math.round(scrollTop / itemHeight);
 
                   if (
@@ -254,6 +255,7 @@ export function VideoViewer() {
                         newIndex >= 0 &&
                         newIndex < videos.length
                   ) {
+                        lastScrolledIndex.current = newIndex;
                         setCurrentIndex(newIndex);
                         const params = new URLSearchParams(window.location.search);
                         params.set("adId", videos[newIndex].id);
@@ -265,27 +267,30 @@ export function VideoViewer() {
             return () => container.removeEventListener("scroll", handleScroll);
       }, [currentIndex, videos.length, videos]);
 
-      // Auto-scroll to current video on mount or when currentIndex changes
+      // Handle programmatic scroll to current index ONLY when it doesn't match the actual scroll position
       useEffect(() => {
             const container = containerRef.current;
             if (!container) return;
 
-            // Use requestAnimationFrame to ensure the DOM is ready and clientHeight is accurately reported
-            const scroll = () => {
-                  const itemHeight = container.clientHeight;
-                  if (itemHeight === 0) {
-                        requestAnimationFrame(scroll);
-                        return;
-                  }
+            const itemHeight = container.clientHeight;
+            if (itemHeight === 0) return;
 
+            const targetScrollTop = currentIndex * itemHeight;
+
+            // Only scroll if we're not already there (within a small threshold)
+            if (Math.abs(container.scrollTop - targetScrollTop) > 5) {
+                  isAutoScrollingRef.current = true;
                   container.scrollTo({
-                        top: currentIndex * itemHeight,
+                        top: targetScrollTop,
                         behavior: "smooth",
                   });
-            };
 
-            const animationId = requestAnimationFrame(scroll);
-            return () => cancelAnimationFrame(animationId);
+                  // Reset auto-scrolling flag after transition
+                  const timer = setTimeout(() => {
+                        isAutoScrollingRef.current = false;
+                  }, 500);
+                  return () => clearTimeout(timer);
+            }
       }, [currentIndex]);
 
       const togglePlay = useCallback(() => {
@@ -338,58 +343,6 @@ export function VideoViewer() {
             window.addEventListener("keydown", handleKeyDown);
             return () => window.removeEventListener("keydown", handleKeyDown);
       }, [currentIndex, goToVideo, router, togglePlay]);
-
-      // Lock body scroll
-      useEffect(() => {
-            document.body.style.overflow = "hidden";
-            return () => {
-                  document.body.style.overflow = "unset";
-            };
-      }, []);
-
-      // Touch handlers
-      const handleTouchStart = (e: React.TouchEvent) => {
-            touchStartY.current = e.touches[0].clientY;
-      };
-
-      const handleTouchMove = (e: React.TouchEvent) => {
-            touchEndY.current = e.touches[0].clientY;
-      };
-
-      const handleTouchEnd = () => {
-            const diff = touchStartY.current - touchEndY.current;
-            const threshold = 50;
-
-            if (Math.abs(diff) > threshold) {
-                  if (diff > 0) {
-                        // Swipe up - next video
-                        goToVideo(currentIndex + 1);
-                  } else {
-                        // Swipe down - previous video
-                        goToVideo(currentIndex - 1);
-                  }
-            }
-      };
-
-      // Wheel handler for trackpad
-      const wheelTimeout = useRef<any>(null);
-      const handleWheel = useCallback(
-            (e: React.WheelEvent) => {
-                  if (wheelTimeout.current) return;
-
-                  wheelTimeout.current = setTimeout(() => {
-                        wheelTimeout.current = null;
-                  }, 500);
-
-                  if (e.deltaY > 30) {
-                        goToVideo(currentIndex + 1);
-                  } else if (e.deltaY < -30) {
-                        goToVideo(currentIndex - 1);
-                  }
-            },
-            [currentIndex, goToVideo]
-      );
-
       const handleShare = (video: Video) => {
             if (navigator.share) {
                   navigator.share({
@@ -457,11 +410,7 @@ export function VideoViewer() {
                         isLoading={isFetchingNextPage}
                         hasMore={hasNextPage}
                         className="h-full w-full overflow-y-auto snap-mandatory hide-scrollbar"
-                        style={{ scrollSnapType: "y mandatory" }}
-                        onTouchStart={handleTouchStart}
-                        onTouchMove={handleTouchMove}
-                        onTouchEnd={handleTouchEnd}
-                        onWheel={handleWheel}
+                                    style={{ scrollSnapType: "y mandatory" }}
                   >
                         {videos.map((video, index) => (
                               <div
@@ -637,16 +586,22 @@ export function VideoViewer() {
                         </button>
 
                         <div className="flex flex-col gap-2 py-4">
-                              {videos.map((_, index) => (
-                                    <button
-                                          key={index}
-                                          onClick={() => goToVideo(index)}
-                                          className={cn(
-                                                "w-1 rounded-full transition-all duration-300",
-                                                index === currentIndex ? "bg-purple h-8" : "bg-white/20 hover:bg-white/40 h-1.5"
-                                          )}
-                                    />
-                              ))}
+                              {videos.map((_, index) => {
+                                    // Only show up to 10 dots centered around current index
+                                    const shouldShow = Math.abs(index - currentIndex) <= 5;
+                                    if (!shouldShow) return null;
+
+                                    return (
+                                          <button
+                                                key={index}
+                                                onClick={() => goToVideo(index)}
+                                                className={cn(
+                                                      "w-1 rounded-full transition-all duration-300",
+                                                      index === currentIndex ? "bg-purple h-8" : "bg-white/20 hover:bg-white/40 h-1.5"
+                                                )}
+                                          />
+                                     );
+                               })}
                         </div>
 
                         <button

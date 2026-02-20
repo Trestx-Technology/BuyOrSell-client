@@ -91,7 +91,7 @@ const LoginContent = () => {
       </Link>
       <Typography
         variant="h1"
-        className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold"
+        className="py-4 text-left text-xl min-[500px]:text-2xl font-extrabold text-black dark:text-white"
       >
         {t.auth.login.title}
       </Typography>
@@ -105,12 +105,12 @@ const LoginContent = () => {
                 "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/mail.svg"
               }
               alt="mail"
-              className="size-5"
+              className="size-5 dark:invert"
             />
           }
           placeholder={t.auth.login.email}
           inputSize="lg"
-          className="w-full text-sm pl-12"
+          className="w-full text-sm pl-12 dark:bg-gray-800 dark:text-white dark:border-gray-700"
           value={loginData.email}
           onChange={(e) =>
             setLoginData({ ...loginData, email: e.target.value })
@@ -125,6 +125,7 @@ const LoginContent = () => {
                 "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/key.svg"
               }
               alt="key"
+              className="size-5 dark:invert"
             />
           }
           placeholder={t.auth.login.password}
@@ -133,16 +134,16 @@ const LoginContent = () => {
           rightIcon={
             !showPassword ? (
               <EyeIcon
-                className={`w-4 h-4 ${showPassword ? "text-purple" : "text-gray-500"}`}
+                className={`w-4 h-4 ${showPassword ? "text-purple" : "text-gray-500 dark:text-gray-400"}`}
               />
             ) : (
               <EyeOffIcon
-                className={`w-4 h-4 ${showPassword ? "text-purple" : "text-gray-500"}`}
+                  className={`w-4 h-4 ${showPassword ? "text-purple" : "text-gray-500 dark:text-gray-400"}`}
               />
             )
           }
           inputSize="lg"
-          className="w-full text-sm pl-12"
+          className="w-full text-sm pl-12 dark:bg-gray-800 dark:text-white dark:border-gray-700"
           value={loginData.password}
           onChange={(e) =>
             setLoginData({ ...loginData, password: e.target.value })
@@ -165,7 +166,7 @@ const LoginContent = () => {
       >
         {t.auth.login.loginButton}
       </Button>
-      <H5 className="text-center py-6">
+      <H5 className="text-center py-6 text-gray-600 dark:text-gray-400">
         {t.auth.login.orContinueWith}
       </H5>
 
@@ -187,7 +188,7 @@ const LoginContent = () => {
         onError={(error) => toast.error(error)}
       />
       <H5
-        className="text-center mx-auto  absolute left-1/2 -translate-x-1/2  bottom-20 lg:bottom-16 w-fit"
+        className="text-center mx-auto  absolute left-1/2 -translate-x-1/2  bottom-20 lg:bottom-16 w-fit text-gray-600 dark:text-gray-400"
       >
         {t.auth.login.dontHaveAccount}{" "}
         <Link href={localePath("/signup")} className="text-purple m-custom-8 hover:underline">

@@ -76,13 +76,13 @@ const OrganizationsListPage = () => {
         <div className="hidden md:block">
           <Typography
             variant="lg-black-inter"
-            className="text-lg md:text-2xl font-semibold text-[#1D2939] mb-2"
+            className="text-lg md:text-2xl font-semibold text-[#1D2939] dark:text-white mb-2"
           >
             {t.organizations.list.myOrganizations}
           </Typography>
           <Typography
             variant="sm-regular-inter"
-            className="text-xs md:text-sm text-[#8A8A8A]"
+            className="text-xs md:text-sm text-[#8A8A8A] dark:text-gray-400"
           >
             {t.organizations.list.manageOrganizations}
           </Typography>
@@ -103,17 +103,17 @@ const OrganizationsListPage = () => {
       {isLoading ? (
         <OrganizationsListSkeleton />
       ) : organizations.length === 0 ? (
-        <div className="bg-white rounded-lg border border-[#E5E5E5] p-12 text-center">
-          <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-[#E5E5E5] dark:border-gray-700 p-12 text-center">
+            <Building2 className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
           <Typography
             variant="md-semibold-inter"
-            className="text-lg font-semibold text-[#1D2939] mb-2"
+              className="text-lg font-semibold text-[#1D2939] dark:text-white mb-2"
           >
             {t.organizations.list.noOrganizationsFound}
           </Typography>
           <Typography
             variant="sm-regular-inter"
-            className="text-sm text-[#8A8A8A] mb-6"
+              className="text-sm text-[#8A8A8A] dark:text-gray-400 mb-6"
           >
             {t.organizations.list.createFirstOrganization}
           </Typography>
@@ -133,7 +133,7 @@ const OrganizationsListPage = () => {
             <Link
               href={localePath(`/organizations/edit/${org._id}`)}
               key={org._id}
-              className="bg-white rounded-lg border border-[#E5E5E5] p-4 hover:shadow-lg transition-shadow cursor-pointer"
+              className="bg-white dark:bg-gray-800 rounded-lg border border-[#E5E5E5] dark:border-gray-700 p-4 hover:shadow-lg transition-shadow cursor-pointer block"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
@@ -143,10 +143,10 @@ const OrganizationsListPage = () => {
                       alt={org.tradeName || org.legalName}
                       width={48}
                       height={48}
-                      className="w-12 h-12 object-cover rounded"
+                      className="w-12 h-12 object-cover rounded bg-white"
                     />
                   ) : (
-                    <div className="w-12 h-12 bg-purple/20 rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-purple/20 dark:bg-purple/10 rounded-full flex items-center justify-center">
                       <Typography
                         variant="sm-semibold-inter"
                         className="text-purple font-semibold"
@@ -160,13 +160,13 @@ const OrganizationsListPage = () => {
                   <div className="flex-1 min-w-0">
                     <Typography
                       variant="sm-semibold-inter"
-                      className="text-sm font-semibold text-[#1D2939] truncate"
+                      className="text-sm font-semibold text-[#1D2939] dark:text-white truncate"
                     >
                       {org.tradeName || org.legalName}
                     </Typography>
                     <Typography
                       variant="xs-regular-inter"
-                      className="text-xs text-[#8A8A8A] truncate"
+                      className="text-xs text-[#8A8A8A] dark:text-gray-400 truncate"
                     >
                       {getOrganizationType(org.type)} • {getLocation(org)}
                     </Typography>

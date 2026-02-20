@@ -34,7 +34,7 @@ export default function OrganizationCard({
   }`;
 
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full max-w-[256px] space-y-4 relative flex flex-col">
+    <div className="bg-white dark:bg-gray-800 border border-[#E2E2E2] dark:border-gray-700 rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full max-w-[256px] space-y-4 relative flex flex-col">
       {/* Header with Badge and Actions */}
       <div className="flex flex-col gap-[21.33px]">
         <div className="flex justify-between items-start">
@@ -45,19 +45,18 @@ export default function OrganizationCard({
             {onShare && (
               <button
                 onClick={() => onShare(organization._id)}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded group"
               >
-                <Share2 className="w-5 h-5 text-dark-blue" />
+                <Share2 className="w-5 h-5 text-dark-blue dark:text-gray-300 group-hover:text-purple transition-colors" />
               </button>
             )}
             {onFavorite && (
               <button
                 onClick={() => onFavorite(organization._id)}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded group"
               >
                 <Heart
-                  className={`w-5 h-5 ${
-                    isFavorite ? "fill-purple text-purple" : "text-dark-blue"
+                  className={`w-5 h-5 transition-colors ${isFavorite ? "fill-purple text-purple" : "text-dark-blue dark:text-gray-300 group-hover:text-purple"
                   }`}
                 />
               </button>
@@ -72,7 +71,7 @@ export default function OrganizationCard({
               <Link href={localePath(`/jobs/organization/${organization._id}`)}>
                 <Typography
                   variant="h3"
-                  className="text-black font-bold text-lg leading-tight line-clamp-2 hover:text-purple transition-colors cursor-pointer"
+                  className="text-black dark:text-gray-100 font-bold text-lg leading-tight line-clamp-2 hover:text-purple transition-colors cursor-pointer"
                 >
                   {displayName}
                 </Typography>
@@ -84,7 +83,7 @@ export default function OrganizationCard({
             {organization.type && (
               <Typography
                 variant="body-small"
-                className="text-black text-sm line-clamp-2"
+                className="text-black dark:text-gray-300 text-sm line-clamp-2"
               >
                 {organization.type}
               </Typography>
@@ -114,7 +113,7 @@ export default function OrganizationCard({
           <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
           <Typography
             variant="body-small"
-            className="text-dark-blue text-xs font-medium"
+            className="text-dark-blue dark:text-gray-300 text-xs font-medium"
           >
             {organization.ratingAvg
               ? organization.ratingAvg.toFixed(1)
@@ -127,7 +126,7 @@ export default function OrganizationCard({
             <MapPin className="w-5 h-5 text-grey-blue" />
             <Typography
               variant="body-small"
-              className="text-dark-blue text-xs font-medium line-clamp-1"
+              className="text-dark-blue dark:text-gray-300 text-xs font-medium line-clamp-1"
             >
               {location}
             </Typography>
@@ -137,7 +136,7 @@ export default function OrganizationCard({
           <div className="flex items-center gap-1.5">
             <Typography
               variant="body-small"
-              className="text-dark-blue text-xs font-medium"
+              className="text-dark-blue dark:text-gray-300 text-xs font-medium"
             >
               {organization.totalJobsPosted} Jobs Posted
             </Typography>
@@ -147,7 +146,7 @@ export default function OrganizationCard({
           <div className="flex items-center gap-1.5">
             <Typography
               variant="body-small"
-              className="text-dark-blue text-xs font-medium"
+              className="text-dark-blue dark:text-gray-300 text-xs font-medium"
             >
               {organization.followersCount} Followers
             </Typography>

@@ -226,7 +226,7 @@ export default function OrganizationsListingContent() {
           placeholder={"Search organizations..."}
           value={localSearchQuery}
           onChange={(e) => setLocalSearchQuery(e.target.value)}
-          className="pl-10 bg-gray-100 border-0"
+          className="pl-10 bg-gray-100 dark:bg-gray-800 dark:text-gray-100 border-0"
         />
       </div>
 
@@ -237,7 +237,7 @@ export default function OrganizationsListingContent() {
 
         {/* Page Header */}
         <div className="flex items-center justify-between mb-6 px-4">
-          <Typography variant="md-black-inter" className="font-semibold">
+          <Typography variant="md-black-inter" className="font-semibold dark:text-white">
             {categoryName} ({organizations.length})
           </Typography>
 
@@ -285,7 +285,7 @@ export default function OrganizationsListingContent() {
         <div className="space-y-6">
           {isLoading ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">Loading organizations...</p>
+              <p className="text-gray-500 dark:text-gray-400 text-lg">Loading organizations...</p>
             </div>
           ) : organizations.length > 0 ? (
             <div

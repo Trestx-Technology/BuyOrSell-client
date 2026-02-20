@@ -8,24 +8,24 @@ export function OrganizationsListSkeleton() {
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             key={index}
-            className="bg-white rounded-lg border border-[#E5E5E5] p-4 animate-pulse"
+            className="bg-white dark:bg-gray-800 rounded-lg border border-[#E5E5E5] dark:border-gray-700 p-4 animate-pulse"
           >
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3 flex-1">
                 {/* Logo Skeleton */}
-                <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                 <div className="flex-1 space-y-2">
                   {/* Name Skeleton */}
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
                   {/* Type and Location Skeleton */}
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
                 </div>
               </div>
               {/* Status Badge Skeleton */}
-              <div className="h-6 w-16 bg-gray-200 rounded-md"></div>
+              <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
             </div>
             {/* Verified Badge Skeleton */}
-            <div className="h-6 w-20 bg-gray-200 rounded mt-2"></div>
+            <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded mt-2"></div>
           </div>
         ))}
       </div>

@@ -27,6 +27,7 @@ import { useGetMainCategories } from "@/hooks/useCategories";
 import { Skeleton } from "../ui/skeleton";
 import { ShareDialog } from "../ui/share-dialog";
 import { slugify } from "@/utils/slug-utils";
+import { ICONS } from "@/constants/icons";
 
 interface FooterProps {
   className?: string;
@@ -42,10 +43,10 @@ export function Footer({ className }: FooterProps) {
 
   return (
     <footer
-      className={cn("w-full bg-purple text-primary-foreground", className)}
+      className={cn("w-full bg-purple dark:bg-[#0B0F19] text-primary-foreground", className)}
     >
       <motion.div
-        className="w-full bg-black"
+        className="w-full bg-black dark:bg-[#080B14]"
         initial="hidden"
         whileInView="visible"
       >
@@ -69,18 +70,19 @@ export function Footer({ className }: FooterProps) {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
       >
-        {/* Logo Section */}
         <motion.div
-          className="mb-8 bg-white rounded-lg p-4 w-fit mx-auto md:mx-0"
+          className="mb-8 rounded-lg w-fit mx-auto md:mx-0"
           variants={fastItemVariants}
         >
-          <Image
-            src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/assets/logo.svg"
-            alt="logo"
-            width={100}
-            height={100}
-            className="w-[150px] object-contain"
-          />
+          <Link href="/">
+            <Image
+              src={ICONS.logo.main}
+              alt="logo"
+              width={150}
+              height={50}
+              className="w-[180px] object-contain dark:brightness-200 contrast-125"
+            />
+          </Link>
         </motion.div>
 
         {/* Footer Links Grid */}
@@ -90,31 +92,31 @@ export function Footer({ className }: FooterProps) {
             className="space-y-6 hidden md:block"
             variants={fastItemVariants}
           >
-            <Typography variant="h6" className="font-medium text-sm">
+            <Typography variant="h6" className="font-medium text-sm text-white">
               Company
             </Typography>
             <div className="space-y-3">
               <Typography
                 variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
                 About Us
               </Typography>
               <Typography
                 variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
                 Advertising
               </Typography>
               <Typography
                 variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
                 Careers
               </Typography>
               <Typography
                 variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
                 Legal Help
               </Typography>
@@ -126,7 +128,7 @@ export function Footer({ className }: FooterProps) {
             className="space-y-6 hidden md:block"
             variants={fastItemVariants}
           >
-            <Typography variant="h6" className="font-medium text-sm">
+            <Typography variant="h6" className="font-medium text-sm text-white">
               UAE
             </Typography>
             <div className="space-y-3">
@@ -144,7 +146,7 @@ export function Footer({ className }: FooterProps) {
                   >
                     <Typography
                       variant="body"
-                      className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                      className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
                     >
                       {emirateObj.emirate}
                     </Typography>
@@ -159,7 +161,7 @@ export function Footer({ className }: FooterProps) {
             className="space-y-6 hidden md:block"
             variants={fastItemVariants}
           >
-            <Typography variant="h6" className="font-medium text-sm">
+            <Typography variant="h6" className="font-medium text-sm text-white">
               Categories
             </Typography>
             <div className="space-y-3">
@@ -177,7 +179,7 @@ export function Footer({ className }: FooterProps) {
                   >
                     <Typography
                       variant="body"
-                      className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                      className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
                     >
                       {cat.name}
                     </Typography>
@@ -192,13 +194,13 @@ export function Footer({ className }: FooterProps) {
             className="space-y-6 flex flex-col justify-center items-center w-full md:w-auto lg:items-start"
             variants={fastItemVariants}
           >
-            <Typography variant="h6" className="font-medium text-sm">
+            <Typography variant="h6" className="font-medium text-sm text-white">
               Download App
             </Typography>
             <div className="space-y-4">
               <Typography
                 variant="body"
-                className="text-sm opacity-70 hidden lg:block"
+                className="text-sm opacity-70 hidden lg:block text-white"
               >
                 New User Only
               </Typography>
@@ -280,14 +282,14 @@ export function Footer({ className }: FooterProps) {
             className="space-y-6 hidden md:block"
             variants={fastItemVariants}
           >
-            <Typography variant="h6" className="font-medium text-sm">
+            <Typography variant="h6" className="font-medium text-sm text-white">
               Subscribe
             </Typography>
             <div className="space-y-3 flex flex-col">
               <Link href="/help-centre" className="block">
                 <Typography
                   variant="body"
-                  className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                  className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
                 >
                   Help
                 </Typography>
@@ -295,7 +297,7 @@ export function Footer({ className }: FooterProps) {
               <Link href="/contact-us" className="block">
                 <Typography
                   variant="body"
-                  className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                  className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
                 >
                   Contact Us
                 </Typography>
@@ -303,7 +305,7 @@ export function Footer({ className }: FooterProps) {
               <Link href="/contact-us" className="block">
                 <Typography
                   variant="body"
-                  className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                  className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
                 >
                   Call Us
                 </Typography>
@@ -311,7 +313,7 @@ export function Footer({ className }: FooterProps) {
               <Link href="/rate-us" className="block">
                 <Typography
                   variant="body"
-                  className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                  className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-colors duration-200"
                 >
                   Rate Us
               </Typography>
@@ -319,7 +321,7 @@ export function Footer({ className }: FooterProps) {
               <ShareDialog title="Share" url={"https://buyorsell.ae"}>
                 <Typography
                   variant="body"
-                  className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                  className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
                 >
                   Share
                 </Typography>
@@ -332,19 +334,19 @@ export function Footer({ className }: FooterProps) {
             className="space-y-6 hidden md:block"
             variants={fastItemVariants}
           >
-            <Typography variant="h6" className="font-medium text-sm">
+            <Typography variant="h6" className="font-medium text-sm text-white">
               Language
             </Typography>
             <div className="space-y-3 flex flex-col">
               <Link
                 href="/en-US"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
                 English
               </Link>
               <Link
                 href="/ar"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
                 Arabic
               </Link>
@@ -353,7 +355,7 @@ export function Footer({ className }: FooterProps) {
         </div>
 
         {/* Divider */}
-        <div className="w-full h-px bg-white mb-8 hidden md:block"></div>
+        <div className="w-full h-px bg-white/20 dark:bg-gray-800 mb-8 hidden md:block"></div>
 
         {/* Bottom Section */}
         <motion.div
@@ -365,7 +367,7 @@ export function Footer({ className }: FooterProps) {
             <Link href="/terms-and-conditions">
               <Typography
                 variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
                 Privacy & Policy
               </Typography>
@@ -373,12 +375,12 @@ export function Footer({ className }: FooterProps) {
             <Link href="/terms-and-conditions">
               <Typography
                 variant="body"
-                className="text-sm hover:text-gray-200 cursor-pointer transition-colors duration-200"
+                className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
                 Terms & Conditions
               </Typography>
             </Link>
-            <Typography variant="body" className="text-sm">
+            <Typography variant="body" className="text-sm opacity-60">
               © 2024 BuyOrSell | All Rights Reserved
             </Typography>
           </div>
@@ -386,28 +388,28 @@ export function Footer({ className }: FooterProps) {
           {/* Right Side - Social Media */}
           <div className="flex items-center gap-5">
             {/* Instagram */}
-            <div className="w-[38px] h-[38px] bg-white rounded-full border border-white flex items-center justify-center hover:bg-gray-100 cursor-pointer transition-all duration-200 hover:scale-110">
-              <Instagram className="w-6 h-6 text-[#8B31E1]" />
+            <div className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110">
+              <Instagram className="w-6 h-6 text-purple dark:text-white" />
             </div>
 
             {/* Facebook */}
-            <div className="w-[38px] h-[38px] bg-white rounded-full border border-white flex items-center justify-center hover:bg-gray-100 cursor-pointer transition-all duration-200 hover:scale-110">
-              <Facebook className="w-6 h-6 text-[#8B31E1]" />
+            <div className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110">
+              <Facebook className="w-6 h-6 text-purple dark:text-white" />
             </div>
 
             {/* YouTube */}
-            <div className="w-[38px] h-[38px] bg-white rounded-full border border-white flex items-center justify-center hover:bg-gray-100 cursor-pointer transition-all duration-200 hover:scale-110">
-              <Youtube className="w-6 h-6 text-[#8B31E1]" />
+            <div className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110">
+              <Youtube className="w-6 h-6 text-purple dark:text-white" />
             </div>
 
             {/* Twitter */}
-            <div className="w-[38px] h-[38px] bg-white rounded-full border border-white flex items-center justify-center hover:bg-gray-100 cursor-pointer transition-all duration-200 hover:scale-110">
-              <Twitter className="w-4 h-4 text-[#8B31E1]" />
+            <div className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110">
+              <Twitter className="w-4 h-4 text-purple dark:text-white" />
             </div>
 
             {/* LinkedIn */}
-            <div className="w-[38px] h-[38px] bg-white rounded-full border border-white flex items-center justify-center hover:bg-gray-100 cursor-pointer transition-all duration-200 hover:scale-110">
-              <Linkedin className="w-6 h-6 text-[#8B31E1]" />
+            <div className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110">
+              <Linkedin className="w-6 h-6 text-purple dark:text-white" />
             </div>
           </div>
         </motion.div>

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { Search, MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { GlobalMoreFilters } from "./global-more-filters";
 import { FilterControl, FilterConfig } from "./filter-control";
 import { useUrlParams } from "@/hooks/useUrlParams";
+import { CarouselWrapper } from "../global/carousel-wrapper";
 
 export interface CommonFiltersProps {
       filters: Record<string, any>; // Current applied filters
@@ -110,11 +111,11 @@ export const CommonFilters = ({
       return (
             <Card
                   className={cn(
-                        "shadow-none pl-4 sm:pl-0 bg-transparent sm:bg-background sm:shadow-sm border-none sm:border sm:border-border/10 rounded-xl",
+                        "shadow-none pl-4 sm:pl-0 bg-transparent sm:bg-white dark:sm:bg-gray-950 sm:shadow-sm border-none sm:border sm:border-gray-200 dark:sm:border-gray-800 rounded-xl",
                         className
                   )}
             >
-                  <CardContent className=" p-0">
+                  <CardContent className="p-0">
                         <div className="border-b p-4 hidden sm:block border-border">
                               <div className="flex gap-3">
                                     {/* Search Bar */}
@@ -125,8 +126,8 @@ export const CommonFilters = ({
                                                 value={localSearchQuery}
                                                 onChange={(e) => setLocalSearchQuery(e.target.value)}
                                                 className={cn(
-                                                      "pl-10 border-border/20 flex-1 h-11",
-                                                      "bg-background text-foreground placeholder:text-muted-foreground"
+                                                      "pl-10 border-gray-200 dark:border-gray-800 flex-1 h-11",
+                                                      "bg-white dark:bg-gray-900 text-foreground placeholder:text-muted-foreground focus-visible:ring-purple/20"
                                                 )}
                                           />
                                     )}
@@ -138,32 +139,34 @@ export const CommonFilters = ({
                                                 value={locationQuery}
                                                 onChange={(e) => handleLocationChange(e.target.value)}
                                                 className={cn(
-                                                      "pl-10 border-border/20 flex-1 h-11",
-                                                      "bg-background text-foreground placeholder:text-muted-foreground"
+                                                      "pl-10 border-gray-200 dark:border-gray-800 flex-1 h-11",
+                                                      "bg-white dark:bg-gray-900 text-foreground placeholder:text-muted-foreground focus-visible:ring-purple/20"
                                                 )}
                                           />
                                     )}
                               </div>
                         </div>
 
-                        {/* Filter Controls - Static Filters Outside Dialog */}
-                        <div className="min-w-full flex items-end gap-3 border-b sm:border-none whitespace-nowrap relative">
-                              <div className="flex flex-1 items-end gap-3 overflow-x-auto pb-4 sm:p-4 scrollbar-hide relative">
-                                    {staticFilters.map((filterConfig) => (
-                                          <div key={filterConfig.key} className="min-w-40 shrink-0">
-                                                <FilterControl
-                                                      filterConfig={filterConfig}
-                                                      currentValues={filters}
-                                                      onChange={handleStaticChange}
-                                                      variant={variant}
-                                                />
-                                          </div>
-                                    ))}
+                        {/* Filter Controls - Carousel Wrapper */}
+                        <CarouselWrapper
+                              className="border-b sm:border-none"
+                              containerClassName="pb-4 sm:p-4 items-end"
+                        >
+                              {staticFilters.map((filterConfig) => (
+                                    <div key={filterConfig.key} className="min-w-44 shrink-0">
+                                          <FilterControl
+                                                filterConfig={filterConfig}
+                                                currentValues={filters}
+                                                onChange={handleStaticChange}
+                                                variant={variant}
+                                          />
+                                    </div>
+                              ))}
                               {/* Advanced Filters Dialog - GlobalMoreFilters */}
+                              <div className="shrink-0">
                                     <GlobalMoreFilters />
                               </div>
-
-                        </div>
+                        </CarouselWrapper>
                   </CardContent>
             </Card>
       );

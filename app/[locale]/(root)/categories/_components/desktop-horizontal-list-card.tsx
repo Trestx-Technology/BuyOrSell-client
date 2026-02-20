@@ -23,6 +23,7 @@ import {
 } from "@/components/global/specifications-display";
 import { useMemo } from "react";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
+import { cn } from "@/lib/utils";
 
 export interface HorizontalListingCardProps {
   id: string;
@@ -170,7 +171,7 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
   return (
     <div
       role="button"
-      className={`overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group ${className}`}
+      className={`overflow-hidden rounded-2xl border border-purple-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-lg transition-all duration-300 cursor-pointer group ${className}`}
       onClick={handleCardClick}
     >
       <div className="flex h-[157px]">
@@ -249,8 +250,8 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
               size={22}
               className={` ${
                 isFavorite
-                  ? "fill-red-500 text-red-500"
-                  : "text-slate-300 fill-white stroke-1"
+                ? "fill-purple text-purple"
+                : "text-slate-300 fill-white dark:fill-gray-800 stroke-1"
               }`}
             />
           </button>
@@ -265,12 +266,11 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
             </div>
           </div>
 
-          {/* Views Counter */}
-          {!showTimer && (
-            <div className="absolute bottom-2 right-2">
-              <div className="bg-black rounded px-1.5 py-0.5 flex items-center gap-1">
+          {typeof views === "number" && (
+            <div className={cn("absolute right-2 z-20", showTimer && timeLeft ? "bottom-8" : "bottom-2")}>
+              <div className="bg-black/60 backdrop-blur-sm rounded px-1.5 py-0.5 flex items-center gap-1">
                 <Eye size={12} className="text-white" />
-                <span className="text-xs text-white font-medium">{views}</span>
+                <span className="text-[10px] text-white font-medium">{views}</span>
               </div>
             </div>
           )}
@@ -331,7 +331,7 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
           {/* Title */}
           <Typography
             variant="md-medium"
-            className=" font-semibold text-dark-blue leading-tight line-clamp-1"
+            className=" font-semibold text-dark-blue dark:text-gray-100 leading-tight line-clamp-1"
           >
             {title}
           </Typography>
@@ -346,7 +346,7 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
               currencyIconHeight={16}
               className="gap-2"
               currentPriceClassName="text-sm font-bold text-purple"
-              originalPriceClassName="text-sm text-grey-blue line-through"
+              originalPriceClassName="text-sm text-grey-blue dark:text-gray-500 line-through"
               discountBadgeClassName="text-sm text-teal font-bold"
             />
           </div>
@@ -358,16 +358,16 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
               maxVisible={4}
               showPopover={false}
               className="grid grid-cols-2 lg:grid-cols-4 gap-2"
-              itemClassName="text-[#667085]"
+              itemClassName="text-[#667085] dark:text-gray-400"
             />
           )}
 
           {/* Location */}
           <div className="flex items-center gap-1">
-            <MapPin size={16} className="text-[#667085]" />
+            <MapPin size={16} className="text-[#667085] dark:text-gray-400" />
             <Typography
               variant="body-small"
-              className="text-xs text-[#667085] truncate"
+              className="text-xs text-[#667085] dark:text-gray-400 truncate"
             >
               {location}
             </Typography>
@@ -383,10 +383,10 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
                 className="text-xs text-gray-500 whitespace-nowrap font-medium flex items-center gap-1"
               >
                 <CircleUser size={16} className="text-purple" />
-                <span className="text-xs text-grey-blue font-normal">
+                <span className="text-xs text-grey-blue dark:text-gray-400 font-normal">
                   {seller.type === "Agent" ? "By Agent:" : "By:"}
                 </span>
-                {seller.name}
+                <span className="dark:text-gray-300">{seller.name}</span>
               </Typography>
             )}
             <div className="flex items-center gap-2">
@@ -398,7 +398,7 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
                   height={16}
                 />
               )}
-              <span className="text-xs text-grey-blue">{postedTime}</span>
+              <span className="text-xs text-grey-blue dark:text-gray-500">{postedTime}</span>
             </div>
           </div>
           <Button

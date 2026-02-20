@@ -1,0 +1,52 @@
+export interface AITokenResponseDto {
+  balance: number;
+  userId: string;
+}
+
+export interface PurchaseTokensDto {
+  packageId: string;
+}
+
+export interface ConsumeTokensDto {
+  tokens: number;
+  reason?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface CreateTokenPackageDto {
+  name: string;
+  nameAr?: string;
+  tokens: number;
+  price: number;
+  isActive?: boolean;
+  description?: string;
+  descriptionAr?: string;
+}
+
+export interface UpdateTokenPackageDto {
+  name?: string;
+  nameAr?: string;
+  tokens?: number;
+  price?: number;
+  isActive?: boolean;
+  description?: string;
+  descriptionAr?: string;
+}
+
+export interface InitiateTokenPurchaseDto {
+  packageId: string;
+  paymentMethod: string;
+}
+
+export interface TokenPackage {
+  _id: string;
+  name: string;
+  nameAr?: string;
+  tokens: number;
+  price: number;
+  isActive: boolean;
+  description?: string;
+  descriptionAr?: string;
+  createdAt: string;
+  updatedAt: string;
+}

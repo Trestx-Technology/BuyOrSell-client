@@ -29,7 +29,7 @@ export default function OrganizationHeaderCard({
   const displayName = organization.tradeName || organization.legalName;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-[#E2E2E2] p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-[#E2E2E2] dark:border-gray-700 p-6">
       <div className="flex flex-col md:flex-row gap-6">
         {/* Logo */}
         <div className="flex-shrink-0">
@@ -39,10 +39,10 @@ export default function OrganizationHeaderCard({
               alt={displayName}
               width={120}
               height={120}
-              className="rounded-2xl object-cover border border-gray-200"
+              className="rounded-2xl object-cover border border-gray-200 dark:border-gray-700"
             />
           ) : (
-            <div className="w-[120px] h-[120px] rounded-2xl bg-purple flex items-center justify-center border border-gray-200">
+              <div className="w-[120px] h-[120px] rounded-2xl bg-purple flex items-center justify-center border border-gray-200 dark:border-gray-700">
               <span className="text-white text-4xl font-bold">
                 {displayName.charAt(0).toUpperCase()}
               </span>
@@ -58,7 +58,7 @@ export default function OrganizationHeaderCard({
                 <Link href={localePath(`/jobs/organization/${organization._id}`)}>
                   <Typography
                     variant="h1"
-                    className="text-dark-blue font-bold text-3xl hover:text-purple transition-colors cursor-pointer"
+                    className="text-dark-blue dark:text-gray-100 font-bold text-3xl hover:text-purple transition-colors cursor-pointer"
                   >
                     {displayName}
                   </Typography>
@@ -70,7 +70,7 @@ export default function OrganizationHeaderCard({
 
               <div className="flex flex-wrap items-center gap-4 mb-4">
                 {organization.type && (
-                  <Badge className="bg-[#F5EBFF] text-purple px-3 py-1 rounded-full text-sm font-normal">
+                  <Badge className="bg-[#F5EBFF] dark:bg-purple/10 text-purple px-3 py-1 rounded-full text-sm font-normal">
                     {organization.type}
                   </Badge>
                 )}
@@ -79,14 +79,14 @@ export default function OrganizationHeaderCard({
                     <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
                     <Typography
                       variant="body-large"
-                      className="text-dark-blue font-semibold"
+                      className="text-dark-blue dark:text-gray-200 font-semibold"
                     >
                       {organization.ratingAvg.toFixed(1)}
                     </Typography>
                     {organization.ratingCount && (
                       <Typography
                         variant="body-small"
-                        className="text-[#8A8A8A] text-sm"
+                        className="text-[#8A8A8A] dark:text-gray-400 text-sm"
                       >
                         ({organization.ratingCount} reviews)
                       </Typography>
@@ -104,7 +104,7 @@ export default function OrganizationHeaderCard({
                   variant={isFollowing ? "outline" : "primary"}
                   className={
                     isFollowing
-                      ? "border-purple text-purple hover:bg-purple/10"
+                      ? "border-purple text-purple hover:bg-purple/10 dark:bg-purple/5"
                       : "bg-purple text-white hover:bg-purple/90"
                   }
                 >
@@ -119,8 +119,8 @@ export default function OrganizationHeaderCard({
                     size="icon"
                     className={
                       isFavorite
-                        ? "border-red-500 text-red-500 hover:bg-red-50"
-                        : "border-gray-300 hover:bg-gray-50"
+                        ? "border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                        : "border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
                     }
                   >
                     <Heart
@@ -128,8 +128,8 @@ export default function OrganizationHeaderCard({
                     />
                   </Button>
                 )}
-                <Button variant="outline" size="icon" className="border-gray-300 hover:bg-gray-50">
-                  <Share2 className="w-4 h-4" />
+                <Button variant="outline" size="icon" className="border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <Share2 className="w-4 h-4 dark:text-gray-300" />
                 </Button>
               </div>
             </div>

@@ -125,7 +125,7 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
             <div
                   role="button"
                   className={cn(
-                        "hidden md:flex overflow-hidden rounded-2xl border border-purple-100 bg-white hover:shadow-lg transition-all duration-300 cursor-pointer group relative",
+                        "hidden md:flex overflow-hidden rounded-2xl border border-purple-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-lg transition-all duration-300 cursor-pointer group relative",
                         className
                   )}
                   onClick={handleCardClick}
@@ -226,8 +226,8 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                                                             size={22}
                                                             className={cn(
                                                                   isSaved
-                                                                        ? "fill-red-500 text-red-500"
-                                                                        : "text-slate-300 fill-white stroke-1"
+                                                                        ? "fill-purple text-purple"
+                                                                        : "text-slate-300 fill-white dark:fill-gray-800 stroke-1"
                                                             )}
                                                       />
                                                 </button>
@@ -245,12 +245,11 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                                     </div>
                               </div>
 
-                              {/* Views Counter (only if no timer) */}
-                              {!showTimer && (
-                                    <div className="absolute bottom-2 right-2 z-20 pointer-events-none">
-                                          <div className="bg-black rounded px-1.5 py-0.5 flex items-center gap-1">
+                              {typeof views === "number" && (
+                                    <div className={cn("absolute right-2 z-20 pointer-events-none", showTimer && timeLeft ? "bottom-8" : "bottom-2")}>
+                                          <div className="bg-black/60 backdrop-blur-sm rounded px-1.5 py-0.5 flex items-center gap-1">
                                                 <Eye size={12} className="text-white" />
-                                                <span className="text-xs text-white font-medium">{views}</span>
+                                                <span className="text-[10px] text-white font-medium">{views}</span>
                                           </div>
                                     </div>
                               )}
@@ -319,7 +318,7 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                               {/* Title */}
                               <Typography
                                     variant="md-medium"
-                                    className="font-semibold text-dark-blue leading-tight line-clamp-2"
+                                    className="font-semibold text-dark-blue dark:text-gray-100 leading-tight line-clamp-2"
                               >
                                     {title}
                               </Typography>
@@ -346,16 +345,16 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                                           maxVisible={4}
                                           showPopover={false}
                                           className="flex flex-wrap"
-                                          itemClassName="text-[#667085]"
+                                          itemClassName="text-[#667085] dark:text-gray-400"
                                     />
                               )}
 
                               {/* Location */}
                               <div className="flex items-center gap-1">
-                                    <MapPin size={16} className="text-[#667085]" />
+                                    <MapPin size={16} className="text-[#667085] dark:text-gray-400" />
                                     <Typography
                                           variant="body-small"
-                                          className="text-xs text-[#667085] truncate"
+                                          className="text-xs text-[#667085] dark:text-gray-400 truncate"
                                     >
                                           {location}
                                     </Typography>
@@ -407,7 +406,7 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                         </div>
 
                         {/* Right Side - Seller & Actions */}
-                        <div className="hidden sm:flex flex-col justify-between items-end gap-4 p-4">
+                        <div className="flex flex-col justify-between items-end gap-4 p-4">
                               <div className="flex flex-col items-end gap-2 text-right">
                                     {seller && (
                                           <div className="flex flex-col items-end">
@@ -416,10 +415,10 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                                                       className="text-xs text-gray-500 whitespace-nowrap font-medium flex items-center justify-end gap-1"
                                                 >
                                                       <CircleUser size={16} className="text-purple" />
-                                                      <span className="text-xs text-grey-blue font-normal">
+                                                      <span className="text-xs text-grey-blue dark:text-gray-400 font-normal">
                                                             {seller.type === "Agent" ? "By Agent:" : "By:"}
                                                       </span>
-                                                      {seller.name}
+                                                      <span className="dark:text-gray-300">{seller.name}</span>
                                                 </Typography>
                                           </div>
                                     )}
@@ -432,7 +431,7 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                                                       height={16}
                                                 />
                                           )}
-                                          <span className="text-xs text-grey-blue">{postedTime}</span>
+                                          <span className="text-xs text-grey-blue dark:text-gray-500">{postedTime}</span>
                                     </div>
                               </div>
                               <Button
@@ -488,7 +487,7 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
             <div
                   role="button"
                   className={cn(
-                        "w-full flex md:hidden flex-col overflow-hidden rounded-xl border border-purple-100 bg-white hover:shadow-md transition-all duration-300 cursor-pointer group active:scale-[0.98] space-y-2 relative",
+                        "w-full flex md:hidden flex-col overflow-hidden rounded-xl border border-purple-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-md transition-all duration-300 cursor-pointer group active:scale-[0.98] space-y-2 relative",
                         className
                   )}
                   onClick={handleCardClick}
@@ -593,15 +592,15 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
                                           >
                                                 {({ isSaved }) => (
                                                       <button
-                                                            className="h-7 w-7 rounded-full bg-white/80 flex items-center justify-center hover:bg-white transition-colors shadow-sm"
+                                                            className="h-7 w-7 rounded-full bg-white/80 dark:bg-gray-800/80 flex items-center justify-center hover:bg-white dark:hover:bg-gray-700 transition-colors shadow-sm"
                                                             onClick={(e) => e.stopPropagation()}
                                                       >
                                                             <Heart
                                                                   size={16}
                                                                   className={cn(
                                                                         isSaved
-                                                                              ? "fill-red-500 text-red-500"
-                                                                              : "text-gray-500"
+                                                                              ? "fill-purple text-purple"
+                                                                              : "text-gray-500 dark:text-gray-400"
                                                                   )}
                                                             />
                                                       </button>
@@ -643,16 +642,16 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
 
                               <Typography
                                     variant="h3"
-                                    className="text-sm font-semibold text-dark-blue leading-tight line-clamp-2"
+                                    className="text-sm font-semibold text-dark-blue dark:text-gray-100 leading-tight line-clamp-2"
                               >
                                     {title}
                               </Typography>
 
                               <div className="flex items-center gap-1">
-                                    <MapPin size={18} className="text-[#667085] flex-shrink-0" />
+                                    <MapPin size={18} className="text-[#667085] dark:text-gray-400 flex-shrink-0" />
                                     <Typography
                                           variant="body-small"
-                                          className="text-xs text-[#667085] truncate"
+                                          className="text-xs text-[#667085] dark:text-gray-400 truncate"
                                     >
                                           {location}
                                     </Typography>
@@ -665,20 +664,20 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
                                           maxVisible={4}
                                           showPopover={false}
                                           className="grid grid-cols-2 gap-1.5"
-                                          itemClassName="text-[#667085] text-[10px]"
+                                          itemClassName="text-[#667085] dark:text-gray-400 text-[10px]"
                                     />
                               )}
                         </div>
                   </div>
 
                   {/* Mobile Footer */}
-                  <div className="w-full border-t flex flex-wrap gap-3 items-center justify-between p-2 mt-auto">
+                  <div className="w-full border-t dark:border-gray-800 flex flex-wrap gap-3 items-center justify-between p-2 mt-auto">
                         <div className="flex gap-2 items-center min-w-0">
                               <UserCircle2 className="text-purple flex-shrink-0 size-6" />
-                              <div className="text-grey-blue overflow-hidden">
+                              <div className="text-grey-blue dark:text-gray-400 overflow-hidden">
                                     <Typography
                                           variant="sm-semibold"
-                                          className="flex items-center gap-1 truncate"
+                                          className="flex items-center gap-1 truncate dark:text-gray-200"
                                     >
                                           <span className="truncate max-w-[100px]">{seller?.name}</span>
                                           {seller?.isVerified && (
@@ -694,7 +693,7 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
                                     </Typography>
                                     <Typography
                                           variant="body-small"
-                                          className="text-xs text-[#667085] truncate"
+                                          className="text-xs text-[#667085] dark:text-gray-500 truncate"
                                     >
                                           {seller?.type || "Seller"}
                                           {postedTime ? ` • ${postedTime}` : ""}

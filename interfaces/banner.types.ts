@@ -7,6 +7,8 @@ export interface Banner {
   image: string;
   mobileImage?: string;
   link?: string;
+  callToAction?: string;
+  callToActionAr?: string;
   position?: string;
   order?: number;
   isActive: boolean;
@@ -14,6 +16,7 @@ export interface Banner {
   endDate?: string;
   location?: string;
   locationId?: string;
+  slug?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -49,11 +52,14 @@ export interface CreateBannerPayload {
   image: string;
   mobileImage?: string;
   link?: string;
+  callToAction?: string;
+  callToActionAr?: string;
   position?: string;
   order?: number;
   isActive?: boolean;
   startDate?: string;
   endDate?: string;
+  slug?: string;
 }
 
 export type UpdateBannerPayload = Partial<CreateBannerPayload>;

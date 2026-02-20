@@ -159,6 +159,36 @@ export type AD = {
   __v: number;
 };
 
+export interface CategoryAdsCount {
+  categoryId: string;
+  categoryName: string;
+  categoryNameAr: string;
+  description: string;
+  descriptionAr: string;
+  icon: string;
+  banner: string;
+  image: string;
+  mobileImage: string;
+  bgColor: string;
+  slug: string;
+  slugAr: string;
+  parentID: string;
+  childIDs: string[];
+  sequence: number;
+  relatedTo: string;
+  fields: {
+    name: string;
+    type: string;
+  }[];
+  count: number;
+}
+
+export interface GetCategoryAdsCountResponse {
+  statusCode: number;
+  timestamp: string;
+  data: CategoryAdsCount[];
+}
+
 export interface AdCategory {
   parentID: string;
   name: string;

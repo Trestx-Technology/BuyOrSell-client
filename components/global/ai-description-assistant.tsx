@@ -76,12 +76,12 @@ export function AIDescriptionAssistant({
             >
                   <div className="flex flex-col h-full max-h-[90vh]">
                         {/* Header */}
-                        <div className="bg-purple/5 p-6 border-b border-[#F5EBFF] dark:border-purple/10 shrink-0">
+                        <div className="bg-purple/5 p-6 border-b border-[#F5EBFF] dark:border-purple/20 shrink-0">
                               <div className="flex items-center gap-2 text-purple font-bold text-lg mb-1">
                                     <Sparkles className="size-5" />
                                     AI Description Assistant
                               </div>
-                              <Typography variant="h5" className="text-gray-500 font-normal">
+                              <Typography variant="h5" className="text-gray-500 dark:text-gray-400 font-normal">
                                     Enhance your listing for <span className="text-purple font-medium">{categoryPath}</span>
                               </Typography>
                         </div>
@@ -89,9 +89,9 @@ export function AIDescriptionAssistant({
                         {/* Content */}
                         <div className="p-6 space-y-6 overflow-y-auto flex-1">
                               <div className="space-y-3">
-                                    <label className="text-sm font-semibold text-gray-700 flex items-center justify-between">
+                                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center justify-between">
                                           What should the AI focus on?
-                                          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded">Optional</span>
+                                          <span className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-bold bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded">Optional</span>
                                     </label>
                                     <div className="relative group">
                                           <Input
@@ -118,15 +118,15 @@ export function AIDescriptionAssistant({
                               </div>
 
                               {error && (
-                                    <div className="p-4 rounded-xl bg-red-50 border border-red-100 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
-                                          <AlertCircle className="size-5 text-red-500 shrink-0 mt-0.5" />
-                                          <p className="text-sm text-red-600 font-medium">{error}</p>
+                                    <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                                          <AlertCircle className="size-5 text-red-500 dark:text-red-400 shrink-0 mt-0.5" />
+                                          <p className="text-sm text-red-600 dark:text-red-400 font-medium">{error}</p>
                                     </div>
                               )}
 
                               {(generatedResult || isGenerating) && (
                                     <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
-                                          <label className="text-sm font-semibold text-gray-700">AI Suggestion</label>
+                                          <label className="text-sm font-semibold text-gray-700 dark:text-gray-200">AI Suggestion</label>
                                           <div className="relative">
                                                 <div className={`p-5 rounded-xl border-2 transition-all duration-300 min-h-[200px] max-h-[400px] overflow-y-auto text-sm leading-relaxed ${isGenerating ? 'border-dashed border-purple/20 bg-purple/5 opacity-60' : 'border-[#F5EBFF] dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-700 dark:text-gray-100 whitespace-pre-wrap'}`}>
                                                       {isGenerating ? (
@@ -151,7 +151,7 @@ export function AIDescriptionAssistant({
                                                 )}
                                           </div>
                                           {!isGenerating && (
-                                                <p className="text-[10px] text-center text-gray-400 font-medium italic">
+                                                <p className="text-[10px] text-center text-gray-400 dark:text-gray-500 font-medium italic">
                                                       Tip: You can refine the prompt and generate again to get better results.
                                                 </p>
                                           )}
@@ -164,7 +164,7 @@ export function AIDescriptionAssistant({
                               <Button
                                     variant="ghost"
                                     onClick={onClose}
-                                    className="w-full sm:w-auto hover:bg-gray-100 font-semibold"
+                                    className="w-full sm:w-auto hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold dark:text-gray-200"
                                     disabled={isGenerating}
                               >
                                     Cancel

@@ -27,6 +27,7 @@ export const useBanners = (params?: {
   isActive?: boolean;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
+  slug?: string;
 }) => {
   return useQuery<BannersListApiResponse, Error>({
     queryKey: [...bannerQueries.banners.Key, params],
@@ -43,9 +44,9 @@ export const useBannerById = (id: string) => {
   });
 };
 
-// Get banners by location (client-side filtering)
-export const useBannersByLocation = (
-  location: string,
+// Get banners by slug (server-side filtering)
+export const useBannersBySlug = (
+  slug: string,
   params?: {
     page?: number;
     limit?: number;
@@ -53,31 +54,10 @@ export const useBannersByLocation = (
     isActive?: boolean;
     sortBy?: string;
     sortOrder?: "asc" | "desc";
-  }
+    slug?: string;
+  },
 ) => {
-  const { data, isLoading, error, ...rest } = useBanners(params);
-
-  // Filter banners by location client-side
-  const filteredData: BannersListApiResponse | undefined = data
-    ? {
-        ...data,
-        data: {
-          ...data.data,
-          banners: data.data.banners.filter((banner: Banner) => {
-            // Check if banner has location field and matches the provided location
-            const bannerLocation = banner.location || banner.locationId;
-            return bannerLocation?.toLowerCase() === location.toLowerCase();
-          }),
-        },
-      }
-    : undefined;
-
-  return {
-    data: filteredData,
-    isLoading,
-    error,
-    ...rest,
-  };
+  return useBanners({ ...params, slug });
 };
 
 // ============================================================================

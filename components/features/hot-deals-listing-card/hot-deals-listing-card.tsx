@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { ProductExtraFields } from "@/interfaces/ad";
 import { useShare } from "@/hooks/useShare";
-import { useGetCollectionsByAd } from "@/hooks/useCollections";
 import { Specification } from "@/components/global/specifications-display";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
 
@@ -26,6 +25,7 @@ export interface HotDealsListingCardProps {
   views?: number;
   isPremium?: boolean;
   isAddedInCollection?: boolean;
+  isSaved?: boolean;
   onClick?: (id: string) => void;
   className?: string;
   showSeller?: boolean;
@@ -75,18 +75,12 @@ const HotDealsListingCard: React.FC<HotDealsListingCardProps> = ({
   dealValidThrough,
 }) => {
   const { share } = useShare();
-  const { data: collectionsByAdResponse } = useGetCollectionsByAd(
-    isAddedInCollection === undefined ? id : ""
-  );
-  const apiIsAddedInCollection =
-    collectionsByAdResponse?.data?.isAddedInCollection ?? false;
-  const [isSaved, setIsSaved] = useState(
-    isAddedInCollection ?? apiIsAddedInCollection
-  );
+  // Use isAddedInCollection flag directly from ad data instead of making per-card API calls
+  const [isSaved, setIsSaved] = useState(isAddedInCollection ?? false);
 
   useEffect(() => {
-    setIsSaved(isAddedInCollection ?? apiIsAddedInCollection);
-  }, [isAddedInCollection, apiIsAddedInCollection]);
+    setIsSaved(isAddedInCollection ?? false);
+  }, [isAddedInCollection]);
 
   // Dynamically extract specifications from extraFields
   const specifications = useMemo((): Specification[] => {

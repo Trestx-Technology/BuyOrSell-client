@@ -14,7 +14,8 @@ export const getBanners = async (params?: {
   position?: string;
   isActive?: boolean;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
+  slug?: string;
 }): Promise<BannersListApiResponse> => {
   const response = await axiosInstance.get<BannersListApiResponse>(
     bannerQueries.banners.endpoint,

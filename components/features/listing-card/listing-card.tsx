@@ -99,7 +99,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
         className
       )}
     >
-      <Link href={`/ad/${id}`} className="absolute inset-0 z-10" />
+      <Link href={`/ad/${id}`} className="absolute inset-0 z-[1]" />
       <div className="p-0 flex flex-col flex-1">
         {/* Image Section (Carousel, Badges, Actions) */}
         <ListingImageGallery

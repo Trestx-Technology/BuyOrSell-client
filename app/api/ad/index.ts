@@ -71,4 +71,16 @@ export const adQueries = {
     Key: ["ads", "search", "ai"],
     endpoint: "/ad/search/ai",
   },
+  categoriesCount: {
+    Key: ["ads", "categories", "count"],
+    endpoint: "/ad/categories/count",
+  },
+  dealsAdsCount: {
+    Key: ["ads", "deals", "categories", "count"],
+    endpoint: "/ad/deals/categories/count",
+  },
+  exchangeAdsCount: {
+    Key: ["ads", "exchange", "categories", "count"],
+    endpoint: "/ad/exchange/categories/count",
+  },
 };

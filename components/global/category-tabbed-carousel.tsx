@@ -10,6 +10,7 @@ import ListingCard from "@/components/features/listing-card/listing-card";
 import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { AD } from "@/interfaces/ad";
 import { useLocale } from "@/hooks/useLocale";
+import { CarouselWrapper } from "@/components/global/carousel-wrapper";
 
 interface CategoryTabbedCarouselProps<
   T extends { id?: string | number } = { id?: string | number }
@@ -131,7 +132,7 @@ export default function CategoryTabbedCarousel<
 
   // Loading skeleton components
   const TitleSkeleton = () => (
-    <div className="h-6 bg-gray-200 rounded w-48 animate-pulse mb-2"></div>
+    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-48 animate-pulse mb-2"></div>
   );
 
   const TabsSkeleton = () => (
@@ -140,12 +141,12 @@ export default function CategoryTabbedCarousel<
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"
+            className="h-8 w-20 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"
           ></div>
         ))}
       </div>
       {showViewAll && (
-        <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+        <div className="h-8 w-20 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
       )}
     </div>
   );
@@ -183,7 +184,7 @@ export default function CategoryTabbedCarousel<
     >
       <Typography
         variant="lg-black-inter"
-        className="text-md sm:text-lg font-medium text-dark-blue"
+        className="text-md sm:text-lg font-medium text-dark-blue dark:text-gray-100"
       >
         {displayTitle}
       </Typography>
@@ -198,7 +199,11 @@ export default function CategoryTabbedCarousel<
       viewport={{ once: true, margin: "-100px" }}
       className="mb-4 flex items-center justify-between"
     >
-      <div className="flex flex-1 items-center gap-3 overflow-x-auto scrollbar-hide px-5">
+      <CarouselWrapper
+        className="flex-1"
+        containerClassName="px-5 items-center"
+        shadowColorClassName="from-[#F9FAFB] dark:from-gray-900"
+      >
         {subCategories.map((subCategory, index) => {
           const subCategoryName = isArabic
             ? subCategory.nameAr || subCategory.name
@@ -219,14 +224,14 @@ export default function CategoryTabbedCarousel<
               className={`px-4 py-2 h-8 text-xs font-medium rounded-lg border transition-colors flex-shrink-0 ${
                 activeTab === subCategory._id
                   ? "bg-purple text-white border-purple shadow-sm"
-                  : "bg-white border-[#F5EBFF] text-[#475467] hover:bg-purple/10"
+                : "bg-white dark:bg-gray-800 border-[#F5EBFF] dark:border-gray-700 text-[#475467] dark:text-gray-300 hover:bg-purple/10 dark:hover:bg-gray-700"
               }`}
             >
               {subCategoryName}
             </motion.button>
           );
         })}
-      </div>
+      </CarouselWrapper>
       {showViewAll && (
         <motion.div
           initial={{ opacity: 0, y: 10, scale: 0.9 }}
@@ -258,7 +263,7 @@ export default function CategoryTabbedCarousel<
 
     if (currentAds.length === 0) {
       return (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           No ads available for this category.
         </div>
       );

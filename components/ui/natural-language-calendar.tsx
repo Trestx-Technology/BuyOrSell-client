@@ -123,7 +123,7 @@ export function NaturalLanguageCalendar({
         <Input
           value={inputValue}
           placeholder={placeholder}
-          className="bg-secondary h-9 font-semibold text-grey-blue border-0"
+          className="bg-secondary h-11 font-semibold text-grey-blue border-0"
           onChange={handleInputChange}
           onKeyDown={(e) => {
             if (e.key === "ArrowDown") {

@@ -50,7 +50,7 @@ export const HotDealsActions: React.FC<HotDealsActionsProps> = ({
             size={24}
             className={cn(
               "fill-white stroke-slate-400",
-              isSaved && "fill-purple"
+              isSaved && "fill-purple text-purple"
             )}
             strokeWidth={1}
           />
