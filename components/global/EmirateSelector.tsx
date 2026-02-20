@@ -76,7 +76,7 @@ const EmirateSelector = ({
   );
 
   const currentEmirateDisplay = () => {
-    if (!selectedEmirate) return locale === "ar" ? "الإمارات" : "UAE";
+    if (!selectedEmirate) return locale === "ar" ? "كل المدن" : "All Cities";
     if (isLoadingEmirates || !emirates) return selectedEmirate;
     
     const emirate = emirates.find(e => e.emirate === selectedEmirate);
@@ -107,7 +107,7 @@ const EmirateSelector = ({
           align="start"
         >
           <DropdownMenuItem onClick={() => handleCityChange("")} className="cursor-pointer">
-            {locale === "ar" ? "كل المدن (الإمارات)" : "All Cities (UAE)"}
+            {locale === "ar" ? "كل المدن" : "All Cities"}
           </DropdownMenuItem>
           {isLoadingEmirates
             ? Array.from({ length: 5 }).map((_, i) => (

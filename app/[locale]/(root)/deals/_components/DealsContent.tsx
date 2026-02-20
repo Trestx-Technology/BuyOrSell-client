@@ -61,7 +61,7 @@ export default function HotDealsContent() {
       }, [searchParams]);
 
       const emirateDisplayName = useMemo(() => {
-            if (!selectedEmirate) return locale === "ar" ? "الإمارات" : "UAE";
+            if (!selectedEmirate) return locale === "ar" ? "كل المدن" : "All Cities";
             if (!emirates) return selectedEmirate;
             const emirate = emirates.find((e) => e.emirate === selectedEmirate);
             return emirate

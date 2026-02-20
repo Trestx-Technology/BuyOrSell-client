@@ -24,7 +24,18 @@ export const useEmirates = (params?: { search?: string }) => {
     queryFn: () => getEmirates(params),
     select: (data: LocationApiResponse) => {
       // Handle both object array and string array formats
-      const rawData = data.data || [];
+      let rawData = data.data || [];
+
+      // Filter out "UAE" or "United Arab Emirates" if they exist in the emirates list
+      rawData = rawData.filter((item) => {
+        const name =
+          typeof item === "string" ? item : (item as Emirate).emirate;
+        return (
+          name?.toLowerCase() !== "uae" &&
+          name?.toLowerCase() !== "united arab emirates"
+        );
+      }) as any;
+
       // If it's already an array of objects, return as is
       if (rawData.length > 0 && typeof rawData[0] === "object") {
         return rawData as Emirate[];

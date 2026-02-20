@@ -3,14 +3,9 @@
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, Bell, LogOut } from "lucide-react";
+import { ChevronDown, Bell,  } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import EmirateSelector from "./EmirateSelector";
 import { AITokenBalance } from "./AITokenBalance";
 
@@ -26,7 +21,7 @@ import {
 } from "@/components/ui/popover";
 import { NavigationMenu } from "./navigation-menu";
 import { JobNavigationMenu } from "./job-navigation-menu";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { logout as LogoutAPI } from "@/app/api/auth/auth.services";
 import { toast } from "sonner";
@@ -34,7 +29,6 @@ import { useLocale } from "@/hooks/useLocale";
 
 // Internal component that uses useSearchParams
 const NavbarContent = ({ className }: { className?: string }) => {
-  const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
