@@ -14,6 +14,7 @@ type Message = {
 };
 
 import { searchWithAI } from "@/lib/ai/searchWithAI";
+import { findResolution } from "@/constants/app-context";
 
 export default function FloatingChatCTA() {
   const [open, setOpen] = React.useState(false);
@@ -108,69 +109,17 @@ export default function FloatingChatCTA() {
   const processQuery = async (text: string): Promise<{ content: string; action?: { label: string; url: string } }> => {
     const lower = text.toLowerCase();
 
-    // 1. Job Search & Posting
-    if (lower.match(/(post|create).*(job|vacancy|opening)/)) {
+    // 1. App Knowledge Base (Resolutions)
+    // This handles most platform intents: jobs, selling, account, support, etc.
+    const resolution = findResolution(text);
+    if (resolution) {
       return {
-        content: "You can post a new job listing here.",
-        action: { label: "Post a Job", url: "/post-job" }
-      };
-    }
-    if (lower.includes("job") || lower.includes("hiring") || lower.includes("work") || lower.includes("vacancy") || lower.includes("career")) {
-      return {
-        content: "Explore the latest career opportunities on our Jobs page.",
-        action: { label: "Browse Jobs", url: "/jobs/listing" }
+        content: resolution.response,
+        action: resolution.action
       };
     }
 
-    // 2. Ad Posting (Selling)
-    if (lower.includes("sell") || lower.match(/(post|create).*(ad|listing)/)) {
-      return {
-        content: "Ready to sell? You can post an ad quickly.",
-        action: { label: "Post an Ad", url: "/post-ad" }
-      };
-    }
-
-    // 3. User & Dashboard
-    if (lower.includes("profile") || lower.includes("account") || lower.includes("settings")) {
-      return {
-        content: "Manage your account and settings in your profile.",
-        action: { label: "Go to Profile", url: "/user/profile" } // Assuming this route
-      };
-    }
-    if (lower.includes("favorite") || lower.includes("saved") || lower.includes("wishlist")) {
-      return {
-        content: "View your saved items and favorites.",
-        action: { label: "My Favorites", url: "/favorites" }
-      };
-    }
-    if (lower.includes("map") || lower.includes("location") || lower.includes("near me")) {
-      return {
-        content: "Explore items and properties on the map view.",
-        action: { label: "Open Map", url: "/map-view" }
-      };
-    }
-
-    // 4. Support & Info
-    if (lower.includes("help") || lower.includes("support") || lower.includes("issue") || lower.includes("ticket")) {
-      return {
-        content: "Need assistance? Our Help Center is here for you.",
-        action: { label: "Visit Help Center", url: "/help-centre" }
-      };
-    }
-    if (lower.includes("contact") || lower.includes("email") || lower.includes("phone")) {
-      return {
-        content: "Get in touch with our support team.",
-        action: { label: "Contact Us", url: "/contact-us" }
-      };
-    }
-    if (lower.includes("about") || lower.includes("who are you")) {
-      return {
-        content: "BuyOrSell is your one-stop marketplace for everything in the UAE.",
-        action: { label: "About Us", url: "/about-us" } // Assuming route
-      };
-    }
-
-    // 5. Search Logic (Products & General)
+    // 2. Search Logic (Products & General)
     if (lower.includes("find") || lower.includes("search") || lower.includes("looking for") || lower.includes("buy")) {
       try {
         const { success, results, searchQuery } = await searchWithAI(text);
@@ -213,11 +162,7 @@ export default function FloatingChatCTA() {
       }
     }
 
-    // Greeting & Fallback
-    if (lower.match(/^(hi|hello|hey|greetings)/)) {
-      return { content: "Hello! I can help you find products, jobs, or guide you around the site." };
-    }
-
+    // Final Fallback
     return {
       content: "I'm not sure specifically, but you can explore our main sections.",
       action: { label: "Go Home", url: "/" }
