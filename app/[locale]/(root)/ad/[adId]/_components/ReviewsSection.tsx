@@ -148,21 +148,21 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
   const hasReviews = reviewData.reviews.length > 0;
 
   return (
-    <div className=" bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+    <div className=" bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
       {/* Title */}
       <Typography
         variant="h3"
-        className="text-base font-semibold text-dark-blue mb-6"
+        className="text-base font-semibold text-dark-blue dark:text-gray-100 mb-6"
       >
         User Reviews & Rating
       </Typography>
 
       {/* Rate This Seller Section - Only show if user is not the owner */}
       {!isOwner && (
-        <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+        <div className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-4 mb-6 border border-gray-200 dark:border-slate-700">
           <Typography
             variant="body-small"
-            className="text-dark-blue font-semibold mb-3"
+            className="text-dark-blue dark:text-gray-100 font-semibold mb-3"
           >
             Rate this seller
           </Typography>
@@ -175,7 +175,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
           </Button>
 
           {!isAuthenticated && (
-            <Typography variant="body-small" className="text-gray-500 mt-2">
+            <Typography variant="body-small" className="text-gray-500 dark:text-gray-400 mt-2">
               Please log in to leave a review
             </Typography>
           )}
@@ -189,19 +189,19 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
         {/* Rating Details */}
         <Typography
           variant="h2"
-          className="text-2xl font-semibold text-dark-blue"
+          className="text-2xl font-semibold text-dark-blue dark:text-gray-100"
         >
           {reviewData.overallRating > 0
             ? reviewData.overallRating.toFixed(1)
             : "0.0"}
         </Typography>
         <div>
-          <Typography variant="sm-regular" className="text-grey-blue">
+          <Typography variant="sm-regular" className="text-grey-blue dark:text-gray-400">
             Overall Rating
           </Typography>
-          <Typography variant="sm-regular" className="text-grey-blue">
+          <Typography variant="sm-regular" className="text-grey-blue dark:text-gray-400">
             Based on{" "}
-            <span className="font-bold">{reviewData.totalReviews} reviews</span>
+            <span className="font-bold dark:text-gray-200">{reviewData.totalReviews} reviews</span>
           </Typography>
         </div>
       </div>
@@ -213,7 +213,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
           <div className="flex items-center justify-between mb-6">
             <Typography
               variant="body-small"
-              className="text-dark-blue font-semibold text-sm"
+              className="text-dark-blue dark:text-gray-100 font-semibold text-sm"
             >
               {reviewData.totalReviews} Rating and Reviews
             </Typography>
@@ -223,10 +223,10 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
               value={sortBy}
               onValueChange={(value) => setSortBy(value as typeof sortBy)}
             >
-              <SelectTrigger className="w-24 h-8 border-purple-100 rounded-lg">
+              <SelectTrigger className="w-24 h-8 border-purple-100 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="dark:bg-slate-900 dark:border-slate-800">
                 <SelectItem value="latest">Latest</SelectItem>
                 <SelectItem value="oldest">Oldest</SelectItem>
                 <SelectItem value="highest">Highest</SelectItem>
@@ -238,7 +238,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
           {/* Loading State */}
           {isLoading && (
             <div className="text-center py-8">
-              <Typography variant="body-small" className="text-grey-blue">
+              <Typography variant="body-small" className="text-grey-blue dark:text-gray-400">
                 Loading reviews...
               </Typography>
             </div>
@@ -266,7 +266,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
                       <div className="mb-2 space-y-1">
                         <Typography
                           variant="body-small"
-                          className="text-dark-blue font-semibold text-sm"
+                          className="text-dark-blue dark:text-gray-100 font-semibold text-sm"
                         >
                           {review.userName}
                         </Typography>
@@ -274,7 +274,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
                           {renderStars(review.rating, "small")}
                           <Typography
                             variant="body-small"
-                            className="text-dark-blue font-semibold text-xs"
+                            className="text-dark-blue dark:text-gray-100 font-semibold text-xs"
                           >
                             {review.rating}
                           </Typography>
@@ -284,7 +284,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
                       {/* Review Comment */}
                       <Typography
                         variant="body-small"
-                        className="text-dark-blue font-semibold text-md"
+                        className="text-dark-blue dark:text-gray-100 font-semibold text-md"
                       >
                         {review.comment}
                       </Typography>
@@ -292,7 +292,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
                       {/* Full Comment */}
                       <Typography
                         variant="body-small"
-                        className="text-black text-sm leading-relaxed mb-4"
+                        className="text-black dark:text-gray-300 text-sm leading-relaxed mb-4"
                       >
                         {review.fullComment}
                       </Typography>
@@ -301,7 +301,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
                 ))
               ) : (
                 <div className="text-center py-8">
-                  <Typography variant="body-small" className="text-grey-blue">
+                    <Typography variant="body-small" className="text-grey-blue dark:text-gray-400">
                     No reviews yet. Be the first to review!
                   </Typography>
                 </div>

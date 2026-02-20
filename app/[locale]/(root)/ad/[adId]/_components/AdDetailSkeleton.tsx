@@ -25,7 +25,7 @@ export default function AdDetailSkeleton() {
             <Skeleton className="w-full h-[500px] rounded-lg shadow border border-accent" />
 
             {/* Tabs Skeleton */}
-            <div className="w-full px-4 bg-white rounded-l-xl md:rounded-r-xl border border-gray-200 shadow-sm flex items-center justify-between gap-4 h-12">
+            <div className="w-full px-4 bg-white dark:bg-slate-900 rounded-l-xl md:rounded-r-xl border border-gray-200 dark:border-slate-800 shadow-sm flex items-center justify-between gap-4 h-12">
               {[...Array(5)].map((_, i) => (
                 <Skeleton key={i} className="h-6 w-full" />
               ))}
@@ -34,7 +34,7 @@ export default function AdDetailSkeleton() {
             {/* Sections Skeleton */}
             <div className="space-y-6 relative">
               {/* Description Section Skeleton */}
-              <div className="bg-white rounded-lg p-6 space-y-4">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-6 space-y-4">
                 <Skeleton className="h-6 w-32" />
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-full" />
@@ -42,7 +42,7 @@ export default function AdDetailSkeleton() {
               </div>
 
               {/* Specifications Section Skeleton */}
-              <div className="bg-white rounded-lg p-6 space-y-4">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-6 space-y-4">
                 <Skeleton className="h-6 w-40" />
                 <div className="grid grid-cols-2 gap-4">
                   {[...Array(6)].map((_, i) => (
@@ -55,13 +55,13 @@ export default function AdDetailSkeleton() {
               </div>
 
               {/* Location Section Skeleton */}
-              <div className="bg-white rounded-lg p-6 space-y-4">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-6 space-y-4">
                 <Skeleton className="h-6 w-32" />
                 <Skeleton className="h-64 w-full rounded-lg" />
               </div>
 
               {/* Reviews Section Skeleton */}
-              <div className="bg-white rounded-lg p-6 space-y-4">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <Skeleton className="h-6 w-32" />
                   <Skeleton className="h-8 w-24" />
@@ -85,10 +85,10 @@ export default function AdDetailSkeleton() {
           {/* Right Column - Sidebar */}
           <div className="space-y-6 hidden md:block">
             {/* Product Information Card Skeleton */}
-            <div className="bg-white rounded-lg p-6 space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-6 space-y-4">
               <Skeleton className="h-8 w-3/4" />
               <Skeleton className="h-6 w-1/2" />
-              <div className="space-y-2 pt-4 border-t">
+              <div className="space-y-2 pt-4 border-t dark:border-slate-800">
                 {[...Array(4)].map((_, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <Skeleton className="h-5 w-5" />
@@ -99,7 +99,7 @@ export default function AdDetailSkeleton() {
             </div>
 
             {/* Seller Information Skeleton */}
-            <div className="bg-white rounded-lg p-6 space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-6 space-y-4">
               <Skeleton className="h-6 w-32" />
               <div className="flex items-center gap-3">
                 <Skeleton className="h-12 w-12 rounded-full" />
@@ -111,7 +111,7 @@ export default function AdDetailSkeleton() {
             </div>
 
             {/* Safety Features Skeleton */}
-            <div className="bg-white rounded-lg p-6 space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-6 space-y-4">
               <Skeleton className="h-6 w-32" />
               <div className="grid grid-cols-2 gap-3">
                 {[...Array(4)].map((_, i) => (
@@ -124,7 +124,7 @@ export default function AdDetailSkeleton() {
             </div>
 
             {/* Ad Card Skeleton */}
-            <div className="bg-white rounded-lg p-6 min-h-[550px] space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-6 min-h-[550px] space-y-4">
               <Skeleton className="h-6 w-32" />
               {[...Array(3)].map((_, i) => (
                 <div key={i} className="space-y-2">
@@ -152,9 +152,9 @@ export default function AdDetailSkeleton() {
             </div>
           </div>
 
-          <div className="bg-[#F9FAFC] space-y-6 relative z-10 rounded-t-xl -mt-8">
+          <div className="bg-[#F9FAFC] dark:bg-slate-900/50 space-y-6 relative z-10 rounded-t-xl -mt-8">
             {/* Product Info Card Mobile Skeleton */}
-            <div className="bg-white rounded-lg p-4 mx-4 space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-4 mx-4 space-y-4">
               <Skeleton className="h-7 w-3/4" />
               <Skeleton className="h-5 w-1/2" />
               <div className="flex gap-4 pt-3">
@@ -168,7 +168,7 @@ export default function AdDetailSkeleton() {
             </div>
 
             {/* Tabs Skeleton */}
-            <div className="w-full px-4 bg-white rounded-l-xl md:rounded-r-xl border border-gray-200 shadow-sm flex items-center gap-4 h-12 mx-4">
+            <div className="w-full px-4 bg-white dark:bg-slate-900 rounded-l-xl md:rounded-r-xl border border-gray-200 dark:border-slate-800 shadow-sm flex items-center gap-4 h-12 mx-4">
               {[...Array(4)].map((_, i) => (
                 <Skeleton key={i} className="h-6 w-20" />
               ))}
@@ -177,7 +177,7 @@ export default function AdDetailSkeleton() {
             {/* Sections Skeleton */}
             <div className="space-y-6 relative px-4">
               {/* Description Section Skeleton */}
-              <div className="bg-white rounded-lg p-4 space-y-3">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-4 space-y-3">
                 <Skeleton className="h-5 w-28" />
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-full" />
@@ -185,7 +185,7 @@ export default function AdDetailSkeleton() {
               </div>
 
               {/* Specifications Section Skeleton */}
-              <div className="bg-white rounded-lg p-4 space-y-3">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-4 space-y-3">
                 <Skeleton className="h-5 w-36" />
                 <div className="space-y-3">
                   {[...Array(4)].map((_, i) => (
@@ -198,13 +198,13 @@ export default function AdDetailSkeleton() {
               </div>
 
               {/* Location Section Skeleton */}
-              <div className="bg-white rounded-lg p-4 space-y-3">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-4 space-y-3">
                 <Skeleton className="h-5 w-28" />
                 <Skeleton className="h-48 w-full rounded-lg" />
               </div>
 
               {/* Reviews Section Skeleton */}
-              <div className="bg-white rounded-lg p-4 space-y-3">
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-4 space-y-3">
                 <Skeleton className="h-5 w-28" />
                 <div className="space-y-3">
                   {[...Array(2)].map((_, i) => (
@@ -222,7 +222,7 @@ export default function AdDetailSkeleton() {
             </div>
 
             {/* Seller Information Skeleton */}
-            <div className="bg-white rounded-lg p-4 mx-4 space-y-3">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-4 mx-4 space-y-3">
               <Skeleton className="h-5 w-28" />
               <div className="flex items-center gap-3">
                 <Skeleton className="h-10 w-10 rounded-full" />
@@ -234,7 +234,7 @@ export default function AdDetailSkeleton() {
             </div>
 
             {/* Safety Features Skeleton */}
-            <div className="bg-white rounded-lg p-4 mx-4 space-y-3">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-4 mx-4 space-y-3">
               <Skeleton className="h-5 w-32" />
               <div className="grid grid-cols-2 gap-3">
                 {[...Array(4)].map((_, i) => (
@@ -247,7 +247,7 @@ export default function AdDetailSkeleton() {
             </div>
 
             {/* Contact Actions Skeleton */}
-            <div className="bg-white rounded-lg p-4 mx-4 space-y-3">
+            <div className="bg-white dark:bg-slate-900 rounded-lg p-4 mx-4 space-y-3">
               <div className="flex gap-2">
                 <Skeleton className="h-12 flex-1 rounded-lg" />
                 <Skeleton className="h-12 flex-1 rounded-lg" />

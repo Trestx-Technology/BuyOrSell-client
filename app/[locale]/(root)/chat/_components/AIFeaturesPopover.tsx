@@ -11,7 +11,7 @@ import {
 import { Typography } from "@/components/typography";
 import { AIService } from "@/services/ai-service";
 import { toast } from "sonner";
-import { useSubscriptionStore } from "@/stores/subscriptionStore";
+import { useAITokenBalance, useConsumeTokens } from "@/hooks/useAITokens";
 
 interface AIFeaturesPopoverProps {
   onMessageGenerated: (message: string) => void;
@@ -28,6 +28,8 @@ export function AIFeaturesPopover({
 }: AIFeaturesPopoverProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const { data: tokenBalance } = useAITokenBalance();
+  const { mutateAsync: consumeTokens } = useConsumeTokens();
 
   const aiFeatures = AIService.getAIFeatures();
 
@@ -38,11 +40,9 @@ export function AIFeaturesPopover({
   }) => {
     console.log("feature: ", feature);
 
-    // Check for AI credits
-    const { canUseAi, useAi } = useSubscriptionStore.getState();
-
-    if (!canUseAi()) {
-      toast.error("No AI tokens available. Please upgrade your plan.");
+    if (!tokenBalance || tokenBalance.balance <= 0) {
+      toast.error("No AI tokens available. Please purchase more tokens.");
+      setIsOpen(false);
       return;
     }
 
@@ -75,8 +75,8 @@ export function AIFeaturesPopover({
 
       console.log("result: ", result);
 
-      // Increment AI usage
-      await useAi();
+      // Consume 1 token
+      await consumeTokens({ tokens: 1, reason: `Used AI Assistant: ${feature.name}` });
 
       onMessageGenerated(result);
       setIsOpen(false);

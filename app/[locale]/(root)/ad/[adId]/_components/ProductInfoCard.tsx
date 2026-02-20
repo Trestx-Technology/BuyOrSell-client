@@ -102,21 +102,21 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
       {/* Title */}
       {hasTitle && (
         <div className="flex items-start gap-2 mb-4">
           <Typography
             variant="h2"
-            className="text-lg font-semibold text-dark-blue line-clamp-2 flex-1"
+            className="text-lg font-semibold text-dark-blue dark:text-gray-100 line-clamp-2 flex-1"
           >
             {ad.title}
           </Typography>
           {ad.title.length > 50 && (
             <Popover>
               <PopoverTrigger asChild>
-                <button className="flex-shrink-0 mt-1 p-1 rounded hover:bg-gray-100 transition-colors">
-                  <Info className="h-4 w-4 text-grey-blue" />
+                <button className="flex-shrink-0 mt-1 p-1 rounded hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors">
+                  <Info className="h-4 w-4 text-grey-blue dark:text-gray-400" />
                 </button>
               </PopoverTrigger>
               <PopoverContent
@@ -126,13 +126,13 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
                 <div className="space-y-2">
                   <Typography
                     variant="h3"
-                    className="text-sm font-semibold text-dark-blue mb-2"
+                    className="text-sm font-semibold text-dark-blue dark:text-gray-100 mb-2"
                   >
                     Full Title
                   </Typography>
                   <Typography
                     variant="body-small"
-                    className="text-grey-blue whitespace-pre-wrap break-words"
+                    className="text-grey-blue dark:text-gray-400 whitespace-pre-wrap break-words"
                   >
                     {ad.title}
                   </Typography>
@@ -157,7 +157,7 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
       {/* Price Section */}
       {hasPrice && (
         <div className="mb-6">
-          <PriceDisplay ad={ad} currencyIconWidth={18} />
+          <PriceDisplay ad={ad} currencyIconWidth={18} className="dark:text-white" />
         </div>
       )}
 
@@ -166,10 +166,10 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
         <div className="flex items-center justify-between mb-4">
           {hasLocation && (
             <div className="flex items-center gap-1.5">
-              <FaMapMarkerAlt className="size-4" fill="#1D2939" stroke="1" />
+              <FaMapMarkerAlt className="size-4 text-dark-blue dark:text-gray-300" />
               <Typography
                 variant="body-small"
-                className="text-grey-blue text-xs"
+                className="text-grey-blue dark:text-gray-400 text-xs"
               >
                 {location}
               </Typography>
@@ -177,10 +177,10 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
           )}
           {hasCreatedAt && (
             <div className="flex items-center gap-1.5">
-              <GoClockFill className="size-4" fill="#1D2939" stroke="1" />
+              <GoClockFill className="size-4 text-dark-blue dark:text-gray-300" />
               <Typography
                 variant="body-small"
-                className="text-grey-blue text-xs"
+                className="text-grey-blue dark:text-gray-400 text-xs"
               >
                 {postedTime}
               </Typography>
@@ -191,7 +191,7 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
 
       {/* Divider Line - Only show if there's content above and below */}
       {hasContactActions && (
-        <div className="border-b border-dashed border-gray-300 mb-4"></div>
+        <div className="border-b border-dashed border-gray-300 dark:border-slate-700 mb-4"></div>
       )}
 
       {/* Contact Actions - Only show if user is not the owner */}
@@ -221,12 +221,12 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
                   variant="outline"
                   icon={
                     <MdMessage
-                      className="h-5 w-5 -mr-2 fill-dark-blue"
+                      className="h-5 w-5 -mr-2 fill-dark-blue dark:fill-gray-300"
                       stroke="white"
                     />
                   }
                   iconPosition="center"
-                  className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-12 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full border-gray-300 dark:border-slate-700 text-dark-blue dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center justify-center gap-2 h-12 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Send Message
                 </Button>
@@ -246,7 +246,7 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
                 />
               }
               iconPosition="center"
-              className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-12"
+              className="w-full border-gray-300 dark:border-slate-700 text-dark-blue dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center justify-center gap-2 h-12"
             >
               WhatsApp
             </Button>
@@ -256,7 +256,7 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
           {!ad.contactPhoneNumber && !ad.owner?._id && (
             <Typography
               variant="body-small"
-              className="text-grey-blue text-center py-2"
+              className="text-grey-blue dark:text-gray-400 text-center py-2"
             >
               Contact information not available
             </Typography>

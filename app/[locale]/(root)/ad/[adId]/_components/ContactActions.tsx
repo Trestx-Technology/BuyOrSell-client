@@ -50,7 +50,7 @@ const ContactActions: React.FC<ContactActionsProps> = ({ ad }) => {
   };
 
   return (
-    <div className="space-y-3 bg-white p-4 rounded-xl border border-gray-200 shadow-sm sticky bottom-0 z-[111]">
+    <div className="space-y-3 bg-white dark:bg-slate-900 p-4 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm sticky bottom-0 z-[111]">
       {/* Call Button */}
       <Button
         onClick={handleCall}
@@ -69,9 +69,9 @@ const ContactActions: React.FC<ContactActionsProps> = ({ ad }) => {
             onClick={onClick}
             isLoading={isLoading}
             variant="outline"
-            icon={<MdMessage className="h-5 w-5 -mr-2 fill-dark-blue" stroke="0" />}
+            icon={<MdMessage className="h-5 w-5 -mr-2 fill-dark-blue dark:fill-gray-300" stroke="0" />}
             iconPosition="center"
-            className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center h-10 lg:h-12"
+            className="w-full border-gray-300 dark:border-slate-700 text-dark-blue dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center justify-center h-10 lg:h-12"
           >
             Send Message
           </Button>
@@ -86,7 +86,7 @@ const ContactActions: React.FC<ContactActionsProps> = ({ ad }) => {
           <FaWhatsapp className="h-5 w-5 -mr-2 fill-green-500" stroke="1" />
         }
         iconPosition="center"
-        className="w-full border-gray-300 text-dark-blue hover:bg-gray-50 flex items-center justify-center gap-2 h-10 lg:h-12"
+        className="w-full border-gray-300 dark:border-slate-700 text-dark-blue dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center justify-center gap-2 h-10 lg:h-12"
       >
         WhatsApp
       </Button>

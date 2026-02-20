@@ -30,6 +30,9 @@ import { EMIRATE_STORAGE_KEY } from "@/components/global/EmirateSelector";
 import { useEmirates } from "@/hooks/useLocations";
 import { unSlugify } from "@/utils/slug-utils";
 import { BrowseByCategory } from "../../../deals/_components/browse-by-category";
+import { PageBannerCarousel } from "@/components/global/page-banner-carousel";
+import { useBannersBySlug } from "@/hooks/useBanners";
+import { SponsoredCarousel } from "@/components/global/banner-carousel";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -39,6 +42,9 @@ export default function ExchangeAdsContent() {
       const router = useRouter();
       const searchParams = useSearchParams();
       const { clearUrlQueries } = useUrlParams();
+
+      const { data: sponsoredBannersData } = useBannersBySlug("explore-deals");
+      const sponsoredBanners = sponsoredBannersData?.data?.banners || [];
 
       const [selectedCategory, setSelectedCategory] = useState("");
       const [searchQuery, setSearchQuery] = useState("");
@@ -176,6 +182,7 @@ export default function ExchangeAdsContent() {
                         </div>
 
                         <div className="max-w-7xl mx-auto py-6">
+                              <PageBannerCarousel slug="exchange-page" />
                               <div className="hidden px-4 sm:block mb-8 mt-6">
                                     <Breadcrumbs items={breadcrumbItems} showSelectCategoryLink={false} />
                               </div>
@@ -250,27 +257,42 @@ export default function ExchangeAdsContent() {
                                                             view === "list" && "flex flex-col"
                                                       )}
                                                 >
-                                                      {ads.map((ad: any) => {
-                                                            const cardProps = transformAdToHotDealsCard(ad, locale);
-                                                            const handleCardClick = (id: string) => {
-                                                                  router.push(`/ad/${id}`);
-                                                            };
-                                                            return view === "grid" ? (
-                                                                  <HotDealsListingCard
-                                                                        key={ad._id}
-                                                                        className="w-full border-0 shadow-lg"
-                                                                        {...cardProps}
-                                                                        showSeller={true}
-                                                                        onClick={handleCardClick}
-                                                                  />
-                                                            ) : (
-                                                                  <HorizontalListingCard
-                                                                        key={ad._id}
-                                                                        {...transformAdToHotDealsCard(ad, locale)}
-                                                                        onClick={handleCardClick}
-                                                                  />
-                                                            );
-                                                      })}
+                                                            {ads.map((ad: any, index: number) => {
+                                                                  const cardProps = transformAdToHotDealsCard(ad, locale);
+                                                                  const handleCardClick = (id: string) => {
+                                                                        router.push(`/ad/${id}`);
+                                                                  };
+
+                                                             const isGrid = view === "grid";
+                                                             const showSponsored = isGrid && index > 0 && index % 6 === 0 && sponsoredBanners.length > 0;
+
+                                                             return (
+                                                                   <React.Fragment key={ad._id}>
+                                                                         {showSponsored && (
+                                                                               <div className="col-span-2 sm:col-span-3 lg:col-span-4 my-4">
+                                                                                     <SponsoredCarousel
+                                                                                           banners={sponsoredBanners}
+                                                                                           className="max-w-full !max-h-[200px]"
+                                                                                           height="h-[200px]"
+                                                                                     />
+                                                                               </div>
+                                                                         )}
+                                                                         {isGrid ? (
+                                                                               <HotDealsListingCard
+                                                                                     className="w-full border-0 shadow-lg"
+                                                                                     {...cardProps}
+                                                                                     showSeller={true}
+                                                                                     onClick={handleCardClick}
+                                                                               />
+                                                                         ) : (
+                                                                               <HorizontalListingCard
+                                                                                           {...transformAdToHotDealsCard(ad, locale)}
+                                                                                           onClick={handleCardClick}
+                                                                                     />
+                                                                         )}
+                                                                   </React.Fragment>
+                                                             );
+                                                       })}
                                                 </div>
 
                                                 {totalPages > 1 && (

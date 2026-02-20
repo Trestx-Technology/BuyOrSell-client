@@ -18,7 +18,7 @@ import { searchWithAI } from "@/lib/ai/searchWithAI";
 import { toast } from "sonner";
 import { AD } from "@/interfaces/ad";
 import { slugify } from "@/utils/slug-utils";
-import { useSubscriptionStore } from "@/stores/subscriptionStore";
+import { useAITokenBalance, useConsumeTokens } from "@/hooks/useAITokens";
 
 export function SearchAnimated() {
   const [isAI, setIsAI] = React.useState(false);
@@ -33,6 +33,9 @@ export function SearchAnimated() {
   const pathname = usePathname();
   const nextRouter = useNextRouter();
   const [selectedCategory, setSelectedCategory] = React.useState("All Categories");
+
+  const { data: tokenBalance } = useAITokenBalance();
+  const { mutateAsync: consumeTokens } = useConsumeTokens();
 
   // Initialize category and search query from URL query parameters
   useQueryParams(searchParams, {
@@ -70,14 +73,13 @@ export function SearchAnimated() {
     setOptimizedQuery("");
   };
 
-  const { useAi, canUseAi } = useSubscriptionStore();
 
   const handleSearch = async (query: string) => {
     if (!query.trim()) return;
 
     if (isAI) {
-      if (!canUseAi()) {
-        toast.error("No AI tokens available. Please upgrade your plan.");
+      if (!tokenBalance || tokenBalance.balance <= 0) {
+        toast.error("No AI tokens available. Please purchase more tokens.");
         setIsAI(false);
         return;
       }
@@ -88,8 +90,8 @@ export function SearchAnimated() {
         const { keywords, searchQuery: optimized, results, success } = await searchWithAI(query.trim());
 
         if (success) {
-          // Increment AI usage on success
-          await useAi();
+          // Consume 1 token on success
+          await consumeTokens({ tokens: 1, reason: "AI Integrated Search" });
 
           if (results && results.length > 0) {
             setAiResults(results);

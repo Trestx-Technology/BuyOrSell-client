@@ -8,6 +8,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { useAdAvailability } from "@/hooks/useAdAvailability";
 import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
+import { PageBannerCarousel } from "@/components/global/page-banner-carousel";
 
 export default function SelectCategoryContent() {
   const router = useRouter();
@@ -90,6 +91,9 @@ export default function SelectCategoryContent() {
         <div className="w-full mx-auto bg-white">
           {/* Main Content */}
           <div className="pb-8 ">
+            <div className="mb-8">
+              <PageBannerCarousel slug="post-ad-page" />
+            </div>
 
               {/* First Row */}
             <div className="flex flex-wrap justify-center items-center gap-[13px]">

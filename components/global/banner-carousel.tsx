@@ -12,11 +12,13 @@ import Link from "next/link";
 interface SponsoredCarouselProps {
   banners: Banner[];
   className?: string;
+  height?: string;
 }
 
-const SponsoredCarousel = React.memo(function SponsoredCarousel({
+export const SponsoredCarousel = React.memo(function SponsoredCarousel({
   banners,
   className = "",
+  height = "h-full",
 }: SponsoredCarouselProps) {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const { locale } = useLocale();
@@ -34,7 +36,7 @@ const SponsoredCarousel = React.memo(function SponsoredCarousel({
 
   return (
     <div
-      className={`md:block hidden w-full max-w-[400px] h-full bg-black relative overflow-hidden rounded-xl ${className}`}
+      className={`md:block hidden w-full max-w-[400px] bg-black relative overflow-hidden rounded-xl ${height} ${className}`}
     >
       {banners.map((banner, index) => {
         const ctaText = isArabic ? banner.callToActionAr || banner.callToAction : banner.callToAction;

@@ -118,7 +118,7 @@ export function SpecificationsDisplay({
       {showPopover && hasMore && (
         <Popover>
           <PopoverTrigger asChild>
-            <button className="flex items-center gap-1 whitespace-nowrap text-xs text-purple-600 hover:text-purple-700 font-medium">
+            <button className="flex items-center gap-1 whitespace-nowrap text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 font-medium">
               +{remainingCount} more
             </button>
           </PopoverTrigger>

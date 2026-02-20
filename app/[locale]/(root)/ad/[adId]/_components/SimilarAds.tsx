@@ -70,10 +70,10 @@ const SimilarAds: React.FC<SimilarAdsProps> = ({ adId }) => {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-4 shadow-sm">
       <CardsCarousel
         className="space-y-0"
-        titleClassName="text-md font-semibold"
+        titleClassName="text-md font-semibold text-dark-blue dark:text-gray-100"
         title={t.ad.similarAds.title}
         breakpoints={{
           mobile: 2,

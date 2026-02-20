@@ -64,9 +64,9 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
       return (
         <Popover key={index}>
           <PopoverTrigger asChild>
-            <div className="flex justify-between items-start group border-gray-100 w-full p-2 rounded cursor-pointer hover:text-purple hover:bg-purple/10 transition-colors">
-              <span className="text-sm text-grey-blue">{key}</span>
-              <span className="text-sm font-semibold text-dark-blue max-w-1/2 text-right group-hover:text-purple">
+            <div className="flex justify-between items-start group border-gray-100 dark:border-slate-800 w-full p-2 rounded cursor-pointer hover:text-purple hover:bg-purple/10 transition-colors">
+              <span className="text-sm text-grey-blue dark:text-gray-400">{key}</span>
+              <span className="text-sm font-semibold text-dark-blue dark:text-gray-100 max-w-1/2 text-right group-hover:text-purple">
                 {isColor(displayValue) ? (
                   <div
                     className="w-4 h-4 rounded-full"
@@ -82,13 +82,13 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
             <div className="space-y-2">
               <Typography
                 variant="h3"
-                className="text-sm font-semibold text-dark-blue mb-2"
+                className="text-sm font-semibold text-dark-blue dark:text-gray-100 mb-2"
               >
                 {key}
               </Typography>
               <Typography
                 variant="body-small"
-                className="text-grey-blue whitespace-pre-wrap break-words"
+                className="text-grey-blue dark:text-gray-400"
               >
                 {value}
               </Typography>
@@ -101,10 +101,10 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
     return (
       <div
         key={index}
-        className="flex justify-between items-start border-gray-100 w-full p-2 rounded"
+        className="flex justify-between items-start border-gray-100 dark:border-slate-800 w-full p-2 rounded"
       >
-        <span className="text-sm text-grey-blue">{key}</span>
-        <span className="text-sm font-semibold text-dark-blue max-w-1/2 text-right">
+        <span className="text-sm text-grey-blue dark:text-gray-400">{key}</span>
+        <span className="text-sm font-semibold text-dark-blue dark:text-gray-100 max-w-1/2 text-right">
           {isColorValue ? (
             <div
               className="size-6 border border-slate-200 rounded-full"
@@ -119,10 +119,10 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-4 shadow-sm">
       <Typography
         variant="h3"
-        className="text-lg font-semibold text-dark-blue mb-6"
+        className="text-lg font-semibold text-dark-blue dark:text-gray-100 mb-6"
       >
         Specifications
       </Typography>
@@ -134,7 +134,7 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
           )}
         </div>
       ) : (
-        <Typography variant="body-small" className="text-grey-blue">
+          <Typography variant="body-small" className="text-grey-blue dark:text-gray-400">
           No specifications available.
         </Typography>
       )}

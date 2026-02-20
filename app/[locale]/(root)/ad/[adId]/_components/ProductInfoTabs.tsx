@@ -40,7 +40,7 @@ const ProductInfoTabs: React.FC<ProductInfoTabsProps> = ({
 
   return (
     <div
-      className={`w-full px-4 bg-white rounded-l-xl md:rounded-r-xl border border-gray-200 shadow-sm flex items-center overflow-x-auto gap-4 justify-between scrollbar-hide ${className}`}
+      className={`w-full px-4 bg-white dark:bg-slate-900 rounded-l-xl md:rounded-r-xl border border-gray-200 dark:border-slate-800 shadow-sm flex items-center overflow-x-auto gap-4 justify-between scrollbar-hide ${className}`}
     >
       {/* Tab Navigation */}
       {tabs.map((tab) => (
@@ -63,7 +63,7 @@ const ProductInfoTabs: React.FC<ProductInfoTabsProps> = ({
                 ${
                   activeTab === tab.id
                     ? "text-purple font-semibold"
-                    : "text-dark-blue"
+              : "text-dark-blue dark:text-gray-400"
                 }
               `}
           >

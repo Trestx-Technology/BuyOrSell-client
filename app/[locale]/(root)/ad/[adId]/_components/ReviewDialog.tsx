@@ -113,7 +113,7 @@ const ReviewDialog: React.FC<ReviewDialogProps> = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md w-[95%] sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-dark-blue">
+          <DialogTitle className="text-xl font-semibold text-dark-blue dark:text-gray-100">
             Rate this seller
           </DialogTitle>
         </DialogHeader>
@@ -121,13 +121,13 @@ const ReviewDialog: React.FC<ReviewDialogProps> = ({
         <div className="space-y-4 py-4">
           {/* Star Rating */}
           <div className="space-y-2">
-            <Typography variant="body-small" className="text-dark-blue font-medium">
+            <Typography variant="body-small" className="text-dark-blue dark:text-gray-200 font-medium">
               Your Rating
             </Typography>
             <div className="flex items-center gap-2">
               <div className="flex gap-1">{renderStars()}</div>
               {userRating > 0 && (
-                <Typography variant="body-small" className="text-gray-600">
+                <Typography variant="body-small" className="text-gray-600 dark:text-gray-400">
                   {userRating} star{userRating !== 1 ? "s" : ""}
                 </Typography>
               )}
@@ -136,14 +136,14 @@ const ReviewDialog: React.FC<ReviewDialogProps> = ({
 
           {/* Review Text */}
           <div className="space-y-2">
-            <Typography variant="body-small" className="text-dark-blue font-medium">
+            <Typography variant="body-small" className="text-dark-blue dark:text-gray-200 font-medium">
               Your Review
             </Typography>
             <Textarea
               placeholder="Share your experience with this seller (optional)"
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
-              className="min-h-[100px] resize-none"
+              className="min-h-[100px] resize-none dark:bg-slate-900 dark:border-slate-800 dark:text-gray-100"
               disabled={createReviewMutation.isPending}
             />
           </div>

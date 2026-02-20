@@ -159,7 +159,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
   // Show loading state
   if (isLoading) {
     return (
-      <div className="w-full max-w-[713px] bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <div className="w-full max-w-[713px] bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
         <Typography
           variant="h3"
           className="text-base font-semibold text-dark-blue mb-6"
@@ -189,10 +189,10 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
   // Show fallback map if Google Maps fails to load after timeout
   if (!window.google && !error) {
     return (
-      <div className="w-full max-w-[713px] bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <div className="w-full max-w-[713px] bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
         <Typography
           variant="h3"
-          className="text-base font-semibold text-dark-blue mb-6"
+          className="text-base font-semibold text-dark-blue dark:text-gray-100 mb-6"
         >
           Product Location
         </Typography>
@@ -202,10 +202,10 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
           <div className="w-full h-[390px] rounded-lg flex items-center justify-center">
             <div className="text-center">
               <MapPin className="h-16 w-16 text-purple-600 mx-auto mb-4" />
-              <p className="text-lg font-medium text-gray-700">
+              <p className="text-lg font-medium text-gray-700 dark:text-gray-200">
                 Interactive Map
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Tap to select exact location
               </p>
             </div>
@@ -218,7 +218,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
             <Button
               onClick={handleViewInMap}
               size="sm"
-              className="bg-white text-purple-600 border border-gray-300 hover:bg-gray-50 flex items-center gap-2 shadow-md"
+              className="bg-white dark:bg-slate-800 text-purple-600 border border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2 shadow-md"
             >
               <MapPin className="h-4 w-4" />
               View in Map
@@ -227,7 +227,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
         </div>
 
         {/* Location Details */}
-        <div className="flex items-center gap-2 text-gray-600">
+        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
           <MapPin className="h-4 w-4 text-purple-600" />
           <span className="text-sm">{locationData.address}</span>
         </div>
@@ -237,10 +237,10 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
 
   if (error) {
     return (
-      <div className="w-full max-w-[713px] bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <div className="w-full max-w-[713px] bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
         <Typography
           variant="h3"
-          className="text-base font-semibold text-dark-blue mb-6"
+          className="text-base font-semibold text-dark-blue dark:text-gray-100 mb-6"
         >
           Product Location
         </Typography>
@@ -262,7 +262,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
         </div>
 
         {/* Location Details */}
-        <div className="flex items-center gap-2 text-gray-600">
+        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
           <MapPin className="h-4 w-4 text-purple-600" />
           <span className="text-sm">{locationData.address}</span>
         </div>
@@ -273,10 +273,10 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
   // Show button initially, map only when clicked
   if (!showMap) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
         <Typography
           variant="h3"
-          className="text-base font-semibold text-dark-blue mb-4"
+          className="text-base font-semibold text-dark-blue dark:text-gray-100 mb-4"
         >
           Product Location
         </Typography>
@@ -298,7 +298,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
                 size="default"
                 icon={<MapPin className="size-4 -mr-2" />}
                 iconPosition="left"
-                className="bg-white text-purple-600 border border-gray-300 hover:bg-gray-50 flex items-center gap-2 shadow-md"
+                className="bg-white dark:bg-slate-800 text-purple-600 border border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2 shadow-md"
               >
                 View in Map
               </Button>
@@ -307,7 +307,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
         </div>
 
         {/* Location Details */}
-        <div className="flex items-center gap-2 text-gray-600">
+        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
           <MapPin className="h-4 w-4 text-purple-600" />
           <span className="text-sm">{locationData.address}</span>
         </div>
@@ -316,10 +316,10 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
       <Typography
         variant="h3"
-        className="text-base font-semibold text-dark-blue mb-4"
+        className="text-base font-semibold text-dark-blue dark:text-gray-100 mb-4"
       >
         Product Location
       </Typography>
@@ -334,7 +334,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
       </div>
 
       {/* Location Details */}
-      <div className="flex items-center gap-2 text-gray-600 mt-4">
+      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mt-4">
         <MapPin className="h-4 w-4 text-purple-600" />
         <span className="text-sm">{locationData.address}</span>
       </div>

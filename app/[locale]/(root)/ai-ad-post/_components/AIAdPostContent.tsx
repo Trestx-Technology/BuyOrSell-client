@@ -7,7 +7,7 @@ import { identifyCategory, generatePromptFromImages } from "@/lib/ai-actions";
 import { toast } from "sonner";
 import { useLocale } from "@/hooks/useLocale";
 import { Container1080 } from "@/components/layouts/container-1080";
-import { useSubscriptionStore } from "@/stores/subscriptionStore";
+import { useAITokenBalance, useConsumeTokens } from "@/hooks/useAITokens";
 
 // Components
 import { AIHowItWorks } from "./AIHowItWorks";
@@ -23,6 +23,9 @@ export const AIAdPostContent = () => {
   const [images, setImages] = useState<AIImageItem[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSuggesting, setIsSuggesting] = useState(false);
+
+  const { data: tokenBalance } = useAITokenBalance();
+  const { mutateAsync: consumeTokens } = useConsumeTokens();
 
   const templates = useMemo(
     () => [
@@ -61,10 +64,8 @@ export const AIAdPostContent = () => {
 
     if (uploadedImages.length === 0) return;
 
-    const { canUseAi, useAi } = useSubscriptionStore.getState();
-
-    if (!canUseAi()) {
-      toast.error("No AI tokens available. Please upgrade your plan.");
+    if (!tokenBalance || tokenBalance.balance <= 0) {
+      toast.error("No AI tokens available. Please purchase more tokens.");
       return;
     }
 
@@ -75,8 +76,8 @@ export const AIAdPostContent = () => {
       const suggestion = await generatePromptFromImages(uploadedImages);
       if (suggestion) {
         setPrompt(suggestion);
-        // Increment AI usage
-        await useAi();
+        // Consume 1 token
+        await consumeTokens({ tokens: 1, reason: "Magic suggestion from images" });
         toast.success("Voila! Here's a suggested description.", { id: toastId });
       } else {
         toast.error("I couldn't generate a suggestion right now.", { id: toastId });
@@ -101,10 +102,8 @@ export const AIAdPostContent = () => {
       return;
     }
 
-    const { canUseAi, useAi } = useSubscriptionStore.getState();
-
-    if (!canUseAi()) {
-      toast.error("No AI tokens available. Please upgrade your plan.");
+    if (!tokenBalance || tokenBalance.balance <= 0) {
+      toast.error("No AI tokens available. Please purchase more tokens.");
       return;
     }
 
@@ -112,8 +111,8 @@ export const AIAdPostContent = () => {
     try {
       const { redirectUrl, suggestedTitle } = await identifyCategory(prompt, uploadedImages);
 
-      // Increment AI usage on success
-      await useAi();
+      // Consume 1 token on success
+      await consumeTokens({ tokens: 1, reason: "AI Ad Categorization" });
 
       if (!redirectUrl) {
         toast.error("I couldn't quite figure out the best category for your ad. Could you please provide a few more details?");

@@ -21,10 +21,10 @@ const SafetyFeatures: React.FC<SafetyFeaturesProps> = ({ ad }) => {
     });
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-4 shadow-sm">
       <Typography
         variant="h3"
-        className="text-lg font-semibold text-dark-blue mb-4"
+        className="text-lg font-semibold text-dark-blue dark:text-gray-100 mb-4"
       >
         Safety Features
       </Typography>
@@ -33,7 +33,7 @@ const SafetyFeatures: React.FC<SafetyFeaturesProps> = ({ ad }) => {
       <div className="space-y-3">
         {safetyFeatures.map((feature, index) => (
           <div key={index} className="flex items-center justify-between">
-            <span className="text-sm text-grey-blue">{feature}</span>
+            <span className="text-sm text-grey-blue dark:text-gray-400">{feature}</span>
             <div className="flex items-center justify-center w-6 h-6 bg-success-10 rounded">
               <Check className="h-4 w-4 text-success-100" />
             </div>
@@ -41,7 +41,7 @@ const SafetyFeatures: React.FC<SafetyFeaturesProps> = ({ ad }) => {
         ))}
       </div>
       ) : (
-        <Typography variant="body-small" className="text-grey-blue">
+          <Typography variant="body-small" className="text-grey-blue dark:text-gray-400">
           No safety features listed.
         </Typography>
       )}

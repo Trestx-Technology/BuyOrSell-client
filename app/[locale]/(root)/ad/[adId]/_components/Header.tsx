@@ -57,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
       {/* Left side - Back button */}
       <button
         onClick={handleBack}
-        className="py-0 text-purple hover:font-semibold transition-all flex items-center gap-2 cursor-pointer hover:scale-110"
+        className="py-0 text-purple dark:text-purple-400 hover:font-semibold transition-all flex items-center gap-2 cursor-pointer hover:scale-110"
       >
         <ChevronLeft className="h-5 w-5" />
         <span className="text-sm font-medium">{t.ad.header.back}</span>
@@ -70,7 +70,7 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
           title={ad.title}
           description={shareDescription}
         >
-          <button className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110">
+          <button className="flex items-center gap-2 bg-white dark:bg-slate-900 border dark:border-slate-800 p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 dark:text-gray-300 hover:text-purple transition-all cursor-pointer hover:scale-110">
             <Share2 className="h-5 w-5" />
             <span className="text-sm font-medium sm:block hidden">
               {t.ad.header.share}
@@ -86,10 +86,10 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
             onSuccess={handleCollectionSuccess}
           >
             <button
-              className={`flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent transition-all cursor-pointer hover:scale-110 ${
+              className={`flex items-center gap-2 bg-white dark:bg-slate-900 border dark:border-slate-800 p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent transition-all cursor-pointer hover:scale-110 ${
                 isAdInCollection
                   ? "text-purple hover:text-purple"
-                  : "text-gray-600 hover:text-purple"
+                : "text-gray-600 dark:text-gray-300 hover:text-purple"
               }`}
             >
               <Heart
@@ -105,10 +105,10 @@ const Header: React.FC<HeaderProps> = ({ ad }) => {
         ) : (
           <button
             onClick={handleSave}
-            className={`flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent transition-all cursor-pointer hover:scale-110 ${
+              className={`flex items-center gap-2 bg-white dark:bg-slate-900 border dark:border-slate-800 p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent transition-all cursor-pointer hover:scale-110 ${
               isAdInCollection
                 ? "text-purple hover:text-purple"
-                : "text-gray-600 hover:text-purple"
+              : "text-gray-600 dark:text-gray-300 hover:text-purple"
             }`}
           >
             <Heart

@@ -151,7 +151,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
   return (
     <div className="overflow-hidden sticky lg:relative z-10 top-0 left-0 w-full">
       {/* Main Image/Video */}
-      <div className="bg-white border border-accent rounded-xl relative aspect-[16/9]">
+      <div className="bg-white dark:bg-slate-900 border border-accent dark:border-slate-800 rounded-xl relative aspect-[16/9]">
         {mediaItems.length > 0 ? (
           <div className="relative w-full h-full">
             {mediaItems[currentImageIndex].type === "video" ? (
@@ -212,7 +212,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                 title={ad.title}
                 description={ad.description}
               >
-                <button className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110">
+                <button className="flex items-center gap-2 bg-white dark:bg-slate-800 border dark:border-slate-700 p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 dark:text-gray-300 hover:text-purple transition-all cursor-pointer hover:scale-110">
                   <Share2 className="h-5 w-5" />
                   <span className="text-sm font-medium sm:block hidden">
                     Share
@@ -226,7 +226,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                 itemImage={images[0]}
                 className="w-full"
               >
-                  <button className="flex items-center gap-2 bg-white border p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 hover:text-purple transition-all cursor-pointer hover:scale-110">
+                <button className="flex items-center gap-2 bg-white dark:bg-slate-800 border dark:border-slate-700 p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 dark:text-gray-300 hover:text-purple transition-all cursor-pointer hover:scale-110">
                   <Heart className={cn("h-5 w-5", ad.isAddedInCollection && "fill-purple text-purple")} />
                     <span className="text-sm font-medium sm:block hidden">
                     {ad.isAddedInCollection ? "Saved" : "Save"}
@@ -239,7 +239,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
             {mediaItems.length > 0 && (
               <button
                 onClick={() => setIsGalleryOpen(true)}
-                className="absolute bottom-8 lg:bottom-4 right-4 border bg-white px-2 py-1 rounded-sm text-sm flex items-center gap-1 cursor-pointer hover:scale-110 transition-all border-accent"
+                className="absolute bottom-8 lg:bottom-4 right-4 border bg-white dark:bg-slate-800 dark:border-slate-700 px-2 py-1 rounded-sm text-sm flex items-center gap-1 cursor-pointer hover:scale-110 transition-all border-accent"
               >
                 <ImagePlusIcon className="h-4 w-4" />
                 <span className="text-xs font-semibold">
@@ -264,7 +264,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                   title="Exchange Information"
                   dialogContentClassName="sm:max-w-2xl"
                   trigger={
-                    <button className="border bg-white px-2 py-1 rounded-sm text-sm flex items-center gap-1 cursor-pointer hover:scale-110 transition-all border-accent">
+                    <button className="border bg-white dark:bg-slate-800 dark:border-slate-700 px-2 py-1 rounded-sm text-sm flex items-center gap-1 cursor-pointer hover:scale-110 transition-all border-accent">
                       <Repeat className="h-4 w-4" />
                       <span className="text-xs font-semibold">
                         Exchange Available
@@ -307,7 +307,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                   onClick={handlePrevious}
                   icon={<ChevronLeft className="h-4 w-4" />}
                   iconPosition="center"
-                  className="size-8 rounded-full absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg"
+                  className="size-8 rounded-full absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-800 shadow-lg"
                 />
                 <Button
                   variant="secondary"
@@ -315,7 +315,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                   onClick={handleNext}
                   icon={<ChevronRight className="h-4 w-4" />}
                   iconPosition="center"
-                  className="size-8 rounded-full absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg"
+                  className="size-8 rounded-full absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-800 shadow-lg"
                 />
               </>
             )}
@@ -343,8 +343,8 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
             )}
           </div>
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-100">
-            <div className="text-center text-gray-400">
+            <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800">
+              <div className="text-center text-gray-400 dark:text-gray-500">
               <Camera className="h-12 w-12 mx-auto mb-2" />
               <p className="text-sm">No images available</p>
             </div>

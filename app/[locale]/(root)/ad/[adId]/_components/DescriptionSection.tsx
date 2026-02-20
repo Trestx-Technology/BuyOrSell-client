@@ -24,13 +24,13 @@ const DescriptionSection: React.FC<DescriptionSectionProps> = ({ ad }) => {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
       {/* Description Content */}
       <div className="space-y-2">
         {/* Title */}
         <Typography
           variant="h3"
-          className="text-base font-semibold text-dark-blue"
+          className="text-base font-semibold text-dark-blue dark:text-gray-100"
         >
           Description
         </Typography>
@@ -39,7 +39,7 @@ const DescriptionSection: React.FC<DescriptionSectionProps> = ({ ad }) => {
         {/* Description Text */}
         <Typography
           variant="body-small"
-          className={`text-dark-blue leading-relaxed whitespace-pre-wrap ${isExpanded ? "" : "line-clamp-3 max-h-[4.5rem] overflow-hidden"
+          className={`text-dark-blue dark:text-gray-300 leading-relaxed whitespace-pre-wrap ${isExpanded ? "" : "line-clamp-3 max-h-[4.5rem] overflow-hidden"
           }`}
         >
           {description}

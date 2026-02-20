@@ -159,7 +159,7 @@ export default function AdDetailContent() {
           <div className="block lg:hidden space-y-6 mb-6 relative">
             {/* TODO: update the zindex of the gallery in the mobile layout */}
             <ProductGallery ad={ad} />
-            <div className="bg-[#F9FAFC] space-y-6 relative z-10 rounded-t-xl -mt-8">
+            <div className="bg-[#F9FAFC] dark:bg-slate-900/50 space-y-6 relative z-10 rounded-t-xl -mt-8">
               <ProductInfoCardMobile ad={ad} />
 
               <ProductInfoTabs

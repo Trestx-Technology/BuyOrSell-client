@@ -122,7 +122,7 @@ export function PriceDisplay({
           height={currencyIconHeight}
         />
         <H4
-          className={`font-bold text-purple-600 ${currentPriceClassName}`}
+          className={`font-bold text-purple-600 dark:text-purple-400 ${currentPriceClassName}`}
         >
           {isCompact && hasDiscount ? formatCompactPrice(currentPrice) : formatPrice(currentPrice)}
         </H4>
@@ -130,7 +130,7 @@ export function PriceDisplay({
       {hasDiscount && (
         <>
           <H5
-            className={cn(discountBadgeClassName, "text-grey-blue line-through")}
+            className={cn(discountBadgeClassName, "text-grey-blue dark:text-gray-400 line-through")}
           >
             {isCompact ? formatCompactPrice(discountOriginalPrice!) : formatPrice(discountOriginalPrice!)}
           </H5>
