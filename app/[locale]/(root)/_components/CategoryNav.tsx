@@ -229,7 +229,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
 }) => {
   const { t, locale } = useLocale();
   return (
-    <div className="w-full min-w-[400px] flex-1 bg-purple/10 dark:bg-purple/5 overflow-y-auto max-h-[40vh]">
+    <div className="w-full min-w-[400px] flex-1 bg-purple/10 dark:bg-purple/5 overflow-y-auto max-h-[80vh]">
       <div className="flex flex-col w-full">
         {subcategories.map((subcategory) => {
           const hasChildren =
@@ -316,11 +316,11 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
   if (isOtherCategory) {
     return (
       <HoverCardContent
-        className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[40vh] p-0 w-fit"
+        className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[80vh] p-0 w-fit"
         align="start"
         sideOffset={4}
       >
-        <div className="w-full max-w-md overflow-y-auto">
+        <div className="w-full max-w-md overflow-y-auto max-h-[80vh]">
           {categoryData.map((category) => {
             const categoryName =
               locale === "ar"
@@ -353,12 +353,12 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
 
   return (
     <HoverCardContent
-      className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[40vh] p-0 w-fit"
+      className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[80vh] p-0 w-fit"
       align="start"
       sideOffset={0}
     >
       <div className="flex w-full">
-        <div className="w-60 border-r border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[70vh]">
+        <div className="w-60 border-r border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[80vh]">
           {categoryData.map((category) => {
             const hasChildren =
               category.children && category.children.length > 0;
