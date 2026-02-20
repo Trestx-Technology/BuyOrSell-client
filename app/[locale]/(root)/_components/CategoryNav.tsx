@@ -53,11 +53,13 @@ interface CategoryDropdownContentProps {
   categoryData: SubCategory[];
   isOtherCategory?: boolean;
   allCategories: SubCategory[];
+  onClose?: () => void;
 }
 
 interface SubcategoryPanelProps {
   subcategories: SubCategory[];
   allCategories: SubCategory[];
+  onClose?: () => void;
 }
 
 // ============================================================================
@@ -210,22 +212,32 @@ const CategoryLoader = () => (
 const CategoryButton: React.FC<CategoryButtonProps> = ({
   label,
   children,
-}) => (
-  <HoverCard openDelay={0} closeDelay={100}>
-    <HoverCardTrigger asChild>
-      <button
-        className="h-9 px-2 cursor-pointer text-xs font-regular rounded-sm text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:text-purple transition-colors  data-[state=open]:text-purple"
-      >
-        {label}
-      </button>
-    </HoverCardTrigger>
-    {children}
-  </HoverCard>
-);
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <HoverCard open={open} onOpenChange={setOpen} openDelay={0} closeDelay={100}>
+      <HoverCardTrigger asChild>
+        <button
+          className="h-9 px-2 cursor-pointer text-xs font-regular rounded-sm text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:text-purple transition-colors  data-[state=open]:text-purple"
+          onClick={() => setOpen(true)}
+        >
+          {label}
+        </button>
+      </HoverCardTrigger>
+      {React.isValidElement(children)
+        ? React.cloneElement(children as React.ReactElement<any>, {
+          onClose: () => setOpen(false),
+        })
+        : children}
+    </HoverCard>
+  );
+};
 
 const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
   subcategories,
   allCategories,
+  onClose,
 }) => {
   const { t, locale } = useLocale();
   return (
@@ -252,6 +264,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                       <Link
                         href={buildCategoryUrl(subcategory, allCategories)}
                         className="text-purple text-xs hover:text-purple/80 flex items-center gap-1"
+                        onClick={onClose}
                       >
                         <Typography
                           variant="xs-regular-inter"
@@ -275,6 +288,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                           <Link
                             href={buildCategoryUrl(child, allCategories)}
                             className="text-sm text-grey-blue dark:text-gray-400 hover:text-purple hover:underline cursor-pointer transition-colors"
+                            onClick={onClose}
                           >
                             {childName}
                           </Link>
@@ -287,6 +301,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                 <Link
                   href={buildCategoryUrl(subcategory, allCategories)}
                     className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-purple/10 hover:text-purple transition-colors"
+                    onClick={onClose}
                 >
                   <Typography variant="xs-bold">
                     {locale === "ar"
@@ -307,6 +322,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
   categoryData,
   isOtherCategory = false,
   allCategories,
+  onClose,
 }) => {
   const { locale } = useLocale();
   const [activeCategory, setActiveCategory] = useState<SubCategory | null>(
@@ -340,6 +356,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                       : buildCategoryUrl(category, allCategories)
                   }
                   className="text-gray-600 dark:text-gray-300 group-hover:text-purple text-xs w-full"
+                  onClick={onClose}
                 >
                   {displayName}
                 </Link>
@@ -353,12 +370,12 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
 
   return (
     <HoverCardContent
-      className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[80vh] p-0 w-fit"
+      className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[40vh] p-0 w-fit"
       align="start"
       sideOffset={0}
     >
       <div className="flex w-full">
-        <div className="w-60 border-r border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[80vh]">
+        <div className="w-60 border-r border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[40vh] overflow-y-auto">
           {categoryData.map((category) => {
             const hasChildren =
               category.children && category.children.length > 0;
@@ -401,6 +418,10 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                   isActive && "bg-purple/10 text-purple"
                 )}
                 onMouseEnter={() => setActiveCategory(category)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveCategory(category);
+                }}
               >
                 <Typography
                   variant="xs-regular-inter"
@@ -429,6 +450,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
             <SubcategoryPanel
               subcategories={activeCategory.children}
               allCategories={allCategories}
+            onClose={onClose}
             />
           )}
       </div>
