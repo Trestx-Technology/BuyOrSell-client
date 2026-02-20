@@ -51,21 +51,21 @@ function SettingsItem({
               danger ? "bg-red-100 dark:bg-red-900/20" : "bg-gray-100 dark:bg-gray-800"
             }`}
           >
-            <div className={danger ? "text-red-600 dark:text-red-400" : "text-gray-600 dark:text-gray-400"}>
+            <div className={danger ? "text-red-600 dark:text-red-400" : "text-gray-100 dark:text-white"}>
               {icon}
             </div>
           </div>
           <div>
             <h3
               className={`text-sm font-medium ${
-                danger ? "text-red-900 dark:text-red-300" : "text-gray-900 dark:text-gray-100"
+                danger ? "text-red-900 dark:text-red-300" : "text-gray-100 dark:text-white"
               }`}
             >
               {title}
             </h3>
             <p
               className={`text-xs ${
-                danger ? "text-red-600 dark:text-red-400" : "text-gray-500 dark:text-gray-400"
+                danger ? "text-red-600 dark:text-red-400" : "text-gray-300 dark:text-gray-300"
               } leading-relaxed`}
             >
               {description}
@@ -213,11 +213,11 @@ export default function SettingsCard() {
         <div className="flex items-center justify-between py-4 px-6">
           <div className="flex items-center gap-4">
             <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
-              <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <Moon className="w-5 h-5 text-gray-100 dark:text-white" />
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Dark Mode</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+              <h3 className="text-sm font-medium text-gray-100 dark:text-white">Dark Mode</h3>
+              <p className="text-xs text-gray-300 dark:text-gray-300 leading-relaxed">
                 Toggle dark mode theme
               </p>
             </div>

@@ -152,7 +152,7 @@ export function EditCollectionDialog({
             >
               <ChevronLeft className="size-6" />
             </Button>
-            <ResponsiveModalTitle className="text-lg font-semibold text-gray-900">
+            <ResponsiveModalTitle className="text-lg font-semibold text-gray-900 dark:text-white">
               Edit List
             </ResponsiveModalTitle>
             <Button
@@ -215,7 +215,7 @@ export function EditCollectionDialog({
                 <button
                   onClick={handleChangeImage}
                   disabled={isUploading}
-                  className="w-full h-full flex rounded-2xl flex-col items-center justify-center bg-gray-50 hover:bg-gray-200 transition-colors disabled:opacity-50"
+                    className="w-full h-full flex rounded-2xl flex-col items-center justify-center bg-gray-50 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
                 >
                   {isUploading ? (
                     <Loader2 className="size-6 animate-spin text-gray-400" />

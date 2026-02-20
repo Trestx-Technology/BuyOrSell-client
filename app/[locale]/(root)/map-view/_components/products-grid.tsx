@@ -91,7 +91,7 @@ export default function ProductsGrid({
                   className="group cursor-pointer h-full"
                   onClick={() => handleProductClick(ad)}
                 >
-                  <ListingCard {...listingCard} className="w-full" />
+                  <ListingCard {...listingCard} className="w-full h-full" />
                 </motion.div>
               );
             })

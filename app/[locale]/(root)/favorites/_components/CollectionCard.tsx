@@ -78,14 +78,14 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
     return (
       <div
         onClick={handleCardClick}
-        className={`flex-shrink-0 w-full lg:max-w-64 hover:bg-purple/10 rounded-xl border-2 border-dashed border-purple-300 flex flex-col items-center justify-center sm:h-64 cursor-pointer hover:border-purple-400 transition-colors group ${className}`}
+        className={`flex-shrink-0 w-full lg:max-w-64 hover:bg-purple/10 dark:hover:bg-purple/20 rounded-xl border-2 border-dashed border-purple-300 dark:border-purple-800 flex flex-col items-center justify-center sm:h-64 cursor-pointer hover:border-purple-400 dark:hover:border-purple-600 transition-colors group ${className}`}
       >
-        <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+        <div className="w-10 h-10 bg-purple-600 dark:bg-purple-700 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
           <Plus className="h-5 w-5 text-white" />
         </div>
         <Typography
           variant="body-small"
-          className="text-purple-600 font-medium"
+          className="text-purple-600 dark:text-purple-400 font-medium"
         >
           Create new list
         </Typography>
@@ -95,10 +95,10 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
 
   return (
     <div
-      className={`flex-shrink-0 w-full lg:max-w-64 sm:p-4 sm:bg-white rounded-xl sm:border border-gray-200 sm:shadow-sm sm:hover:shadow-md transition-all duration-300 cursor-pointer group ${className}`}
+      className={`flex-shrink-0 w-full lg:max-w-64 sm:p-4 sm:bg-white dark:sm:bg-gray-800 rounded-xl sm:border border-gray-200 dark:border-gray-700 sm:shadow-sm sm:hover:shadow-md transition-all duration-300 cursor-pointer group ${className}`}
     >
       {/* Image Grid Section */}
-      <div className="relative h-48 rounded-t-xl rounded-b-xl overflow-hidden bg-gray-100">
+      <div className="relative h-48 rounded-t-xl rounded-b-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
         {/* Collection thumbnail grid - 2x2 layout */}
         <div className="flex gap-1 h-full">
           {/* Main image - takes left half */}
@@ -162,8 +162,8 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
         </div>
 
         {/* Collection count overlay */}
-        <div className="absolute bottom-2 left-2 bg-white rounded px-2 py-1">
-          <Typography variant="xs-medium" className="text-black font-medium">
+        <div className="absolute bottom-2 left-2 bg-white dark:bg-gray-800 rounded px-2 py-1 shadow-sm">
+          <Typography variant="xs-medium" className="text-black dark:text-white font-medium">
             {count} items
           </Typography>
         </div>
@@ -173,7 +173,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
       <div className="pt-2 sm:pt-4 flex justify-between">
         <Typography
           variant="sm-bold"
-          className="font-medium text-gray-900 line-clamp-1"
+          className="font-medium text-gray-900 dark:text-white line-clamp-1"
         >
           {name}
         </Typography>
@@ -184,6 +184,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
             <Button
               variant="ghost"
               size="sm"
+              className="dark:text-gray-400 dark:hover:text-white transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -192,7 +193,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
             </Button>
           </PopoverTrigger>
           <PopoverContent
-            className="w-40 p-1"
+            className="w-40 p-1 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
             align="end"
             onClick={(e) => e.stopPropagation()}
           >
@@ -200,7 +201,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
               {onEdit && (
                 <button
                   onClick={handleEdit}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors w-full text-left"
                 >
                   <Edit className="h-4 w-4" />
                   <span>Edit</span>
@@ -209,7 +210,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
               {onDelete && (
                 <button
                   onClick={handleDelete}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors w-full text-left"
                 >
                   <Trash2 className="h-4 w-4" />
                   <span>Delete</span>
@@ -217,7 +218,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
               )}
 
               <button
-                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors w-full text-left"
                 onClick={handleCardClick}
               >
                 <Eye className="h-4 w-4" />

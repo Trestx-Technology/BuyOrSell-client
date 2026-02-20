@@ -8,12 +8,16 @@ import { cn } from "@/lib/utils";
 import { Banner } from "@/interfaces/banner.types";
 import { useLocale } from "@/hooks/useLocale";
 import Link from "next/link";
+import { slugify } from "@/utils/slug-utils";
+import { BannerCTAWrapper } from "./banner-cta-wrapper";
 
 interface SponsoredCarouselProps {
   banners: Banner[];
   className?: string;
   height?: string;
 }
+
+
 
 export const SponsoredCarousel = React.memo(function SponsoredCarousel({
   banners,
@@ -36,55 +40,34 @@ export const SponsoredCarousel = React.memo(function SponsoredCarousel({
 
   return (
     <div
-      className={`md:block hidden w-full max-w-[400px] bg-black relative overflow-hidden rounded-xl ${height} ${className}`}
+      className={cn(
+        "md:block hidden w-full max-w-[400px] bg-black relative overflow-hidden",
+        height,
+        className
+      )}
     >
       {banners.map((banner, index) => {
-        const ctaText = isArabic ? banner.callToActionAr || banner.callToAction : banner.callToAction;
-
-        const Content = (
+        return (
           <div
+            key={banner._id || index}
             className={cn(
               "absolute inset-0 w-full h-full transition-opacity duration-500",
               index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
             )}
           >
-            <Image
-              src={banner.image}
-              alt={banner.title || banner.titleAr || "Sponsored banner"}
-              unoptimized
-              width={400}
-              height={300}
-              className="w-full h-full object-cover"
-              priority={index === 0}
-            />
-
-            {ctaText && (
-              <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity duration-300">
-                <Button variant="filled" className="bg-white text-black hover:bg-gray-100 border-none px-6 rounded-full font-bold">
-                  {ctaText}
-                </Button>
-              </div>
-            )}
-
-            {!ctaText && banner.title && (
-              <div className="absolute bottom-10 left-0 right-0 z-20 px-4 bg-gradient-to-t from-black/80 to-transparent pt-10 pb-4">
-                <p className="text-white font-bold text-lg truncate">
-                  {isArabic ? banner.titleAr || banner.title : banner.title}
-                </p>
-              </div>
-            )}
+            <BannerCTAWrapper banner={banner}>
+              <Image
+                src={banner.image}
+                alt={banner.title || banner.titleAr || "Sponsored banner"}
+                unoptimized
+                width={400}
+                height={300}
+                className="w-full h-full object-cover"
+                priority={index === 0}
+              />
+            </BannerCTAWrapper>
           </div>
         );
-
-        if (banner.link) {
-          return (
-            <Link key={banner._id || index} href={banner.link} target="_blank">
-              {Content}
-            </Link>
-          );
-        }
-
-        return <React.Fragment key={banner._id || index}>{Content}</React.Fragment>;
       })}
 
       {banners.length > 1 && (
@@ -315,15 +298,17 @@ export function BannerCarousel({
               key={slide._id}
               className={`${height} w-full flex bg-grey-100 flex-col shrink-0 relative`}
             >
-              <Image
-                src={slide.image}
-                alt={slide.title || slide.titleAr || "Banner"}
-                width={1200}
-                height={400}
-                className={`rounded-xl md:rounded-none h-full w-full object-cover object-right md:object-center ${imageClassName}`}
-                priority={index === 0}
-                loading={index === 0 ? "eager" : "lazy"}
-              />
+              <BannerCTAWrapper banner={slide}>
+                <Image
+                  src={slide.image}
+                  alt={slide.title || slide.titleAr || "Banner"}
+                  width={1200}
+                  height={400}
+                  className={`rounded-xl md:rounded-none h-full w-full object-cover object-right md:object-center ${imageClassName}`}
+                  priority={index === 0}
+                  loading={index === 0 ? "eager" : "lazy"}
+                />
+              </BannerCTAWrapper>
             </div>
           ))}
         </div>
@@ -391,7 +376,7 @@ export function BannerCarousel({
         (sponsoredBanners && sponsoredBanners.length > 0 ? (
           <SponsoredCarousel
             banners={sponsoredBanners}
-            className={sponsoredBannerClassName}
+          className={sponsoredBannerClassName}
           />
       ) : (
         <div

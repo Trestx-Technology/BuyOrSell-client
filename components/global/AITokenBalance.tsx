@@ -26,7 +26,7 @@ export const AITokenBalance: React.FC<AITokenBalanceProps> = ({
 
   if (isLoading) {
     return (
-      <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 border border-purple-100", className)}>
+      <div className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800", className)}>
         <Skeleton className="size-5 rounded-full" />
         {showText && <Skeleton className="h-4 w-12" />}
       </div>
@@ -42,7 +42,7 @@ export const AITokenBalance: React.FC<AITokenBalanceProps> = ({
           <Link 
             href="/ai-tokens"
             className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 border border-purple-100 hover:bg-purple-100 transition-colors group",
+              "flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-purple-100 dark:border-gray-700 hover:bg-purple-50 dark:hover:bg-gray-700 transition-colors group",
               className
             )}
           >
@@ -54,7 +54,7 @@ export const AITokenBalance: React.FC<AITokenBalanceProps> = ({
               className="group-hover:scale-110 transition-transform"
             />
             {showText && (
-              <span className="text-sm font-bold text-purple whitespace-nowrap">
+              <span className="text-sm font-bold text-purple dark:text-purple-400 whitespace-nowrap">
                 {balanceData?.balance?.toLocaleString() || 0}
               </span>
             )}

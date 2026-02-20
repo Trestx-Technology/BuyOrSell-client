@@ -7,7 +7,7 @@ export interface Banner {
   image: string;
   mobileImage?: string;
   link?: string;
-  callToAction?: string;
+  callToAction?: string[];
   callToActionAr?: string;
   position?: string;
   order?: number;

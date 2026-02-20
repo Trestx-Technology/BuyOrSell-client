@@ -86,18 +86,18 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
   return (
     <ResponsiveModal open={open} onOpenChange={onOpenChange}>
       <ResponsiveModalContent
-        className={`max-w-md w-[95%] overflow-y-auto max-h-[450px] rounded-lg ${className}`}
+        className={`max-w-md w-[95%] overflow-y-auto max-h-[550px] rounded-lg bg-[#0B1220] border-gray-800 text-white ${className}`}
       >
         <ResponsiveModalHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <ResponsiveModalTitle className="text-xl font-bold text-dark-blue">
-              Favorites
+            <ResponsiveModalTitle className="text-xl font-bold text-white">
+              My Favorites
             </ResponsiveModalTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onOpenChange(false)}
-              className="h-8 w-8 p-0 hover:bg-gray-100"
+              className="h-8 w-8 p-0 text-gray-400 hover:text-white hover:bg-gray-800"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -113,9 +113,9 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
               </div>
               <Typography
                 variant="body-small"
-                className="font-medium text-dark-blue group-hover:text-purple"
+                className="font-medium text-white group-hover:text-purple-400"
               >
-                Create new list
+                My Favorites
               </Typography>
             </div>
           </CreateCollectionDialog>
@@ -129,14 +129,14 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
                   <div
                     key={collection.id}
                     onClick={() => handleCollectionSelect(collection.id)}
-                    className={`flex group items-center justify-between py-1 cursor-pointer transition-colors ${
+                    className={`flex group items-center justify-between py-2 px-1 cursor-pointer transition-colors ${
                       isSelected
-                        ? "bg-purple-50 hover:bg-purple-100"
-                        : "hover:bg-purple-50"
+                      ? "bg-purple-900/20"
+                      : "hover:bg-gray-800/50"
                     }`}
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-12 h-12 rounded-sm overflow-hidden flex-shrink-0 bg-gray-100 flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-white flex items-center justify-center">
                         {collection.images?.[0] ? (
                           <Image
                             src={collection.images[0]}
@@ -154,8 +154,8 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
                           variant="sm-semibold"
                           className={`${
                             isSelected
-                              ? "text-purple"
-                              : "text-dark-blue group-hover:text-purple"
+                            ? "text-purple-400"
+                            : "text-white group-hover:text-purple-400"
                           }`}
                         >
                           {collection.name}
@@ -164,11 +164,11 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
                           variant="xs-regular"
                           className={`${
                             isSelected
-                              ? "text-purple/80"
-                              : "text-grey-blue group-hover:text-purple"
+                            ? "text-purple-300"
+                            : "text-gray-400 group-hover:text-purple-300"
                           }`}
                         >
-                          {collection.count} Favorites
+                          {collection.count} Items
                         </Typography>
                       </div>
                     </div>
@@ -177,20 +177,14 @@ const AddToCollectionDialog: React.FC<AddToCollectionDialogProps> = ({
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
                           isSelected
-                            ? "bg-purple text-white"
-                            : "bg-gray-300 group-hover:bg-purple/10"
+                          ? "bg-purple-500 text-white"
+                          : "bg-white hover:bg-gray-200"
                         }`}
                       >
                         {isSelected ? (
                           <Check className="h-4 w-4 text-white" />
                         ) : (
-                          <Plus
-                            className={`h-4 w-4 ${
-                              isSelected
-                                ? "text-white"
-                                : "text-gray-600 group-hover:text-purple"
-                            }`}
-                          />
+                            <Plus className="h-4 w-4 text-black" />
                         )}
                       </div>
                     </div>

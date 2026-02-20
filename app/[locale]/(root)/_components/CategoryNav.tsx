@@ -36,7 +36,7 @@ import { useLocale } from "@/hooks/useLocale";
 import { Typography } from "@/components/typography";
 import SearchHistoryPopover from "../user/search-history/_components/SearchHistoryPopover";
 import NotificationsPopover from "../user/notifications/_components/NotificationsPopover";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsAuthenticated } from "@/hooks/useAuth";
 import { toSlug, slugify } from "@/utils/slug-utils";
 
 // ============================================================================
@@ -441,10 +441,10 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
 // ============================================================================
 
 const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
-  const { localePath } = useLocale();
+  const { locale, localePath } = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const { locale } = useLocale();
+  const isAuthenticated = useIsAuthenticated();
 
   const {
     data: categoriesData,
@@ -580,7 +580,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link
-                          href="/user/my-ads"
+                      href={localePath("/user/my-ads")}
                       className="min-w-6 md:block hidden"
                       >
                       <UserPlus className="text-purple hover:scale-110 transition-all duration-300" />
@@ -612,7 +612,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Link
-                        href="/favorites"
+                      href={localePath("/favorites")}
                       className="min-w-6 md:block hidden"
                       >
                       <Heart className="size-6 hover:scale-110 transition-all duration-300 text-purple" />

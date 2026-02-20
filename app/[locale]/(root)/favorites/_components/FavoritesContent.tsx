@@ -146,7 +146,7 @@ export function FavoritesContent() {
         <div className="px-4 py-8">
           <Typography
             variant="body-large"
-            className="text-gray-900 mb-3 font-semibold"
+            className="text-gray-900 dark:text-white mb-3 font-semibold"
           >
             {t.favorites.list}
           </Typography>
@@ -158,7 +158,7 @@ export function FavoritesContent() {
               </Typography>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto pb-4 scrollbar-hide bg-white md:bg-transparent border md:border-none rounded-xl p-4 md:p-0 shadow-sm md:shadow-none">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto pb-4 scrollbar-hide bg-white dark:bg-gray-900 md:bg-transparent border border-gray-100 dark:border-gray-800 md:border-none rounded-xl p-4 md:p-0 shadow-sm md:shadow-none">
               {collectionsWithImages.map((collection) => (
                 <CollectionCard
                   key={collection._id}

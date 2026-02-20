@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
+import { BannerCTAWrapper } from "@/components/global/banner-cta-wrapper";
 
 export interface MidBannerItem {
   id: number | string;
@@ -171,13 +172,15 @@ export function MidBannerCarousel({
               key={slide.id}
               className={`${height} w-full flex bg-grey-100 flex-col shrink-0 relative`}
             >
-              <Image
-                src={slide.image}
-                alt={slide.alt || slide.callToAction}
-                width={1200}
-                height={400}
-                className={` h-[150px] sm:h-full w-full object-cover object-right md:object-center ${imageClassName}`}
-              />
+              <BannerCTAWrapper banner={{ callToAction: slide.callToAction, image: typeof slide.image === 'string' ? slide.image : (slide.image as any).src }}>
+                <Image
+                  src={slide.image}
+                  alt={slide.alt || slide.callToAction}
+                  width={1200}
+                  height={400}
+                  className={` h-[150px] sm:h-full w-full object-cover object-right md:object-center ${imageClassName}`}
+                />
+              </BannerCTAWrapper>
             </div>
           ))}
         </div>

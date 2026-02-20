@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { BannerCTAWrapper } from "./banner-cta-wrapper";
 
 export interface BannerItem {
   id: number | string;
@@ -101,14 +102,16 @@ export function GenericCarousel({
       key={banner.id}
       className={`${height} w-full flex bg-grey-100 flex-col shrink-0 relative`}
     >
-      <Image
-        src={banner.image}
-        alt={banner.alt || banner.callToAction}
-        width={1200}
-        height={400}
-        unoptimized
-        className="rounded-xl md:rounded-none h-[190px] sm:h-full w-full object-cover object-left md:object-center"
-      />
+      <BannerCTAWrapper banner={{ callToAction: banner.callToAction, image: typeof banner.image === 'string' ? banner.image : (banner.image as any).src }}>
+        <Image
+          src={banner.image}
+          alt={banner.alt || banner.callToAction}
+          width={1200}
+          height={400}
+          unoptimized
+          className="rounded-xl md:rounded-none h-[190px] sm:h-full w-full object-cover object-left md:object-center"
+        />
+      </BannerCTAWrapper>
     </div>
   );
 
