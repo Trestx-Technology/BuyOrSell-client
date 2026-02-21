@@ -46,6 +46,7 @@ import { toSlug, slugify } from "@/utils/slug-utils";
 interface CategoryButtonProps {
   categoryType: string;
   label: string;
+  url: string;
   children: React.ReactNode;
 }
 
@@ -211,6 +212,7 @@ const CategoryLoader = () => (
 
 const CategoryButton: React.FC<CategoryButtonProps> = ({
   label,
+  url,
   children,
 }) => {
   const [open, setOpen] = useState(false);
@@ -218,12 +220,13 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
   return (
     <HoverCard open={open} onOpenChange={setOpen} openDelay={0} closeDelay={100}>
       <HoverCardTrigger asChild>
-        <button
-          className="h-9 px-2 cursor-pointer text-xs font-regular rounded-sm text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:text-purple transition-colors  data-[state=open]:text-purple"
-          onClick={() => setOpen(true)}
+        <Link
+          href={url}
+          className="h-9 px-2 flex items-center cursor-pointer text-xs font-regular rounded-sm text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:text-purple transition-colors  data-[state=open]:text-purple"
+          onClick={() => setOpen(false)}
         >
           {label}
-        </button>
+        </Link>
       </HoverCardTrigger>
       {React.isValidElement(children)
         ? React.cloneElement(children as React.ReactElement<any>, {
@@ -240,10 +243,19 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
   onClose,
 }) => {
   const { t, locale } = useLocale();
+
+  const sortedSubcategories = useMemo(() => {
+    return [...subcategories].sort((a, b) => {
+      const nameA = locale === "ar" ? a.nameAr || a.name : a.name;
+      const nameB = locale === "ar" ? b.nameAr || b.name : b.name;
+      return (nameA || "").localeCompare(nameB || "", locale);
+    });
+  }, [subcategories, locale]);
+
   return (
     <div className="w-full min-w-[400px] flex-1 bg-purple/10 dark:bg-purple/5 overflow-y-auto max-h-[40vh]">
       <div className="flex flex-col w-full">
-        {subcategories.map((subcategory) => {
+        {sortedSubcategories.map((subcategory) => {
           const hasChildren =
             subcategory.children && subcategory.children.length > 0;
 
@@ -278,7 +290,15 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 px-5 py-2.5">
-                    {subcategory.children.map((child) => {
+                    {[...subcategory.children]
+                      .sort((a, b) => {
+                        const nameA =
+                          locale === "ar" ? a.nameAr || a.name : a.name;
+                        const nameB =
+                          locale === "ar" ? b.nameAr || b.name : b.name;
+                        return (nameA || "").localeCompare(nameB || "", locale);
+                      })
+                      .map((child) => {
                       const childName =
                         locale === "ar"
                           ? child.nameAr || child.name
@@ -329,6 +349,14 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
     null
   );
 
+  const sortedCategoryData = useMemo(() => {
+    return [...categoryData].sort((a, b) => {
+      const nameA = locale === "ar" ? a.nameAr || a.name : a.name;
+      const nameB = locale === "ar" ? b.nameAr || b.name : b.name;
+      return (nameA || "").localeCompare(nameB || "", locale);
+    });
+  }, [categoryData, locale]);
+
   if (isOtherCategory) {
     return (
       <HoverCardContent
@@ -337,7 +365,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
         sideOffset={4}
       >
         <div className="w-full max-w-md overflow-y-auto max-h-[80vh]">
-          {categoryData.map((category) => {
+          {sortedCategoryData.map((category) => {
             const categoryName =
               locale === "ar"
                 ? category.nameAr || category.name
@@ -376,7 +404,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
     >
       <div className="flex w-full">
         <div className="w-60 border-r border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[40vh] overflow-y-auto">
-          {categoryData.map((category) => {
+          {sortedCategoryData.map((category) => {
             const hasChildren =
               category.children && category.children.length > 0;
             const isActive = activeCategory?._id === category._id;
@@ -412,16 +440,16 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
             }
 
             return (
-              <div
+              <Link
                 key={category._id}
+                href={buildCategoryUrl(category, allCategories)}
                 className={cn(
                   "flex items-center text-xs justify-between p-3 hover:bg-purple/10 hover:text-purple cursor-pointer transition-colors group",
                   isActive && "bg-purple/10 text-purple"
                 )}
                 onMouseEnter={() => setActiveCategory(category)}
                 onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveCategory(category);
+                  onClose?.();
                 }}
               >
                 <Typography
@@ -440,7 +468,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                 ) : (
                   <ChevronRight className="w-4 h-4" />
                 )}
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -509,12 +537,13 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
     return categoriesData || [];
   }, [isJobsPage, jobsCategory, categoriesData]);
 
-  const transformedCategories: { type: string; label: string }[] =
+  const transformedCategories: { type: string; label: string; url: string }[] =
     categoriesToDisplay.map((category: SubCategory) => {
       const isArabic = locale === "ar";
       return {
         type: category._id,
         label: isArabic ? category.nameAr || category.name : category.name,
+        url: buildCategoryUrl(category, categoriesData || []),
       };
     });
 
@@ -552,9 +581,9 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
               key={isJobsPage ? "jobs-nav" : "main-nav"}
               className="hidden w-full md:flex flex-1 gap-6 items-center"
             >
-              {visibleCategoriesList.map(({ type, label }) => (
+              {visibleCategoriesList.map(({ type, label, url }) => (
                 <div key={type}>
-                  <CategoryButton categoryType={type} label={label}>
+                  <CategoryButton categoryType={type} label={label} url={url}>
                     <CategoryDropdownContent
                       categoryData={getCategoryData(type)}
                       allCategories={categoriesData || []}
@@ -565,7 +594,11 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
 
               {otherCategories.length > 0 && (
                 <div>
-                  <CategoryButton categoryType="other" label="Other">
+                  <CategoryButton
+                    categoryType="other"
+                    label="Other"
+                    url={isJobsPage ? "/jobs" : "/categories"}
+                  >
                     <CategoryDropdownContent
                       categoryData={getCategoryData("other")}
                       allCategories={categoriesData || []}

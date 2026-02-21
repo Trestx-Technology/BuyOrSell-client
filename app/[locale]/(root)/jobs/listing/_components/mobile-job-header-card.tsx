@@ -29,6 +29,7 @@ import { useApplyToJob } from "@/hooks/useJobApplications";
 import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 import { useLocale } from "@/hooks/useLocale";
 import Link from "next/link";
+import { ChatInit } from "@/components/global/chat-init";
 
 export interface MobileJobHeaderCardProps {
   job: AD;
@@ -437,14 +438,14 @@ export default function MobileJobHeaderCard({
             <JobApplicantsModal jobId={job._id} />
           ) : (
             <>
-              <Button
+                <ChatInit
+                  ad={job}
                 variant="outline"
-                  size={"sm"}
+                  size="sm"
+                  showLabel
+                  label="Chat with employer"
                 className="w-full"
-                onClick={() => toast.info("Work in progress")}
-              >
-                Chat with employer
-              </Button>
+                />
               <Button
                 variant={isApplied ? "outline" : "filled"}
                   size={"sm"}

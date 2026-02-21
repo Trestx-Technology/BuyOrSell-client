@@ -15,8 +15,9 @@ import { AD } from "@/interfaces/ad";
 import { SaveJobButton } from "../../saved/_components/save-job-button";
 import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 import { useApplyToJob } from "@/hooks/useJobApplications";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
+import { ChatInit } from "@/components/global/chat-init";
 
 export interface JobHeaderCardProps {
   job: AD;
@@ -357,14 +358,14 @@ export default function JobHeaderCard({
               <JobApplicantsModal jobId={job._id} />
             ) : (
               <>
-                <Button
+                  <ChatInit
+                    ad={job}
                   variant="outline"
-                    size={"small"}
+                    size="small"
+                    showLabel
+                    label="Chat with employer"
                   className="px-4 py-2"
-                  onClick={() => toast.info("Work in progress")}
-                >
-                  Chat with employer
-                </Button>
+                  />
                 <Button
                     variant={isApplied || isSuccess ? "outline" : "filled"}
                     size={"small"}
