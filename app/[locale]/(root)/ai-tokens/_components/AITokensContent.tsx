@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Sparkles,
   Coins,
@@ -26,15 +26,16 @@ import {
   useAITokenPackages,
   useInitiateTokenPurchase,
 } from "@/hooks/useAITokens";
+import { useLocale } from "@/hooks/useLocale";
 import { TokenPackage } from "@/interfaces/ai-tokens.types";
 import { toast } from "sonner";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+  ResponsiveModalFooter,
+} from "@/components/ui/responsive-modal";
 
 // ============================================================================
 // BALANCE HERO
@@ -192,144 +193,150 @@ const PackageCard = ({
   isPopular: boolean;
   onSelect: (pkg: TokenPackage) => void;
 }) => {
+  const { locale } = useLocale();
+  const isArabic = locale === "ar";
   const tier = getTier(pkg);
   const TierIcon = tier.icon;
   const pricePerToken = (pkg.price / pkg.tokens).toFixed(3);
 
+  const displayName = isArabic ? pkg.nameAr || pkg.name : pkg.name;
+  const displayDescription = isArabic
+    ? pkg.descriptionAr || pkg.description
+    : pkg.description;
+
   return (
     <div
       className={cn(
-        "group relative flex flex-col rounded-2xl border bg-white dark:bg-gray-900 overflow-hidden transition-all duration-300 hover:shadow-xl",
+        "group relative flex flex-col rounded-3xl border transition-all duration-500",
         isPopular
-          ? "border-purple ring-2 ring-purple/20 scale-[1.02]"
-          : "border-gray-200 dark:border-gray-800 hover:border-purple/40",
+          ? "border-purple shadow-2xl shadow-purple/10 scale-[1.02] z-10 bg-white dark:bg-gray-950"
+          : "border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm hover:border-purple/30 hover:bg-white dark:hover:bg-gray-900",
         tier.glow
       )}
     >
-      {/* Popular ribbon */}
+      {/* Premium Gradient Background */}
       {isPopular && (
-        <div className="absolute -top-0 left-0 right-0 bg-gradient-to-r from-purple to-[#7c3aed] text-white text-center text-[11px] font-bold py-1.5 uppercase tracking-wider">
-          ⭐ Most Popular
+        <div className="absolute inset-0 bg-gradient-to-tr from-purple/5 via-transparent to-purple/5 rounded-3xl pointer-events-none" />
+      )}
+
+      {/* Popular Badge */}
+      {isPopular && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+          <div className="bg-gradient-to-r from-purple to-[#7c3aed] text-white text-[10px] font-black py-1 px-4 rounded-full uppercase tracking-widest shadow-lg shadow-purple/30 flex items-center gap-1.5 whitespace-nowrap">
+            <Star className="size-3 fill-white" />
+            Most Popular
+          </div>
         </div>
       )}
 
-      {/* Gradient overlay */}
-      <div
-        className={cn(
-          "absolute inset-0 bg-gradient-to-br pointer-events-none opacity-60",
-          tier.gradient
-        )}
-      />
-
-      <div
-        className={cn(
-          "relative flex flex-col flex-1 p-5 sm:p-6",
-          isPopular && "pt-10"
-        )}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700">
-              <TierIcon className="size-5 text-purple" />
+      <div className="relative flex flex-col flex-1 p-6 sm:p-7">
+        {/* Header Section */}
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <div className="flex gap-4">
+            <div className="flex-shrink-0 size-12 rounded-2xl bg-purple/10 dark:bg-purple/20 flex items-center justify-center border border-purple/10 group-hover:scale-110 transition-transform duration-500">
+              <TierIcon className="size-6 text-purple" />
             </div>
-            <div>
-              <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">
-                {pkg.name}
-              </h3>
-              {pkg.description && (
-                <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">
-                  {pkg.description}
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight">
+                  {displayName}
+                </h3>
+              </div>
+              {displayDescription && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-normal max-w-[180px]">
+                  {displayDescription}
                 </p>
               )}
             </div>
           </div>
-          <span
+          <Badge
             className={cn(
-              "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase",
-              tier.badge
+              "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider h-fit",
+              isPopular
+                ? "bg-purple text-white"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
             )}
           >
             {pkg.price >= 100 ? "Pro" : pkg.price >= 30 ? "Plus" : "Basic"}
-          </span>
+          </Badge>
         </div>
 
-        {/* Token count */}
-        <div className="flex items-baseline gap-1.5 mb-1">
-          <span className="text-3xl font-black text-gray-900 dark:text-white">
-            {pkg.tokens.toLocaleString()}
-          </span>
-          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            tokens
-          </span>
-        </div>
-
-        {/* Price */}
-        <div className="flex flex-col mb-4">
+        {/* Pricing Section */}
+        <div className="space-y-1 mb-6 bg-gray-50/50 dark:bg-gray-800/30 rounded-2xl p-4 border border-gray-100/50 dark:border-gray-700/30">
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-extrabold text-purple">
-              {(pkg.currency || "AED").toUpperCase()}{" "}
-              {pkg.discount
-                ? (pkg.price * (1 - pkg.discount / 100)).toFixed(2)
-                : pkg.price}
-            </span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-sm font-bold text-purple/70 uppercase">
+                {(pkg.currency || "AED").toUpperCase()}
+              </span>
+              <span className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+                {pkg.discount
+                  ? (pkg.price * (1 - pkg.discount / 100)).toFixed(2)
+                  : pkg.price}
+              </span>
+            </div>
             {pkg.discount && (
-              <span className="text-sm text-gray-400 line-through">
-                {(pkg.currency || "AED").toUpperCase()} {pkg.price}
+              <span className="text-sm text-gray-400 line-through font-medium">
+                {pkg.price}
               </span>
             )}
           </div>
-          <span className="text-[11px] text-gray-400 dark:text-gray-500">
-            ({pricePerToken} / token)
-          </span>
+          <div className="flex items-center gap-1.5">
+            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700/50" />
+            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tighter">
+              {pkg.tokens.toLocaleString()} Tokens • {pricePerToken}/token
+            </span>
+            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700/50" />
+          </div>
         </div>
 
-        {/* Benefits list */}
-        <div className="flex flex-col gap-2 mb-6 flex-1">
-          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-            <Check className="size-4 text-emerald-500 shrink-0" />
-            <span>{pkg.tokens.toLocaleString()} AI tokens</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-            <Check className="size-4 text-emerald-500 shrink-0" />
-            <span>No expiry</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-            <Check className="size-4 text-emerald-500 shrink-0" />
-            <span>All AI features</span>
-          </div>
-          {pkg.price >= 30 && (
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-              <Check className="size-4 text-emerald-500 shrink-0" />
-              <span>Priority processing</span>
-            </div>
-          )}
-          {pkg.price >= 100 && (
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-              <Check className="size-4 text-emerald-500 shrink-0" />
-              <span>Dedicated support</span>
-            </div>
-          )}
+        {/* Features Section */}
+        <div className="flex flex-col gap-3.5 mb-8 flex-1">
+          <FeatureItem label={`${pkg.tokens.toLocaleString()} AI tokens`} />
+          <FeatureItem label="No tokens expiry" />
+          <FeatureItem label="All AI smart features" />
+          {pkg.price >= 30 && <FeatureItem label="Priority processing speed" />}
+          {pkg.price >= 100 && <FeatureItem label="24/7 Dedicated Support" />}
         </div>
 
-        {/* CTA */}
+        {/* Action Button */}
         <Button
-          variant={isPopular ? "filled" : "outline"}
-          className={cn(
-            "w-full font-semibold h-11 rounded-xl transition-all",
-            isPopular
-              ? "bg-purple hover:bg-purple/90 text-white shadow-lg shadow-purple/25"
-              : "border-purple/30 text-purple hover:bg-purple hover:text-white"
-          )}
           onClick={() => onSelect(pkg)}
+          className={cn(
+            "w-full h-12 rounded-2xl font-bold transition-all duration-300 active:scale-95 group/btn overflow-hidden relative",
+            isPopular
+              ? "bg-purple hover:bg-purple/90 text-white shadow-xl shadow-purple/20"
+              : "bg-white dark:bg-gray-900 border-2 border-purple/20 text-indigo-600 dark:text-purple hover:border-purple/40 hover:bg-purple/5"
+          )}
         >
-          <Sparkles className="size-4 mr-2" />
-          Get This Package
+          {isPopular && (
+            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover/btn:animate-shimmer" />
+          )}
+          <div className="flex items-center justify-center gap-2">
+            <Sparkles className={cn("size-4", isPopular ? "text-yellow-300" : "text-purple")} />
+            <span>Select This Package</span>
+          </div>
         </Button>
       </div>
     </div>
   );
 };
+
+const FeatureItem = ({ label }: { label: string }) => (
+  <div className="flex items-center gap-3 group/item">
+    <div className="flex-shrink-0 size-5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center group-hover/item:bg-emerald-500 group-hover/item:text-white transition-colors duration-300">
+      <Check className="size-3 text-emerald-500 group-hover/item:text-white transition-colors" />
+    </div>
+    <span className="text-sm text-gray-600 dark:text-gray-300 font-medium tracking-tight">
+      {label}
+    </span>
+  </div>
+);
+
+const Badge = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div className={cn("inline-flex items-center", className)}>
+    {children}
+  </div>
+);
 
 // ============================================================================
 // PURCHASE CONFIRMATION DIALOG
@@ -347,86 +354,128 @@ const PurchaseDialog = ({
   onConfirm: () => void;
   isLoading: boolean;
 }) => {
+  const { locale } = useLocale();
+  const isArabic = locale === "ar";
+
   if (!pkg) return null;
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="size-5 text-purple" />
-            Confirm Purchase
-          </DialogTitle>
-        </DialogHeader>
+  const displayName = isArabic ? pkg.nameAr || pkg.name : pkg.name;
+  const currentPrice = pkg.discount
+    ? (pkg.price * (1 - pkg.discount / 100)).toFixed(2)
+    : pkg.price;
 
-        <div className="space-y-4 py-4">
-          <div className="rounded-xl bg-purple-50 dark:bg-purple/10 border border-purple/20 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-gray-800 dark:text-gray-200">
-                {pkg.name}
-              </span>
-              <span className="text-lg font-bold text-purple">
-                {(pkg.currency || "AED").toUpperCase()}{" "}
-                {pkg.discount
-                  ? (pkg.price * (1 - pkg.discount / 100)).toFixed(2)
-                  : pkg.price}
-              </span>
+  return (
+    <ResponsiveModal open={open} onOpenChange={onOpenChange}>
+      <ResponsiveModalContent className="sm:max-w-[440px] p-0 overflow-hidden border-none bg-white dark:bg-gray-950">
+        <ResponsiveModalHeader className="p-6 pb-0">
+          <ResponsiveModalTitle className="flex items-center gap-3 text-xl font-black text-gray-900 dark:text-white">
+            <div className="size-10 rounded-2xl bg-purple/10 flex items-center justify-center">
+              <Sparkles className="size-5 text-purple" />
             </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              You will receive{" "}
-              <span className="font-bold text-purple">
-                {pkg.tokens.toLocaleString()}
-              </span>{" "}
-              AI tokens.
+            {isArabic ? "تأكيد الشراء" : "Confirm Purchase"}
+          </ResponsiveModalTitle>
+        </ResponsiveModalHeader>
+
+        <div className="p-6 space-y-6">
+          {/* Package Summary Card */}
+          <div className="relative rounded-3xl bg-gradient-to-br from-purple/5 to-purple/10 border border-purple/10 p-5 overflow-hidden">
+            <div className="absolute -right-8 -top-8 size-32 bg-purple/5 rounded-full blur-2xl" />
+
+            <div className="relative flex justify-between items-start mb-4">
+              <div className="space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-purple/60">
+                  {isArabic ? "الحزمة المختارة" : "Selected Package"}
+                </span>
+                <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 uppercase">
+                  {displayName}
+                </h4>
+              </div>
+              <div className="text-right">
+                <div className="flex items-baseline justify-end gap-1 text-purple">
+                  <span className="text-sm font-bold uppercase">
+                    {(pkg.currency || "AED").toUpperCase()}
+                  </span>
+                  <span className="text-2xl font-black tracking-tight">
+                    {currentPrice}
+                  </span>
+                </div>
+                {pkg.discount && (
+                  <p className="text-xs text-gray-400 line-through font-medium leading-none">
+                    {(pkg.currency || "AED").toUpperCase()} {pkg.price}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 p-3 bg-white/50 dark:bg-gray-900/50 rounded-2xl border border-white dark:border-gray-800">
+              <Coins className="size-5 text-purple" />
+              <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                {pkg.tokens.toLocaleString()} {isArabic ? "رمز ذكاء اصطناعي" : "AI Tokens"}
+              </span>
             </div>
           </div>
 
-          <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="size-4 text-emerald-500" />
-              <span>Secure payment processing</span>
+          {/* Trust Indicators */}
+          <div className="space-y-3.5 px-1">
+            <div className="flex items-center gap-3 group">
+              <div className="size-8 rounded-full bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500 transition-colors duration-300">
+                <ShieldCheck className="size-4 text-emerald-500 group-hover:text-white transition-colors" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                  {isArabic ? "معالجة دفع آمنة" : "Secure Payment"}
+                </span>
+                <span className="text-[11px] text-gray-500">
+                  {isArabic ? "بياناتك مشفرة ومحمية بالكامل" : "Your data is encrypted and fully protected"}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Check className="size-4 text-emerald-500" />
-              <span>Tokens added instantly to your account</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Check className="size-4 text-emerald-500" />
-              <span>No hidden fees or subscriptions</span>
+
+            <div className="flex items-center gap-3">
+              <div className="size-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                <Zap className="size-4 text-blue-500" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                  {isArabic ? "تفعيل فوري" : "Instant Activation"}
+                </span>
+                <span className="text-[11px] text-gray-500">
+                  {isArabic ? "ستضاف الرموز تلقائياً إلى حسابك" : "Tokens will be added automatically to your account"}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        <DialogFooter className="flex gap-2 sm:gap-2">
+        <ResponsiveModalFooter className="p-6 bg-gray-50 dark:bg-gray-900/50 flex flex-col sm:flex-row gap-3">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
-            className="flex-1"
+            className="flex-1 h-12 rounded-2xl font-bold text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all active:scale-95"
           >
-            Cancel
+            {isArabic ? "إلغاء" : "Cancel"}
           </Button>
           <Button
-            variant="filled"
             onClick={onConfirm}
             disabled={isLoading}
-            className="flex-1 bg-purple hover:bg-purple/90 text-white"
+            className="flex-[2] h-12 rounded-2xl font-bold bg-purple hover:bg-purple/90 text-white shadow-xl shadow-purple/20 transition-all active:scale-95 group/confirm relative overflow-hidden"
           >
             {isLoading ? (
-              <>
-                <Loader2 className="size-4 mr-2 animate-spin" />
-                Processing...
-              </>
+              <div className="flex items-center gap-2">
+                <Loader2 className="size-4 animate-spin" />
+                <span>{isArabic ? "جاري المعالجة..." : "Processing..."}</span>
+              </div>
             ) : (
-              <>
-                <Sparkles className="size-4 mr-2" />
-                Confirm Purchase
-              </>
+                <div className="flex items-center justify-center gap-2">
+                  <Sparkles className="size-4 text-yellow-300 group-hover/confirm:scale-110 transition-transform" />
+                  <span>{isArabic ? "تأكيد الدفع" : "Confirm & Pay"}</span>
+                </div>
             )}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveModalFooter>
+      </ResponsiveModalContent>
+    </ResponsiveModal>
   );
 };
 
@@ -458,6 +507,8 @@ const PackageSkeleton = () => (
 // ============================================================================
 export const AITokensContent = () => {
   const router = useRouter();
+  const { locale } = useLocale();
+  const isArabic = locale === "ar";
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const {
     data: balanceData,
@@ -465,7 +516,25 @@ export const AITokensContent = () => {
   } = useAITokenBalance();
   const { data: packages, isLoading: packagesLoading } =
     useAITokenPackages(true);
+  const searchParams = useSearchParams();
   const initiatePurchase = useInitiateTokenPurchase();
+
+  useEffect(() => {
+    const status = searchParams.get("status");
+    if (status === "success") {
+      toast.success(
+        isArabic
+          ? "تمت عملية الشراء بنجاح! الرصيد سيحدث قريباً."
+          : "Purchase successful! Your balance will update shortly."
+      );
+      router.replace(`/${locale}/ai-tokens`);
+    } else if (status === "cancel") {
+      toast.error(
+        isArabic ? "تم إلغاء عملية الشراء." : "Purchase was cancelled."
+      );
+      router.replace(`/${locale}/ai-tokens`);
+    }
+  }, [searchParams, isArabic, locale, router]);
 
   const [selectedPackage, setSelectedPackage] = useState<TokenPackage | null>(
     null
@@ -484,16 +553,26 @@ export const AITokensContent = () => {
   const handleConfirmPurchase = async () => {
     if (!selectedPackage) return;
     try {
-      await initiatePurchase.mutateAsync({
+      const baseUrl = window.location.origin;
+      const response = await initiatePurchase.mutateAsync({
         packageId: selectedPackage._id,
-        paymentMethod: "online",
+        paymentMethod: "checkout",
+        successUrl: `${baseUrl}/${locale}/ai-tokens?status=success`,
+        cancelUrl: `${baseUrl}/${locale}/ai-tokens?status=cancel`,
       });
-      toast.success("Payment initiated! Redirecting...");
+
+      if (response?.checkoutUrl) {
+        window.location.href = response.checkoutUrl;
+      }
+
+      toast.success(isArabic ? "جاري تحويلك للدفع..." : "Redirecting to payment...");
       setDialogOpen(false);
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message ||
-          "Failed to initiate purchase. Please try again."
+        (isArabic
+          ? "فشل في بدء عملية الشراء. يرجى المحاولة مرة أخرى."
+          : "Failed to initiate purchase. Please try again.")
       );
     }
   };

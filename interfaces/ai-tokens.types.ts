@@ -36,6 +36,8 @@ export interface UpdateTokenPackageDto {
 export interface InitiateTokenPurchaseDto {
   packageId: string;
   paymentMethod: string;
+  successUrl: string;
+  cancelUrl: string;
 }
 
 export interface TokenPackage {
