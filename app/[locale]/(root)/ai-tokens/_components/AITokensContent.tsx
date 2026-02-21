@@ -563,7 +563,9 @@ export const AITokensContent = () => {
 
       if (response?.checkoutUrl) {
         router.push(
-          `/${locale}/pay?checkoutUrl=${encodeURIComponent(response.checkoutUrl)}`
+          `/${locale}/pay?checkoutUrl=${encodeURIComponent(
+            response.checkoutUrl
+          )}`
         );
       }
 

@@ -34,6 +34,8 @@ function ResponseContent() {
       const timer = setTimeout(() => {
         if (type === "ai-tokens") {
           router.push(`/${locale}/ai-tokens?status=success`);
+        } else if (type === "PLAN") {
+          router.push(`/${locale}/my-subscriptions`);
         } else {
           router.push(`/${locale}/my-subscriptions`);
         }

@@ -54,7 +54,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
         const amountInSmallestUnit = Math.round(numericPrice * 100);
 
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
-        const successUrl = `${baseUrl}/${locale}/pay/response?session_id={CHECKOUT_SESSION_ID}`;
+            const successUrl = `${baseUrl}/${locale}/pay/response?session_id={CHECKOUT_SESSION_ID}&type=PLAN`;
         const cancelUrl = `${baseUrl}/${locale}/plans`;
 
         if (isLifetime) {
@@ -78,7 +78,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
       }, {
             onSuccess: (data) => {
                   if (data.data.checkoutUrl) {
-                        window.location.href = data.data.checkoutUrl;
+                        router.push(`/${locale}/pay?checkoutUrl=${encodeURIComponent(data.data.checkoutUrl)}`);
                   } else {
                         toast.error("Failed to generate payment link.");
                   }
@@ -97,7 +97,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
           }, {
                 onSuccess: (data) => {
                       if (data.data.checkoutUrl) {
-                            window.location.href = data.data.checkoutUrl;
+                            router.push(`/${locale}/pay?checkoutUrl=${encodeURIComponent(data.data.checkoutUrl)}`);
                       } else {
                             toast.error("Failed to generate payment link.");
                       }
