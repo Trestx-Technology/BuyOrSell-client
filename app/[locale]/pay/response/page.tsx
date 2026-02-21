@@ -14,6 +14,8 @@ function ResponseContent() {
   const router = useRouter();
   const pathname = usePathname();
   const sessionId = searchParams.get("session_id");
+  const type = searchParams.get("type");
+  const locale = pathname.split("/")[1] || "en";
 
   // Verify session if ID exists
   const { data, isLoading, error } = useCompleteCheckoutSession(sessionId || "");
@@ -30,11 +32,15 @@ function ResponseContent() {
 
     if (data?.data?.status === "succeeded") {
       const timer = setTimeout(() => {
-        router.push("/my-subscriptions");
+        if (type === "ai-tokens") {
+          router.push(`/${locale}/ai-tokens?status=success`);
+        } else {
+          router.push(`/${locale}/my-subscriptions`);
+        }
       }, 5000);
       return () => clearTimeout(timer);
     }
-  }, [data, router, pathname, searchParams]);
+  }, [data, router, pathname, searchParams, type, locale]);
 
   // 1. Loading State (Verifying)
   if (sessionId && isLoading) {
@@ -65,13 +71,21 @@ function ResponseContent() {
           {data.message || "Your payment has been processed successfully."}
         </p>
         <div className="animate-pulse text-sm text-purple-600 font-medium mb-6">
-          Redirecting to subscriptions in a few seconds...
+          {type === "ai-tokens"
+            ? "Redirecting to AI Tokens in a few seconds..."
+            : "Redirecting to subscriptions in a few seconds..."}
         </div>
-        <Button 
-          onClick={() => router.push("/my-subscriptions")} 
-            className="w-full"
+        <Button
+          onClick={() =>
+            router.push(
+              type === "ai-tokens"
+                ? `/${locale}/ai-tokens`
+                : `/${locale}/my-subscriptions`
+            )
+          }
+          className="w-full"
         >
-          View My Subscriptions
+          {type === "ai-tokens" ? "Go to AI Tokens" : "View My Subscriptions"}
         </Button>
       </div>
     );
@@ -92,11 +106,19 @@ function ResponseContent() {
         <p className="text-gray-500 mb-6 max-w-xs mx-auto">
            {errorMessage}
         </p>
-         <Button onClick={() => router.push("/plans")} variant="filled" icon={
-           <ArrowLeft className="w-4 h-4" />
-         } iconPosition="center" className="w-full">
-            Try Again
-        </Button>
+         <Button
+           onClick={() =>
+             router.push(
+               type === "ai-tokens" ? `/${locale}/ai-tokens` : `/${locale}/plans`
+             )
+           }
+           variant="filled"
+           icon={<ArrowLeft className="w-4 h-4" />}
+           iconPosition="center"
+           className="w-full"
+         >
+           Try Again
+         </Button>
       </div>
     );
   }

@@ -31,6 +31,28 @@ function PayPageContent() {
   const accessToken = searchParams.get("accessToken");
   const amount = searchParams.get("amount");
   const clientSecret = searchParams.get("secret");
+  const checkoutUrl = searchParams.get("checkoutUrl");
+
+  // Redirect if checkoutUrl is present (Stripe Checkout flow)
+  useEffect(() => {
+    if (checkoutUrl) {
+      window.location.href = decodeURIComponent(checkoutUrl);
+    }
+  }, [checkoutUrl]);
+
+  if (checkoutUrl) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <Loader2 className="h-10 w-10 animate-spin text-purple-600 mx-auto mb-4" />
+          <Typography variant="h3" className="font-bold text-gray-900 mb-2">
+            Redirecting to Checkout...
+          </Typography>
+          <p className="text-gray-500">Wait a moment while we set up your secure payment session.</p>
+        </div>
+      </div>
+    );
+  }
 
   // 2. Validate required params
   const missingParams = [];
@@ -51,7 +73,7 @@ function PayPageContent() {
     }
   }, [accessToken]);
 
-  if (missingParams.length > 0) {
+  if (missingParams.length > 0 && !checkoutUrl) {
     return <MissingParamsError missingParams={missingParams} />;
   }
 

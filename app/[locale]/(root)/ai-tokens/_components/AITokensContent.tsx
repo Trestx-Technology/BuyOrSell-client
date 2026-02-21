@@ -557,12 +557,14 @@ export const AITokensContent = () => {
       const response = await initiatePurchase.mutateAsync({
         packageId: selectedPackage._id,
         paymentMethod: "checkout",
-        successUrl: `${baseUrl}/${locale}/ai-tokens?status=success`,
+        successUrl: `${baseUrl}/${locale}/pay/response?session_id={CHECKOUT_SESSION_ID}&type=ai-tokens`,
         cancelUrl: `${baseUrl}/${locale}/ai-tokens?status=cancel`,
       });
 
       if (response?.checkoutUrl) {
-        window.location.href = response.checkoutUrl;
+        router.push(
+          `/${locale}/pay?checkoutUrl=${encodeURIComponent(response.checkoutUrl)}`
+        );
       }
 
       toast.success(isArabic ? "جاري تحويلك للدفع..." : "Redirecting to payment...");
