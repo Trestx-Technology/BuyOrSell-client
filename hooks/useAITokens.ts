@@ -3,8 +3,8 @@ import { aiTokensService, AI_TOKENS_QUERY_KEYS } from "@/app/api/ai-tokens";
 import {
   PurchaseTokensDto,
   ConsumeTokensDto,
-  InitiateTokenPurchaseDto,
 } from "@/interfaces/ai-tokens.types";
+import { CreateCheckoutSessionDto } from "@/interfaces/payment.types";
 
 export const useAITokenBalance = () => {
   return useQuery({
@@ -43,7 +43,7 @@ export const useConsumeTokens = () => {
 
 export const useInitiateTokenPurchase = () => {
   return useMutation({
-    mutationFn: (dto: InitiateTokenPurchaseDto) =>
+    mutationFn: (dto: CreateCheckoutSessionDto) =>
       aiTokensService.initiatePurchase(dto),
   });
 };

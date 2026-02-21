@@ -509,7 +509,11 @@ export const AITokensContent = () => {
   const router = useRouter();
   const { locale } = useLocale();
   const isArabic = locale === "ar";
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isAuthenticated, session } = useAuthStore((state) => ({
+    isAuthenticated: state.isAuthenticated,
+    session: state.session
+  }));
+  const user = session?.user;
   const {
     data: balanceData,
     isLoading: balanceLoading,
@@ -551,14 +555,27 @@ export const AITokensContent = () => {
   };
 
   const handleConfirmPurchase = async () => {
-    if (!selectedPackage) return;
+    if (!selectedPackage || !user) return;
     try {
       const baseUrl = window.location.origin;
+      const amountInSmallestUnit = Math.round(selectedPackage.price * 100);
+
       const response = await initiatePurchase.mutateAsync({
-        packageId: selectedPackage._id,
-        paymentMethod: "checkout",
+        lineItems: [
+          {
+            name: isArabic ? selectedPackage.nameAr || selectedPackage.name : selectedPackage.name,
+            amount: amountInSmallestUnit,
+            currency: "aed",
+            quantity: 1,
+          },
+        ],
         successUrl: `${baseUrl}/${locale}/pay/response?session_id={CHECKOUT_SESSION_ID}&type=ai-tokens`,
         cancelUrl: `${baseUrl}/${locale}/ai-tokens?status=cancel`,
+        type: "AI_TOKENS",
+        typeId: selectedPackage._id,
+        userId: user._id,
+        customerEmail: user.email,
+        mode: "payment",
       });
 
       const { data: purchaseData } = response;

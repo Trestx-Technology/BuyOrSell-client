@@ -6,10 +6,13 @@ import {
   ConsumeTokensDto,
   CreateTokenPackageDto,
   UpdateTokenPackageDto,
-  InitiateTokenPurchaseDto,
-  InitiateTokenPurchaseResponseDto,
   TokenPackage,
 } from "@/interfaces/ai-tokens.types";
+import {
+  CreateCheckoutSessionDto,
+  CheckoutSessionResponse,
+} from "@/interfaces/payment.types";
+import { createCheckoutSession } from "@/app/api/payments/payment.services";
 
 export const aiTokensService = {
   getBalance: async (): Promise<AITokenResponseDto> => {
@@ -74,13 +77,9 @@ export const aiTokensService = {
   },
 
   initiatePurchase: async (
-    dto: InitiateTokenPurchaseDto,
-  ): Promise<InitiateTokenPurchaseResponseDto> => {
-    const response = await axiosInstance.post<InitiateTokenPurchaseResponseDto>(
-      "/ai-tokens/purchase/initiate",
-      dto,
-    );
-    return response.data;
+    dto: CreateCheckoutSessionDto,
+  ): Promise<CheckoutSessionResponse> => {
+    return await createCheckoutSession(dto);
   },
 
   completePurchase: async (): Promise<AITokenResponseDto> => {

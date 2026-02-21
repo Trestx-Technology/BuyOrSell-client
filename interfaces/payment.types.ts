@@ -123,12 +123,30 @@ export interface CreateAddonCheckoutDto {
   };
 }
 
+// 5. AI Tokens Purchase Checkout
+export interface CreateAITokensCheckoutDto {
+  lineItems: {
+    name: string;
+    amount: number;
+    currency: string;
+    quantity: number;
+  }[];
+  successUrl: string;
+  cancelUrl: string;
+  type: "AI_TOKENS";
+  typeId: string;
+  userId: string;
+  customerEmail: string;
+  mode: "payment";
+}
+
 // Union Type for use in services/hooks
 export type CreateCheckoutSessionDto =
   | CreatePlanSubscriptionCheckoutDto
   | CreatePlanOneTimeCheckoutDto
   | CreateAdsCheckoutDto
-  | CreateAddonCheckoutDto;
+  | CreateAddonCheckoutDto
+  | CreateAITokensCheckoutDto;
 
 export interface CheckoutSessionData {
   sessionId: string;

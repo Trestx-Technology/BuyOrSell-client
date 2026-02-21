@@ -33,13 +33,6 @@ export interface UpdateTokenPackageDto {
   descriptionAr?: string;
 }
 
-export interface InitiateTokenPurchaseDto {
-  packageId: string;
-  paymentMethod: string;
-  successUrl: string;
-  cancelUrl: string;
-}
-
 export interface TokenPackage {
   _id: string;
   name: string;
@@ -55,15 +48,4 @@ export interface TokenPackage {
   updatedAt: string;
 }
 
-export interface InitiateTokenPurchaseResponseDto {
-  statusCode: number;
-  timestamp: string;
-  data: {
-    method: string;
-    sessionId: string;
-    checkoutUrl: string;
-    amount: number;
-    currency: string;
-    tokens: number;
-  };
-}
+
