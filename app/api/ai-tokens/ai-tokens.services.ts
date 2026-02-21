@@ -7,6 +7,7 @@ import {
   CreateTokenPackageDto,
   UpdateTokenPackageDto,
   InitiateTokenPurchaseDto,
+  InitiateTokenPurchaseResponseDto,
   TokenPackage,
 } from "@/interfaces/ai-tokens.types";
 
@@ -72,8 +73,10 @@ export const aiTokensService = {
     await axiosInstance.delete(`/ai-tokens/packages/${packageId}`);
   },
 
-  initiatePurchase: async (dto: InitiateTokenPurchaseDto): Promise<any> => {
-    const response = await axiosInstance.post(
+  initiatePurchase: async (
+    dto: InitiateTokenPurchaseDto,
+  ): Promise<InitiateTokenPurchaseResponseDto> => {
+    const response = await axiosInstance.post<InitiateTokenPurchaseResponseDto>(
       "/ai-tokens/purchase/initiate",
       dto,
     );

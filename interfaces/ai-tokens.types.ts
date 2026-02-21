@@ -54,3 +54,16 @@ export interface TokenPackage {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface InitiateTokenPurchaseResponseDto {
+  statusCode: number;
+  timestamp: string;
+  data: {
+    method: string;
+    sessionId: string;
+    checkoutUrl: string;
+    amount: number;
+    currency: string;
+    tokens: number;
+  };
+}

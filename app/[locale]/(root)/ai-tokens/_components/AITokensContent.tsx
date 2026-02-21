@@ -561,10 +561,11 @@ export const AITokensContent = () => {
         cancelUrl: `${baseUrl}/${locale}/ai-tokens?status=cancel`,
       });
 
-      if (response?.checkoutUrl) {
+      const { data: purchaseData } = response;
+      if (purchaseData?.checkoutUrl) {
         router.push(
           `/${locale}/pay?checkoutUrl=${encodeURIComponent(
-            response.checkoutUrl
+            purchaseData.checkoutUrl
           )}`
         );
       }
