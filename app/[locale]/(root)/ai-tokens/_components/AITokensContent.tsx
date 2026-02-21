@@ -265,11 +265,21 @@ const PackageCard = ({
         </div>
 
         {/* Price */}
-        <div className="flex items-baseline gap-2 mb-4">
-          <span className="text-2xl font-extrabold text-purple">
-            AED {pkg.price}
-          </span>
-          <span className="text-xs text-gray-400 dark:text-gray-500">
+        <div className="flex flex-col mb-4">
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-extrabold text-purple">
+              {(pkg.currency || "AED").toUpperCase()}{" "}
+              {pkg.discount
+                ? (pkg.price * (1 - pkg.discount / 100)).toFixed(2)
+                : pkg.price}
+            </span>
+            {pkg.discount && (
+              <span className="text-sm text-gray-400 line-through">
+                {(pkg.currency || "AED").toUpperCase()} {pkg.price}
+              </span>
+            )}
+          </div>
+          <span className="text-[11px] text-gray-400 dark:text-gray-500">
             ({pricePerToken} / token)
           </span>
         </div>
@@ -356,7 +366,10 @@ const PurchaseDialog = ({
                 {pkg.name}
               </span>
               <span className="text-lg font-bold text-purple">
-                AED {pkg.price}
+                {(pkg.currency || "AED").toUpperCase()}{" "}
+                {pkg.discount
+                  ? (pkg.price * (1 - pkg.discount / 100)).toFixed(2)
+                  : pkg.price}
               </span>
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">

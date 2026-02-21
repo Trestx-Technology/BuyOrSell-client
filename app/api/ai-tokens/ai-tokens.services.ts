@@ -42,7 +42,7 @@ export const aiTokensService = {
     const response = await axiosInstance.get("/ai-tokens/packages", {
       params: { activeOnly },
     });
-    return response.data;
+    return response.data.data;
   },
 
   createPackage: async (dto: CreateTokenPackageDto): Promise<TokenPackage> => {

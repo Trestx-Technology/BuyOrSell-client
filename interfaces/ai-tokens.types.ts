@@ -44,9 +44,11 @@ export interface TokenPackage {
   nameAr?: string;
   tokens: number;
   price: number;
-  isActive: boolean;
   description?: string;
   descriptionAr?: string;
+  currency?: string;
+  discount?: number;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
