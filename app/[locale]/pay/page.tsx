@@ -23,6 +23,7 @@ function PayPageContent() {
   const [isAuthSet, setIsAuthSet] = useState(false);
 
   // 1. Read parameters
+  const checkoutUrl = searchParams.get("checkoutUrl");
   const typeId = searchParams.get("typeId");
   const userId = searchParams.get("userId");
   const type = searchParams.get("type");
@@ -32,7 +33,45 @@ function PayPageContent() {
   const amount = searchParams.get("amount");
   const clientSecret = searchParams.get("secret");
 
-  // 2. Validate required params
+  // 2. Redirect if checkoutUrl is present (Stripe Checkout flow)
+  useEffect(() => {
+    if (checkoutUrl) {
+      // Small delay to show the "Redirecting" UI for a moment
+      const timer = setTimeout(() => {
+        window.location.href = decodeURIComponent(checkoutUrl);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [checkoutUrl]);
+
+  // Handle Auth Token for direct payment if accessToken is present
+  useEffect(() => {
+    if (accessToken) {
+      LocalStorageService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken);
+      setIsAuthSet(true);
+    } else if (checkoutUrl) {
+      // If it's a checkout flow, we don't necessarily need the token set here 
+      // as redirect happens to Stripe.
+      setIsAuthSet(true);
+    }
+  }, [accessToken, checkoutUrl]);
+
+  // If we have a checkout URL, show the redirecting state immediately
+  if (checkoutUrl) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <Loader2 className="h-10 w-10 animate-spin text-purple-600 mx-auto mb-4" />
+          <Typography variant="h3" className="font-bold text-gray-900 mb-2">
+            Redirecting to Checkout...
+          </Typography>
+          <p className="text-gray-500">Wait a moment while we set up your secure payment session.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. Validate required params for direct payment (Stripe Elements)
   const missingParams = [];
   if (!typeId) missingParams.push("typeId");
   if (!userId) missingParams.push("userId");
@@ -42,14 +81,6 @@ function PayPageContent() {
   if (!accessToken) missingParams.push("accessToken");
   if (!amount) missingParams.push("amount");
   if (!clientSecret) missingParams.push("secret");
-
-  // 3. Set Auth Token
-  useEffect(() => {
-    if (accessToken) {
-      LocalStorageService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken);
-      setIsAuthSet(true);
-    }
-  }, [accessToken]);
 
   if (missingParams.length > 0) {
     return <MissingParamsError missingParams={missingParams} />;
