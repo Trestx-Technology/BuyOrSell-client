@@ -35,8 +35,8 @@ export default function RootLayout({
         <Toaster position="top-center" richColors duration={2000} />
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <QueryProvider>
