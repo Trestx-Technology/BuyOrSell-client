@@ -94,8 +94,9 @@ function ResponseContent() {
   }
 
   // 3. Failure State (API Error or URL param error)
-  if (sessionId && data && data.data?.status !== "succeeded") {
-    const errorMessage = error?.message || (data ? "Payment verification failed." : "Something went wrong with your payment request.");
+  if (sessionId && (error || (data && data.data?.status !== "succeeded"))) {
+    const apiErrorMessage = (error as any)?.response?.data?.message || (error as any)?.message;
+    const errorMessage = apiErrorMessage || (data ? "Payment verification failed." : "Something went wrong with your payment request.");
 
      return (
        <div className="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-300">
@@ -105,7 +106,7 @@ function ResponseContent() {
         <Typography variant="h3" className="mb-2 font-bold text-gray-900">
           Payment Failed
         </Typography>
-        <p className="text-gray-500 mb-6 max-w-xs mx-auto">
+         <p className="text-gray-500 mb-6 max-w-xs mx-auto text-sm leading-relaxed">
            {errorMessage}
         </p>
          <Button
