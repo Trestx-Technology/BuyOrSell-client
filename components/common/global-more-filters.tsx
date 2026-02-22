@@ -16,10 +16,65 @@ import { unSlugify } from "@/utils/slug-utils";
 interface GlobalMoreFiltersProps {
       className?: string;
       dontValidate?: boolean;
+      excludeKeys?: string[];
 }
+
+export const mapFieldsToFilterConfig = (fields: Field[], excludeKeys?: string[]): FilterConfig[] => {
+      return fields
+            .filter((f) => !f.hidden && !(excludeKeys && excludeKeys.includes(f.name))) // Filter out hidden fields and excluded keys
+            .map((field) => {
+                  let type: FilterConfig["type"] = "select";
+                  let options: FilterOption[] = [];
+
+                  if (field.type === "date" || field.type === "datetime") {
+                        type = "calendar";
+                  } else if (
+                        (field.type === "number" || field.type === "int") &&
+                        field.min !== undefined &&
+                        field.max !== undefined
+                  ) {
+                        type = "range";
+                  } else if (field.type === "checkboxes") {
+                        type = "multiselect";
+                  } else {
+                        type = "select";
+                  }
+
+                  if (field.optionalArray) {
+                        options = field.optionalArray.map((opt) => ({
+                              value: opt,
+                              label: opt,
+                        }));
+                  } else if (field.type === "bool") {
+                        options = [
+                              { value: "true", label: "Yes" },
+                              { value: "false", label: "No" },
+                        ];
+                  }
+
+                  return {
+                        key: field.name,
+                        label: field.name,
+                        type,
+                        options,
+                        placeholder: `Select ${field.name}`,
+                        min: field.min,
+                        max: field.max,
+                        dependsOn: field.dependsOn,
+                        optionalMapOfArray: field.optionalMapOfArray,
+                  };
+            })
+            .sort((a, b) => {
+                  // Sort by sequence if available
+                  const fieldA = fields.find(f => f.name === a.key);
+                  const fieldB = fields.find(f => f.name === b.key);
+                  return (fieldA?.sequence || 0) - (fieldB?.sequence || 0);
+            });
+};
 
 export const GlobalMoreFilters = ({
       className,
+      excludeKeys = [],
 }: GlobalMoreFiltersProps) => {
       const { updateUrlParam, searchParams } = useUrlParams();
       const params = useParams();
@@ -41,10 +96,10 @@ export const GlobalMoreFilters = ({
       // Update dynamic filters when category data changes
       useEffect(() => {
             if (categoryData && categoryData.data && categoryData.data.fields) {
-                  const mappedFilters = mapFieldsToFilterConfig(categoryData.data.fields);
+                  const mappedFilters = mapFieldsToFilterConfig(categoryData.data.fields, excludeKeys);
                   setDynamicFilters(mappedFilters);
             }
-      }, [categoryData]);
+      }, [categoryData, excludeKeys]);
 
       // Load initial state from URL 'extraFields' param
       useEffect(() => {
@@ -63,59 +118,6 @@ export const GlobalMoreFilters = ({
                   }
             }
       }, [isAdvancedOpen, searchParams]);
-
-      const mapFieldsToFilterConfig = (fields: Field[]): FilterConfig[] => {
-            return fields
-                  .filter((f) => !f.hidden) // Filter out hidden fields if needed
-                  .map((field) => {
-                        let type: FilterConfig["type"] = "select";
-                        let options: FilterOption[] = [];
-
-                        if (field.type === "date" || field.type === "datetime") {
-                              type = "calendar";
-                        } else if (
-                              (field.type === "number" || field.type === "int") &&
-                              field.min !== undefined &&
-                              field.max !== undefined
-                        ) {
-                              type = "range";
-                        } else if (field.type === "checkboxes") {
-                              type = "multiselect";
-                        } else {
-                              type = "select";
-                        }
-
-                        if (field.optionalArray) {
-                              options = field.optionalArray.map((opt) => ({
-                                    value: opt,
-                                    label: opt,
-                              }));
-                        } else if (field.type === "bool") {
-                              options = [
-                                    { value: "true", label: "Yes" },
-                                    { value: "false", label: "No" },
-                              ];
-                        }
-
-                        return {
-                              key: field.name,
-                              label: field.name,
-                              type,
-                              options,
-                              placeholder: `Select ${field.name}`,
-                              min: field.min,
-                              max: field.max,
-                              dependsOn: field.dependsOn,
-                              optionalMapOfArray: field.optionalMapOfArray,
-                        };
-                  })
-                  .sort((a, b) => {
-                        // Sort by sequence if available
-                        const fieldA = fields.find(f => f.name === a.key);
-                        const fieldB = fields.find(f => f.name === b.key);
-                        return (fieldA?.sequence || 0) - (fieldB?.sequence || 0);
-                  });
-      };
 
       const handlePendingChange = (key: string, value: any) => {
             setPendingExtraFields((prev) => {

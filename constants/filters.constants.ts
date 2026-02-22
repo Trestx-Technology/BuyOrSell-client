@@ -10,6 +10,7 @@ export const getStaticFilterConfig = (t: any): FilterConfig[] => [
     max: 1000000,
     step: 1000,
     isStatic: true,
+    unit: "AED",
   },
   {
     key: "deal",

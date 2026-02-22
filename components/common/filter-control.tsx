@@ -37,6 +37,7 @@ export interface FilterConfig {
   step?: number;
   isStatic?: boolean;
   dependsOn?: string;
+  unit?: string;
 }
 
 interface FilterControlProps {
@@ -62,6 +63,7 @@ export const FilterControl = ({
     step = 1,
     dependsOn,
     optionalMapOfArray,
+    unit,
   } = filterConfig;
   const value = currentValues[key];
   const isValueSelected = Array.isArray(value) ? value.length > 0 : !!value;
@@ -169,8 +171,8 @@ export const FilterControl = ({
               >
                 <span className="w-1 h-1 rounded-full bg-purple" />
                 {value && Array.isArray(value) && value.length === 2
-                  ? `${value[0].toLocaleString()} - ${value[1].toLocaleString()}`
-                  : `${min.toLocaleString()} - ${max.toLocaleString()}`}
+                  ? `${value[0].toLocaleString()} - ${value[1].toLocaleString()}${unit ? ` ${unit}` : ""}`
+                  : `${min.toLocaleString()} - ${max.toLocaleString()}${unit ? ` ${unit}` : ""}`}
               </div>
               <Slider
                 value={value || [min, max]}
