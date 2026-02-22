@@ -23,6 +23,7 @@ import {
   CreatePlanOneTimeCheckoutDto,
   CreateAdsCheckoutDto,
   CreateAddonCheckoutDto,
+  CreateAITokenCheckoutDto,
 } from "@/interfaces/payment.types";
 import { paymentQueries } from "@/app/api/payments/index";
 
@@ -102,6 +103,13 @@ export const useCreateMultiAdsCheckout = () => {
   return useMutation<CheckoutSessionResponse, Error, CreateAdsCheckoutDto>({
     mutationFn: createCheckoutSession,
     mutationKey: [...paymentQueries.createCheckoutSession.Key, "multi-ads"],
+  });
+};
+
+export const useCreateAITokenCheckout = () => {
+  return useMutation<CheckoutSessionResponse, Error, CreateAITokenCheckoutDto>({
+    mutationFn: createCheckoutSession,
+    mutationKey: [...paymentQueries.createCheckoutSession.Key, "ai-tokens"],
   });
 };
 

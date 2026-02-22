@@ -32,7 +32,7 @@ function ResponseContent() {
 
     if (data?.data?.status === "succeeded") {
       const timer = setTimeout(() => {
-        if (type === "ai-tokens") {
+        if (type === "ai-tokens" || type === "AI_TOKENS") {
           router.push(`/${locale}/ai-tokens?status=success`);
         } else if (type === "PLAN") {
           router.push(`/${locale}/my-subscriptions`);
@@ -73,14 +73,14 @@ function ResponseContent() {
           {data.message || "Your payment has been processed successfully."}
         </p>
         <div className="animate-pulse text-sm text-purple-600 font-medium mb-6">
-          {type === "ai-tokens"
+          {type === "ai-tokens" || type === "AI_TOKENS"
             ? "Redirecting to AI Tokens in a few seconds..."
             : "Redirecting to subscriptions in a few seconds..."}
         </div>
         <Button
           onClick={() =>
             router.push(
-              type === "ai-tokens"
+              type === "ai-tokens" || type === "AI_TOKENS"
                 ? `/${locale}/ai-tokens`
                 : `/${locale}/my-subscriptions`
             )
@@ -112,7 +112,7 @@ function ResponseContent() {
          <Button
            onClick={() =>
              router.push(
-               type === "ai-tokens" ? `/${locale}/ai-tokens` : `/${locale}/plans`
+               type === "ai-tokens" || type === "AI_TOKENS" ? `/${locale}/ai-tokens` : `/${locale}/plans`
              )
            }
            variant="filled"

@@ -3,34 +3,10 @@ export interface AITokenResponseDto {
   userId: string;
 }
 
-export interface PurchaseTokensDto {
-  packageId: string;
-}
-
 export interface ConsumeTokensDto {
   tokens: number;
   reason?: string;
   metadata?: Record<string, any>;
-}
-
-export interface CreateTokenPackageDto {
-  name: string;
-  nameAr?: string;
-  tokens: number;
-  price: number;
-  isActive?: boolean;
-  description?: string;
-  descriptionAr?: string;
-}
-
-export interface UpdateTokenPackageDto {
-  name?: string;
-  nameAr?: string;
-  tokens?: number;
-  price?: number;
-  isActive?: boolean;
-  description?: string;
-  descriptionAr?: string;
 }
 
 export interface TokenPackage {
@@ -47,5 +23,3 @@ export interface TokenPackage {
   createdAt: string;
   updatedAt: string;
 }
-
-

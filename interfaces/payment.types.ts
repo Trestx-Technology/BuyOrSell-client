@@ -123,8 +123,8 @@ export interface CreateAddonCheckoutDto {
   };
 }
 
-// 5. AI Tokens Purchase Checkout
-export interface CreateAITokensCheckoutDto {
+// 5. AI Token Purchase Checkout
+export interface CreateAITokenCheckoutDto {
   lineItems: {
     name: string;
     amount: number;
@@ -146,7 +146,7 @@ export type CreateCheckoutSessionDto =
   | CreatePlanOneTimeCheckoutDto
   | CreateAdsCheckoutDto
   | CreateAddonCheckoutDto
-  | CreateAITokensCheckoutDto;
+  | CreateAITokenCheckoutDto;
 
 export interface CheckoutSessionData {
   sessionId: string;

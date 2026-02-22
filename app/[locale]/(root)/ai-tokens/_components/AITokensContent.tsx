@@ -24,8 +24,8 @@ import { useAuthStore } from "@/stores/authStore";
 import {
   useAITokenBalance,
   useAITokenPackages,
-  useInitiateTokenPurchase,
 } from "@/hooks/useAITokens";
+import { useCreateAITokenCheckout } from "@/hooks/usePayments";
 import { useLocale } from "@/hooks/useLocale";
 import { TokenPackage } from "@/interfaces/ai-tokens.types";
 import { toast } from "sonner";
@@ -509,11 +509,7 @@ export const AITokensContent = () => {
   const router = useRouter();
   const { locale } = useLocale();
   const isArabic = locale === "ar";
-  const { isAuthenticated, session } = useAuthStore((state) => ({
-    isAuthenticated: state.isAuthenticated,
-    session: state.session
-  }));
-  const user = session?.user;
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const {
     data: balanceData,
     isLoading: balanceLoading,
@@ -521,7 +517,8 @@ export const AITokensContent = () => {
   const { data: packages, isLoading: packagesLoading } =
     useAITokenPackages(true);
   const searchParams = useSearchParams();
-  const initiatePurchase = useInitiateTokenPurchase();
+  const createCheckoutMutation = useCreateAITokenCheckout();
+  const user = useAuthStore((state) => state.session.user);
 
   useEffect(() => {
     const status = searchParams.get("status");
@@ -558,18 +555,20 @@ export const AITokensContent = () => {
     if (!selectedPackage || !user) return;
     try {
       const baseUrl = window.location.origin;
-      const amountInSmallestUnit = Math.round(selectedPackage.price * 100);
-
-      const response = await initiatePurchase.mutateAsync({
+      const response = await createCheckoutMutation.mutateAsync({
         lineItems: [
           {
-            name: isArabic ? selectedPackage.nameAr || selectedPackage.name : selectedPackage.name,
-            amount: amountInSmallestUnit,
-            currency: "aed",
+            name: selectedPackage.name,
+            amount: Math.round(
+              (selectedPackage.discount
+                ? selectedPackage.price * (1 - selectedPackage.discount / 100)
+                : selectedPackage.price) * 100
+            ),
+            currency: selectedPackage.currency || "AED",
             quantity: 1,
           },
         ],
-        successUrl: `${baseUrl}/${locale}/pay/response?session_id={CHECKOUT_SESSION_ID}&type=ai-tokens`,
+        successUrl: `${baseUrl}/${locale}/pay/response?session_id={CHECKOUT_SESSION_ID}&type=AI_TOKENS`,
         cancelUrl: `${baseUrl}/${locale}/ai-tokens?status=cancel`,
         type: "AI_TOKENS",
         typeId: selectedPackage._id,
@@ -578,13 +577,9 @@ export const AITokensContent = () => {
         mode: "payment",
       });
 
-      const { data: purchaseData } = response;
+      const purchaseData = response.data;
       if (purchaseData?.checkoutUrl) {
-        router.push(
-          `/${locale}/pay?checkoutUrl=${encodeURIComponent(
-            purchaseData.checkoutUrl
-          )}`
-        );
+        window.location.href = purchaseData.checkoutUrl;
       }
 
       toast.success(isArabic ? "جاري تحويلك للدفع..." : "Redirecting to payment...");
@@ -721,7 +716,7 @@ export const AITokensContent = () => {
         onOpenChange={setDialogOpen}
         pkg={selectedPackage}
         onConfirm={handleConfirmPurchase}
-        isLoading={initiatePurchase.isPending}
+        isLoading={createCheckoutMutation.isPending}
       />
     </div>
   );
