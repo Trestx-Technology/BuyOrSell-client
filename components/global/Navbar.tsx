@@ -19,8 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { NavigationMenu } from "./navigation-menu";
-import { JobNavigationMenu } from "./job-navigation-menu";
+import { UnifiedProfileMenu } from "./unified-profile-menu";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { logout as LogoutAPI } from "@/app/api/auth/auth.services";
@@ -145,41 +144,11 @@ const NavbarContent = ({ className }: { className?: string }) => {
                   <ChevronDown className="size-5 text-purple" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-50 p-0 max-h-[350px] overflow-y-auto" align="end">
-                {pathname?.includes("/jobs") ? (
-                  <JobNavigationMenu
-                    onLogout={handleLogout}
-                    onClose={() => setPopoverOpen(false)}
-                    translations={{
-                      jobsDashboard:
-                        t.home.navbar.jobsDashboard || "Jobs Dashboard",
-                      jobListings: "Job Listings",
-                      myJobListings: "My Job Listings",
-                      jobseekers: "Jobseekers",
-                      organizations: "Organizations",
-                      myProfile: "My Job Profile",
-                      myOrganization: "My Organization",
-                      signOut: t.home.navbar.signOut,
-                    }}
-                  />
-                ) : (
-                  <NavigationMenu
-                    onLogout={handleLogout}
-                    onClose={() => setPopoverOpen(false)}
-                    translations={{
-                      myProfile: t.home.navbar.myProfile,
-                      jobsDashboard: t.home.navbar.jobsDashboard,
-                      mySearches: t.home.navbar.mySearches,
-                      myAds: t.home.navbar.myAds,
-                      favourites: t.home.navbar.favourites,
-                      notifications: t.home.navbar.notifications,
-                      offersPackages: t.home.navbar.offersPackages,
-                      aiTokens: "AI Tokens",
-                      settings: t.home.navbar.settings,
-                      signOut: t.home.navbar.signOut,
-                    }}
-                  />
-                )}
+              <PopoverContent className="w-fit p-0 max-h-[600px] overflow-hidden rounded-xl border-none shadow-none" align="end">
+                <UnifiedProfileMenu
+                  onLogout={handleLogout}
+                  onClose={() => setPopoverOpen(false)}
+                />
               </PopoverContent>
             </Popover>
           </div>
