@@ -364,7 +364,7 @@ export function Footer({ className }: FooterProps) {
         >
           {/* Left Side - Legal Links */}
           <div className="hidden md:flex items-center gap-6 ">
-            <Link href="/terms-and-conditions">
+            <Link href="/privacy-policy">
               <Typography
                 variant="body"
                 className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"

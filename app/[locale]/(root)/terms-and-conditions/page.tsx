@@ -166,11 +166,16 @@ function TermsContent() {
                                     © 2025 Souq Labs Technologies LLC SPC | BuyOrSell.ae
                               </p>
                               <div className="flex flex-wrap justify-center gap-6">
-                                    {["Security", "Privacy", "Cookies", "Safety"].map((item) => (
-                                          <a key={item} href="#" className="text-[10px] font-bold text-gray-400 hover:text-purple transition-colors flex items-center gap-2">
+                                    {[
+                                          { name: "Security", link: "#" },
+                                          { name: "Privacy", link: "/privacy-policy" },
+                                          { name: "Cookies", link: "#" },
+                                          { name: "Safety", link: "#" }
+                                    ].map((item) => (
+                                          <Link key={item.name} href={item.link} className="text-[10px] font-bold text-gray-400 hover:text-purple transition-colors flex items-center gap-2">
                                                 <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
-                                                {item}
-                                          </a>
+                                                {item.name}
+                                          </Link>
                                     ))}
                               </div>
                         </div>
