@@ -274,6 +274,11 @@ axiosInstance.interceptors.request.use(
   async (
     config: InternalAxiosRequestConfig,
   ): Promise<InternalAxiosRequestConfig> => {
+    // GLOBAL API BLOCK - SYSTEM IS INCOMING SOON MODE
+    return Promise.reject(
+      new Error("API calls are disabled - Coming Soon mode active"),
+    );
+
     // 1. Skip auth for public endpoints
     if (isPublicEndpoint(config.url)) {
       // Still add emirate if present
@@ -382,7 +387,7 @@ axiosInstance.interceptors.request.use(
     }
 
     return config;
-  },
+  };,
   (error: unknown) => Promise.reject(error),
 );
 
