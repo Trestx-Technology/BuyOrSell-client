@@ -6,15 +6,46 @@ import { AUTH_TOKEN_NAMES } from "@/constants/auth.constants";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Check if there is any supported locale in the pathname
-  const pathnameHasLocale = locales.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-  );
-
-  // If pathname already has a locale, allow the request to proceed
-  if (pathnameHasLocale) {
-    return handleAuth(request);
+  // GLOBAL BYPASS AND REDIRECT TO COMING SOON
+  if (
+    pathname.includes("/coming-soon") ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/static") ||
+    pathname.includes("favicon.ico") ||
+    pathname.includes(".png") ||
+    pathname.includes(".svg") ||
+    pathname.includes(".jpg") ||
+    pathname.includes(".jpeg")
+  ) {
+    return NextResponse.next();
   }
+
+  // Block all other API calls
+  if (pathname.startsWith("/api")) {
+    return new NextResponse(
+      JSON.stringify({ message: "Service Unavailable - Coming Soon" }),
+      {
+        status: 503,
+        headers: { "content-type": "application/json" },
+      },
+    );
+  }
+
+  // Detect locale or default to en-US
+  const segments = pathname.split("/").filter(Boolean);
+  const currentLocale = locales.includes(segments[0] as any)
+    ? segments[0]
+    : "en-US";
+
+  const comingSoonUrl = new URL(`/${currentLocale}/coming-soon`, request.url);
+
+  if (pathname === `/${currentLocale}/coming-soon`) {
+    return NextResponse.next();
+  }
+
+  return NextResponse.redirect(comingSoonUrl);
+
+  // Original logic starts here (bypassed above)
 
   // All routes except excluded ones will be validated and redirected with locale
 
@@ -33,10 +64,9 @@ export function proxy(request: NextRequest) {
     // Add more routes/keywords here that should be excluded from locale validation
   ];
 
- 
   // Check if the current path should be excluded from locale validation
   const shouldBeExcluded = excludedRoutes.some(
-    (route) => pathname.startsWith(route) || pathname === route
+    (route) => pathname.startsWith(route) || pathname === route,
   );
 
   // If the route should be excluded, allow it to proceed without locale validation
@@ -46,7 +76,7 @@ export function proxy(request: NextRequest) {
 
   // Double-check: if locale already exists in pathname, don't append again (extra safeguard)
   const hasLocalePrefix = locales.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   );
 
   if (hasLocalePrefix) {
@@ -93,7 +123,7 @@ function handleAuth(request: NextRequest) {
   // Check if the current path is a protected route
   // We explicitly ensure /pay is NOT matched here (it isn't in the list, but good to verify)
   const isProtectedRoute = protectedRoutes.some(
-    (route) => pathname.includes(route) // Changed to include to catch /en-US/user etc.
+    (route) => pathname.includes(route), // Changed to include to catch /en-US/user etc.
   );
 
   // Check if the current path is an auth route
@@ -121,7 +151,7 @@ function handleAuth(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Skip all internal paths (_next)
-    "/((?!_next|api|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Match everything except internal _next paths and static assets
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

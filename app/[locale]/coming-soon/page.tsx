@@ -13,15 +13,6 @@ export default function ComingSoonPage() {
           <br />
           The marketplace will be live shortly.
         </p>
-        <div className="pt-8">
-            <div className="inline-flex items-center space-x-2 text-sm text-purple-600 font-semibold uppercase tracking-widest bg-purple-50 px-4 py-2 rounded-full border border-purple-100">
-                <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
-                </span>
-                <span>Work in progress</span>
-            </div>
-        </div>
       </div>
     </div>
   );

@@ -354,8 +354,8 @@ axiosInstance.interceptors.request.use(
       }
     }
 
-    if (token && !isTokenExpired(token)) {
-      setAuthHeader(config, token);
+    if (token) {
+      setAuthHeader(config, token as string);
     }
 
     // 3. Add emirate param globally (if not already handled)
@@ -387,7 +387,7 @@ axiosInstance.interceptors.request.use(
     }
 
     return config;
-  };,
+  },
   (error: unknown) => Promise.reject(error),
 );
 
@@ -496,5 +496,3 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(errorResponse);
   },
 );
-
-
