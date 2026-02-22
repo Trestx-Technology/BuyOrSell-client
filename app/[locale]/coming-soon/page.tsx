@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { MoveRight } from "lucide-react";
 
@@ -36,18 +38,7 @@ export default function ComingSoonPage() {
                     </section>
 
                     {/* Interactive Element */}
-                    <div className="pt-8 flex flex-col md:flex-row items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-700">
-                          <div className="group relative">
-                                <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
-                                <button className="relative px-8 py-4 bg-white text-black font-semibold rounded-xl flex items-center gap-2 hover:bg-white/90 transition-all duration-300 transform group-hover:translate-y-[-2px]">
-                                      Notify Me
-                                      <MoveRight className="w-4 h-4" />
-                                </button>
-                          </div>
-                          <button className="px-8 py-4 bg-white/5 border border-white/10 text-white font-medium rounded-xl hover:bg-white/10 backdrop-blur-sm transition-all duration-300">
-                                Be an Early Adopter
-                          </button>
-                    </div>
+                   
 
                     {/* Footer info */}
                     <footer className="pt-20 text-white/20 text-sm tracking-widest uppercase animate-in fade-in duration-1000 delay-1000">
