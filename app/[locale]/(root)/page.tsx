@@ -125,5 +125,14 @@ export async function generateMetadata(
 }
 
 export default function Home() {
-  return <HomeContent />;
+  return (
+    <div className="min-h-[80vh] flex flex-col items-center justify-center p-4">
+      <h1 className="text-4xl md:text-6xl font-bold text-purple-700 mb-4 text-center">
+        COMING SOON
+      </h1>
+      <p className="text-gray-600 text-lg md:text-xl text-center max-w-md">
+        We're working hard to bring you something amazing. Stay tuned!
+      </p>
+    </div>
+  );
 }
