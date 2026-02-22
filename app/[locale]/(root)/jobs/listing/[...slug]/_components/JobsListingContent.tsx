@@ -187,6 +187,7 @@ export default function JobsListingContent() {
           onLocationChange={handleLocationChange}
           locationPlaceholder="Dubai"
           className="mb-4"
+          advancedExcludeKeys={defaultJobFilters.map(f => f.key)}
         />
 
         <ActiveFilters

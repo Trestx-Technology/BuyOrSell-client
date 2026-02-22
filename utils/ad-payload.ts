@@ -92,10 +92,27 @@ export const buildAdFilterPayload = ({
 
   // Extra Fields
   const extraFieldsFilters: Record<string, any> = {};
-  // Extract job specific ones from filters if they exist
-  if (filters.jobType) extraFieldsFilters.jobType = filters.jobType;
-  if (filters.workMode) extraFieldsFilters.workMode = filters.workMode;
-  if (filters.experience) extraFieldsFilters.experience = filters.experience;
+
+  // Known top-level fields handled explicitly above
+  const knownFields = [
+    "neighbourhood",
+    "price",
+    "salary",
+    "deal",
+    "isFeatured",
+    "hasVideo",
+    "fromDate",
+    "toDate",
+    "search",
+    "location",
+  ];
+
+  // Map any remaining filter keys into extraFields automatically
+  Object.keys(filters).forEach((key) => {
+    if (!knownFields.includes(key) && filters[key] !== undefined) {
+      extraFieldsFilters[key] = filters[key];
+    }
+  });
 
   const finalExtraFields = { ...extraFieldsFilters, ...extraFields };
   if (Object.keys(finalExtraFields).length > 0) {
@@ -103,4 +120,4 @@ export const buildAdFilterPayload = ({
   }
 
   return payload;
-};
+};;

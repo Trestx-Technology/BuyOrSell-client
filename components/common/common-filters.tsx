@@ -25,6 +25,7 @@ export interface CommonFiltersProps {
       locationPlaceholder?: string;
       className?: string;
       variant?: "light" | "dark";
+      advancedExcludeKeys?: string[];
 }
 
 export const CommonFilters = ({
@@ -39,17 +40,14 @@ export const CommonFilters = ({
       locationPlaceholder = "Location...",
       className,
       variant = "light",
+      advancedExcludeKeys,
 }: CommonFiltersProps) => {
       const { updateUrlParam, searchParams } = useUrlParams();
 
       // Wrapper for static filter changes
       const handleStaticChange = (key: string, value: any) => {
+            updateUrlParam(key, value);
             onStaticFilterChange(key, value);
-      };
-
-      // Wrapper for location changes
-      const handleLocationChange = (value: string) => {
-            if (onLocationChange) onLocationChange(value);
       };
 
       // Initialize from URL on mount
@@ -108,6 +106,25 @@ export const CommonFilters = ({
             }
       }, [searchQuery]); 
 
+      // Use debounced value hook for location input
+      const [localLocationQuery, setLocalLocationQuery] = useDebouncedValue(
+            locationQuery || "",
+            (value) => {
+                  updateUrlParam("location", value);
+                  if (onLocationChange) {
+                        onLocationChange(value);
+                  }
+            },
+            500
+      );
+
+      // Sync local location query if initialized from URL (via prop change)
+      useEffect(() => {
+            if (locationQuery !== localLocationQuery) {
+                  setLocalLocationQuery(locationQuery || "");
+            }
+      }, [locationQuery]);
+
       return (
             <Card
                   className={cn(
@@ -136,8 +153,8 @@ export const CommonFilters = ({
                                           <Input
                                                 leftIcon={<MapPin className="h-4 w-4" />}
                                                 placeholder={locationPlaceholder}
-                                                value={locationQuery}
-                                                onChange={(e) => handleLocationChange(e.target.value)}
+                                                value={localLocationQuery}
+                                                onChange={(e) => setLocalLocationQuery(e.target.value)}
                                                 className={cn(
                                                       "pl-10 border-gray-200 dark:border-gray-800 flex-1 h-11",
                                                       "bg-white dark:bg-gray-900 text-foreground placeholder:text-muted-foreground focus-visible:ring-purple/20"
@@ -164,7 +181,7 @@ export const CommonFilters = ({
                               ))}
                               {/* Advanced Filters Dialog - GlobalMoreFilters */}
                               <div className="shrink-0">
-                                    <GlobalMoreFilters />
+                                    <GlobalMoreFilters excludeKeys={advancedExcludeKeys} />
                               </div>
                         </CarouselWrapper>
                   </CardContent>

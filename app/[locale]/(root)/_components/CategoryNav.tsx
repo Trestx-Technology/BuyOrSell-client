@@ -635,12 +635,12 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                 <div className="animate-fade-in" style={{ animationDelay: '150ms' }}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Link
-                      href={localePath("/user/my-ads")}
-                      className="min-w-6 md:block hidden"
+                    <button
+                      onClick={() => router.push(localePath("/user/my-ads"))}
+                      className="min-w-6 md:block hidden cursor-pointer"
                       >
                       <UserPlus className="text-purple hover:scale-110 transition-all duration-300" />
-                      </Link>
+                    </button>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>My Ads</p>
@@ -651,12 +651,12 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                 <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Link
-                        href={localePath("/chat")}
-                      className="min-w-6 md:block hidden"
+                    <button
+                      onClick={() => router.push(localePath("/chat"))}
+                      className="min-w-6 md:block hidden cursor-pointer"
                       >
                       <MessageSquare className="text-purple hover:scale-110 transition-all duration-300" />
-                      </Link>
+                    </button>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Messages</p>
@@ -667,12 +667,12 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                 <div className="animate-fade-in" style={{ animationDelay: '250ms' }}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Link
-                      href={localePath("/favorites")}
-                      className="min-w-6 md:block hidden"
+                    <button
+                      onClick={() => router.push(localePath("/favorites"))}
+                      className="min-w-6 md:block hidden cursor-pointer"
                       >
                       <Heart className="size-6 hover:scale-110 transition-all duration-300 text-purple" />
-                      </Link>
+                    </button>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Favorites</p>

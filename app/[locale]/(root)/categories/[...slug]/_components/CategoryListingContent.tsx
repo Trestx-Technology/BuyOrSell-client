@@ -33,6 +33,8 @@ import { NoDataCard } from "@/components/global/fallback-cards";
 import { LocalStorageService } from "@/services/local-storage";
 import { EMIRATE_STORAGE_KEY } from "@/components/global/EmirateSelector";
 import { useEmirates } from "@/hooks/useLocations";
+import { useValidateCategoryPath } from "@/hooks/useCategories";
+import { mapFieldsToFilterConfig } from "@/components/common/global-more-filters";
 
 import { unSlugify } from "@/utils/slug-utils";
 
@@ -86,10 +88,30 @@ export default function CategoryListingContent() {
   const [sortBy, setSortBy] = useState("default");
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Fetch category data to map its specific dynamic fields
+  const categoryPath = slugSegments.join("/");
+  const { data: categoryData } = useValidateCategoryPath(categoryPath);
+
+  const { dynamicStaticFilters, advancedExcludeKeys } = useMemo(() => {
+    let dynamicFilters: any[] = [];
+    let excludeKeys: string[] = [];
+    if (categoryData?.data?.fields) {
+      const mapped = mapFieldsToFilterConfig(categoryData.data.fields);
+      // Take the top 3-4 dynamic fields to use as "Quick" static filters
+      dynamicFilters = mapped.slice(0, 4).map(f => ({ ...f, isStatic: true }));
+      excludeKeys = dynamicFilters.map(f => f.key);
+    }
+    return { dynamicStaticFilters: dynamicFilters, advancedExcludeKeys: excludeKeys };
+  }, [categoryData]);
 
   // Static filter configuration - shown outside the dialog
-  // Static filter configuration - shown outside the dialog
-  const staticFilterConfig = getStaticFilterConfig(t);
+  const staticFilterConfig = useMemo(() => {
+    const defaults = getStaticFilterConfig(t);
+    const isJobs = currentCategory.includes("job") || slugSegments.includes("jobs");
+
+    const baseFilters = isJobs ? [] : defaults;
+    return [...baseFilters, ...dynamicStaticFilters];
+  }, [t, dynamicStaticFilters, currentCategory, slugSegments]);
 
   const breadcrumbItems = generateCategoryBreadcrumbs(slugSegments);
 
@@ -243,6 +265,7 @@ export default function CategoryListingContent() {
           onSearchChange={setInputValue}
           searchPlaceholder={`${t.categories.search} ${categoryName}...`}
           className="mb-4 mx-4"
+          advancedExcludeKeys={advancedExcludeKeys}
         />
 
         <ActiveFilters
