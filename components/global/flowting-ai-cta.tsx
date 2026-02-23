@@ -26,6 +26,7 @@ export default function FloatingChatCTA() {
   ]);
   const [input, setInput] = React.useState("");
   const [isTyping, setIsTyping] = React.useState(false);
+
   const logRef = React.useRef<HTMLDivElement | null>(null);
   const audioContextRef = React.useRef<AudioContext | null>(null);
 
@@ -124,28 +125,35 @@ export default function FloatingChatCTA() {
       try {
         const { success, results, searchQuery } = await searchWithAI(text);
 
-        if (success && results && results.length > 0) {
-          const count = results.length;
-          const firstItem = results[0];
+        if (success) {
+          if (results && results.length > 0) {
+            const count = results.length;
+            const firstItem = results[0];
 
-          // Intelligent routing based on result type
-          let targetUrl = `/search?search=${encodeURIComponent(searchQuery)}`;
-          let label = `View ${count} Results`;
+            // Intelligent routing based on result type
+            let targetUrl = `/search?search=${encodeURIComponent(searchQuery)}`;
+            let label = `View ${count} Results`;
 
-          if (firstItem.adType === "JOB" || (firstItem.category && firstItem.category.toLowerCase().includes("job"))) {
-            targetUrl = `/jobs/listing?search=${encodeURIComponent(searchQuery)}`;
-            label = "View Job Matches";
-          } else if (firstItem.category) {
-            // If robust category slug is available, use it, else fallback to search
-            // targetUrl = `/categories/${firstItem.category.toLowerCase()}`;
+            if (firstItem.adType === "JOB" || (firstItem.category && firstItem.category.toLowerCase().includes("job"))) {
+              targetUrl = `/jobs/listing?search=${encodeURIComponent(searchQuery)}`;
+              label = "View Job Matches";
+            } else if (firstItem.category) {
+              // If robust category slug is available, use it, else fallback to search
+              // targetUrl = `/categories/${firstItem.category.toLowerCase()}`;
+            }
+
+            const topNames = results.slice(0, 2).map((item: any) => item.title).join(", ");
+
+            return {
+              content: `I found ${count} items matching "${searchQuery}", such as: ${topNames}...`,
+              action: { label: label, url: targetUrl }
+            };
+          } else {
+            return {
+              content: `I couldn't find exact matches for "${searchQuery}". Try browsing our categories.`,
+              action: { label: "Browse Categories", url: "/categories" }
+            };
           }
-
-          const topNames = results.slice(0, 2).map((item: any) => item.title).join(", ");
-
-          return {
-            content: `I found ${count} items matching "${searchQuery}", such as: ${topNames}...`,
-            action: { label: label, url: targetUrl }
-          };
         } else {
           return {
             content: `I couldn't find exact matches for "${searchQuery}". Try browsing our categories.`,
