@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { AD } from "@/interfaces/ad";
 import { slugify } from "@/utils/slug-utils";
 import { useAITokenBalance, useConsumeTokens } from "@/hooks/useAITokens";
+import { NoCreditsDialog } from "@/components/global/NoCreditsDialog";
 
 export function SearchAnimated() {
   const [isAI, setIsAI] = React.useState(false);
@@ -27,6 +28,7 @@ export function SearchAnimated() {
   const [isSearching, setIsSearching] = React.useState(false);
   const [extractedKeywords, setExtractedKeywords] = React.useState<string[]>([]);
   const [optimizedQuery, setOptimizedQuery] = React.useState("");
+  const [isNoCreditsOpen, setIsNoCreditsOpen] = React.useState(false);
   const searchRef = React.useRef<HTMLDivElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -79,8 +81,8 @@ export function SearchAnimated() {
 
     if (isAI) {
       const currentBalance = tokenBalance?.data?.tokensRemaining ?? 0;
-      if (currentBalance <= 0) {
-        toast.error("No AI tokens available. Please purchase more tokens.");
+      if (currentBalance < 1) {
+        setIsNoCreditsOpen(true);
         setIsAI(false);
         return;
       }
@@ -253,6 +255,12 @@ export function SearchAnimated() {
           </motion.div>
       </motion.section>
     </div>
+      <NoCreditsDialog
+        isOpen={isNoCreditsOpen}
+        onClose={() => setIsNoCreditsOpen(false)}
+        requiredCredits={1}
+        currentBalance={tokenBalance?.data?.tokensRemaining ?? 0}
+      />
     </div>
   );
 }
