@@ -15,8 +15,6 @@ type Message = {
 
 import { searchWithAI } from "@/lib/ai/searchWithAI";
 import { findResolution } from "@/constants/app-context";
-import { useAITokenBalance, useConsumeTokens } from "@/hooks/useAITokens";
-import { NoCreditsDialog } from "./NoCreditsDialog";
 
 export default function FloatingChatCTA() {
   const [open, setOpen] = React.useState(false);
@@ -28,11 +26,6 @@ export default function FloatingChatCTA() {
   ]);
   const [input, setInput] = React.useState("");
   const [isTyping, setIsTyping] = React.useState(false);
-  const [isNoCreditsOpen, setIsNoCreditsOpen] = React.useState(false);
-
-  const { data: tokenBalance } = useAITokenBalance();
-  const currentBalance = tokenBalance?.data?.tokensRemaining ?? 0;
-  const { mutateAsync: consumeTokens } = useConsumeTokens();
 
   const logRef = React.useRef<HTMLDivElement | null>(null);
   const audioContextRef = React.useRef<AudioContext | null>(null);
@@ -129,21 +122,10 @@ export default function FloatingChatCTA() {
 
     // 2. Search Logic (Products & General)
     if (lower.includes("find") || lower.includes("search") || lower.includes("looking for") || lower.includes("buy")) {
-      if (currentBalance < 1) {
-        setIsNoCreditsOpen(true);
-        return {
-          content: "You've run out of AI credits. Please purchase more tokens to continue using the AI assistant for search.",
-          action: { label: "Get Credits", url: "/ai-tokens" }
-        };
-      }
-
       try {
         const { success, results, searchQuery } = await searchWithAI(text);
 
         if (success) {
-          // Consume 1 token on success
-          await consumeTokens({ tokens: 1, purpose: "ai_search" });
-
           if (results && results.length > 0) {
             const count = results.length;
             const firstItem = results[0];
@@ -449,12 +431,6 @@ export default function FloatingChatCTA() {
           <span className="sr-only">AI chat</span>
         </motion.button>
       </div>
-      <NoCreditsDialog
-        isOpen={isNoCreditsOpen}
-        onClose={() => setIsNoCreditsOpen(false)}
-        requiredCredits={1}
-        currentBalance={currentBalance}
-      />
     </div>
   );
 }
