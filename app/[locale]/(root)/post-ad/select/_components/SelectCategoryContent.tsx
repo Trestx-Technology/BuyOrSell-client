@@ -19,7 +19,6 @@ export default function SelectCategoryContent() {
     categoryArray,
     clearCategoryArray,
   } = useAdPostingStore((state) => state);
-  const [showOrgDialog, setShowOrgDialog] = useState(false);
 
   // Availability Hook
   const { checkAvailability, dialogProps, isLoading: subscriptionsLoading } = useAdAvailability();

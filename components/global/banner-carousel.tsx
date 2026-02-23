@@ -296,15 +296,15 @@ export function BannerCarousel({
           {banners.map((slide, index) => (
             <div
               key={slide._id}
-              className={`${height} w-full flex bg-grey-100 flex-col shrink-0 relative`}
+              className={`${height} w-full flex bg-grey-100 flex-col shrink-0 relative `}
             >
-              <BannerCTAWrapper banner={slide}>
+              <BannerCTAWrapper className="h-full w-full" banner={slide}>
                 <Image
                   src={slide.image}
                   alt={slide.title || slide.titleAr || "Banner"}
                   width={1200}
                   height={400}
-                  className={`rounded-xl md:rounded-none h-full w-full object-cover object-right md:object-center ${imageClassName}`}
+                  className={`rounded-xl md:rounded-none h-full w-full object-contain ${imageClassName}`}
                   priority={index === 0}
                   loading={index === 0 ? "eager" : "lazy"}
                 />
