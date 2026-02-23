@@ -53,9 +53,9 @@ export default function ComingSoonPage() {
               </div>
 
               {/* Main Content Centered */}
-              <main className="flex-1 flex flex-col items-center justify-center px-6 text-center space-y-8 max-w-4xl mx-auto z-10 w-full mt-10 md:mt-0">
+              <main className="flex-1 flex flex-col items-center justify-center px-6 text-center space-y-5 max-w-4xl mx-auto z-10 w-full mt-10 md:mt-0">
                     {/* Badge */}
-                    <div className="inline-flex items-center px-5 py-2.5 rounded-full bg-white/40 border border-white/60 backdrop-blur-md shadow-sm">
+                    <div className="inline-flex items-center px-5 py-1.5 rounded-full border border-white/40 backdrop-blur-md shadow-[0px_0px_0px_1px_rgba(0,0,0,0.06),0px_1px_1px_-0.5px_rgba(0,0,0,0.06),0px_3px_3px_-1.5px_rgba(0,0,0,0.06),_0px_6px_6px_-3px_rgba(0,0,0,0.06),0px_12px_12px_-6px_rgba(0,0,0,0.06),0px_24px_24px_-12px_rgba(0,0,0,0.06)]">
                           <Sparkles className="w-4 h-4 text-purple mr-2" />
                           <span className="text-purple text-xs md:text-sm font-bold tracking-widest uppercase">
                                 BUY. SELL. BETTER. — UAE MARKETPLACE REIMAGINED
