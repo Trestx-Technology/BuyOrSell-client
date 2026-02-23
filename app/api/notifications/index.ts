@@ -8,7 +8,7 @@ export const notificationsQueries = {
   // Send notification to a specific device
   sendNotification: {
     Key: ["notifications", "send"],
-    endpoint: "/notifications",
+    endpoint: "/notifications/by-user-id",
   },
 
   // Delete specific notification
