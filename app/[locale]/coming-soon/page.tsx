@@ -8,16 +8,10 @@ import { ICONS } from "@/constants/icons";
 
 export default function ComingSoonPage() {
   return (
-        <div className="relative min-h-screen w-full flex flex-col font-sans overflow-hidden bg-gray-50">
-              {/* Background SVG */}
-              <Image
-                    src="/assets/coming-soon.svg"
-                    alt="Coming Soon Background"
-                    fill
-                    className="object-cover object-center -z-10"
-                    priority
-              />
-
+        <div
+              className="relative min-h-screen w-full flex flex-col font-sans bg-cover bg-center bg-no-repeat overflow-hidden bg-gray-50"
+              style={{ backgroundImage: `url('/assets/coming-soon.svg')` }}
+        >
               {/* Top Bar with Logo */}
               <div className="absolute top-0 left-0 w-full p-6 md:p-10 flex items-center justify-between z-20">
                     <Link href="/">
@@ -47,7 +41,7 @@ export default function ComingSoonPage() {
                     </h1>
 
                     {/* Subtitle */}
-                    <p className="max-w-3xl mx-auto text-gray-800 text-lg md:text-2xl font-medium leading-relaxed opacity-90">
+                    <p className="max-w-3xl mx-auto text-black text-lg md:text-2xl font-medium leading-relaxed opacity-90">
                           Join the most anticipated marketplace in the Emirates. Connect, trade, and grow within your local community.
                     </p>
 
