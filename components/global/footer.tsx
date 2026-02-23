@@ -71,7 +71,7 @@ export function Footer({ className }: FooterProps) {
         viewport={{ once: true, margin: "-100px" }}
       >
         <motion.div
-          className="mb-8 rounded-lg w-fit mx-auto md:mx-0"
+          className="mb-8 rounded-lg w-fit mx-auto md:mx-0 bg-white p-2"
           variants={fastItemVariants}
         >
           <Link href="/">
