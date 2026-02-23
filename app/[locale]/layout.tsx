@@ -1,6 +1,5 @@
 import { type ReactNode } from "react";
 import { type Locale, locales } from "@/lib/i18n/config";
-import { Footer } from "@/components/global/footer";
 
 interface LocaleLayoutProps {
   children: ReactNode;
@@ -29,7 +28,6 @@ export default async function LocaleLayout({
   return (
     <div lang={lang} dir={isRTL ? "rtl" : "ltr"}>
       {children}
-      <Footer />
     </div>
   );
 }

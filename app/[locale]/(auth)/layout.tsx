@@ -1,9 +1,7 @@
 import React from "react";
 import Image from "next/image";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Metadata } from "next";
 import Link from "next/link";
-import { AuthGuard } from "./_components/auth-guard";
 import { ICONS } from "@/constants/icons";
 
 export const metadata: Metadata = {
