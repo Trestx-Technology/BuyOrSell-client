@@ -36,7 +36,7 @@ import { useEmirates } from "@/hooks/useLocations";
 import { useValidateCategoryPathWithSeo } from "@/hooks/useCategories";
 import { mapFieldsToFilterConfig } from "@/components/common/global-more-filters";
 
-import { unSlugify } from "@/utils/slug-utils";
+import { unSlugify, slugify } from "@/utils/slug-utils";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -89,7 +89,7 @@ export default function CategoryListingContent() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch category data to map its specific dynamic fields
-  const categoryPath = slugSegments.join("/");
+  const categoryPath = slugify(...slugSegments);
   const { data: categoryData } = useValidateCategoryPathWithSeo(categoryPath);
 
   const { dynamicStaticFilters, advancedExcludeKeys } = useMemo(() => {

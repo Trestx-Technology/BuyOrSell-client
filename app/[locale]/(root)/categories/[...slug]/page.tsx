@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import CategoryListingContent from "./_components/CategoryListingContent";
 import { getSeoByRoute } from "@/app/api/seo/seo.services";
 import { validateCategoryPathWithSeo } from "@/app/api/categories/categories.services";
-import { unSlugify } from "@/utils/slug-utils";
+import { unSlugify, slugify } from "@/utils/slug-utils";
 
 type Props = {
   params: Promise<{ locale: string; slug: string[] }>;
@@ -13,8 +13,8 @@ export async function generateMetadata(
   { params, searchParams }: Props
 ): Promise<Metadata> {
   const { slug } = await params;
-  const currentCategorySlug = slug[slug.length - 1];
-  const categoryPath = slug.join("/");
+  const currentCategorySlug = slugify(slug[slug.length - 1]);
+  const categoryPath = slugify(...slug);
   const route = `/categories/${currentCategorySlug}`;
 
   let seo = null;
@@ -22,6 +22,7 @@ export async function generateMetadata(
   try {
     // 1. Try to get SEO from category validation API first
     const validateResponse = await validateCategoryPathWithSeo(categoryPath);
+    console.log(validateResponse);
     if (validateResponse?.data?.seo) {
       seo = validateResponse.data.seo;
     }
