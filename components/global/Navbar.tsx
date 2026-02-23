@@ -144,7 +144,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                   <ChevronDown className="size-5 text-purple" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-fit p-0 max-h-[600px] overflow-hidden rounded-xl border-none shadow-none" align="end">
+              <PopoverContent className="w-fit p-0 rounded-xl border-none shadow-none" align="end">
                 <UnifiedProfileMenu
                   onLogout={handleLogout}
                   onClose={() => setPopoverOpen(false)}

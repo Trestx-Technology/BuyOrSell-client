@@ -125,7 +125,7 @@ export function UnifiedProfileMenu({
 
       return (
             <div className="w-[320px] bg-white dark:bg-gray-950 rounded-xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800">
-                  <div className="p-2 space-y-4 max-h-[600px] overflow-y-auto custom-scrollbar">
+                  <div className="p-2 space-y-4 max-h-[calc(100vh-160px)] sm:max-h-[600px] overflow-y-auto custom-scrollbar">
                         {menuGroups.map((group, gIdx) => (
                               <div key={group.label} className="space-y-1">
                                     <div className="px-3 py-1.5 flex items-center gap-2 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest bg-gray-50/50 dark:bg-gray-900/50 rounded-lg mb-1">

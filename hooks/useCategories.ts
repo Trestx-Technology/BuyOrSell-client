@@ -14,12 +14,14 @@ import {
   getCategoriesWithFilter,
   getJobSubcategories,
   validateCategoryPath,
+  validateCategoryPathWithSeo,
 } from "@/app/api/categories/categories.services";
 import { categoriesQueries } from "@/app/api/categories/index";
 import {
   SubCategory,
   CategoriesApiResponse,
   CategoryApiResponse,
+  CategoryWithSeoApiResponse,
   CategoryTreeResponse,
   CategoryTreeAdsResponse,
   JobSubcategoriesApiResponse,
@@ -215,6 +217,17 @@ export const useValidateCategoryPath = (path: string) => {
   return useQuery<CategoryApiResponse, Error>({
     queryKey: [...categoriesQueries.validateCategoryPath(unslugifiedPath).Key],
     queryFn: () => validateCategoryPath(unslugifiedPath),
+    enabled: !!path,
+  });
+};
+
+export const useValidateCategoryPathWithSeo = (path: string) => {
+  const unslugifiedPath = unSlugify(path);
+  return useQuery<CategoryWithSeoApiResponse, Error>({
+    queryKey: [
+      ...categoriesQueries.validateCategoryPathWithSeo(unslugifiedPath).Key,
+    ],
+    queryFn: () => validateCategoryPathWithSeo(unslugifiedPath),
     enabled: !!path,
   });
 };

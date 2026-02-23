@@ -3,10 +3,11 @@ import { categoriesQueries } from './index';
 import {
   CategoriesApiResponse,
   CategoryApiResponse,
+  CategoryWithSeoApiResponse,
   CategoryTreeResponse,
   CategoryTreeAdsResponse,
   JobSubcategoriesApiResponse,
-} from '@/interfaces/categories.types';
+} from "@/interfaces/categories.types";
 
 export const getCategoriesWithFilter = async (params?: {
   filter?: string;
@@ -83,7 +84,7 @@ export const createCategory = async (
     data,
     {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     },
   );
@@ -99,7 +100,7 @@ export const updateCategory = async (
     data,
     {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     },
   );
@@ -110,7 +111,7 @@ export const downloadExcelTemplate = async (): Promise<Blob> => {
   const response = await axiosInstance.get(
     categoriesQueries.excelTemplate.endpoint,
     {
-      responseType: 'blob',
+      responseType: "blob",
     },
   );
   return response.data;
@@ -120,14 +121,14 @@ export const uploadExcel = async (
   file: File,
 ): Promise<CategoriesApiResponse> => {
   const formData = new FormData();
-  formData.append('file', file);
+  formData.append("file", file);
 
   const response = await axiosInstance.post<CategoriesApiResponse>(
     categoriesQueries.excelUpload.endpoint,
     formData,
     {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     },
   );
@@ -146,10 +147,22 @@ export const getJobSubcategories = async (params?: {
 };
 
 export const validateCategoryPath = async (
-  path: string
+  path: string,
 ): Promise<CategoryApiResponse> => {
   const response = await axiosInstance.get<CategoryApiResponse>(
     categoriesQueries.validateCategoryPath(path).endpoint,
+    {
+      skipErrorToast: true,
+    },
+  );
+  return response.data;
+};
+
+export const validateCategoryPathWithSeo = async (
+  path: string,
+): Promise<CategoryWithSeoApiResponse> => {
+  const response = await axiosInstance.get<CategoryWithSeoApiResponse>(
+    categoriesQueries.validateCategoryPathWithSeo(path).endpoint,
     {
       skipErrorToast: true,
     },
