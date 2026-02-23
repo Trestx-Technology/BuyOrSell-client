@@ -22,25 +22,26 @@ export async function generateMetadata(
   try {
     // 1. Try to get SEO from category validation API first
     const validateResponse = await validateCategoryPathWithSeo(categoryPath);
-    console.log(validateResponse);
-    if (validateResponse?.data?.seo) {
+    if (validateResponse?.data?.seo && validateResponse.data.seo.title) {
       seo = validateResponse.data.seo;
     }
   } catch (error) {
     console.warn(`Category SEO validation failed for: ${categoryPath}`);
   }
 
-  if (!seo) {
+  if (!seo || !seo.title) {
     try {
-  // 2. Fallback to general SEO by route API
+      // 2. Fallback to general SEO by route API
       const seoResponse = await getSeoByRoute(route);
-      seo = seoResponse.data;
+      if (seoResponse?.data && seoResponse.data.title) {
+        seo = seoResponse.data;
+      }
     } catch (error) {
       console.warn(`SEO data not found for route: ${route}`);
     }
   }
 
-  if (seo) {
+  if (seo && seo.title) {
     return {
       title: seo.title,
       description: seo.description,

@@ -60,6 +60,6 @@ export const categoriesQueries = {
   }),
   validateCategoryPathWithSeo: (path: string) => ({
     Key: ["categories", "validate-with-seo", path],
-    endpoint: `/categories/validate-with-seo/${path}`,
+    endpoint: `/categories/path/${path}`,
   }),
 };
