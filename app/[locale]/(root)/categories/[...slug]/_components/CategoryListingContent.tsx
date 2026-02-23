@@ -33,7 +33,7 @@ import { NoDataCard } from "@/components/global/fallback-cards";
 import { LocalStorageService } from "@/services/local-storage";
 import { EMIRATE_STORAGE_KEY } from "@/components/global/EmirateSelector";
 import { useEmirates } from "@/hooks/useLocations";
-import { useValidateCategoryPath } from "@/hooks/useCategories";
+import { useValidateCategoryPathWithSeo } from "@/hooks/useCategories";
 import { mapFieldsToFilterConfig } from "@/components/common/global-more-filters";
 
 import { unSlugify } from "@/utils/slug-utils";
@@ -90,7 +90,7 @@ export default function CategoryListingContent() {
 
   // Fetch category data to map its specific dynamic fields
   const categoryPath = slugSegments.join("/");
-  const { data: categoryData } = useValidateCategoryPath(categoryPath);
+  const { data: categoryData } = useValidateCategoryPathWithSeo(categoryPath);
 
   const { dynamicStaticFilters, advancedExcludeKeys } = useMemo(() => {
     let dynamicFilters: any[] = [];

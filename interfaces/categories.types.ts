@@ -105,6 +105,16 @@ export interface CategoryApiResponse {
   data: SubCategory;
 }
 
+export interface SubCategoryWithSeo extends SubCategory {
+  seo?: import("./seo").SeoData;
+}
+
+export interface CategoryWithSeoApiResponse {
+  statusCode: number;
+  timestamp: string;
+  data: SubCategoryWithSeo;
+}
+
 export interface CategoriesTreeApiResponse {
   statusCode: number;
   timestamp: string;

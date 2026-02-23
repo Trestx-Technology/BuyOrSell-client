@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import CategoryListingContent from "./_components/CategoryListingContent";
 import { getSeoByRoute } from "@/app/api/seo/seo.services";
+import { validateCategoryPathWithSeo } from "@/app/api/categories/categories.services";
 import { unSlugify } from "@/utils/slug-utils";
 
 type Props = {
@@ -13,12 +14,32 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = await params;
   const currentCategorySlug = slug[slug.length - 1];
+  const categoryPath = slug.join("/");
   const route = `/categories/${currentCategorySlug}`;
 
-  try {
-    const seoResponse = await getSeoByRoute(route);
-    const seo = seoResponse.data;
+  let seo = null;
 
+  try {
+    // 1. Try to get SEO from category validation API first
+    const validateResponse = await validateCategoryPathWithSeo(categoryPath);
+    if (validateResponse?.data?.seo) {
+      seo = validateResponse.data.seo;
+    }
+  } catch (error) {
+    console.warn(`Category SEO validation failed for: ${categoryPath}`);
+  }
+
+  if (!seo) {
+    try {
+  // 2. Fallback to general SEO by route API
+      const seoResponse = await getSeoByRoute(route);
+      seo = seoResponse.data;
+    } catch (error) {
+      console.warn(`SEO data not found for route: ${route}`);
+    }
+  }
+
+  if (seo) {
     return {
       title: seo.title,
       description: seo.description,
@@ -41,14 +62,14 @@ export async function generateMetadata(
         follow: seo.robots?.includes("nofollow") ? false : true,
       },
     };
-  } catch (error) {
-    // Fallback metadata if SEO data is missing or API fails
-    const categoryName = unSlugify(decodeURIComponent(currentCategorySlug || "Category"));
-    return {
-      title: `${categoryName} | BuyOrSell`,
-      description: `Browse the best deals in ${categoryName} on BuyOrSell.`,
-    };
   }
+
+  // Fallback metadata if both API calls fail or return no data
+  const categoryName = unSlugify(decodeURIComponent(currentCategorySlug || "Category"));
+  return {
+    title: `${categoryName} | BuyOrSell`,
+    description: `Browse the best deals in ${categoryName} on BuyOrSell.`,
+  };
 }
 
 export default function CategoryListingPage() {
