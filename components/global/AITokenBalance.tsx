@@ -55,7 +55,7 @@ export const AITokenBalance: React.FC<AITokenBalanceProps> = ({
             />
             {showText && (
               <span className="text-sm font-bold text-purple dark:text-purple-400 whitespace-nowrap">
-                {balanceData?.balance?.toLocaleString() || 0}
+                {balanceData?.data.tokensRemaining?.toLocaleString() || 0}
               </span>
             )}
           </Link>

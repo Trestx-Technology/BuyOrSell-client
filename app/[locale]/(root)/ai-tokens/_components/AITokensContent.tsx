@@ -613,7 +613,7 @@ export const AITokensContent = () => {
 
         {/* Hero balance */}
         <BalanceHero
-          balance={balanceData?.balance || 0}
+          balance={balanceData?.data.tokensRemaining || 0}
           isLoading={balanceLoading}
         />
 

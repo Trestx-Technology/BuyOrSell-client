@@ -9,6 +9,7 @@ import { generateDescription } from "@/lib/ai-actions";
 import { toast } from "sonner";
 import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
 import { useAITokenBalance, useConsumeTokens } from "@/hooks/useAITokens";
+import { NoCreditsDialog } from "./NoCreditsDialog";
 
 interface AIDescriptionAssistantProps {
       isOpen: boolean;
@@ -29,13 +30,16 @@ export function AIDescriptionAssistant({
       const [isGenerating, setIsGenerating] = useState(false);
       const [generatedResult, setGeneratedResult] = useState("");
       const [error, setError] = useState<string | null>(null);
+      const [isNoCreditsOpen, setIsNoCreditsOpen] = useState(false);
 
       const { data: tokenBalance } = useAITokenBalance();
+      const currentBalance = tokenBalance?.data?.tokensRemaining ?? 0;
+      const REQUIRED_CREDITS = 2;
       const { mutateAsync: consumeTokens } = useConsumeTokens();
 
       const handleGenerate = async () => {
-            if (!tokenBalance || tokenBalance.balance <= 0) {
-                  toast.error("No AI tokens available. Please purchase more tokens.");
+            if (currentBalance < REQUIRED_CREDITS) {
+                  setIsNoCreditsOpen(true);
                   return;
             }
 
@@ -48,8 +52,8 @@ export function AIDescriptionAssistant({
                         throw new Error("No description was generated. Please try a different prompt.");
                   }
 
-                  // Consume 1 token on success
-                  await consumeTokens({ tokens: 1, reason: "Generated listing description" });
+                  // Consume 2 tokens on success
+                  await consumeTokens({ tokens: REQUIRED_CREDITS, purpose: "description_generation" });
 
                   setGeneratedResult(result);
             } catch (err: any) {
@@ -179,6 +183,13 @@ export function AIDescriptionAssistant({
                               </Button>
                         </div>
                   </div>
+
+                  <NoCreditsDialog
+                        isOpen={isNoCreditsOpen}
+                        onClose={() => setIsNoCreditsOpen(false)}
+                        requiredCredits={REQUIRED_CREDITS}
+                        currentBalance={currentBalance}
+                  />
             </ResponsiveDialogDrawer>
       );
 }

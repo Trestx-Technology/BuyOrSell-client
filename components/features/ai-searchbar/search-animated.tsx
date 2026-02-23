@@ -78,7 +78,8 @@ export function SearchAnimated() {
     if (!query.trim()) return;
 
     if (isAI) {
-      if (!tokenBalance || tokenBalance.balance <= 0) {
+      const currentBalance = tokenBalance?.data?.tokensRemaining ?? 0;
+      if (currentBalance <= 0) {
         toast.error("No AI tokens available. Please purchase more tokens.");
         setIsAI(false);
         return;
@@ -91,7 +92,7 @@ export function SearchAnimated() {
 
         if (success) {
           // Consume 1 token on success
-          await consumeTokens({ tokens: 1, reason: "AI Integrated Search" });
+          await consumeTokens({ tokens: 1, purpose: "ai_search" });
 
           if (results && results.length > 0) {
             setAiResults(results);

@@ -1,11 +1,18 @@
 export interface AITokenResponseDto {
-  balance: number;
-  userId: string;
+  statusCode: number;
+  timestamp: string;
+  data: {
+    userId: string;
+    tokensIssued: number;
+    tokensConsumed: number;
+    tokensRemaining: number;
+    lastPurchaseAt: string;
+  };
 }
 
 export interface ConsumeTokensDto {
   tokens: number;
-  reason?: string;
+  purpose: string;
   metadata?: Record<string, any>;
 }
 

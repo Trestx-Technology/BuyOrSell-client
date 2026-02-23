@@ -14,6 +14,7 @@ import { AIHowItWorks } from "./AIHowItWorks";
 import { ImageGrid, AIImageItem } from "./ImageGrid";
 import { PromptInput } from "./PromptInput";
 import { TemplateList } from "./TemplateList";
+import { NoCreditsDialog } from "@/components/global/NoCreditsDialog";
 
 export const AIAdPostContent = () => {
   const { t, locale } = useLocale();
@@ -24,8 +25,15 @@ export const AIAdPostContent = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSuggesting, setIsSuggesting] = useState(false);
 
+  const [isNoCreditsOpen, setIsNoCreditsOpen] = useState(false);
+  const [requiredCredits, setRequiredCredits] = useState(0);
+
   const { data: tokenBalance } = useAITokenBalance();
+  const currentBalance = tokenBalance?.data?.tokensRemaining ?? 0;
   const { mutateAsync: consumeTokens } = useConsumeTokens();
+
+  const MAGIC_SUGGEST_CREDITS = 5;
+  const CATEGORIZATION_CREDITS = 3;
 
   const templates = useMemo(
     () => [
@@ -64,8 +72,9 @@ export const AIAdPostContent = () => {
 
     if (uploadedImages.length === 0) return;
 
-    if (!tokenBalance || tokenBalance.balance <= 0) {
-      toast.error("No AI tokens available. Please purchase more tokens.");
+    if (currentBalance < MAGIC_SUGGEST_CREDITS) {
+      setRequiredCredits(MAGIC_SUGGEST_CREDITS);
+      setIsNoCreditsOpen(true);
       return;
     }
 
@@ -76,8 +85,8 @@ export const AIAdPostContent = () => {
       const suggestion = await generatePromptFromImages(uploadedImages);
       if (suggestion) {
         setPrompt(suggestion);
-        // Consume 1 token
-        await consumeTokens({ tokens: 1, reason: "Magic suggestion from images" });
+        // Consume 5 tokens
+        await consumeTokens({ tokens: MAGIC_SUGGEST_CREDITS, purpose: "magic_suggestion" });
         toast.success("Voila! Here's a suggested description.", { id: toastId });
       } else {
         toast.error("I couldn't generate a suggestion right now.", { id: toastId });
@@ -102,8 +111,9 @@ export const AIAdPostContent = () => {
       return;
     }
 
-    if (!tokenBalance || tokenBalance.balance <= 0) {
-      toast.error("No AI tokens available. Please purchase more tokens.");
+    if (currentBalance < CATEGORIZATION_CREDITS) {
+      setRequiredCredits(CATEGORIZATION_CREDITS);
+      setIsNoCreditsOpen(true);
       return;
     }
 
@@ -111,8 +121,8 @@ export const AIAdPostContent = () => {
     try {
       const { redirectUrl, suggestedTitle } = await identifyCategory(prompt, uploadedImages);
 
-      // Consume 1 token on success
-      await consumeTokens({ tokens: 1, reason: "AI Ad Categorization" });
+      // Consume 3 tokens on success
+      await consumeTokens({ tokens: CATEGORIZATION_CREDITS, purpose: "ad_categorization" });
 
       if (!redirectUrl) {
         toast.error("I couldn't quite figure out the best category for your ad. Could you please provide a few more details?");
@@ -220,6 +230,13 @@ export const AIAdPostContent = () => {
           </div>
         )}
       </div>
+
+      <NoCreditsDialog
+        isOpen={isNoCreditsOpen}
+        onClose={() => setIsNoCreditsOpen(false)}
+        requiredCredits={requiredCredits}
+        currentBalance={currentBalance}
+      />
     </Container1080>
   );
 };
