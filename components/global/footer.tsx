@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
 import {
   fastContainerVariants,
@@ -37,9 +38,15 @@ export function Footer({ className }: FooterProps) {
   const { data: categories, isLoading: categoriesLoading } = useGetMainCategories();
   const { data: emirates, isLoading: emiratesLoading } = useEmirates();
 
+  const pathname = usePathname();
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  if (pathname.includes("/coming-soon")) {
+    return null;
+  }
 
   return (
     <footer

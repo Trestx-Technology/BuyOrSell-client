@@ -1,61 +1,20 @@
 "use client";
 
 import React from "react";
-import { MoveRight } from "lucide-react";
+import Image from "next/image";
 
 export default function ComingSoonPage() {
   return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0b] relative overflow-hidden font-sans">
-              {/* Background Decorative Elements */}
-              <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full animate-pulse" />
-              <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[120px] rounded-full animate-pulse" />
-
-              {/* Grid Pattern */}
-              <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
-
-              <main className="relative z-10 w-full max-w-4xl px-6 text-center space-y-12">
-                    {/* Badge */}
-                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md animate-in slide-in-from-top duration-1000">
-                          <span className="flex h-2 w-2 rounded-full bg-purple-500 mr-3 animate-pulse" />
-                          <span className="text-white/70 text-sm font-medium tracking-wide uppercase">Launching Spring 2026</span>
-                    </div>
-
-                    {/* Hero Section */}
-                    <section className="space-y-6">
-                          <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-white animate-in zoom-in duration-1000">
-                                Something <br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-400 to-purple-400 bg-[length:200%_auto] animate-gradient">
-                                      Phenomenal
-                                </span>
-                                <br />
-                                is Coming.
-                          </h1>
-
-                          <p className="max-w-xl mx-auto text-white/40 text-lg md:text-xl font-light leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
-                                We are redefining the marketplace experience. A new era of buying, selling, and AI-powered discovery is almost here.
-                          </p>
-                    </section>
-
-                    {/* Interactive Element */}
-                   
-
-                    {/* Footer info */}
-                    <footer className="pt-20 text-white/20 text-sm tracking-widest uppercase animate-in fade-in duration-1000 delay-1000">
-                          &copy; 2026 BuyOrSell UAE. All Rights Reserved.
-                    </footer>
-              </main>
-
-              <style jsx>{`
-        @keyframes gradient {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animate-gradient {
-          animation: gradient 8s linear infinite;
-        }
-      `}</style>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+              <div className="relative w-full max-w-7xl aspect-[1280/832] rounded-3xl overflow-hidden shadow-2xl">
+                    <Image
+                          src="/assets/coming-soon.svg"
+                          alt="Coming Soon to BuyOrSell"
+                          fill
+                          className="object-cover"
+                          priority
+                    />
+              </div>
     </div>
   );
 }
