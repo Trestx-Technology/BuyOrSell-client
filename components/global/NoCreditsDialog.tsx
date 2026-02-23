@@ -83,8 +83,12 @@ export function NoCreditsDialog({
           <Button
             onClick={handlePurchase}
             className="flex-[2] h-12 rounded-2xl font-bold bg-purple hover:bg-purple/90 text-white shadow-xl shadow-purple/20 transition-all active:scale-95 group relative overflow-hidden"
+            icon={
+              <ShoppingCart className="size-4 group-hover:scale-110 transition-transform" />
+            }
+            iconPosition="center"
+            size={"small"}
           >
-            <ShoppingCart className="size-4 mr-2 group-hover:scale-110 transition-transform" />
             Buy Tokens
           </Button>
         </ResponsiveModalFooter>
