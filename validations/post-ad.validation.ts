@@ -196,3 +196,22 @@ export const findCategoryInTree = (
   return null;
 };
 
+/**
+ * Search for a category by ID across a flat list of root category trees.
+ * This is used to derive category data from the already-cached /categories/tree
+ * response instead of making a separate /categories/tree/:id API call.
+ * @param trees - The array of root categories (as returned by /categories/tree)
+ * @param categoryId - The ID of the category to find
+ * @returns The found SubCategory (with its children) or undefined
+ */
+export const findCategoryInTreeList = (
+  trees: SubCategory[],
+  categoryId: string
+): SubCategory | undefined => {
+  for (const root of trees) {
+    const found = findCategoryInTree(root, categoryId);
+    if (found) return found;
+  }
+  return undefined;
+};
+

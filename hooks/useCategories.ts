@@ -28,6 +28,7 @@ import {
   JobSubcategory,
 } from "@/interfaces/categories.types";
 import { unSlugify } from "@/utils/slug-utils";
+import { findCategoryInTreeList } from "@/validations/post-ad.validation";
 
 // Query Hooks
 
@@ -60,6 +61,24 @@ export const useCategoriesTree = () => {
       // Filter categories that don't have parentID (top-level categories)
       return data.data;
     },
+  });
+};
+
+/**
+ * Derives a single category (with its full nested children) from the already-cached
+ * /categories/tree response. Uses the same query key as useGetMainCategories /
+ * useCategoriesTree so NO extra network request is made — TanStack Query serves
+ * the result straight from cache.
+ *
+ * Use this instead of useCategoryTreeById inside the post-ad flow.
+ */
+export const useCategoryFromTree = (categoryId: string) => {
+  return useQuery<CategoriesApiResponse, Error, SubCategory | undefined>({
+    queryKey: categoriesQueries.categoriesTree.Key,
+    queryFn: getCategoriesTree,
+    select: (data: CategoriesApiResponse) =>
+      findCategoryInTreeList(data.data, categoryId),
+    enabled: !!categoryId,
   });
 };
 
