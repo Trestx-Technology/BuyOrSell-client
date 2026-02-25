@@ -165,8 +165,8 @@ export function UnifiedProfileMenu({
                         ))}
                   </div>
 
-                  {/* Sign Out Section */}
-                  <div className="p-2 bg-gray-50/80 dark:bg-gray-900/80 border-t border-gray-100 dark:border-gray-800">
+                  {/* Sign Out Section & Shortcut Hint */}
+                  <div className="p-2 space-y-2 bg-gray-50/80 dark:bg-gray-900/80 border-t border-gray-100 dark:border-gray-800">
                         <button
                               onClick={() => {
                                     onLogout();
@@ -181,6 +181,18 @@ export function UnifiedProfileMenu({
                                     {t.home.navbar.signOut}
                               </span>
                         </button>
+
+                        <div className="px-3 py-2 rounded-xl bg-purple/5 border border-purple/10 flex items-center justify-between group">
+                              <div className="space-y-0.5">
+                                    <p className="text-[10px] font-bold text-purple uppercase tracking-tight">Quick Navigator</p>
+                                    <p className="text-[9px] text-gray-500 dark:text-gray-400">Jump anywhere instantly</p>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                    <kbd className="px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 text-[10px] text-gray-400 font-sans shadow-sm">Ctrl</kbd>
+                                    <span className="text-[10px] text-gray-300">+</span>
+                                    <kbd className="px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 text-[10px] text-gray-400 font-sans shadow-sm">K</kbd>
+                              </div>
+                        </div>
                   </div>
 
                   <style jsx>{`
