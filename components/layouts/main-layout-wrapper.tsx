@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/global/Navbar";
 import CategoryNav from "@/app/[locale]/(root)/_components/CategoryNav";
+import { CommandMenu } from "@/components/global/command-menu";
 import {
   PAGES_WITH_NAV,
   PAGES_WITH_NAV_MOBILE,
@@ -63,6 +64,7 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
         <CategoryNav className={categoryNavClassName} />
       </div>
       <section className="w-full mx-auto flex-grow">{children}</section>
+      <CommandMenu />
     </main>
   );
 }

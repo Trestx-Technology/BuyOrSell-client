@@ -5,7 +5,7 @@ import { ChevronRight, ImageOffIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { useCategoryTreeById } from "@/hooks/useCategories";
+import { useCategoryFromTree } from "@/hooks/useCategories";
 import { SubCategory } from "@/interfaces/categories.types";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { findCategoryInTree } from "@/validations/post-ad.validation";
@@ -27,13 +27,14 @@ export default function CategoryTraversalPage() {
   const currentCategoryId = slug?.length > 0 ? slug[slug.length - 1] : null;
   const mainCategoryId = slug?.length > 0 ? slug[0] : null;
 
-  // Fetch the category tree by main category ID to get the full tree
-  // We'll use this tree to find the active category and its children
+  // Derive the main category subtree from the already-cached /categories/tree
+  // response (populated on the select page). useCategoryFromTree shares the same
+  // TanStack Query key so no extra network request is ever made here.
   const {
     data: mainCategoryTree,
     isLoading,
     error,
-  } = useCategoryTreeById(mainCategoryId || "");
+  } = useCategoryFromTree(mainCategoryId || "");
 
   // Get the current/active category from the main tree (includes its children)
   // The active category is the last one in the slug array (slug[slug.length - 1])
