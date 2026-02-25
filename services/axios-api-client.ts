@@ -1,3 +1,4 @@
+// Trigger Rebuild - Centralized Emirate Logic
 import axios, {
   type AxiosError,
   type AxiosRequestHeaders,
@@ -13,7 +14,8 @@ import { LocalStorageService } from "@/services/local-storage";
 import { useAuthStore } from "@/stores/authStore";
 import { CookieService } from "@/services/cookie-service";
 import { authQueries } from "@/app/api/auth";
-import { EMIRATE_STORAGE_KEY } from "@/components/global/EmirateSelector";
+import { useEmirateStore } from "@/stores/emirateStore";
+import { EMIRATE_STORAGE_KEY } from "@/constants/emirate.constants";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -282,6 +284,10 @@ axiosInstance.interceptors.request.use(
         let emirate = urlParams.get("emirate");
 
         if (!emirate) {
+          emirate = useEmirateStore.getState().selectedEmirate;
+        }
+
+        if (!emirate) {
           emirate = LocalStorageService.get<string>(EMIRATE_STORAGE_KEY);
         }
 
@@ -357,6 +363,10 @@ axiosInstance.interceptors.request.use(
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
       let emirate = urlParams.get("emirate");
+
+      if (!emirate) {
+        emirate = useEmirateStore.getState().selectedEmirate;
+      }
 
       if (!emirate) {
         emirate = LocalStorageService.get<string>(EMIRATE_STORAGE_KEY);
@@ -491,5 +501,3 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(errorResponse);
   },
 );
-
-

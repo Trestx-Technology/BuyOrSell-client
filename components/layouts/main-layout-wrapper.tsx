@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Navbar from "@/components/global/Navbar";
 import CategoryNav from "@/app/[locale]/(root)/_components/CategoryNav";
 import { CommandMenu } from "@/components/global/command-menu";
+import { useEmirateInvalidation } from "@/hooks/useEmirateInvalidation";
 import {
   PAGES_WITH_NAV,
   PAGES_WITH_NAV_MOBILE,
@@ -17,6 +18,7 @@ interface MainLayoutWrapperProps {
 
 export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
   const pathname = usePathname();
+  useEmirateInvalidation();
 
   // Determine visibility based on props and constants
   const shouldShowNav = useMemo(() => {

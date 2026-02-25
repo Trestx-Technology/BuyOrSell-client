@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useCallback } from "react";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,11 +11,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useEmirates } from "@/hooks/useLocations";
 import { useLocale } from "@/hooks/useLocale";
-import { LocalStorageService } from "@/services/local-storage";
 import { cn } from "@/lib/utils";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { createUrlParamHandler } from "@/utils/url-params";
+import { useUrlParams } from "@/hooks/useUrlParams";
 import { useQueryParam } from "@/hooks/useQueryParam";
+import { useEmirateStore } from "@/stores/emirateStore";
 
 interface EmirateSelectorProps {
   onEmirateChange?: (emirate: string) => void;
@@ -23,59 +22,42 @@ interface EmirateSelectorProps {
   triggerClassName?: string;
 }
 
-export const EMIRATE_STORAGE_KEY = "selected_emirate";
-
 const EmirateSelector = ({ 
   onEmirateChange, 
   className,
   triggerClassName 
 }: EmirateSelectorProps) => {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
+  const { updateUrlParam, searchParams } = useUrlParams();
   const { data: emirates, isLoading: isLoadingEmirates } = useEmirates();
   const { locale } = useLocale();
-  const [selectedEmirate, setSelectedEmirate] = useState<string>("");
 
-  // Initialize city from URL query parameter
-  useQueryParam(searchParams, "emirate", (val) => {
-    setSelectedEmirate(val);
-    if (val) {
-        LocalStorageService.set(EMIRATE_STORAGE_KEY, val);
+  const selectedEmirate = useEmirateStore(state => state.selectedEmirate);
+  const setSelectedEmirate = useEmirateStore(state => state.setSelectedEmirate);
+
+  // Sync state when URL parameter changes
+  const handleQueryParamSync = useCallback((val: string) => {
+    if (val !== useEmirateStore.getState().selectedEmirate) {
+      useEmirateStore.getState().setSelectedEmirate(val);
     }
-  });
+  }, []);
 
-  useEffect(() => {
-    // If no emirate in URL, try to get from localStorage
-    const params = new URLSearchParams(searchParams.toString());
-    if (!params.has("emirate")) {
-        const storedEmirate = LocalStorageService.get<string>(EMIRATE_STORAGE_KEY);
-        if (storedEmirate) {
-          setSelectedEmirate(storedEmirate);
-        }
+  useQueryParam(searchParams, "emirate", handleQueryParamSync);
+
+  // Handle city change using the optimized useUrlParams hook
+  const handleCityChange = useCallback((value: string) => {
+    // Update store state immediately for instant UI feedback
+    setSelectedEmirate(value);
+
+    // Update URL parameter
+    updateUrlParam("emirate", value);
+
+    // Trigger external callback if provided
+    if (onEmirateChange) {
+      onEmirateChange(value);
     }
-  }, [searchParams]);
+  }, [setSelectedEmirate, updateUrlParam, onEmirateChange]);
 
-  // Update URL and state when city changes
-  const handleCityChange = createUrlParamHandler(
-    searchParams,
-    pathname,
-    router,
-    "emirate",
-    (val: string) => {
-        setSelectedEmirate(val);
-        if (val) {
-            LocalStorageService.set(EMIRATE_STORAGE_KEY, val);
-        } else {
-            LocalStorageService.remove(EMIRATE_STORAGE_KEY);
-        }
-        if (onEmirateChange) {
-            onEmirateChange(val);
-        }
-    }
-  );
-
-  const currentEmirateDisplay = () => {
+  const currentEmirateDisplay = useMemo(() => {
     if (!selectedEmirate) return locale === "ar" ? "كل المدن" : "All Cities";
     if (isLoadingEmirates || !emirates) return selectedEmirate;
     
@@ -84,22 +66,22 @@ const EmirateSelector = ({
         return locale === "ar" ? emirate.emirateAr : emirate.emirate;
     }
     return selectedEmirate;
-  };
+  }, [selectedEmirate, locale, isLoadingEmirates, emirates]);
 
   return (
     <div className={cn("relative", className)}>
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             icon={<ChevronDown className="-ml-3" />}
             iconPosition="right"
             className={cn(
-              "py-2 text-xs text-secondary-40 hover:text-purple transition-colors whitespace-nowrap border-0 px-0 shadow-none data-[state=open]:text-purple focus:outline-none focus:ring-0 hover:bg-transparent",
+              "py-2 text-xs text-secondary-40 hover:text-purple transition-colors whitespace-nowrap border-0 px-0 shadow-none data-[state=open]:text-purple focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 hover:bg-transparent",
               triggerClassName
             )}
           >
-            {currentEmirateDisplay()}
+            {currentEmirateDisplay}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -138,4 +120,4 @@ const EmirateSelector = ({
   );
 };
 
-export default EmirateSelector;
+export default React.memo(EmirateSelector);

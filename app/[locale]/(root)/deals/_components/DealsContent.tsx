@@ -26,9 +26,9 @@ import { buildAdQueryParams } from "@/utils/ad-query-params";
 import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
 import { NoDataCard } from "@/components/global/fallback-cards";
 import { LocalStorageService } from "@/services/local-storage";
-import { EMIRATE_STORAGE_KEY } from "@/components/global/EmirateSelector";
 import { useEmirates } from "@/hooks/useLocations";
 import { PageBannerCarousel } from "@/components/global/page-banner-carousel";
+import { useEmirateStore } from "@/stores/emirateStore";
 import { BrowseByCategory } from "../_components/browse-by-category";
 import { useBannersBySlug } from "@/hooks/useBanners";
 import { SponsoredCarousel } from "@/components/global/banner-carousel";
@@ -53,12 +53,7 @@ export default function HotDealsContent() {
       );
 
       const { data: emirates } = useEmirates();
-
-      const selectedEmirate = useMemo(() => {
-            const fromUrl = searchParams.get("emirate");
-            if (fromUrl) return fromUrl;
-            return LocalStorageService.get<string>(EMIRATE_STORAGE_KEY) || "";
-      }, [searchParams]);
+      const { selectedEmirate } = useEmirateStore();
 
       const emirateDisplayName = useMemo(() => {
             if (!selectedEmirate) return locale === "ar" ? "كل المدن" : "All Cities";
