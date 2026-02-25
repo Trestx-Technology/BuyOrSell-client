@@ -30,11 +30,10 @@ import { buildAdQueryParams } from "@/utils/ad-query-params";
 import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
 import { getStaticFilterConfig } from "@/constants/filters.constants";
 import { NoDataCard } from "@/components/global/fallback-cards";
-import { LocalStorageService } from "@/services/local-storage";
-import { EMIRATE_STORAGE_KEY } from "@/components/global/EmirateSelector";
 import { useEmirates } from "@/hooks/useLocations";
 import { useValidateCategoryPathWithSeo } from "@/hooks/useCategories";
 import { mapFieldsToFilterConfig } from "@/components/common/global-more-filters";
+import { useEmirateStore } from "@/stores/emirateStore";
 
 import { unSlugify, slugify } from "@/utils/slug-utils";
 
@@ -64,12 +63,7 @@ export default function CategoryListingContent() {
 
   const { data: emirates } = useEmirates();
   const searchParams = useSearchParams();
-
-  const selectedEmirate = useMemo(() => {
-    const fromUrl = searchParams.get("emirate");
-    if (fromUrl) return fromUrl;
-    return LocalStorageService.get<string>(EMIRATE_STORAGE_KEY) || "";
-  }, [searchParams]);
+  const { selectedEmirate } = useEmirateStore();
 
   const emirateDisplayName = useMemo(() => {
     if (!selectedEmirate) return locale === "ar" ? "كل المدن" : "All Cities";
