@@ -1,5 +1,6 @@
 import { Play } from "lucide-react";
 import Link from "next/link";
+import { SafeImage } from "@/components/ui/safe-image";
 
 export interface Video {
       id: string;
@@ -30,11 +31,11 @@ export function VideoCard({ video }: VideoCardProps) {
                   <div className="relative overflow-hidden rounded-xl video-card-gradient border border-border/50 transition-all duration-300 group-hover:border-accent/50 group-hover:glow-effect group-hover:scale-[1.02]">
                         {/* Thumbnail */}
                         <div className="relative aspect-4/3 overflow-hidden">
-                              <img
+                              <SafeImage
                                     src={video.thumbnail}
                                     alt={video.title}
-                                    loading="lazy"
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                    fill
+                                    className="object-cover transition-transform duration-500 group-hover:scale-110"
                               />
 
                               {/* Gradient Overlay */}

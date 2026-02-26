@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import { Button } from "@/components/ui/button";
 import {
   Heart,
@@ -266,7 +267,7 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
                     key={index}
                     className="w-full h-full flex-shrink-0 relative"
                   >
-                    <Image
+                    <SafeImage
                       src={image}
                       alt={`${title} - Image ${index + 1}`}
                       fill
@@ -517,11 +518,12 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
                     <div className="hidden sm:flex items-center gap-2 cursor-pointer">
                       {seller.image ? (
                         <div className="relative w-[22px] h-[22px] rounded-full overflow-hidden flex-shrink-0">
-                          <Image
+                          <SafeImage
                             src={seller.image}
                             alt={seller.name || "Seller"}
                             fill
                             className="object-cover"
+                            iconClassName="w-4 h-4"
                           />
                         </div>
                       ) : (

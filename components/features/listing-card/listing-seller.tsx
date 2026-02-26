@@ -4,6 +4,8 @@ import { CircleUser, Phone, MessageSquareText } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { FaWhatsapp } from "react-icons/fa";
 
+import { SafeImage } from "@/components/ui/safe-image";
+
 interface ListingSellerProps {
   seller?: {
     name?: string;
@@ -30,11 +32,12 @@ export const ListingSeller: React.FC<ListingSellerProps> = ({
         <div className="flex items-center gap-2 cursor-pointer z-20 relative">
           {seller.image ? (
             <div className="relative w-[22px] h-[22px] rounded-full overflow-hidden flex-shrink-0">
-              <Image
+              <SafeImage
                 src={seller.image}
                 alt={sellerDisplayName}
                 fill
                 className="object-cover"
+                iconClassName="w-4 h-4"
               />
             </div>
           ) : (
