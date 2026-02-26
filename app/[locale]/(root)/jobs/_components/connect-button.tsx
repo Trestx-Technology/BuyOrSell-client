@@ -8,6 +8,7 @@ import {
       useCancelConnectionRequest,
       useSendConnectionRequest,
 } from "@/hooks/useConnections";
+import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 import { toast } from "sonner";
 import { ConnectionStatus } from "@/interfaces/connection.types";
 import { cn } from "@/lib/utils";
@@ -70,6 +71,7 @@ export const ConnectButton = ({
 
       const { mutateAsync: sendRequest, isPending: isSending } = useSendConnectionRequest();
       const { mutateAsync: cancelRequest, isPending: isCancelling } = useCancelConnectionRequest();
+      const { data: jobseekerData, isLoading: isJobseekerLoading } = useGetJobseekerProfile();
 
       const isLoading = isSending || isCancelling;
 
@@ -115,6 +117,13 @@ export const ConnectButton = ({
                         toast.error("Failed to cancel request");
                   }
             } else {
+                  // If connecting as an individual (no organisationId), require jobseeker profile
+                  if (!organisationId && !jobseekerData?.data && !isJobseekerLoading) {
+                        toast.warning("Please create your jobseeker profile to connect with other professionals");
+                        router.push("/jobs/jobseeker/new");
+                        return;
+                  }
+
                   const prevStatus = connectionStatus;
                   const prevIsConnected = isConnected;
 

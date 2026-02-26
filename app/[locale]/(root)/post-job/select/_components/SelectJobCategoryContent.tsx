@@ -6,7 +6,6 @@ import { useJobSubcategories } from "@/hooks/useCategories";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { useRouter } from "nextjs-toploader/app";
 import { useMyOrganization } from "@/hooks/useOrganizations";
-import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 import OrganizationRequiredDialog from "@/app/[locale]/(root)/post-ad/_components/OrganizationRequiredDialog";
 import { hasOrganization } from "@/validations/post-ad.validation";
 import { Container1080 } from "@/components/layouts/container-1080";
@@ -41,19 +40,11 @@ export default function SelectJobCategoryContent() {
     useMyOrganization();
   const organizations = organizationsData?.data || [];
 
-  // Check for Jobseeker Profile
-  const { data: jobseekerData, isLoading: isJobseekerLoading } =
-    useGetJobseekerProfile();
-
   useEffect(() => {
-    if (organizations.length === 0) {
+    if (organizations.length === 0 && !organizationsLoading) {
       setShowOrgDialog(true);
     }
-    if (!isJobseekerLoading && !jobseekerData?.data) {
-      toast.warning("Please create a jobseeker profile to post a job");
-      router.push("/jobs/jobseeker/me");
-    }
-  }, [isJobseekerLoading, jobseekerData, router]);
+  }, [organizations, organizationsLoading]);
 
   const handleCategorySelect = (categoryId: string) => {
     const selectedCategory = categories.find((cat) => cat._id === categoryId);
@@ -105,7 +96,7 @@ export default function SelectJobCategoryContent() {
             
             <div className="space-y-[13px]">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-[13px]">
-                {categoriesLoading || organizationsLoading || isJobseekerLoading || subscriptionsLoading ? (
+                {categoriesLoading || organizationsLoading || subscriptionsLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
                     <div
                       key={index}
