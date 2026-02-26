@@ -307,9 +307,11 @@ export default function OrganizationsListingContent() {
           ) : (
             <div className="text-center py-12">
                   <NoDataCard title="No organizations found matching your criteria." description="Please try again with different filters." />
-              <Button variant="outline" onClick={clearFilters} className="mt-4">
-                Clear Filters
-              </Button>
+                  {hasActiveFilters && (
+                    <Button variant="outline" onClick={clearFilters} className="mt-4">
+                      Clear Filters
+                    </Button>
+                  )}
             </div>
           )}
         </div>

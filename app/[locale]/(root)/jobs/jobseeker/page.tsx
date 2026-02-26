@@ -293,6 +293,12 @@ export default function JobseekersPage() {
   const totalItems = jobseekersData?.data?.total || jobseekers.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
+  const hasActiveFilters = useMemo(() => {
+    return searchQuery.length > 0 || locationQuery.length > 0 || Object.values(filters).some((value) =>
+      Array.isArray(value) ? value.length > 0 : value !== ""
+    );
+  }, [searchQuery, locationQuery, filters]);
+
   const handleFilterChange = (key: string, value: string | string[]) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
@@ -505,9 +511,11 @@ export default function JobseekersPage() {
           ) : (
             <div className="text-center py-12">
                   <NoDataCard title="No jobseekers found matching your criteria." description="Please try again with different filters." />
-              <Button variant="outline" onClick={clearFilters} className="mt-4">
-                Clear Filters
-              </Button>
+                  {hasActiveFilters && (
+                    <Button variant="outline" onClick={clearFilters} className="mt-4">
+                      Clear Filters
+                    </Button>
+                  )}
             </div>
           )}
         </div>
