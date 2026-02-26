@@ -12,7 +12,7 @@ import { useLocale } from "@/hooks/useLocale";
 import { ListingCardSkeleton } from "@/components/global/listing-card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HotDealsListingCardProps } from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
-import { AD } from "@/interfaces/ad";
+import { AD, AdLocation } from "@/interfaces/ad";
 import { DealTimer } from "@/components/global/deal-timer";
 import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 
@@ -36,18 +36,40 @@ export default function HostDeals({
   // Simple mapper function to transform API ad to component props
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapAdToCardProps = (ad: any): HotDealsListingCardProps => {
-    // Get location from address (use Arabic if locale is Arabic)
-    const getLocation = (): string => {
-      const isArabic = locale === "ar";
-      const address = isArabic ? ad.addressAr || ad.address : ad.address;
+    // Build AdLocation object from address (both English and Arabic)
+    const getAddress = (): AdLocation => {
+      const loc: AdLocation = {};
+      if (ad.address) {
+        const raw = ad.address;
+        // Detect nested shape: { state: { state, city, area } }
+        // Detect flat shape:   { state: "Dubai", city: "Dubai", address: "...", ... }
+        const isNested = raw.state && typeof raw.state === "object";
+        const addr = isNested ? raw.state : raw;
 
-      if (!address) return t.ad.sellerInfo.locationNotSpecified;
-      const { state, city } = address;
-      if (city && state) return `${city}, ${state}`;
-      if (city) return city;
-      if (state) return state;
-      return t.ad.sellerInfo.locationNotSpecified;
+        loc.state = typeof addr.state === "string" ? addr.state : undefined;
+        loc.city = typeof addr.city === "string" ? addr.city : undefined;
+        loc.area = addr.area || undefined;
+        loc.address = addr.address || undefined;
+        loc.country = addr.country || undefined;
+        loc.zipCode = addr.zipCode || undefined;
+
+        // Arabic fields — may sit on the flat address object itself
+        loc.stateAr = addr.stateAr || undefined;
+        loc.cityAr = addr.cityAr || undefined;
+        loc.addressAr = addr.addressAr || undefined;
+      }
+      // Also merge top-level addressAr if present (older nested format)
+      if (ad.addressAr) {
+        const ar = ad.addressAr;
+        // addressAr can be flat { state, city } or nested { state: { state, city } }
+        const arSrc = (ar.state && typeof ar.state === "object") ? ar.state : ar;
+        loc.stateAr = loc.stateAr || (typeof arSrc.state === "string" ? arSrc.state : undefined);
+        loc.cityAr = loc.cityAr || (typeof arSrc.city === "string" ? arSrc.city : undefined);
+        loc.addressAr = loc.addressAr || arSrc.address || undefined;
+      }
+      return loc;
     };
+
 
     // Get title (use Arabic if locale is Arabic)
     const getTitle = (): string => {
@@ -61,7 +83,7 @@ export default function HostDeals({
       price: ad.discountedPrice || ad.price,
       originalPrice: ad.discountedPrice ? ad.price : undefined,
       discount: ad.dealPercentage,
-      location: getLocation(),
+      location: getAddress(),
       images: ad.images || [],
       extraFields: ad.extraFields || [],
       isExchange: ad.exchanged || ad.isExchangeable || false,

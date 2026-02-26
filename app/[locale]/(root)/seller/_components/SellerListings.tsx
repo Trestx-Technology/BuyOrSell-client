@@ -187,34 +187,12 @@ export default function SellerListings({
                 }))
             : [];
 
-          // Format location string
-          const locationString =
-            typeof ad.location === "string"
+          // Get AdLocation object from address or location
+          const adLocation = (ad.address && typeof ad.address === "object")
+            ? ad.address
+            : (ad.location && typeof ad.location === "object")
               ? ad.location
-              : ad.location?.city || ad.location?.area || "";
-
-          // Format posted time
-          const formatPostedTime = (dateString: string) => {
-            if (!dateString) return "";
-            try {
-              const date = new Date(dateString);
-              const now = new Date();
-              const diffInSeconds = Math.floor(
-                (now.getTime() - date.getTime()) / 1000
-              );
-
-              if (diffInSeconds < 60) return "Just now";
-              if (diffInSeconds < 3600)
-                return `${Math.floor(diffInSeconds / 60)}m ago`;
-              if (diffInSeconds < 86400)
-                return `${Math.floor(diffInSeconds / 3600)}h ago`;
-              if (diffInSeconds < 604800)
-                return `${Math.floor(diffInSeconds / 86400)}d ago`;
-              return date.toLocaleDateString();
-            } catch {
-              return "";
-            }
-          };
+              : { address: typeof ad.location === "string" ? ad.location : undefined };
 
           // Get seller info if available
           const sellerInfo = ad.organization
@@ -234,56 +212,34 @@ export default function SellerListings({
                 firstName: ad.owner.firstName,
                 lastName: ad.owner.lastName,
                 type: "Individual" as const,
-                isVerified: false, // AdOwner doesn't have isVerified
+                isVerified: false,
                 image: ad.owner.image,
               }
             : undefined;
 
-          // Calculate discount info - prioritize discountedPrice, then discountedPercent from extraFields
+          // Calculate discount info
           const extraFieldsObj = Array.isArray(ad.extraFields)
             ? ad.extraFields.reduce((acc, field) => {
-                if (
-                  field &&
-                  typeof field === "object" &&
-                  "name" in field &&
-                  "value" in field
-                ) {
-                  acc[field.name] = field.value;
+              if (field && typeof field === "object" && "name" in field && "value" in field) {
+                acc[(field as any).name] = (field as any).value;
                 }
                 return acc;
               }, {} as Record<string, any>)
             : (ad.extraFields as Record<string, any>) || {};
 
-          // Use discountedPrice if available (this is the actual discounted price)
-          // If discountedPrice exists, price is the original price
           let currentPrice = ad.price;
           let originalPrice: number | undefined = undefined;
           let discountPercentage: number | undefined = undefined;
 
-          if (
-            ad.discountedPrice !== null &&
-            ad.discountedPrice !== undefined &&
-            ad.discountedPrice < ad.price
-          ) {
-            // discountedPrice is available and is less than price
+          if (ad.discountedPrice !== null && ad.discountedPrice !== undefined && ad.discountedPrice < ad.price) {
             currentPrice = ad.discountedPrice;
             originalPrice = ad.price;
-            // Calculate discount percentage
-            discountPercentage = Math.round(
-              ((ad.price - ad.discountedPrice) / ad.price) * 100
-            );
+            discountPercentage = Math.round(((ad.price - ad.discountedPrice) / ad.price) * 100);
           } else {
-            // Try to get discount from extraFields
-            const discountedPercent = extraFieldsObj.discountedPercent
-              ? Number(extraFieldsObj.discountedPercent)
-              : undefined;
-
+            const discountedPercent = extraFieldsObj.discountedPercent ? Number(extraFieldsObj.discountedPercent) : undefined;
             if (discountedPercent && discountedPercent > 0 && ad.price) {
-              // Calculate original price from discount percentage
-              originalPrice = Math.round(
-                ad.price / (1 - discountedPercent / 100)
-              );
-              currentPrice = ad.price; // price is already the discounted price
+              originalPrice = Math.round(ad.price / (1 - discountedPercent / 100));
+              currentPrice = ad.price;
               discountPercentage = Math.round(discountedPercent);
             }
           }
@@ -296,17 +252,18 @@ export default function SellerListings({
               price={currentPrice}
               originalPrice={originalPrice}
               discount={discountPercentage}
-              location={locationString}
+              location={adLocation}
               images={ad.images || []}
               extraFields={extraFields}
               isExchange={ad.upForExchange || ad.isExchangable || false}
-              postedTime={formatPostedTime(ad.createdAt || "")}
+              postedTime={ad.createdAt ? new Date(ad.createdAt).toLocaleDateString() : ""}
               views={ad.views || 0}
               isPremium={ad.isFeatured || false}
               isAddedInCollection={ad.isAddedInCollection}
               seller={sellerInfo}
               className={view === "list" ? "flex-row" : ""}
             />
+
           );
         })}
       </div>

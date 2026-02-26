@@ -5,7 +5,7 @@ import MyAdCard from "../_components/my-ads-card";
 import { H2, Typography } from "@/components/typography";
 import { useLocale } from "@/hooks/useLocale";
 import { useMyAds } from "@/hooks/useAds";
-import { AD } from "@/interfaces/ad";
+import { AD, AdLocation } from "@/interfaces/ad";
 import { formatDate } from "@/utils/format-date";
 import { MyAdCardProps } from "../_components/my-ads-card";
 import { Container1080 } from "@/components/layouts/container-1080";
@@ -17,33 +17,17 @@ import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
       const isArabic = locale === "ar";
 
-      // Get location string
-      const getLocation = (): string => {
-            const locationData = ad.location || ad.address;
-            if (!locationData) return "Location not specified";
-
-            if (typeof locationData === "string") {
-                  return locationData.trim() || "Location not specified";
+      // Build AdLocation object from address fields
+      const getAddress = (): AdLocation => {
+            const loc: AdLocation = {};
+            if (ad.address && typeof ad.address === "object") {
+                  Object.assign(loc, ad.address);
+            } else if (ad.location && typeof ad.location === "object") {
+                  Object.assign(loc, ad.location);
+            } else if (typeof ad.location === "string") {
+                  loc.address = ad.location;
             }
-
-            // Use Arabic address if available and locale is Arabic
-            if (isArabic && ad.addressAr) {
-                  const cityAr = ad.address?.cityAr;
-                  const stateAr = ad.address?.stateAr;
-                  if (cityAr && stateAr) return `${cityAr}, ${stateAr}`;
-                  if (cityAr) return cityAr;
-                  if (stateAr) return stateAr;
-            }
-
-            const city = locationData?.city?.trim();
-            const state = locationData?.state?.trim();
-            if (city && state) return `${city}, ${state}`;
-            if (city) return city;
-            if (state) return state;
-            if (locationData.area?.trim()) return locationData.area.trim();
-            if (locationData.street?.trim()) return locationData.street.trim();
-
-            return "Location not specified";
+            return loc;
       };
 
       // Calculate discount and original price
@@ -79,7 +63,7 @@ const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
             originalPrice,
             discount: discountPercentage,
             currency: "AED",
-            location: getLocation(),
+            location: getAddress(),
             images: ad.images || [],
             extraFields: ad.extraFields,
             postedTime: ad.createdAt ? formatDate(ad.createdAt) : "Recently",

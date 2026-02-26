@@ -1,4 +1,4 @@
-import { AD, ProductExtraFields } from "@/interfaces/ad";
+import { AD, AdLocation, ProductExtraFields } from "@/interfaces/ad";
 import { ListingCardProps } from "@/components/features/listing-card/listing-card";
 import { HotDealsListingCardProps } from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
 import { LatestAd, DealAd } from "@/interfaces/home.types";
@@ -12,72 +12,23 @@ import { type Locale } from "@/lib/i18n/config";
  */
 export const transformAdToListingCard = (
   ad: AD,
-  locale?: Locale
+  locale?: Locale,
 ): ListingCardProps => {
   const isArabic = locale === "ar";
 
-  // Extract location
-  const getLocation = (): string => {
-    // Helper function to safely get and trim string values
-    const getStringValue = (value: unknown): string | null => {
-      if (typeof value === "string") {
-        const trimmed = value.trim();
-        return trimmed || null;
-      }
-      return null;
-    };
-
-    // Check both location and address fields
-    const locationData = ad.location || ad.address;
-
-    // Handle undefined/null cases
-    if (!locationData) {
-      return "Location not specified";
+  // Extract address as AdLocation object - prefer ad.address, fall back to ad.location if it's an object
+  const getAddress = (): AdLocation => {
+    if (ad.address && typeof ad.address === "object") {
+      return ad.address as AdLocation;
     }
-
-    // Handle string location
-    if (typeof locationData === "string") {
-      const trimmed = locationData.trim();
-      return trimmed || "Location not specified";
+    if (ad.location && typeof ad.location === "object") {
+      return ad.location as AdLocation;
     }
-
-    // Handle object location - check for address field first
-    const address = getStringValue(locationData.address);
-    if (address) return address;
-
-    // Use Arabic address if available and locale is Arabic
-    if (isArabic && ad.addressAr) {
-      const cityAr = ad.address?.cityAr;
-      const stateAr = ad.address?.stateAr;
-      if (cityAr && stateAr) {
-        return `${cityAr}, ${stateAr}`;
-      }
-      if (cityAr) return cityAr;
-      if (stateAr) return stateAr;
+    // If location is a string, put it in the address field
+    if (typeof ad.location === "string") {
+      return { address: ad.location };
     }
-
-    // Build location from city and state
-    const city = getStringValue(locationData?.city);
-    const state = getStringValue(locationData?.state);
-
-    if (city && state) {
-      return `${city}, ${state}`;
-    }
-
-    // Fallback to individual fields if only one is available
-    if (city) return city;
-    if (state) return state;
-
-    // Check other location fields as fallback
-    const area = getStringValue(locationData.area);
-    const country = getStringValue(locationData.country);
-    const street = getStringValue(locationData.street);
-
-    if (area) return area;
-    if (street) return street;
-    if (country) return country;
-
-    return "Location not specified";
+    return {};
   };
 
   // Convert extraFields array to flat object for ListingCard
@@ -105,7 +56,7 @@ export const transformAdToListingCard = (
       }
     });
     return flatFields;
-  };;
+  };
 
   const extraFields = normalizeExtraFields();
 
@@ -124,7 +75,7 @@ export const transformAdToListingCard = (
     originalPrice = ad.price;
     // Calculate discount percentage
     discountPercentage = Math.round(
-      ((ad.price - ad.discountedPrice) / ad.price) * 100
+      ((ad.price - ad.discountedPrice) / ad.price) * 100,
     );
   } else {
     // Try to get discount from extraFields
@@ -144,8 +95,8 @@ export const transformAdToListingCard = (
   // Check for exchange availability - these are top-level fields, not in extraFields
   const isExchange = Boolean(
     ad.upForExchange ||
-      ad.isExchangable || // Note: API uses "isExchangable" (misspelling)
-      ad.exchanged
+    ad.isExchangable || // Note: API uses "isExchangable" (misspelling)
+    ad.exchanged,
   );
 
   // Extract seller information
@@ -202,7 +153,7 @@ export const transformAdToListingCard = (
     price: currentPrice,
     originalPrice,
     discount: discountPercentage,
-    location: getLocation(),
+    location: getAddress(),
     images: ad.images || [],
     extraFields: extraFields as ProductExtraFields, // Cast to ProductExtraFields for compatibility
     isExchange,
@@ -223,7 +174,7 @@ export const transformAdToListingCard = (
  */
 export const transformAdToHotDealsCard = (
   ad: AD | LatestAd | DealAd,
-  locale?: Locale
+  locale?: Locale,
 ): HotDealsListingCardProps => {
   const isArabic = locale === "ar";
   // Check which type of ad it is
@@ -245,17 +196,20 @@ export const transformAdToHotDealsCard = (
     // Check extraFields for deal validity
     if (adObj.extraFields) {
       const extraFields = Array.isArray(adObj.extraFields)
-        ? adObj.extraFields.reduce((acc, field) => {
-            if (
-              field &&
-              typeof field === "object" &&
-              "name" in field &&
-              "value" in field
-            ) {
-              acc[field.name] = field.value;
-            }
-            return acc;
-          }, {} as Record<string, string | number | boolean | string[] | null>)
+        ? adObj.extraFields.reduce(
+            (acc, field) => {
+              if (
+                field &&
+                typeof field === "object" &&
+                "name" in field &&
+                "value" in field
+              ) {
+                acc[field.name] = field.value;
+              }
+              return acc;
+            },
+            {} as Record<string, string | number | boolean | string[] | null>,
+          )
         : adObj.extraFields;
 
       // Try different field names for deal validity
@@ -280,17 +234,20 @@ export const transformAdToHotDealsCard = (
     const adObj = ad as AD;
     if (adObj.extraFields) {
       const extraFields = Array.isArray(adObj.extraFields)
-        ? adObj.extraFields.reduce((acc, field) => {
-            if (
-              field &&
-              typeof field === "object" &&
-              "name" in field &&
-              "value" in field
-            ) {
-              acc[field.name] = field.value;
-            }
-            return acc;
-          }, {} as Record<string, string | number | boolean | string[] | null>)
+        ? adObj.extraFields.reduce(
+            (acc, field) => {
+              if (
+                field &&
+                typeof field === "object" &&
+                "name" in field &&
+                "value" in field
+              ) {
+                acc[field.name] = field.value;
+              }
+              return acc;
+            },
+            {} as Record<string, string | number | boolean | string[] | null>,
+          )
         : adObj.extraFields;
       discountPercentage = extraFields.discountedPercent
         ? Number(extraFields.discountedPercent)
@@ -313,7 +270,7 @@ export const transformAdToHotDealsCard = (
   let finalOriginalPrice = baseCard.originalPrice;
   if (!isDealAd && discountPercentage && baseCard.price) {
     finalOriginalPrice = Math.round(
-      baseCard.price / (1 - discountPercentage / 100)
+      baseCard.price / (1 - discountPercentage / 100),
     );
   }
 
@@ -340,7 +297,7 @@ export const transformAdToHotDealsCard = (
  */
 const transformLatestAdToCard = (
   ad: LatestAd,
-  locale?: Locale
+  locale?: Locale,
 ): ListingCardProps => {
   const isArabic = locale === "ar";
   // Normalize extraFields
@@ -380,18 +337,22 @@ const transformLatestAdToCard = (
       }
     : undefined;
 
-  // Get location - use Arabic address if available
-  const getLocation = (): string => {
-    if (isArabic && ad.addressAr) {
-      const cityAr = ad.addressAr.city;
-      const stateAr = ad.addressAr.state;
-      if (cityAr && stateAr) {
-        return `${cityAr}, ${stateAr}`;
-      }
-      if (cityAr) return cityAr;
-      if (stateAr) return stateAr;
+  // Build AdLocation from LatestAd's flatter address structure
+  const getAddress = (): AdLocation => {
+    const loc: AdLocation = {};
+    if (ad.address) {
+      loc.city = ad.address.city || undefined;
+      loc.state = ad.address.state || undefined;
     }
-    return ad.location || "Location not specified";
+    if (ad.addressAr) {
+      loc.cityAr = ad.addressAr.city || undefined;
+      loc.stateAr = ad.addressAr.state || undefined;
+    }
+    // If we have a string location, use it as the address field
+    if (ad.location && typeof ad.location === "string") {
+      loc.address = ad.location;
+    }
+    return loc;
   };
 
   return {
@@ -400,7 +361,7 @@ const transformLatestAdToCard = (
     price: ad.price,
     originalPrice: ad.discountedPrice ? ad.price : undefined,
     discount: ad.dealPercentage || undefined,
-    location: getLocation(),
+    location: getAddress(),
     images: ad.images || [],
     extraFields: extraFields as ProductExtraFields,
     isExchange: Boolean(ad.exchanged || ad.isExchangeable),
@@ -420,7 +381,7 @@ const transformLatestAdToCard = (
  */
 const transformDealAdToCard = (
   ad: DealAd,
-  locale?: Locale
+  locale?: Locale,
 ): ListingCardProps => {
   const isArabic = locale === "ar";
   // Normalize extraFields
@@ -448,31 +409,40 @@ const transformDealAdToCard = (
 
   const extraFields = normalizeExtraFields();
 
-  // Extract location from nested address structure - use Arabic if available
-  const getLocation = (): string => {
-    // Use Arabic address if available and locale is Arabic
-    if (isArabic && ad.addressAr) {
-      const cityAr = ad.addressAr.city;
-      const stateAr = ad.addressAr.state;
-      if (cityAr && stateAr) {
-        return `${cityAr}, ${stateAr}`;
-      }
-      if (cityAr) return cityAr;
-      if (stateAr) return stateAr;
+  // Build AdLocation from DealAd's address structure.
+  // The real API returns a FLAT object: { state, city, address, addressAr, stateAr, cityAr, ... }
+  // An older shape has the nested form: { state: { state, city, area } }
+  const getAddress = (): AdLocation => {
+    const loc: AdLocation = {};
+    if (!ad.address) return loc;
+
+    const addr = ad.address as any;
+
+    // Detect flat shape: has string `state` or `city` directly
+    if (typeof addr.state === "string" || typeof addr.city === "string") {
+      loc.state = addr.state || undefined;
+      loc.city = addr.city || undefined;
+      loc.area = addr.area || undefined;
+      loc.address = addr.address || undefined;
+      loc.country = addr.country || undefined;
+      loc.zipCode = addr.zipCode || undefined;
+      // Arabic fields may be on the root address object (real API packs them there)
+      loc.stateAr = addr.stateAr || ad.addressAr?.state || undefined;
+      loc.cityAr = addr.cityAr || ad.addressAr?.city || undefined;
+      loc.addressAr = addr.addressAr || ad.addressAr?.address || undefined;
+    } else if (addr.state && typeof addr.state === "object") {
+      // Nested shape: address.state = { state, city, area }
+      const nested = addr.state;
+      loc.state = nested.state || undefined;
+      loc.city = nested.city || undefined;
+      loc.area = nested.area || undefined;
+      // Arabic from top-level addressAr
+      loc.stateAr = ad.addressAr?.state || undefined;
+      loc.cityAr = ad.addressAr?.city || undefined;
+      loc.addressAr = ad.addressAr?.address || undefined;
     }
 
-    if (!ad.address || !ad.address.state) {
-      return "Location not specified";
-    }
-
-    const { state, city, area } = ad.address.state;
-    const parts: string[] = [];
-
-    if (area) parts.push(area);
-    if (city) parts.push(city);
-    if (state) parts.push(state);
-
-    return parts.length > 0 ? parts.join(", ") : "Location not specified";
+    return loc;
   };
 
   // Get seller info from DealAd owner
@@ -504,7 +474,7 @@ const transformDealAdToCard = (
     price: displayPrice,
     originalPrice: originalPrice,
     discount: ad.dealPercentage || undefined,
-    location: getLocation(),
+    location: getAddress(),
     images: ad.images || [],
     extraFields: extraFields as ProductExtraFields,
     isExchange: Boolean(ad.exchanged || ad.isExchangeable),

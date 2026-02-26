@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
-import { ProductExtraFields } from "@/interfaces/ad";
+import { ProductExtraFields, AdLocation } from "@/interfaces/ad";
 import { PriceDisplay } from "@/components/global/price-display";
 import {
   SpecificationsDisplay,
@@ -24,6 +24,8 @@ import {
 import { useMemo } from "react";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/hooks/useLocale";
+import { getLocationDisplay } from "@/utils/get-location-display";
 
 export interface HorizontalListingCardProps {
   id: string;
@@ -32,7 +34,7 @@ export interface HorizontalListingCardProps {
   originalPrice?: number;
   discount?: number;
   currency?: string;
-  location: string;
+  location: AdLocation;
   images: string[];
   extraFields: ProductExtraFields;
   postedTime: string;
@@ -88,6 +90,14 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
   onClick,
   className,
 }) => {
+  const { locale } = useLocale();
+
+  // Resolve display-ready location string
+  const displayLocation = useMemo(
+    () => getLocationDisplay(location, locale),
+    [location, locale]
+  );
+
   // Dynamically extract specifications from extraFields
   const specifications = useMemo((): Specification[] => {
     const specsFromFields = getSpecifications(extraFields, 4); // Limit to 4 for display
@@ -369,7 +379,7 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
               variant="body-small"
               className="text-xs text-[#667085] dark:text-gray-400 truncate"
             >
-              {location}
+              {displayLocation}
             </Typography>
           </div>
         </div>
