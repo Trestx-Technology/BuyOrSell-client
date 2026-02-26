@@ -101,6 +101,10 @@ export function SearchAnimated() {
             setExtractedKeywords(keywords);
             setOptimizedQuery(optimized);
             toast.success(`Found ${results.length} results using AI search`);
+            // Automatically redirect to the first result
+            setTimeout(() => {
+              handleResultSelect(results[0]);
+            }, 500);
           } else {
             toast.info("No matching ads found with AI search.");
             setAiResults([]);
@@ -108,24 +112,18 @@ export function SearchAnimated() {
             setOptimizedQuery(optimized);
           }
         } else {
-          // Fallback to regular search if AI search fails
-          toast.error("AI Search failed. Falling back to regular search.");
-          const searchTerm = query.trim().toLowerCase().replace(/\s+/g, "-");
-          router.push(`/categories/${searchTerm}`);
+          // No fallback to regular search navigation
+          toast.error("AI Search failed. Please try again.");
         }
       } catch (error) {
         console.error("AI search error:", error);
         toast.error("AI Search failed. Please try again.");
-        // Fallback to regular search
-        const searchTerm = query.trim().toLowerCase().replace(/\s+/g, "-");
-        router.push(`/categories/${searchTerm}`);
       } finally {
         setIsSearching(false);
       }
     } else {
-      // Regular search
-      const searchTerm = query.trim().toLowerCase().replace(/\s+/g, "-");
-      router.push(`/categories/${searchTerm}`);
+      // Regular search - disabled direct navigation to /categories
+      console.log("Regular search triggered for:", query);
     }
   };
 

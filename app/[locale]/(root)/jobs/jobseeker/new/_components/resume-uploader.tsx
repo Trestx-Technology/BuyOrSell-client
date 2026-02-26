@@ -106,7 +106,7 @@ export default function ResumeUploader({
           "border-2 border-dashed rounded-lg p-6 transition-colors cursor-pointer",
           isDragging
             ? "border-purple bg-purple/10"
-            : "border-purple/30 hover:border-purple/50 bg-slate-50"
+            : "border-purple/30 hover:border-purple/50 bg-white dark:bg-gray-900"
         )}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -125,10 +125,10 @@ export default function ResumeUploader({
             <FileText className="w-8 h-8 text-white" />
           </div>
           <div className="flex-1 flex flex-col">
-            <Typography variant="body-small" className="text-dark-blue mb-1">
+            <Typography variant="body-small" className="text-dark-blue dark:text-white mb-1">
               Drag & drop file or browse from your device.
             </Typography>
-            <Typography variant="caption" className="text-grey-blue mb-4">
+            <Typography variant="caption" className="text-grey-blue dark:text-gray-400 mb-4">
               Support PDF, WRD, JPEG max 2MB
             </Typography>
             <div className="relative w-fit">

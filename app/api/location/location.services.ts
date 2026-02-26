@@ -7,7 +7,7 @@ import {
 import { locationQueries } from './index';
 import { axiosInstance } from '@/services/axios-api-client';
 
-// Get all emirates
+// Get UAE
 export const getEmirates = async (
   params?: { search?: string }
 ): Promise<LocationApiResponse> => {

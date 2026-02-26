@@ -1,4 +1,5 @@
 "use client";
+import React, { useMemo } from "react";
 
 import { Briefcase, Clock, MapPin, Share2 } from "lucide-react";
 import { Typography } from "@/components/typography";
@@ -6,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AD } from "@/interfaces/ad";
-import { FaMoneyBillWave } from "react-icons/fa";
 import ShareJobDialog from "./share-job-dialog";
 import { useAuthStore } from "@/stores/authStore";
 import { SaveJobButton } from "../../saved/_components/save-job-button";
@@ -41,7 +41,6 @@ export default function JobListingCard({
   transformAdToJobCardProps,
 }: JobListingCardProps) {
   const session = useAuthStore((state) => state.session);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { locale } = useLocale();
   const isArabic = locale === "ar";
   const currentUserId = session.user?._id;
@@ -75,16 +74,30 @@ export default function JobListingCard({
     return "";
   };
 
-  // Get currency from extraFields or default to AED
-  const currency = getFieldValue("currency") || "AED";
-
   const jobTitle = isArabic && job.titleAr ? job.titleAr : job.title;
   const companyName = isArabic && job.organization?.tradeNameAr ? job.organization.tradeNameAr :
     (isArabic && job.organization?.legalNameAr ? job.organization.legalNameAr : jobProps.company);
-  const jobMode = isArabic && job.jobModeAr ? job.jobModeAr : (job.jobMode || getFieldValue("jobMode") || getFieldValue("job mode") || "");
+
   const jobShift = isArabic && job.jobShiftAr ? job.jobShiftAr : (job.jobShift || getFieldValue("jobShift") || getFieldValue("job shift") || "");
-  const locationDisplay = isArabic && typeof job.location === "object" && job.location.cityAr ? job.location.cityAr :
-    (isArabic && typeof job.address === "object" && job.address.cityAr ? job.address.cityAr : jobProps.location);
+  const locationDisplay = useMemo(() => {
+    // Check both job.address and job.location structure
+    const locObj = (typeof job.address === "object" ? job.address : (typeof job.location === "object" ? job.location : null)) as any;
+
+    if (locObj) {
+      if (isArabic) {
+        const city = locObj.cityAr || locObj.city;
+        const state = locObj.stateAr || locObj.state;
+        if (city && state && city !== state) return `${city}, ${state}`;
+        return city || state || jobProps.location;
+      } else {
+        const city = locObj.city;
+        const state = locObj.state;
+        if (city && state && city !== state) return `${city}, ${state}`;
+        return city || state || jobProps.location;
+      }
+    }
+    return jobProps.location || "Location not specified";
+  }, [job.address, job.location, isArabic, jobProps.location]);
 
   const validityValue = job.validity;
   const validityDate = validityValue ? new Date(validityValue) : null;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ProductExtraFields } from "@/interfaces/ad";
+import { ProductExtraFields, AdLocation } from "@/interfaces/ad";
 import { useShare } from "@/hooks/useShare";
 import { Specification } from "@/components/global/specifications-display";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
@@ -17,7 +17,7 @@ export interface HotDealsListingCardProps {
   originalPrice?: number;
   discount?: number;
   currency?: string;
-  location: string;
+  location: AdLocation;
   images: string[];
   extraFields: ProductExtraFields;
   isExchange?: boolean;

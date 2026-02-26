@@ -58,7 +58,7 @@ const EmirateSelector = ({
   }, [setSelectedEmirate, updateUrlParam, onEmirateChange]);
 
   const currentEmirateDisplay = useMemo(() => {
-    if (!selectedEmirate) return locale === "ar" ? "كل المدن" : "All Cities";
+    if (!selectedEmirate) return locale === "ar" ? "كل المدن" : "UAE";
     if (isLoadingEmirates || !emirates) return selectedEmirate;
     
     const emirate = emirates.find(e => e.emirate === selectedEmirate);
@@ -89,7 +89,7 @@ const EmirateSelector = ({
           align="start"
         >
           <DropdownMenuItem onClick={() => handleCityChange("")} className="cursor-pointer">
-            {locale === "ar" ? "كل المدن" : "All Cities"}
+            {locale === "ar" ? "كل المدن" : "UAE"}
           </DropdownMenuItem>
           {isLoadingEmirates
             ? Array.from({ length: 5 }).map((_, i) => (

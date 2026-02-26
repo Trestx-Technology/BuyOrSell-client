@@ -66,7 +66,7 @@ export default function CategoryListingContent() {
   const { selectedEmirate } = useEmirateStore();
 
   const emirateDisplayName = useMemo(() => {
-    if (!selectedEmirate) return locale === "ar" ? "كل المدن" : "All Cities";
+    if (!selectedEmirate) return locale === "ar" ? "كل المدن" : "UAE";
     if (!emirates) return selectedEmirate;
     const emirate = emirates.find(e => e.emirate === selectedEmirate);
     return emirate ? (locale === "ar" ? emirate.emirateAr : emirate.emirate) : selectedEmirate;
@@ -185,6 +185,10 @@ export default function CategoryListingContent() {
     );
   }, [adsResponse, locale]);
 
+  // Check if any filters are active
+  const hasActiveFilters = useMemo(() => {
+    return searchQuery.length > 0 || Object.keys(filters).length > 0 || hasDynamicFilters;
+  }, [searchQuery, filters, hasDynamicFilters]);
 
   const totalAds = adsResponse?.data?.total || 0;
   const totalPages = Math.ceil(totalAds / ITEMS_PER_PAGE);
@@ -351,9 +355,11 @@ export default function CategoryListingContent() {
               title={t.categories.noAdsFound}
               description="Try adjusting your filters or search query to find what you're looking for."
               action={
-                <Button variant="outline" onClick={clearFilters}>
-                  {t.categories.clearFilters}
-                </Button>
+                hasActiveFilters ? (
+                  <Button variant="outline" onClick={clearFilters}>
+                    {t.categories.clearFilters}
+                  </Button>
+                ) : undefined
               }
             />
           </div>

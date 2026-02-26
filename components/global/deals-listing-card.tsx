@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import { Button } from "@/components/ui/button";
 import {
   Heart,
@@ -20,7 +23,7 @@ import { Typography } from "@/components/typography";
 import { FaWhatsapp } from "react-icons/fa";
 import Link from "next/link";
 import { Badge } from "../ui/badge";
-import { ProductExtraFields } from "@/interfaces/ad";
+import { ProductExtraFields, AdLocation } from "@/interfaces/ad";
 import {
   Tooltip,
   TooltipContent,
@@ -30,6 +33,8 @@ import {
 import { useShare } from "@/hooks/useShare";
 import { CollectionManager } from "./collection-manager";
 import { ChatInit } from "@/components/global/chat-init";
+import { useLocale } from "@/hooks/useLocale";
+import { getLocationDisplay } from "@/utils/get-location-display";
 
 export interface DealsListingCardProps {
   id: string;
@@ -38,7 +43,7 @@ export interface DealsListingCardProps {
   originalPrice?: number;
   discount?: number;
   currency?: string;
-  location: string;
+  location: AdLocation;
   images: string[];
   extraFields: ProductExtraFields;
   postedTime: string;
@@ -90,6 +95,8 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
   discountText,
 }) => {
   const { share } = useShare();
+  const { locale } = useLocale();
+  const isArabic = locale === "ar";
 
   // Use isSaved flag directly from ad data instead of making per-card API calls
   // CollectionManager handles fetching collections lazily when the user clicks save
@@ -241,6 +248,12 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
       ? Math.round(((originalPrice - price) / originalPrice) * 100)
       : 0);
 
+  // Resolve display-ready location string
+  const displayLocation = useMemo(
+    () => getLocationDisplay(location, locale),
+    [location, locale]
+  );
+
   return (
     <div
       role="button"
@@ -266,7 +279,7 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
                     key={index}
                     className="w-full h-full flex-shrink-0 relative"
                   >
-                    <Image
+                    <SafeImage
                       src={image}
                       alt={`${title} - Image ${index + 1}`}
                       fill
@@ -432,7 +445,7 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
               {formatPrice(price).replace("AED", "").trim()}
             </span>
             {originalPrice && (
-              <span className="text-md text-grey-blue line-through text-sm">
+              <span className="text-md text-grey-blue line-through text-id text-sm">
                 {formatPrice(originalPrice).replace("AED", "").trim()}
               </span>
             )}
@@ -462,7 +475,7 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
               variant="body-small"
               className="text-xs text-[#667085] dark:text-gray-400 truncate"
             >
-              {location}
+              {displayLocation}
             </Typography>
           </div>
 
@@ -517,11 +530,12 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
                     <div className="hidden sm:flex items-center gap-2 cursor-pointer">
                       {seller.image ? (
                         <div className="relative w-[22px] h-[22px] rounded-full overflow-hidden flex-shrink-0">
-                          <Image
+                          <SafeImage
                             src={seller.image}
                             alt={seller.name || "Seller"}
                             fill
                             className="object-cover"
+                            iconClassName="w-4 h-4"
                           />
                         </div>
                       ) : (

@@ -102,6 +102,26 @@ async function handleLogoutAndRedirect(): Promise<void> {
   }, 100);
 }
 
+function getEmirateContext(): string | null {
+  if (typeof window === "undefined") return null;
+
+  // 1. Store priority (global setting, synchronous update)
+  const storeEmirate = useEmirateStore.getState().selectedEmirate;
+  if (storeEmirate === "") return "UAE";
+  if (storeEmirate) return storeEmirate;
+
+  // 2. URL fallback (user intent for current page, asynchronous update)
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlEmirate = urlParams.get("emirate");
+  if (urlEmirate === "") return "UAE";
+  if (urlEmirate) return urlEmirate;
+
+  const cookieEmirate = CookieService.get(EMIRATE_STORAGE_KEY);
+  if (cookieEmirate) return cookieEmirate;
+
+  return LocalStorageService.get<string>(EMIRATE_STORAGE_KEY) || "UAE";
+}
+
 function setAuthHeader(
   config: InternalAxiosRequestConfig,
   token: string,
@@ -278,35 +298,19 @@ axiosInstance.interceptors.request.use(
   ): Promise<InternalAxiosRequestConfig> => {
     // 1. Skip auth for public endpoints
     if (isPublicEndpoint(config.url)) {
-      // Still add emirate if present
-      if (typeof window !== "undefined") {
-        const urlParams = new URLSearchParams(window.location.search);
-        let emirate = urlParams.get("emirate");
-
-        if (!emirate) {
-          emirate = useEmirateStore.getState().selectedEmirate;
+      const emirate = getEmirateContext();
+      if (emirate) {
+        if (!config.params) config.params = {};
+        if (!config.params.emirate) {
+          config.params.emirate = emirate;
         }
 
-        if (!emirate) {
-          emirate = LocalStorageService.get<string>(EMIRATE_STORAGE_KEY);
-        }
-
-        if (emirate) {
-          if (!config.params) config.params = {};
-          if (!config.headers)
-            config.headers = {} as unknown as AxiosRequestHeaders;
-
-          if (!config.params.emirate) {
-            config.params = { ...config.params, emirate };
-          }
-
-          // Add header
-          const headers = config.headers as any;
-          if (headers && typeof headers.set === "function") {
-            headers.set("x-emirate", emirate);
-          } else {
-            headers["x-emirate"] = emirate;
-          }
+        if (!config.headers) config.headers = {} as any;
+        const headers = config.headers as any;
+        if (typeof headers.set === "function") {
+          headers.set("x-emirate", emirate);
+        } else {
+          headers["x-emirate"] = emirate;
         }
       }
       return config;
@@ -359,35 +363,20 @@ axiosInstance.interceptors.request.use(
       setAuthHeader(config, token);
     }
 
-    // 3. Add emirate param globally (if not already handled)
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
-      let emirate = urlParams.get("emirate");
-
-      if (!emirate) {
-        emirate = useEmirateStore.getState().selectedEmirate;
+    // 3. Add emirate context
+    const emirate = getEmirateContext();
+    if (emirate) {
+      if (!config.params) config.params = {};
+      if (!config.params.emirate) {
+        config.params.emirate = emirate;
       }
 
-      if (!emirate) {
-        emirate = LocalStorageService.get<string>(EMIRATE_STORAGE_KEY);
-      }
-
-      if (emirate) {
-        if (!config.params) config.params = {};
-        if (!config.headers)
-          config.headers = {} as unknown as AxiosRequestHeaders;
-
-        if (!config.params.emirate) {
-          config.params.emirate = emirate;
-        }
-
-        // Add header
-        const headers = config.headers as any;
-        if (headers && typeof headers.set === "function") {
-          headers.set("x-emirate", emirate);
-        } else {
-          headers["x-emirate"] = emirate;
-        }
+      if (!config.headers) config.headers = {} as any;
+      const headers = config.headers as any;
+      if (typeof headers.set === "function") {
+        headers.set("x-emirate", emirate);
+      } else {
+        headers["x-emirate"] = emirate;
       }
     }
 

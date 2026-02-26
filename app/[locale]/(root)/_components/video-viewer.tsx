@@ -72,8 +72,9 @@ export function VideoViewer() {
       const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
       const adId = searchParams.get("adId");
+      const [initialAdId] = useState(() => searchParams.get("adId"));
+      const isInitialSeekDone = useRef(false);
       const [selectedCategory, setSelectedCategory] = useState<string>("all");
-
       const {
             data: categoriesData,
             isLoading: isCategoriesLoading
@@ -91,9 +92,8 @@ export function VideoViewer() {
             category: selectedCategory === "all" ? undefined : selectedCategory
       });
 
-      const { data: targetAdData } = useAdById(adId || "");
+      const { data: targetAdData } = useAdById(initialAdId || "");
 
-      // Map AD to Video interface
       const videos: Video[] = useMemo(() => {
             const rawVideos = adsData?.pages.flatMap((page) => {
                   const ads = page.data?.adds || page.ads || [];
@@ -109,34 +109,41 @@ export function VideoViewer() {
                   }));
             }) || [];
 
-            if (adId && targetAdData?.data) {
-                  const targetAd = targetAdData.data;
-                  // Only inject if it has a video
-                  if (!targetAd.videoUrl) return rawVideos;
+            // Case 1: No specific adId requested
+            if (!initialAdId) return rawVideos;
 
-                  const mappedTarget: Video = {
-                        id: targetAd._id,
-                        title: targetAd.title,
-                        description: targetAd.description,
-                        thumbnail: targetAd.images?.[0] || "",
-                        videoUrl: targetAd.videoUrl || "",
-                        views: targetAd.views?.toString() || "0",
-                        owner: targetAd.owner,
-                        isSaved: targetAd.isSaved || false,
+            // Case 2: Specific adId requested. We MUST keep it at index 0 consistently.
+            const targetInRaw = rawVideos.find(v => v.id === initialAdId);
+            const targetInData = targetAdData?.data;
+
+            let firstVideo: Video | null = null;
+            if (targetInRaw) {
+                  firstVideo = targetInRaw;
+            } else if (targetInData) {
+                  firstVideo = {
+                        id: targetInData._id,
+                        title: targetInData.title,
+                        description: targetInData.description,
+                        thumbnail: targetInData.images?.[0] || "",
+                        videoUrl: targetInData.videoUrl || "",
+                        views: targetInData.views?.toString() || "0",
+                        owner: targetInData.owner,
+                        isSaved: targetInData.isSaved || false,
                   };
+            }
 
-                  const exists = rawVideos.some(v => v.id === adId);
-                  if (!exists) {
-                        return [mappedTarget, ...rawVideos];
-                  } else {
-                        // Move it to the first position to match expectations
-                        const filtered = rawVideos.filter(v => v.id !== adId);
-                        return [mappedTarget, ...filtered];
-                  }
+            const otherVideos = rawVideos.filter(v => v.id !== initialAdId);
+
+            // If we have the target OR if we have raw ads and need to reserve the first slot
+            if (firstVideo) {
+                  return [firstVideo, ...otherVideos];
+            } else if (rawVideos.length > 0) {
+                  // Reserve slot with a placeholder to prevent list shifting later
+                  return [{ id: initialAdId, videoUrl: "", isPlaceholder: true } as any, ...otherVideos];
             }
 
             return rawVideos;
-      }, [adsData, targetAdData, adId]);
+      }, [adsData, targetAdData, initialAdId]);
 
       const [currentIndex, setCurrentIndex] = useState(0);
       const [isMuted, setIsMuted] = useState(true);
@@ -208,15 +215,16 @@ export function VideoViewer() {
             []
       );
 
-      // Set initial index based on adId
+      // Set initial index based on initialAdId once
       useEffect(() => {
-            if (adId && videos.length > 0) {
-                  const index = videos.findIndex((v) => v.id === adId);
-                  if (index !== -1 && index !== currentIndex) {
+            if (initialAdId && videos.length > 0 && !isInitialSeekDone.current) {
+                  const index = videos.findIndex((v) => v.id === initialAdId);
+                  if (index !== -1) {
                         setCurrentIndex(index);
+                        isInitialSeekDone.current = true;
                   }
             }
-      }, [adId, videos]);
+      }, [initialAdId, videos]);
 
       // Navigate to video
       const goToVideo = useCallback(
@@ -226,48 +234,61 @@ export function VideoViewer() {
                   setIsTransitioning(true);
                   setCurrentIndex(index);
 
-                  // Update URL without full reload
+                  // Update URL
                   const params = new URLSearchParams(window.location.search);
                   params.set("adId", videos[index].id);
                   window.history.replaceState(null, "", `?${params.toString()}`);
 
-                  setTimeout(() => setIsTransitioning(false), 400);
+                  // Scroll will be handled by the currentIndex useEffect
+                  // Reset transitioning after a delay
+                  setTimeout(() => setIsTransitioning(false), 800);
             },
             [isTransitioning, videos]
       );
 
-      // Scroll snap handling
+      // Use IntersectionObserver to track the current visible video
       useEffect(() => {
             const container = containerRef.current;
-            if (!container) return;
+            if (!container || videos.length === 0) return;
 
-            const handleScroll = () => {
+            const observerOptions = {
+                  root: container,
+                  threshold: 0.5,
+            };
+
+            const observerCallback = (entries: IntersectionObserverEntry[]) => {
                   if (isAutoScrollingRef.current) return;
 
-                  const scrollTop = container.scrollTop;
-                  const itemHeight = container.clientHeight;
-                  if (itemHeight === 0) return;
+                  // Find the entry that is most visible
+                  const visibleEntry = entries.find(e => e.isIntersecting);
+                  if (visibleEntry) {
+                        const index = parseInt(visibleEntry.target.getAttribute("data-index") || "0");
+                        if (index !== currentIndex) {
+                              // If we are performing initial seek, ignore observer triggers for index 0
+                              if (index === 0 && !isInitialSeekDone.current) return;
 
-                  const newIndex = Math.round(scrollTop / itemHeight);
+                              setCurrentIndex(index);
 
-                  if (
-                        newIndex !== currentIndex &&
-                        newIndex >= 0 &&
-                        newIndex < videos.length
-                  ) {
-                        lastScrolledIndex.current = newIndex;
-                        setCurrentIndex(newIndex);
-                        const params = new URLSearchParams(window.location.search);
-                        params.set("adId", videos[newIndex].id);
-                        window.history.replaceState(null, "", `?${params.toString()}`);
+                              // Update URL silently
+                              const params = new URLSearchParams(window.location.search);
+                              if (params.get("adId") !== videos[index]?.id) {
+                                    params.set("adId", videos[index].id);
+                                    window.history.replaceState(null, "", `?${params.toString()}`);
+                              }
+                        }
                   }
             };
 
-            container.addEventListener("scroll", handleScroll, { passive: true });
-            return () => container.removeEventListener("scroll", handleScroll);
-      }, [currentIndex, videos.length, videos]);
+            const observer = new IntersectionObserver(observerCallback, observerOptions);
+            const elements = container.querySelectorAll("[data-video-container]");
+            elements.forEach((el) => observer.observe(el));
 
-      // Handle programmatic scroll to current index ONLY when it doesn't match the actual scroll position
+            return () => {
+                  observer.disconnect();
+            };
+      }, [videos, currentIndex]);
+
+      // Handle programmatic scroll to current index
       useEffect(() => {
             const container = containerRef.current;
             if (!container) return;
@@ -278,8 +299,9 @@ export function VideoViewer() {
             const targetScrollTop = currentIndex * itemHeight;
 
             // Only scroll if we're not already there (within a small threshold)
-            if (Math.abs(container.scrollTop - targetScrollTop) > 5) {
+            if (Math.abs(container.scrollTop - targetScrollTop) > 10) {
                   isAutoScrollingRef.current = true;
+
                   container.scrollTo({
                         top: targetScrollTop,
                         behavior: "smooth",
@@ -288,7 +310,8 @@ export function VideoViewer() {
                   // Reset auto-scrolling flag after transition
                   const timer = setTimeout(() => {
                         isAutoScrollingRef.current = false;
-                  }, 500);
+                  }, 800);
+
                   return () => clearTimeout(timer);
             }
       }, [currentIndex]);
@@ -409,13 +432,18 @@ export function VideoViewer() {
                         }}
                         isLoading={isFetchingNextPage}
                         hasMore={hasNextPage}
-                        className="h-full w-full overflow-y-auto snap-mandatory hide-scrollbar"
-                                    style={{ scrollSnapType: "y mandatory" }}
+                                    className="h-full w-full overflow-y-auto snap-y snap-mandatory hide-scrollbar overscroll-none"
+                                    style={{
+                                          scrollSnapType: "y mandatory",
+                                          WebkitOverflowScrolling: "touch",
+                                    }}
                   >
                         {videos.map((video, index) => (
                               <div
                                     key={`${video.id}-${index}`}
-                                    className="h-full w-full snap-center relative flex-shrink-0"
+                                    data-video-container
+                                    data-index={index}
+                                    className="h-full w-full snap-center snap-always relative flex-shrink-0 transform-gpu"
                               >
                                     {/* Mobile: Full screen cover | Desktop: Centered with aspect ratio */}
                                     <div className="relative w-full h-full sm:h-[90%] sm:max-w-md sm:absolute sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4">
@@ -436,7 +464,10 @@ export function VideoViewer() {
                                                       preload={Math.abs(index - currentIndex) <= 1 ? "auto" : "none"}
                                                       onLoadedMetadata={(e) => handleLoadedMetadata(video.id, e)}
                                                       onTimeUpdate={(e) => handleTimeUpdate(video.id, e)}
-                                                      className="w-full h-full object-cover"
+                                                      className={cn(
+                                                            "w-full h-full object-cover",
+                                                            !video.videoUrl && "opacity-0"
+                                                      )}
                                                 />
 
                                                 {/* Play/Pause Indicator Overlay */}

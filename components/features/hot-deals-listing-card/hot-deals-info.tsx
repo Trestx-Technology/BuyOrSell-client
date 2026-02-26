@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { H3, H6, Typography } from "@/components/typography";
 import { MapPin } from "lucide-react";
 import { PriceDisplay } from "@/components/global/price-display";
@@ -6,13 +6,16 @@ import {
   SpecificationsDisplay,
   Specification,
 } from "@/components/global/specifications-display";
+import { AdLocation } from "@/interfaces/ad";
+import { useLocale } from "@/hooks/useLocale";
+import { getLocationDisplay } from "@/utils/get-location-display";
 
 interface HotDealsInfoProps {
   title: string;
   price: number;
   originalPrice?: number;
   discount?: number;
-  location: string;
+  location: AdLocation;
   specifications: Specification[];
 }
 
@@ -24,6 +27,13 @@ export const HotDealsInfo: React.FC<HotDealsInfoProps> = ({
   location,
   specifications,
 }) => {
+  const { locale } = useLocale();
+
+  const displayLocation = useMemo(
+    () => getLocationDisplay(location, locale),
+    [location, locale]
+  );
+
   return (
     <div className="py-2 space-y-1 flex-1 flex flex-col">
       {/* Price Section */}
@@ -58,7 +68,7 @@ export const HotDealsInfo: React.FC<HotDealsInfoProps> = ({
           variant="body-small"
           className="text-xs text-[#667085] dark:text-gray-400 truncate"
         >
-          {location}
+          {displayLocation}
         </Typography>
       </div>
 

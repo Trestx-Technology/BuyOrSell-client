@@ -34,6 +34,7 @@ import { unSlugify } from "@/utils/slug-utils";
 import { NoDataCard } from "@/components/global/fallback-cards";
 
 import { JobListingCardSkeleton, JobDetailContentSkeleton, JobHeaderCardSkeleton } from "../../_components/job-skeletons";
+import { useEmirateStore } from "@/stores/emirateStore";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -59,7 +60,9 @@ export default function JobsListingContent() {
   const [locationQuery, setLocationQuery] = useState("");
   const [filters, setFilters] = useState<
     Record<string, string | string[] | number | number[] | undefined>
-  >({});
+    >({});
+
+  const { selectedEmirate } = useEmirateStore();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(jobId || null);
 
@@ -141,11 +144,15 @@ export default function JobsListingContent() {
 
   const adsData = hasDynamicFilters ? filterAdsData : regularAdsData;
   const isLoading = hasDynamicFilters ? isFilterLoading : isRegularLoading;
-
   const jobs = useMemo(
     () => (adsData?.data?.adds || []) as AD[],
     [adsData?.data?.adds]
   );
+
+  const hasActiveFilters = useMemo(() => {
+    return searchQuery.length > 0 || locationQuery.length > 0 || Object.keys(filters).length > 0 || hasDynamicFilters;
+  }, [searchQuery, locationQuery, filters, hasDynamicFilters]);
+
   const totalItems = adsData?.data?.total || jobs.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
@@ -170,7 +177,7 @@ export default function JobsListingContent() {
         {/* Page Header */}
         <div className="hidden lg:flex items-center justify-between md:mb-6">
           <Typography variant="md-black-inter" className="font-semibold">
-            {categoryName} in Dubai ({totalItems})
+            {categoryName} in {selectedEmirate || "UAE"} ({totalItems})
           </Typography>
         </div>
 
@@ -222,9 +229,11 @@ export default function JobsListingContent() {
             ) : jobs.length === 0 ? (
               <div className="text-center py-12">
                 <NoDataCard title="No jobs found." description="Try adjusting your search or filters to see more results." />
-                <Button variant="outline" onClick={handleClearFilters} size={"small"} className="mt-4">
-                  Clear Filters
-                </Button>
+                  {hasActiveFilters && (
+                    <Button variant="outline" onClick={handleClearFilters} size={"small"} className="mt-4">
+                      Clear Filters
+                    </Button>
+                  )}
               </div>
             ) : (
                   <div className="space-y-5">

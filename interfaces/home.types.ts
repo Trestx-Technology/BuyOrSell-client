@@ -151,8 +151,23 @@ export interface DealAd {
   relatedCategories: string[];
   images: string[];
   views?: number;
+  // address can be the flat shape from the API { state, city, address, ... }
+  // or the older nested shape { state: { state, city, area } }
   address: {
-    state: {
+    // Flat fields (real API shape)
+    state?: string;
+    city?: string;
+    area?: string;
+    address?: string;
+    zipCode?: string;
+    country?: string;
+    coordinates?: [number, number];
+    stateAr?: string;
+    cityAr?: string;
+    countryAr?: string;
+    addressAr?: string;
+    // Older nested shape (kept for backward compat)
+    state_nested?: {
       state: string;
       city: string;
       area?: string;
@@ -161,8 +176,9 @@ export interface DealAd {
     };
   } | null;
   addressAr?: {
-    state: string;
-    city: string;
+    state?: string;
+    city?: string;
+    address?: string;
   } | null;
   owner: {
     id: string;

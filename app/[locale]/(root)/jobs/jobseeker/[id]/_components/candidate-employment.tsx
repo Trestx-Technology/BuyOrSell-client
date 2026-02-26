@@ -16,23 +16,23 @@ export default function CandidateEmployment({ jobseeker }: CandidateEmploymentPr
   }
 
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
+    <div className="bg-white dark:bg-gray-900 border border-[#E2E2E2] dark:border-gray-800 rounded-2xl p-6 md:p-8 mb-6 shadow-sm">
       <H2
-        className="text-dark-blue font-bold mb-4">
+        className="text-dark-blue dark:text-white font-bold mb-4">
         Employment
       </H2>
       <div className="space-y-6">
         {jobseeker.experiences.map((exp: JobseekerExperience, index: number) => (
-          <div key={exp._id || index} className="border-b border-[#E2E2E2] last:border-0 pb-6 last:pb-0">
+          <div key={exp._id || index} className="border-b border-[#E2E2E2] dark:border-gray-800 last:border-0 pb-6 last:pb-0">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <Typography variant="h3" className="text-dark-blue font-semibold mb-1">
+                <Typography variant="h3" className="text-dark-blue dark:text-white font-semibold mb-1">
                   {exp.title}
                 </Typography>
-                <Typography variant="body-small" className="text-purple mb-1">
+                <Typography variant="body-small" className="text-purple dark:text-purple/90 mb-1">
                   {exp.company}
                 </Typography>
-                <Typography variant="caption" className="text-grey-blue">
+                <Typography variant="caption" className="text-grey-blue dark:text-gray-400">
                   {format(new Date(exp.startDate), "MMMM yyyy")} -{" "}
                   {exp.isCurrent
                     ? "Present"
@@ -43,14 +43,14 @@ export default function CandidateEmployment({ jobseeker }: CandidateEmploymentPr
               </div>
             </div>
             {exp.description && (
-              <Typography variant="body-small" className="text-[#8A8A8A] mt-3 leading-relaxed">
+              <Typography variant="body-small" className="text-[#8A8A8A] dark:text-gray-400 mt-3 leading-relaxed">
                 {exp.description}
               </Typography>
             )}
             {exp.location && (
               <div className="flex items-center gap-2 mt-3">
-                <MapPin className="w-4 h-4 text-grey-blue" />
-                <Typography variant="caption" className="text-grey-blue">
+                <MapPin className="w-4 h-4 text-grey-blue dark:text-gray-400" />
+                <Typography variant="caption" className="text-grey-blue dark:text-gray-400">
                   {exp.location}
                 </Typography>
               </div>

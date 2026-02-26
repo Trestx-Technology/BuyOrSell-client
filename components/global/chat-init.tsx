@@ -207,10 +207,8 @@ export const ChatInit: React.FC<ChatInitProps> = ({
                   className={cn("hover:bg-purple/10", className)}
                   onClick={handleChat}
                   isLoading={isLoading}
+                  icon={<MessageSquareText size={iconSize} className="text-purple" />}
             >
-                  {!isLoading && (
-                        <MessageSquareText size={iconSize} className="text-purple" />
-                  )}
                   {showLabel && !isLoading && <span className="ml-2">{label}</span>}
                   {isLoading && showLabel && <span className="ml-2">Loading...</span>}
             </Button>

@@ -349,13 +349,6 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
     null
   );
 
-  const sortedCategoryData = useMemo(() => {
-    return [...categoryData].sort((a, b) => {
-      const nameA = locale === "ar" ? a.nameAr || a.name : a.name;
-      const nameB = locale === "ar" ? b.nameAr || b.name : b.name;
-      return (nameA || "").localeCompare(nameB || "", locale);
-    });
-  }, [categoryData, locale]);
 
   if (isOtherCategory) {
     return (
@@ -365,7 +358,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
         sideOffset={4}
       >
         <div className="w-full max-w-md overflow-y-auto max-h-[80vh]">
-          {sortedCategoryData.map((category) => {
+          {categoryData.map((category) => {
             const categoryName =
               locale === "ar"
                 ? category.nameAr || category.name
@@ -404,7 +397,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
     >
       <div className="flex w-full">
         <div className="w-60 border-r border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[40vh] overflow-y-auto">
-          {sortedCategoryData.map((category) => {
+          {categoryData.map((category) => {
             const hasChildren =
               category.children && category.children.length > 0;
             const isActive = activeCategory?._id === category._id;

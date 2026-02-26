@@ -87,7 +87,7 @@ export default function NewJobseekerProfilePage() {
       <div className="w-full">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar Navigation */}
-          <aside className="lg:w-[254px] bg-white h-fit rounded-lg px-6 py-2 shadow-sm flex-shrink-0 sticky top-30">
+          <aside className="lg:w-[254px] bg-white dark:bg-gray-900 border border-transparent dark:border-gray-800 h-fit rounded-lg px-6 py-2 shadow-sm flex-shrink-0 sticky top-30">
             {formSections.map((section) => {
               const isActive = activeSection === section.id;
               return (
@@ -97,7 +97,7 @@ export default function NewJobseekerProfilePage() {
                   onClick={() => setActiveSection(section.id)}
                   className={cn(
                     "w-full flex cursor-pointer font-semibold hover:text-purple items-center justify-between py-3 rounded-lg text-left transition-all",
-                    isActive ? "text-purple" : "text-dark-blue"
+                    isActive ? "text-purple" : "text-dark-blue dark:text-gray-200"
                   )}
                 >
                   <span className="text-sm">{section.label}</span>
@@ -107,7 +107,7 @@ export default function NewJobseekerProfilePage() {
                     variant="ghost"
                     size="sm"
                     label="Add"
-                    className="font-semibold h-6 w-6 p-0"
+                    className="font-semibold h-6 w-6 p-0 dark:text-gray-400 dark:hover:text-purple"
                     onClick={(e) => {
                       e.stopPropagation();
                       setActiveSection(section.id);

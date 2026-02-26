@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { HotDealsActions } from "./hot-deals-actions";
 import { DealTimer } from "@/components/global/deal-timer";
 import { BASE64 } from "@/constants/base64";
+import { SafeImage } from "@/components/ui/safe-image";
 
 interface HotDealsImageGalleryProps {
   id: string;
@@ -100,7 +101,7 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
                 key={index}
                 className="w-full h-full flex-shrink-0 relative"
               >
-                <Image
+                <SafeImage
                   src={image}
                   alt={`${title} - Image ${index + 1}`}
                   fill

@@ -82,18 +82,18 @@ export default function ProfileSummary({ profile, isLoadingProfile }: ProfileSum
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 space-y-6">
+      <div className="bg-white dark:bg-gray-900 border border-[#E2E2E2] dark:border-gray-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
         <div className="flex justify-between items-center">
           <div className="space-y-2">
             <Typography
               variant="h2"
-              className="text-dark-blue font-bold text-2xl"
+              className="text-dark-blue dark:text-white font-bold text-2xl"
             >
               Profile Summary
             </Typography>
             <Typography
               variant="body-small"
-              className="text-grey-blue"
+              className="text-grey-blue dark:text-gray-400"
             >
               Write a brief summary about yourself, your experience, and what makes you unique
             </Typography>

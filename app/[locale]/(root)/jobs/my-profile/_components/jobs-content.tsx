@@ -14,12 +14,14 @@ import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
 import { useLocale } from "@/hooks/useLocale";
+import { JobseekerProfile } from "@/interfaces/job.types";
 
 export default function JobsContent() {
   const router = useRouter();
   const { t, localePath } = useLocale();
   const { data: profileData, isLoading, error } = useGetJobseekerProfile();
-  const profile = profileData?.data?.profile;
+  const jobseekerData = profileData?.data;
+  const profile = jobseekerData?.profile || (jobseekerData as unknown as JobseekerProfile);
   const [showWarningDialog, setShowWarningDialog] = useState(false);
 
   useEffect(() => {

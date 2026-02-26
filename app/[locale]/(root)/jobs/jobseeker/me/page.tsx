@@ -1,70 +1,64 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
 import JobseekerProfileHeader from "@/components/global/jobseeker-profile-header";
-import CandidateResume from "./_components/candidate-resume";
-import CandidateEmployment from "./_components/candidate-employment";
-import CandidateEducation from "./_components/candidate-education";
-import CandidateSkills from "./_components/candidate-skills";
-import CandidateProfileSummary from "./_components/candidate-profile-summary";
-import CandidateLanguages from "./_components/candidate-languages";
-import { useGetJobseekerProfile, useGetJobseekerProfileById } from "@/hooks/useJobseeker";
+import CandidateResume from "../[id]/_components/candidate-resume";
+import CandidateEmployment from "../[id]/_components/candidate-employment";
+import CandidateEducation from "../[id]/_components/candidate-education";
+import CandidateSkills from "../[id]/_components/candidate-skills";
+import CandidateProfileSummary from "../[id]/_components/candidate-profile-summary";
+import CandidateLanguages from "../[id]/_components/candidate-languages";
+import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { JobseekerProfile } from "@/interfaces/job.types";
-import { JobseekerProfileSkeleton } from "../me/_components/profile-skeleton";
+import { JobseekerProfileSkeleton } from "./_components/profile-skeleton";
 import { cn } from "@/lib/utils";
 
-export default function JobseekerProfilePage() {
-  const params = useParams();
+export default function MyJobseekerProfilePage() {
   const router = useRouter();
-  const userId = params.id as string;
 
-  // Fetch jobseeker profile by user ID
+  // Fetch current user's jobseeker profile
   const {
     data: profileData,
     isLoading,
     error,
     isFetched,
-  } = useGetJobseekerProfileById(userId);
+  } = useGetJobseekerProfile();
 
-  // Extract profile from response data
-  // Handle two possible structures: { data: { profile: ... } } or { data: JobseekerProfile }
   const jobseekerProfile = profileData?.data;
   const profile = jobseekerProfile?.profile || (jobseekerProfile as unknown as JobseekerProfile);
 
   useEffect(() => {
-    if (error || (!isLoading && !profile)) {
-      const errorMessage = (error as any)?.message?.toLowerCase() || "";
-      const statusCode = (error as { status?: number })?.status;
+    // Only handle redirect if the query has finished at least once
+    if (isFetched) {
+      if (error || !profile) {
+        const errorMessage = (error as any)?.message?.toLowerCase() || "";
+        const statusCode = (error as { status?: number })?.status;
 
-      if (
-        statusCode === 404 ||
-        !profile ||
-        errorMessage.includes("not found") ||
-        errorMessage.includes("jobprofile not found") ||
-        errorMessage.includes("job profile not found")
-      ) {
-        // Redirect to search if profile not found
-        // router.push("/jobs/jobseeker");
+        if (
+          statusCode === 404 ||
+          !profile ||
+          errorMessage.includes("not found") ||
+          errorMessage.includes("jobprofile not found") ||
+          errorMessage.includes("job profile not found")
+        ) {
+          router.push("/jobs/jobseeker/new");
+        }
       }
     }
-  }, [error, profile, isLoading, router]);
-
-  // Using dummy data
+  }, [error, profile, isFetched, router]);
 
   const handleChat = () => {
-    // TODO: Implement chat functionality
-    console.log("Chat with jobseeker:", userId);
+    console.log("Chat with myself - usually disabled or redirects to messages");
   };
 
   const handleReport = () => {
-    // TODO: Implement report functionality
-    console.log("Report jobseeker:", userId);
+    console.log("Report myself");
   };
 
   const handleDownloadResume = () => {
@@ -95,14 +89,14 @@ export default function JobseekerProfilePage() {
             Profile Not Found
           </Typography>
           <Typography variant="body-large" className="text-grey-blue dark:text-gray-400 max-w-md mx-auto">
-            {error ? "We encountered an error loading this profile. Please try again later." : "This jobseeker profile could not be found or is no longer available."}
+            {error ? "We encountered an error loading your profile. Please try again later." : "It looks like you haven't created your jobseeker profile yet. Start now to get noticed by recruiters."}
           </Typography>
           <div className="pt-4">
             <Button
-              onClick={() => router.push("/jobs/jobseeker")}
+              onClick={() => router.push("/jobs/jobseeker/new")}
               className="bg-purple text-white px-8 py-3 rounded-xl hover:bg-purple/90 transition-all font-semibold"
             >
-              Back to Jobseekers
+              Create My Profile
             </Button>
           </div>
         </div>
@@ -112,7 +106,7 @@ export default function JobseekerProfilePage() {
 
   return (
     <Container1080>
-      <MobileStickyHeader title="Jobseeker Profile" />
+      <MobileStickyHeader title="My Profile" />
 
       <div className="p-6 space-y-6">
         <Breadcrumbs
@@ -128,23 +122,23 @@ export default function JobseekerProfilePage() {
               href: "/jobs/jobseeker",
             },
             {
-              id: profile?._id || "",
-              label: profile?.name?.split(" ")?.slice(0, 3)?.join(" ") || "Profile",
-              href: `/jobs/jobseeker/${profile?._id || ""}`,
+              id: "me",
+              label: "My Profile",
+              href: "/jobs/jobseeker/me",
+              isActive: true,
             },
           ]}
           showHomeIcon={false}
           showSelectCategoryLink={false}
         />
 
-        {/* Main Content */}
         {/* Candidate Header */}
         <JobseekerProfileHeader
           jobseeker={profile}
           actions={{
             onChat: handleChat,
             onReport: handleReport,
-            chatButtonText: "Chat With Jobseeker",
+            editUrl: "/jobs/jobseeker/new",
           }}
           containerClassName="mb-6"
           type="applicantsList"
@@ -153,9 +147,6 @@ export default function JobseekerProfilePage() {
           connectionDirection={jobseekerProfile?.connectionDirection}
           requestId={jobseekerProfile?.requestId}
         />
-
-        {/* Basic Information */}
-        {/* <CandidateBasicInfo jobseeker={jobseekerProfile.profile} /> */}
 
         {/* Resume */}
         <CandidateResume

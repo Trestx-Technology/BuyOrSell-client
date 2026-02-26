@@ -229,10 +229,10 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onError)}>
-      <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 space-y-6">
+      <div className="bg-white dark:bg-gray-900 border border-[#E2E2E2] dark:border-gray-800 rounded-2xl p-6 space-y-6 shadow-sm">
         <Typography
           variant="h2"
-          className="text-dark-blue font-bold text-2xl mb-6"
+          className="text-dark-blue dark:text-white font-bold text-2xl mb-6"
         >
           Basic Details
         </Typography>

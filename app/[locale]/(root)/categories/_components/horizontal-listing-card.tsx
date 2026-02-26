@@ -17,7 +17,7 @@ import {
       UserCircle2,
 } from "lucide-react";
 import { Typography } from "@/components/typography";
-import { ProductExtraFields } from "@/interfaces/ad";
+import { ProductExtraFields, AdLocation } from "@/interfaces/ad";
 import { PriceDisplay } from "@/components/global/price-display";
 import {
       SpecificationsDisplay,
@@ -31,6 +31,8 @@ import { useAuthStore } from "@/stores/authStore";
 import { ChatInit } from "@/components/global/chat-init";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useLocale } from "@/hooks/useLocale";
+import { getLocationDisplay } from "@/utils/get-location-display";
 
 export interface HorizontalListingCardProps {
       id: string;
@@ -39,7 +41,7 @@ export interface HorizontalListingCardProps {
       originalPrice?: number;
       discount?: number;
       currency?: string;
-      location: string;
+      location: AdLocation;
       images: string[];
       extraFields: ProductExtraFields;
       postedTime: string;
@@ -85,6 +87,7 @@ interface InternalCardProps extends HorizontalListingCardProps {
       showCall: boolean;
       showWhatsapp: boolean;
       id: string;
+      displayLocation: string;
 }
 
 const DesktopCardLayout: React.FC<InternalCardProps> = ({
@@ -92,7 +95,7 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
       price,
       originalPrice,
       discount,
-      location,
+      displayLocation,
       images,
       postedTime,
       views,
@@ -356,7 +359,7 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                                           variant="body-small"
                                           className="text-xs text-[#667085] dark:text-gray-400 truncate"
                                     >
-                                          {location}
+                                          {displayLocation}
                                     </Typography>
                               </div>
 
@@ -455,7 +458,7 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
       price,
       originalPrice,
       discount,
-      location,
+      displayLocation,
       images,
       postedTime,
       views,
@@ -653,7 +656,7 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
                                           variant="body-small"
                                           className="text-xs text-[#667085] dark:text-gray-400 truncate"
                                     >
-                                          {location}
+                                          {displayLocation}
                                     </Typography>
                               </div>
 
@@ -806,6 +809,13 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = (props) => {
             }));
       }, [extraFields]);
 
+      // Resolve display-ready location string via shared utility
+      const { locale } = useLocale();
+      const displayLocation = useMemo(
+            () => getLocationDisplay(props.location, locale),
+            [props.location, locale]
+      );
+
       const [currentImageIndex, setCurrentImageIndex] = useState(0);
       const [isTransitioning, setIsTransitioning] = useState(false);
       const [timeLeft, setTimeLeft] = useState<string | null>(null);
@@ -893,6 +903,7 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = (props) => {
             showChat,
             showCall,
             showWhatsapp,
+            displayLocation,
       };
 
       return (

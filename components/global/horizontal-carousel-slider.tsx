@@ -10,7 +10,8 @@ import { formatSpecValue, getSpecIcon } from "@/utils/utils";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { Typography } from "../typography";
 import Image from "next/image";
-import { ProductExtraField } from "@/interfaces/ad";
+import { ProductExtraField, AdLocation } from "@/interfaces/ad";
+import { getLocationDisplay } from "@/utils/get-location-display";
 
 export interface HorizontalCarouselSliderProps {
   items: ListingCardProps[];
@@ -292,7 +293,7 @@ export function HorizontalCarouselSlider({
                       <div className="flex items-center gap-1 px-2.5">
                         <MapPin className="w-3 h-3 text-grey-500" />
                         <span className="text-xs text-grey-500 truncate">
-                          {item.location}
+                          {getLocationDisplay(item.location)}
                         </span>
                       </div>
 
@@ -378,7 +379,7 @@ export function HorizontalCarouselSlider({
                       />
                     </svg>
                     <span className="text-xs text-gray-600">
-                      {selectedItem.location}
+                      {getLocationDisplay(selectedItem.location)}
                     </span>
                   </div>
 

@@ -26,17 +26,17 @@ export default function CandidateResume({ jobseeker, onDownload }: CandidateResu
   };
 
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
+    <div className="bg-white dark:bg-gray-900 border border-[#E2E2E2] dark:border-gray-800 rounded-2xl p-6 md:p-8 mb-6 shadow-sm">
       <H2
-        className="text-dark-blue font-bold mb-4">
+        className="text-dark-blue dark:text-white font-bold mb-4">
         Resume
       </H2>
       <div className="flex flex-col sm:flex-row gap-4  items-center justify-between">
         <div>
-          <Typography variant="body-small" className="text-dark-blue mb-1">
+          <Typography variant="body-small" className="text-dark-blue dark:text-gray-200 mb-1">
             {jobseeker.resumeFileUrl.split("/").pop() || "Resume"}
           </Typography>
-          <Typography variant="caption" className="text-grey-blue">
+          <Typography variant="caption" className="text-grey-blue dark:text-gray-400">
             Uploaded on{" "}
             {jobseeker.updatedAt
               ? format(new Date(jobseeker.updatedAt), "MMM d, yyyy")

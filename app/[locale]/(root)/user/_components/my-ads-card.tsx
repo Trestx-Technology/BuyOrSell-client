@@ -30,7 +30,7 @@ import { useDeleteAd, useRenewAd, useUpdateAd } from "@/hooks/useAds";
 import { useSubscriptionStore } from "@/stores/subscriptionStore";
 import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
 import { useRouter } from "nextjs-toploader/app";
-import { ProductExtraFields } from "@/interfaces/ad";
+import { ProductExtraFields, AdLocation } from "@/interfaces/ad";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
 import { ListingInfo } from "@/components/features/listing-card/listing-info";
 import { ListingImageGallery } from "@/components/features/listing-card/listing-image-gallery";
@@ -44,7 +44,7 @@ export interface MyAdCardProps {
   originalPrice?: number;
   discount?: number;
   currency?: string;
-  location: string;
+  location: AdLocation;
   images: string[];
   extraFields?: ProductExtraFields;
   postedTime: string; // Keep for interface compatibility, though might not be used in actions

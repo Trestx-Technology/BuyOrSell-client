@@ -95,9 +95,11 @@ export function SimpleSearchInput({
     if (event.key === "Enter") {
       if (selectedIndex >= 0 && keywordResults[selectedIndex]) {
         handleResultClick(keywordResults[selectedIndex].relatedCategories);
-      } else {
-        handleSearch(localSearchQuery.split(","));
+      } else if (keywordResults.length > 0) {
+        // If results exist but none selected, use the first one
+        handleResultClick(keywordResults[0].relatedCategories);
       }
+      // If no results, do nothing (prevent default navigation to /categories/query)
     } else if (event.key === "ArrowDown") {
       event.preventDefault();
       if (keywordResults.length > 0) {
