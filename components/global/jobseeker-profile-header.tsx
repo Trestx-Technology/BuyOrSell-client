@@ -386,7 +386,7 @@ export default function JobseekerProfileHeader({
     } else if (actions?.editUrl) {
       router.push(actions.editUrl);
     } else if (jobseeker._id) {
-      router.push(`/jobs/jobseeker/${jobseeker._id}/edit`);
+      router.push("/jobs/jobseeker/new");
     }
   };
 
@@ -411,7 +411,7 @@ export default function JobseekerProfileHeader({
       {/* Desktop Version */}
       <div
         className={cn(
-          "hidden md:flex bg-white border border-[#E2E2E2] rounded-2xl p-6 relative gap-6",
+          "hidden md:flex bg-white dark:bg-gray-900 border border-[#E2E2E2] dark:border-gray-800 rounded-2xl p-6 relative gap-6 shadow-sm",
           containerClassName
         )}
       >
@@ -431,7 +431,8 @@ export default function JobseekerProfileHeader({
                   cy="85"
                   r="82"
                   fill="none"
-                  stroke="#F5EBFF"
+                    stroke="currentColor"
+                    className="text-[#F5EBFF] dark:text-gray-800"
                   strokeWidth="3"
                 />
                 <circle
@@ -451,7 +452,7 @@ export default function JobseekerProfileHeader({
                   strokeLinecap="round"
                 />
               </svg>
-              <div className="absolute inset-[3px] rounded-full border-[5px] border-[#F5EBFF] flex items-center justify-center bg-gradient-to-br from-purple/10 to-purple/5 overflow-hidden">
+                <div className="absolute inset-[3px] rounded-full border-[5px] border-[#F5EBFF] dark:border-gray-800 flex items-center justify-center bg-gradient-to-br from-purple/10 to-purple/5 dark:from-purple/20 dark:to-purple/10 overflow-hidden">
                 {jobseeker.photoUrl ? (
                   <Image
                     src={jobseeker.photoUrl}
@@ -480,7 +481,7 @@ export default function JobseekerProfileHeader({
           ) : (
             // Standard version with border circles
             <div className="absolute inset-0 rounded-full border-[3px] border-[#37E7B6] p-2">
-              <div className="w-full h-full rounded-full border-[5px] border-[#F5EBFF] flex items-center justify-center bg-gradient-to-br from-purple/10 to-purple/5 overflow-hidden">
+                <div className="w-full h-full rounded-full border-[5px] border-[#F5EBFF] dark:border-gray-800 flex items-center justify-center bg-gradient-to-br from-purple/10 to-purple/5 dark:from-purple/20 dark:to-purple/10 overflow-hidden">
                 {jobseeker.photoUrl ? (
                   <Image
                     src={jobseeker.photoUrl}
@@ -507,12 +508,12 @@ export default function JobseekerProfileHeader({
               <div className="flex items-center gap-2">
                 <Typography
                   variant="h2"
-                  className="text-dark-blue font-semibold text-2xl"
+                  className="text-dark-blue dark:text-white font-semibold text-2xl"
                 >
                   {profileName}
                 </Typography>
                 {(connectionStatus === "ACCEPTED" || isActuallyConnected) && (
-                  <span className="bg-success-10 text-success-100 text-[10px] px-2 py-0.5 rounded-full border border-success-100 font-medium">
+                  <span className="bg-success-10 dark:bg-success-100/10 text-success-100 dark:text-success-400 text-[10px] px-2 py-0.5 rounded-full border border-success-100 dark:border-success-400 font-medium">
                     Connected
                   </span>
                 )}
@@ -521,7 +522,7 @@ export default function JobseekerProfileHeader({
             {professionalTitle && (
               <Typography
                 variant="body-large"
-                className="text-dark-blue font-semibold text-xs"
+                className="text-dark-blue dark:text-gray-200 font-semibold text-xs"
               >
                 {professionalTitle}
               </Typography>
@@ -529,7 +530,7 @@ export default function JobseekerProfileHeader({
             {currentCompany && (
               <Typography
                 variant="body-large"
-                className="text-dark-blue font-semibold text-xs"
+                className="text-dark-blue dark:text-gray-300 font-semibold text-xs"
               >
                 At {currentCompany}
               </Typography>
@@ -551,10 +552,10 @@ export default function JobseekerProfileHeader({
             )}
             {(jobseeker.contactPhone || !isCurrentUser) && (
               <div className="flex items-center gap-1.5">
-                <Phone className="w-5 h-5 text-grey-blue" />
+                <Phone className="w-5 h-5 text-grey-blue dark:text-gray-400" />
                 <Typography
                   variant="body-small"
-                  className="text-dark-blue text-sm"
+                  className="text-dark-blue dark:text-gray-200 text-sm"
                 >
                   {jobseeker.contactPhone || "Not specified"}
                 </Typography>
@@ -563,10 +564,10 @@ export default function JobseekerProfileHeader({
 
             {experienceDisplay && (
               <div className="flex items-center gap-1.5">
-                <Briefcase className="w-5 h-5 text-dark-blue" />
+                <Briefcase className="w-5 h-5 text-dark-blue dark:text-gray-400" />
                 <Typography
                   variant="body-small"
-                  className="text-dark-blue text-sm font-medium"
+                  className="text-dark-blue dark:text-gray-200 text-sm font-medium"
                 >
                   {experienceDisplay}
                 </Typography>
@@ -575,10 +576,10 @@ export default function JobseekerProfileHeader({
 
             {(jobseeker.contactEmail || !isCurrentUser) && (
               <div className="flex items-center gap-1.5">
-                <Mail className="w-5 h-5 text-grey-blue" />
+                <Mail className="w-5 h-5 text-grey-blue dark:text-gray-400" />
                 <Typography
                   variant="body-small"
-                  className="text-dark-blue text-sm"
+                  className="text-dark-blue dark:text-gray-200 text-sm"
                 >
                   {jobseeker.contactEmail || "Not specified"}
                 </Typography>
@@ -613,10 +614,10 @@ export default function JobseekerProfileHeader({
 
             {availability && (
               <div className="flex items-center gap-1.5">
-                <Rocket className="w-5 h-5 text-dark-blue" />
+                <Rocket className="w-5 h-5 text-dark-blue dark:text-gray-400" />
                 <Typography
                   variant="body-small"
-                  className="text-dark-blue text-sm font-medium"
+                  className="text-dark-blue dark:text-gray-200 text-sm font-medium"
                 >
                   {availability}
                 </Typography>
@@ -796,7 +797,7 @@ export default function JobseekerProfileHeader({
         {lastUpdated && (
           <Typography
             variant="body-small"
-            className="text-dark-blue text-sm font-poppins absolute bottom-3 right-4 font-medium"
+            className="text-dark-blue dark:text-gray-400 text-sm font-poppins absolute bottom-3 right-4 font-medium"
           >
             Profile last updated - {lastUpdated}
           </Typography>

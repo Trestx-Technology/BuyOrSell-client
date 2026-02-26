@@ -15,22 +15,22 @@ export default function CandidateEducation({ jobseeker }: CandidateEducationProp
   }
 
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
+    <div className="bg-white dark:bg-gray-900 border border-[#E2E2E2] dark:border-gray-800 rounded-2xl p-6 md:p-8 mb-6 shadow-sm">
       <H2
-        className="text-dark-blue font-bold mb-4">
+        className="text-dark-blue dark:text-white font-bold mb-4">
         Education
       </H2>
       <div className="space-y-6">
         {jobseeker.educations?.map((edu: JobseekerEducation, index: number  ) => (
           <div key={edu._id || index}>
-            <Typography variant="h3" className="text-dark-blue font-semibold text-lg mb-1">
+            <Typography variant="h3" className="text-dark-blue dark:text-white font-semibold text-lg mb-1">
               {edu.degree}
               {edu.fieldOfStudy && ` in ${edu.fieldOfStudy}`}
             </Typography>
-            <Typography variant="body-small" className="text-purple mb-1">
+            <Typography variant="body-small" className="text-purple dark:text-purple/90 mb-1">
               {edu.institution}
             </Typography>
-            <div className="flex items-center gap-4 text-sm text-grey-blue">
+            <div className="flex items-center gap-4 text-sm text-grey-blue dark:text-gray-400">
               <span>
                 {format(new Date(edu.startDate), "yyyy")} -{" "}
                 {edu.isCurrent
@@ -42,7 +42,7 @@ export default function CandidateEducation({ jobseeker }: CandidateEducationProp
               {edu.grade && <span>{edu.grade}</span>}
             </div>
             {edu.description && (
-              <Typography variant="body-small" className="text-[#8A8A8A] mt-3 leading-relaxed">
+              <Typography variant="body-small" className="text-[#8A8A8A] dark:text-gray-400 mt-3 leading-relaxed">
                 {edu.description}
               </Typography>
             )}

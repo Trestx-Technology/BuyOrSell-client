@@ -15,9 +15,9 @@ export default function CandidateSkills({ jobseeker }: CandidateSkillsProps) {
   }
 
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
+    <div className="bg-white dark:bg-gray-900 border border-[#E2E2E2] dark:border-gray-800 rounded-2xl p-6 md:p-8 mb-6 shadow-sm">
       <H2
-        className="text-dark-blue font-bold mb-4"
+        className="text-dark-blue dark:text-white font-bold mb-4"
       >
         Key Skills
       </H2>
@@ -25,7 +25,7 @@ export default function CandidateSkills({ jobseeker }: CandidateSkillsProps) {
         {jobseeker.skills.map((skill, index) => (
           <Badge
             key={skill || index}
-            className="bg-purple/10 text-purple px-4 py-1 rounded-full text-xs font-medium"
+            className="bg-purple/10 dark:bg-purple/20 text-purple dark:text-purple-300 px-4 py-1 rounded-full text-xs font-medium border-transparent"
           >
             {skill}
           </Badge>

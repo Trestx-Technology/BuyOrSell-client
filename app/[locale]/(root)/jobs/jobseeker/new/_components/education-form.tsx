@@ -194,11 +194,11 @@ export default function EducationForm({ profile, isLoadingProfile }: EducationFo
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onError)}>
-      <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 space-y-6">
+      <div className="bg-white dark:bg-gray-900 border border-[#E2E2E2] dark:border-gray-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
         <div className="flex justify-between items-center">
           <Typography
             variant="h2"
-            className="text-dark-blue font-bold text-2xl"
+            className="text-dark-blue dark:text-white font-bold text-2xl"
           >
             Education
           </Typography>
@@ -231,10 +231,10 @@ export default function EducationForm({ profile, isLoadingProfile }: EducationFo
             return (
               <div
                 key={field.id}
-                className="border border-[#E2E2E2] rounded-lg p-6 space-y-4"
+                className="border border-[#E2E2E2] dark:border-gray-800 rounded-lg p-6 space-y-4"
               >
                 <div className="flex justify-between items-center">
-                  <Typography variant="body-large" className="text-dark-blue font-semibold">
+                  <Typography variant="body-large" className="text-dark-blue dark:text-gray-200 font-semibold">
                     Education {index + 1}
                   </Typography>
                   <Button
@@ -343,7 +343,7 @@ export default function EducationForm({ profile, isLoadingProfile }: EducationFo
                           />
                           <label
                             htmlFor={`current-edu-${index}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-gray-300"
                           >
                             Currently studying here
                           </label>
@@ -465,8 +465,8 @@ export default function EducationForm({ profile, isLoadingProfile }: EducationFo
           })}
 
           {fields.length === 0 && (
-            <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg">
-              <Typography variant="body-small" className="text-grey-blue">
+            <div className="text-center py-12 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
+              <Typography variant="body-small" className="text-grey-blue dark:text-gray-400">
                 No education added yet. Click &quot;Add Education&quot; to get started.
               </Typography>
             </div>

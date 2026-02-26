@@ -14,12 +14,12 @@ export default function CandidateProfileSummary({ jobseeker }: CandidateProfileS
   }
 
   return (
-    <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8 mb-6">
+    <div className="bg-white dark:bg-gray-900 border border-[#E2E2E2] dark:border-gray-800 rounded-2xl p-6 md:p-8 mb-6 shadow-sm">
       <H2
-        className="text-dark-blue font-bold mb-4">
+        className="text-dark-blue dark:text-white font-bold mb-4">
         Profile Summary
       </H2>
-      <Typography variant="body-large" className="text-[#8A8A8A] text-base leading-relaxed whitespace-pre-line">
+      <Typography variant="body-large" className="text-[#8A8A8A] dark:text-gray-400 text-base leading-relaxed whitespace-pre-line">
         {jobseeker.summary}
       </Typography>
     </div>
