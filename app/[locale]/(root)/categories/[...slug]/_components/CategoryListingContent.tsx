@@ -66,7 +66,7 @@ export default function CategoryListingContent() {
   const { selectedEmirate } = useEmirateStore();
 
   const emirateDisplayName = useMemo(() => {
-    if (!selectedEmirate) return locale === "ar" ? "كل المدن" : "All Cities";
+    if (!selectedEmirate) return locale === "ar" ? "كل المدن" : "UAE";
     if (!emirates) return selectedEmirate;
     const emirate = emirates.find(e => e.emirate === selectedEmirate);
     return emirate ? (locale === "ar" ? emirate.emirateAr : emirate.emirate) : selectedEmirate;

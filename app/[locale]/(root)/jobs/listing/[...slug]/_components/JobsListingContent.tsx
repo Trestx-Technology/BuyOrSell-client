@@ -34,6 +34,7 @@ import { unSlugify } from "@/utils/slug-utils";
 import { NoDataCard } from "@/components/global/fallback-cards";
 
 import { JobListingCardSkeleton, JobDetailContentSkeleton, JobHeaderCardSkeleton } from "../../_components/job-skeletons";
+import { useEmirateStore } from "@/stores/emirateStore";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -59,7 +60,9 @@ export default function JobsListingContent() {
   const [locationQuery, setLocationQuery] = useState("");
   const [filters, setFilters] = useState<
     Record<string, string | string[] | number | number[] | undefined>
-  >({});
+    >({});
+
+  const { selectedEmirate } = useEmirateStore();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(jobId || null);
 
@@ -170,7 +173,7 @@ export default function JobsListingContent() {
         {/* Page Header */}
         <div className="hidden lg:flex items-center justify-between md:mb-6">
           <Typography variant="md-black-inter" className="font-semibold">
-            {categoryName} in Dubai ({totalItems})
+            {categoryName} in {selectedEmirate || "UAE"} ({totalItems})
           </Typography>
         </div>
 
