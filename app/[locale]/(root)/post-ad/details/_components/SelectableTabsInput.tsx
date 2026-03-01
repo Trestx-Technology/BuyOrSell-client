@@ -12,19 +12,21 @@ interface SelectableTabsInputProps {
   options: { value: string; label: string }[];
 }
 
-export const SelectableTabsInput = forwardRef<HTMLDivElement, SelectableTabsInputProps>(
-  (
-    { className, value, onChange, disabled = false, options },
-    ref
-  ) => {
-    return (
-      <div ref={ref} className={cn(disabled && "opacity-50 pointer-events-none", className)}>
-        <RadioGroup
-          value={value || ""}
-          onValueChange={onChange}
-          disabled={disabled}
-          className="flex flex-wrap gap-3"
-        >
+export const SelectableTabsInput = forwardRef<
+  HTMLDivElement,
+  SelectableTabsInputProps
+>(({ className, value, onChange, disabled = false, options }, ref) => {
+  return (
+    <div
+      ref={ref}
+      className={cn(disabled && "opacity-50 pointer-events-none", className)}
+    >
+      <RadioGroup
+        value={value || ""}
+        onValueChange={onChange}
+        disabled={disabled}
+        className="flex flex-wrap gap-3"
+      >
         {options.map((option) => {
           const isSelected = value === option.value;
           return (
@@ -35,8 +37,8 @@ export const SelectableTabsInput = forwardRef<HTMLDivElement, SelectableTabsInpu
                 "border h-11 flex items-center justify-center cursor-pointer",
                 isSelected
                   ? "bg-[#8B31E1] text-white border-[#8B31E1] font-medium"
-                  : "bg-white text-[#8A8A8A] border-[#E2E2E2] hover:border-[#8B31E1]/50",
-                disabled && "cursor-not-allowed"
+                  : "bg-white dark:bg-gray-900 text-[#8A8A8A] dark:text-gray-400 border-[#E2E2E2] dark:border-gray-800 hover:border-[#8B31E1]/50",
+                disabled && "cursor-not-allowed",
               )}
             >
               <RadioGroupItem
@@ -48,11 +50,9 @@ export const SelectableTabsInput = forwardRef<HTMLDivElement, SelectableTabsInpu
             </label>
           );
         })}
-        </RadioGroup>
-      </div>
-    );
-  }
-);
+      </RadioGroup>
+    </div>
+  );
+});
 
 SelectableTabsInput.displayName = "SelectableTabsInput";
-

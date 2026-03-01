@@ -285,6 +285,28 @@ export const useFilterAds = (
   });
 };
 
+export const useInfiniteFilterAds = (
+  payload: AdFilterPayload,
+  limit: number = 20,
+  options?: { enabled?: boolean },
+) => {
+  return useInfiniteQuery<GetLiveAdsResponse, Error>({
+    queryKey: [...adQueries.filterAds.Key, "infinite", payload, limit],
+    queryFn: ({ pageParam = 1 }) =>
+      filterAds(payload, pageParam as number, limit),
+    getNextPageParam: (lastPage) => {
+      const currentPage = lastPage.data?.page || lastPage.page || 1;
+      const totalPages = Math.ceil(
+        (lastPage.data?.total || lastPage.total || 0) /
+          (lastPage.data?.limit || lastPage.limit || 10),
+      );
+      return currentPage < totalPages ? currentPage + 1 : undefined;
+    },
+    initialPageParam: 1,
+    ...options,
+  });
+};
+
 // Get ads by keyword
 export const useAdsByKeyword = (
   keyword: string,
