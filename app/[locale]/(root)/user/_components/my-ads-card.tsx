@@ -72,7 +72,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
   isPremium = false,
   validity,
   className,
-  isSaved
+  isSaved,
 }) => {
   const { t } = useLocale();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -92,6 +92,12 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
     return new Date(validity) < new Date();
   }, [validity]);
 
+  const daysUntilExpiry = useMemo(() => {
+    if (!validity) return null;
+    const diffTime = new Date(validity).getTime() - new Date().getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }, [validity]);
+
   // Dynamically extract specifications from extraFields
   const specifications = useMemo((): Specification[] => {
     const specsFromFields = getSpecifications(extraFields, 4);
@@ -101,7 +107,6 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
       icon: spec.icon,
     }));
   }, [extraFields]);
-
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -142,8 +147,8 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
           },
           onError: () => {
             toast.error("Failed to mark ad as featured.");
-          }
-        }
+          },
+        },
       );
     } else {
       setShowFeatureDialog(true);
@@ -158,7 +163,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
         onSuccess: () => {
           setShowRenewDialog(false);
         },
-      }
+      },
     );
   };
 
@@ -167,7 +172,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
       <div
         className={cn(
           "w-full rounded-2xl bg-white dark:bg-gray-900 shadow hover:shadow-lg transition-shadow duration-300 cursor-pointer group relative flex flex-col",
-          className
+          className,
         )}
         // onClick={handleCardClick}
       >
@@ -207,6 +212,33 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             specifications={specifications}
           />
 
+          {validity && (
+            <div className="px-3 pb-3 flex items-center justify-between">
+              <div className="text-xs text-gray-500">
+                Expiry Date:{" "}
+                <span className="font-medium text-gray-900 dark:text-gray-100">
+                  {new Date(validity).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+              {!isExpired &&
+                daysUntilExpiry !== null &&
+                daysUntilExpiry <= 3 &&
+                daysUntilExpiry >= 0 && (
+                  <Badge
+                    variant="secondary"
+                    className="text-[10px] px-2 py-0 h-5 bg-orange-100 text-orange-700 hover:bg-orange-100 border-none font-medium"
+                  >
+                    Expiring Soon ({daysUntilExpiry}{" "}
+                    {daysUntilExpiry === 1 ? "day" : "days"})
+                  </Badge>
+                )}
+            </div>
+          )}
+
           {/* Actions Footer */}
           {/* Actions Footer */}
           <div className="mt-auto border-t border-gray-100 dark:border-gray-800 p-3 flex items-center gap-2 z-20 relative bg-white dark:bg-gray-900 rounded-b-2xl">
@@ -225,7 +257,11 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                className={cn("h-8 px-2 text-xs text-yellow-600 border-yellow-200 hover:bg-yellow-50 dark:hover:bg-yellow-900/20", isPremium && "bg-yellow-500 text-white border-yellow-200 hover:bg-yellow-600")}
+                className={cn(
+                  "h-8 px-2 text-xs text-yellow-600 border-yellow-200 hover:bg-yellow-50 dark:hover:bg-yellow-900/20",
+                  isPremium &&
+                    "bg-yellow-500 text-white border-yellow-200 hover:bg-yellow-600",
+                )}
                 onClick={handleFeatureClick}
                 disabled={updateAdMutation.isPending || isPremium}
                 icon={<Star className="w-3.5 h-3.5" />}
@@ -249,12 +285,19 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-gray-500 hover:text-dark-blue dark:hover:text-white">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0 text-gray-500 hover:text-dark-blue dark:hover:text-white"
+                >
                   <MoreVertical className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="z-[9999]">
-                <DropdownMenuItem onClick={handleDeleteClick} className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/10 cursor-pointer">
+                <DropdownMenuItem
+                  onClick={handleDeleteClick}
+                  className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/10 cursor-pointer"
+                >
                   <Trash2 className="w-4 h-4 mr-2" />
                   {t.user.profileEdit.deleteAd}
                 </DropdownMenuItem>
@@ -328,17 +371,24 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
           <div className="p-4 space-y-4">
             <div className="p-4 bg-yellow-50 border border-yellow-100 rounded-lg text-center">
               <Star className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-              <h3 className="font-semibold text-yellow-900 mb-1">Insufficient Credits</h3>
+              <h3 className="font-semibold text-yellow-900 mb-1">
+                Insufficient Credits
+              </h3>
               <p className="text-sm text-yellow-700">
-                You don&apos;t have enough featured ad credits in your current plan.
+                You don&apos;t have enough featured ad credits in your current
+                plan.
               </p>
             </div>
             <p className="text-center text-sm text-gray-600">
-              Pay <strong>2 AED</strong> to mark this ad as featured immediately.
+              Pay <strong>2 AED</strong> to mark this ad as featured
+              immediately.
             </p>
           </div>
           <ResponsiveModalFooter>
-            <Button variant="outline" onClick={() => setShowFeatureDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowFeatureDialog(false)}
+            >
               Cancel
             </Button>
             <Button

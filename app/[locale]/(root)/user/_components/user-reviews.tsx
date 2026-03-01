@@ -25,7 +25,8 @@ import {
   ReviewsResponseObject,
   ReviewsResponse,
 } from "@/interfaces/review.types";
-import AllReviewsModal from "./all-reviews-modal";
+import { useRouter } from "nextjs-toploader/app";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface UserReviewsProps {
   userId: string;
@@ -44,9 +45,9 @@ const UserReviews: React.FC<UserReviewsProps> = ({
   sortBy = "latest",
   onSort,
 }) => {
-  const { t } = useLocale();
+  const { t, localePath } = useLocale();
   const [isWriteReviewOpen, setIsWriteReviewOpen] = useState(false);
-  const [isAllReviewsModalOpen, setIsAllReviewsModalOpen] = useState(false);
+  const router = useRouter();
 
   // Fetch average rating
   const {
@@ -56,22 +57,28 @@ const UserReviews: React.FC<UserReviewsProps> = ({
   } = useUserAverageRating(userId);
 
   // Extract reviews from response
-  const reviews = useMemo(() => {
+  const reviews = useMemo((): Review[] => {
     if (!reviewsData) return [];
     // Handle case where API returns array directly
     if (Array.isArray(reviewsData)) {
       return reviewsData;
     }
     // Handle structured response object
-    const responseObj = reviewsData as ReviewsResponseObject;
-    return responseObj.data || [];
+    const responseObj = reviewsData as any;
+    if (Array.isArray(responseObj.data)) {
+      return responseObj.data;
+    }
+    if (responseObj.data && Array.isArray(responseObj.data.data)) {
+      return responseObj.data.data;
+    }
+    return [];
   }, [reviewsData]);
 
   // Get overall rating and total count
   const overallRating = averageRatingResponse?.data || 0;
   const totalReviews = Array.isArray(reviewsData)
     ? reviewsData.length
-    : (reviewsData as ReviewsResponseObject)?.data?.length || reviews.length;
+    : (reviewsData as any)?.total || reviews.length;
 
   // Transform Review to display format
   const transformReview = (review: Review) => {
@@ -102,7 +109,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({
   const displayReviews = transformedReviews.slice(0, 1);
 
   const handleSortChange = (
-    value: "latest" | "oldest" | "highest" | "lowest"
+    value: "latest" | "oldest" | "highest" | "lowest",
   ) => {
     if (onSort) {
       onSort(value);
@@ -136,16 +143,39 @@ const UserReviews: React.FC<UserReviewsProps> = ({
       >
         {t.user.profile.ratingAndReviews.replace(
           "{count}",
-          totalReviews.toString()
+          totalReviews.toString(),
         )}
       </Typography>
 
       {/* Loading State */}
       {(isLoadingReviews || isLoadingAverage) && (
-        <div className="flex items-center justify-center py-8">
-          <Typography variant="body-small" className="text-gray-500">
-            {t.common.loading}
-          </Typography>
+        <div className="animate-pulse space-y-6">
+          <div className="flex items-start gap-4 mb-6">
+            <Skeleton className="w-16 h-16 rounded-lg" />
+            <div className="space-y-2 pt-1">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-5 w-48" />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between mb-6">
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-8 w-24 rounded-lg" />
+          </div>
+
+          <div className="space-y-6">
+            {[1, 2].map((i) => (
+              <div key={i} className="flex items-start gap-3">
+                <Skeleton className="w-10 h-10 rounded-full shrink-0" />
+                <div className="flex-1 space-y-2 pt-1">
+                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-3 w-24" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-5/6" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -168,7 +198,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({
               <Star className="size-6 text-yellow-500" fill="#FFB319" />
               <Typography
                 variant="h2"
-              className="text-2xl font-semibold text-dark-blue dark:text-white"
+                className="text-2xl font-semibold text-dark-blue dark:text-white"
               >
                 {overallRating.toFixed(1)}
               </Typography>
@@ -178,21 +208,24 @@ const UserReviews: React.FC<UserReviewsProps> = ({
                 </Typography>
                 <Typography
                   variant="sm-regular"
-                className="text-black dark:text-gray-100 font-semibold"
+                  className="text-black dark:text-gray-100 font-semibold"
                 >
                   {t.user.profile.basedOnReviews.replace(
                     "{count}",
-                    totalReviews.toString()
+                    totalReviews.toString(),
                   )}
                 </Typography>
               </div>
             </div>
 
             <div className="flex items-center justify-between mb-6">
-            <Typography variant="md-semibold" className="text-dark-blue dark:text-white">
+              <Typography
+                variant="md-semibold"
+                className="text-dark-blue dark:text-white"
+              >
                 {t.user.profile.ratingAndReviews.replace(
                   "{count}",
-                  totalReviews.toString()
+                  totalReviews.toString(),
                 )}
               </Typography>
 
@@ -292,7 +325,9 @@ const UserReviews: React.FC<UserReviewsProps> = ({
             {transformedReviews.length > 0 && (
               <div className="flex justify-center mt-6">
                 <Button
-                  onClick={() => setIsAllReviewsModalOpen(true)}
+                  onClick={() =>
+                    router.push(localePath("/user/profile/reviews"))
+                  }
                   variant="ghost"
                   className="text-purple hover:text-purple/80 flex items-center gap-1"
                 >
@@ -302,13 +337,6 @@ const UserReviews: React.FC<UserReviewsProps> = ({
             )}
           </>
         )}
-
-      <AllReviewsModal
-        userId={userId}
-        open={isAllReviewsModalOpen}
-        onOpenChange={setIsAllReviewsModalOpen}
-        initialSortBy={sortBy}
-      />
 
       <Dialog open={isWriteReviewOpen} onOpenChange={setIsWriteReviewOpen}>
         <DialogContent className="max-w-md">
