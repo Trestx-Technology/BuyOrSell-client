@@ -42,7 +42,10 @@ export function OrganisationSelectionDialog({
         <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-lg border">
+              <div
+                key={i}
+                className="flex items-center gap-3 p-3 rounded-lg border"
+              >
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-[150px]" />
@@ -67,7 +70,7 @@ export function OrganisationSelectionDialog({
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
+                  <p className="text-sm font-semibold truncate text-primary group-hover:text-purple transition-colors">
                     {org.tradeName || org.legalName}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
@@ -79,7 +82,9 @@ export function OrganisationSelectionDialog({
           ) : (
             <div className="py-8 text-center bg-muted/50 rounded-lg border border-dashed">
               <Building2 className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
-              <p className="text-sm text-muted-foreground">No organisations found</p>
+              <p className="text-sm text-muted-foreground">
+                No organisations found
+              </p>
             </div>
           )}
         </div>

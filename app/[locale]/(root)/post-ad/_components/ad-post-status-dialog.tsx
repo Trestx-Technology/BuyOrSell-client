@@ -1,11 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
 import { CheckCircle2, XCircle, Info, X } from "lucide-react";
@@ -71,8 +67,8 @@ export default function AdPostStatusDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         className={cn(
-          "sm:max-w-[608px] p-0 bg-white rounded-2xl border-2",
-          config.borderColor
+          "sm:max-w-[608px] p-0 bg-white dark:bg-gray-950 rounded-2xl border-2 dark:border-gray-800",
+          config.borderColor,
         )}
         showCloseButton={false}
       >
@@ -81,7 +77,7 @@ export default function AdPostStatusDialog({
           onClick={onClose}
           className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         >
-          <X className="h-5 w-5 text-black" />
+          <X className="h-5 w-5 text-black dark:text-gray-200" />
           <span className="sr-only">Close</span>
         </button>
 
@@ -91,7 +87,7 @@ export default function AdPostStatusDialog({
             <div
               className={cn(
                 "w-20 h-20 rounded-full flex items-center justify-center",
-                config.iconBg
+                config.iconBg,
               )}
             >
               <Icon className="w-10 h-10 text-white" strokeWidth={2.5} />
@@ -100,7 +96,7 @@ export default function AdPostStatusDialog({
             {/* Title */}
             <Typography
               variant="h2"
-              className="text-black font-semibold text-xl text-center"
+              className="text-black dark:text-white font-semibold text-xl text-center"
             >
               {title || config.defaultTitle}
             </Typography>
@@ -131,4 +127,3 @@ export default function AdPostStatusDialog({
     </Dialog>
   );
 }
-

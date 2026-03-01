@@ -32,7 +32,7 @@ export const JobPostingProvider: React.FC<JobPostingProviderProps> = ({
     addToCategoryArray,
     setActiveCategory,
   } = useAdPostingStore((state) => state);
-  
+
   const basePath = "/post-job";
 
   // Build breadcrumb items - collapse middle items if more than 3 categories
@@ -130,7 +130,7 @@ export const JobPostingProvider: React.FC<JobPostingProviderProps> = ({
   };
 
   return (
-    <Container1080 className="bg-white min-h-[calc(100vh-200px)] flex flex-col sm:px-20 px-4 relative pt-10 space-y-8">
+    <Container1080 className="bg-white dark:bg-gray-950 min-h-[calc(100vh-200px)] flex flex-col sm:px-20 px-4 relative pt-10 space-y-8">
       <div className="w-full sticky top-0 space-y-4">
         <ProgressBar totalSteps={4} />
         <Breadcrumbs

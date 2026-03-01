@@ -21,7 +21,11 @@ export default function SelectCategoryContent() {
   } = useAdPostingStore((state) => state);
 
   // Availability Hook
-  const { checkAvailability, dialogProps, isLoading: subscriptionsLoading } = useAdAvailability();
+  const {
+    checkAvailability,
+    dialogProps,
+    isLoading: subscriptionsLoading,
+  } = useAdAvailability();
 
   // Fetch categories using the hook
   const {
@@ -85,67 +89,67 @@ export default function SelectCategoryContent() {
     <Container1080>
       <InsufficientAdsDialog {...dialogProps} />
 
-      <div className=" w-full max-w-[888px] flex-1 mx-auto bg-white">
+      <div className=" w-full max-w-[888px] flex-1 mx-auto bg-transparent">
         {/* Main Container */}
-        <div className="w-full mx-auto bg-white">
+        <div className="w-full mx-auto bg-transparent">
           {/* Main Content */}
           <div className="pb-8 ">
             <div className="mb-8">
               <PageBannerCarousel slug="post-ad-page" />
             </div>
 
-              {/* First Row */}
+            {/* First Row */}
             <div className="flex flex-wrap justify-center items-center gap-[13px]">
               {categoriesLoading || subscriptionsLoading ? (
-                  // Loading skeleton
-                  Array.from({ length: 10 }).map((_, index) => (
-                    <div
-                      key={index}
-                      className="bg-[#F7F8FA] rounded-lg p-[10px_18px] w-full h-[140px] flex flex-col items-center justify-center gap-4 animate-pulse"
-                    >
-                      <div className="w-[70px] h-[70px] bg-gray-300 rounded"></div>
-                      <div className="h-4 w-16 bg-gray-300 rounded"></div>
-                    </div>
-                  ))
-                ) : categoriesError ? (
-                  // Error state
-                  <div className="col-span-full flex items-center justify-center py-8">
-                    <div className="text-center">
-                      <p className="text-gray-500 mb-2">
-                        Failed to load categories
-                      </p>
-                      <button
-                        onClick={() => window.location.reload()}
-                        className="text-purple-600 hover:text-purple-700 text-sm underline"
-                      >
-                        Try again
-                      </button>
-                    </div>
+                // Loading skeleton
+                Array.from({ length: 10 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="bg-[#F7F8FA] rounded-lg p-[10px_18px] w-full h-[140px] flex flex-col items-center justify-center gap-4 animate-pulse"
+                  >
+                    <div className="w-[70px] h-[70px] bg-gray-300 rounded"></div>
+                    <div className="h-4 w-16 bg-gray-300 rounded"></div>
                   </div>
-                ) : (
-                  // Categories
-                  categories.map((category) => (
+                ))
+              ) : categoriesError ? (
+                // Error state
+                <div className="col-span-full flex items-center justify-center py-8">
+                  <div className="text-center">
+                    <p className="text-gray-500 mb-2">
+                      Failed to load categories
+                    </p>
                     <button
-                      key={category._id}
-                      onClick={() => handleCategorySelect(category._id)}
-                      className="bg-[#F7F8FA] rounded-lg p-5 w-full sm:w-[150px] min-h-[140px] flex flex-col items-center justify-center gap-4 hover:bg-purple/10 hover:scale-105 cursor-pointer transition-all duration-300"
+                      onClick={() => window.location.reload()}
+                      className="text-purple-600 hover:text-purple-700 text-sm underline"
                     >
-                      {category.icon && (
-                        <div className="w-[70px] h-[70px] relative">
-                          <Image
-                            src={category.icon}
-                            alt={category.name}
-                            fill
-                            unoptimized
-                            className="object-contain rounded"
-                          />
-                        </div>
-                      )}
-                      <span className="text-sm font-semibold text-black text-center line-clamp-2 leading-tight">
-                        {category.name}
-                      </span>
+                      Try again
                     </button>
-                  ))
+                  </div>
+                </div>
+              ) : (
+                // Categories
+                categories.map((category) => (
+                  <button
+                    key={category._id}
+                    onClick={() => handleCategorySelect(category._id)}
+                    className="bg-[#F7F8FA] dark:bg-gray-800 rounded-lg p-5 w-full sm:w-[150px] min-h-[140px] flex flex-col items-center justify-center gap-4 hover:bg-purple/10 dark:hover:bg-purple/20 hover:scale-105 cursor-pointer transition-all duration-300"
+                  >
+                    {category.icon && (
+                      <div className="w-[70px] h-[70px] relative">
+                        <Image
+                          src={category.icon}
+                          alt={category.name}
+                          fill
+                          unoptimized
+                          className="object-contain rounded"
+                        />
+                      </div>
+                    )}
+                    <span className="text-sm font-semibold text-black dark:text-white text-center line-clamp-2 leading-tight">
+                      {category.name}
+                    </span>
+                  </button>
+                ))
               )}
             </div>
           </div>

@@ -40,7 +40,7 @@ export const SelectInput = forwardRef<HTMLButtonElement, SelectInputProps>(
       placeholder = "Select an option",
       error,
     },
-    ref
+    ref,
   ) => {
     return (
       <Select
@@ -51,47 +51,50 @@ export const SelectInput = forwardRef<HTMLButtonElement, SelectInputProps>(
         <SelectTrigger
           ref={ref}
           className={cn(
-              "w-full h-12 bg-white text-[#8B31E1] font-medium text-xs",
-              "data-[placeholder]:text-[#8B31E1]",
-              "hover:bg-white rounded-lg px-3 py-5",
-              "[&_svg]:text-[#8B31E1]",
-              error
-                ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500/20 hover:border-red-500"
-                : "border-[#D8B1FF] focus-visible:border-[#D8B1FF] focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20 hover:border-[#D8B1FF]",
-            className
+            "w-full h-12 bg-white dark:bg-gray-900 text-[#8B31E1] dark:text-[#D8B1FF] font-medium text-xs",
+            "data-[placeholder]:text-[#8B31E1] data-[placeholder]:dark:text-[#D8B1FF]",
+            "hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg px-3 py-5",
+            "[&_svg]:text-[#8B31E1]",
+            error
+              ? "border-red-500 focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500/20 hover:border-red-500"
+              : "border-[#D8B1FF] focus-visible:border-[#D8B1FF] focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20 hover:border-[#D8B1FF]",
+            className,
           )}
         >
           <SelectValue placeholder={placeholder}>
-            {value && (() => {
-              const selectedOption = options.find(opt => opt.value === value);
-              if (!selectedOption) return value;
-              return (
-                <div className="flex items-center gap-2">
-                  {selectedOption.icon ? (
-                    <div className="size-5 relative flex-shrink-0">
-                      <Image
-                        src={selectedOption.icon}
-                        alt={selectedOption.label}
-                        fill
-                        className="object-cover rounded"
-                      />
-                    </div>
-                  ) : (
-                    <div className="size-5 flex items-center justify-center flex-shrink-0">
-                      <ImageOff className="size-4 text-gray-400" />
-                    </div>
-                  )}
-                  <span>{selectedOption.label}</span>
-                </div>
-              );
-            })()}
+            {value &&
+              (() => {
+                const selectedOption = options.find(
+                  (opt) => opt.value === value,
+                );
+                if (!selectedOption) return value;
+                return (
+                  <div className="flex items-center gap-2">
+                    {selectedOption.icon ? (
+                      <div className="size-5 relative flex-shrink-0">
+                        <Image
+                          src={selectedOption.icon}
+                          alt={selectedOption.label}
+                          fill
+                          className="object-cover rounded"
+                        />
+                      </div>
+                    ) : (
+                      <div className="size-5 flex items-center justify-center flex-shrink-0">
+                        <ImageOff className="size-4 text-gray-400" />
+                      </div>
+                    )}
+                    <span>{selectedOption.label}</span>
+                  </div>
+                );
+              })()}
           </SelectValue>
         </SelectTrigger>
         <SelectContent
           className={cn(
-            "bg-white border-[#D8B1FF] rounded-lg",
+            "bg-white dark:bg-gray-900 border-[#D8B1FF] dark:border-purple/50 rounded-lg",
             "shadow-[0px_9.71px_24px_0px_rgba(139,49,225,0.15)]",
-            "p-0 overflow-hidden"
+            "p-0 overflow-hidden",
           )}
         >
           {options.map((option) => (
@@ -101,12 +104,13 @@ export const SelectInput = forwardRef<HTMLButtonElement, SelectInputProps>(
               disabled={option.disabled}
               className={cn(
                 "h-auto min-h-[40px] px-3 py-2 text-xs leading-[2em]",
-                "text-[#1D2939] font-normal",
+                "text-[#1D2939] dark:text-gray-200 font-normal",
                 "data-[state=checked]:bg-purple data-[state=checked]:text-white data-[state=checked]:font-medium",
                 "hover:bg-purple/50 focus:text-purple focus:bg-purple/50",
                 "rounded-none first:rounded-t-lg last:rounded-b-lg",
                 "cursor-pointer",
-                option.disabled && "opacity-50 cursor-not-allowed hover:bg-transparent"
+                option.disabled &&
+                  "opacity-50 cursor-not-allowed hover:bg-transparent",
               )}
             >
               <div className="flex items-center gap-2">
@@ -131,7 +135,7 @@ export const SelectInput = forwardRef<HTMLButtonElement, SelectInputProps>(
         </SelectContent>
       </Select>
     );
-  }
+  },
 );
 
 SelectInput.displayName = "SelectInput";

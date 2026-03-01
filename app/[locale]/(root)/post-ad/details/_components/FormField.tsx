@@ -13,6 +13,7 @@ interface FormFieldProps {
   required?: boolean;
   error?: string;
   labelClassName?: string;
+  description?: React.ReactNode;
 }
 
 export const FormField = ({
@@ -24,22 +25,35 @@ export const FormField = ({
   required,
   error,
   labelClassName,
+  description,
 }: FormFieldProps) => {
   return (
     <div
       className={cn(
         "space-y-2",
         fullWidth ? "col-span-full" : "col-span-1",
-        className
+        className,
       )}
     >
-      <Label
-        htmlFor={htmlFor}
-        className={cn("text-sm font-medium text-foreground", labelClassName)}
-      >
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </Label>
+      {label && (
+        <div className="flex flex-col gap-1">
+          <Label
+            htmlFor={htmlFor}
+            className={cn(
+              "text-sm font-medium text-foreground",
+              labelClassName,
+            )}
+          >
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </Label>
+          {description && (
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              {description}
+            </div>
+          )}
+        </div>
+      )}
       <div className={cn(error && "space-y-1")}>
         {children}
         {error && <p className="text-sm text-red-500">{error}</p>}

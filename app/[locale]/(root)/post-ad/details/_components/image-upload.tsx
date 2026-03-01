@@ -6,7 +6,7 @@ import Image from "next/image";
 import { X, Plus, Upload, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { uploadFile } from '@/app/api/media/media.services';
+import { uploadFile } from "@/app/api/media/media.services";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 
@@ -59,13 +59,13 @@ export function ImageGallery({
       const updatedImages = currentImages.map((img) =>
         img.id === imageItem.id
           ? { ...img, uploading: true, uploadError: undefined }
-          : img
+          : img,
       );
       onImagesChange?.(updatedImages);
 
       try {
         const response = await uploadFile(imageItem.file);
-        
+
         // Update with presigned URL and remove file
         const finalImages = updatedImages.map((img) =>
           img.id === imageItem.id
@@ -76,7 +76,7 @@ export function ImageGallery({
                 uploading: false,
                 file: undefined, // Remove file object
               }
-            : img
+            : img,
         );
         onImagesChange?.(finalImages);
       } catch (error) {
@@ -84,7 +84,7 @@ export function ImageGallery({
         const axiosError = error as AxiosError<{ message?: string }>;
         const errorMessage =
           axiosError?.response?.data?.message || "Failed to upload image";
-        
+
         // Mark as error
         const errorImages = updatedImages.map((img) =>
           img.id === imageItem.id
@@ -93,13 +93,13 @@ export function ImageGallery({
                 uploading: false,
                 uploadError: errorMessage,
               }
-            : img
+            : img,
         );
         onImagesChange?.(errorImages);
         toast.error(`Failed to upload ${imageItem.name}: ${errorMessage}`);
       }
     },
-    [onImagesChange]
+    [onImagesChange],
   );
 
   const handleFileSelect = useCallback(
@@ -156,7 +156,7 @@ export function ImageGallery({
       acceptedFileTypes,
       disabled,
       uploadImage,
-    ]
+    ],
   );
 
   const handleDrop = useCallback(
@@ -172,7 +172,7 @@ export function ImageGallery({
       setDragPreviewImages([]);
       handleFileSelect(e.dataTransfer.files);
     },
-    [handleFileSelect, dragPreviewImages]
+    [handleFileSelect, dragPreviewImages],
   );
 
   const handleDragOver = useCallback(
@@ -187,7 +187,7 @@ export function ImageGallery({
           (item) =>
             item.kind === "file" &&
             item.type.startsWith("image/") &&
-            acceptedFileTypes.includes(item.type)
+            acceptedFileTypes.includes(item.type),
         );
 
         if (imageItems.length > 0) {
@@ -208,25 +208,28 @@ export function ImageGallery({
         }
       }
     },
-    [acceptedFileTypes, dragPreviewImages.length]
+    [acceptedFileTypes, dragPreviewImages.length],
   );
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    // Only set dragOver to false if we're leaving the drop zone itself
-    const target = e.currentTarget;
-    const relatedTarget = e.relatedTarget as Node | null;
-    if (!target.contains(relatedTarget)) {
-      setDragOver(false);
-      // Clear preview images when leaving
-      dragPreviewImages.forEach((img) => {
-        if (img.url.startsWith("blob:")) {
-          URL.revokeObjectURL(img.url);
-        }
-      });
-      setDragPreviewImages([]);
-    }
-  }, [dragPreviewImages]);
+  const handleDragLeave = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      // Only set dragOver to false if we're leaving the drop zone itself
+      const target = e.currentTarget;
+      const relatedTarget = e.relatedTarget as Node | null;
+      if (!target.contains(relatedTarget)) {
+        setDragOver(false);
+        // Clear preview images when leaving
+        dragPreviewImages.forEach((img) => {
+          if (img.url.startsWith("blob:")) {
+            URL.revokeObjectURL(img.url);
+          }
+        });
+        setDragPreviewImages([]);
+      }
+    },
+    [dragPreviewImages],
+  );
 
   const removeImage = useCallback(
     (id: string) => {
@@ -234,7 +237,7 @@ export function ImageGallery({
       const updatedImages = images.filter((img) => img.id !== id);
       onImagesChange?.(updatedImages);
     },
-    [images, onImagesChange, disabled]
+    [images, onImagesChange, disabled],
   );
 
   const removeAllImages = useCallback(() => {
@@ -262,11 +265,12 @@ export function ImageGallery({
   return (
     <div
       className={cn(
-        "w-full min-h-[176px] rounded-lg bg-white p-",
+        "w-full min-h-[176px] rounded-lg bg-white dark:bg-gray-900 p-",
         dragOver && "border-purple bg-purple/10",
         disabled && "opacity-50 cursor-not-allowed",
         className,
-        images.length > 0 && "border border-[#F5EBFF] border-dashed p-3 border-[#F5EBFF]"
+        images.length > 0 &&
+          "border border-[#F5EBFF] border-dashed p-3 border-[#F5EBFF]",
       )}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
@@ -277,7 +281,7 @@ export function ImageGallery({
         className={cn(
           gridCols > 0
             ? "grid gap-2 items-start"
-            : "flex flex-wrap gap-2 items-start"
+            : "flex flex-wrap gap-2 items-start",
         )}
         style={
           gridCols > 0
@@ -292,7 +296,7 @@ export function ImageGallery({
             key={image.id}
             className={cn(
               "relative rounded-lg overflow-hidden group",
-              gridCols > 0 ? "aspect-square w-full" : "w-16 h-16"
+              gridCols > 0 ? "aspect-square w-full" : "w-16 h-16",
             )}
           >
             <Image
@@ -302,10 +306,10 @@ export function ImageGallery({
               className={cn(
                 "object-cover rounded-lg",
                 image.uploading && "opacity-50",
-                image.uploadError && "opacity-30"
+                image.uploadError && "opacity-30",
               )}
             />
-            
+
             {/* Uploading overlay */}
             {image.uploading && (
               <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
@@ -347,7 +351,6 @@ export function ImageGallery({
             )}
           </div>
         ))}
-        
 
         {/* Drag preview images */}
         {dragPreviewImages.map((previewImage) => (
@@ -355,7 +358,7 @@ export function ImageGallery({
             key={previewImage.id}
             className={cn(
               "relative rounded-lg overflow-hidden border-2 border-purple border-dashed opacity-60",
-              gridCols > 0 ? "aspect-square w-full" : "w-16 h-16"
+              gridCols > 0 ? "aspect-square w-full" : "w-16 h-16",
             )}
           >
             <Image
@@ -366,7 +369,6 @@ export function ImageGallery({
             />
           </div>
         ))}
-
       </div>
 
       <div className="flex items-center gap-2 mt-3">
@@ -381,7 +383,7 @@ export function ImageGallery({
               "hover:bg-[#7A2BC8] transition-colors",
               "focus:outline-none focus:ring-2 focus:ring-[#8B31E1]/20",
               disabled && "opacity-50 cursor-not-allowed",
-              "cursor-pointer hover:scale-105 transition-all"
+              "cursor-pointer hover:scale-105 transition-all",
             )}
             aria-label="Add image"
           >
@@ -398,7 +400,7 @@ export function ImageGallery({
             className={cn(
               "ml-auto w-5 h-5 text-[#FF0000] hover:opacity-80 transition-opacity",
               "focus:outline-none focus:ring-2 focus:ring-[#FF0000]/20 rounded",
-              disabled && "opacity-50 cursor-not-allowed"
+              disabled && "opacity-50 cursor-not-allowed",
             )}
             aria-label="Delete all images"
           >
@@ -416,7 +418,7 @@ export function ImageGallery({
             !disabled &&
               "cursor-pointer hover:bg-purple/10 hover:border-purple/80",
             disabled && "cursor-not-allowed opacity-50",
-            uploadAreaClassName
+            uploadAreaClassName,
           )}
           onClick={!disabled ? openFileDialog : undefined}
         >
@@ -441,7 +443,7 @@ export function ImageGallery({
                   openFileDialog();
                 }}
                 disabled={disabled}
-                className="pz-2 bg-white text-black border mr-auto hover:bg-gray-50"
+                className="pz-2 bg-white dark:bg-gray-800 text-black dark:text-white border dark:border-gray-700 mr-auto hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 Add Image
               </Button>
@@ -452,4 +454,3 @@ export function ImageGallery({
     </div>
   );
 }
-

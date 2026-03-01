@@ -74,9 +74,9 @@ const DateTimeInput = ({
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (!selectedDate) return;
-    
+
     setDate(selectedDate);
-    
+
     // Combine date with time if time is already selected
     if (selectedTime) {
       const [hours, minutes] = selectedTime.split(":");
@@ -88,7 +88,7 @@ const DateTimeInput = ({
 
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time);
-    
+
     if (date) {
       const [hours, minutes] = time.split(":");
       const newDate = new Date(date);
@@ -115,7 +115,7 @@ const DateTimeInput = ({
             "w-full h-11 relative px-3 py-2.5 justify-start  text-left font-normal",
             "border border-[#F5EBFF] rounded-lg",
             "text-xs font-medium text-[#8B31E1]",
-            "bg-white hover:bg-white hover:text-[#8B31E1]",
+            "bg-white dark:bg-gray-900 hover:bg-white dark:hover:bg-gray-800 hover:text-[#8B31E1]",
             "focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20",
             !date && "text-[#8B31E1]",
             disabled && "bg-gray-100 cursor-not-allowed opacity-50",
@@ -130,7 +130,7 @@ const DateTimeInput = ({
         className="w-auto p-0 shadow-lg border border-[#E2E2E2] rounded-lg"
         align="start"
       >
-        <div className="bg-white rounded-lg overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden">
           <div className="relative flex flex-col md:flex-row">
             {/* Calendar Section */}
             <div className="p-6">

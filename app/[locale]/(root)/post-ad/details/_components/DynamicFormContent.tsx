@@ -681,7 +681,9 @@ export default function DynamicFormContent() {
                 })
               ) : (
                 <div className="text-center text-gray-500 py-8">
-                  <p>No form fields available. Please select a category first.</p>
+                  <p>
+                    No form fields available. Please select a category first.
+                  </p>
                 </div>
               )}
             </div>
@@ -708,7 +710,7 @@ export default function DynamicFormContent() {
             </div>
           </div>
         </div>
-        <footer className="w-full bg-white sticky  bottom-0 left-0 right-0 max-w-[1080px] mx-auto md:border-t px-5 py-5">
+        <footer className="w-full bg-white dark:bg-gray-950 sticky  bottom-0 left-0 right-0 max-w-[1080px] mx-auto md:border-t md:dark:border-gray-800 px-5 py-5">
           <div className="flex w-full justify-between max-w-[888px] mx-auto gap-3">
             <Button className="w-full" variant={"outline"}>
               Back

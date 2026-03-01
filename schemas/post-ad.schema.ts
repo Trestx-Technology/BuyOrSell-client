@@ -95,7 +95,6 @@ export const createPostAdSchema = (category?: SubCategory) => {
       },
       z.array(z.string()).min(1, "At least one connection type is required"),
     ),
-    isFeatured: z.union([z.boolean(), z.string()]).optional(),
     isExchange: z.union([z.boolean(), z.string()]).optional(),
     exchangeTitle: z.preprocess(
       (val) => (val === undefined || val === null ? undefined : val),
