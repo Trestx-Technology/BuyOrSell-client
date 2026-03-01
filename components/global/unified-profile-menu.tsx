@@ -18,6 +18,7 @@ import {
 import { useLocale } from "@/hooks/useLocale";
 import { cn } from "@/lib/utils";
 import { ICONS } from "@/constants/icons";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface UnifiedProfileMenuProps {
       onLogout: () => void;
@@ -65,7 +66,7 @@ export function UnifiedProfileMenu({
                   items: [
                         { id: "offers", href: "/plans", icon: ICONS.navigation.offersPackages, label: t.home.navbar.offersPackages },
                         { id: "my-subscriptions", href: "/my-subscriptions", icon: ICONS.navigation.mySubscriptions, label: t.home.navbar.mySubscriptions },
-                        { id: "ai-tokens", href: "/ai-tokens", icon: ICONS.ai.aiPurpleBg, label: t.home.navbar.aiTokens },
+                        // { id: "ai-tokens", href: "/ai-tokens", icon: ICONS.ai.aiPurpleBg, label: t.home.navbar.aiTokens },
                   ]
             },
             {
@@ -124,9 +125,10 @@ export function UnifiedProfileMenu({
       );
 
       return (
-            <div className="w-[320px] bg-white dark:bg-gray-950 rounded-xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800">
-                  <div className="p-2 space-y-4 max-h-[calc(100vh-160px)] sm:max-h-[600px] overflow-y-auto custom-scrollbar">
-                        {menuGroups.map((group, gIdx) => (
+            <div className="w-[320px] bg-white dark:bg-gray-950 rounded-xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800 flex flex-col">
+                  <ScrollArea className="h-[calc(100vh-160px)] sm:h-[400px] w-full">
+                        <div className="p-2 space-y-4">
+                              {menuGroups.map((group, gIdx) => (
                               <div key={group.label} className="space-y-1">
                                     <div className="px-3 py-1.5 flex items-center gap-2 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest bg-gray-50/50 dark:bg-gray-900/50 rounded-lg mb-1">
                                           {group.label}
@@ -164,9 +166,10 @@ export function UnifiedProfileMenu({
                               </div>
                         ))}
                   </div>
+            </ScrollArea>
 
                   {/* Sign Out Section & Shortcut Hint */}
-                  <div className="p-2 space-y-2 bg-gray-50/80 dark:bg-gray-900/80 border-t border-gray-100 dark:border-gray-800">
+                  <div className="p-2 space-y-2 bg-gray-50/80 dark:bg-gray-900/80 border-t border-gray-100 dark:border-gray-800 shrink-0">
                         <button
                               onClick={() => {
                                     onLogout();
@@ -194,22 +197,6 @@ export function UnifiedProfileMenu({
                               </div>
                         </div>
                   </div>
-
-                  <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #e2e8f0;
-          border-radius: 10px;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #1e293b;
-        }
-      `}</style>
             </div>
       );
 }

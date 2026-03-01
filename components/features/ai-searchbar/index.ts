@@ -4,6 +4,7 @@ export { KeywordDropdown } from "./keyword-dropdown";
 export { SimpleSearchInput } from "./simple-search-input";
 export { AISearchInput } from "./ai-search-input";
 export { AISuggestions } from "./ai-suggestions";
+export { AISearchAdsDialog } from "./ai-search-ads-dialog";
 export { COLORS, suggestions } from "./constants";
 
 

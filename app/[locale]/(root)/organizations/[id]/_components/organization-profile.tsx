@@ -25,10 +25,10 @@ export default function OrganizationProfile({
       const [activeTab, setActiveTab] = useState<"home" | "about" | "jobs">("home");
 
       return (
-            <Container1080 className="md:my-12 bg-white">
+            <Container1080 className="md:my-12 bg-white dark:bg-slate-950">
                   <MobileStickyHeader title={organization.tradeName} />
 
-                  <Card className="my-4">
+                  <Card className="my-4 dark:bg-slate-900 dark:border-slate-800 shadow-sm">
                         <CardContent className="sm:rounded-2xl p-0 overflow-hidden" >
 
                               {/* Header Banner */}
@@ -46,18 +46,18 @@ export default function OrganizationProfile({
                                     {activeTab === "home" && <OrganizationOverview organization={organization} />}
 
                                     {activeTab === "about" && (
-                                          <div className="py-8 text-slate-700">
-                                                <Typography variant="h2" className="text-xl font-bold text-dark-blue mb-4">
+                                          <div className="py-8 text-slate-700 dark:text-gray-300">
+                                                <Typography variant="h2" className="text-xl font-bold text-dark-blue dark:text-gray-100 mb-4">
                                                       About {organization.tradeName}
                                                 </Typography>
                                                 <div className="space-y-6">
                                                       <div>
-                                                            <Typography variant="sm-semibold" className="text-dark-blue block mb-2">
+                                                            <Typography variant="sm-semibold" className="text-dark-blue dark:text-gray-100 block mb-2">
                                                                   Headquarters
                                                             </Typography>
-                                                            <div className="flex items-center gap-2 text-slate-600">
+                                                            <div className="flex items-center gap-2 text-slate-600 dark:text-gray-400">
                                                                   <MapPin className="w-4 h-4" />
-                                                                  <Typography variant="body-small">
+                                                                  <Typography variant="body-small" className="dark:text-gray-300">
                                                                         {organization.city}, {organization.emirate}, {organization.country}
                                                                   </Typography>
                                                             </div>
@@ -65,10 +65,10 @@ export default function OrganizationProfile({
 
                                                       {organization.foundedYear && (
                                                             <div>
-                                                                  <Typography variant="sm-semibold" className="text-dark-blue block mb-1">
+                                                                  <Typography variant="sm-semibold" className="text-dark-blue dark:text-gray-100 block mb-1">
                                                                         Founded
                                                                   </Typography>
-                                                                  <Typography variant="body-small" className="text-slate-600">
+                                                                  <Typography variant="body-small" className="text-slate-600 dark:text-gray-400">
                                                                         {organization.foundedYear}
                                                                   </Typography>
                                                             </div>

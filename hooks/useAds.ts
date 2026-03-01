@@ -82,6 +82,7 @@ export const useAdById = (id: string) => {
     queryKey: [...adQueries.adById(id).Key],
     queryFn: () => getAdById(id),
     enabled: !!id,
+    refetchOnMount: "always",
   });
 };
 

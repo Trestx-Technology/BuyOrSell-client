@@ -9,6 +9,8 @@ import {
   getOrganizationReviews,
   getReviews,
   getAverageRating,
+  getAdAverageRating,
+  getOrganizationAverageRating,
 } from "@/app/api/review/review.services";
 import {
   createAdReview,
@@ -122,6 +124,30 @@ export const useUserAverageRating = (
     queryKey: [...reviewQueries.getAverageRating("User", userId).Key],
     queryFn: () => getAverageRating("User", userId),
     enabled: enabled && !!userId,
+  });
+};
+
+// Get average rating for an ad
+export const useAdAverageRating = (
+  adId: string,
+  enabled: boolean = true,
+) => {
+  return useQuery<AverageRatingResponse, Error>({
+    queryKey: [...reviewQueries.adAverageRating(adId).Key],
+    queryFn: () => getAdAverageRating(adId),
+    enabled: enabled && !!adId,
+  });
+};
+
+// Get average rating for an organization
+export const useOrganizationAverageRating = (
+  organizationId: string,
+  enabled: boolean = true,
+) => {
+  return useQuery<AverageRatingResponse, Error>({
+    queryKey: [...reviewQueries.organizationAverageRating(organizationId).Key],
+    queryFn: () => getOrganizationAverageRating(organizationId),
+    enabled: enabled && !!organizationId,
   });
 };
 

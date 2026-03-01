@@ -149,7 +149,7 @@ export function SimpleSearchInput({
                 <div className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 text-[10px] text-gray-400 font-sans pointer-events-none">
                   <kbd className="font-sans">Ctrl</kbd>
                   <span className="text-[8px] opacity-60">+</span>
-                  <kbd className="font-sans">K</kbd>
+                  <kbd className="font-sans">J</kbd>
                 </div>
                 <Image
                   src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/ai-bg-white.svg"

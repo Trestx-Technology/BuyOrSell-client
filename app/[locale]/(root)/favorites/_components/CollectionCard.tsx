@@ -95,6 +95,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
 
   return (
     <div
+      onClick={handleCardClick}
       className={`flex-shrink-0 w-full lg:max-w-64 sm:p-4 sm:bg-white dark:sm:bg-gray-800 rounded-xl sm:border border-gray-200 dark:border-gray-700 sm:shadow-sm sm:hover:shadow-md transition-all duration-300 cursor-pointer group ${className}`}
     >
       {/* Image Grid Section */}

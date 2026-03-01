@@ -22,21 +22,21 @@ export const OrganizationHeader = ({ organization }: OrganizationHeaderProps) =>
   const router = useRouter()
   return (
     <div>
-      <H2 className="font-bold text-slate-900 mb-2">
+      <H2 className="font-bold text-slate-900 dark:text-gray-100 mb-2">
         {organization.tradeName || organization.legalName}
         {organization.verified && (
-          <Image src={ICONS.auth.verified} width={20} height={20} alt="verified" />
+          <Image src={ICONS.auth.verified} width={20} height={20} alt="verified" className="inline-block ml-2" />
         )}
       </H2>
-      <Typography variant="body-small" className="text-slate-600 mb-4">
+      <Typography variant="body-small" className="text-slate-600 dark:text-gray-400 mb-4">
         {organization.type || "Dubai's Leading Classifieds Platform"}
       </Typography>
 
       {/* Meta info */}
-      <div className="flex items-center gap-2 text-sm text-slate-600 mb-6 flex-wrap">
+      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-gray-400 mb-6 flex-wrap">
         <span>{organization.industry || "Technology, Information And Internet"}</span>
         <span>•</span>
-        <button className="text-purple-600 hover:underline">
+        <button className="text-purple-600 dark:text-purple-400 hover:underline">
           {organization.followersCount || "116K"} Followers
         </button>
         <span>•</span>

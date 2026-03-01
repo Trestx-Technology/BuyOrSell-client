@@ -31,6 +31,8 @@ interface ResponsiveModalProps {
 interface ResponsiveModalContentProps {
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
+  showCloseButton?: boolean;
 }
 
 interface ResponsiveModalHeaderProps {
@@ -90,19 +92,21 @@ const ResponsiveModal = ({
 const ResponsiveModalContent = ({
   children,
   className,
+  style,
+  showCloseButton,
 }: ResponsiveModalContentProps) => {
   const { isMobile } = useResponsiveModal();
 
   if (isMobile) {
     return (
-      <DrawerContent className={cn(className, "z-999")}>
+      <DrawerContent className={cn(className, "z-999")} style={style}>
         {children}
       </DrawerContent>
     );
   }
 
   return (
-    <DialogContent className={cn(className, "z-999")}>{children}</DialogContent>
+    <DialogContent className={cn(className, "z-999")} style={style} showCloseButton={showCloseButton}>{children}</DialogContent>
   );
 };
 

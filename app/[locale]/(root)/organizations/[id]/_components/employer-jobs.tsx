@@ -22,10 +22,10 @@ export default function EmployerJobs({ employerId, organization }: EmployerJobsP
 
   if (jobs.length === 0) {
     return (
-      <div className="bg-white border border-[#E2E2E2] rounded-2xl p-6 md:p-8">
+      <div className="bg-white dark:bg-slate-900 border border-[#E2E2E2] dark:border-slate-800 rounded-2xl p-6 md:p-8 shadow-sm">
         <Typography
           variant="h2"
-          className="text-dark-blue font-bold text-2xl mb-6"
+          className="text-dark-blue dark:text-gray-100 font-bold text-2xl mb-6"
         >
           Active Job Postings
         </Typography>
@@ -46,14 +46,14 @@ export default function EmployerJobs({ employerId, organization }: EmployerJobsP
       <div className="flex justify-between items-end mb-6">
         <Typography
           variant="h2"
-          className="text-dark-blue font-bold text-2xl"
+          className="text-dark-blue dark:text-gray-100 font-bold text-2xl"
         >
           Active Job Postings by {organization.tradeName}
         </Typography>
         <Link href={localePath(`/jobs/listing/Jobs?employer=${employerId}`)}>
           <Typography
             variant="body-large"
-            className="text-purple font-semibold text-base hover:underline"
+            className="text-purple dark:text-purple-400 font-semibold text-base hover:underline"
           >
             View all
           </Typography>

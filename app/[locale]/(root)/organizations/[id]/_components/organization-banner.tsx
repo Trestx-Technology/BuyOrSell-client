@@ -17,7 +17,7 @@ export const OrganizationBanner = ({ organization }: OrganizationBannerProps) =>
       </div>
 
       {/* Logo area */}
-      <div className="absolute left-5 w-fit h-25 z-10 -bottom-10 bg-white p-4  w-56 flex items-center gap-3">
+      <div className="absolute left-5 w-fit h-25 z-10 -bottom-10 bg-white dark:bg-slate-800 p-4 w-56 flex items-center gap-3 shadow-md dark:shadow-slate-900/50">
         {organization.logoUrl && (
           <Image
             src={organization.logoUrl}

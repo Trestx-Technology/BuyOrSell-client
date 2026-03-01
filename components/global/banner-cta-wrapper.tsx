@@ -35,7 +35,7 @@ export const BannerCTAWrapper = ({ banner, children, className }: BannerCTAWrapp
                   {hasCTA && (
                         <div className="absolute inset-x-0 bottom-4 z-20 flex flex-col items-center pointer-events-none">
                               <div className="bg-white/90 dark:bg-white/40 hover:bg-white dark:hover:bg-black transition-all duration-300 text-black dark:text-white border-none px-6 py-2 font-medium rounded shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform">
-                                    Explore Deals
+                                    Explore All Deals
                               </div>
                         </div>
                   )}

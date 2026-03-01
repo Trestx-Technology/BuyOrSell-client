@@ -12,7 +12,7 @@ export const OrganizationTabs = ({ activeTab, onTabChange }: OrganizationTabsPro
   const tabs = ["home", "about", "jobs"] as const;
 
   return (
-    <div className="flex items-center gap-8 border-b border-slate-200">
+    <div className="flex items-center gap-8 border-b border-slate-200 dark:border-slate-800">
       {tabs.map((tab) => (
         <button
           key={tab}
@@ -21,7 +21,7 @@ export const OrganizationTabs = ({ activeTab, onTabChange }: OrganizationTabsPro
             "py-4 px-1 font-semibold text-sm uppercase tracking-wide transition-colors",
             activeTab === tab
               ? "text-purple-600 border-b-2 border-purple-600"
-              : "text-slate-600 hover:text-slate-900"
+              : "text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-gray-100"
           )}
         >
           {tab}

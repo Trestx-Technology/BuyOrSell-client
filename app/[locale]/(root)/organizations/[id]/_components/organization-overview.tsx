@@ -10,7 +10,7 @@ interface OrganizationOverviewProps {
 
 export const OrganizationOverview = ({ organization }: OrganizationOverviewProps) => {
   return (
-    <div className="py-8 text-slate-700 space-y-6">
+    <div className="py-8 text-slate-700 dark:text-gray-300 space-y-6">
       <p>
         {organization.description ||
           "BuyorSell Dubai Is A Leading Classifieds Platform, Boasting Over 100+ Million App Downloads Across Diverse Categories, Including Cars, Bikes, Real Estate, And Electronics. BuyOrSell Is The Online Classified Marketplace Helping Them Maximize The Value Of Their Belongings And Promoting Responsible Consumption, Contributing To A Greener, More Sustainable Future."}
@@ -23,17 +23,17 @@ export const OrganizationOverview = ({ organization }: OrganizationOverviewProps
       )}
 
       <div>
-        <p className="font-semibold mb-2">Download Our App Through The Link Below:</p>
-        <div className="space-y-2 text-slate-600">
+        <p className="font-semibold text-slate-900 dark:text-gray-100 mb-2">Download Our App Through The Link Below:</p>
+        <div className="space-y-2 text-slate-600 dark:text-gray-400">
           <p>Android : Https://Play.Google.Com/Store/Search?Q=Olx&C=Apps&Hi=En-IN&Pl=1</p>
           <p>IOS: Https://Apps.Apple.Com/In/App/BuyorSell-Buy-Sell-Near-You/Id913492792</p>
         </div>
       </div>
 
       {/* Info Boxes */}
-      <div className="grid gap-8 mt-8 pt-8 border-t border-slate-200">
+      <div className="grid gap-8 mt-8 pt-8 border-t border-slate-200 dark:border-slate-800">
         <div>
-          <h3 className="font-semibold text-slate-900 mb-2">Website</h3>
+          <h3 className="font-semibold text-slate-900 dark:text-gray-100 mb-2">Website</h3>
           {organization.website ? (
             <a href={organization.website} target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">
               {organization.website}
@@ -44,12 +44,12 @@ export const OrganizationOverview = ({ organization }: OrganizationOverviewProps
         </div>
 
         <div>
-          <h3 className="font-semibold text-slate-900 mb-2">Industry</h3>
+          <h3 className="font-semibold text-slate-900 dark:text-gray-100 mb-2">Industry</h3>
           <p>{organization.industry || "Technology, Information And Internet"}</p>
         </div>
 
         <div>
-          <h3 className="font-semibold text-slate-900 mb-2">Company Size</h3>
+          <h3 className="font-semibold text-slate-900 dark:text-gray-100 mb-2">Company Size</h3>
           <div className="space-y-1">
             <p>{organization.companySize || "501-1,000 Employees"}</p>
           </div>

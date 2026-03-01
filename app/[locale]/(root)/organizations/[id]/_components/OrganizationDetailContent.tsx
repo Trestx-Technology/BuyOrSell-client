@@ -28,9 +28,9 @@ export default function OrganizationDetailContent() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-[#F2F4F7]">
+      <main className="min-h-screen bg-[#F2F4F7] dark:bg-slate-950">
         <div className="max-w-[1080px] mx-auto px-4 py-8">
-          <div className="bg-gray-200 rounded-2xl h-96 animate-pulse" />
+          <div className="bg-gray-200 dark:bg-slate-800 rounded-2xl h-96 animate-pulse" />
         </div>
       </main>
     );
@@ -38,13 +38,13 @@ export default function OrganizationDetailContent() {
 
   if (!organization) {
     return (
-      <main className="min-h-screen bg-[#F2F4F7]">
+      <main className="min-h-screen bg-[#F2F4F7] dark:bg-slate-950">
         <div className="max-w-[1080px] mx-auto px-4 py-8">
-          <div className="bg-white border border-[#E2E2E2] rounded-2xl p-8 text-center">
-            <h1 className="text-2xl font-bold text-dark-blue mb-2">
+          <div className="bg-white dark:bg-slate-900 border border-[#E2E2E2] dark:border-slate-800 rounded-2xl p-8 text-center shadow-sm">
+            <h1 className="text-2xl font-bold text-dark-blue dark:text-gray-100 mb-2">
               Organization Not Found
             </h1>
-            <p className="text-[#8A8A8A]">
+            <p className="text-[#8A8A8A] dark:text-gray-400">
               The organization you&apos;re looking for doesn&apos;t exist.
             </p>
           </div>

@@ -6,6 +6,7 @@ import { useAdById } from "@/hooks/useAds";
 import Header from "./Header";
 import ProductGallery from "./ProductGallery";
 import SellerInfo from "./SellerInfo";
+import OrganizationInfo from "./OrganizationInfo";
 import SafetyFeatures from "./SafetyFeatures";
 import ContactActions from "./ContactActions";
 import DescriptionSection from "./DescriptionSection";
@@ -145,6 +146,9 @@ export default function AdDetailContent() {
               {/* Seller Information */}
               <SellerInfo ad={ad} />
 
+              {/* Organization Information */}
+              {ad.organization && <OrganizationInfo ad={ad} />}
+
               {/* Safety Features */}
               {/* <SafetyFeatures ad={ad} /> */}
 
@@ -184,6 +188,9 @@ export default function AdDetailContent() {
 
               {/* Seller Information */}
               <SellerInfo ad={ad} />
+
+              {/* Organization Information */}
+              {ad.organization && <OrganizationInfo ad={ad} />}
 
               {/* Safety Features */}
               <SafetyFeatures ad={ad} />
