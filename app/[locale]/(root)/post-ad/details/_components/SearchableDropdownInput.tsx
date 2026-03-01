@@ -76,7 +76,7 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
             type="button"
             disabled={disabled}
             className={cn(
-              "w-full h-11 px-3 py-2.5 rounded-lg border bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-foreground",
+              "w-full h-11 px-3 py-2.5 rounded-lg border bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white",
               "flex items-center justify-between text-xs font-medium",
               "focus:outline-none focus:ring-2 focus:ring-purple/20 transition-all duration-200",
               isOpen && "border-purple ring-2 ring-purple/20",
@@ -138,7 +138,7 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
                   className={cn(
                           "w-full text-left p-3 cursor-pointer text-xs font-normal border-b border-gray-50 dark:border-gray-800 last:border-0",
                           "flex items-center gap-3 transition-colors",
-                          "hover:bg-purple/5 dark:hover:bg-purple/10 text-foreground",
+                          "hover:bg-purple/5 dark:hover:bg-purple/10 text-gray-700 dark:text-gray-200",
                           isSelected(option.value) && "bg-purple/10 text-purple font-medium"
                         )}
                   >

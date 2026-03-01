@@ -22,6 +22,9 @@ export interface ReviewsResponseObject {
   statusCode?: number;
   timestamp?: string;
   data?: Review[];
+  total?: number;
+  page?: number;
+  limit?: number;
 }
 
 // Union type: API can return array directly OR structured object

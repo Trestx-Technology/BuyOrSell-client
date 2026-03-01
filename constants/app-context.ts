@@ -19,8 +19,7 @@ export const APP_RESOLUTIONS: AppResolution[] = [
     id: "search_general",
     keywords: ["find", "search", "looking for", "buy", "purchase", "browse"],
     response:
-      "I can help you find exactly what you're looking for. Use our main search bar to see all listings, or browse by category.",
-    action: { label: "Explore All Ads", url: "/search" },
+      "I am an App Navigation Assistant and cannot search for specific ads directly from this chat. To search for ads, please use the main search bar with the AI Option at the top of the page, or simply use our new keyboard shortcut (coming soon!).",
   },
   {
     id: "categories_browse",
@@ -87,10 +86,17 @@ export const APP_RESOLUTIONS: AppResolution[] = [
   },
   {
     id: "premium_ads",
-    keywords: ["premium", "boost", "standard", "featured", "top ad"],
+    keywords: ["premium", "boost", "standard", "featured", "top ad", "subscription", "plan", "package", "subscriptions"],
     response:
-      "Want more views? You can choose between Standard and Premium ad packages when posting to get your item noticed faster.",
-    action: { label: "Learn About Plans", url: "/plans" },
+      "Want to reach more buyers? We offer flexible subscription plans and boost packages to get your ads noticed faster.",
+    action: { label: "View Subscription Plans", url: "/plans" },
+  },
+  {
+    id: "how_can_i",
+    keywords: ["how can i", "how do i", "how to"],
+    response:
+      "I can help you figure out how to use the platform! Whether you want to post an ad, find a job, or manage your organization, I can guide you. You can also check our Help Center format detailed tutorials.",
+    action: { label: "Visit Help Center", url: "/help-centre" },
   },
 
   // --- 3. JOBS ---

@@ -117,6 +117,14 @@ export function useChat() {
     };
   }, [urlChatId, chats]);
 
+  // Auto-mark chat as read when viewing it
+  useEffect(() => {
+    const userId = session.user?._id;
+    if (urlChatId && userId && currentChatData?.unreadCount?.[userId] && currentChatData.unreadCount[userId] > 0) {
+      ChatService.markChatAsRead(urlChatId, userId).catch(console.error);
+    }
+  }, [urlChatId, currentChatData?.unreadCount, session.user?._id]);
+
   // Derive Other User Online Status
   useEffect(() => {
     const userId = session.user?._id;

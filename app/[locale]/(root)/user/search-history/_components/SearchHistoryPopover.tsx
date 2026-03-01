@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   useDeleteSearchHistory,
   useDeleteUserSearchHistory,
@@ -61,11 +62,11 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
           <SearchIcon className="text-purple" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-4" align="end">
-        <div className="space-y-4">
+      <PopoverContent className="w-64 p-3 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800" align="end">
+        <div className="space-y-3">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-gray-900">
+            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
               {t.searchHistory.mySearches}
             </h3>
             {searchHistory?.data && searchHistory.data.length > 0 && (
@@ -82,41 +83,43 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
           </div>
 
           {/* Search Items */}
-          <div className="space-y-3">
-            {searchHistory?.data && searchHistory.data.length > 0 ? (
-              searchHistory.data.map((item) => (
-                <div
-                  className="flex items-center justify-between p-3 bg-gray-100 rounded-lg"
-                  key={item._id}
-                >
-                  <div className="flex items-center gap-3">
-                    <Clock className="w-4 h-4 text-gray-400" />
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        {item.searchTerm}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatDate(item.timestamp)}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleDeleteSearch(item._id)}
-                    className="p-1 hover:bg-gray-200 rounded cursor-pointer"
+          <ScrollArea className="h-[250px] w-full pr-3">
+            <div className="space-y-2">
+              {searchHistory?.data && searchHistory.data.length > 0 ? (
+                searchHistory.data.map((item) => (
+                  <div
+                    className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                    key={item._id}
                   >
-                    <X className="size-4 text-gray-400" />
-                  </button>
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <Clock className="w-4 h-4 text-gray-400 shrink-0" />
+                      <div className="truncate">
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                          {item.searchTerm}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {formatDate(item.timestamp)}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteSearch(item._id)}
+                      className="p-1 hover:bg-gray-300 dark:hover:bg-gray-600 rounded cursor-pointer shrink-0"
+                    >
+                      <X className="size-4 text-gray-500 dark:text-gray-400" />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-6">
+                  <Clock className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t.searchHistory.noRecentSearches}
+                  </p>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-8">
-                <Clock className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-xs text-gray-500">
-                  {t.searchHistory.noRecentSearches}
-                </p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          </ScrollArea>
 
           {searchHistory?.total && searchHistory.total > 5 && (
             <div className="flex justify-center">

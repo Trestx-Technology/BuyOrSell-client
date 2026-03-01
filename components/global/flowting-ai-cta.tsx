@@ -21,7 +21,7 @@ export default function FloatingChatCTA() {
   const [messages, setMessages] = React.useState<Message[]>([
     {
       role: "assistant",
-      content: "Hi! I’m your AI assistant. I can help you find products, navigate the site, or answer questions about BuyOrSell.",
+      content: "Hi! I’m your App Navigation Assistant. I can help you find platform features and answer questions about how to use BuyOrSell. Note: I cannot search for specific ads here. Please use the main Search Bar at the top of the page for finding items.",
     },
   ]);
   const [input, setInput] = React.useState("");
@@ -120,54 +120,11 @@ export default function FloatingChatCTA() {
       };
     }
 
-    // 2. Search Logic (Products & General)
+    // 2. Search Logic (Products & General) bounds limit
     if (lower.includes("find") || lower.includes("search") || lower.includes("looking for") || lower.includes("buy")) {
-      try {
-        const { success, results, searchQuery } = await searchWithAI(text);
-
-        if (success) {
-          if (results && results.length > 0) {
-            const count = results.length;
-            const firstItem = results[0];
-
-            // Intelligent routing based on result type
-            let targetUrl = `/search?search=${encodeURIComponent(searchQuery)}`;
-            let label = `View ${count} Results`;
-
-            if (firstItem.adType === "JOB" || (firstItem.category && firstItem.category.toLowerCase().includes("job"))) {
-              targetUrl = `/jobs/listing?search=${encodeURIComponent(searchQuery)}`;
-              label = "View Job Matches";
-            } else if (firstItem.category) {
-              // If robust category slug is available, use it, else fallback to search
-              // targetUrl = `/categories/${firstItem.category.toLowerCase()}`;
-            }
-
-            const topNames = results.slice(0, 2).map((item: any) => item.title).join(", ");
-
-            return {
-              content: `I found ${count} items matching "${searchQuery}", such as: ${topNames}...`,
-              action: { label: label, url: targetUrl }
-            };
-          } else {
-            return {
-              content: `I couldn't find exact matches for "${searchQuery}". Try browsing our categories.`,
-              action: { label: "Browse Categories", url: "/categories" }
-            };
-          }
-        } else {
-          return {
-            content: `I couldn't find exact matches for "${searchQuery}". Try browsing our categories.`,
-            action: { label: "Browse Categories", url: "/categories" }
-          };
-        }
-
-      } catch (err) {
-        console.error("AI Search in Chat failed", err);
-        return {
-          content: "I'm having trouble searching specifically right now. Please try our main search.",
-          action: { label: "Search", url: "/search" }
-        };
-      }
+      return {
+        content: "I am an app navigation assistant and cannot search for specific ads from here. To search for ads (including using AI search), please close this chat and use the 'Search anything' bar at the top of the page or use our new keyboard shortcut (coming soon!)."
+      };
     }
 
     // Final Fallback

@@ -116,7 +116,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
           <div className="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 text-[10px] text-gray-400 pointer-events-none hidden lg:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <kbd className="font-sans">Ctrl</kbd>
             <span>+</span>
-            <kbd className="font-sans">K</kbd>
+            <kbd className="font-sans">J</kbd>
           </div>
           </div>
         </div>
@@ -126,7 +126,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
           {/*-------------- User Menu---------- */}
           {isAuthenticated && user ? (
           <div className="flex items-center gap-3">
-            <AITokenBalance />
+            {/* <AITokenBalance /> */}
             <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
               <PopoverTrigger asChild>
                 <button className="flex items-center gap-2 rounded-full p-1 hover:bg-purple-100 transition-colors">
@@ -146,7 +146,14 @@ const NavbarContent = ({ className }: { className?: string }) => {
                       </span>
                     )}
                   </div>
-                  <ChevronDown className="size-5 text-purple" />
+                  <div className="flex items-center gap-1 pr-1 pl-0.5">
+                    <ChevronDown className="size-5 text-purple" />
+                    <div className="hidden lg:flex items-center gap-0.5 px-1.5 py-0.5 rounded-md border border-purple/20 bg-purple/10 text-[10px] text-purple/70 font-sans pointer-events-none">
+                      <kbd className="font-sans font-bold">Ctrl</kbd>
+                      <span className="text-[8px] opacity-60">+</span>
+                      <kbd className="font-sans font-bold">K</kbd>
+                    </div>
+                  </div>
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-fit p-0 rounded-xl border-none shadow-none" align="end">

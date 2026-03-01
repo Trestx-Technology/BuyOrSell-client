@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Navbar from "@/components/global/Navbar";
 import CategoryNav from "@/app/[locale]/(root)/_components/CategoryNav";
 import { CommandMenu } from "@/components/global/command-menu";
+import { SearchAdsDialog } from "@/components/global/search-ads-dialog";
 import { useEmirateInvalidation } from "@/hooks/useEmirateInvalidation";
 import {
   PAGES_WITH_NAV,
@@ -67,6 +68,7 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
       </div>
       <section className="w-full mx-auto flex-grow">{children}</section>
       <CommandMenu />
+      <SearchAdsDialog />
     </main>
   );
 }

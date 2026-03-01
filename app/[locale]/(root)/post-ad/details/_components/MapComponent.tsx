@@ -71,7 +71,7 @@ export const MapComponent = ({
 
   // Store areas by emirate
   const [emirateAreas, setEmirateAreas] = useState<Record<string, string[]>>(
-    {}
+    {},
   );
 
   // Update emirateAreas when areas data changes
@@ -110,7 +110,7 @@ export const MapComponent = ({
 
       const locationPromises = popularSearchTerms.map(
         (
-          searchTerm
+          searchTerm,
         ): Promise<{
           name: string;
           coordinates: { lat: number; lng: number };
@@ -141,18 +141,18 @@ export const MapComponent = ({
                 } else {
                   resolve(null);
                 }
-              }
+              },
             );
           });
-        }
+        },
       );
 
       const locations = await Promise.all(locationPromises);
       const validLocations = locations.filter(
         (
-          loc
+          loc,
         ): loc is { name: string; coordinates: { lat: number; lng: number } } =>
-          loc !== null
+          loc !== null,
       );
 
       // Limit to 6-8 most popular locations, or use fallback if none found
@@ -196,8 +196,8 @@ export const MapComponent = ({
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
   const areaOptions = availableAreas.map((area: any) => {
-    const areaName = typeof area === 'object' ? area.area : area;
-    const areaNameAr = typeof area === 'object' ? area.areaAr : area;
+    const areaName = typeof area === "object" ? area.area : area;
+    const areaNameAr = typeof area === "object" ? area.areaAr : area;
     return {
       value: areaName,
       label: locale === "ar" ? areaNameAr || areaName : areaName,
@@ -270,7 +270,7 @@ export const MapComponent = ({
           const place = result.results[0];
           const address = place.formatted_address;
           const addressComponents = extractAddressComponents(
-            place.address_components || []
+            place.address_components || [],
           );
 
           if (onLocationSelect) {
@@ -286,10 +286,8 @@ export const MapComponent = ({
         setError("Failed to get address");
       }
     },
-    [onLocationSelect, extractAddressComponents]
+    [onLocationSelect, extractAddressComponents],
   );
-
-
 
   // Fetch quick locations when Google Maps is loaded (can work without map instance)
   useEffect(() => {
@@ -335,7 +333,7 @@ export const MapComponent = ({
               "place_id",
             ],
             types: ["geocode", "establishment"],
-          }
+          },
         );
 
         autocomplete.bindTo("bounds", mapInstanceRef.current);
@@ -391,7 +389,7 @@ export const MapComponent = ({
               extractAddressComponents(addressComponents);
 
             const emirateComponent = addressComponents.find((component: any) =>
-              component.types.includes("administrative_area_level_1")
+              component.types.includes("administrative_area_level_1"),
             );
             if (emirateComponent) {
               setSelectedEmirate(emirateComponent.long_name);
@@ -399,10 +397,10 @@ export const MapComponent = ({
 
             const areaComponent =
               addressComponents.find((component: any) =>
-                component.types.includes("locality")
+                component.types.includes("locality"),
               ) ||
               addressComponents.find((component: any) =>
-                component.types.includes("sublocality")
+                component.types.includes("sublocality"),
               );
             if (areaComponent) {
               setSelectedArea(areaComponent.long_name);
@@ -453,7 +451,7 @@ export const MapComponent = ({
       clearTimeout(timer);
       if (autocompleteRef.current) {
         window.google?.maps?.event?.clearInstanceListeners(
-          autocompleteRef.current
+          autocompleteRef.current,
         );
         autocompleteRef.current = null;
       }
@@ -518,7 +516,7 @@ export const MapComponent = ({
                   "place_id",
                 ],
                 types: ["geocode", "establishment"],
-              }
+              },
             );
 
             autocomplete.bindTo("bounds", mapInstance);
@@ -575,7 +573,7 @@ export const MapComponent = ({
 
                 const emirateComponent = addressComponents.find(
                   (component: any) =>
-                    component.types.includes("administrative_area_level_1")
+                    component.types.includes("administrative_area_level_1"),
                 );
                 if (emirateComponent) {
                   setSelectedEmirate(emirateComponent.long_name);
@@ -583,10 +581,10 @@ export const MapComponent = ({
 
                 const areaComponent =
                   addressComponents.find((component: any) =>
-                    component.types.includes("locality")
+                    component.types.includes("locality"),
                   ) ||
                   addressComponents.find((component: any) =>
-                    component.types.includes("sublocality")
+                    component.types.includes("sublocality"),
                   );
                 if (areaComponent) {
                   setSelectedArea(areaComponent.long_name);
@@ -719,7 +717,7 @@ export const MapComponent = ({
 
       getAddressFromCoordinates(
         location.coordinates.lat,
-        location.coordinates.lng
+        location.coordinates.lng,
       );
     }
   };
@@ -766,9 +764,9 @@ export const MapComponent = ({
         (error) => {
           console.error("Error getting current location:", error);
           setError(
-            "Failed to get current location. Please enable location services."
+            "Failed to get current location. Please enable location services.",
           );
-        }
+        },
       );
     } else {
       setError("Geolocation is not supported by your browser.");
@@ -822,7 +820,7 @@ export const MapComponent = ({
 
             getAddressFromCoordinates(lat, lng);
           }
-        }
+        },
       );
     }
   };
@@ -873,7 +871,7 @@ export const MapComponent = ({
 
             getAddressFromCoordinates(lat, lng);
           }
-        }
+        },
       );
     }
   };
@@ -1006,15 +1004,15 @@ export const MapComponent = ({
           size="sm"
           onClick={handleToggleMap}
           className={cn(
-            "bg-gray-100 hover:bg-gray-200",
-            !showMap && "bg-purple text-white"
+            "bg-gray-100 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 hover:bg-gray-200 border dark:border-gray-700",
+            !showMap && "bg-purple dark:bg-purple text-white",
           )}
         >
           {showMap ? "Hide Map" : "Show Map"}
         </Button>
       </div>
 
-      <div className="border rounded-lg p-4 space-y-4">
+      <div className="border dark:border-gray-800 bg-white dark:bg-gray-900 rounded-lg p-4 space-y-4">
         <div className="space-y-3">
           <div className="flex flex-col gap-3">
             <div className="space-y-2">
@@ -1032,6 +1030,7 @@ export const MapComponent = ({
                   }
                 }}
                 autoComplete="off"
+                className="bg-transparent dark:bg-gray-950 dark:border-gray-800"
               />
             </div>
             <div className="space-y-2">
@@ -1055,8 +1054,8 @@ export const MapComponent = ({
                   loadingLocations
                     ? "Loading areas..."
                     : !selectedEmirate
-                    ? "Select an emirate first"
-                    : "Select Area"
+                      ? "Select an emirate first"
+                      : "Select Area"
                 }
               />
             </div>
@@ -1082,7 +1081,7 @@ export const MapComponent = ({
                   size="sm"
                   onClick={() => handleQuickLocation(location)}
                   disabled={disabled}
-                  className="bg-gray-100 hover:bg-purple-50 hover:border-purple-300 truncate"
+                  className="bg-gray-100 hover:bg-purple-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 hover:border-purple-300 dark:border-gray-700 truncate border border-transparent"
                 >
                   {location.name}
                 </Button>
@@ -1097,7 +1096,7 @@ export const MapComponent = ({
           className={cn(
             "w-full rounded-lg border border-gray-300 overflow-hidden transition-all duration-300",
             showMap ? "block" : "hidden",
-            disabled && "opacity-50 cursor-not-allowed"
+            disabled && "opacity-50 cursor-not-allowed",
           )}
           style={{ height: showMap ? height : undefined }}
         />

@@ -26,7 +26,11 @@ export default function SelectJobCategoryContent() {
   const [showOrgDialog, setShowOrgDialog] = useState(false);
 
   // Availability Hook
-  const { checkAvailability, dialogProps, isLoading: subscriptionsLoading } = useAdAvailability();
+  const {
+    checkAvailability,
+    dialogProps,
+    isLoading: subscriptionsLoading,
+  } = useAdAvailability();
 
   // Fetch categories using the hook
   const {
@@ -86,17 +90,23 @@ export default function SelectJobCategoryContent() {
         onClose={() => setShowOrgDialog(false)}
       />
       <InsufficientAdsDialog {...dialogProps} />
-      <div className=" w-full max-w-[888px] flex-1 mx-auto bg-white">
-        <div className="w-full mx-auto bg-white">
+      <div className=" w-full max-w-[888px] flex-1 mx-auto bg-transparent">
+        <div className="w-full mx-auto bg-transparent">
           <div className="pb-8">
-             <div className="mb-6">
-              <H2 className="font-bold text-[#1D2939]">Post a Job</H2>
-                <p className="text-[#667085] mt-1">Select a job category to get started</p>
-             </div>
-            
+            <div className="mb-6">
+              <H2 className="font-bold text-[#1D2939] dark:text-white">
+                Post a Job
+              </H2>
+              <p className="text-[#667085] dark:text-gray-400 mt-1">
+                Select a job category to get started
+              </p>
+            </div>
+
             <div className="space-y-[13px]">
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-[13px]">
-                {categoriesLoading || organizationsLoading || subscriptionsLoading ? (
+                {categoriesLoading ||
+                organizationsLoading ||
+                subscriptionsLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
                     <div
                       key={index}
@@ -125,28 +135,27 @@ export default function SelectJobCategoryContent() {
                     <button
                       key={category._id}
                       onClick={() => handleCategorySelect(category._id)}
-                      className="bg-[#F7F8FA] rounded-lg p-[10px_18px] w-full h-[140px] flex flex-col items-center justify-center gap-4 hover:bg-purple/10 hover:scale-105 cursor-pointer transition-all duration-300"
+                      className="bg-[#F7F8FA] dark:bg-gray-800 rounded-lg p-[10px_18px] w-full h-[140px] flex flex-col items-center justify-center gap-4 hover:bg-purple/10 dark:hover:bg-purple/20 hover:scale-105 cursor-pointer transition-all duration-300"
                     >
-
-                        <div className="w-[70px] h-[70px] relative">
-                          <Image
+                      <div className="w-[70px] h-[70px] relative">
+                        <Image
                           src={category.mobileImage || category.icon || ""}
-                            alt={category.name}
-                            fill
-                            unoptimized
-                            className="object-cover rounded"
-                          />
-                        </div>
+                          alt={category.name}
+                          fill
+                          unoptimized
+                          className="object-cover rounded"
+                        />
+                      </div>
 
-                      <span className="text-sm font-semibold text-black text-center max-w-[130px] truncate whitespace-nowrap leading-tight">
+                      <span className="text-sm font-semibold text-black dark:text-white text-center max-w-[130px] truncate whitespace-nowrap leading-tight">
                         {category.name}
                       </span>
                     </button>
                   ))
                 ) : (
-                    <div className="col-span-full text-center py-10">
-                         <p className="text-gray-500">No Job categories found.</p>
-                    </div>
+                  <div className="col-span-full text-center py-10">
+                    <p className="text-gray-500">No Job categories found.</p>
+                  </div>
                 )}
               </div>
             </div>

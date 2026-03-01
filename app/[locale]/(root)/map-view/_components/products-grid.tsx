@@ -34,7 +34,6 @@ export default function ProductsGrid({
 }: ProductsGridProps) {
   const { locale } = useLocale();
 
-
   const handleProductClick = (ad: AD) => {
     onProductClick?.(ad);
   };
@@ -53,10 +52,7 @@ export default function ProductsGrid({
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className={cn(
-        "w-full mx-auto h-full flex flex-col overflow-y-auto",
-        className
-      )}
+      className={cn("w-full mx-auto flex flex-col", className)}
     >
       {/* Products Grid */}
       {isLoading ? (
@@ -71,12 +67,7 @@ export default function ProductsGrid({
           ))}
         </div>
       ) : (
-        <div
-          className={cn(
-            "grid grid-cols-2 gap-3 overflow-y-auto h-full"
-            // gridClassName
-          )}
-        >
+        <div className={cn("grid grid-cols-2 gap-3", gridClassName)}>
           {listingCards.length > 0 ? (
             listingCards.map((listingCard) => {
               const ad = ads.find((a) => a._id === listingCard.id);

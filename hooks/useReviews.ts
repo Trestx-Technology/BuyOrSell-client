@@ -1,9 +1,16 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
 import {
   getAdReviews,
   getOrganizationReviews,
   getReviews,
   getAverageRating,
+  getAdAverageRating,
+  getOrganizationAverageRating,
 } from "@/app/api/review/review.services";
 import {
   createAdReview,
@@ -24,7 +31,7 @@ export const useAdReviews = (
     limit?: number;
     sortBy?: "latest" | "oldest" | "highest" | "lowest";
   },
-  enabled: boolean = true
+  enabled: boolean = true,
 ) => {
   return useQuery<ReviewsResponse, Error>({
     queryKey: [...reviewQueries.adReviews(adId).Key, params],
@@ -40,7 +47,7 @@ export const useOrganizationReviews = (
     page?: number;
     limit?: number;
     sortBy?: "latest" | "oldest" | "highest" | "lowest";
-  }
+  },
 ) => {
   return useQuery<ReviewsResponse, Error>({
     queryKey: [
@@ -52,6 +59,45 @@ export const useOrganizationReviews = (
   });
 };
 
+// Get infinite reviews for a user
+export const useInfiniteUserReviews = (
+  userId: string,
+  params?: {
+    limit?: number;
+    sortBy?: "latest" | "oldest" | "highest" | "lowest";
+  },
+  enabled: boolean = true,
+) => {
+  return useInfiniteQuery<ReviewsResponse, Error>({
+    queryKey: [
+      ...reviewQueries.getReviews("User", userId).Key,
+      "infinite",
+      params,
+    ],
+    queryFn: ({ pageParam = 1 }) =>
+      getReviews("User", userId, { ...params, page: pageParam as number }),
+    getNextPageParam: (lastPage) => {
+      if (Array.isArray(lastPage)) return undefined;
+
+      const { page, total, limit, data } = lastPage as any;
+      if (
+        typeof page === "number" &&
+        typeof total === "number" &&
+        typeof limit === "number"
+      ) {
+        if (page * limit < total) {
+          return page + 1;
+        }
+      } else if (data && typeof limit === "number" && data.length === limit) {
+        return (page || 1) + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
+    enabled: enabled && !!userId,
+  });
+};
+
 // Get reviews for a user
 export const useUserReviews = (
   userId: string,
@@ -60,7 +106,7 @@ export const useUserReviews = (
     limit?: number;
     sortBy?: "latest" | "oldest" | "highest" | "lowest";
   },
-  enabled: boolean = true
+  enabled: boolean = true,
 ) => {
   return useQuery<ReviewsResponse, Error>({
     queryKey: [...reviewQueries.getReviews("User", userId).Key, params],
@@ -72,12 +118,36 @@ export const useUserReviews = (
 // Get average rating for a user
 export const useUserAverageRating = (
   userId: string,
-  enabled: boolean = true
+  enabled: boolean = true,
 ) => {
   return useQuery<AverageRatingResponse, Error>({
     queryKey: [...reviewQueries.getAverageRating("User", userId).Key],
     queryFn: () => getAverageRating("User", userId),
     enabled: enabled && !!userId,
+  });
+};
+
+// Get average rating for an ad
+export const useAdAverageRating = (
+  adId: string,
+  enabled: boolean = true,
+) => {
+  return useQuery<AverageRatingResponse, Error>({
+    queryKey: [...reviewQueries.adAverageRating(adId).Key],
+    queryFn: () => getAdAverageRating(adId),
+    enabled: enabled && !!adId,
+  });
+};
+
+// Get average rating for an organization
+export const useOrganizationAverageRating = (
+  organizationId: string,
+  enabled: boolean = true,
+) => {
+  return useQuery<AverageRatingResponse, Error>({
+    queryKey: [...reviewQueries.organizationAverageRating(organizationId).Key],
+    queryFn: () => getOrganizationAverageRating(organizationId),
+    enabled: enabled && !!organizationId,
   });
 };
 
@@ -152,7 +222,7 @@ export const useCreateOrganizationReview = () => {
       // Invalidate average rating
       queryClient.invalidateQueries({
         queryKey: reviewQueries.organizationAverageRating(
-          variables.organizationId
+          variables.organizationId,
         ).Key,
       });
     },

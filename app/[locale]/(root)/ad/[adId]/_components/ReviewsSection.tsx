@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { AD } from "@/interfaces/ad";
-import { useAdReviews } from "@/hooks/useReviews";
+import { useAdReviews, useAdAverageRating } from "@/hooks/useReviews";
 import { Review } from "@/interfaces/review.types";
 import { useAuthStore } from "@/stores/authStore";
 import { LoginRequiredDialog } from "@/components/auth/login-required-dialog";
@@ -48,18 +48,35 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
   const adId = ad._id;
 
   // Fetch ad reviews
-  const { data: reviewsResponse, isLoading } = useAdReviews(adId, {
+  const { data: reviewsResponse, isLoading: isLoadingReviews } = useAdReviews(adId, {
     page: 1,
     limit: 10,
     sortBy,
   });
 
+  // Fetch average rating
+  const { data: averageRatingResponse, isLoading: isLoadingAverage } = useAdAverageRating(adId);
+  const isLoading = isLoadingReviews || isLoadingAverage;
+
   // Extract reviews from response
   const reviews = useMemo(() => {
     if (!reviewsResponse) return [];
-    // Handle structured response object
-    return reviewsResponse.data || [];
+    // Handle structured response object or array directly if it happens
+    if (Array.isArray(reviewsResponse)) return reviewsResponse;
+    if (reviewsResponse.data && Array.isArray(reviewsResponse.data)) return reviewsResponse.data;
+    // Fallback for deeply nested structure if seen elsewhere
+    if ((reviewsResponse as any).data?.data && Array.isArray((reviewsResponse as any).data.data)) 
+      return (reviewsResponse as any).data.data;
+    
+    return [];
   }, [reviewsResponse]);
+
+  // Extract total count
+  const totalReviewsCount = useMemo(() => {
+    if (!reviewsResponse) return 0;
+    if (Array.isArray(reviewsResponse)) return reviewsResponse.length;
+    return reviewsResponse.total || reviews.length;
+  }, [reviewsResponse, reviews]);
 
   // Transform API reviews to component format
   const transformedReviews = useMemo(() => {
@@ -95,14 +112,15 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
     });
   }, [reviews]);
 
-  // Calculate overall rating and total from reviews
-  const overallRating = useMemo(() => {
+  // Get overall rating from hook or fallback to calculation
+  const overallRatingValue = useMemo(() => {
+    if (averageRatingResponse?.data !== undefined) return averageRatingResponse.data;
     if (reviews.length === 0) return 0;
-    const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
+    const sum = reviews.reduce((acc: number, review: Review) => acc + (review.rating || 0), 0);
     return sum / reviews.length;
-  }, [reviews]);
+  }, [averageRatingResponse, reviews]);
 
-  const totalReviews = reviews.length;
+  const totalReviews = totalReviewsCount;
 
   // Handle opening review dialog
   const handleOpenReviewDialog = () => {
@@ -123,7 +141,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
   };
 
   const reviewData = {
-    overallRating,
+    overallRating: overallRatingValue,
     totalReviews,
     reviews: transformedReviews,
   };
@@ -248,7 +266,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
           {!isLoading && (
             <div className="space-y-4">
               {reviewData.reviews.length > 0 ? (
-                reviewData.reviews.map((review) => (
+                reviewData.reviews.map((review: any) => (
                   <div key={review.id} className="flex items-start gap-4">
                     {/* User Avatar */}
                     <div className="w-10 h-10 bg-[#9FB7E4] rounded-full flex items-center justify-center flex-shrink-0">

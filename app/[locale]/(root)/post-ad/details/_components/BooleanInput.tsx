@@ -22,7 +22,7 @@ export const BooleanInput = forwardRef<HTMLButtonElement, BooleanInputProps>(
       trueLabel = "True",
       falseLabel = "False",
     },
-    ref
+    ref,
   ) => {
     return (
       <div className={cn("flex items-center gap-3", className)}>
@@ -36,16 +36,16 @@ export const BooleanInput = forwardRef<HTMLButtonElement, BooleanInputProps>(
             "focus:outline-none focus:ring-2 focus:ring-[#8B31E1]/20",
             value
               ? "bg-[#8B31E1] border-[#8B31E1]"
-              : "bg-white border-[#E2E2E2]",
-            disabled && "opacity-50 cursor-not-allowed"
+              : "bg-white dark:bg-gray-900 border-[#E2E2E2] dark:border-gray-700",
+            disabled && "opacity-50 cursor-not-allowed",
           )}
           role="switch"
           aria-checked={value}
         >
           <span
             className={cn(
-              "absolute top-1/2 -translate-y-1/2 w-4 h-4 border rounded-full bg-white transition-all duration-200",
-              value ? "right-[2px]" : "left-[2px] border-input"
+              "absolute top-1/2 -translate-y-1/2 w-4 h-4 border rounded-full bg-white dark:bg-gray-200 transition-all duration-200",
+              value ? "right-[2px]" : "left-[2px] border-input",
             )}
           />
         </button>
@@ -54,8 +54,7 @@ export const BooleanInput = forwardRef<HTMLButtonElement, BooleanInputProps>(
         </span>
       </div>
     );
-  }
+  },
 );
 
 BooleanInput.displayName = "BooleanInput";
-

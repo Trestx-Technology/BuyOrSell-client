@@ -5,14 +5,14 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { X, Upload, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { uploadFileWithProgress } from '@/app/api/media/media.services';
+import { uploadFileWithProgress } from "@/app/api/media/media.services";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
 import { CircularProgress } from "./CircularProgress";
 import { useMutation } from "@tanstack/react-query";
-import type { UploadFileResponse } from '@/interfaces/media.types';
+import type { UploadFileResponse } from "@/interfaces/media.types";
 
 export interface VideoItem {
   id: string;
@@ -40,19 +40,19 @@ export interface VideoUploadProps {
 // Helper function to get video duration
 const getVideoDuration = (file: File): Promise<number> => {
   return new Promise((resolve, reject) => {
-    const video = document.createElement('video');
-    video.preload = 'metadata';
-    
+    const video = document.createElement("video");
+    video.preload = "metadata";
+
     video.onloadedmetadata = () => {
       window.URL.revokeObjectURL(video.src);
       resolve(video.duration);
     };
-    
+
     video.onerror = () => {
       window.URL.revokeObjectURL(video.src);
-      reject(new Error('Failed to load video metadata'));
+      reject(new Error("Failed to load video metadata"));
     };
-    
+
     video.src = URL.createObjectURL(file);
   });
 };
@@ -62,36 +62,44 @@ export function VideoUpload({
   onVideoChange,
   maxFileSize = 100,
   maxDuration = 300, // in seconds (increased from 30)
-  acceptedFileTypes = ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo"],
+  acceptedFileTypes = [
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
+    "video/x-msvideo",
+  ],
   showUploadArea = true,
   className,
   uploadAreaClassName,
   disabled = false,
 }: VideoUploadProps) {
   const [dragOver, setDragOver] = useState(false);
-  const [dragPreviewVideo, setDragPreviewVideo] = useState<VideoItem | null>(null);
+  const [dragPreviewVideo, setDragPreviewVideo] = useState<VideoItem | null>(
+    null,
+  );
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const playerRef = useRef<ReturnType<typeof videojs> | null>(null);
 
   // Upload mutation with progress tracking
-  const uploadMutation = useMutation<UploadFileResponse, AxiosError<{ message?: string }>, { file: File; videoItem: VideoItem }>({
+  const uploadMutation = useMutation<
+    UploadFileResponse,
+    AxiosError<{ message?: string }>,
+    { file: File; videoItem: VideoItem }
+  >({
     mutationFn: async ({ file, videoItem }) => {
       return new Promise<UploadFileResponse>((resolve, reject) => {
-        uploadFileWithProgress(
-          file,
-          (progress) => {
-            // Update progress state
-            setUploadProgress(progress);
-            // Update video state with progress
-            const progressVideo: VideoItem = {
-              ...videoItem,
-              uploadError: undefined,
-              uploadProgress: progress,
-            };
-            onVideoChange?.(progressVideo);
-          }
-        )
+        uploadFileWithProgress(file, (progress) => {
+          // Update progress state
+          setUploadProgress(progress);
+          // Update video state with progress
+          const progressVideo: VideoItem = {
+            ...videoItem,
+            uploadError: undefined,
+            uploadProgress: progress,
+          };
+          onVideoChange?.(progressVideo);
+        })
           .then((response) => {
             setUploadProgress(100);
             resolve(response);
@@ -116,7 +124,7 @@ export function VideoUpload({
       console.error("Upload error:", error);
       const errorMessage =
         error?.response?.data?.message || "Failed to upload video";
-      
+
       // Mark as error
       const errorVideo: VideoItem = {
         ...variables.videoItem,
@@ -124,33 +132,42 @@ export function VideoUpload({
         uploadProgress: 0,
       };
       onVideoChange?.(errorVideo);
-      toast.error(`Failed to upload ${variables.videoItem.name}: ${errorMessage}`);
+      toast.error(
+        `Failed to upload ${variables.videoItem.name}: ${errorMessage}`,
+      );
       setUploadProgress(0); // Reset progress
     },
   });
 
   // Initialize Video.js player
   useEffect(() => {
-    if (videoRef.current && video?.presignedUrl && !uploadMutation.isPending && !video.uploadError) {
+    if (
+      videoRef.current &&
+      video?.presignedUrl &&
+      !uploadMutation.isPending &&
+      !video.uploadError
+    ) {
       // Initialize player
       if (!playerRef.current) {
         playerRef.current = videojs(videoRef.current, {
           controls: true,
           responsive: false,
           fluid: false,
-          width: '100%',
-          height: '100%',
+          width: "100%",
+          height: "100%",
           playbackRates: [0.5, 1, 1.25, 1.5, 2],
-          sources: [{
-            src: video.presignedUrl,
-            type: 'video/mp4',
-          }],
+          sources: [
+            {
+              src: video.presignedUrl,
+              type: "video/mp4",
+            },
+          ],
         });
       } else {
         // Update source if URL changes
         playerRef.current.src({
           src: video.presignedUrl,
-          type: 'video/mp4',
+          type: "video/mp4",
         });
       }
     }
@@ -181,7 +198,7 @@ export function VideoUpload({
       // Start mutation
       uploadMutation.mutate({ file: videoItem.file, videoItem });
     },
-    [onVideoChange, uploadMutation]
+    [onVideoChange, uploadMutation],
   );
 
   const handleFileSelect = useCallback(
@@ -194,7 +211,9 @@ export function VideoUpload({
 
       // Check file type
       if (!acceptedFileTypes.includes(file.type)) {
-        toast.error(`File type ${file.type} not accepted. Please upload a video file.`);
+        toast.error(
+          `File type ${file.type} not accepted. Please upload a video file.`,
+        );
         return;
       }
 
@@ -237,7 +256,7 @@ export function VideoUpload({
       acceptedFileTypes,
       disabled,
       uploadVideo,
-    ]
+    ],
   );
 
   const handleDrop = useCallback(
@@ -251,7 +270,7 @@ export function VideoUpload({
       setDragPreviewVideo(null);
       handleFileSelect(e.dataTransfer.files);
     },
-    [handleFileSelect, dragPreviewVideo]
+    [handleFileSelect, dragPreviewVideo],
   );
 
   const handleDragOver = useCallback(
@@ -266,7 +285,7 @@ export function VideoUpload({
           (item) =>
             item.kind === "file" &&
             item.type.startsWith("video/") &&
-            acceptedFileTypes.includes(item.type)
+            acceptedFileTypes.includes(item.type),
         );
 
         if (videoItem) {
@@ -283,23 +302,26 @@ export function VideoUpload({
         }
       }
     },
-    [acceptedFileTypes, dragPreviewVideo]
+    [acceptedFileTypes, dragPreviewVideo],
   );
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    // Only set dragOver to false if we're leaving the drop zone itself
-    const target = e.currentTarget;
-    const relatedTarget = e.relatedTarget as Node | null;
-    if (!target.contains(relatedTarget)) {
-      setDragOver(false);
-      // Clear preview video when leaving
-      if (dragPreviewVideo?.url.startsWith("blob:")) {
-        URL.revokeObjectURL(dragPreviewVideo.url);
+  const handleDragLeave = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      // Only set dragOver to false if we're leaving the drop zone itself
+      const target = e.currentTarget;
+      const relatedTarget = e.relatedTarget as Node | null;
+      if (!target.contains(relatedTarget)) {
+        setDragOver(false);
+        // Clear preview video when leaving
+        if (dragPreviewVideo?.url.startsWith("blob:")) {
+          URL.revokeObjectURL(dragPreviewVideo.url);
+        }
+        setDragPreviewVideo(null);
       }
-      setDragPreviewVideo(null);
-    }
-  }, [dragPreviewVideo]);
+    },
+    [dragPreviewVideo],
+  );
 
   const removeVideo = useCallback(() => {
     if (disabled) return;
@@ -323,23 +345,25 @@ export function VideoUpload({
   }, [acceptedFileTypes, handleFileSelect, disabled]);
 
   const formatFileTypes = () => {
-    return acceptedFileTypes.map((type) => type.split("/")[1].toUpperCase()).join(", ");
+    return acceptedFileTypes
+      .map((type) => type.split("/")[1].toUpperCase())
+      .join(", ");
   };
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
     <div
       className={cn(
-        "w-full min-h-[176px] rounded-lg bg-white",
+        "w-full min-h-[176px] rounded-lg bg-white dark:bg-gray-900",
         dragOver && "border-purple bg-purple/10",
         disabled && "opacity-50 cursor-not-allowed",
         className,
-        video && "border border-[#F5EBFF] border-dashed"
+        video && "border border-[#F5EBFF] border-dashed",
       )}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
@@ -350,12 +374,18 @@ export function VideoUpload({
         <div className="relative rounded-lg overflow-hidden group">
           <div className="relative aspect-video w-full bg-black rounded-lg overflow-hidden">
             {/* Show Video.js player only after upload is complete with fileUrl from response */}
-            {video.presignedUrl && !uploadMutation.isPending && !video.uploadError ? (
+            {video.presignedUrl &&
+            !uploadMutation.isPending &&
+            !video.uploadError ? (
               <div data-vjs-player className="absolute inset-0 w-full h-full">
                 <video
                   ref={videoRef}
                   className="video-js vjs-default-skin"
-                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
                   playsInline
                 />
               </div>
@@ -371,7 +401,9 @@ export function VideoUpload({
                         strokeWidth={8}
                         className="mb-4"
                       />
-                      <p className="text-white text-sm font-medium mb-2">Uploading video...</p>
+                      <p className="text-white text-sm font-medium mb-2">
+                        Uploading video...
+                      </p>
                       <p className="text-white/70 text-xs text-center">
                         Please wait while your video is being uploaded
                       </p>
@@ -379,7 +411,9 @@ export function VideoUpload({
                   ) : (
                     <>
                       <Loader2 className="w-8 h-8 text-white animate-spin mb-3" />
-                      <p className="text-white text-sm font-medium mb-3">Preparing upload...</p>
+                      <p className="text-white text-sm font-medium mb-3">
+                        Preparing upload...
+                      </p>
                     </>
                   )}
                 </div>
@@ -399,7 +433,7 @@ export function VideoUpload({
             {/* Video info overlay */}
             {!uploadMutation.isPending && !video.uploadError && (
               <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-                {video.duration ? formatDuration(video.duration) : 'Video'}
+                {video.duration ? formatDuration(video.duration) : "Video"}
               </div>
             )}
 
@@ -453,7 +487,7 @@ export function VideoUpload({
             !disabled &&
               "cursor-pointer hover:bg-purple/10 hover:border-purple/80",
             disabled && "cursor-not-allowed opacity-50",
-            uploadAreaClassName
+            uploadAreaClassName,
           )}
           onClick={!disabled ? openFileDialog : undefined}
         >
@@ -478,7 +512,7 @@ export function VideoUpload({
                   openFileDialog();
                 }}
                 disabled={disabled}
-                className="pz-2 bg-white text-black border mr-auto hover:bg-gray-50"
+                className="pz-2 bg-white dark:bg-gray-800 text-black dark:text-white border dark:border-gray-700 mr-auto hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 Add Video
               </Button>
@@ -489,4 +523,3 @@ export function VideoUpload({
     </div>
   );
 }
-

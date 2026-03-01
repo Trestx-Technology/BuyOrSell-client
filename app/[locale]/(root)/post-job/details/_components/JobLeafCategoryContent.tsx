@@ -10,6 +10,7 @@ import { useCreateAd } from "@/hooks/useAds";
 import { useMyOrganization } from "@/hooks/useOrganizations";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { useAuthStore } from "@/stores/authStore";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
 import { Button } from "@/components/ui/button";
 import { PostAdPayload } from "@/interfaces/ad";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
@@ -18,629 +19,793 @@ import { TextareaInput } from "@/app/[locale]/(root)/post-ad/details/_components
 import { NumberInput } from "@/app/[locale]/(root)/post-ad/details/_components/NumberInput";
 import { MapComponent } from "@/app/[locale]/(root)/post-ad/details/_components/MapComponent";
 import { CheckboxInput } from "@/app/[locale]/(root)/post-ad/details/_components/CheckboxInput";
+import { BooleanInput } from "@/app/[locale]/(root)/post-ad/details/_components/BooleanInput";
 import { Field } from "@/interfaces/categories.types";
-import { DynamicFieldRenderer, FormValues } from "@/app/[locale]/(root)/post-ad/details/_components/DynamicFieldRenderer";
+import {
+  DynamicFieldRenderer,
+  FormValues,
+} from "@/app/[locale]/(root)/post-ad/details/_components/DynamicFieldRenderer";
 import { SelectInput } from "@/app/[locale]/(root)/post-ad/details/_components/SelectInput";
 import { FormSkeleton } from "@/app/[locale]/(root)/post-ad/details/_components/FormSkeleton";
-import { createPostJobSchema, type AddressFormValue } from "@/schemas/post-ad.schema";
-import { getFieldOptions, shouldShowField } from "@/validations/post-ad.validation";
+import {
+  createPostJobSchema,
+  type AddressFormValue,
+} from "@/schemas/post-ad.schema";
+import {
+  getFieldOptions,
+  shouldShowField,
+} from "@/validations/post-ad.validation";
 import { AD_SYSTEM_FIELDS } from "@/constants/ad.constants";
 import { removeUndefinedFields } from "@/utils/remove-undefined-fields";
 import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
 import PhoneNumberInput from "@/components/global/phone-number-input";
+import { CheckCircle2, AlertCircle } from "lucide-react";
+import { FormSummaryItem } from "@/app/[locale]/(root)/post-ad/details/_components/FormSummaryItem";
+import PostStatusView, {
+  PostStatus,
+} from "@/app/[locale]/(root)/post-ad/details/_components/PostStatusView";
 
 export default function JobLeafCategoryContent() {
-      const { localePath, locale } = useLocale();
-      const { leafCategoryId } = useParams<{ leafCategoryId: string }>();
-      const router = useRouter();
-      const { session } = useAuthStore((state) => state);
-      const { categoryArray } = useAdPostingStore((state) => state);
-      const searchParams = useSearchParams();
-      const initialPrompt = searchParams.get("prompt");
-      const createAdMutation = useCreateAd();
-      const [selectedLocation, setSelectedLocation] = useState<{
-            address: string;
-            coordinates: { lat: number; lng: number };
-      } | null>(null);
+  const { localePath, locale } = useLocale();
+  const { leafCategoryId } = useParams<{ leafCategoryId: string }>();
+  const router = useRouter();
+  const { session } = useAuthStore((state) => state);
+  const { canFeatureAd, getAvailableFeaturedAdsCount } = useSubscriptionStore();
+  const { categoryArray, currentStep, setStep } = useAdPostingStore(
+    (state) => state,
+  );
+  const searchParams = useSearchParams();
+  const initialPrompt = searchParams.get("prompt");
+  const createAdMutation = useCreateAd();
+  const [selectedLocation, setSelectedLocation] = useState<{
+    address: string;
+    coordinates: { lat: number; lng: number };
+  } | null>(null);
+  const [postStatus, setPostStatus] = useState<PostStatus>("idle");
 
-      // Fetch category by ID
-      const {
-            data: categoryData,
-            isLoading,
-            error,
-      } = useCategoryById(leafCategoryId as string);
+  // Fetch category by ID
+  const {
+    data: categoryData,
+    isLoading,
+    error,
+  } = useCategoryById(leafCategoryId as string);
 
-      const category = categoryData?.data;
+  const category = categoryData?.data;
 
-      // Fetch organizations
-      const { data: organizationsData } = useMyOrganization();
-      const organizations = organizationsData?.data || [];
+  // Fetch organizations
+  const { data: organizationsData } = useMyOrganization();
+  const organizations = organizationsData?.data || [];
 
-      // Build dynamic Zod schema based on category fields
-      const formSchema = useMemo(() => {
-            return createPostJobSchema(category);
-      }, [category]);
+  // Build dynamic Zod schema based on category fields
+  const formSchema = useMemo(() => {
+    return createPostJobSchema(category);
+  }, [category]);
 
-      const {
-            control,
-            handleSubmit,
-            setValue,
-            watch,
-            formState: { errors, isValid, isSubmitting },
-      } = useForm<FormValues>({
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            resolver: category ? zodResolver(formSchema as any) : undefined,
-            defaultValues: {
-                  minSalary: 0,
-                  maxSalary: 0,
-                  phoneNumber: "",
-                  address: { address: "" },
-            },
-            mode: "onChange",
+  const availableFeaturedAds = useMemo(() => {
+    if (!category) return 0;
+    return getAvailableFeaturedAdsCount("JOB", category.name);
+  }, [category, getAvailableFeaturedAdsCount]);
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isValid, isSubmitting },
+  } = useForm<FormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: category ? zodResolver(formSchema as any) : undefined,
+    defaultValues: {
+      minSalary: 0,
+      maxSalary: 0,
+      phoneNumber: "",
+      address: { address: "" },
+    },
+    mode: "onChange",
+  });
+
+  // Pre-fill description from AI prompt if available
+  useMemo(() => {
+    if (initialPrompt && category) {
+      setValue("description", initialPrompt);
+    }
+  }, [initialPrompt, category, setValue]);
+
+  // Handle input change (wrapper for setValue)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleInputChange = (field: string, value: any) => {
+    setValue(field as keyof FormValues, value as FormValues[keyof FormValues], {
+      shouldValidate: true,
+    });
+
+    if (category?.fields) {
+      category.fields.forEach((f: Field) => {
+        if (f.dependsOn === field) {
+          setValue(
+            f.name as keyof FormValues,
+            "" as FormValues[keyof FormValues],
+            { shouldValidate: false },
+          );
+        }
       });
+    }
+  };
 
-      // Pre-fill description from AI prompt if available
-      useMemo(() => {
-            if (initialPrompt && category) {
-                  setValue("description", initialPrompt);
-            }
-      }, [initialPrompt, category, setValue]);
+  const formValues = watch();
 
-      // Handle input change (wrapper for setValue)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const handleInputChange = (field: string, value: any) => {
-            setValue(field as keyof FormValues, value as FormValues[keyof FormValues], { shouldValidate: true });
+  const handleLocationSelect = (location: {
+    address: string;
+    coordinates: { lat: number; lng: number };
+    state?: string;
+    country?: string;
+    zipCode?: string;
+    city?: string;
+    street?: string;
+  }) => {
+    setSelectedLocation({
+      address: location.address,
+      coordinates: location.coordinates,
+    });
 
-            if (category?.fields) {
-                  category.fields.forEach((f: Field) => {
-                        if (f.dependsOn === field) {
-                              setValue(f.name as keyof FormValues, "" as FormValues[keyof FormValues], { shouldValidate: false });
-                        }
-                  });
-            }
-      };
+    const addressObj = {
+      address: location.address,
+      coordinates: [location.coordinates.lng, location.coordinates.lat],
+      state: location.state || "",
+      country: location.country || "",
+      zipCode: location.zipCode || "",
+      city: location.city || "",
+      street: location.street || "",
+      type: "Point",
+    };
 
-      const formValues = watch();
+    handleInputChange("address", addressObj);
+  };
 
-      const handleLocationSelect = (location: {
-            address: string;
-            coordinates: { lat: number; lng: number };
-            state?: string;
-            country?: string;
-            zipCode?: string;
-            city?: string;
-            street?: string;
-      }) => {
-            setSelectedLocation({
-                  address: location.address,
-                  coordinates: location.coordinates,
-            });
+  const renderField = (field: Field) => {
+    if (!shouldShowField(field, formValues)) {
+      return null;
+    }
 
-            const addressObj = {
-                  address: location.address,
-                  coordinates: [location.coordinates.lng, location.coordinates.lat],
-                  state: location.state || "",
-                  country: location.country || "",
-                  zipCode: location.zipCode || "",
-                  city: location.city || "",
-                  street: location.street || "",
-                  type: "Point",
-            };
+    const options = getFieldOptions(field, formValues, locale);
 
-            handleInputChange("address", addressObj);
-      };
+    return (
+      <DynamicFieldRenderer
+        key={field.name}
+        field={field}
+        control={control}
+        errors={errors}
+        options={options}
+        formValues={formValues}
+        onInputChange={handleInputChange}
+        selectedLocation={selectedLocation}
+        onLocationSelect={handleLocationSelect}
+      />
+    );
+  };
 
-      const renderField = (field: Field) => {
-            if (!shouldShowField(field, formValues)) {
-                  return null;
-            }
+  const onSubmit = async (data: FormValues) => {
+    const minSalary = (data.minSalary as number) || 0;
+    const maxSalary = (data.maxSalary as number) || 0;
+    const jobMode = (data.jobMode as string) || "";
+    const jobShift = (data.jobShift as string) || "";
 
-            const options = getFieldOptions(field, formValues, locale);
+    const connectionTypes = Array.isArray(data.connectionTypes)
+      ? data.connectionTypes
+      : data.connectionTypes
+        ? [data.connectionTypes as string]
+        : [];
 
-            return (
-                  <DynamicFieldRenderer
-                        key={field.name}
-                        field={field}
-                        control={control}
-                        errors={errors}
-                        options={options}
-                        formValues={formValues}
-                        onInputChange={handleInputChange}
-                        selectedLocation={selectedLocation}
-                        onLocationSelect={handleLocationSelect}
+    const addressData = (data.address as AddressFormValue) || {};
+
+    const extraFields: Array<{
+      name: string;
+      type: string;
+      value: string | string[];
+      optionalArray?: string[];
+    }> = [];
+
+    if (category?.fields) {
+      category.fields.forEach((field: Field) => {
+        if (
+          !AD_SYSTEM_FIELDS.includes(
+            field.name as (typeof AD_SYSTEM_FIELDS)[number],
+          ) &&
+          !["minSalary", "maxSalary", "jobMode", "jobShift"].includes(
+            field.name,
+          ) &&
+          data[field.name] !== undefined &&
+          data[field.name] !== null &&
+          data[field.name] !== ""
+        ) {
+          const fieldValue = data[field.name];
+          extraFields.push({
+            name: field.name,
+            type: field.type,
+            value: fieldValue as string | string[],
+            optionalArray: field.optionalArray || [],
+          });
+        }
+      });
+    }
+
+    const organizationValue = (data.organization as string) || "";
+    const isIndividual = organizationValue === "individual";
+
+    // Always JOB for post-job flow
+    const adType = "JOB";
+
+    const payload: PostAdPayload = {
+      title: (data.title as string) || "",
+      description: (data.description as string) || "",
+      // price is reused for single salary view if needed, but for jobs we use min/max
+      price: 0,
+      minSalary,
+      maxSalary,
+      jobMode,
+      jobShift,
+      stockQuantity: 1,
+      availability: "in-stock",
+      images: [], // No images for jobs
+      deal: false,
+      videoUrl: undefined, // No video for jobs
+      category: leafCategoryId as string,
+      owner: (session.user?._id as string) || "",
+      contactPhoneNumber: (data.phoneNumber as string) || "",
+      connectionTypes: connectionTypes as
+        | ("chat" | "call" | "whatsapp")[]
+        | undefined,
+      address: {
+        state: addressData.state || "",
+        country: addressData.country || "",
+        zipCode: addressData.zipCode || "",
+        city: addressData.city || "",
+        address: addressData.address || null,
+        coordinates: Array.isArray(addressData.coordinates)
+          ? addressData.coordinates
+          : null,
+      },
+      relatedCategories: categoryArray.map((cat) => cat.name),
+      featuredStatus: "created", // Removed featured checkbox from UI, default to created
+      status: "created",
+      userType: "RERA_LANDLORD" as const,
+      tags: [],
+      documents: [],
+      extraFields: extraFields,
+      adType: adType,
+      ...(isIndividual ? {} : { organizationId: organizationValue }),
+    };
+
+    // Remove purely undefined fields if any (helper fn)
+    removeUndefinedFields(payload);
+
+    try {
+      setPostStatus("loading");
+      setStep(4);
+      const response = await createAdMutation.mutateAsync(payload);
+      // Redirect to the new success page
+      router.push(localePath(`/success?id=${response.data._id}`));
+    } catch (error: unknown) {
+      console.error("Error creating job", error);
+      setPostStatus("error");
+    }
+  };
+
+  if (isLoading) {
+    return <FormSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <section className="h-full w-full max-w-[888px] mx-auto">
+        <div className="text-center py-8">
+          <p className="text-red-500 mb-2">Failed to load category</p>
+          <Button
+            onClick={() => router.push(localePath("/post-job/select"))}
+            variant="outline"
+          >
+            Back to Categories
+          </Button>
+        </div>
+      </section>
+    );
+  }
+
+  if (!category) {
+    return (
+      <section className="h-full w-full max-w-[888px] mx-auto">
+        <div className="text-center py-8">
+          <p className="text-gray-500 mb-2">Category not found</p>
+          <Button
+            onClick={() => router.push(localePath("/post-job/select"))}
+            variant="outline"
+          >
+            Back to Categories
+          </Button>
+        </div>
+      </section>
+    );
+  }
+
+  if (currentStep === 4 && postStatus !== "idle") {
+    return (
+      <GoogleMapsProvider>
+        <section className="w-full max-w-[888px] mx-auto relative min-h-[400px]">
+          <PostStatusView
+            status={postStatus}
+            onRetry={() => {
+              setPostStatus("idle");
+              setStep(3);
+            }}
+          />
+        </section>
+      </GoogleMapsProvider>
+    );
+  }
+
+  return (
+    <GoogleMapsProvider>
+      <section className="w-full max-w-[888px] mx-auto relative">
+        {/* Breadcrumbs */}
+        <div className="flex h-full gap-5 relative">
+          <div className="w-full space-y-6 md:w-2/3 h-full pb-24">
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-lg font-semibold text-[#1D2939] dark:text-white mb-2">
+                  Job Information
+                </h2>
+                <p className="text-sm text-[#8A8A8A] dark:text-gray-400">
+                  Fill in the details of the job vacancy
+                </p>
+              </div>
+
+              {/* Organization Selection */}
+              <FormField
+                label="Organization"
+                htmlFor="organization"
+                required
+                error={errors.organization?.message as string}
+              >
+                <Controller
+                  name="organization"
+                  control={control}
+                  rules={{ required: "Organization selection is required" }}
+                  render={({ field }) => {
+                    const organizationOptions = [
+                      {
+                        value: "individual",
+                        label: "Post as Individual",
+                        disabled: true,
+                      },
+                      ...organizations.map((org) => ({
+                        value: org._id,
+                        label: `${org.tradeName || org.legalName}${org.verified ? " (Verified)" : ""}`,
+                        icon: org.logoUrl,
+                      })),
+                    ];
+
+                    return (
+                      <SelectInput
+                        value={field.value as string}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          handleInputChange("organization", value);
+                        }}
+                        options={organizationOptions}
+                        placeholder="Select organization"
+                        error={errors.organization?.message as string}
+                      />
+                    );
+                  }}
+                />
+              </FormField>
+
+              {/* Title */}
+              <FormField
+                label="Job Title"
+                htmlFor="title"
+                required
+                error={errors.title?.message as string}
+              >
+                <Controller
+                  name="title"
+                  control={control}
+                  rules={{ required: "Job title is required" }}
+                  render={({ field }) => (
+                    <TextInput
+                      value={(field.value as string) || ""}
+                      onChange={(val) => {
+                        field.onChange(val);
+                        handleInputChange("title", val);
+                      }}
+                      placeholder="Enter job title"
+                      error={errors.title?.message as string}
+                    />
+                  )}
+                />
+              </FormField>
+
+              {/* Description */}
+              <FormField
+                label="Job Description"
+                htmlFor="description"
+                required
+                error={errors.description?.message as string}
+                fullWidth
+              >
+                <Controller
+                  name="description"
+                  control={control}
+                  rules={{ required: "Job description is required" }}
+                  render={({ field }) => (
+                    <TextareaInput
+                      value={(field.value as string) || ""}
+                      onChange={(val) => {
+                        field.onChange(val);
+                        handleInputChange("description", val);
+                      }}
+                      placeholder="Enter job description"
+                      rows={6}
+                      maxLength={2000}
+                      error={errors.description?.message as string}
+                      showAI={true}
+                      categoryPath={
+                        categoryArray.map((c) => c.name).join(" > ") ||
+                        category?.name ||
+                        "Jobs"
+                      }
+                    />
+                  )}
+                />
+              </FormField>
+
+              {/* Salary Range */}
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  label="Min Salary (AED)"
+                  htmlFor="minSalary"
+                  required
+                  error={errors.minSalary?.message as string}
+                >
+                  <Controller
+                    name="minSalary"
+                    control={control}
+                    rules={{ min: { value: 0, message: "Must be positive" } }}
+                    render={({ field }) => (
+                      <NumberInput
+                        value={(field.value as number) || 0}
+                        onChange={(val) => {
+                          field.onChange(val);
+                          handleInputChange("minSalary", val);
+                        }}
+                        min={0}
+                        placeholder="Min"
+                        error={errors.minSalary?.message as string}
+                      />
+                    )}
                   />
-            );
-      };
+                </FormField>
+                <FormField
+                  label="Max Salary (AED)"
+                  htmlFor="maxSalary"
+                  required
+                  error={errors.maxSalary?.message as string}
+                >
+                  <Controller
+                    name="maxSalary"
+                    control={control}
+                    rules={{ min: { value: 0, message: "Must be positive" } }}
+                    render={({ field }) => (
+                      <NumberInput
+                        value={(field.value as number) || 0}
+                        onChange={(val) => {
+                          field.onChange(val);
+                          handleInputChange("maxSalary", val);
+                        }}
+                        min={0}
+                        placeholder="Max"
+                        error={errors.maxSalary?.message as string}
+                      />
+                    )}
+                  />
+                </FormField>
+              </div>
 
-      const onSubmit = async (data: FormValues) => {
-            const minSalary = (data.minSalary as number) || 0;
-            const maxSalary = (data.maxSalary as number) || 0;
-            const jobMode = (data.jobMode as string) || "";
-            const jobShift = (data.jobShift as string) || "";
+              {/* Job Mode & Shift */}
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  label="Job Mode"
+                  htmlFor="jobMode"
+                  required
+                  error={errors.jobMode?.message as string}
+                >
+                  <Controller
+                    name="jobMode"
+                    control={control}
+                    rules={{ required: "Job mode is required" }}
+                    render={({ field }) => (
+                      <SelectInput
+                        value={field.value as string}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          handleInputChange("jobMode", value);
+                        }}
+                        options={[
+                          { value: "on-site", label: "On-Site" },
+                          { value: "remote", label: "Remote" },
+                          { value: "hybrid", label: "Hybrid" },
+                        ]}
+                        placeholder="Select Mode"
+                        error={errors.jobMode?.message as string}
+                      />
+                    )}
+                  />
+                </FormField>
+                <FormField
+                  label="Job Shift"
+                  htmlFor="jobShift"
+                  required
+                  error={errors.jobShift?.message as string}
+                >
+                  <Controller
+                    name="jobShift"
+                    control={control}
+                    rules={{ required: "Job shift is required" }}
+                    render={({ field }) => (
+                      <SelectInput
+                        value={field.value as string}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          handleInputChange("jobShift", value);
+                        }}
+                        options={[
+                          { value: "Day", label: "Day" },
+                          { value: "Night", label: "Night" },
+                          { value: "Rotational", label: "Rotational" },
+                        ]}
+                        placeholder="Select Shift"
+                        error={errors.jobShift?.message as string}
+                      />
+                    )}
+                  />
+                </FormField>
+              </div>
 
-            const connectionTypes = Array.isArray(data.connectionTypes)
-                  ? data.connectionTypes
-                  : data.connectionTypes
-                        ? [data.connectionTypes as string]
-                        : [];
 
-            const addressData = (data.address as AddressFormValue) || {};
+              {/* Phone Number */}
+              <FormField
+                label="Contact Phone Number"
+                htmlFor="phoneNumber"
+                required
+                error={errors.phoneNumber?.message as string}
+              >
+                <Controller
+                  name="phoneNumber"
+                  control={control}
+                  rules={{ required: "Phone number is required" }}
+                  render={({ field }) => (
+                    <PhoneNumberInput
+                      value={(field.value as string) || ""}
+                      onPhoneChange={(val) => {
+                        field.onChange(val);
+                        handleInputChange("phoneNumber", val);
+                      }}
+                    />
+                  )}
+                />
+              </FormField>
 
-            const extraFields: Array<{
-                  name: string;
-                  type: string;
-                  value: string | string[];
-                  optionalArray?: string[];
-            }> = [];
-
-            if (category?.fields) {
-                  category.fields.forEach((field: Field) => {
-                        if (
-                              !AD_SYSTEM_FIELDS.includes(
-                                    field.name as (typeof AD_SYSTEM_FIELDS)[number]
-                              ) &&
-                              !['minSalary', 'maxSalary', 'jobMode', 'jobShift'].includes(field.name) &&
-                              data[field.name] !== undefined &&
-                              data[field.name] !== null &&
-                              data[field.name] !== ""
-                        ) {
-                              const fieldValue = data[field.name];
-                              extraFields.push({
-                                    name: field.name,
-                                    type: field.type,
-                                    value: fieldValue as string | string[],
-                                    optionalArray: field.optionalArray || [],
-                              });
-                        }
-                  });
-            }
-
-            const organizationValue = (data.organization as string) || "";
-            const isIndividual = organizationValue === "individual";
-
-            // Always JOB for post-job flow
-            const adType = "JOB";
-
-            const payload: PostAdPayload = {
-                  title: (data.title as string) || "",
-                  description: (data.description as string) || "",
-                  // price is reused for single salary view if needed, but for jobs we use min/max
-                  price: 0,
-                  minSalary,
-                  maxSalary,
-                  jobMode,
-                  jobShift,
-                  stockQuantity: 1,
-                  availability: "in-stock",
-                  images: [], // No images for jobs
-                  deal: false,
-                  videoUrl: undefined, // No video for jobs
-                  category: leafCategoryId as string,
-                  owner: (session.user?._id as string) || "",
-                  contactPhoneNumber: (data.phoneNumber as string) || "",
-                  connectionTypes: connectionTypes as ("chat" | "call" | "whatsapp")[] | undefined,
-                  address: {
-                        state: addressData.state || "",
-                        country: addressData.country || "",
-                        zipCode: addressData.zipCode || "",
-                        city: addressData.city || "",
-                        address: addressData.address || null,
-                        coordinates: Array.isArray(addressData.coordinates) ? addressData.coordinates : null,
-                  },
-                  relatedCategories: categoryArray.map((cat) => cat.name),
-                  featuredStatus: "created", // Removed featured checkbox from UI, default to created
-                  status: "created",
-                  userType: "RERA_LANDLORD" as const,
-                  tags: [],
-                  documents: [],
-                  extraFields: extraFields,
-                  adType: adType,
-                  ...(isIndividual ? {} : { organizationId: organizationValue }),
-            };
-
-            // Remove purely undefined fields if any (helper fn)
-            removeUndefinedFields(payload);
-
-            try {
-                  await createAdMutation.mutateAsync(payload);
-                  router.push(localePath(`/post-job/success?status=success&title=Job posted successfully!`));
-            } catch (error: unknown) {
-                  console.error("Error creating job", error);
-            }
-      };
-
-      if (isLoading) {
-            return <FormSkeleton />;
-      }
-
-      if (error) {
-            return (
-                  <section className="h-full w-full max-w-[888px] mx-auto">
-                        <div className="text-center py-8">
-                              <p className="text-red-500 mb-2">Failed to load category</p>
-                              <Button
-                                    onClick={() => router.push(localePath("/post-job/select"))}
-                                    variant="outline"
-                              >
-                                    Back to Categories
-                              </Button>
+              {/* Address */}
+              <FormField
+                label="Job Location"
+                htmlFor="address"
+                required
+                error={errors.address?.message as string}
+                fullWidth
+              >
+                <Controller
+                  name="address"
+                  control={control}
+                  rules={{
+                    required: "Location is required",
+                    validate: (value) => {
+                      if (!value || !(value as { address?: string })?.address) {
+                        return "Location is required";
+                      }
+                      return true;
+                    },
+                  }}
+                  render={() => (
+                    <>
+                      <MapComponent
+                        onLocationSelect={handleLocationSelect}
+                        initialLocation={selectedLocation || undefined}
+                        height="300px"
+                        className="rounded-lg"
+                      />
+                      {selectedLocation && (
+                        <div className="mt-2 p-3 bg-blue-50 rounded-lg">
+                          <p className="text-sm text-blue-800">
+                            <strong>Selected:</strong>{" "}
+                            {selectedLocation.address}
+                          </p>
                         </div>
-                  </section>
-            );
-      }
+                      )}
+                    </>
+                  )}
+                />
+              </FormField>
 
-      if (!category) {
-            return (
-                  <section className="h-full w-full max-w-[888px] mx-auto">
-                        <div className="text-center py-8">
-                              <p className="text-gray-500 mb-2">Category not found</p>
-                              <Button
-                                    onClick={() => router.push(localePath("/post-job/select"))}
-                                    variant="outline"
-                              >
-                                    Back to Categories
-                              </Button>
-                        </div>
-                  </section>
-            );
-      }
+              {/* Connection Types */}
+              <FormField
+                label="Contact Methods"
+                htmlFor="connectionTypes"
+                required
+                error={errors.connectionTypes?.message as string}
+              >
+                <Controller
+                  name="connectionTypes"
+                  control={control}
+                  rules={{
+                    required: "At least one contact method is required",
+                  }}
+                  render={({ field }) => (
+                    <CheckboxInput
+                      value={
+                        Array.isArray(field.value)
+                          ? (field.value as string[])
+                          : field.value
+                            ? [field.value as string]
+                            : []
+                      }
+                      onChange={(val) => {
+                        field.onChange(val);
+                        handleInputChange("connectionTypes", val);
+                      }}
+                      options={[
+                        { value: "call", label: "Call" },
+                        { value: "chat", label: "Chat" },
+                        { value: "whatsapp", label: "WhatsApp" },
+                      ]}
+                      columns={3}
+                    />
+                  )}
+                />
+              </FormField>
 
-      return (
-            <GoogleMapsProvider>
+              {/* Dynamic Fields from Category */}
+              {category.fields && category.fields.length > 0 && (
+                <div className="space-y-3">
+                  {category.fields
+                    .filter((field) => !field.hidden)
+                    .map((field) => {
+                      return renderField(field);
+                    })
+                    .filter(Boolean)}
+                </div>
+              )}
+            </div>
 
-            <section className="w-full max-w-[888px] mx-auto relative">
-                  <div className="flex h-full gap-10 relative">
-                        <div className="w-full space-y-6 md:w-2/3 h-full pb-24">
-                              <div className="space-y-4">
-                                    <div>
-                                          <h2 className="text-lg font-semibold text-[#1D2939] mb-2">
-                                                Job Information
-                                          </h2>
-                                          <p className="text-sm text-[#8A8A8A]">
-                                                Fill in the details of the job vacancy
-                                          </p>
-                                    </div>
+            {/* Navigation Buttons (Moved to bottom of form) */}
+            <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm mt-8 hidden md:block">
+              <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">
+                Ready to post?
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
+                Review your job details carefully before publishing.
+              </p>
+              <div className="flex gap-4">
+                <Button
+                  variant="outline"
+                  className="flex-1 py-6 text-lg font-medium rounded-full border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300"
+                  onClick={() => router.back()}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 bg-[#7052FB] hover:bg-[#5b3fd4] text-white py-6 text-lg font-medium rounded-full shadow-lg shadow-[#7052FB]/20 transition-all duration-300 hover:scale-[1.02]"
+                  onClick={handleSubmit(onSubmit)}
+                  disabled={isSubmitting || !isValid}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
+                      Posting Job...
+                    </>
+                  ) : (
+                    "Post Job Now"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
 
-                                    {/* Organization Selection */}
-                                    <FormField
-                                          label="Organization"
-                                          htmlFor="organization"
-                                          required
-                                          error={errors.organization?.message as string}
-                                    >
-                                          <Controller
-                                                name="organization"
-                                                control={control}
-                                                rules={{ required: "Organization selection is required" }}
-                                                render={({ field }) => {
-                                                      const organizationOptions = [
-                                                            {
-                                                                  value: "individual",
-                                                                  label: "Post as Individual",
-                                                                  disabled: true,
-                                                            },
-                                                            ...organizations.map((org) => ({
-                                                                  value: org._id,
-                                                                  label: `${org.tradeName || org.legalName}${org.verified ? " (Verified)" : ""}`,
-                                                                  icon: org.logoUrl,
-                                                            })),
-                                                      ]
+          {/* Right Column - Info & Sponsored Ad */}
+          <div className="hidden md:block md:w-1/3 relative">
+            <div className="sticky top-24 space-y-4">
+              {/* Posting Tips Box */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-900/50">
+                <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
+                  <span className="bg-blue-200 dark:bg-blue-800/50 text-blue-700 dark:text-blue-300 w-6 h-6 rounded-full flex items-center justify-center text-xs">
+                    i
+                  </span>
+                  Posting Tips
+                </h4>
+                <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-2 list-disc list-inside">
+                  <li>Provide a clear and concise job title</li>
+                  <li>Describe the roles and responsibilities</li>
+                  <li>Mention required qualifications</li>
+                  <li>Include a salary range to attract relevant candidates</li>
+                </ul>
+              </div>
 
-                                                      return (
-                                                            <SelectInput
-                                                                  value={field.value as string}
-                                                                  onChange={(value) => {
-                                                                        field.onChange(value);
-                                                                        handleInputChange("organization", value);
-                                                                  }}
-                                                                  options={organizationOptions}
-                                                                  placeholder="Select organization"
-                                                                  error={errors.organization?.message as string}
-                                                            />
-                                                      );
-                                                }}
-                                          />
-                                    </FormField>
+              {/* Form Summary Container */}
+              <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm mt-4">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span className="bg-purple/10 text-purple p-1.5 rounded-lg">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </span>
+                  Job Summary
+                </h4>
+                <div className="space-y-3 text-sm">
+                  <FormSummaryItem
+                    label="Title"
+                    value={formValues.title}
+                    error={!!errors.title}
+                  />
+                  <FormSummaryItem label="Category" value={category?.name} />
+                  <FormSummaryItem
+                    label="Salary Range"
+                    value={
+                      formValues.minSalary && formValues.maxSalary
+                        ? `${formValues.minSalary} - ${formValues.maxSalary}`
+                        : undefined
+                    }
+                    type="price"
+                    error={!!errors.minSalary || !!errors.maxSalary}
+                  />
+                  <FormSummaryItem
+                    label="Job Mode"
+                    value={(formValues as any).jobMode}
+                    error={!!errors.jobMode}
+                  />
+                  <FormSummaryItem
+                    label="Job Shift"
+                    value={(formValues as any).jobShift}
+                    error={!!errors.jobShift}
+                  />
+                  <FormSummaryItem
+                    label="Location"
+                    value={formValues.address}
+                    type="location"
+                    error={!!errors.address}
+                  />
 
-                                    {/* Title */}
-                                    <FormField
-                                          label="Job Title"
-                                          htmlFor="title"
-                                          required
-                                          error={errors.title?.message as string}
-                                    >
-                                          <Controller
-                                                name="title"
-                                                control={control}
-                                                rules={{ required: "Job title is required" }}
-                                                render={({ field }) => (
-                                                      <TextInput
-                                                            value={(field.value as string) || ""}
-                                                            onChange={(val) => {
-                                                                  field.onChange(val);
-                                                                  handleInputChange("title", val);
-                                                            }}
-                                                            placeholder="Enter job title"
-                                                            error={errors.title?.message as string}
-                                                      />
-                                                )}
-                                          />
-                                    </FormField>
+                  {/* Rendering dynamic fields from the category */}
+                  {category?.fields
+                    ?.filter((f: Field) => !f.hidden)
+                    .map((f: Field) => {
+                      const val = (formValues as any)[f.name];
+                      return (
+                        <FormSummaryItem
+                          key={f.name}
+                          label={f.name}
+                          value={val}
+                          error={!!errors[f.name]}
+                        />
+                      );
+                    })}
 
-                                    {/* Description */}
-                                    <FormField
-                                          label="Job Description"
-                                          htmlFor="description"
-                                          required
-                                          error={errors.description?.message as string}
-                                          fullWidth
-                                    >
-                                                <Controller
-                                                      name="description"
-                                                      control={control}
-                                                      rules={{ required: "Job description is required" }}
-                                                      render={({ field }) => (
-                                                            <TextareaInput
-                                                                  value={(field.value as string) || ""}
-                                                                  onChange={(val) => {
-                                                                        field.onChange(val);
-                                                                        handleInputChange("description", val);
-                                                                  }}
-                                                                  placeholder="Enter job description"
-                                                                  rows={6}
-                                                                  maxLength={2000}
-                                                                  error={errors.description?.message as string}
-                                                                  showAI={true}
-                                                                  categoryPath={categoryArray.map((c) => c.name).join(" > ") || category?.name || "Jobs"}
-                                                            />
-                                                      )}
-                                                />
-                                    </FormField>
-
-                                          {/* Salary Range */}
-                                          <div className="grid grid-cols-2 gap-4">
-                                                <FormField
-                                                      label="Min Salary (AED)"
-                                                      htmlFor="minSalary"
-                                                      required
-                                                      error={errors.minSalary?.message as string}
-                                                >
-                                                      <Controller
-                                                            name="minSalary"
-                                                            control={control}
-                                                            rules={{ min: { value: 0, message: "Must be positive" } }}
-                                                            render={({ field }) => (
-                                                                  <NumberInput
-                                                                        value={(field.value as number) || 0}
-                                                                        onChange={(val) => {
-                                                                              field.onChange(val);
-                                                                              handleInputChange("minSalary", val);
-                                                                        }}
-                                                                        min={0}
-                                                                        placeholder="Min"
-                                                                        error={errors.minSalary?.message as string}
-                                                                  />
-                                                            )}
-                                                      />
-                                                </FormField>
-                                                <FormField
-                                                      label="Max Salary (AED)"
-                                                      htmlFor="maxSalary"
-                                                      required
-                                                      error={errors.maxSalary?.message as string}
-                                                >
-                                                      <Controller
-                                                            name="maxSalary"
-                                                            control={control}
-                                                            rules={{ min: { value: 0, message: "Must be positive" } }}
-                                                            render={({ field }) => (
-                                                                  <NumberInput
-                                                                        value={(field.value as number) || 0}
-                                                                        onChange={(val) => {
-                                                                              field.onChange(val);
-                                                                              handleInputChange("maxSalary", val);
-                                                                        }}
-                                                                        min={0}
-                                                                        placeholder="Max"
-                                                                        error={errors.maxSalary?.message as string}
-                                                                  />
-                                                            )}
-                                                      />
-                                                </FormField>
-                                          </div>
-
-                                          {/* Job Mode & Shift */}
-                                          <div className="grid grid-cols-2 gap-4">
-                                                <FormField
-                                                      label="Job Mode"
-                                                      htmlFor="jobMode"
-                                                      required
-                                                      error={errors.jobMode?.message as string}
-                                                >
-                                                      <Controller
-                                                            name="jobMode"
-                                                control={control}
-                                                            rules={{ required: "Job mode is required" }}
-                                                            render={({ field }) => (
-                                                                  <SelectInput
-                                                                        value={field.value as string}
-                                                                        onChange={(value) => {
-                                                                              field.onChange(value);
-                                                                              handleInputChange("jobMode", value);
-                                                                        }}
-                                                                        options={[
-                                                                              { value: "on-site", label: "On-Site" },
-                                                                              { value: "remote", label: "Remote" },
-                                                                              { value: "hybrid", label: "Hybrid" },
-                                                                        ]}
-                                                                        placeholder="Select Mode"
-                                                                        error={errors.jobMode?.message as string}
-                                                                  />
-                                                            )}
-                                                      />
-                                                </FormField>
-                                                <FormField
-                                                      label="Job Shift"
-                                                      htmlFor="jobShift"
-                                                      required
-                                                      error={errors.jobShift?.message as string}
-                                                >
-                                                      <Controller
-                                                            name="jobShift"
-                                                control={control}
-                                                            rules={{ required: "Job shift is required" }}
-                                                render={({ field }) => (
-                                                      <SelectInput
-                                                            value={field.value as string}
-                                                            onChange={(value) => {
-                                                                  field.onChange(value);
-                                                                  handleInputChange("jobShift", value);
-                                                            }}
-                                                            options={[
-                                                                  { value: "Day", label: "Day" },
-                                                                  { value: "Night", label: "Night" },
-                                                                  { value: "Rotational", label: "Rotational" },
-                                                            ]}
-                                                            placeholder="Select Shift"
-                                                            error={errors.jobShift?.message as string}
-                                                      />
-                                                )}
-                                                      />
-                                                </FormField>
-                                          </div>
-
-
-                                    {/* Phone Number */}
-                                    <FormField
-                                          label="Contact Phone Number"
-                                          htmlFor="phoneNumber"
-                                          required
-                                          error={errors.phoneNumber?.message as string}
-                                    >
-                                          <Controller
-                                                name="phoneNumber"
-                                                control={control}
-                                                rules={{ required: "Phone number is required" }}
-                                                render={({ field }) => (
-                                                      <PhoneNumberInput
-                                                            value={(field.value as string) || ""}
-                                                            onPhoneChange={(val) => {
-                                                                  field.onChange(val);
-                                                                  handleInputChange("phoneNumber", val);
-                                                            }}
-                                                      />
-                                                )}
-                                          />
-                                    </FormField>
-
-                                    {/* Address */}
-                                    <FormField
-                                          label="Job Location"
-                                          htmlFor="address"
-                                          required
-                                          error={errors.address?.message as string}
-                                          fullWidth
-                                    >
-                                          <Controller
-                                                name="address"
-                                                control={control}
-                                                rules={{
-                                                      required: "Location is required",
-                                                      validate: (value) => {
-                                                            if (!value || !(value as { address?: string })?.address) {
-                                                                  return "Location is required";
-                                                            }
-                                                            return true;
-                                                      }
-                                                }}
-                                                render={() => (
-                                                      <>
-                                                            <MapComponent
-                                                                  onLocationSelect={handleLocationSelect}
-                                                                  initialLocation={selectedLocation || undefined}
-                                                                  height="300px"
-                                                                  className="rounded-lg"
-                                                            />
-                                                            {selectedLocation && (
-                                                                  <div className="mt-2 p-3 bg-blue-50 rounded-lg">
-                                                                        <p className="text-sm text-blue-800">
-                                                                              <strong>Selected:</strong> {selectedLocation.address}
-                                                                        </p>
-                                                                  </div>
-                                                            )}
-                                                      </>
-                                                )}
-                                          />
-                                    </FormField>
-
-                                    {/* Connection Types */}
-                                    <FormField
-                                          label="Contact Methods"
-                                          htmlFor="connectionTypes"
-                                          required
-                                          error={errors.connectionTypes?.message as string}
-                                    >
-                                          <Controller
-                                                name="connectionTypes"
-                                                control={control}
-                                                rules={{ required: "At least one contact method is required" }}
-                                                render={({ field }) => (
-                                                      <CheckboxInput
-                                                            value={Array.isArray(field.value) ? (field.value as string[]) : field.value ? [field.value as string] : []}
-                                                            onChange={(val) => {
-                                                                  field.onChange(val);
-                                                                  handleInputChange("connectionTypes", val);
-                                                            }}
-                                                            options={[
-                                                                  { value: "call", label: "Call" },
-                                                                  { value: "chat", label: "Chat" },
-                                                                  { value: "whatsapp", label: "WhatsApp" },
-                                                            ]}
-                                                            columns={3}
-                                                      />
-                                                )}
-                                          />
-                                    </FormField>
-
-                                    {/* Dynamic Fields from Category */}
-                                    {category.fields && category.fields.length > 0 && (
-                                          <div className="space-y-3">
-                                                {category.fields
-                                                      .filter((field) => !field.hidden)
-                                                      .map((field) => {
-                                                            return renderField(field)
-                                                      })
-                                                      .filter(Boolean)}
-                                          </div>
-                                    )}
-                              </div>
-
-                              {/* Submit Button */}
-                              <div className="flex justify-end pt-6">
-                                    <Button
-                                          onClick={handleSubmit(onSubmit)}
-                                          disabled={isSubmitting || !isValid}
-                                          className="w-full md:w-auto min-w-[200px]"
-                                    >
-                                          {isSubmitting ? "Posting Job..." : "Post Job"}
-                                    </Button>
-                              </div>
-                        </div>
-
-                        {/* Right Column - Info */}
-                        <div className="hidden md:block md:w-1/3">
-                              <div className="sticky top-24 p-6 bg-gray-50 rounded-xl border border-gray-100">
-                                    <h3 className="text-lg font-semibold mb-4">Posting Tips</h3>
-                                    <ul className="list-disc list-inside text-sm text-gray-500 space-y-2">
-                                          <li>Provide a clear and concise job title.</li>
-                                          <li>Describe the roles and responsibilities in detail.</li>
-                                          <li>Mention required qualifications and experience.</li>
-                                          <li>Include salary range to attract relevant candidates.</li>
-                                    </ul>
-                              </div>
-                        </div>
-                  </div>
-                  </section>
-            </GoogleMapsProvider>
-      );
+                  <FormSummaryItem
+                    label="Contact Methods"
+                    value={formValues.connectionTypes}
+                    error={!!errors.connectionTypes}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </GoogleMapsProvider>
+  );
 }

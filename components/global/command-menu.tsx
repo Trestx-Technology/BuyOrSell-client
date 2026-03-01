@@ -32,9 +32,9 @@ import {
       BriefcaseBusiness,
 } from "lucide-react";
 import {
-      Dialog,
-      DialogContent,
-} from "@/components/ui/dialog";
+      ResponsiveModal,
+      ResponsiveModalContent,
+} from "@/components/ui/responsive-modal";
 import { useLocale } from "@/hooks/useLocale";
 import { cn } from "@/lib/utils";
 
@@ -152,8 +152,8 @@ export function CommandMenu() {
       let itemCounter = 0;
 
       return (
-            <Dialog open={open} onOpenChange={setOpen}>
-                  <DialogContent className="p-0 overflow-hidden border-none shadow-2xl max-w-lg bg-white dark:bg-gray-950">
+            <ResponsiveModal open={open} onOpenChange={setOpen}>
+                  <ResponsiveModalContent showCloseButton={false} className="p-0 overflow-hidden border-none shadow-2xl max-w-lg bg-white dark:bg-gray-950">
                         <div className="flex items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800">
                               <Search className="w-5 h-5 text-gray-400 mr-3" />
                               <input
@@ -164,7 +164,7 @@ export function CommandMenu() {
                                     onKeyDown={handleKeyDown}
                                     autoFocus
                               />
-                              <div className="px-1.5 py-0.5 mr-6 rounded border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-[10px] text-gray-400 flex items-center gap-1">
+                              <div className="px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-[10px] text-gray-400 flex items-center gap-1">
                                     <kbd className="font-sans">ESC</kbd>
                               </div>
                         </div>
@@ -240,7 +240,7 @@ export function CommandMenu() {
                                     BuyOrSell QuickNav
                               </div>
                         </div>
-                  </DialogContent>
-            </Dialog>
+                  </ResponsiveModalContent>
+            </ResponsiveModal>
       );
 }

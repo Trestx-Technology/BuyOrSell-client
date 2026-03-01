@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { ChevronRight, ImageOffIcon } from "lucide-react";
+import { ChevronRight, ImageOffIcon, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useCategoryFromTree } from "@/hooks/useCategories";
@@ -14,6 +15,7 @@ import { useLocale } from "@/hooks/useLocale";
 export default function CategoryTraversalPage() {
   const { localePath } = useLocale();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const {
     addToCategoryArray,
     setActiveCategory,
@@ -309,8 +311,20 @@ export default function CategoryTraversalPage() {
                 </div>
               </div>
             ) : (
-              <div className="space-y-3">
-                {displayCategories.map((category) => {
+              <div className="flex flex-col h-[500px]">
+                <div className="mb-4">
+                  <Input
+                    type="text"
+                    placeholder="Search categories..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    leftIcon={<Search className="w-4 h-4" />}
+                  />
+                </div>
+                <div className="space-y-3 overflow-y-auto pr-2 flex-1 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">
+                  {displayCategories
+                    .filter((category) => category.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                    .map((category) => {
                   const isSelected = selectedCategory === category.id;
 
                   return (
@@ -319,8 +333,8 @@ export default function CategoryTraversalPage() {
                       onClick={() => handleCategoryClick(category)}
                       className={`w-full p-2 rounded-lg border-2 transition-all duration-200 hover:shadow-md cursor-pointer ${
                         isSelected
-                          ? "border-purple bg-purple/10"
-                          : "border-gray-200 bg-white hover:border-gray-300"
+                          ? "border-purple bg-purple/10 dark:bg-purple/20"
+                          : "border-gray-200 bg-white hover:border-gray-300 dark:bg-gray-900 dark:border-gray-800 dark:hover:border-gray-700"
                       }`}
                     >
                       <div className="flex items-center justify-between">
@@ -328,7 +342,7 @@ export default function CategoryTraversalPage() {
                           <div
                             className={`size-[50px] ${
                               category.bgColor || "bg-[#F7F8FA]"
-                            } rounded-lg flex items-center justify-center`}
+                            } rounded-lg flex items-center justify-center dark:bg-gray-800`}
                           >
                             {category.icon ? (
                               <Image
@@ -342,21 +356,27 @@ export default function CategoryTraversalPage() {
                               <ImageOffIcon className="size-5 text-gray-400" />
                             )}
                           </div>
-                          <span className="text-lg font-medium text-gray-900">
+                          <span className="text-lg font-medium text-gray-900 dark:text-gray-100">
                             {category.name}
                           </span>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-400" />
+                        <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                       </div>
                     </button>
                   );
                 })}
+                {displayCategories.filter((category) => category.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    No categories match your search.
+                  </div>
+                )}
+                </div>
               </div>
             )}
           </div>
 
           {/* Right Column - Image Upload Area */}
-          <div className="sticky top-0 bg-gray-100 hidden md:flex flex-1 p-6 w-1/3 max-h-[420px] min-h-[380px] rounded-lg border-2 border-dashed border-gray-300 items-center justify-center">
+          <div className="sticky top-0 bg-gray-100 dark:bg-gray-800 hidden md:flex flex-1 p-6 w-1/3 max-h-[420px] min-h-[380px] rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700 items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
@@ -377,7 +397,7 @@ export default function CategoryTraversalPage() {
           </div>
         </div>
       </div>
-      <footer className="w-full bg-white sticky bottom-0 left-0 right-0 flex justify-between gap-3 p-4">
+      <footer className="w-full bg-white dark:bg-gray-950 sticky bottom-0 left-0 right-0 flex justify-between gap-3 p-4 border-t dark:border-gray-800">
         <Button
           className="w-full"
           onClick={handleBackClick}

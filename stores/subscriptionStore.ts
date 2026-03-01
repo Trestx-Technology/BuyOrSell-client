@@ -23,6 +23,7 @@ interface SubscriptionState {
   hasSubscriptionForCategory: (type: string, category: string) => boolean;
   canUseAi: () => boolean;
   canFeatureAd: () => boolean;
+  getAvailableFeaturedAdsCount: (type: string, category: string) => number;
 
   // New Actions
   useAi: () => Promise<boolean>;
@@ -110,6 +111,59 @@ export const useSubscriptionStore = create<SubscriptionState>()(
           const available = (sub.aiAvailable || 0) - (sub.numberOfAiUsed || 0);
           return available > 0;
         });
+      },
+
+      getAvailableFeaturedAdsCount: (type: string, category: string) => {
+        const activeSubs = get().getActiveSubscriptions();
+
+        // Handle "Property for Sale" / "Property for Rent" inside "Properties" logic
+        const propertyCategories = [
+          "property for sale",
+          "property for rent",
+          "properties",
+        ];
+        const isPropertyCategory = propertyCategories.includes(
+          category.toLowerCase(),
+        );
+
+        let totalAvailable = 0;
+
+        activeSubs.forEach((sub) => {
+          const subType = sub.plan?.type?.toLowerCase();
+          const targetType = type?.toLowerCase();
+
+          if (subType !== targetType) return;
+
+          let matches = false;
+          // If no categories specified in plan, it covers all categories of that type
+          if (!sub.plan.categories || sub.plan.categories.length === 0) {
+            matches = true;
+          } else {
+            // Check if category matches
+            const matchesDirectly = sub.plan.categories.some(
+              (cat) => cat.toLowerCase() === category.toLowerCase(),
+            );
+
+            if (matchesDirectly) {
+              matches = true;
+            } else if (isPropertyCategory) {
+              const hasPropertiesPlan = sub.plan.categories.some(
+                (cat) => cat.toLowerCase() === "properties",
+              );
+              if (hasPropertiesPlan) matches = true;
+            }
+          }
+
+          if (matches) {
+            const available =
+              (sub.featuredAdsAvailable || 0) - (sub.featuredAdsUsed || 0);
+            if (available > 0) {
+              totalAvailable += available;
+            }
+          }
+        });
+
+        return totalAvailable;
       },
 
       canFeatureAd: () => {

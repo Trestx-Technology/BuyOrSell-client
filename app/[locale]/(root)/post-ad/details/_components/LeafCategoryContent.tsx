@@ -20,7 +20,10 @@ import { TextInput } from "./TextInput";
 import { TextareaInput } from "./TextareaInput";
 import { NumberInput } from "./NumberInput";
 import { BooleanInput } from "./BooleanInput";
-import { MultipleImageInput, ImageItem as MultipleImageItem } from "./MultipleImageInput";
+import {
+  MultipleImageInput,
+  ImageItem as MultipleImageItem,
+} from "./MultipleImageInput";
 import DateTimeInput from "./DateTimeInput";
 import { MapComponent } from "./MapComponent";
 import { CheckboxInput } from "./CheckboxInput";
@@ -28,20 +31,37 @@ import { Field } from "@/interfaces/categories.types";
 import { DynamicFieldRenderer, FormValues } from "./DynamicFieldRenderer";
 import { SelectInput } from "./SelectInput";
 import { FormSkeleton } from "./FormSkeleton";
-import { createPostAdSchema, type AddressFormValue } from "@/schemas/post-ad.schema";
-import { getFieldOptions, shouldShowField, isJobCategory } from "@/validations/post-ad.validation";
+import {
+  createPostAdSchema,
+  type AddressFormValue,
+} from "@/schemas/post-ad.schema";
+import {
+  getFieldOptions,
+  shouldShowField,
+  isJobCategory,
+} from "@/validations/post-ad.validation";
 import { AD_SYSTEM_FIELDS } from "@/constants/ad.constants";
 import { removeUndefinedFields } from "@/utils/remove-undefined-fields";
 import PhoneNumberInput from "@/components/global/phone-number-input";
 import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
+import { CheckCircle2, AlertCircle } from "lucide-react";
+import { FormSummaryItem } from "./FormSummaryItem";
+import PostStatusView, { PostStatus } from "./PostStatusView";
 
 export default function LeafCategoryContent() {
   const { localePath } = useLocale();
   const { leafCategoryId } = useParams<{ leafCategoryId: string }>();
   const router = useRouter();
   const { session } = useAuthStore((state) => state);
-  const { categoryArray, addToCategoryArray, clearCategoryArray, setActiveCategory } = useAdPostingStore((state) => state);
-  const { canFeatureAd } = useSubscriptionStore();
+  const {
+    categoryArray,
+    addToCategoryArray,
+    clearCategoryArray,
+    setActiveCategory,
+    currentStep,
+    setStep,
+  } = useAdPostingStore((state) => state);
+  const { canFeatureAd, getAvailableFeaturedAdsCount } = useSubscriptionStore();
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt");
   const initialTitle = searchParams.get("title");
@@ -54,15 +74,15 @@ export default function LeafCategoryContent() {
       try {
         const hierarchy = JSON.parse(decodeURIComponent(categoryPathParam));
         // Check if we need to update the store (avoid infinite loops if already matches)
-        const currentIds = categoryArray.map(c => c.id).join(',');
-        const newIds = hierarchy.map((c: any) => c.id).join(',');
+        const currentIds = categoryArray.map((c) => c.id).join(",");
+        const newIds = hierarchy.map((c: any) => c.id).join(",");
 
         if (currentIds !== newIds) {
           clearCategoryArray();
           hierarchy.forEach((cat: any) => {
             addToCategoryArray({
               id: cat.id,
-              name: cat.name
+              name: cat.name,
             });
           });
           if (hierarchy.length > 0) {
@@ -73,12 +93,19 @@ export default function LeafCategoryContent() {
         console.error("Failed to parse category hierarchy from URL", error);
       }
     }
-  }, [categoryPathParam, clearCategoryArray, addToCategoryArray, setActiveCategory, categoryArray]);
+  }, [
+    categoryPathParam,
+    clearCategoryArray,
+    addToCategoryArray,
+    setActiveCategory,
+    categoryArray,
+  ]);
   const createAdMutation = useCreateAd();
   const [selectedLocation, setSelectedLocation] = useState<{
     address: string;
     coordinates: { lat: number; lng: number };
   } | null>(null);
+  const [postStatus, setPostStatus] = useState<PostStatus>("idle");
 
   // Fetch category by ID
   const {
@@ -100,6 +127,15 @@ export default function LeafCategoryContent() {
   const formSchema = useMemo(() => {
     return createPostAdSchema(category);
   }, [category]);
+
+  const adTypeCheck = useMemo(() => {
+    return category?.name && isJobCategory(category.name) ? "JOB" : "AD";
+  }, [category]);
+
+  const availableFeaturedAds = useMemo(() => {
+    if (!category) return 0;
+    return getAvailableFeaturedAdsCount(adTypeCheck, category.name);
+  }, [category, adTypeCheck, getAvailableFeaturedAdsCount]);
 
   const {
     control,
@@ -140,8 +176,8 @@ export default function LeafCategoryContent() {
             id: `ai-${Math.random().toString(36).substr(2, 9)}`,
             url: url,
             presignedUrl: url,
-            name: 'Uploaded Image',
-            uploading: false
+            name: "Uploaded Image",
+            uploading: false,
           }));
           setValue("images", imageItems);
         }
@@ -154,7 +190,9 @@ export default function LeafCategoryContent() {
   // Handle input change (wrapper for setValue)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleInputChange = (field: string, value: any) => {
-    setValue(field as keyof FormValues, value as FormValues[keyof FormValues], { shouldValidate: true });
+    setValue(field as keyof FormValues, value as FormValues[keyof FormValues], {
+      shouldValidate: true,
+    });
 
     // If price changes, trigger validation for discountedPrice to show error if needed
     if (field === "price") {
@@ -166,7 +204,11 @@ export default function LeafCategoryContent() {
       category.fields.forEach((f: Field) => {
         if (f.dependsOn === field) {
           // Clear the dependent field value
-          setValue(f.name as keyof FormValues, "" as FormValues[keyof FormValues], { shouldValidate: false });
+          setValue(
+            f.name as keyof FormValues,
+            "" as FormValues[keyof FormValues],
+            { shouldValidate: false },
+          );
         }
       });
     }
@@ -233,7 +275,9 @@ export default function LeafCategoryContent() {
   const onSubmit = async (data: FormValues) => {
     // Extract image URLs from ImageItem[]
     const images = (data.images as ImageItem[]) || [];
-    const imageUrls = images.map((img) => img.url || img.presignedUrl || "").filter(Boolean);
+    const imageUrls = images
+      .map((img) => img.url || img.presignedUrl || "")
+      .filter(Boolean);
 
     // Calculate discountedPrice if deal is active
     const price = (data.price as number) || 0;
@@ -248,7 +292,9 @@ export default function LeafCategoryContent() {
     const exchangeImageUrl = exchangeImages
       .map((img) => {
         // Prioritize fileUrl (set after upload), fallback to url if it's not a blob
-        const url = img.fileUrl || (img.url && !img.url.startsWith("blob:") ? img.url : null);
+        const url =
+          img.fileUrl ||
+          (img.url && !img.url.startsWith("blob:") ? img.url : null);
         return url;
       })
       .filter((url): url is string => !!url)[0]; // Get first valid non-blob URL
@@ -279,7 +325,7 @@ export default function LeafCategoryContent() {
       category.fields.forEach((field: Field) => {
         if (
           !AD_SYSTEM_FIELDS.includes(
-            field.name as (typeof AD_SYSTEM_FIELDS)[number]
+            field.name as (typeof AD_SYSTEM_FIELDS)[number],
           ) &&
           data[field.name] !== undefined &&
           data[field.name] !== null &&
@@ -296,13 +342,13 @@ export default function LeafCategoryContent() {
       });
     }
 
-
     // Get organization selection
     const organizationValue = (data.organization as string) || "";
     const isIndividual = organizationValue === "individual";
 
     // Determine adType based on category
-    const categoryName = category?.name || categoryArray[categoryArray.length - 1]?.name || "";
+    const categoryName =
+      category?.name || categoryArray[categoryArray.length - 1]?.name || "";
     const adType: "AD" | "JOB" = isJobCategory(categoryName) ? "JOB" : "AD";
 
     // Prepare payload according to the API structure
@@ -317,20 +363,21 @@ export default function LeafCategoryContent() {
       category: leafCategoryId as string,
       owner: (session.user?._id as string) || "",
       contactPhoneNumber: (data.phoneNumber as string) || "",
-      connectionTypes: connectionTypes as ("chat" | "call" | "whatsapp")[] | undefined,
+      connectionTypes: connectionTypes as
+        | ("chat" | "call" | "whatsapp")[]
+        | undefined,
       deal: data.deal === true || data.deal === "true",
       discountedPrice:
         data.deal && discountedPrice > 0 ? discountedPrice : undefined,
-      dealValidThru:
-        data.deal && dealValidThru ? dealValidThru : undefined,
+      dealValidThru: data.deal && dealValidThru ? dealValidThru : undefined,
       isExchangable: isExchange,
       exchangeWith:
         isExchange && exchangeTitle
           ? {
-            title: exchangeTitle,
-            description: exchangeDescription || undefined,
-            imageUrl: exchangeImageUrl || undefined,
-          }
+              title: exchangeTitle,
+              description: exchangeDescription || undefined,
+              imageUrl: exchangeImageUrl || undefined,
+            }
           : undefined,
       address: {
         state: addressData.state || "",
@@ -338,7 +385,9 @@ export default function LeafCategoryContent() {
         zipCode: addressData.zipCode || "",
         city: addressData.city || "",
         address: addressData.address || null,
-        coordinates: Array.isArray(addressData.coordinates) ? addressData.coordinates : null,
+        coordinates: Array.isArray(addressData.coordinates)
+          ? addressData.coordinates
+          : null,
       },
       relatedCategories: categoryArray.map((cat) => cat.name),
       featuredStatus: data.isFeatured ? "live" : "created",
@@ -358,13 +407,13 @@ export default function LeafCategoryContent() {
 
     // Submit the ad
     try {
-      await createAdMutation.mutateAsync(payload);
-
-      // Redirect to success page with status
-      router.push(`/post-ad/success?status=success&title=Ad created successfully!`);
+      setPostStatus("loading");
+      setStep(4);
+      const response = await createAdMutation.mutateAsync(payload);
+      router.push(localePath(`/success?id=${response.data._id}`));
     } catch (error: unknown) {
-
       console.error("Error creating ad", error);
+      setPostStatus("error");
     }
   };
 
@@ -404,6 +453,22 @@ export default function LeafCategoryContent() {
     );
   }
 
+  if (currentStep === 4 && postStatus !== "idle") {
+    return (
+      <GoogleMapsProvider>
+        <section className="w-full max-w-[888px] mx-auto relative min-h-[400px]">
+          <PostStatusView
+            status={postStatus}
+            onRetry={() => {
+              setPostStatus("idle");
+              setStep(3);
+            }}
+          />
+        </section>
+      </GoogleMapsProvider>
+    );
+  }
+
   return (
     <GoogleMapsProvider>
       <section className="w-full max-w-[888px] mx-auto relative">
@@ -416,10 +481,10 @@ export default function LeafCategoryContent() {
             {/* Main Section */}
             <div className="space-y-4">
               <div>
-                <h2 className="text-lg font-semibold text-[#1D2939] mb-2">
+                <h2 className="text-lg font-semibold text-[#1D2939] dark:text-white mb-2">
                   Basic Information
                 </h2>
-                <p className="text-sm text-[#8A8A8A]">
+                <p className="text-sm text-[#8A8A8A] dark:text-gray-400">
                   Fill in the basic details of your ad
                 </p>
               </div>
@@ -437,7 +502,9 @@ export default function LeafCategoryContent() {
                   rules={{ required: "Organization selection is required" }}
                   render={({ field }) => {
                     // Check if category is a job (case-insensitive)
-                    const isJob = categoryArray.some((cat) => isJobCategory(cat.name));
+                    const isJob = categoryArray.some((cat) =>
+                      isJobCategory(cat.name),
+                    );
 
                     // Create options with icons and names from API
                     const organizationOptions = [
@@ -522,7 +589,11 @@ export default function LeafCategoryContent() {
                       maxLength={2000}
                       error={errors.description?.message as string}
                       showAI={true}
-                      categoryPath={categoryArray.map((c) => c.name).join(" > ") || category?.name || "General"}
+                      categoryPath={
+                        categoryArray.map((c) => c.name).join(" > ") ||
+                        category?.name ||
+                        "General"
+                      }
                     />
                   )}
                 />
@@ -546,7 +617,7 @@ export default function LeafCategoryContent() {
                         return "At least one image is required";
                       }
                       return true;
-                    }
+                    },
                   }}
                   render={({ field }) => (
                     <ImageGallery
@@ -581,11 +652,10 @@ export default function LeafCategoryContent() {
                     // Convert string URL to VideoItem format for the component
                     const videoItem: VideoItem | null = field.value
                       ? {
-                        id: "video-1",
-                        url: field.value as string,
-                        presignedUrl: field.value as string,
-
-                      }
+                          id: "video-1",
+                          url: field.value as string,
+                          presignedUrl: field.value as string,
+                        }
                       : null;
 
                     return (
@@ -593,7 +663,8 @@ export default function LeafCategoryContent() {
                         video={videoItem}
                         onVideoChange={(video: VideoItem | null) => {
                           // Extract URL from video item and update form
-                          const videoUrl = video?.presignedUrl || video?.url || "";
+                          const videoUrl =
+                            video?.presignedUrl || video?.url || "";
                           field.onChange(videoUrl);
                           handleInputChange("video", videoUrl);
                         }}
@@ -623,7 +694,7 @@ export default function LeafCategoryContent() {
                   control={control}
                   rules={{
                     required: "Price is required",
-                    min: { value: 0, message: "Price must be greater than 0" }
+                    min: { value: 0, message: "Price must be greater than 0" },
                   }}
                   render={({ field }) => (
                     <NumberInput
@@ -681,7 +752,7 @@ export default function LeafCategoryContent() {
                         return "Address is required";
                       }
                       return true;
-                    }
+                    },
                   }}
                   render={() => (
                     <>
@@ -694,10 +765,12 @@ export default function LeafCategoryContent() {
                       {selectedLocation && (
                         <div className="mt-2 p-3 bg-blue-50 rounded-lg">
                           <p className="text-sm text-blue-800">
-                            <strong>Selected:</strong> {selectedLocation.address}
+                            <strong>Selected:</strong>{" "}
+                            {selectedLocation.address}
                           </p>
                           <p className="text-xs text-blue-600 mt-1">
-                            Coordinates: {selectedLocation.coordinates.lat.toFixed(6)},{" "}
+                            Coordinates:{" "}
+                            {selectedLocation.coordinates.lat.toFixed(6)},{" "}
                             {selectedLocation.coordinates.lng.toFixed(6)}
                           </p>
                         </div>
@@ -717,10 +790,18 @@ export default function LeafCategoryContent() {
                 <Controller
                   name="connectionTypes"
                   control={control}
-                  rules={{ required: "At least one connection type is required" }}
+                  rules={{
+                    required: "At least one connection type is required",
+                  }}
                   render={({ field }) => (
                     <CheckboxInput
-                      value={Array.isArray(field.value) ? (field.value as string[]) : field.value ? [field.value as string] : []}
+                      value={
+                        Array.isArray(field.value)
+                          ? (field.value as string[])
+                          : field.value
+                            ? [field.value as string]
+                            : []
+                      }
                       onChange={(val) => {
                         field.onChange(val);
                         handleInputChange("connectionTypes", val);
@@ -736,28 +817,7 @@ export default function LeafCategoryContent() {
                 />
               </FormField>
 
-              {/* Is Featured */}
-              {canFeatureAd() && (
-                <FormField
-                  label="Is Featured"
-                  htmlFor="isFeatured"
-                  error={errors.isFeatured?.message as string}
-                >
-                  <Controller
-                    name="isFeatured"
-                    control={control}
-                    render={({ field }) => (
-                      <BooleanInput
-                        value={field.value === true || field.value === "true"}
-                        onChange={(val) => {
-                          field.onChange(val);
-                          handleInputChange("isFeatured", val);
-                        }}
-                      />
-                    )}
-                  />
-                </FormField>
-              )}
+
 
               {/* Dynamic Fields from Category */}
               {category.fields && category.fields.length > 0 && (
@@ -765,7 +825,7 @@ export default function LeafCategoryContent() {
                   {category.fields
                     .filter((field) => !field.hidden)
                     .map((field) => {
-                      return renderField(field)
+                      return renderField(field);
                     })
                     .filter(Boolean)}
                 </div>
@@ -773,15 +833,15 @@ export default function LeafCategoryContent() {
             </div>
 
             {/* Divider */}
-            <div className="border-t border-[#E2E2E2] my-8"></div>
+            <div className="border-t border-[#E2E2E2] dark:border-gray-800 my-8"></div>
 
             {/* Exchange Section */}
             <div className="space-y-4">
               <div>
-                <h2 className="text-lg font-semibold text-[#1D2939] mb-2">
+                <h2 className="text-lg font-semibold text-[#1D2939] dark:text-white mb-2">
                   Exchange Section
                 </h2>
-                <p className="text-sm text-[#8A8A8A]">
+                <p className="text-sm text-[#8A8A8A] dark:text-gray-400">
                   Enable exchange option and provide details about items
                   you&apos;re willing to exchange
                 </p>
@@ -820,7 +880,11 @@ export default function LeafCategoryContent() {
                     <Controller
                       name="exchangeTitle"
                       control={control}
-                      rules={{ required: watch("isExchange") ? "Exchange title is required" : false }}
+                      rules={{
+                        required: watch("isExchange")
+                          ? "Exchange title is required"
+                          : false,
+                      }}
                       render={({ field }) => (
                         <TextInput
                           value={(field.value as string) || ""}
@@ -887,15 +951,15 @@ export default function LeafCategoryContent() {
             </div>
 
             {/* Divider */}
-            <div className="border-t border-[#E2E2E2] my-8"></div>
+            <div className="border-t border-[#E2E2E2] dark:border-gray-800 my-8"></div>
 
             {/* Deals Section */}
             <div className="space-y-4">
               <div>
-                <h2 className="text-lg font-semibold text-[#1D2939] mb-2">
+                <h2 className="text-lg font-semibold text-[#1D2939] dark:text-white mb-2">
                   Deals
                 </h2>
-                <p className="text-sm text-[#8A8A8A]">
+                <p className="text-sm text-[#8A8A8A] dark:text-gray-400">
                   Create a special deal to attract more buyers
                 </p>
               </div>
@@ -932,7 +996,9 @@ export default function LeafCategoryContent() {
                       name="discountedPrice"
                       control={control}
                       rules={{
-                        required: watch("deal") ? "Discount percentage is required" : false,
+                        required: watch("deal")
+                          ? "Discount percentage is required"
+                          : false,
                         min: { value: 1, message: "Minimum 1%" },
                         max: { value: 99, message: "Maximum 99%" },
                         validate: (value) => {
@@ -940,7 +1006,7 @@ export default function LeafCategoryContent() {
 
                           // Validate specific logic if needed
                           return true;
-                        }
+                        },
                       }}
                       render={({ field }) => (
                         <NumberInput
@@ -967,7 +1033,11 @@ export default function LeafCategoryContent() {
                     <Controller
                       name="dealValidThru"
                       control={control}
-                      rules={{ required: watch("deal") ? "Validity date is required" : false }}
+                      rules={{
+                        required: watch("deal")
+                          ? "Validity date is required"
+                          : false,
+                      }}
                       render={({ field }) => (
                         <DateTimeInput
                           value={(field.value as string) || ""}
@@ -983,63 +1053,129 @@ export default function LeafCategoryContent() {
                 </div>
               )}
             </div>
+            {/* Navigation Buttons (Moved to bottom of form) */}
+            <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm mt-8 hidden md:block">
+              <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">
+                Ready to post?
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
+                Review your ad details carefully before publishing.
+              </p>
+              <div className="flex gap-4">
+                <Button
+                  variant="outline"
+                  className="flex-1 py-6 text-lg font-medium rounded-full border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300"
+                  onClick={() => router.back()}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 bg-[#7052FB] hover:bg-[#5b3fd4] text-white py-6 text-lg font-medium rounded-full shadow-lg shadow-[#7052FB]/20 transition-all duration-300 hover:scale-[1.02]"
+                  onClick={handleSubmit(onSubmit)}
+                  disabled={createAdMutation.isPending}
+                >
+                  {createAdMutation.isPending ? (
+                    <>
+                      <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
+                      Publishing...
+                    </>
+                  ) : (
+                    "Post Ad Now"
+                  )}
+                </Button>
+              </div>
+            </div>
           </div>
 
-          {/* Right Column - Navigation Buttons (Desktop fixed) */}
+          {/* Right Column - Sponsored Ad & Tips (Desktop fixed) */}
           <div className="hidden md:block w-1/3 relative">
             <div className="sticky top-24 space-y-4">
-              <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                <h3 className="font-semibold text-lg mb-4">Ready to post?</h3>
-                <p className="text-gray-500 text-sm mb-6">
-                  Review your ad details carefully before publishing using the preview.
-                </p>
-                <div className="space-y-3">
-                  <Button
-                    className="w-full bg-[#7052FB] hover:bg-[#5b3fd4] text-white py-6 text-lg font-medium rounded-full shadow-lg shadow-[#7052FB]/20 transition-all duration-300 hover:scale-[1.02]"
-                    onClick={handleSubmit(onSubmit)}
-                    disabled={createAdMutation.isPending}
-                  >
-                    {createAdMutation.isPending ? (
-                      <>
-                        <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
-                        Publishing...
-                      </>
-                    ) : (
-                      "Post Ad Now"
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full py-6 text-lg font-medium rounded-full border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-all duration-300"
-                    onClick={() => router.back()}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-
               {/* Quick Tips Box */}
-              <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
-                <h4 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
-                  <span className="bg-blue-200 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center text-xs">i</span>
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-900/50">
+                <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2">
+                  <span className="bg-blue-200 dark:bg-blue-800/50 text-blue-700 dark:text-blue-300 w-6 h-6 rounded-full flex items-center justify-center text-xs">
+                    i
+                  </span>
                   Quick Tips
                 </h4>
-                <ul className="text-sm text-blue-800 space-y-2 list-disc list-inside">
+                <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-2 list-disc list-inside">
                   <li>Use high-quality images</li>
                   <li>Provide a detailed description</li>
                   <li>Verify your location on the map</li>
                 </ul>
+              </div>
+
+              {/* Form Summary Container */}
+              <div className="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm mt-4">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span className="bg-purple/10 text-purple p-1.5 rounded-lg">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </span>
+                  Ad Summary
+                </h4>
+                <div className="space-y-3 text-sm">
+                  <FormSummaryItem
+                    label="Title"
+                    value={formValues.title}
+                    error={!!errors.title}
+                  />
+                  <FormSummaryItem
+                    label="Price"
+                    value={formValues.price}
+                    type="price"
+                    error={!!errors.price}
+                  />
+                  <FormSummaryItem
+                    label="Discounted Price"
+                    value={formValues.discountedPrice}
+                    type="price"
+                    error={!!errors.discountedPrice}
+                  />
+                  <FormSummaryItem
+                    label="Location"
+                    value={formValues.address}
+                    type="location"
+                    error={!!errors.address}
+                  />
+
+                  {/* Rendering dynamic fields from the category */}
+                  {category?.fields
+                    ?.filter((f: Field) => !f.hidden)
+                    .map((f: Field) => {
+                      const val = (formValues as any)[f.name];
+                      return (
+                        <FormSummaryItem
+                          key={f.name}
+                          label={f.name}
+                          value={val}
+                          error={!!errors[f.name]}
+                        />
+                      );
+                    })}
+
+                  <FormSummaryItem
+                    label="Images"
+                    value={formValues.images}
+                    type="images"
+                    error={!!errors.images}
+                  />
+                  <FormSummaryItem
+                    label="Contact Methods"
+                    value={formValues.connectionTypes}
+                    error={!!errors.connectionTypes}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Mobile Footer Sticky Action */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 z-50 md:hidden">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 z-50 md:hidden">
           <div className="flex gap-3">
             <Button
               variant="outline"
-              className="flex-1 py-6 rounded-full"
+              className="flex-1 py-6 rounded-full border-gray-200 dark:border-gray-800"
               onClick={() => router.back()}
             >
               Cancel

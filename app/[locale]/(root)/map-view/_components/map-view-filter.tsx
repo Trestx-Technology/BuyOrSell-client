@@ -22,6 +22,7 @@ import {
 import { ProductExtraFields } from "@/interfaces/ad";
 import { useMemo } from "react";
 import { format } from "date-fns";
+import { CarouselWrapper } from "@/components/global/carousel-wrapper";
 
 export interface MapViewFilters {
   location: string;
@@ -83,7 +84,7 @@ export default function MapViewFilter({
 
   const handleFilterChange = (
     key: keyof MapViewFilters,
-    value: string | boolean | Record<string, string> | undefined
+    value: string | boolean | Record<string, string> | undefined,
   ) => {
     const newFilters = { ...filters, [key]: value };
     onFilterChange(newFilters);
@@ -153,7 +154,7 @@ export default function MapViewFilter({
     filterKey: keyof MapViewFilters,
     filterName: string,
     options: string[],
-    currentValue: string
+    currentValue: string,
   ) => {
     const shouldUseTabs = options.length >= 2 && options.length <= 3;
     const displayOptions = options.filter((opt) => opt !== "Any");
@@ -168,12 +169,12 @@ export default function MapViewFilter({
           }
           className="w-full"
         >
-          <TabsList className="flex gap-2 h-10 border border-[#E7E7E7] rounded-lg p-1 bg-transparent">
+          <TabsList className="flex gap-2 h-10 border border-gray-200 dark:border-gray-800 rounded-lg p-1 bg-transparent">
             {allOptions.map((option) => (
               <TabsTrigger
                 key={option}
                 value={option}
-                className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter flex-1"
+                className="data-[state=active]:bg-purple/10 data-[state=active]:text-purple dark:data-[state=active]:bg-purple/20 dark:data-[state=active]:text-purple-300 dark:text-gray-300 rounded-lg py-2 text-xs font-normal font-inter flex-1"
               >
                 {option}
               </TabsTrigger>
@@ -191,7 +192,7 @@ export default function MapViewFilter({
             variant={!currentValue ? "outline" : "secondary"}
             className={cn(
               "flex items-center gap-2.5 px-3 h-10 rounded-lg cursor-pointer transition-colors text-xs border-gray-300",
-              !currentValue && "text-gray-500"
+              !currentValue && "text-gray-500",
             )}
             icon={<ChevronDown className="size-5 -ml-2" />}
             iconPosition="right"
@@ -221,7 +222,7 @@ export default function MapViewFilter({
   const renderDynamicFilter = (
     filterName: string,
     options: string[],
-    currentValue: string | undefined
+    currentValue: string | undefined,
   ) => {
     const shouldUseTabs = options.length >= 2 && options.length <= 3;
     const allOptions = ["Any", ...options];
@@ -239,12 +240,12 @@ export default function MapViewFilter({
           }}
           className="w-full"
         >
-          <TabsList className="flex gap-2 h-10 border border-[#E7E7E7] rounded-lg p-1 bg-transparent">
+          <TabsList className="flex gap-2 h-10 border border-gray-200 dark:border-gray-800 rounded-lg p-1 bg-transparent">
             {allOptions.map((option) => (
               <TabsTrigger
                 key={option}
                 value={option}
-                className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter flex-1"
+                className="data-[state=active]:bg-purple/10 data-[state=active]:text-purple dark:data-[state=active]:bg-purple/20 dark:data-[state=active]:text-purple-300 dark:text-gray-300 rounded-lg py-2 text-xs font-normal font-inter flex-1"
               >
                 {option}
               </TabsTrigger>
@@ -262,7 +263,7 @@ export default function MapViewFilter({
             variant={!currentValue ? "outline" : "secondary"}
             className={cn(
               "flex items-center gap-2.5 px-3 h-10 rounded-lg cursor-pointer transition-colors text-xs border-gray-300",
-              !currentValue && "text-gray-500"
+              !currentValue && "text-gray-500",
             )}
             icon={<ChevronDown className="size-5 -ml-2" />}
             iconPosition="right"
@@ -297,282 +298,286 @@ export default function MapViewFilter({
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className={cn(
-        "flex items-center justify-start max-w-[1080px] mx-auto gap-2.5 xl:px-0 px-5 py-2 scrollbar-hide border-gray-200 overflow-x-auto",
-        className
-      )}
+      className={cn("max-w-[1080px] mx-auto border-gray-200 w-full", className)}
     >
-      {/* Location Input */}
-      <motion.div variants={itemVariants}>
-        <Input
-          type="text"
-          placeholder="Enter Location"
-          value={filters.location}
-          onChange={(e) => handleFilterChange("location", e.target.value)}
-          className="w-32 h-10 bg-[#F2F4F7] border-[#E7E7E7] text-[#475467] placeholder:text-[#929292] text-xs"
-          rightIcon={<MapPin className="w-5 h-5 text-[#929292]" />}
-        />
-      </motion.div>
-
-      {/* Price Filter */}
-      <motion.div variants={itemVariants}>
-        {renderFilter("price", "Price (AED)", priceOptions, filters.price)}
-      </motion.div>
-
-      {/* Date Posted Filter */}
-      <motion.div variants={itemVariants}>
-        {renderFilter(
-          "datePosted",
-          "Date Posted",
-          datePostedOptions,
-          filters.datePosted
-        )}
-      </motion.div>
-
-      {/* Price From Input */}
-      <motion.div variants={itemVariants}>
-        <Input
-          type="number"
-          placeholder="Price From"
-          value={filters.priceFrom || ""}
-          onChange={(e) => handleFilterChange("priceFrom", e.target.value)}
-          className="w-28 h-10 bg-[#F2F4F7] border-[#E7E7E7] text-[#475467] placeholder:text-[#929292] text-xs"
-        />
-      </motion.div>
-
-      {/* Price To Input */}
-      <motion.div variants={itemVariants}>
-        <Input
-          type="number"
-          placeholder="Price To"
-          value={filters.priceTo || ""}
-          onChange={(e) => handleFilterChange("priceTo", e.target.value)}
-          className="w-28 h-10 bg-[#F2F4F7] border-[#E7E7E7] text-[#475467] placeholder:text-[#929292] text-xs"
-        />
-      </motion.div>
-
-      {/* Deal Tabs */}
-      <motion.div variants={itemVariants}>
-        <Tabs
-          value={
-            filters.deal === undefined ? "Any" : filters.deal ? "Yes" : "No"
-          }
-          onValueChange={(value) => {
-            if (value === "Any") {
-              handleFilterChange("deal", undefined);
-            } else {
-              handleFilterChange("deal", value === "Yes");
+      <CarouselWrapper
+        containerClassName="flex items-center justify-start gap-2.5 xl:px-0 px-5 py-3"
+        className="w-full"
+      >
+        {/* Location Input */}
+        <motion.div variants={itemVariants}>
+          <Input
+            type="text"
+            placeholder="Enter Location"
+            value={filters.location}
+            onChange={(e) => handleFilterChange("location", e.target.value)}
+            className="w-32 h-10 bg-gray-50 border-gray-200 text-gray-700 placeholder:text-gray-400 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500 text-xs"
+            rightIcon={
+              <MapPin className="w-5 h-5 text-gray-400 dark:text-gray-500" />
             }
-          }}
-          className="w-full"
-        >
-          <TabsList className="flex gap-2 h-10 border border-[#E7E7E7] rounded-lg p-1 bg-transparent">
-            <TabsTrigger
-              value="Any"
-              className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter flex-1"
-            >
-              Any
-            </TabsTrigger>
-            <TabsTrigger
-              value="Yes"
-              className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter flex-1"
-            >
-              Deal
-            </TabsTrigger>
-            <TabsTrigger
-              value="No"
-              className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter flex-1"
-            >
-              No Deal
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </motion.div>
+          />
+        </motion.div>
 
-      {/* From Date Calendar */}
-      <motion.div variants={itemVariants}>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-fit h-10 font-normal text-xs",
-                "bg-[#F2F4F7] border-[#E7E7E7] text-[#475467]",
-                !filters.fromDate && "text-[#929292]"
-              )}
-              icon={<CalendarIcon />}
-              iconPosition="left"
-            >
-              {filters.fromDate
-                ? format(new Date(filters.fromDate), "MMM dd, yyyy")
-                : "From Date"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={
-                filters.fromDate ? new Date(filters.fromDate) : undefined
-              }
-              onSelect={(date) => {
-                handleFilterChange(
-                  "fromDate",
-                  date ? format(date, "yyyy-MM-dd") : ""
-                );
-              }}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      </motion.div>
+        {/* Price Filter */}
+        <motion.div variants={itemVariants}>
+          {renderFilter("price", "Price (AED)", priceOptions, filters.price)}
+        </motion.div>
 
-      {/* To Date Calendar */}
-      <motion.div variants={itemVariants}>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-fit h-10 font-normal text-xs",
-                "bg-[#F2F4F7] border-[#E7E7E7] text-[#475467]",
-                !filters.toDate && "text-[#929292]"
-              )}
-              icon={<CalendarIcon />}
-              iconPosition="left"
-            >
-              {filters.toDate
-                ? format(new Date(filters.toDate), "MMM dd, yyyy")
-                : "To Date"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={filters.toDate ? new Date(filters.toDate) : undefined}
-              onSelect={(date) => {
-                handleFilterChange(
-                  "toDate",
-                  date ? format(date, "yyyy-MM-dd") : ""
-                );
-              }}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      </motion.div>
-
-      {/* Is Featured Tabs */}
-      <motion.div variants={itemVariants}>
-        <Tabs
-          value={
-            filters.isFeatured === undefined
-              ? "Any"
-              : filters.isFeatured
-              ? "Yes"
-              : "No"
-          }
-          onValueChange={(value) => {
-            if (value === "Any") {
-              handleFilterChange("isFeatured", undefined);
-            } else {
-              handleFilterChange("isFeatured", value === "Yes");
-            }
-          }}
-          className="w-full"
-        >
-          <TabsList className="flex gap-2 h-10 border border-[#E7E7E7] rounded-lg p-1 bg-transparent">
-            <TabsTrigger
-              value="Any"
-              className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter flex-1"
-            >
-              Any
-            </TabsTrigger>
-            <TabsTrigger
-              value="Yes"
-              className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter flex-1"
-            >
-              Featured
-            </TabsTrigger>
-            <TabsTrigger
-              value="No"
-              className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter flex-1"
-            >
-              Not Featured
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </motion.div>
-
-      {/* Has Video Tabs */}
-      <motion.div variants={itemVariants}>
-        <Tabs
-          value={
-            filters.hasVideo === undefined
-              ? "Any"
-              : filters.hasVideo
-              ? "Yes"
-              : "No"
-          }
-          onValueChange={(value) => {
-            if (value === "Any") {
-              handleFilterChange("hasVideo", undefined);
-            } else {
-              handleFilterChange("hasVideo", value === "Yes");
-            }
-          }}
-          className="w-full"
-        >
-          <TabsList className="flex gap-2 h-10 border border-[#E7E7E7] rounded-lg p-1 bg-transparent">
-            <TabsTrigger
-              value="Any"
-              className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter flex-1"
-            >
-              Any
-            </TabsTrigger>
-            <TabsTrigger
-              value="Yes"
-              className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter flex-1"
-            >
-              Has Video
-            </TabsTrigger>
-            <TabsTrigger
-              value="No"
-              className="data-[state=active]:bg-[#E8D7F9] data-[state=active]:text-[#8B31E1] rounded-lg py-2 text-xs font-normal font-inter flex-1"
-            >
-              No Video
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </motion.div>
-
-      {/* Dynamic ExtraFields Filters */}
-      {dynamicFilters.length > 0 &&
-        dynamicFilters.map((filter) => (
-          <motion.div key={filter.name} variants={itemVariants}>
-            {renderDynamicFilter(
-              filter.name,
-              filter.options,
-              filters.extraFields?.[filter.name]
-            )}
-          </motion.div>
-        ))}
-
-      {/* Map Toggle Button */}
-      <motion.div variants={itemVariants}>
-        <Button
-          variant={filters.showMap ? "outline" : "secondary"}
-          onClick={() => handleFilterChange("showMap", !filters.showMap)}
-          className={cn(
-            "flex items-center gap-1 px-3 h-10 rounded-lg cursor-pointer transition-colors border-gray-300 text-xs",
-            filters.showMap && "text-gray-500"
+        {/* Date Posted Filter */}
+        <motion.div variants={itemVariants}>
+          {renderFilter(
+            "datePosted",
+            "Date Posted",
+            datePostedOptions,
+            filters.datePosted,
           )}
-          icon={<MapPin className="size-5 -mr-2" />}
-          iconPosition="left"
-          size="small"
-        >
-          Map
-        </Button>
-      </motion.div>
+        </motion.div>
+
+        {/* Price From Input */}
+        <motion.div variants={itemVariants}>
+          <Input
+            type="number"
+            placeholder="Price From"
+            value={filters.priceFrom || ""}
+            onChange={(e) => handleFilterChange("priceFrom", e.target.value)}
+            className="w-28 h-10 bg-gray-50 border-gray-200 text-gray-700 placeholder:text-gray-400 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500 text-xs"
+          />
+        </motion.div>
+
+        {/* Price To Input */}
+        <motion.div variants={itemVariants}>
+          <Input
+            type="number"
+            placeholder="Price To"
+            value={filters.priceTo || ""}
+            onChange={(e) => handleFilterChange("priceTo", e.target.value)}
+            className="w-28 h-10 bg-gray-50 border-gray-200 text-gray-700 placeholder:text-gray-400 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500 text-xs"
+          />
+        </motion.div>
+
+        {/* Deal Tabs */}
+        <motion.div variants={itemVariants}>
+          <Tabs
+            value={
+              filters.deal === undefined ? "Any" : filters.deal ? "Yes" : "No"
+            }
+            onValueChange={(value) => {
+              if (value === "Any") {
+                handleFilterChange("deal", undefined);
+              } else {
+                handleFilterChange("deal", value === "Yes");
+              }
+            }}
+            className="w-full"
+          >
+            <TabsList className="flex gap-2 h-10 border border-gray-200 dark:border-gray-800 rounded-lg p-1 bg-transparent">
+              <TabsTrigger
+                value="Any"
+                className="data-[state=active]:bg-purple/10 data-[state=active]:text-purple dark:data-[state=active]:bg-purple/20 dark:data-[state=active]:text-purple-300 dark:text-gray-300 rounded-lg py-2 text-xs font-normal font-inter flex-1"
+              >
+                Any
+              </TabsTrigger>
+              <TabsTrigger
+                value="Yes"
+                className="data-[state=active]:bg-purple/10 data-[state=active]:text-purple dark:data-[state=active]:bg-purple/20 dark:data-[state=active]:text-purple-300 dark:text-gray-300 rounded-lg py-2 text-xs font-normal font-inter flex-1"
+              >
+                Deal
+              </TabsTrigger>
+              <TabsTrigger
+                value="No"
+                className="data-[state=active]:bg-purple/10 data-[state=active]:text-purple dark:data-[state=active]:bg-purple/20 dark:data-[state=active]:text-purple-300 dark:text-gray-300 rounded-lg py-2 text-xs font-normal font-inter flex-1"
+              >
+                No Deal
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </motion.div>
+
+        {/* From Date Calendar */}
+        <motion.div variants={itemVariants}>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-fit h-10 font-normal text-xs",
+                  "bg-gray-50 border-gray-200 text-gray-700 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-200",
+                  !filters.fromDate && "text-gray-400 dark:text-gray-500",
+                )}
+                icon={<CalendarIcon />}
+                iconPosition="left"
+              >
+                {filters.fromDate
+                  ? format(new Date(filters.fromDate), "MMM dd, yyyy")
+                  : "From Date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={
+                  filters.fromDate ? new Date(filters.fromDate) : undefined
+                }
+                onSelect={(date) => {
+                  handleFilterChange(
+                    "fromDate",
+                    date ? format(date, "yyyy-MM-dd") : "",
+                  );
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </motion.div>
+
+        {/* To Date Calendar */}
+        <motion.div variants={itemVariants}>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-fit h-10 font-normal text-xs",
+                  "bg-gray-50 border-gray-200 text-gray-700 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-200",
+                  !filters.toDate && "text-gray-400 dark:text-gray-500",
+                )}
+                icon={<CalendarIcon />}
+                iconPosition="left"
+              >
+                {filters.toDate
+                  ? format(new Date(filters.toDate), "MMM dd, yyyy")
+                  : "To Date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={filters.toDate ? new Date(filters.toDate) : undefined}
+                onSelect={(date) => {
+                  handleFilterChange(
+                    "toDate",
+                    date ? format(date, "yyyy-MM-dd") : "",
+                  );
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </motion.div>
+
+        {/* Is Featured Tabs */}
+        <motion.div variants={itemVariants}>
+          <Tabs
+            value={
+              filters.isFeatured === undefined
+                ? "Any"
+                : filters.isFeatured
+                  ? "Yes"
+                  : "No"
+            }
+            onValueChange={(value) => {
+              if (value === "Any") {
+                handleFilterChange("isFeatured", undefined);
+              } else {
+                handleFilterChange("isFeatured", value === "Yes");
+              }
+            }}
+            className="w-full"
+          >
+            <TabsList className="flex gap-2 h-10 border border-gray-200 dark:border-gray-800 rounded-lg p-1 bg-transparent">
+              <TabsTrigger
+                value="Any"
+                className="data-[state=active]:bg-purple/10 data-[state=active]:text-purple dark:data-[state=active]:bg-purple/20 dark:data-[state=active]:text-purple-300 dark:text-gray-300 rounded-lg py-2 text-xs font-normal font-inter flex-1"
+              >
+                Any
+              </TabsTrigger>
+              <TabsTrigger
+                value="Yes"
+                className="data-[state=active]:bg-purple/10 data-[state=active]:text-purple dark:data-[state=active]:bg-purple/20 dark:data-[state=active]:text-purple-300 dark:text-gray-300 rounded-lg py-2 text-xs font-normal font-inter flex-1"
+              >
+                Featured
+              </TabsTrigger>
+              <TabsTrigger
+                value="No"
+                className="data-[state=active]:bg-purple/10 data-[state=active]:text-purple dark:data-[state=active]:bg-purple/20 dark:data-[state=active]:text-purple-300 dark:text-gray-300 rounded-lg py-2 text-xs font-normal font-inter flex-1"
+              >
+                Not Featured
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </motion.div>
+
+        {/* Has Video Tabs */}
+        <motion.div variants={itemVariants}>
+          <Tabs
+            value={
+              filters.hasVideo === undefined
+                ? "Any"
+                : filters.hasVideo
+                  ? "Yes"
+                  : "No"
+            }
+            onValueChange={(value) => {
+              if (value === "Any") {
+                handleFilterChange("hasVideo", undefined);
+              } else {
+                handleFilterChange("hasVideo", value === "Yes");
+              }
+            }}
+            className="w-full"
+          >
+            <TabsList className="flex gap-2 h-10 border border-gray-200 dark:border-gray-800 rounded-lg p-1 bg-transparent">
+              <TabsTrigger
+                value="Any"
+                className="data-[state=active]:bg-purple/10 data-[state=active]:text-purple dark:data-[state=active]:bg-purple/20 dark:data-[state=active]:text-purple-300 dark:text-gray-300 rounded-lg py-2 text-xs font-normal font-inter flex-1"
+              >
+                Any
+              </TabsTrigger>
+              <TabsTrigger
+                value="Yes"
+                className="data-[state=active]:bg-purple/10 data-[state=active]:text-purple dark:data-[state=active]:bg-purple/20 dark:data-[state=active]:text-purple-300 dark:text-gray-300 rounded-lg py-2 text-xs font-normal font-inter flex-1"
+              >
+                Has Video
+              </TabsTrigger>
+              <TabsTrigger
+                value="No"
+                className="data-[state=active]:bg-purple/10 data-[state=active]:text-purple dark:data-[state=active]:bg-purple/20 dark:data-[state=active]:text-purple-300 dark:text-gray-300 rounded-lg py-2 text-xs font-normal font-inter flex-1"
+              >
+                No Video
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </motion.div>
+
+        {/* Dynamic ExtraFields Filters */}
+        {dynamicFilters.length > 0 &&
+          dynamicFilters.map((filter) => (
+            <motion.div key={filter.name} variants={itemVariants}>
+              {renderDynamicFilter(
+                filter.name,
+                filter.options,
+                filters.extraFields?.[filter.name],
+              )}
+            </motion.div>
+          ))}
+
+        {/* Map Toggle Button */}
+        <motion.div variants={itemVariants}>
+          <Button
+            variant={filters.showMap ? "outline" : "secondary"}
+            onClick={() => handleFilterChange("showMap", !filters.showMap)}
+            className={cn(
+              "flex items-center gap-1 px-3 h-10 rounded-lg cursor-pointer transition-colors border-gray-200 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 text-xs",
+              filters.showMap && "text-gray-500 dark:text-gray-400",
+            )}
+            icon={<MapPin className="size-5 -mr-2" />}
+            iconPosition="left"
+            size="small"
+          >
+            Map
+          </Button>
+        </motion.div>
+      </CarouselWrapper>
     </motion.div>
   );
 }

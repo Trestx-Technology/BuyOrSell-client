@@ -88,6 +88,18 @@ export const useDeleteUserSearchHistory = () => {
   return useMutation<BulkDeleteSearchHistoryResponse, Error, string>({
     mutationFn: deleteUserSearchHistory,
     onSuccess: () => {
+      // Optimistically clear the cache so the UI updates instantly
+      queryClient.setQueriesData(
+        { queryKey: searchHistoryQueries.getSearchHistory().Key },
+        (oldData: any) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            data: [],
+            total: 0,
+          };
+        }
+      );
       // Invalidate search history queries to refresh the list
       queryClient.invalidateQueries({
         queryKey: searchHistoryQueries.getSearchHistory().Key,
