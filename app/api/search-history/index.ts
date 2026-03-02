@@ -1,7 +1,7 @@
 export const searchHistoryQueries = {
   // Get search history for current user (supports pagination via query params)
-  getSearchHistory: (params?: { page?: number; limit?: number }) => ({
-    Key: ["search-history", ...(params ? [params.page, params.limit] : [])],
+  getSearchHistory: (params?: { userId?: string; page?: number; limit?: number }) => ({
+    Key: ["search-history", ...(params ? [params.userId, params.page, params.limit] : [])],
     endpoint: "/search-history",
   }),
 

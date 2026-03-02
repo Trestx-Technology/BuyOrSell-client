@@ -42,7 +42,7 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
 
   const { data: searchHistory } = useQuery({
     queryKey: searchHistoryQueries.getSearchHistory({ limit: 5 }).Key,
-    queryFn: () => getSearchHistory({ limit: 5 }),
+    queryFn: () => getSearchHistory({ limit: 5, userId: session?.user?._id }),
     enabled: isAuthenticated && isOpen, // Only fetch when authenticated and popover is open
   });
 
@@ -61,7 +61,7 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
 
   const handleItemClick = (item: SearchHistoryItem) => {
     const { searchTerm, categoryId, categoryName } = item;
-    
+
     // Log search history
     saveSearchTerm({
       searchTerm,
@@ -88,7 +88,10 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
           <SearchIcon className="text-purple" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-3 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800" align="end">
+      <PopoverContent
+        className="w-64 p-3 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
+        align="end"
+      >
         <div className="space-y-3">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -117,7 +120,7 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
                     className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                     key={item._id}
                   >
-                    <div 
+                    <div
                       className="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer"
                       onClick={() => handleItemClick(item)}
                     >

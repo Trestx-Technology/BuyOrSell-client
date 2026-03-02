@@ -33,10 +33,16 @@ export const useGetSearchHistory = (
   }
 ) => {
   const isAuthenticated = useIsAuthenticated();
+  const userId = useAuthStore((state) => state.session.user?._id);
+
+  const queryParams = {
+    ...params,
+    userId: userId || undefined,
+  };
 
   return useQuery<SearchHistoryListResponse, Error>({
-    queryKey: searchHistoryQueries.getSearchHistory(params).Key,
-    queryFn: () => getSearchHistory(params),
+    queryKey: searchHistoryQueries.getSearchHistory(queryParams).Key,
+    queryFn: () => getSearchHistory(queryParams),
     enabled: isAuthenticated || (options?.enabled ?? true),
   });
 };

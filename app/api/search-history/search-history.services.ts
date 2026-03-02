@@ -12,6 +12,7 @@ import type {
  * Get search history for the current user
  */
 export const getSearchHistory = async (params?: {
+  userId?: string;
   page?: number;
   limit?: number;
 }): Promise<SearchHistoryListResponse> => {
