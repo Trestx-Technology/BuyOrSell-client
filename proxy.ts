@@ -27,6 +27,8 @@ export function proxy(request: NextRequest) {
     "/pay/response", // Pay response routes
     "/firebase-messaging-sw.js", // Firebase service worker
     "/manifest.json", // PWA manifest
+    "/sitemap.xml", // Sitemap
+    "/robots.txt", // Robots.txt
     "/images", // Static images
     "/assets", // Static assets
     // Add more routes/keywords here that should be excluded from locale validation

@@ -22,6 +22,8 @@
 # videos
 /videos
 
+.claude
+
 
 # production
 /build
