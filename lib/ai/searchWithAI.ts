@@ -63,25 +63,34 @@ Output: {"keywords": ["villa", "3 bedroom", "beachfront", "beach side"], "search
     const aiResult = JSON.parse(
       response.choices[0]?.message?.content?.trim() || "{}",
     );
-
     const keywords = aiResult.keywords || [];
     const searchQuery = aiResult.searchQuery || userQuery;
 
-
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    const searchUrl = `${backendUrl}/ad?search=${encodeURIComponent(searchQuery)}&limit=20`;
+    const searchUrl = `${backendUrl}/ad/search/semantic?query=${encodeURIComponent(searchQuery)}&limit=20`;
 
     const fetchResponse = await fetch(searchUrl);
     const searchData = await fetchResponse.json();
 
-    if (!searchData || !searchData.data) {
-      throw new Error("Search API failed");
+    if (!searchData || !searchData.results) {
+      console.error(
+        "Semantic Search API failed or returned unexpected format:",
+        searchData,
+      );
+      // Fallback to old search if semantic fails? User said "only use this API for AI searching"
+      // So if it fails, we return success: false
+      return {
+        keywords,
+        searchQuery,
+        results: [],
+        success: false,
+      };
     }
 
     return {
       keywords,
       searchQuery,
-      results: searchData.data.adds || searchData.data.ads || [],
+      results: searchData.results || [],
       success: true,
     };
   } catch (error) {

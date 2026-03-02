@@ -1,5 +1,5 @@
-import { axiosInstance } from '@/services/axios-api-client';
-import { categoriesQueries } from './index';
+import { axiosInstance } from "@/services/axios-api-client";
+import { categoriesQueries } from "./index";
 import {
   CategoriesApiResponse,
   CategoryApiResponse,
@@ -7,6 +7,8 @@ import {
   CategoryTreeResponse,
   CategoryTreeAdsResponse,
   JobSubcategoriesApiResponse,
+  SemanticCategorySearchParams,
+  SemanticCategorySearchResponse,
 } from "@/interfaces/categories.types";
 
 export const getCategoriesWithFilter = async (params?: {
@@ -170,3 +172,13 @@ export const validateCategoryPathWithSeo = async (
   return response.data;
 };
 
+// Semantic (Pinecone) Search for Categories
+export const semanticSearchCategories = async (
+  params: SemanticCategorySearchParams,
+): Promise<SemanticCategorySearchResponse> => {
+  const response = await axiosInstance.get<SemanticCategorySearchResponse>(
+    categoriesQueries.semanticSearchCategories.endpoint,
+    { params },
+  );
+  return response.data;
+};

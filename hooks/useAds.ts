@@ -25,6 +25,7 @@ import {
   getCategoryAdsCount,
   getDealsAdsCount,
   getExchangeAdsCount,
+  semanticSearchAds,
 } from "@/app/api/ad/ad.services";
 import {
   PostAdPayload,
@@ -38,6 +39,8 @@ import {
   AdFilterPayload,
   GetKeywordSearchResponse,
   GetCategoryAdsCountResponse,
+  SemanticAdSearchParams,
+  SemanticAdSearchResponse,
 } from "@/interfaces/ad";
 import { adQueries } from "@/app/api/ad/index";
 
@@ -359,5 +362,17 @@ export const useExchangeAdsCount = () => {
   return useQuery<GetCategoryAdsCountResponse, Error>({
     queryKey: adQueries.exchangeAdsCount.Key,
     queryFn: getExchangeAdsCount,
+  });
+};
+
+// Semantic (Pinecone) Search for Ads
+export const useSemanticSearchAds = (
+  params: SemanticAdSearchParams,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<SemanticAdSearchResponse, Error>({
+    queryKey: [...adQueries.semanticSearchAds.Key, params],
+    queryFn: () => semanticSearchAds(params),
+    ...options,
   });
 };

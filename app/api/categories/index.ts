@@ -62,4 +62,8 @@ export const categoriesQueries = {
     Key: ["categories", "validate-with-seo", path],
     endpoint: `/categories/path/${path}`,
   }),
+  semanticSearchCategories: {
+    Key: ["categories", "search", "semantic"],
+    endpoint: "/categories/search/semantic",
+  },
 };

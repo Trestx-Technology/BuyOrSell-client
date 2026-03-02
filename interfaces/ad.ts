@@ -518,3 +518,37 @@ export interface AdFilterPayload {
 export interface RenewAdPayload {
   days: number;
 }
+
+// Semantic (Pinecone) Ad Search Types
+export interface SemanticAdResult {
+  id: string;
+  title: string;
+  titleAr?: string;
+  description: string;
+  price: number;
+  categoryId: string;
+  categoryName: string;
+  city?: string;
+  state?: string;
+  images: string[];
+  score: number;
+  createdAt: string;
+}
+
+export interface SemanticAdSearchResponse {
+  results: SemanticAdResult[];
+  total: number;
+  query: string;
+  filters: Record<string, unknown>;
+}
+
+export interface SemanticAdSearchParams {
+  query: string;
+  limit?: number;
+  categoryId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  city?: string;
+  state?: string;
+  adType?: "AD" | "JOB";
+}
