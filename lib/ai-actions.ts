@@ -454,37 +454,65 @@ export async function identifyCategory(
       );
     }
 
-    console.log("[AI] providedCategories type:", typeof providedCategories, "isArray:", Array.isArray(providedCategories), "length:", providedCategories?.length);
-    
+    console.log(
+      "[AI] providedCategories type:",
+      typeof providedCategories,
+      "isArray:",
+      Array.isArray(providedCategories),
+      "length:",
+      providedCategories?.length,
+    );
+
     // 1. Fetch the category tree using the service or use provided categories
     let categories: any[] = [];
-    if (providedCategories && Array.isArray(providedCategories) && providedCategories.length > 0) {
+    if (
+      providedCategories &&
+      Array.isArray(providedCategories) &&
+      providedCategories.length > 0
+    ) {
       // Check if first item has children (proper tree structure)
       const firstCat = providedCategories[0];
-      console.log("[AI] First provided category:", JSON.stringify({ name: firstCat?.name, _id: firstCat?._id, hasChildren: !!firstCat?.children, childrenCount: firstCat?.children?.length }).substring(0, 300));
-      
+      console.log(
+        "[AI] First provided category:",
+        JSON.stringify({
+          name: firstCat?.name,
+          _id: firstCat?._id,
+          hasChildren: !!firstCat?.children,
+          childrenCount: firstCat?.children?.length,
+        }).substring(0, 300),
+      );
+
       categories = providedCategories;
-      console.log(`[AI] Using ${categories.length} pre-provided root categories.`);
+      console.log(
+        `[AI] Using ${categories.length} pre-provided root categories.`,
+      );
     } else {
       // Fallback: fetch directly via fetch() since axiosInstance doesn't work in Server Actions
-      console.log("[AI] providedCategories not usable, fetching via direct fetch...");
+      console.log(
+        "[AI] providedCategories not usable, fetching via direct fetch...",
+      );
       const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
       if (!BACKEND_URL) {
         console.error("[AI] NEXT_PUBLIC_BACKEND_URL is not set!");
         return { redirectUrl: null, categoryPath: [] };
       }
-      
+
       const res = await fetch(`${BACKEND_URL}/categories/tree`);
       const result = await res.json();
-      
+
       console.log("[AI] Direct fetch response keys:", Object.keys(result));
       // API returns { statusCode, timestamp, data: SubCategory[] }
       categories = result.data || [];
-      
+
       if (!categories || categories.length === 0) {
-        console.error("[AI] No categories from direct fetch:", JSON.stringify(result).substring(0, 500));
+        console.error(
+          "[AI] No categories from direct fetch:",
+          JSON.stringify(result).substring(0, 500),
+        );
       } else {
-        console.log(`[AI] Fetched ${categories.length} root categories via direct fetch.`);
+        console.log(
+          `[AI] Fetched ${categories.length} root categories via direct fetch.`,
+        );
       }
     }
 
@@ -537,148 +565,114 @@ export async function identifyCategory(
     traverse(categories);
 
     if (allCategories.length === 0) {
-      console.error("[AI] CRITICAL: traverse() produced 0 categories! Categories input had", categories.length, "root items.");
-      console.error("[AI] First root item keys:", categories[0] ? Object.keys(categories[0]) : "N/A");
+      console.error(
+        "[AI] CRITICAL: traverse() produced 0 categories! Categories input had",
+        categories.length,
+        "root items.",
+      );
+      console.error(
+        "[AI] First root item keys:",
+        categories[0] ? Object.keys(categories[0]) : "N/A",
+      );
       return { redirectUrl: null, categoryPath: [] };
     }
-
-    // 3. Build category list - paths only, NO IDs (reduces AI confusion)
-    const categoryPaths = allCategories
-      .map((c) => `${c.path}${c.isLeaf ? "" : " [Group]"}`)
-      .join("\n");
 
     console.log(
       `[AI] Flattened ${allCategories.length} total categories from ${categories.length} roots. ${adType ? `Intent: ${adType}` : ""}`,
     );
 
-    const content: any[] = [
-      {
-        type: "text",
-        text: `User Description: "${userPrompt}"\n${adType ? `Identified Ad Type: ${adType}\n` : ""}
-Available Categories (copy the EXACT path from this list):
-${categoryPaths.substring(0, 100000)}`,
-      },
-    ];
-
-    imageUrls.forEach((url) => {
-      content.push({
-        type: "image_url",
-        image_url: { url, detail: "auto" },
-      });
-    });
-
+    // 3. Use AI to refine the search query and suggest a title
     const aiResponse = await openai.chat.completions.create({
       model: MODEL,
       messages: [
         {
           role: "system",
-          content: `You are an expert semantic classifier for "BuyOrSell".
-Your task: map the user's ad description and images to the BEST category from the provided list.
+          content: `You are an expert semantic search optimizer for "BuyOrSell".
+Your task: Analyze the user's ad description and images to extract the core search query for a category database.
 
 INSTRUCTIONS:
-1. Read the description and analyze any images for visual cues (brand, model, type).
-2. From "Available Categories", pick the BEST MATCHING path.
-3. ALWAYS prefer leaf categories (those WITHOUT "[Group]"). Only pick a "[Group]" if nothing more specific exists.
-4. Copy the category path EXACTLY as shown in the list (without the [Group] suffix).${adType ? `\n5. Context: This ad is likely related to "${adType}".` : ""}
-
-EXAMPLES:
-- "Selling my Rolex Datejust" -> categoryPath: "Classified > Jewelry & Watches > Watches > Men's Watches"
-- Laptop images -> categoryPath: "Classified > Electronics > Computers & Laptops > Laptops"
-- Job for a driver -> categoryPath: "Jobs > Drivers & Delivery > Drivers"
+1. Extract the primary product type and brand (e.g., "Rolex watch", "Used BMW", "3 bedroom villa").
+2. Determine if the user is looking for a JOB or an AD.
+3. Return a JSON object only.
 
 OUTPUT (JSON only):
 {
-  "categoryPath": "Exact path from the list",
+  "searchQuery": "refined search query for category search",
   "title": "Short catchy ad title (max 50 chars)",
-  "reasoning": "Why this category"
-}
-
-If nothing fits at all, set categoryPath to "none".`,
+  "adType": "AD" | "JOB",
+  "reasoning": "Quick reasoning"
+}`,
         },
-        { role: "user", content },
+        {
+          role: "user",
+          content: `User Prompt: "${userPrompt}"\n${adType ? `Context Ad Type: ${adType}` : ""}`,
+        },
       ],
       response_format: { type: "json_object" },
     });
 
     const responseContent = aiResponse.choices[0]?.message?.content || "{}";
-    console.log("[AI] Raw AI response:", responseContent.substring(0, 500));
+    const parsedResponse = JSON.parse(responseContent);
+    const {
+      searchQuery,
+      title: suggestedTitle,
+      adType: intentAdType,
+    } = parsedResponse;
 
-    let parsedResponse: { categoryPath: string; title: string; reasoning?: string } = {
-      categoryPath: "none",
-      title: "",
-    };
-
-    try {
-      parsedResponse = JSON.parse(responseContent);
-      console.log(`[AI] AI chose: "${parsedResponse.categoryPath}"`);
-      console.log(`[AI] Reasoning: ${parsedResponse.reasoning}`);
-    } catch (e) {
-      console.error("[AI] JSON parse error:", e);
-      return { redirectUrl: null, categoryPath: [] };
-    }
-
-    const { categoryPath: aiChosenPath, title: suggestedTitle } = parsedResponse;
-
-    if (!aiChosenPath || aiChosenPath.toLowerCase() === "none") {
-      console.warn("[AI] AI returned 'none' for prompt:", userPrompt);
-      return { redirectUrl: null, categoryPath: [] };
-    }
-
-    // 4. MATCH: Find best matching category from our real list
-    const normalize = (s: string) => s.toLowerCase().trim().replace(/\s*\[group\]\s*$/i, "");
-    const normalizedAiPath = normalize(aiChosenPath);
-
-    // Try exact match first
-    let matchedCategory = allCategories.find(
-      (c) => normalize(c.path) === normalizedAiPath,
+    console.log(
+      `[AI] Refined Query: "${searchQuery}", Intent: ${intentAdType}`,
     );
 
-    // Fuzzy match fallback
-    if (!matchedCategory) {
-      console.log("[AI] No exact path match, trying fuzzy matching...");
-      const aiWords = normalizedAiPath.split(/[\s>]+/).filter((w) => w.length > 2).map((w) => w.toLowerCase());
-      let bestScore = 0;
-      let bestMatch: (typeof allCategories)[0] | null = null;
+    // 4. Use the Semantic Search API to find the best category
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const semanticRes = await fetch(
+      `${BACKEND_URL}/categories/search/semantic?query=${encodeURIComponent(searchQuery)}&limit=5`,
+    );
+    const semanticData = await semanticRes.json();
+    const semanticResults = semanticData.results || [];
 
-      for (const cat of allCategories) {
-        const catWords = normalize(cat.path).split(/[\s>]+/).filter((w) => w.length > 2);
-        let score = 0;
-        for (const aiWord of aiWords) {
-          for (const catWord of catWords) {
-            if (catWord === aiWord) score += 3;
-            else if (catWord.includes(aiWord) || aiWord.includes(catWord)) score += 1;
-          }
-        }
-        if (cat.isLeaf) score += 1;
-        const aiLast = aiWords[aiWords.length - 1];
-        const catLast = catWords[catWords.length - 1];
-        if (aiLast && catLast && (aiLast === catLast || catLast.includes(aiLast))) score += 5;
-        if (score > bestScore) { bestScore = score; bestMatch = cat; }
-      }
-
-      if (bestMatch && bestScore >= 3) {
-        matchedCategory = bestMatch;
-        console.log(`[AI] Fuzzy matched: "${bestMatch.path}" (score: ${bestScore})`);
-      } else {
-        console.warn(`[AI] Fuzzy match failed. Best: "${bestMatch?.path}" (score: ${bestScore})`);
-      }
-    } else {
-      console.log(`[AI] Exact match: "${matchedCategory.path}" (ID: ${matchedCategory.id})`);
-    }
-
-    if (!matchedCategory) {
-      console.warn("[AI] Could not match any category for:", aiChosenPath);
+    if (semanticResults.length === 0) {
+      console.warn(
+        "[AI] Semantic API returned no results for query:",
+        searchQuery,
+      );
       return { redirectUrl: null, categoryPath: [] };
     }
 
-    // 5. Build redirect URL
+    // 5. Match: Find the best result in our local tree to get full hierarchy
+    const bestSemanticId = semanticResults[0].id;
+    let matchedCategory = allCategories.find((c) => c.id === bestSemanticId);
+
+    // Fallback fuzzy match if exact ID not found in current tree for some reason
+    if (!matchedCategory) {
+      const bestName = semanticResults[0].name.toLowerCase();
+      matchedCategory = allCategories.find(
+        (c) => c.name.toLowerCase() === bestName,
+      );
+    }
+
+    if (!matchedCategory) {
+      console.warn(
+        "[AI] Could not match semantic result ID to local tree:",
+        bestSemanticId,
+      );
+      return { redirectUrl: null, categoryPath: [] };
+    }
+
+    console.log(
+      `[AI] SUCCESS -> ${matchedCategory?.path} (ID: ${matchedCategory?.id})`,
+    );
+
+    // 6. Build redirect URL
     const JOBS_ROOT_ID = categories.find((c: any) =>
       c.name.toLowerCase().includes("job"),
     )?._id;
-    const pathPrefix = matchedCategory.rootId === JOBS_ROOT_ID ? "post-job" : "post-ad";
-    const categoryPathParam = encodeURIComponent(JSON.stringify(matchedCategory.hierarchy));
+    const pathPrefix =
+      matchedCategory.rootId === JOBS_ROOT_ID ? "post-job" : "post-ad";
+    const categoryPathParam = encodeURIComponent(
+      JSON.stringify(matchedCategory.hierarchy),
+    );
     const redirectUrl = `/${pathPrefix}/details/${matchedCategory.id}?categoryPath=${categoryPathParam}`;
-    console.log(`[AI] SUCCESS -> ${matchedCategory.path} -> ${redirectUrl}`);
 
     return {
       redirectUrl,

@@ -83,4 +83,8 @@ export const adQueries = {
     Key: ["ads", "exchange", "categories", "count"],
     endpoint: "/ad/exchange/categories/count",
   },
+  semanticSearchAds: {
+    Key: ["ads", "search", "semantic"],
+    endpoint: "/ad/search/semantic",
+  },
 };

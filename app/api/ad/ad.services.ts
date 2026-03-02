@@ -12,6 +12,8 @@ import {
   AdFilterPayload,
   GetKeywordSearchResponse,
   GetCategoryAdsCountResponse,
+  SemanticAdSearchParams,
+  SemanticAdSearchResponse,
 } from "@/interfaces/ad";
 
 // Get all ads with optional filters
@@ -322,3 +324,13 @@ export const getExchangeAdsCount =
     return response.data;
   };
 
+// Semantic (Pinecone) Search for Ads
+export const semanticSearchAds = async (
+  params: SemanticAdSearchParams,
+): Promise<SemanticAdSearchResponse> => {
+  const response = await axiosInstance.get<SemanticAdSearchResponse>(
+    adQueries.semanticSearchAds.endpoint,
+    { params },
+  );
+  return response.data;
+};

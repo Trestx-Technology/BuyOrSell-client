@@ -171,3 +171,31 @@ export interface JobSubcategoriesApiResponse {
   timestamp: string;
   data: JobSubcategory[];
 }
+
+// Semantic (Pinecone) Category Search Types
+export interface SemanticCategoryResult {
+  id: string;
+  name: string;
+  nameAr?: string;
+  description?: string;
+  parentId: string | null;
+  parentName: string | null;
+  slug: string;
+  level: number;
+  score: number;
+  createdAt: string;
+}
+
+export interface SemanticCategorySearchResponse {
+  results: SemanticCategoryResult[];
+  total: number;
+  query: string;
+  filters: Record<string, unknown>;
+}
+
+export interface SemanticCategorySearchParams {
+  query: string;
+  limit?: number;
+  parentId?: string;
+  level?: number;
+}
