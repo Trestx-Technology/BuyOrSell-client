@@ -1,41 +1,42 @@
 "use client";
 
-import { Send } from "lucide-react";
 import { useLocale } from "@/hooks/useLocale";
 
 interface PromptInputProps {
       prompt: string;
       setPrompt: (val: string) => void;
-      onSubmit: () => void;
       isGenerating: boolean;
-      hasImages?: boolean;
+      isAIGenerated?: boolean;
 }
 
 export function PromptInput({
       prompt,
       setPrompt,
-      onSubmit,
       isGenerating,
-      hasImages,
+      isAIGenerated,
 }: PromptInputProps) {
       const { t } = useLocale();
 
-      const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  onSubmit();
-            }
-      };
-
       return (
             <div className="relative">
+                  {/* Label */}
+                  <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                              {isAIGenerated ? "AI-Generated Description" : "Ad Description"}
+                        </span>
+                        {isAIGenerated && (
+                              <span className="text-[10px] font-medium text-purple bg-purple/10 px-1.5 py-0.5 rounded-full">
+                                    ✨ AI
+                              </span>
+                        )}
+                  </div>
+
                   <div className="bg-[#2D3347] rounded-lg overflow-hidden">
                         <textarea
                               value={prompt}
                               onChange={(e) => setPrompt(e.target.value)}
-                              onKeyDown={handleKeyPress}
                               placeholder={t.aiAdPost.placeholder}
-                              className="w-full bg-transparent text-white placeholder-[#929292] text-sm focus:outline-none resize-none min-h-[40px] max-h-[200px] p-4 pr-12 overflow-y-auto"
+                              className="w-full bg-transparent text-white placeholder-[#929292] text-sm focus:outline-none resize-none min-h-[60px] max-h-[200px] p-4 overflow-y-auto"
                               disabled={isGenerating}
                               style={{
                                     height: "auto",
@@ -49,14 +50,6 @@ export function PromptInput({
                                     target.style.height = `${Math.min(target.scrollHeight, 200)}px`;
                               }}
                         />
-                        <button
-                              onClick={onSubmit}
-                              disabled={(!prompt.trim() && !hasImages) || isGenerating}
-                              className="absolute top-2 right-2 w-8 h-8 bg-[#667085] rounded-md flex items-center justify-center hover:bg-[#667085]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title={!prompt.trim() && hasImages ? "Identify Category from Images" : "Send Description"}
-                        >
-                              <Send className="w-4 h-4 text-white" />
-                        </button>
                   </div>
 
                   {/* Character Counter */}

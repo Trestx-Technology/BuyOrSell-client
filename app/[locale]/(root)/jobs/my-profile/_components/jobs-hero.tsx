@@ -44,13 +44,13 @@ export default function JobsHero() {
       // This callback is called after debounce delay
       setDebouncedJobTitle(value);
     },
-    500
+    500,
   );
 
   // Fetch keyword suggestions using useAdsByKeyword
   const { data: keywordData, isLoading: isLoadingKeywords } = useAdsByKeyword(
     debouncedJobTitle.trim(),
-    undefined
+    undefined,
   );
 
   const keywords = keywordData?.data || [];
@@ -69,7 +69,7 @@ export default function JobsHero() {
       setShowDropdown(false);
       setSelectedIndex(-1);
     },
-    showDropdown
+    showDropdown,
   );
 
   // Handle keyboard navigation
@@ -85,7 +85,7 @@ export default function JobsHero() {
       case "ArrowDown":
         e.preventDefault();
         setSelectedIndex((prev) =>
-          prev < keywords.length - 1 ? prev + 1 : prev
+          prev < keywords.length - 1 ? prev + 1 : prev,
         );
         break;
       case "ArrowUp":
@@ -140,7 +140,7 @@ export default function JobsHero() {
 
   return (
     <section
-      className="relative w-full bg-cover bg-center border-b border-red-500"
+      className="relative w-full bg-cover bg-center border-b"
       style={{
         backgroundImage:
           "linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2069&auto=format&fit=crop')",
@@ -174,12 +174,12 @@ export default function JobsHero() {
           <div className="w-full max-w-[1080px]">
             <div
               ref={searchContainerRef}
-              className="relative flex max-w-[564px] mx-auto flex-col sm:flex-row items-stretch gap-0 bg-white rounded-[14.22px] overflow-visible shadow-lg"
+              className="relative flex max-w-[650px] mx-auto flex-col sm:flex-row items-stretch gap-0 bg-white dark:bg-slate-950 rounded-[14.22px] overflow-visible shadow-xl border dark:border-slate-800"
             >
               {/* Search Inputs Container */}
               <div className="flex flex-col sm:flex-row items-stretch flex-1 gap-0">
                 {/* Job Title Input */}
-                <div className="relative flex-1 max-w-[180px] border-r-0 sm:border-r border-[rgba(199,199,199,0.6)]">
+                <div className="relative flex-1 border-r-0 sm:border-r border-[rgba(199,199,199,0.6)] dark:border-slate-800">
                   <Input
                     ref={inputRef}
                     type="text"
@@ -199,17 +199,17 @@ export default function JobsHero() {
                         setShowDropdown(true);
                       }
                     }}
-                    className="border-0 rounded-none h-[71.11px] px-[17.78px] text-[14.22px] placeholder:text-[#8A8A8A] focus:ring-0"
+                    className="border-0 rounded-none h-[71.11px] px-[17.78px] text-[14.22px] placeholder:text-[#8A8A8A] focus:ring-0 focus-visible:ring-0 bg-transparent dark:bg-transparent dark:text-slate-100"
                   />
                   {/* Keyword Suggestions Dropdown */}
                   {shouldShowDropdown && (
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-[300px] overflow-y-auto">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-50 max-h-[350px] overflow-y-auto">
                       {isLoadingKeywords ? (
                         <div className="p-4 flex items-center justify-center gap-2">
                           <Loader2 className="w-4 h-4 animate-spin text-purple" />
                           <Typography
                             variant="body-small"
-                            className="text-gray-600"
+                            className="text-gray-600 dark:text-gray-400"
                           >
                             Searching...
                           </Typography>
@@ -220,8 +220,10 @@ export default function JobsHero() {
                             <button
                               key={`${keyword.name}-${index}`}
                               onClick={() => handleKeywordClick(keyword.name)}
-                              className={`w-full p-3 hover:bg-purple/5 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors text-left ${
-                                selectedIndex === index ? "bg-purple/10" : ""
+                              className={`w-full p-3 hover:bg-purple/5 dark:hover:bg-purple/10 cursor-pointer border-b border-gray-100 dark:border-gray-800 last:border-b-0 transition-colors text-left ${
+                                selectedIndex === index
+                                  ? "bg-purple/10 dark:bg-purple/20"
+                                  : ""
                               }`}
                               onMouseEnter={() => setSelectedIndex(index)}
                             >
@@ -230,7 +232,7 @@ export default function JobsHero() {
                                 <div className="flex-1 min-w-0">
                                   <Typography
                                     variant="body-large"
-                                    className="font-semibold text-dark-blue line-clamp-1"
+                                    className="font-semibold text-dark-blue dark:text-white line-clamp-1"
                                   >
                                     {keyword.name}
                                   </Typography>
@@ -248,7 +250,7 @@ export default function JobsHero() {
                             </button>
                           ))}
                           {keywords.length > 5 && (
-                            <div className="p-3 border-t border-gray-200 bg-gray-50">
+                            <div className="p-3 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
                               <button
                                 onClick={handleSearch}
                                 className="w-full text-center text-purple font-semibold text-sm hover:underline"
@@ -273,19 +275,19 @@ export default function JobsHero() {
                 </div>
 
                 {/* Location Select */}
-                <div className="flex items-center gap-[10.67px] px-[17.78px] border-r-0 max-w-[160px]">
+                <div className="flex items-center gap-[10.67px] px-[17.78px] flex-1">
                   <MapPin className="w-[21.33px] h-[21.33px] text-purple flex-shrink-0" />
                   <Select
                     value={selectedEmirate}
                     onValueChange={setSelectedEmirate}
                   >
-                    <SelectTrigger className="border-0 rounded-none h-full px-0 text-[14.22px] focus:ring-0 bg-transparent hover:bg-transparent text-[#8A8A8A]">
+                    <SelectTrigger className="border-0 rounded-none h-full px-0 text-[14.22px] focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 bg-transparent hover:bg-transparent dark:hover:bg-transparent dark:bg-transparent text-[#8A8A8A] dark:text-slate-400">
                       <SelectValue
-                        className="placeholder:text-[#8A8A8A]"
+                        className="placeholder:text-[#8A8A8A] dark:placeholder:text-slate-500"
                         placeholder="Enter Location"
                       />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="dark:bg-slate-950 dark:border-slate-800">
                       {isLoadingEmirates ? (
                         <SelectItem value="loading" disabled>
                           Loading...

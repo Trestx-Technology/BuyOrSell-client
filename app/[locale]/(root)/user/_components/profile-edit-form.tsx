@@ -49,6 +49,7 @@ export default function ProfileEditForm() {
   const [profileImageUrl, setProfileImageUrl] = useState<string | undefined>(
     user?.image
   );
+  const [currentPhoneNumber, setCurrentPhoneNumber] = useState("");
 
   // Initialize verified phone number
   const originalFullPhoneNumber = useMemo(() => {
@@ -89,8 +90,11 @@ export default function ProfileEditForm() {
           (user.gender?.toUpperCase() as "MALE" | "FEMALE" | "OTHER") || "MALE",
       });
       setProfileImageUrl(user.image);
+      if (originalFullPhoneNumber) {
+        setCurrentPhoneNumber(originalFullPhoneNumber);
+      }
     }
-  }, [user, reset]);
+  }, [user, reset, originalFullPhoneNumber]);
 
   // Initialize verified phone number
   useEffect(() => {
@@ -107,13 +111,25 @@ export default function ProfileEditForm() {
     }
   }, [user?.image]);
 
-  // Update phoneNo in form when verified phone number changes
+  // Update phoneNo in form when verified or current phone number changes
+  const updateFormPhone = (fullPhone: string) => {
+    const phoneWithoutCode = fullPhone.replace(/^\+\d{1,4}/, "");
+    const parsed = parseInt(phoneWithoutCode);
+    if (!isNaN(parsed)) {
+      setValue("phoneNo", parsed);
+    }
+  };
+
   useEffect(() => {
     if (verifiedPhoneNumber) {
-      const phoneWithoutCode = verifiedPhoneNumber.replace(/^\+\d{1,4}/, "");
-      setValue("phoneNo", parseInt(phoneWithoutCode));
+      updateFormPhone(verifiedPhoneNumber);
     }
   }, [verifiedPhoneNumber, setValue]);
+
+  const handlePhoneChange = (fullPhone: string) => {
+    setCurrentPhoneNumber(fullPhone);
+    updateFormPhone(fullPhone);
+  };
 
   // Display helpers
   const displayName = useMemo(() => {
@@ -130,10 +146,13 @@ export default function ProfileEditForm() {
   }, [user?.createdAt]);
 
   const phoneNumberChanged = useMemo(() => {
-    return (
-      verifiedPhoneNumber && verifiedPhoneNumber !== originalFullPhoneNumber
-    );
-  }, [verifiedPhoneNumber, originalFullPhoneNumber]);
+    // If we have a verified phone number, compare it to the original
+    if (verifiedPhoneNumber && verifiedPhoneNumber !== originalFullPhoneNumber) {
+        return true;
+    }
+    // If the current input is different from the original, it's changed
+    return currentPhoneNumber && currentPhoneNumber !== originalFullPhoneNumber;
+  }, [verifiedPhoneNumber, originalFullPhoneNumber, currentPhoneNumber]);
 
   // Update user mutation with onSuccess callback
   const updateUserMutation = useUpdateUser();
@@ -361,6 +380,7 @@ export default function ProfileEditForm() {
           value={verifiedPhoneNumber || originalFullPhoneNumber}
           countryCode={user?.countryCode || "+971"}
           onPhoneVerified={handlePhoneVerified}
+          onPhoneChange={handlePhoneChange}
           onSendOTP={handleSendOTP}
           onVerifyOTP={handleVerifyOTP}
           label="Mobile Number"

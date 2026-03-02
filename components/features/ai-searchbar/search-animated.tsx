@@ -56,7 +56,7 @@ export function SearchAnimated() {
             backgroundColor: "transparent",
             boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
           }}
-          transition={{ type: "spring", stiffness: 140, damping: 18 }}
+          transition={{ type: "spring" as const, stiffness: 140, damping: 18 }}
         >
           <motion.div layout
             className="relative flex items-center flex-1 h-full"

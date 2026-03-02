@@ -39,6 +39,7 @@ const Signup = () => {
   const [selectedCountryCode, setSelectedCountryCode] = useState("+971");
   const [showOtpDialog, setShowOtpDialog] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [isGeneratingDeviceKey, setIsGeneratingDeviceKey] = useState(false);
 
   const router = useRouter();
   const setSession = useAuthStore((state) => state.setSession);
@@ -112,6 +113,7 @@ const Signup = () => {
       }
       toast.success("Phone number verified successfully!");
 
+      setIsGeneratingDeviceKey(true);
       // Now proceed with signup
       const nameParts = formData.fullName.trim().split(/\s+/);
       const firstName = nameParts[0] || "";
@@ -152,6 +154,7 @@ const Signup = () => {
       toast.error(errorMessage);
     } finally {
       setIsVerifyingOtp(false);
+      setIsGeneratingDeviceKey(false);
     }
   };
 
@@ -307,10 +310,10 @@ const Signup = () => {
           className="w-full text-sm mt-6"
           size="lg"
           variant="filled"
-          disabled={signUpMutation.isPending || sendPhoneOtpMutation.isPending}
-          isLoading={signUpMutation.isPending || sendPhoneOtpMutation.isPending}
+          disabled={signUpMutation.isPending || sendPhoneOtpMutation.isPending || isGeneratingDeviceKey}
+          isLoading={signUpMutation.isPending || sendPhoneOtpMutation.isPending || isGeneratingDeviceKey}
         >
-          {signUpMutation.isPending || sendPhoneOtpMutation.isPending
+          {signUpMutation.isPending || sendPhoneOtpMutation.isPending || isGeneratingDeviceKey
             ? "Sending OTP..."
             : t.auth.signup.createAccount}
         </Button>
@@ -322,7 +325,7 @@ const Signup = () => {
         onClose={() => setShowOtpDialog(false)}
         phoneNumber={`${selectedCountryCode}${watch("phoneNumber")?.replace(/\D/g, "") || ""}`}
         onVerify={handleVerifyOtp}
-        isLoading={isVerifyingOtp || verifyPhoneOtpMutation.isPending || signUpMutation.isPending}
+        isLoading={isVerifyingOtp || verifyPhoneOtpMutation.isPending || signUpMutation.isPending || isGeneratingDeviceKey}
       />
 
       <H5 className="text-center text-sm py-6 text-gray-600 dark:text-gray-400">

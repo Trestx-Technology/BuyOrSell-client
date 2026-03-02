@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { TextareaInput } from "@/app/[locale]/(root)/post-ad/details/_components/TextareaInput";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -648,10 +648,13 @@ export default function Employment({ profile, isLoadingProfile }: EmploymentProp
                     name={`workExperience.${index}.description`}
                     control={control}
                     render={({ field }) => (
-                      <Textarea
-                        {...field}
+                      <TextareaInput
+                        value={field.value || ""}
+                        onChange={(val) => field.onChange(val)}
                         placeholder="Describe your role and achievements..."
                         className="min-h-[100px]"
+                        showAI={true}
+                        categoryPath={`Work Experience > ${watch(`workExperience.${index}.position`) || "Description"}`}
                       />
                     )}
                   />

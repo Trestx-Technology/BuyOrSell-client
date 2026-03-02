@@ -15,6 +15,7 @@ interface PhoneNumberWithVerificationProps {
   value?: string;
   countryCode?: string;
   onPhoneVerified: (phoneNumber: string) => void;
+  onPhoneChange?: (phoneNumber: string) => void;
   onSendOTP?: (phoneNumber: string) => Promise<void>;
   onVerifyOTP?: (phoneNumber: string, otp: string) => Promise<boolean>;
   disabled?: boolean;
@@ -54,6 +55,7 @@ export default function PhoneNumberWithVerification({
   value = "",
   countryCode = "+971",
   onPhoneVerified,
+  onPhoneChange,
   onSendOTP,
   onVerifyOTP,
   disabled = false,
@@ -90,8 +92,11 @@ export default function PhoneNumberWithVerification({
     (newPhoneNumber: string, newCountryCode: string) => {
       setPhoneNumber(newPhoneNumber);
       setSelectedCountryCode(newCountryCode);
+      if (onPhoneChange) {
+        onPhoneChange(`${newCountryCode}${newPhoneNumber}`);
+      }
     },
-    []
+    [onPhoneChange]
   );
 
   const handleVerifyClick = useCallback(async () => {

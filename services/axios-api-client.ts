@@ -296,21 +296,19 @@ axiosInstance.interceptors.request.use(
   async (
     config: InternalAxiosRequestConfig,
   ): Promise<InternalAxiosRequestConfig> => {
+    const emirate = getEmirateContext();
+
     // 1. Skip auth for public endpoints
     if (isPublicEndpoint(config.url)) {
-      const emirate = getEmirateContext();
       if (emirate) {
-        if (!config.params) config.params = {};
-        if (!config.params.emirate) {
-          config.params.emirate = emirate;
-        }
-
         if (!config.headers) config.headers = {} as any;
         const headers = config.headers as any;
-        if (typeof headers.set === "function") {
-          headers.set("x-emirate", emirate);
-        } else {
-          headers["x-emirate"] = emirate;
+        if (emirate !== "UAE") {
+          if (typeof headers.set === "function") {
+            headers.set("x-emirate", emirate);
+          } else {
+            headers["x-emirate"] = emirate;
+          }
         }
       }
       return config;
@@ -363,20 +361,16 @@ axiosInstance.interceptors.request.use(
       setAuthHeader(config, token);
     }
 
-    // 3. Add emirate context
-    const emirate = getEmirateContext();
+    // 3. Add emirate context (for protected endpoints)
     if (emirate) {
-      if (!config.params) config.params = {};
-      if (!config.params.emirate) {
-        config.params.emirate = emirate;
-      }
-
       if (!config.headers) config.headers = {} as any;
       const headers = config.headers as any;
-      if (typeof headers.set === "function") {
-        headers.set("x-emirate", emirate);
-      } else {
-        headers["x-emirate"] = emirate;
+      if (emirate !== "UAE") {
+        if (typeof headers.set === "function") {
+          headers.set("x-emirate", emirate);
+        } else {
+          headers["x-emirate"] = emirate;
+        }
       }
     }
 

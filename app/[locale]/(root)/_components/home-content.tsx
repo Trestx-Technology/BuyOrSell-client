@@ -8,8 +8,8 @@ import HostDeals from "./host-deals";
 import FloatingChatCTA from "@/components/global/flowting-ai-cta";
 import ExchangeDeals from "./exchange-deals";
 import { useHome } from "@/hooks/useHome";
-import CategoryTabbedCarousel from "@/components/global/category-tabbed-carousel";
-import JobsTabbedCarousel from "@/components/global/jobs-tabbed-carousel";
+import CategoryTabbedCarousel, { CategoryTabbedCarouselSkeleton } from "@/components/global/category-tabbed-carousel";
+import JobsTabbedCarousel, { JobsTabbedCarouselSkeleton } from "@/components/global/jobs-tabbed-carousel";
 import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "nextjs-toploader/app";
 import { VideoAdCarousel } from "./video-ad-carousel";
@@ -17,7 +17,8 @@ import JobsCTASection from "../jobs/_components/jobs-cta-section";
 import { slugify } from "@/utils/slug-utils";
 
 export function HomeContent() {
-  const { data: homeData, isLoading } = useHome();
+  const { data: homeData, isLoading, isFetching } = useHome();
+  const isHomeLoading = isLoading || isFetching;
   const { locale, t, localePath } = useLocale();
   const isArabic = locale === "ar";
   const router = useRouter();
@@ -35,7 +36,7 @@ export function HomeContent() {
         /> */}
         <PopularCategories
           popularCategories={homeData?.data?.popularCategories}
-          isLoading={isLoading}
+          isLoading={isHomeLoading}
         />
 
         <VideoAdCarousel />
@@ -44,13 +45,13 @@ export function HomeContent() {
         <div className="my-8 space-y-5">
           <HostDeals
             categoryTreeWithDealAds={homeData?.data?.categoryTreeWithDealAds}
-            isLoading={isLoading}
+            isLoading={isHomeLoading}
           />
           <ExchangeDeals
             categoryTreeWithExchangeAds={
               homeData?.data?.categoryTreeWithExchangeAds
             }
-            isLoading={isLoading}
+            isLoading={isHomeLoading}
           />
         </div>
 
@@ -59,64 +60,84 @@ export function HomeContent() {
           homeData?.data?.recentlyViewed.length > 0 && (
             <RecentViews
               recentlyViewedAds={homeData.data.recentlyViewed}
-              isLoading={isLoading}
+              isLoading={isHomeLoading}
             />
           )}
 
         <JobsCTASection />
 
         {/* PhonePe-Style Stacking Animation Container */}
-        {homeData?.data.subCategoryList?.map((category, i) => {
-          // Check if category is "job" (case-insensitive)
-          const isJobCategory =
-            category.category?.toLowerCase() === "job" ||
-            category.category?.toLowerCase() === "jobs" ||
-            (isArabic &&
-              (category.categoryAr?.toLowerCase() === "وظائف" ||
-                category.categoryAr?.toLowerCase() === "وظيفة"));
+        {isHomeLoading ? (
+          <div className="space-y-5">
+            <JobsTabbedCarouselSkeleton showNavigation={false} />
+            <CategoryTabbedCarouselSkeleton showNavigation={false} />
+            <CategoryTabbedCarouselSkeleton showNavigation={false} />
+          </div>
+        ) : (
+          homeData?.data.subCategoryList?.map((category, i) => {
+            // Check if category is "job" (case-insensitive)
+            const isJobCategory =
+              category.category?.toLowerCase() === "job" ||
+              category.category?.toLowerCase() === "jobs" ||
+              (isArabic &&
+                (category.categoryAr?.toLowerCase() === "وظائف" ||
+                  category.categoryAr?.toLowerCase() === "وظيفة"));
 
-          return (
-            <div key={`trending-category-ads-${i}`}>
-              {isJobCategory ? (
-                <JobsTabbedCarousel
-                  categoryData={{
-                    ...category,
-                    category:
-                      isArabic && category.categoryAr
-                        ? category.categoryAr
-                        : category.category,
-                  }}
-                  isLoading={isLoading}
-                  showNavigation={false}
-                  showViewAll={true}
-                  viewAllText={t.common.viewAll}
-                  onViewAll={(categoryName) =>
-                    router.push(localePath(`/jobs/listing/${category.category}/${slugify(categoryName)}`))
-                  }
-                  onTabChange={(tabId) => console.log("Tab changed to:", tabId)}
-                />
-              ) : (
-                <CategoryTabbedCarousel
-                  categoryData={{
-                    ...category,
-                    category:
-                      isArabic && category.categoryAr
-                        ? category.categoryAr
-                        : category.category,
-                  }}
-                  isLoading={isLoading}
-                  showNavigation={false}
-                  showViewAll={true}
-                  viewAllText={t.common.viewAll}
-                  onViewAll={(categoryName) =>
-                    router.push(`/categories/${category.category}/${categoryName}`)
-                  }
-                  onTabChange={(tabId) => console.log("Tab changed to:", tabId)}
-                />
-              )}
-            </div>
-          );
-        })}
+            return (
+              <div key={`trending-category-ads-${i}`}>
+                {isJobCategory ? (
+                  <JobsTabbedCarousel
+                    categoryData={{
+                      ...category,
+                      category:
+                        isArabic && category.categoryAr
+                          ? category.categoryAr
+                          : category.category,
+                    }}
+                    isLoading={isHomeLoading}
+                    showNavigation={false}
+                    showViewAll={true}
+                    viewAllText={t.common.viewAll}
+                    onViewAll={(categoryName) =>
+                      router.push(
+                        localePath(
+                          `/jobs/listing/${category.category}/${slugify(
+                            categoryName
+                          )}`
+                        )
+                      )
+                    }
+                    onTabChange={(tabId) =>
+                      console.log("Tab changed to:", tabId)
+                    }
+                  />
+                ) : (
+                  <CategoryTabbedCarousel
+                    categoryData={{
+                      ...category,
+                      category:
+                        isArabic && category.categoryAr
+                          ? category.categoryAr
+                          : category.category,
+                    }}
+                    isLoading={isHomeLoading}
+                    showNavigation={false}
+                    showViewAll={true}
+                    viewAllText={t.common.viewAll}
+                    onViewAll={(categoryName) =>
+                      router.push(
+                        `/categories/${category.category}/${categoryName}`
+                      )
+                    }
+                    onTabChange={(tabId) =>
+                      console.log("Tab changed to:", tabId)
+                    }
+                  />
+                )}
+              </div>
+            );
+          })
+        )}
 
         {/* Footer */}
         <FloatingChatCTA />

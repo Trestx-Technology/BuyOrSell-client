@@ -8,7 +8,7 @@ const openai = new OpenAI({
 });
 
 // Use environment variable or fallback to cost-effective model
-const MODEL = process.env.OPENAI_MODEL || "gpt-4.1-nano"; // Fallback to valid model
+const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
 // Proofread and improve message
 export async function proofreadMessage(message: string): Promise<string> {
@@ -335,7 +335,8 @@ GUIDELINES:
 3. CONTEXT: Category is "${categoryPath}".
 4. TONE: Professional and appealing.
 5. FORMAT: Use clear paragraphs with double newlines (\n\n) between them. Use bullet points for lists to ensure great readability.
-6. NO LINKS: Do not include external links or contact info.`,
+6. NO LINKS: Do not include external links or contact info.
+7. SPECIFICITY: Mention specific details if provided in the notes (e.g., brand, model, condition).`,
         },
         {
           role: "user",
@@ -359,30 +360,34 @@ ${existingDescription ? `Original: "${existingDescription}"` : "Create a new des
 
     return content;
   } catch (error: any) {
-    return existingDescription || "";
+    console.error("Error generating description:", error);
+    throw new Error(
+      error.message ||
+        "Failed to generate description. Please try again with different details.",
+    );
   }
 }
 
-/**
- * Generates a concise ad prompt based on uploaded images
- */
 export async function generatePromptFromImages(
-  imageUrls: string[]
-): Promise<string> {
+  imageUrls: string[],
+): Promise<{ description: string; adType: string }> {
   try {
     if (!process.env.OPENAI_API_KEY || imageUrls.length === 0) {
-      return "";
+      return { description: "", adType: "Item/Classified" };
     }
 
     const content: any[] = [
       {
         type: "text",
-        text: `Analyze these images and provide a SHORT prompt (2-3 sentences max) describing:
-1. What item/product is shown in the images
-2. The visible condition and key features
-3. What type of ad this would be (e.g., "Used car for sale", "Apartment for rent", "Job posting")
+        text: `Analyze these images and identify:
+1. Brand, model, color, and condition.
+2. The ad category type (e.g., 'Vehicles', 'Electronics', 'Jewelry & Watches', 'Jobs', 'Real Estate').
 
-Keep it brief and factual - just enough to identify the item and its purpose.`,
+Return a JSON object:
+{
+  "description": "bulleted description",
+  "adType": "Specific Category Group"
+}`,
       },
     ];
 
@@ -391,6 +396,7 @@ Keep it brief and factual - just enough to identify the item and its purpose.`,
         type: "image_url",
         image_url: {
           url: url,
+          detail: "auto",
         },
       });
     });
@@ -400,19 +406,25 @@ Keep it brief and factual - just enough to identify the item and its purpose.`,
       messages: [
         {
           role: "system",
-          content: "You are an expert at analyzing product images and creating concise descriptions.",
+          content:
+            "You are an expert at analyzing product images and identifying intent and product details.",
         },
         {
           role: "user",
           content: content,
         },
       ],
+      response_format: { type: "json_object" },
     });
 
-    return response.choices[0]?.message?.content?.trim() || "";
+    const result = JSON.parse(response.choices[0]?.message?.content || "{}");
+    return {
+      description: result.description || "",
+      adType: result.adType || "Item/Classified",
+    };
   } catch (error) {
     console.error("Error generating prompt from images:", error);
-    return "";
+    return { description: "", adType: "Item/Classified" };
   }
 }
 
@@ -428,6 +440,8 @@ export interface CategoryHierarchy {
 export async function identifyCategory(
   userPrompt: string,
   imageUrls: string[] = [],
+  providedCategories?: any[],
+  adType?: string,
 ): Promise<{
   redirectUrl: string | null;
   categoryPath: CategoryHierarchy[];
@@ -435,22 +449,53 @@ export async function identifyCategory(
 }> {
   try {
     if (!process.env.OPENAI_API_KEY) {
-      return { redirectUrl: null, categoryPath: [] };
+      throw new Error(
+        "AI credentials are not configured. Please contact support.",
+      );
     }
 
-    // 1. Fetch the category tree
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    const response = await fetch(`${backendUrl}/categories/tree`);
-    const result = await response.json();
-    const categories = result.data;
+    console.log("[AI] providedCategories type:", typeof providedCategories, "isArray:", Array.isArray(providedCategories), "length:", providedCategories?.length);
+    
+    // 1. Fetch the category tree using the service or use provided categories
+    let categories: any[] = [];
+    if (providedCategories && Array.isArray(providedCategories) && providedCategories.length > 0) {
+      // Check if first item has children (proper tree structure)
+      const firstCat = providedCategories[0];
+      console.log("[AI] First provided category:", JSON.stringify({ name: firstCat?.name, _id: firstCat?._id, hasChildren: !!firstCat?.children, childrenCount: firstCat?.children?.length }).substring(0, 300));
+      
+      categories = providedCategories;
+      console.log(`[AI] Using ${categories.length} pre-provided root categories.`);
+    } else {
+      // Fallback: fetch directly via fetch() since axiosInstance doesn't work in Server Actions
+      console.log("[AI] providedCategories not usable, fetching via direct fetch...");
+      const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!BACKEND_URL) {
+        console.error("[AI] NEXT_PUBLIC_BACKEND_URL is not set!");
+        return { redirectUrl: null, categoryPath: [] };
+      }
+      
+      const res = await fetch(`${BACKEND_URL}/categories/tree`);
+      const result = await res.json();
+      
+      console.log("[AI] Direct fetch response keys:", Object.keys(result));
+      // API returns { statusCode, timestamp, data: SubCategory[] }
+      categories = result.data || [];
+      
+      if (!categories || categories.length === 0) {
+        console.error("[AI] No categories from direct fetch:", JSON.stringify(result).substring(0, 500));
+      } else {
+        console.log(`[AI] Fetched ${categories.length} root categories via direct fetch.`);
+      }
+    }
 
-    // 2. Flatten the tree to leaf categories with hierarchy tracking
-    const leafCategories: {
+    // 2. Flatten the tree to ALL categories with hierarchy tracking
+    const allCategories: {
       id: string;
       name: string;
       path: string;
       rootId: string;
       hierarchy: CategoryHierarchy[];
+      isLeaf: boolean;
     }[] = [];
 
     function traverse(
@@ -472,15 +517,18 @@ export async function identifyCategory(
           },
         ];
 
-        if (!cat.children || cat.children.length === 0) {
-          leafCategories.push({
-            id: cat._id,
-            name: cat.name,
-            path: currentPath,
-            rootId: currentRootId,
-            hierarchy: currentHierarchy,
-          });
-        } else {
+        const isLeaf = !cat.children || cat.children.length === 0;
+
+        allCategories.push({
+          id: cat._id,
+          name: cat.name,
+          path: currentPath,
+          rootId: currentRootId,
+          hierarchy: currentHierarchy,
+          isLeaf: isLeaf,
+        });
+
+        if (!isLeaf) {
           traverse(cat.children, currentPath, currentRootId, currentHierarchy);
         }
       });
@@ -488,25 +536,34 @@ export async function identifyCategory(
 
     traverse(categories);
 
-    // 3. Compact representation of categories
-    const categoriesList = leafCategories
-      .map((c) => `${c.path} (ID: ${c.id})`)
+    if (allCategories.length === 0) {
+      console.error("[AI] CRITICAL: traverse() produced 0 categories! Categories input had", categories.length, "root items.");
+      console.error("[AI] First root item keys:", categories[0] ? Object.keys(categories[0]) : "N/A");
+      return { redirectUrl: null, categoryPath: [] };
+    }
+
+    // 3. Build category list - paths only, NO IDs (reduces AI confusion)
+    const categoryPaths = allCategories
+      .map((c) => `${c.path}${c.isLeaf ? "" : " [Group]"}`)
       .join("\n");
+
+    console.log(
+      `[AI] Flattened ${allCategories.length} total categories from ${categories.length} roots. ${adType ? `Intent: ${adType}` : ""}`,
+    );
 
     const content: any[] = [
       {
         type: "text",
-        text: `User Description: "${userPrompt}"\n\nAvailable Leaf Categories:\n${categoriesList.substring(0, 15000)}`,
+        text: `User Description: "${userPrompt}"\n${adType ? `Identified Ad Type: ${adType}\n` : ""}
+Available Categories (copy the EXACT path from this list):
+${categoryPaths.substring(0, 100000)}`,
       },
     ];
 
     imageUrls.forEach((url) => {
       content.push({
         type: "image_url",
-        image_url: {
-          url: url,
-          detail: "low",
-        },
+        image_url: { url, detail: "auto" },
       });
     });
 
@@ -515,79 +572,121 @@ export async function identifyCategory(
       messages: [
         {
           role: "system",
-          content: `You are an expert category classifier for "BuyOrSell".
-Your task is to analyze a user's ad description and any provided images, then:
-1. Select the MOST SPECIFIC leaf category ID.
-2. Generate a catchy, short Title (max 60 chars) for the ad.
+          content: `You are an expert semantic classifier for "BuyOrSell".
+Your task: map the user's ad description and images to the BEST category from the provided list.
 
-Return ONLY a JSON object with this format:
+INSTRUCTIONS:
+1. Read the description and analyze any images for visual cues (brand, model, type).
+2. From "Available Categories", pick the BEST MATCHING path.
+3. ALWAYS prefer leaf categories (those WITHOUT "[Group]"). Only pick a "[Group]" if nothing more specific exists.
+4. Copy the category path EXACTLY as shown in the list (without the [Group] suffix).${adType ? `\n5. Context: This ad is likely related to "${adType}".` : ""}
+
+EXAMPLES:
+- "Selling my Rolex Datejust" -> categoryPath: "Classified > Jewelry & Watches > Watches > Men's Watches"
+- Laptop images -> categoryPath: "Classified > Electronics > Computers & Laptops > Laptops"
+- Job for a driver -> categoryPath: "Jobs > Drivers & Delivery > Drivers"
+
+OUTPUT (JSON only):
 {
-  "categoryId": "string (the ID)",
-  "title": "string (the catchy title)"
+  "categoryPath": "Exact path from the list",
+  "title": "Short catchy ad title (max 50 chars)",
+  "reasoning": "Why this category"
 }
 
-IMPORTANT:
-- Use the list of categories provided.
-- If no category fits well, set "categoryId" to "none".
-- Be specific.
-- Do not wrap in markdown code blocks.`,
+If nothing fits at all, set categoryPath to "none".`,
         },
-        {
-          role: "user",
-          content: content,
-        },
+        { role: "user", content },
       ],
       response_format: { type: "json_object" },
     });
 
     const responseContent = aiResponse.choices[0]?.message?.content || "{}";
-    let parsedResponse: { categoryId: string; title: string } = {
-      categoryId: "none",
+    console.log("[AI] Raw AI response:", responseContent.substring(0, 500));
+
+    let parsedResponse: { categoryPath: string; title: string; reasoning?: string } = {
+      categoryPath: "none",
       title: "",
     };
 
     try {
       parsedResponse = JSON.parse(responseContent);
+      console.log(`[AI] AI chose: "${parsedResponse.categoryPath}"`);
+      console.log(`[AI] Reasoning: ${parsedResponse.reasoning}`);
     } catch (e) {
-      console.error("Error parsing JSON from AI:", e);
-      // Fallback: try to extract ID if JSON fails (regex for ID-like string)
-      const idMatch = responseContent.match(/[a-f0-9]{24}/);
-      if (idMatch) {
-        parsedResponse.categoryId = idMatch[0];
-      }
-    }
-
-    const { categoryId: matchedId, title: suggestedTitle } = parsedResponse;
-
-    if (!matchedId || matchedId.toLowerCase() === "none") {
+      console.error("[AI] JSON parse error:", e);
       return { redirectUrl: null, categoryPath: [] };
     }
 
-    const matchedCategory = leafCategories.find((c) => c.id === matchedId);
-    if (!matchedCategory) {
+    const { categoryPath: aiChosenPath, title: suggestedTitle } = parsedResponse;
+
+    if (!aiChosenPath || aiChosenPath.toLowerCase() === "none") {
+      console.warn("[AI] AI returned 'none' for prompt:", userPrompt);
       return { redirectUrl: null, categoryPath: [] };
     }
 
-    // Determine adType (prefix) based on root category (Jobs check)
-    const JOBS_ROOT_ID = categories.find((c: any) => c.name === "Jobs")?._id;
-    const pathPrefix =
-      matchedCategory.rootId === JOBS_ROOT_ID ? "post-job" : "post-ad";
+    // 4. MATCH: Find best matching category from our real list
+    const normalize = (s: string) => s.toLowerCase().trim().replace(/\s*\[group\]\s*$/i, "");
+    const normalizedAiPath = normalize(aiChosenPath);
 
-    const categoryPathParam = encodeURIComponent(
-      JSON.stringify(matchedCategory.hierarchy),
+    // Try exact match first
+    let matchedCategory = allCategories.find(
+      (c) => normalize(c.path) === normalizedAiPath,
     );
 
-    const redirectUrl = `/${pathPrefix}/details/${matchedId}?categoryPath=${categoryPathParam}`;
+    // Fuzzy match fallback
+    if (!matchedCategory) {
+      console.log("[AI] No exact path match, trying fuzzy matching...");
+      const aiWords = normalizedAiPath.split(/[\s>]+/).filter((w) => w.length > 2).map((w) => w.toLowerCase());
+      let bestScore = 0;
+      let bestMatch: (typeof allCategories)[0] | null = null;
+
+      for (const cat of allCategories) {
+        const catWords = normalize(cat.path).split(/[\s>]+/).filter((w) => w.length > 2);
+        let score = 0;
+        for (const aiWord of aiWords) {
+          for (const catWord of catWords) {
+            if (catWord === aiWord) score += 3;
+            else if (catWord.includes(aiWord) || aiWord.includes(catWord)) score += 1;
+          }
+        }
+        if (cat.isLeaf) score += 1;
+        const aiLast = aiWords[aiWords.length - 1];
+        const catLast = catWords[catWords.length - 1];
+        if (aiLast && catLast && (aiLast === catLast || catLast.includes(aiLast))) score += 5;
+        if (score > bestScore) { bestScore = score; bestMatch = cat; }
+      }
+
+      if (bestMatch && bestScore >= 3) {
+        matchedCategory = bestMatch;
+        console.log(`[AI] Fuzzy matched: "${bestMatch.path}" (score: ${bestScore})`);
+      } else {
+        console.warn(`[AI] Fuzzy match failed. Best: "${bestMatch?.path}" (score: ${bestScore})`);
+      }
+    } else {
+      console.log(`[AI] Exact match: "${matchedCategory.path}" (ID: ${matchedCategory.id})`);
+    }
+
+    if (!matchedCategory) {
+      console.warn("[AI] Could not match any category for:", aiChosenPath);
+      return { redirectUrl: null, categoryPath: [] };
+    }
+
+    // 5. Build redirect URL
+    const JOBS_ROOT_ID = categories.find((c: any) =>
+      c.name.toLowerCase().includes("job"),
+    )?._id;
+    const pathPrefix = matchedCategory.rootId === JOBS_ROOT_ID ? "post-job" : "post-ad";
+    const categoryPathParam = encodeURIComponent(JSON.stringify(matchedCategory.hierarchy));
+    const redirectUrl = `/${pathPrefix}/details/${matchedCategory.id}?categoryPath=${categoryPathParam}`;
+    console.log(`[AI] SUCCESS -> ${matchedCategory.path} -> ${redirectUrl}`);
 
     return {
       redirectUrl,
       categoryPath: matchedCategory.hierarchy,
-      suggestedTitle,
+      suggestedTitle: suggestedTitle || "",
     };
   } catch (error) {
     console.error("Error identifying category:", error);
     return { redirectUrl: null, categoryPath: [] };
   }
 }
-
-

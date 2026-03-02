@@ -95,13 +95,13 @@ export default function SimilarJobs() {
 
   if (isLoading) {
     return (
-      <section className="w-full bg-white py-8 px-4 lg:px-[100px]">
+      <section className="w-full bg-white dark:bg-gray-950 py-8 px-4 lg:px-[100px]">
         <div className="max-w-[1080px] mx-auto">
           <div className="flex flex-wrap gap-5">
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-gray-200 rounded-lg w-[256px] h-[300px] animate-pulse"
+                className="bg-gray-200 dark:bg-gray-800 rounded-lg w-[256px] h-[300px] animate-pulse"
               />
             ))}
           </div>
@@ -115,7 +115,7 @@ export default function SimilarJobs() {
   }
 
   return (
-    <section className="w-full bg-white py-8 px-4 lg:px-[100px]">
+    <section className="w-full bg-white dark:bg-gray-950 py-8 px-4 lg:px-[100px]">
       <div className="max-w-[1080px] mx-auto">
         <div className="flex flex-col gap-6">
           {/* Header */}

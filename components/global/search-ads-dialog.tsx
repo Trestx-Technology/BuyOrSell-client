@@ -9,6 +9,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { slugify } from "@/utils/slug-utils";
 import { cn } from "@/lib/utils";
+import { useSaveSearchTerm } from "@/hooks/useSearchHistory";
 
 interface SearchResult {
   adCount: number;
@@ -21,6 +22,7 @@ export function SearchAdsDialog() {
   const [open, setOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const router = useRouter();
+  const { saveSearchTerm } = useSaveSearchTerm();
 
   const session = useAuthStore((state) => state.session);
   const userId = session?.user?._id;
@@ -71,12 +73,21 @@ export function SearchAdsDialog() {
     }
   }, [selectedIndex, open]);
 
-  const handleSearch = (relatedCategories: string[]) => {
+  const handleSearch = (result: SearchResult) => {
+    const { relatedCategories, name, category } = result;
+    
+    // Log search history
+    saveSearchTerm({
+      searchTerm: name,
+      categoryId: category, // Assuming 'category' field contains the ID or name as needed
+      categoryName: category,
+    });
+
     if (relatedCategories.length > 0) {
       if (relatedCategories[0] === "Jobs") {
-        router.push(`/jobs/listing/${relatedCategories.map((category) => slugify(category)).join("/")}`);
+        router.push(`/jobs/listing/${relatedCategories.map((cat) => slugify(cat)).join("/")}`);
       } else {
-        router.push(`/categories/${relatedCategories.map((category) => slugify(category)).join("/")}`);
+        router.push(`/categories/${relatedCategories.map((cat) => slugify(cat)).join("/")}`);
       }
       setOpen(false);
       setLocalSearchQuery("");
@@ -95,7 +106,7 @@ export function SearchAdsDialog() {
       e.preventDefault();
       const selected = keywordResults[selectedIndex];
       if (selected) {
-        handleSearch(selected.relatedCategories);
+        handleSearch(selected);
       }
     }
   };
@@ -144,7 +155,7 @@ export function SearchAdsDialog() {
                       ref={(el) => {
                         itemRefs.current[index] = el;
                       }}
-                      onClick={() => handleSearch(result.relatedCategories)}
+                      onClick={() => handleSearch(result)}
                       onMouseEnter={() => setSelectedIndex(index)}
                       className={cn(
                         "w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 text-left outline-none",

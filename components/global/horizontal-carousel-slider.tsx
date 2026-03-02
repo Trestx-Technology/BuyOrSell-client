@@ -178,7 +178,7 @@ export function HorizontalCarouselSlider({
                 transition={{
                   duration: 0.3,
                   delay: index * 0.1,
-                  type: "spring",
+                  type: "spring" as const,
                   stiffness: 100,
                 }}
                 className="flex-shrink-0"

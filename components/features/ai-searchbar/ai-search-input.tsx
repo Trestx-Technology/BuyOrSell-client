@@ -39,7 +39,7 @@ export function AISearchInput({
           <button
             onClick={() => !isSearching && onSearch()}
             disabled={isSearching}
-            className="flex items-center gap-2 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-wait text-white text-xs px-3 py-1.5 rounded-full transition-colors border border-white/10"
+            className="flex items-center gap-2 bg-purple hover:bg-purple/90 disabled:opacity-50 disabled:cursor-wait text-white text-xs px-3 py-1.5 rounded-full transition-colors"
           >
             <Image
               src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/ai-purple-bg.svg"
@@ -48,7 +48,7 @@ export function AISearchInput({
               alt="AI"
               className={isSearching ? "animate-spin" : ""}
             />
-            {isSearching ? "Searching..." : "Search with AI"}
+            {isSearching ? "Searching..." : "Search"}
           </button>
         }
         type="text"

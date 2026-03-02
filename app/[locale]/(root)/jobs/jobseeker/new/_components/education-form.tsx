@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { TextareaInput } from "@/app/[locale]/(root)/post-ad/details/_components/TextareaInput";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -452,10 +452,13 @@ export default function EducationForm({ profile, isLoadingProfile }: EducationFo
                     name={`education.${index}.description`}
                     control={control}
                     render={({ field }) => (
-                      <Textarea
-                        {...field}
+                      <TextareaInput
+                        value={field.value || ""}
+                        onChange={(val) => field.onChange(val)}
                         placeholder="Additional details about your education..."
                         className="min-h-[100px]"
+                        showAI={true}
+                        categoryPath={`Education > ${watch(`education.${index}.institution`) || "Description"}`}
                       />
                     )}
                   />

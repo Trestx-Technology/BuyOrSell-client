@@ -5,6 +5,7 @@ import { useLocale } from "@/hooks/useLocale";
 import {
   useGetSearchHistory,
   useDeleteSearchHistory,
+  useSaveSearchTerm,
 } from "@/hooks/useSearchHistory";
 import SearchHistoryPopover from "./_components/SearchHistoryPopover";
 import { ErrorCard } from "@/components/ui/error-card";
@@ -12,6 +13,9 @@ import { Table } from "@/components/table/table";
 import { useSearchHistoryColumns } from "./_components/column";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
+import { useRouter } from "nextjs-toploader/app";
+import { slugify } from "@/utils/slug-utils";
+import { SearchHistoryItem } from "@/interfaces/search-history.types";
 
 export default function SearchHistoryPage() {
   const { t } = useLocale();
@@ -19,6 +23,8 @@ export default function SearchHistoryPage() {
     pageIndex: 0,
     pageSize: 10,
   });
+  const router = useRouter();
+  const { saveSearchTerm } = useSaveSearchTerm();
 
   const {
     data: searchHistory,
@@ -35,9 +41,28 @@ export default function SearchHistoryPage() {
     deleteMutation.mutate(id);
   };
 
+  const handleSelectSearch = (item: SearchHistoryItem) => {
+    const { searchTerm, categoryId, categoryName } = item;
+    
+    // Log search history
+    saveSearchTerm({
+      searchTerm,
+      categoryId,
+      categoryName,
+    });
+
+    // Redirect to category search
+    if (categoryName) {
+      router.push(`/categories/${slugify(categoryName)}`);
+    } else {
+      router.push(`/ad?query=${encodeURIComponent(searchTerm)}`);
+    }
+  };
+
   // Get table columns
   const columns = useSearchHistoryColumns({
     onDeleteSearch: handleDeleteSearch,
+    onSelectSearch: handleSelectSearch,
     isDeleting: deleteMutation.isPending,
   });
 

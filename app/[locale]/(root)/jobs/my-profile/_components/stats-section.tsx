@@ -12,14 +12,14 @@ interface StatCardProps {
 
 function StatCard({ count, label, href }: StatCardProps) {
   const content = (
-    <div className="bg-white rounded-[16.6px] p-[33.2px] shadow-[0px_2.49px_6.64px_rgba(48,150,137,0.05)] flex flex-col items-center gap-[33.2px] w-full lg:w-[254px] lg:h-[232px]">
+    <div className="bg-white dark:bg-gray-900 rounded-[16.6px] p-[33.2px] shadow-[0px_2.49px_6.64px_rgba(48,150,137,0.05)] dark:shadow-[0px_2.49px_6.64px_rgba(0,0,0,0.3)] border dark:border-gray-800 flex flex-col items-center gap-[33.2px] w-full lg:w-[254px] lg:h-[232px]">
       <div className="flex flex-col items-center gap-0 mt-2">
         <Typography variant="h2" className="text-purple font-bold text-[32px]">
           {count}
         </Typography>
         <Typography
           variant="body-large"
-          className="text-dark-blue font-bold text-[19.92px]"
+          className="text-dark-blue dark:text-gray-200 font-bold text-[19.92px]"
         >
           {label}
         </Typography>
@@ -63,7 +63,7 @@ export default function StatsSection({
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="bg-white rounded-[16.6px] p-[33.2px] w-full lg:w-[254px] lg:h-[232px] animate-pulse"
+              className="bg-white dark:bg-gray-900 rounded-[16.6px] p-[33.2px] w-full lg:w-[254px] lg:h-[232px] animate-pulse border dark:border-gray-800"
             />
           ))}
         </div>

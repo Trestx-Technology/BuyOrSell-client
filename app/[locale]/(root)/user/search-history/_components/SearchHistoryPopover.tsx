@@ -20,6 +20,10 @@ import { searchHistoryQueries } from "@/app/api/search-history/index";
 import { useAuthStore } from "@/stores/authStore";
 import { formatDate } from "@/utils/format-date";
 import Link from "next/link";
+import { useRouter } from "nextjs-toploader/app";
+import { useSaveSearchTerm } from "@/hooks/useSearchHistory";
+import { slugify } from "@/utils/slug-utils";
+import { SearchHistoryItem } from "@/interfaces/search-history.types";
 
 interface SearchHistoryPopoverProps {
   className?: string;
@@ -33,6 +37,8 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const session = useAuthStore((state) => state.session);
+  const router = useRouter();
+  const { saveSearchTerm } = useSaveSearchTerm();
 
   const { data: searchHistory } = useQuery({
     queryKey: searchHistoryQueries.getSearchHistory({ limit: 5 }).Key,
@@ -51,6 +57,26 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
     if (session?.user?._id) {
       deleteAllMutation.mutate(session.user._id);
     }
+  };
+
+  const handleItemClick = (item: SearchHistoryItem) => {
+    const { searchTerm, categoryId, categoryName } = item;
+    
+    // Log search history
+    saveSearchTerm({
+      searchTerm,
+      categoryId,
+      categoryName,
+    });
+
+    // Redirect to category search
+    if (categoryName) {
+      router.push(`/categories/${slugify(categoryName)}`);
+    } else {
+      // Fallback if no category info (though user requested to log it, so it should exist)
+      router.push(`/ad?query=${encodeURIComponent(searchTerm)}`);
+    }
+    setIsOpen(false);
   };
 
   return (
@@ -91,7 +117,10 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
                     className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                     key={item._id}
                   >
-                    <div className="flex items-center gap-2 overflow-hidden">
+                    <div 
+                      className="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer"
+                      onClick={() => handleItemClick(item)}
+                    >
                       <Clock className="w-4 h-4 text-gray-400 shrink-0" />
                       <div className="truncate">
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">

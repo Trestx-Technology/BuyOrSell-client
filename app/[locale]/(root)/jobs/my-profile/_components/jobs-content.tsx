@@ -59,7 +59,7 @@ export default function JobsContent() {
   if (!profile) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4 text-center space-y-6">
-        <div className="bg-purple/10 p-6 rounded-full">
+        <div className="bg-purple/10 dark:bg-purple/20 p-6 rounded-full">
           <User className="size-12 text-purple" />
         </div>
         <div className="space-y-2 max-w-md">
@@ -88,15 +88,15 @@ export default function JobsContent() {
 
   return (
     <>
-      <main className="min-h-screen bg-[#F2F4F7]">
+      <main className="min-h-screen bg-[#F2F4F7] dark:bg-gray-950">
         {/* Hero Section */}
         <JobsHero />
 
         {/* Profile/Category Section */}
-        <section className="w-full bg-[#F2F4F7] pt-10 px-4 lg:px-[100px]">
+        <section className="w-full bg-[#F2F4F7] dark:bg-gray-950 pt-10 px-4 lg:px-[100px]">
           {isLoading ? (
-            <div className="max-w-[1080px] mx-auto bg-white rounded-2xl p-6 animate-pulse">
-              <div className="h-[170px] w-[170px] rounded-full bg-gray-200" />
+            <div className="max-w-[1080px] mx-auto bg-white dark:bg-gray-900 rounded-2xl p-6 animate-pulse border dark:border-gray-800">
+              <div className="h-[170px] w-[170px] rounded-full bg-gray-200 dark:bg-gray-800" />
             </div>
           ) : profile ? (
             <div className="max-w-[1080px] mx-auto">

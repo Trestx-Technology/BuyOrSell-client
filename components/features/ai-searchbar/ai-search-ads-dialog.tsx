@@ -15,6 +15,7 @@ import { slugify } from "@/utils/slug-utils";
 import { useAITokenBalance, useConsumeTokens } from "@/hooks/useAITokens";
 import { NoCreditsDialog } from "@/components/global/NoCreditsDialog";
 import { cn } from "@/lib/utils";
+import { useSaveSearchTerm } from "@/hooks/useSearchHistory";
 
 interface AISearchAdsDialogProps {
   open: boolean;
@@ -27,6 +28,7 @@ export function AISearchAdsDialog({ open, onOpenChange }: AISearchAdsDialogProps
   const [isSearching, setIsSearching] = React.useState(false);
   const [isNoCreditsOpen, setIsNoCreditsOpen] = React.useState(false);
   const router = useRouter();
+  const { saveSearchTerm } = useSaveSearchTerm();
 
   const { data: tokenBalance } = useAITokenBalance();
   const { mutateAsync: consumeTokens } = useConsumeTokens();
@@ -90,6 +92,13 @@ export function AISearchAdsDialog({ open, onOpenChange }: AISearchAdsDialogProps
     if (ad._id) {
       router.push(`/ad/${ad._id}`); 
     } else {
+      // Log search history for category redirect
+      saveSearchTerm({
+        searchTerm: searchQuery,
+        categoryId: ad.category && typeof ad.category === 'object' ? ad.category._id : undefined,
+        categoryName: ad.category && typeof ad.category === 'object' ? ad.category.name : undefined,
+      });
+
       router.push(`/categories/${ad.relatedCategories.map((category) => slugify(category)).join("/")}`); 
     }
     onOpenChange(false);

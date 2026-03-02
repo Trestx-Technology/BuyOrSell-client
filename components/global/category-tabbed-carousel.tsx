@@ -11,9 +11,10 @@ import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
 import { AD } from "@/interfaces/ad";
 import { useLocale } from "@/hooks/useLocale";
 import { CarouselWrapper } from "@/components/global/carousel-wrapper";
+import { ListingCardSkeleton } from "@/components/global/listing-card-skeleton";
 
 interface CategoryTabbedCarouselProps<
-  T extends { id?: string | number } = { id?: string | number }
+  T extends { id?: string | number } = { id?: string | number },
 > {
   categoryData: CategoryWithSubCategories;
   title?: string; // Optional, defaults to "Trending {category}"
@@ -29,8 +30,50 @@ interface CategoryTabbedCarouselProps<
   renderCard?: (item: T, index: number) => ReactNode;
 }
 
+export const CategoryTabbedCarouselSkeleton = ({
+  showNavigation = true,
+  showViewAll = true,
+}: {
+  showNavigation?: boolean;
+  showViewAll?: boolean;
+}) => (
+  <section className="max-w-[1220px] mx-auto py-5">
+    <div className="w-full mx-auto">
+      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-48 animate-pulse mb-2 ml-5"></div>
+      <div className="mb-4 flex items-center justify-between px-5">
+        <div className="flex items-center gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-8 w-20 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"
+            ></div>
+          ))}
+        </div>
+        {showViewAll && (
+          <div className="h-8 w-20 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+        )}
+      </div>
+      <div className="relative">
+        <CardsCarousel title="" showNavigation={showNavigation}>
+          <div className="flex gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <ListingCardSkeleton
+                key={i}
+                showImageCounter={true}
+                showExtraFields={true}
+                showSeller={false}
+                className="flex-shrink-0"
+              />
+            ))}
+          </div>
+        </CardsCarousel>
+      </div>
+    </div>
+  </section>
+);
+
 export default function CategoryTabbedCarousel<
-  T extends { id?: string | number } = { id?: string | number }
+  T extends { id?: string | number } = { id?: string | number },
 >({
   categoryData,
   title,
@@ -53,7 +96,7 @@ export default function CategoryTabbedCarousel<
 
   const subCategories = useMemo(
     () => categoryData.subCategory || [],
-    [categoryData.subCategory]
+    [categoryData.subCategory],
   );
 
   const firstTabValue = categoryData.subCategory[0]?._id;
@@ -62,7 +105,7 @@ export default function CategoryTabbedCarousel<
   // Get ads directly from the selected subcategory
   const currentAds = useMemo(() => {
     const activeSubCategory = subCategories.find(
-      (sub) => sub._id === activeTab
+      (sub) => sub._id === activeTab,
     );
     return activeSubCategory?.ads || [];
   }, [subCategories, activeTab]);
@@ -87,13 +130,13 @@ export default function CategoryTabbedCarousel<
       y: 0,
       scale: 1,
       transition: {
-        type: "spring" as const,
+        type: "spring",
         stiffness: 300,
         damping: 22,
         delay: 0.2,
       },
     },
-  };
+  } as const;
 
   const tabsVariants = {
     hidden: { opacity: 0, y: 15, scale: 0.95 },
@@ -102,13 +145,13 @@ export default function CategoryTabbedCarousel<
       y: 0,
       scale: 1,
       transition: {
-        type: "spring" as const,
+        type: "spring",
         stiffness: 300,
         damping: 22,
         delay: 0.5,
       },
     },
-  };
+  } as const;
 
   const cardsVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
@@ -117,61 +160,18 @@ export default function CategoryTabbedCarousel<
       y: 0,
       scale: 1,
       transition: {
-        type: "spring" as const,
+        type: "spring",
         stiffness: 300,
         damping: 22,
         delay: 0.8,
       },
     },
-  };
+  } as const;
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
     onTabChange?.(tabId);
   };
-
-  // Loading skeleton components
-  const TitleSkeleton = () => (
-    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-48 animate-pulse mb-2"></div>
-  );
-
-  const TabsSkeleton = () => (
-    <div className="mb-4 flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-8 w-20 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"
-          ></div>
-        ))}
-      </div>
-      {showViewAll && (
-        <div className="h-8 w-20 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-      )}
-    </div>
-  );
-
-  const CardsSkeleton = () => (
-    <div className="relative">
-      <CardsCarousel title="" showNavigation={showNavigation}>
-        <div className="flex gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="w-[220px] bg-white border border-gray-200 rounded-lg overflow-hidden animate-pulse"
-            >
-              <div className="h-32 bg-gray-200"></div>
-              <div className="p-3 space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardsCarousel>
-    </div>
-  );
 
   // Content render functions
   const renderTitle = () => (
@@ -224,7 +224,7 @@ export default function CategoryTabbedCarousel<
               className={`px-4 py-2 h-8 text-xs font-medium rounded-lg border transition-colors flex-shrink-0 ${
                 activeTab === subCategory._id
                   ? "bg-purple text-white border-purple shadow-sm"
-                : "bg-white dark:bg-gray-800 border-[#F5EBFF] dark:border-gray-700 text-[#475467] dark:text-gray-300 hover:bg-purple/10 dark:hover:bg-gray-700"
+                  : "bg-white dark:bg-gray-800 border-[#F5EBFF] dark:border-gray-700 text-[#475467] dark:text-gray-300 hover:bg-purple/10 dark:hover:bg-gray-700"
               }`}
             >
               {subCategoryName}
@@ -246,7 +246,12 @@ export default function CategoryTabbedCarousel<
         >
           <Button
             variant="filled"
-            onClick={() => onViewAll?.(subCategories?.find((sub) => sub._id === activeTab)?.name || categoryName)}
+            onClick={() =>
+              onViewAll?.(
+                subCategories?.find((sub) => sub._id === activeTab)?.name ||
+                  categoryName,
+              )
+            }
             className="md:block hidden transition-colors px-5 py-2 h-8 text-xs font-medium"
           >
             {viewAllText}
@@ -257,10 +262,6 @@ export default function CategoryTabbedCarousel<
   );
 
   const renderCards = () => {
-    if (isLoading) {
-      return <CardsSkeleton />;
-    }
-
     if (currentAds.length === 0) {
       return (
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -305,6 +306,15 @@ export default function CategoryTabbedCarousel<
     );
   };
 
+  if (isLoading) {
+    return (
+      <CategoryTabbedCarouselSkeleton
+        showNavigation={showNavigation}
+        showViewAll={showViewAll}
+      />
+    );
+  }
+
   return (
     <motion.section
       variants={containerVariants}
@@ -315,10 +325,10 @@ export default function CategoryTabbedCarousel<
     >
       <div className="w-full mx-auto">
         {/* Header with Title */}
-        {isLoading ? <TitleSkeleton /> : renderTitle()}
+        {renderTitle()}
 
         {/* Custom Tab Buttons */}
-        {isLoading ? <TabsSkeleton /> : renderTabs()}
+        {renderTabs()}
 
         {/* Cards Carousel */}
         {renderCards()}

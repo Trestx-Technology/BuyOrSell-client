@@ -517,10 +517,10 @@ export default function JobseekerProfileHeaderMobile({
       <div className="grid max-[350px]:grid-cols-1 grid-cols-2 gap-3 mb-4">
         {jobType && (
           <div className="flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-grey-blue flex-shrink-0" />
+            <Clock className="w-4 h-4 text-grey-blue dark:text-gray-400 flex-shrink-0" />
             <Typography
               variant="body-small"
-              className="text-dark-blue text-xs font-medium truncate"
+              className="text-dark-blue dark:text-gray-200 text-xs font-medium truncate"
             >
               {jobType}
             </Typography>
@@ -531,7 +531,7 @@ export default function JobseekerProfileHeaderMobile({
             <Phone className="w-4 h-4 text-grey-blue flex-shrink-0" />
             <Typography
               variant="body-small"
-              className="text-dark-blue text-xs truncate"
+              className="text-dark-blue dark:text-gray-200 text-xs truncate"
             >
               {jobseeker.contactPhone || "Not specified"}
             </Typography>
@@ -540,10 +540,10 @@ export default function JobseekerProfileHeaderMobile({
 
         {experienceDisplay && (
           <div className="flex items-center gap-1.5">
-            <Briefcase className="w-4 h-4 text-dark-blue flex-shrink-0" />
+            <Briefcase className="w-4 h-4 text-dark-blue dark:text-gray-400 flex-shrink-0" />
             <Typography
               variant="body-small"
-              className="text-dark-blue text-xs font-medium truncate"
+              className="text-dark-blue dark:text-gray-200 text-xs font-medium truncate"
             >
               {experienceDisplay}
             </Typography>
@@ -555,7 +555,7 @@ export default function JobseekerProfileHeaderMobile({
             <Mail className="w-4 h-4 text-grey-blue flex-shrink-0" />
             <Typography
               variant="body-small"
-              className="text-dark-blue text-xs truncate"
+              className="text-dark-blue dark:text-gray-200 text-xs truncate"
             >
               {jobseeker.contactEmail || "Not specified"}
             </Typography>
@@ -564,22 +564,22 @@ export default function JobseekerProfileHeaderMobile({
 
         {(salaryMin > 0 || salaryMax > 0) && (
           <div className="flex items-center gap-1.5">
-            <Image src={CURRENCY_ICONS.aedBlack} alt="AED" width={20} height={20} />
+            <Image src={CURRENCY_ICONS.aedBlack} alt="AED" width={20} height={20} className="dark:invert" />
             <div className="flex items-center gap-0.5 min-w-0">
-              <span className="text-[10px]">{ctcCurrency}</span>
+              <span className="text-[10px] dark:text-gray-300">{ctcCurrency}</span>
               <Typography
                 variant="body-small"
-                className="text-dark-blue text-xs font-medium truncate"
+                className="text-dark-blue dark:text-gray-200 text-xs font-medium truncate"
               >
                 {salaryMin.toLocaleString()}
               </Typography>
               {salaryMax > salaryMin && (
                 <>
-                  <span className="text-dark-blue text-xs">-</span>
-                  <span className="text-[10px]">{ctcCurrency}</span>
+                  <span className="text-dark-blue dark:text-gray-200 text-xs">-</span>
+                  <span className="text-[10px] dark:text-gray-300">{ctcCurrency}</span>
                   <Typography
                     variant="body-small"
-                    className="text-dark-blue text-xs font-medium truncate"
+                    className="text-dark-blue dark:text-gray-200 text-xs font-medium truncate"
                   >
                     {salaryMax.toLocaleString()}
                   </Typography>
