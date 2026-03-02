@@ -15,6 +15,7 @@ import {
   getJobSubcategories,
   validateCategoryPath,
   validateCategoryPathWithSeo,
+  semanticSearchCategories,
 } from "@/app/api/categories/categories.services";
 import { categoriesQueries } from "@/app/api/categories/index";
 import {
@@ -26,6 +27,8 @@ import {
   CategoryTreeAdsResponse,
   JobSubcategoriesApiResponse,
   JobSubcategory,
+  SemanticCategorySearchParams,
+  SemanticCategorySearchResponse,
 } from "@/interfaces/categories.types";
 import { unSlugify } from "@/utils/slug-utils";
 import { findCategoryInTreeList } from "@/validations/post-ad.validation";
@@ -248,5 +251,17 @@ export const useValidateCategoryPathWithSeo = (path: string) => {
     ],
     queryFn: () => validateCategoryPathWithSeo(unslugifiedPath),
     enabled: !!path,
+  });
+};
+
+// Semantic (Pinecone) Search for Categories
+export const useSemanticSearchCategories = (
+  params: SemanticCategorySearchParams,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<SemanticCategorySearchResponse, Error>({
+    queryKey: [...categoriesQueries.semanticSearchCategories.Key, params],
+    queryFn: () => semanticSearchCategories(params),
+    ...options,
   });
 };
