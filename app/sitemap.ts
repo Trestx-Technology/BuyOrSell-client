@@ -6,8 +6,9 @@ import { locales } from "@/lib/i18n/config";
  * It includes all localized static routes and core landing pages.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL || "https://dev-buyorsell.com";
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_APP_URL || "https://buyorsell.ae"
+  ).replace(/\/$/, "");
 
   // Define all key public-facing sections of the site
   const staticRoutes = [
