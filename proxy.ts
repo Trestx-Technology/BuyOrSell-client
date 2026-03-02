@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getLocale, locales } from "./lib/i18n/config";
 
-export default function proxy(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check if there is any supported locale in the pathname
@@ -42,13 +42,17 @@ export default function proxy(request: NextRequest) {
     (route) => pathname.startsWith(route) || pathname === route,
   );
 
-  // Exclude common file extensions
-  const isFile = /\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|xml)$/i.test(
-    pathname,
+  // If the route should be excluded, allow it to proceed without locale validation
+  if (shouldBeExcluded) {
+    return NextResponse.next();
+  }
+
+  // Double-check: if locale already exists in pathname, don't append again (extra safeguard)
+  const hasLocalePrefix = locales.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   );
 
-  // If the route should be excluded, allow it to proceed without locale validation
-  if (shouldBeExcluded || isFile) {
+  if (hasLocalePrefix) {
     return NextResponse.next();
   }
 
@@ -56,12 +60,14 @@ export default function proxy(request: NextRequest) {
   const locale = getLocale(request);
   request.nextUrl.pathname = `/${locale}${pathname}`;
 
+  // e.g. incoming request is /ad/123
+  // The new URL is now /en-US/ad/123
   return NextResponse.redirect(request.nextUrl);
 }
 
 export const config = {
   matcher: [
-    // Skip internal paths and API
-    "/((?!/api|/_next|/favicon.ico|/sitemap.xml|/robots.txt|/manifest.json).*)",
+    // Skip all internal paths (_next) and system files
+    "/((?!api|_next|favicon.ico|sitemap.xml|robots.txt|manifest.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
