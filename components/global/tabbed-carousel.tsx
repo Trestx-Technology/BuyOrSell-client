@@ -5,6 +5,12 @@ import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { CardsCarousel } from "@/components/global/cards-carousel";
+import { CarouselWrapper } from "@/components/global/carousel-wrapper";
+import {
+  containerVariants,
+  itemVariants,
+  tabsVariants,
+} from "@/utils/animation-variants";
 
 export interface TabItem<
   T extends { id?: string | number } = { id?: string | number },
@@ -47,44 +53,6 @@ export default function TabbedCarousel<
   const [activeTab, setActiveTab] = useState(firstTab);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Framer Motion animation variants - sequential reveal pattern
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-    },
-  };
-
-  const titleVariants = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 22,
-        delay: 0.2, // First to appear
-      },
-    },
-  };
-
-  const tabsVariants = {
-    hidden: { opacity: 0, y: 15, scale: 0.95 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 22,
-        delay: 0.5, // Second to appear
-      },
-    },
-  };
-
   const cardsVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
     visible: {
@@ -92,13 +60,13 @@ export default function TabbedCarousel<
       y: 0,
       scale: 1,
       transition: {
-        type: "spring" as const,
+        type: "spring",
         stiffness: 300,
         damping: 22,
         delay: 0.8, // Third to appear
       },
     },
-  };
+  } as const;
 
   const handleTabChange = (tabValue: string) => {
     setActiveTab(tabValue);
@@ -171,7 +139,7 @@ export default function TabbedCarousel<
           </div>
         ) : (
           <motion.div
-            variants={titleVariants}
+            variants={tabsVariants}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
@@ -180,7 +148,7 @@ export default function TabbedCarousel<
             {/* Section Title */}
             <Typography
               variant="lg-black-inter"
-                className="text-md sm:text-lg font-medium text-dark-blue dark:text-gray-100"
+              className="text-md sm:text-lg font-medium text-dark-blue dark:text-gray-100"
             >
               {title}
             </Typography>
@@ -201,7 +169,11 @@ export default function TabbedCarousel<
             viewport={{ once: true, margin: "-100px" }}
             className="mb-4 flex items-center justify-between"
           >
-            <div className="flex flex-1 items-center gap-3 overflow-x-auto scrollbar-hide">
+            <CarouselWrapper
+              className="flex-1"
+              containerClassName="items-center"
+              shadowColorClassName="from-white dark:from-gray-950"
+            >
               {tabs.map((tab, index) => (
                 <motion.button
                   key={tab.value}
@@ -218,13 +190,13 @@ export default function TabbedCarousel<
                   className={`px-4 py-2 h-8 text-xs font-medium rounded-lg border transition-colors flex-shrink-0 ${
                     activeTab === tab.value
                       ? "bg-purple text-white border-purple shadow-sm"
-                    : "bg-white dark:bg-gray-800 border-[#F5EBFF] dark:border-gray-700 text-[#475467] dark:text-gray-300 hover:bg-purple/10 dark:hover:bg-gray-700"
+                      : "bg-white dark:bg-gray-800 border-[#F5EBFF] dark:border-gray-700 text-[#475467] dark:text-gray-300 hover:bg-purple/10 dark:hover:bg-gray-700"
                   }`}
                 >
                   {tab.label}
                 </motion.button>
               ))}
-            </div>
+            </CarouselWrapper>
             {/* View All Button */}
             {showViewAll && (
               <motion.div
@@ -259,7 +231,7 @@ export default function TabbedCarousel<
           </div>
         ) : (
           <motion.div
-            variants={cardsVariants}
+            variants={itemVariants}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}

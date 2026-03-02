@@ -6,6 +6,8 @@ export interface SearchHistoryItem {
   _id: string;
   userId: string;
   searchTerm: string;
+  categoryId?: string;
+  categoryName?: string;
   timestamp: string;
   createdAt: string;
   updatedAt: string;
@@ -14,7 +16,9 @@ export interface SearchHistoryItem {
 export interface CreateSearchHistoryPayload {
   userId: string;
   searchTerm: string;
-  timestamp: string;
+  categoryId?: string;
+  categoryName?: string;
+  timestamp?: string;
 }
 
 export interface SearchHistoryResponse {

@@ -15,13 +15,16 @@ type Message = {
 
 import { searchWithAI } from "@/lib/ai/searchWithAI";
 import { findResolution } from "@/constants/app-context";
+import { itemVariants, tabsVariants } from "@/utils/animation-variants";
+import { buttonVariants } from "../ui/button";
 
 export default function FloatingChatCTA() {
   const [open, setOpen] = React.useState(false);
   const [messages, setMessages] = React.useState<Message[]>([
     {
       role: "assistant",
-      content: "Hi! I’m your App Navigation Assistant. I can help you find platform features and answer questions about how to use BuyOrSell. Note: I cannot search for specific ads here. Please use the main Search Bar at the top of the page for finding items.",
+      content:
+        "Hi! I’m your App Navigation Assistant. I can help you find platform features and answer questions about how to use BuyOrSell. Note: I cannot search for specific ads here. Please use the main Search Bar at the top of the page for finding items.",
     },
   ]);
   const [input, setInput] = React.useState("");
@@ -29,75 +32,6 @@ export default function FloatingChatCTA() {
 
   const logRef = React.useRef<HTMLDivElement | null>(null);
   const audioContextRef = React.useRef<AudioContext | null>(null);
-
-  // Framer Motion animation variants - smooth zoom-in pattern
-  const askMeVariants = {
-    hidden: { opacity: 0, scale: 0.8, y: 20 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 22,
-        duration: 0.5,
-      },
-    },
-  };
-
-  const formVariants = {
-    hidden: { opacity: 0, scale: 0.9, y: 30 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: {
-        type: "spring" as const,
-        stiffness: 280,
-        damping: 20,
-        duration: 0.6,
-        delay: 0.1,
-      },
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.9,
-      y: 20,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 25,
-        duration: 0.4,
-      },
-    },
-  };
-
-  const buttonVariants = {
-    hidden: { opacity: 0, scale: 0.8, rotate: -10 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      rotate: 0,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 22,
-        duration: 0.5,
-        delay: 0.2,
-      },
-    },
-    hover: {
-      scale: 1.1,
-      rotate: 5,
-      transition: {
-        type: "spring" as const,
-        stiffness: 400,
-        damping: 15,
-        duration: 0.2,
-      },
-    },
-  };
 
   // Auto scroll to bottom on new messages
   React.useEffect(() => {
@@ -107,7 +41,9 @@ export default function FloatingChatCTA() {
     });
   }, [messages, isTyping]);
 
-  const processQuery = async (text: string): Promise<{ content: string; action?: { label: string; url: string } }> => {
+  const processQuery = async (
+    text: string,
+  ): Promise<{ content: string; action?: { label: string; url: string } }> => {
     const lower = text.toLowerCase();
 
     // 1. App Knowledge Base (Resolutions)
@@ -116,21 +52,28 @@ export default function FloatingChatCTA() {
     if (resolution) {
       return {
         content: resolution.response,
-        action: resolution.action
+        action: resolution.action,
       };
     }
 
     // 2. Search Logic (Products & General) bounds limit
-    if (lower.includes("find") || lower.includes("search") || lower.includes("looking for") || lower.includes("buy")) {
+    if (
+      lower.includes("find") ||
+      lower.includes("search") ||
+      lower.includes("looking for") ||
+      lower.includes("buy")
+    ) {
       return {
-        content: "I am an app navigation assistant and cannot search for specific ads from here. To search for ads (including using AI search), please close this chat and use the 'Search anything' bar at the top of the page or use our new keyboard shortcut (coming soon!)."
+        content:
+          "I am an app navigation assistant and cannot search for specific ads from here. To search for ads (including using AI search), please close this chat and use the 'Search anything' bar at the top of the page or use our new keyboard shortcut (coming soon!).",
       };
     }
 
     // Final Fallback
     return {
-      content: "I'm not sure specifically, but you can explore our main sections.",
-      action: { label: "Go Home", url: "/" }
+      content:
+        "I'm not sure specifically, but you can explore our main sections.",
+      action: { label: "Go Home", url: "/" },
     };
   };
 
@@ -157,7 +100,7 @@ export default function FloatingChatCTA() {
           ...prev,
           {
             role: "assistant",
-            ...response
+            ...response,
           },
         ]);
         setIsTyping(false);
@@ -199,11 +142,11 @@ export default function FloatingChatCTA() {
       gainNode.gain.setValueAtTime(0, audioContext.currentTime);
       gainNode.gain.linearRampToValueAtTime(
         0.3,
-        audioContext.currentTime + 0.05
+        audioContext.currentTime + 0.05,
       );
       gainNode.gain.exponentialRampToValueAtTime(
         0.01,
-        audioContext.currentTime + 0.3
+        audioContext.currentTime + 0.3,
       );
 
       // Set oscillator type and start
@@ -234,13 +177,13 @@ export default function FloatingChatCTA() {
         {/* Ask me pill */}
         {!open && (
           <motion.div
-            variants={askMeVariants}
+            variants={tabsVariants}
             initial="hidden"
             animate="visible"
             className={cn(
               "mr-0 mb-6 select-none rounded-lg rounded-br-none bg-white px-3 py-2 text-sm font-medium text-gray-900 shadow",
               "border border-gray-200",
-              "dark:bg-gray-900 dark:text-white dark:border-gray-800"
+              "dark:bg-gray-900 dark:text-white dark:border-gray-800",
             )}
             aria-hidden="true"
           >
@@ -251,13 +194,13 @@ export default function FloatingChatCTA() {
         <AnimatePresence>
           {open && (
             <motion.div
-              variants={formVariants}
+              variants={itemVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
               className={cn(
                 "sticky bottom-6 right-10 z-50 mb-3 w-[min(22rem,calc(100vw-2rem))] rounded-xl border bg-white text-gray-900 shadow-xl",
-                "dark:border-gray-800 dark:bg-gray-900 dark:text-white"
+                "dark:border-gray-800 dark:bg-gray-900 dark:text-white",
               )}
               role="dialog"
               aria-modal="true"
@@ -289,7 +232,7 @@ export default function FloatingChatCTA() {
                       key={i}
                       className={cn(
                         "text-sm leading-relaxed",
-                        m.role === "user" ? "text-right" : "text-left"
+                        m.role === "user" ? "text-right" : "text-left",
                       )}
                     >
                       <div
@@ -297,7 +240,7 @@ export default function FloatingChatCTA() {
                           "inline-block rounded-lg px-3 py-2",
                           m.role === "user"
                             ? "bg-purple-600 text-white"
-                            : "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"
+                            : "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white",
                         )}
                       >
                         {m.content}
@@ -306,7 +249,10 @@ export default function FloatingChatCTA() {
                       {/* Action Link */}
                       {m.role === "assistant" && m.action && (
                         <div className="mt-1 text-left">
-                          <Link href={m.action.url} className="inline-flex items-center text-xs text-purple-600 hover:text-purple-700 font-medium bg-purple-50 px-2 py-1 rounded-full border border-purple-100 transition-colors">
+                          <Link
+                            href={m.action.url}
+                            className="inline-flex items-center text-xs text-purple-600 hover:text-purple-700 font-medium bg-purple-50 px-2 py-1 rounded-full border border-purple-100 transition-colors"
+                          >
                             {m.action.label} ↗
                           </Link>
                         </div>
@@ -319,9 +265,18 @@ export default function FloatingChatCTA() {
                     <li className="text-left">
                       <div className="inline-block rounded-lg px-3 py-2 bg-gray-100 dark:bg-gray-800">
                         <div className="flex gap-1">
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                          <span
+                            className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+                            style={{ animationDelay: "0ms" }}
+                          />
+                          <span
+                            className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+                            style={{ animationDelay: "150ms" }}
+                          />
+                          <span
+                            className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+                            style={{ animationDelay: "300ms" }}
+                          />
                         </div>
                       </div>
                     </li>
@@ -345,14 +300,14 @@ export default function FloatingChatCTA() {
                     "flex-1 rounded-md border bg-white px-3 py-2 text-sm outline-none",
                     "placeholder:text-gray-400",
                     "focus-visible:ring-2 focus-visible:ring-purple-500",
-                    "dark:border-gray-800 dark:bg-gray-900"
+                    "dark:border-gray-800 dark:bg-gray-900",
                   )}
                 />
                 <button
                   type="submit"
                   className={cn(
                     "inline-flex items-center justify-center gap-1 rounded-md bg-purple-600 p-2 text-sm font-medium text-white",
-                    "hover:bg-purple-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
+                    "hover:bg-purple-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500",
                   )}
                 >
                   <Send className="h-4 w-4" />
@@ -368,12 +323,11 @@ export default function FloatingChatCTA() {
           aria-expanded={open}
           aria-controls="ai-chat-panel"
           onClick={() => setOpen((v) => !v)}
-          variants={buttonVariants}
           initial="hidden"
           animate="visible"
           whileHover="hover"
           className={cn(
-            "size-8 rounded-full relative inline-flex items-center justify-center shadow-lg"
+            "size-8 rounded-full relative inline-flex items-center justify-center shadow-lg",
           )}
         >
           <Image

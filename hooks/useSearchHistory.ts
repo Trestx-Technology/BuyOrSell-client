@@ -120,12 +120,19 @@ export const useSaveSearchTerm = () => {
   const createMutation = useCreateSearchHistory();
   const session = useAuthStore((state) => state.session);
 
-  const saveSearchTerm = (searchTerm: string) => {
+  const saveSearchTerm = (params: {
+    searchTerm: string;
+    categoryId?: string;
+    categoryName?: string;
+  }) => {
+    const { searchTerm, categoryId, categoryName } = params;
     if (!session?.user?._id || !searchTerm.trim()) return;
 
     return createMutation.mutate({
       userId: session.user._id,
       searchTerm: searchTerm.trim(),
+      categoryId,
+      categoryName,
       timestamp: new Date().toISOString(),
     });
   };

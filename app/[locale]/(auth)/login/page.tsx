@@ -21,6 +21,7 @@ import { firebase } from "@/lib/firebase/config";
 
 const LoginContent = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isGeneratingDeviceKey, setIsGeneratingDeviceKey] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { localePath, t } = useLocale();
@@ -72,13 +73,18 @@ const LoginContent = () => {
       return;
     }
 
-    const deviceToken = await firebase.getFCMToken();
+    try {
+      setIsGeneratingDeviceKey(true);
+      const deviceToken = await firebase.getFCMToken();
 
-    loginMutation.mutate({
-      email: loginData.email,
-      password: loginData.password,
-      deviceKey: deviceToken,
-    });
+      loginMutation.mutate({
+        email: loginData.email,
+        password: loginData.password,
+        deviceKey: deviceToken,
+      });
+    } finally {
+      setIsGeneratingDeviceKey(false);
+    }
   };
 
   return (
@@ -161,8 +167,8 @@ const LoginContent = () => {
         size={"lg"}
         variant={"filled"}
         onClick={handleLogin}
-        disabled={!loginData.email || !loginData.password || loginMutation.isPending}
-        isLoading={loginMutation.isPending}
+        disabled={!loginData.email || !loginData.password || loginMutation.isPending || isGeneratingDeviceKey}
+        isLoading={loginMutation.isPending || isGeneratingDeviceKey}
       >
         {t.auth.login.loginButton}
       </Button>

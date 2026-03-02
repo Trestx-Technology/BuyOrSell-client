@@ -10,6 +10,13 @@ import JobCard from "@/app/[locale]/(root)/jobs/my-profile/_components/job-card"
 import { AD } from "@/interfaces/ad";
 import { useLocale } from "@/hooks/useLocale";
 import { formatDistanceToNow } from "date-fns";
+import { CarouselWrapper } from "@/components/global/carousel-wrapper";
+import { ListingCardSkeleton } from "@/components/global/listing-card-skeleton";
+import {
+  containerVariants,
+  itemVariants,
+  tabsVariants,
+} from "@/utils/animation-variants";
 
 interface JobsTabbedCarouselProps {
   categoryData: CategoryWithSubCategories;
@@ -23,6 +30,49 @@ interface JobsTabbedCarouselProps {
   isLoading?: boolean;
   titleClassName?: string;
 }
+
+export const JobsTabbedCarouselSkeleton = ({
+  showNavigation = true,
+  showViewAll = true,
+}: {
+  showNavigation?: boolean;
+  showViewAll?: boolean;
+}) => (
+  <section className="max-w-[1220px] mx-auto py-5">
+    <div className="w-full mx-auto">
+      <div className="h-6 bg-gray-200 rounded w-48 animate-pulse mb-2 pl-5"></div>
+      <div className="mb-4 flex items-center justify-between px-5">
+        <div className="flex items-center gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"
+            ></div>
+          ))}
+        </div>
+        {showViewAll && (
+          <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+        )}
+      </div>
+      <div className="relative">
+        <CardsCarousel title="" showNavigation={showNavigation}>
+          <div className="flex gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <ListingCardSkeleton
+                key={i}
+                showImageCounter={false}
+                showExtraFields={true}
+                showSeller={true}
+                maxWidth="max-w-[250px]"
+                className="flex-shrink-0"
+              />
+            ))}
+          </div>
+        </CardsCarousel>
+      </div>
+    </div>
+  </section>
+);
 
 export default function JobsTabbedCarousel({
   categoryData,
@@ -47,7 +97,7 @@ export default function JobsTabbedCarousel({
 
   const subCategories = useMemo(
     () => categoryData.subCategory || [],
-    [categoryData.subCategory]
+    [categoryData.subCategory],
   );
 
   const firstTabValue = categoryData.subCategory[0]?._id;
@@ -56,7 +106,7 @@ export default function JobsTabbedCarousel({
   // Get ads directly from the selected subcategory
   const currentAds = useMemo(() => {
     const activeSubCategory = subCategories.find(
-      (sub) => sub._id === activeTab
+      (sub) => sub._id === activeTab,
     );
     return activeSubCategory?.ads || [];
   }, [subCategories, activeTab]);
@@ -82,7 +132,7 @@ export default function JobsTabbedCarousel({
         field.name?.toLowerCase().includes("salary") &&
         (type === "min"
           ? field.name?.toLowerCase().includes("min")
-          : field.name?.toLowerCase().includes("max"))
+          : field.name?.toLowerCase().includes("max")),
     );
 
     if (salaryField && typeof salaryField.value === "number") {
@@ -108,7 +158,7 @@ export default function JobsTabbedCarousel({
 
     const getFieldValue = (fieldName: string): string => {
       const field = extraFields.find((f) =>
-        f.name?.toLowerCase().includes(fieldName.toLowerCase())
+        f.name?.toLowerCase().includes(fieldName.toLowerCase()),
       );
       if (field) {
         if (Array.isArray(field.value)) {
@@ -158,111 +208,15 @@ export default function JobsTabbedCarousel({
     };
   };
 
-  // Framer Motion animation variants - sequential reveal pattern
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-    },
-  };
-
-  const titleVariants = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 22,
-        delay: 0.2,
-      },
-    },
-  };
-
-  const tabsVariants = {
-    hidden: { opacity: 0, y: 15, scale: 0.95 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 22,
-        delay: 0.5,
-      },
-    },
-  };
-
-  const cardsVariants = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: "spring" as const,
-        stiffness: 300,
-        damping: 22,
-        delay: 0.8,
-      },
-    },
-  };
-
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
     onTabChange?.(tabId);
   };
 
-  // Loading skeleton components
-  const TitleSkeleton = () => (
-    <div className="h-6 bg-gray-200 rounded w-48 animate-pulse mb-2"></div>
-  );
-
-  const TabsSkeleton = () => (
-    <div className="mb-4 flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"
-          ></div>
-        ))}
-      </div>
-      {showViewAll && (
-        <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
-      )}
-    </div>
-  );
-
-  const CardsSkeleton = () => (
-    <div className="relative">
-      <CardsCarousel title="" showNavigation={showNavigation}>
-        <div className="flex gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex-[0_0_auto] max-w-[256px] w-full bg-white border border-gray-200 rounded-2xl overflow-hidden animate-pulse"
-            >
-              <div className="h-32 bg-gray-200"></div>
-              <div className="p-4 space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardsCarousel>
-    </div>
-  );
-
   // Content render functions
   const renderTitle = () => (
     <motion.div
-      variants={titleVariants}
+      variants={tabsVariants}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
@@ -285,7 +239,11 @@ export default function JobsTabbedCarousel({
       viewport={{ once: true, margin: "-100px" }}
       className="mb-4 flex items-center justify-between px-5"
     >
-      <div className="flex flex-1 items-center gap-3 overflow-hidden overflow-x-auto scrollbar-hide">
+      <CarouselWrapper
+        className="flex-1"
+        containerClassName="items-center"
+        shadowColorClassName="from-white dark:from-gray-950"
+      >
         {subCategories.map((subCategory, index) => {
           const subCategoryName = isArabic
             ? subCategory.nameAr || subCategory.name
@@ -306,14 +264,14 @@ export default function JobsTabbedCarousel({
               className={`px-4 py-2 h-8 text-xs font-medium rounded-lg border transition-colors flex-shrink-0 ${
                 activeTab === subCategory._id
                   ? "bg-purple text-white border-purple shadow-sm"
-                : "bg-white dark:bg-gray-800 border-[#F5EBFF] dark:border-gray-700 text-[#475467] dark:text-gray-300 hover:bg-purple/10 dark:hover:bg-purple/20"
+                  : "bg-white dark:bg-gray-800 border-[#F5EBFF] dark:border-gray-700 text-[#475467] dark:text-gray-300 hover:bg-purple/10 dark:hover:bg-purple/20"
               }`}
             >
               {subCategoryName}
             </motion.button>
           );
         })}
-      </div>
+      </CarouselWrapper>
       {showViewAll && (
         <motion.div
           initial={{ opacity: 0, y: 10, scale: 0.9 }}
@@ -328,7 +286,12 @@ export default function JobsTabbedCarousel({
         >
           <Button
             variant="filled"
-            onClick={() => onViewAll?.(subCategories?.find((sub) => sub._id === activeTab)?.name || categoryName)}
+            onClick={() =>
+              onViewAll?.(
+                subCategories?.find((sub) => sub._id === activeTab)?.name ||
+                  categoryName,
+              )
+            }
             className="md:block hidden transition-colors px-5 py-2 h-8 text-xs font-medium dark:bg-purple dark:text-white"
           >
             {viewAllText}
@@ -339,10 +302,6 @@ export default function JobsTabbedCarousel({
   );
 
   const renderCards = () => {
-    if (isLoading) {
-      return <CardsSkeleton />;
-    }
-
     if (currentAds.length === 0) {
       return (
         <div className="text-center py-8 text-gray-500">
@@ -353,7 +312,7 @@ export default function JobsTabbedCarousel({
 
     return (
       <motion.div
-        variants={cardsVariants}
+        variants={itemVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
@@ -386,6 +345,15 @@ export default function JobsTabbedCarousel({
     );
   };
 
+  if (isLoading) {
+    return (
+      <JobsTabbedCarouselSkeleton
+        showNavigation={showNavigation}
+        showViewAll={showViewAll}
+      />
+    );
+  }
+
   return (
     <motion.section
       variants={containerVariants}
@@ -396,10 +364,10 @@ export default function JobsTabbedCarousel({
     >
       <div className="w-full mx-auto">
         {/* Header with Title */}
-        {isLoading ? <TitleSkeleton /> : renderTitle()}
+        {renderTitle()}
 
         {/* Custom Tab Buttons */}
-        {isLoading ? <TabsSkeleton /> : renderTabs()}
+        {renderTabs()}
 
         {/* Cards Carousel */}
         {renderCards()}

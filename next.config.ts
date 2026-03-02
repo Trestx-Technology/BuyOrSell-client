@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   /* config options here */
   // Produce a standalone build so the Docker image only needs the minimal files
   output: "standalone",
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "5mb",
+    },
+  },
   images: {
     unoptimized: true,
     remotePatterns: [

@@ -37,13 +37,13 @@ export function PageBannerCarousel({
       filter: "blur(0px)",
       scale: 1,
       transition: {
-        type: "spring" as const,
+        type: "spring",
         stiffness: 200,
         damping: 25,
         duration: 0.8,
       },
     },
-  };
+  } as const;
 
   return (
     <motion.div

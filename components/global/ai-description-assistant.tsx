@@ -57,7 +57,8 @@ export function AIDescriptionAssistant({
 
                   setGeneratedResult(result);
             } catch (err: any) {
-                  const errorMessage = err.message || "Failed to generate description. Please try again.";
+                  console.error("Description assistant error:", err);
+                  const errorMessage = err.message || "I encountered an issue while generating your description. Please try adjusting your instructions.";
                   setError(errorMessage);
                   toast.error(errorMessage);
             } finally {

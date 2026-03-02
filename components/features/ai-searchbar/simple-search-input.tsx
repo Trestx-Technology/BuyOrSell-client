@@ -12,6 +12,7 @@ import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { Input } from "@/components/ui/input";
 import { CategoryDropdown } from "./category-dropdown";
 import { slugify } from "@/utils/slug-utils";
+import { useSaveSearchTerm } from "@/hooks/useSearchHistory";
 
 interface SearchResult {
   adCount: number;
@@ -35,6 +36,7 @@ export function SimpleSearchInput({
   const router = useRouter();
   const session = useAuthStore((state) => state.session);
   const userId = session?.user?._id;
+  const { saveSearchTerm } = useSaveSearchTerm();
 
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
   const [selectedIndex, setSelectedIndex] = React.useState(-1);
@@ -84,7 +86,16 @@ export function SimpleSearchInput({
     }
   };
 
-  const handleResultClick = (relatedCategories: string[]) => {
+  const handleResultClick = (result: SearchResult) => {
+    const { relatedCategories, name, category } = result;
+
+    // Log search history
+    saveSearchTerm({
+      searchTerm: name,
+      categoryId: category,
+      categoryName: category,
+    });
+
     handleSearch(relatedCategories);
     setLocalSearchQuery("");
     setDebouncedQuery("");
@@ -94,10 +105,10 @@ export function SimpleSearchInput({
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       if (selectedIndex >= 0 && keywordResults[selectedIndex]) {
-        handleResultClick(keywordResults[selectedIndex].relatedCategories);
+        handleResultClick(keywordResults[selectedIndex]);
       } else if (keywordResults.length > 0) {
         // If results exist but none selected, use the first one
-        handleResultClick(keywordResults[0].relatedCategories);
+        handleResultClick(keywordResults[0]);
       }
       // If no results, do nothing (prevent default navigation to /categories/query)
     } else if (event.key === "ArrowDown") {
@@ -191,7 +202,7 @@ export function SimpleSearchInput({
                         ? "bg-purple/10"
                         : "hover:bg-purple/10"
                     }`}
-                    onClick={() => handleResultClick(result.relatedCategories)}
+                    onClick={() => handleResultClick(result)}
                     onMouseEnter={() => setSelectedIndex(index)}
                   >
                     <div className="flex items-start justify-between gap-3">

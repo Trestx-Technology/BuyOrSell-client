@@ -3,7 +3,7 @@ import type { AIAdPostTranslationNamespace } from "./types";
 export const aiAdPostTranslations: AIAdPostTranslationNamespace = {
   "en-US": {
     title: "Place Ad Free with AI",
-    placeholder: "Enter your prompt here...",
+    placeholder: "Describe what you're selling or looking for...",
     addImage: "Add",
     uploadImage: "Add Image",
     clickToBrowse: "Click to browse",
@@ -43,7 +43,7 @@ export const aiAdPostTranslations: AIAdPostTranslationNamespace = {
   },
   "nl-NL": {
     title: "Plaats Advertentie Gratis met AI",
-    placeholder: "Voer uw prompt hier in...",
+    placeholder: "Beschrijf wat u verkoopt of zoekt...",
     addImage: "Toevoegen",
     uploadImage: "Afbeelding Toevoegen",
     clickToBrowse: "Klik om te bladeren",
@@ -83,7 +83,7 @@ export const aiAdPostTranslations: AIAdPostTranslationNamespace = {
   },
   nl: {
     title: "Plaats Advertentie Gratis met AI",
-    placeholder: "Voer uw prompt hier in...",
+    placeholder: "Beschrijf wat u verkoopt of zoekt...",
     addImage: "Toevoegen",
     uploadImage: "Afbeelding Toevoegen",
     clickToBrowse: "Klik om te bladeren",
@@ -123,7 +123,7 @@ export const aiAdPostTranslations: AIAdPostTranslationNamespace = {
   },
   ar: {
     title: "نشر إعلان مجاناً مع الذكاء الاصطناعي",
-    placeholder: "أدخل طلبك هنا...",
+    placeholder: "صف ما تبيعه أو تبحث عنه...",
     addImage: "إضافة",
     uploadImage: "إضافة صورة",
     clickToBrowse: "انقر للتصفح",

@@ -1,10 +1,8 @@
 "use server";
 
-import { getAds, searchAds } from "@/app/api/ad/ad.services";
-import { axiosInstance } from "@/services/axios-api-client";
 import OpenAI from "openai";
 
-const MODEL = process.env.OPENAI_MODEL || "gpt-3.5-turbo";
+const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -32,27 +30,27 @@ export async function searchWithAI(userQuery: string): Promise<{
       messages: [
         {
           role: "system",
-          content: `You are an expert search query optimizer for a classifieds platform.
-Your task is to analyze a user's natural language search query and extract the most relevant keywords.
+          content: `You are an expert search query optimizer for "BuyOrSell", a premium classifieds platform.
+Your task is to analyze a user's natural language search query and extract the most relevant keywords and parameters.
 
 GUIDELINES:
-1. Extract 3-7 relevant keywords from the user's query
-2. Include product names, brands, models, conditions, locations, or other specific details
-3. Remove filler words like "I want", "looking for", "need", etc.
-4. Normalize terms (e.g., "car" instead of "cars", "phone" instead of "phones")
-5. Include synonyms or related terms if helpful (e.g., "mobile" for "phone")
-6. Return a JSON object with this structure:
+1. Extract 3-7 HIGH-VALUE keywords (brand, model, version, condition, location).
+2. Remove all conversational filler ("I want", "looking for", "please find", etc.).
+3. Normalize synonyms (e.g., "bmw" -> "BMW", "cheap" -> "affordable", "mobile" -> "smartphone").
+4. If a price range is mentioned (e.g., "under 5000"), include it in the optimized searchQuery.
+5. If a condition is mentioned (e.g., "new", "used", "mint"), ensure it is a primary keyword.
+6. Return a JSON object ONLY:
    {
      "keywords": ["keyword1", "keyword2", ...],
-     "searchQuery": "optimized search string"
+     "searchQuery": "optimized search string including key parameters"
    }
 
 EXAMPLES:
-Input: "I'm looking for a used iPhone 13 in good condition"
-Output: {"keywords": ["iPhone", "13", "used", "good condition", "mobile", "smartphone"], "searchQuery": "iPhone 13 used good condition"}
+Input: "find me a red used ferrari under 1 million in Dubai"
+Output: {"keywords": ["Ferrari", "red", "used", "Dubai", "supercar"], "searchQuery": "Ferrari red used Dubai under 1000000"}
 
-Input: "Need a 2 bedroom apartment for rent near downtown"
-Output: {"keywords": ["apartment", "2 bedroom", "rent", "downtown", "flat"], "searchQuery": "2 bedroom apartment rent downtown"}`,
+Input: "looking for a 3 bedroom villa near the beach"
+Output: {"keywords": ["villa", "3 bedroom", "beachfront", "beach side"], "searchQuery": "3 bedroom villa beach side"}`,
         },
         {
           role: "user",
@@ -70,24 +68,20 @@ Output: {"keywords": ["apartment", "2 bedroom", "rent", "downtown", "flat"], "se
     const searchQuery = aiResult.searchQuery || userQuery;
 
 
-    const searchResponse = await getAds({
-      search: searchQuery,
-      limit: 20,
-    });
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const searchUrl = `${backendUrl}/ad?search=${encodeURIComponent(searchQuery)}&limit=20`;
 
+    const fetchResponse = await fetch(searchUrl);
+    const searchData = await fetchResponse.json();
 
-    // If the POST endpoint doesn't exist, we might need to fallback to the existing list/search API.
-    // But let's assume the user knows their backend or wants this exact logic.
-
-    // Handling the case where fetch fails (e.g. 404 on POST)
-    if (!searchResponse.data) {
+    if (!searchData || !searchData.data) {
       throw new Error("Search API failed");
     }
 
     return {
       keywords,
       searchQuery,
-      results: searchResponse.data.adds || [],
+      results: searchData.data.adds || searchData.data.ads || [],
       success: true,
     };
   } catch (error) {

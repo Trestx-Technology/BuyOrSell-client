@@ -245,7 +245,7 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: "buyorsell-auth-store",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => (typeof window !== "undefined" ? localStorage : ({} as Storage))),
       partialize: (state) => ({
         session: state.session,
         isAuthenticated: state.isAuthenticated,

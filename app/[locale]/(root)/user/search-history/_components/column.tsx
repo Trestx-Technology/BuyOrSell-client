@@ -6,19 +6,24 @@ import type { SearchHistoryItem } from "@/interfaces/search-history.types";
 
 interface UseSearchHistoryColumnsProps {
   onDeleteSearch: (id: string) => void;
+  onSelectSearch: (item: SearchHistoryItem) => void;
   isDeleting: boolean;
 }
 
 export function useSearchHistoryColumns({
   onDeleteSearch,
+  onSelectSearch,
   isDeleting,
 }: UseSearchHistoryColumnsProps): ColumnDef<SearchHistoryItem>[] {
   return [
     {
       accessorKey: "searchTerm",
       header: "Search Term",
-      cell: ({ getValue }) => (
-        <div className="flex items-center gap-2">
+      cell: ({ row, getValue }) => (
+        <div 
+          className="flex items-center gap-2 cursor-pointer hover:text-purple transition-colors"
+          onClick={() => onSelectSearch(row.original)}
+        >
           <Clock className="w-4 h-4 text-gray-400" />
           <span className="font-medium">{getValue() as string}</span>
         </div>

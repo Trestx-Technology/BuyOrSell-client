@@ -86,7 +86,7 @@ export default function JobsTabbedSection({ title, titleClassName }: { title?: s
                         categoryData={categoryData}
                         titleClassName={titleClassName}
                         isLoading={isCategoriesLoading || (isAdsLoading && !adsMap[activeTabId || ""])}
-                        showNavigation={false}
+                        showNavigation={true}
                         showViewAll={true}
                         title={title}
                         viewAllText={locale === "ar" ? "عرض الكل" : "View all"}
