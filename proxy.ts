@@ -2,9 +2,14 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getLocale, locales } from "./lib/i18n/config";
 
+/**
+ * Proxy function for handling locale redirection and routing logic.
+ * This is the Next.js 16 equivalent of middleware.
+ */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // 1. Basic Locale Check
   // Check if there is any supported locale in the pathname
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
@@ -15,39 +20,32 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // All routes except excluded ones will be validated and redirected with locale
-
-  // Define routes that should be excluded from locale validation
-  // These routes will NOT be redirected to include locale prefix
-  const excludedRoutes = [
-    "/api", // API routes
-    "/_next", // Next.js internal routes
-    "/favicon.ico", // Favicon
-    "/pay", // Pay routes
-    "/pay/response", // Pay response routes
-    "/firebase-messaging-sw.js", // Firebase service worker
-    "/manifest.json", // PWA manifest
-    "/sitemap.xml", // Sitemap
-    "/robots.txt", // Robots.txt
-    "/images", // Static images
-    "/assets", // Static assets
-    "/static", // Static assets
-    "/vercel.svg",
-    "/next.svg",
-    // Add more routes/keywords here that should be excluded from locale validation
+  // 2. Define Exclusion Logic
+  // Exclude API, internal Next.js, and important SEO/system files from redirect
+  const excludedPaths = [
+    "/api",
+    "/_next",
+    "/favicon.ico",
+    "/sitemap.xml",
+    "/robots.txt",
+    "/manifest.json",
+    "/pay",
+    "/pay/response",
+    "/firebase-messaging-sw.js",
+    "/images",
+    "/assets",
+    "/static",
   ];
 
-  // Check if the current path should be excluded from locale validation
-  const shouldBeExcluded = excludedRoutes.some(
-    (route) => pathname.startsWith(route) || pathname === route,
-  );
+  const shouldBeExcluded =
+    excludedPaths.some((p) => pathname.startsWith(p) || pathname === p) ||
+    /\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|xml)$/i.test(pathname);
 
-  // If the route should be excluded, allow it to proceed without locale validation
   if (shouldBeExcluded) {
     return NextResponse.next();
   }
 
-  // Double-check: if locale already exists in pathname, don't append again (extra safeguard)
+  // 3. Double-check: safeguard to prevent multiple redirects
   const hasLocalePrefix = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   );
@@ -56,18 +54,24 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Redirect if the route is not excluded and doesn't have locale yet
+  // 4. Redirect with detected locale
   const locale = getLocale(request);
   request.nextUrl.pathname = `/${locale}${pathname}`;
 
-  // e.g. incoming request is /ad/123
-  // The new URL is now /en-US/ad/123
   return NextResponse.redirect(request.nextUrl);
 }
 
+// Optimization: Use a simpler matcher to avoid Vercel deployment manifest conflicts.
+// Most logic is handled inside the proxy function for maximum robustness.
 export const config = {
   matcher: [
-    // Skip all internal paths (_next) and system files
-    "/((?!api|_next|favicon.ico|sitemap.xml|robots.txt|manifest.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
