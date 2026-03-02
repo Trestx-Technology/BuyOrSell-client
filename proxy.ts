@@ -20,21 +20,23 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2. Define Exclusion Logic
-  // Exclude API, internal Next.js, and important SEO/system files from redirect
-  const excludedPaths = [
-    "/api",
-    "/_next",
-    "/favicon.ico",
-    "/sitemap.xml",
-    "/robots.txt",
-    "/manifest.json",
-    "/pay",
-    "/pay/response",
-    "/firebase-messaging-sw.js",
-    "/images",
-    "/assets",
-    "/static",
+  // All routes except excluded ones will be validated and redirected with locale
+
+  // Define routes that should be excluded from locale validation
+  // These routes will NOT be redirected to include locale prefix
+  const excludedRoutes = [
+    "/api", // API routes
+    "/_next", // Next.js internal routes
+    "/favicon.ico", // Favicon
+    "/pay", // Pay routes
+    "/pay/response", // Pay response routes
+    "/firebase-messaging-sw.js", // Firebase service worker
+    "/manifest.json", // PWA manifest
+    "/sitemap.xml", // Sitemap
+    "/robots.txt", // Robots.txt
+    "/images", // Static images
+    "/assets", // Static assets
+    // Add more routes/keywords here that should be excluded from locale validation
   ];
 
   const shouldBeExcluded =
