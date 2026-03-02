@@ -40,7 +40,7 @@ export function proxy(request: NextRequest) {
   ];
 
   const shouldBeExcluded =
-    excludedPaths.some((p) => pathname.startsWith(p) || pathname === p) ||
+    excludedRoutes.some((p) => pathname.startsWith(p) || pathname === p) ||
     /\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|xml)$/i.test(pathname);
 
   if (shouldBeExcluded) {
