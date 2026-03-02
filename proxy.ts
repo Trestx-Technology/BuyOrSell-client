@@ -31,6 +31,9 @@ export function proxy(request: NextRequest) {
     "/robots.txt", // Robots.txt
     "/images", // Static images
     "/assets", // Static assets
+    "/static", // Static assets
+    "/vercel.svg",
+    "/next.svg",
     // Add more routes/keywords here that should be excluded from locale validation
   ];
 
@@ -39,17 +42,13 @@ export function proxy(request: NextRequest) {
     (route) => pathname.startsWith(route) || pathname === route,
   );
 
-  // If the route should be excluded, allow it to proceed without locale validation
-  if (shouldBeExcluded) {
-    return NextResponse.next();
-  }
-
-  // Double-check: if locale already exists in pathname, don't append again (extra safeguard)
-  const hasLocalePrefix = locales.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
+  // Exclude common file extensions
+  const isFile = /\.(?:svg|png|jpg|jpeg|gif|webp|ico|json|txt|xml)$/i.test(
+    pathname,
   );
 
-  if (hasLocalePrefix) {
+  // If the route should be excluded, allow it to proceed without locale validation
+  if (shouldBeExcluded || isFile) {
     return NextResponse.next();
   }
 
@@ -57,14 +56,12 @@ export function proxy(request: NextRequest) {
   const locale = getLocale(request);
   request.nextUrl.pathname = `/${locale}${pathname}`;
 
-  // e.g. incoming request is /ad/123
-  // The new URL is now /en-US/ad/123
   return NextResponse.redirect(request.nextUrl);
 }
 
 export const config = {
   matcher: [
-    // Skip all internal paths (_next) and system files
-    "/((?!_next|api|favicon.ico|sitemap.xml|robots.txt|manifest.json|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Skip internal paths and API
+    "/((?!api|_next|favicon.ico|sitemap.xml|robots.txt|manifest.json).*)",
   ],
 };
