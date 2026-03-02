@@ -541,10 +541,10 @@ export default function JobseekerProfileHeader({
           <div className="grid grid-cols-2 gap-5">
             {jobType && (
               <div className="flex items-center gap-1.5">
-                <Clock className="w-5 h-5 text-grey-blue" />
+                <Clock className="w-5 h-5 text-grey-blue dark:text-gray-400" />
                 <Typography
                   variant="body-small"
-                  className="text-dark-blue text-xs font-medium"
+                  className="text-dark-blue dark:text-gray-200 text-xs font-medium"
                 >
                   {jobType}
                 </Typography>
@@ -587,22 +587,22 @@ export default function JobseekerProfileHeader({
             )}
             {(salaryMin > 0 || salaryMax > 0) && (
               <div className="flex items-center gap-1.5">
-                <Image src={CURRENCY_ICONS.aedBlack} alt="AED" width={20} height={20} />
+                <Image src={CURRENCY_ICONS.aedBlack} alt="AED" width={20} height={20} className="dark:invert" />
                 <div className="flex items-center gap-1">
-                  <span className="text-[12px]">{ctcCurrency}</span>
+                  <span className="text-[12px] dark:text-gray-300">{ctcCurrency}</span>
                   <Typography
                     variant="body-small"
-                    className="text-dark-blue text-sm font-medium"
+                    className="text-dark-blue dark:text-gray-200 text-sm font-medium"
                   >
                     {salaryMin.toLocaleString()}
                   </Typography>
                   {salaryMax > salaryMin && (
                     <>
-                      <span className="text-dark-blue">-</span>
-                      <span className="text-[12px]">{ctcCurrency}</span>
+                      <span className="text-dark-blue dark:text-gray-200">-</span>
+                      <span className="text-[12px] dark:text-gray-300">{ctcCurrency}</span>
                       <Typography
                         variant="body-small"
-                        className="text-dark-blue text-sm font-medium"
+                        className="text-dark-blue dark:text-gray-200 text-sm font-medium"
                       >
                         {salaryMax.toLocaleString()}
                       </Typography>
