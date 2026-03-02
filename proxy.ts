@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getLocale, locales } from "./lib/i18n/config";
 
-export function proxy(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check if there is any supported locale in the pathname
@@ -62,6 +62,6 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     // Skip internal paths and API
-    "/((?!api|_next|favicon.ico|sitemap.xml|robots.txt|manifest.json).*)",
+    "/((?!/api|/_next|/favicon.ico|/sitemap.xml|/robots.txt|/manifest.json).*)",
   ],
 };
