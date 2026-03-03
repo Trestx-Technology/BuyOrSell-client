@@ -6,6 +6,7 @@ import NextTopLoader from "nextjs-toploader";
 import QueryProvider from "@/services/query-client";
 import { ThemeProvider } from "@/components/provider/theme-provider";
 import Script from "next/script";
+import { CookieConsent } from "@/components/global/cookie-consent";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -98,6 +99,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryProvider>{children}</QueryProvider>
+          <CookieConsent />
         </ThemeProvider>
 
         {/* Google Analytics */}
