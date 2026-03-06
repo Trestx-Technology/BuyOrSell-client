@@ -30,7 +30,6 @@ export interface Ticket {
   status: TicketStatus;
   priority?: Priority;
   assignedTo?: string; // Support staff ID
-  chatId: string; // Reference to chat conversation
   createdAt: Timestamp | Date;
   updatedAt: Timestamp | Date;
   resolvedAt?: Timestamp | Date;
