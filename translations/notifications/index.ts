@@ -3,7 +3,7 @@ import type { NotificationsTranslations } from "./types";
 
 export const notificationsTranslations =
   createTranslationNamespace<NotificationsTranslations>({
-    "en-US": {
+    "en": {
       // Popover
       title: "Notifications",
       markAllRead: "Mark All as Read",

@@ -2,7 +2,7 @@ import { createTranslationNamespace } from '../../validations/utils';
 import type { FavoritesTranslations } from './types';
 
 export const favoritesTranslations = createTranslationNamespace<FavoritesTranslations>({
-  'en-US': {
+  'en': {
     // Page titles
     myFavorites: 'My Favorites',
     collection: 'Collection',

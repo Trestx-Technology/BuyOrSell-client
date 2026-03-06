@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "./",
     languages: {
-      "en-US": "/en-US",
+      en: "/en",
       ar: "/ar",
       "nl-NL": "/nl-NL",
       nl: "/nl",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    locale: "en_US",
+    locale: "en",
     url: baseUrl,
     siteName: "BuyOrSell",
     images: [

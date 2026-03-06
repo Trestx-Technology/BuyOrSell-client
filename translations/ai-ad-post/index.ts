@@ -1,7 +1,7 @@
 import type { AIAdPostTranslationNamespace } from "./types";
 
 export const aiAdPostTranslations: AIAdPostTranslationNamespace = {
-  "en-US": {
+  "en": {
     title: "Place Ad Free with AI",
     placeholder: "Describe what you're selling or looking for...",
     addImage: "Add",

@@ -27,18 +27,21 @@ translations/
 ## Architecture
 
 ### Modular Folder Structure
+
 - **Feature-based organization** - Each page/feature has its own folder (like `@app/api/`)
 - **Separation of concerns** - Translations and types are co-located
 - **Easy discovery** - Find translations for specific features quickly
 - **Scalable** - Add new features by creating new folders
 
 ### Type Safety & Optimization
+
 - **Fully typed** with TypeScript and compile-time checking
 - **Shared utilities** in `@validations/utils.ts` reduce code duplication
 - **Registry system** for automatic translation loading
 - **Helper functions** for consistent translation creation
 
 ### Performance Optimizations
+
 - **Reduced bundle size** through shared imports
 - **Tree shaking friendly** structure
 - **Lazy loading** support for large translation sets
@@ -49,7 +52,7 @@ translations/
 ### In React Components (Client-side)
 
 ```tsx
-import { useLocale } from '@/hooks/useLocale';
+import { useLocale } from "@/hooks/useLocale";
 
 function MyComponent() {
   const { locale, localePath, t } = useLocale();
@@ -57,7 +60,7 @@ function MyComponent() {
   return (
     <div>
       <h1>{t.auth.login.title}</h1>
-      <Link href={localePath('/login')}>Login</Link>
+      <Link href={localePath("/login")}>Login</Link>
     </div>
   );
 }
@@ -66,14 +69,14 @@ function MyComponent() {
 ### Direct Access (Server-side or utilities)
 
 ```ts
-import { getTranslations, getTranslationNamespace } from '@/translations';
+import { getTranslations, getTranslationNamespace } from "@/translations";
 
 // Get all translations for a locale
-const allTranslations = getTranslations('en-US');
+const allTranslations = getTranslations("en");
 const loginTitle = allTranslations.auth.login.title;
 
 // Get specific namespace
-const authTranslations = getTranslationNamespace('en-US', 'auth');
+const authTranslations = getTranslationNamespace("en", "auth");
 const signupTitle = authTranslations.signup.title;
 ```
 
@@ -111,47 +114,47 @@ export type UserTranslations = {
 Create `translations/user/index.ts`:
 
 ```ts
-import { createTranslationNamespace } from '../../validations/utils';
-import type { UserTranslations } from './types';
+import { createTranslationNamespace } from "../../validations/utils";
+import type { UserTranslations } from "./types";
 
 export const userTranslations = createTranslationNamespace<UserTranslations>({
-  'en-US': {
+  en: {
     profile: {
-      title: 'Profile',
-      edit: 'Edit Profile',
-      save: 'Save Changes',
+      title: "Profile",
+      edit: "Edit Profile",
+      save: "Save Changes",
     },
     settings: {
-      title: 'Settings',
-      notifications: 'Notifications',
-      privacy: 'Privacy',
+      title: "Settings",
+      notifications: "Notifications",
+      privacy: "Privacy",
     },
   },
-  'nl-NL': {
+  "nl-NL": {
     profile: {
-      title: 'Profiel',
-      edit: 'Profiel bewerken',
-      save: 'Wijzigingen opslaan',
+      title: "Profiel",
+      edit: "Profiel bewerken",
+      save: "Wijzigingen opslaan",
     },
     settings: {
-      title: 'Instellingen',
-      notifications: 'Meldingen',
-      privacy: 'Privacy',
+      title: "Instellingen",
+      notifications: "Meldingen",
+      privacy: "Privacy",
     },
   },
-  'nl': {
+  nl: {
     // Same as nl-NL
   },
-  'ar': {
+  ar: {
     profile: {
-      title: 'الملف الشخصي',
-      edit: 'تعديل الملف الشخصي',
-      save: 'حفظ التغييرات',
+      title: "الملف الشخصي",
+      edit: "تعديل الملف الشخصي",
+      save: "حفظ التغييرات",
     },
     settings: {
-      title: 'الإعدادات',
-      notifications: 'الإشعارات',
-      privacy: 'الخصوصية',
+      title: "الإعدادات",
+      notifications: "الإشعارات",
+      privacy: "الخصوصية",
     },
   },
 });
@@ -162,7 +165,7 @@ export const userTranslations = createTranslationNamespace<UserTranslations>({
 Add to `translations/types/index.ts`:
 
 ```ts
-export type { UserTranslations } from '../user/types';
+export type { UserTranslations } from "../user/types";
 
 // Add to Translations type
 export type Translations = {
@@ -179,7 +182,7 @@ export type Translations = {
 Update `translations/index.ts`:
 
 ```ts
-import { userTranslations } from './user';
+import { userTranslations } from "./user";
 
 // Add to registry
 const translationRegistry = {
@@ -198,14 +201,14 @@ export type {
   AdTranslations,
   CommonTranslations,
   UserTranslations, // Add here
-} from './types';
+} from "./types";
 ```
 
 ### Step 6: Use in Components
 
 ```tsx
 const { t } = useLocale();
-<h1>{t.user.profile.title}</h1>
+<h1>{t.user.profile.title}</h1>;
 ```
 
 ## Best Practices
@@ -230,4 +233,3 @@ const { t } = useLocale();
 - **New structure**: Feature-based folders with `index.ts` and `types.ts`
 - **Utilities moved**: `utils.ts` → `@validations/utils.ts`
 - **Same API**: `useLocale` hook and import paths remain unchanged
-

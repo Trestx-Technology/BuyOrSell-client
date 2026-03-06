@@ -1,7 +1,7 @@
 import type { PlansTranslationNamespace } from "./types";
 
 export const plansTranslations: PlansTranslationNamespace = {
-  "en-US": {
+  "en": {
     badge: "Plans and pricing",
     title: "Transparent pricing for all.",
     subtitle: "Choose the best plan for your business. Change plans as you grow.",

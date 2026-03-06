@@ -2,7 +2,7 @@ import { createTranslationNamespace } from '../../validations/utils';
 import type { AdTranslations } from './types';
 
 export const adTranslations = createTranslationNamespace<AdTranslations>({
-  'en-US': {
+  'en': {
     header: {
       back: 'Back',
       share: 'Share',

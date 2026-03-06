@@ -1,7 +1,7 @@
 import type { RateUsTranslationNamespace } from "./types";
 
 export const rateUsTranslations: RateUsTranslationNamespace = {
-  "en-US": {
+  "en": {
     title: "Rate Us",
     tapToRate: "Tap to rate",
     howWasExperience: "How was your experience?",

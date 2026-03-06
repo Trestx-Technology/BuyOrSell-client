@@ -2,7 +2,7 @@ import { createTranslationNamespace } from "../../validations/utils";
 import type { SellerTranslations } from "./types";
 
 export const sellerTranslations = createTranslationNamespace<SellerTranslations>({
-  "en-US": {
+  "en": {
     header: {
       topRated: "Top Rated",
       memberSince: "Member since",

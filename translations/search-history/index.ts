@@ -2,7 +2,7 @@ import { createTranslationNamespace } from '../../validations/utils';
 import type { SearchHistoryTranslations } from './types';
 
 export const searchHistoryTranslations = createTranslationNamespace<SearchHistoryTranslations>({
-  'en-US': {
+  'en': {
     // Popover
     mySearches: 'My Searches',
     clearAll: 'Clear All',

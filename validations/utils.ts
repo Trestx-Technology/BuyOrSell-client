@@ -13,21 +13,21 @@ export type { Locale, TranslationNamespace };
 
 // Supported locales array for iteration
 export const SUPPORTED_LOCALES: readonly Locale[] = [
-  "en-US",
+  "en",
   "nl-NL",
   "nl",
   "ar",
 ] as const;
 
 // Default locale (should match the one in i18n config)
-export const DEFAULT_LOCALE: Locale = "en-US";
+export const DEFAULT_LOCALE: Locale = "en";
 
 /**
  * Helper function to create a translation namespace with proper typing
  * This reduces boilerplate in individual translation files
  */
 export function createTranslationNamespace<T>(
-  translations: Record<Locale, T>
+  translations: Record<Locale, T>,
 ): TranslationNamespace<T> {
   return translations;
 }
@@ -37,7 +37,7 @@ export function createTranslationNamespace<T>(
  * This helps catch missing translations at compile time
  */
 export function validateTranslationNamespace<T>(
-  translations: Record<Locale, T>
+  translations: Record<Locale, T>,
 ): TranslationNamespace<T> {
   // Check that all supported locales are present
   for (const locale of SUPPORTED_LOCALES) {

@@ -1,55 +1,60 @@
-import { Metadata } from 'next';
+import { Metadata } from "next";
 import { AdPostingProvider } from "./_context/AdPostingContext";
 
 export const metadata: Metadata = {
-  title: 'Post Ad - Create Free Listing | BuyOrSell',
-  description: 'Post your ad for free on BuyOrSell. Sell cars, property, electronics, furniture, and more. Create your listing in minutes and reach thousands of buyers in the UAE.',
+  title: "Post Ad - Create Free Listing | BuyOrSell",
+  description:
+    "Post your ad for free on BuyOrSell. Sell cars, property, electronics, furniture, and more. Create your listing in minutes and reach thousands of buyers in the UAE.",
   keywords: [
-    'post ad',
-    'sell online',
-    'create listing',
-    'free classifieds',
-    'sell cars UAE',
-    'sell property UAE',
-    'sell electronics',
-    'sell furniture',
-    'online marketplace UAE',
-    'post free ad'
+    "post ad",
+    "sell online",
+    "create listing",
+    "free classifieds",
+    "sell cars UAE",
+    "sell property UAE",
+    "sell electronics",
+    "sell furniture",
+    "online marketplace UAE",
+    "post free ad",
   ],
-  authors: [{ name: 'BuyOrSell Team' }],
-  creator: 'BuyOrSell',
-  publisher: 'BuyOrSell',
+  authors: [{ name: "BuyOrSell Team" }],
+  creator: "BuyOrSell",
+  publisher: "BuyOrSell",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://dev-buyorsell.com'),
+  metadataBase: new URL("https://dev-buyorsell.com"),
   alternates: {
-    canonical: '/post-ad',
+    canonical: "/post-ad",
   },
   openGraph: {
-    title: 'Post Ad - Create Free Listing | BuyOrSell',
-    description: 'Post your ad for free on BuyOrSell. Sell cars, property, electronics, furniture, and more. Create your listing in minutes and reach thousands of buyers in the UAE.',
-    url: '/post-ad',
-    siteName: 'BuyOrSell',
+    title: "Post Ad - Create Free Listing | BuyOrSell",
+    description:
+      "Post your ad for free on BuyOrSell. Sell cars, property, electronics, furniture, and more. Create your listing in minutes and reach thousands of buyers in the UAE.",
+    url: "/post-ad",
+    siteName: "BuyOrSell",
     images: [
       {
-        url: 'https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/estate-banner.png',
+        url: "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/estate-banner.png",
         width: 1200,
         height: 630,
-        alt: 'Post Ad on BuyOrSell - Free Classifieds UAE',
+        alt: "Post Ad on BuyOrSell - Free Classifieds UAE",
       },
     ],
-    locale: 'en_US',
-    type: 'website',
+    locale: "en",
+    type: "website",
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'Post Ad - Create Free Listing | BuyOrSell',
-    description: 'Post your ad for free on BuyOrSell. Sell cars, property, electronics, furniture, and more. Create your listing in minutes and reach thousands of buyers in the UAE.',
-    images: ['https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/estate-banner.png'],
-    creator: '@devbuyorsell',
+    card: "summary_large_image",
+    title: "Post Ad - Create Free Listing | BuyOrSell",
+    description:
+      "Post your ad for free on BuyOrSell. Sell cars, property, electronics, furniture, and more. Create your listing in minutes and reach thousands of buyers in the UAE.",
+    images: [
+      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/estate-banner.png",
+    ],
+    creator: "@devbuyorsell",
   },
   robots: {
     index: true,
@@ -59,12 +64,12 @@ export const metadata: Metadata = {
       index: true,
       follow: true,
       noimageindex: false,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
-  category: 'marketplace',
+  category: "marketplace",
 };
 
 export default function PostAdLayout({

@@ -27,7 +27,7 @@
  * Usage:
  * ```ts
  * import { getTranslations } from '@/translations';
- * const t = getTranslations('en-US');
+ * const t = getTranslations('en');
  * t.auth.login.title // "Log In"
  * ```
  *

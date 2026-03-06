@@ -253,12 +253,12 @@ function redirectToNoInternet(): void {
   const pathname = window.location.pathname;
   if (pathname.includes("/no-internet")) return;
 
-  const locales = ["en-US", "nl-NL", "nl", "ar"];
+  const locales = ["en", "nl-NL", "nl", "ar"];
   const pathSegments = pathname.split("/").filter(Boolean);
   const currentLocale =
     pathSegments[0] && locales.includes(pathSegments[0])
       ? pathSegments[0]
-      : "en-US";
+      : "en";
 
   window.location.href = `/${currentLocale}/no-internet`;
 }

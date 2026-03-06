@@ -42,7 +42,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/pay",
-        destination: "/en-US/pay",
+        destination: "/en/pay",
         permanent: false,
       },
     ];

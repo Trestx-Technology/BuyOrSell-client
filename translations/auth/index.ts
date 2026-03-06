@@ -2,7 +2,7 @@ import { createTranslationNamespace } from '../../validations/utils';
 import type { AuthTranslations } from './types';
 
 export const authTranslations = createTranslationNamespace<AuthTranslations>({
-  "en-US": {
+  "en": {
     login: {
       title: "Log In",
       email: "Email",
