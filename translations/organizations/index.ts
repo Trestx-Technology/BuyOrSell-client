@@ -3,7 +3,7 @@ import type { OrganizationTranslations } from "./types";
 
 export const organizationTranslations =
   createTranslationNamespace<OrganizationTranslations>({
-    "en-US": {
+    "en": {
       list: {
         pageTitle: "My Organizations",
         myOrganizations: "My Organizations",

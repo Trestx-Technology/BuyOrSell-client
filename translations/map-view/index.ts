@@ -1,7 +1,7 @@
 import type { MapViewTranslationNamespace } from "./types";
 
 export const mapViewTranslations: MapViewTranslationNamespace = {
-  "en-US": {
+  "en": {
     title: "Properties for sale in UAE",
   },
   "nl-NL": {

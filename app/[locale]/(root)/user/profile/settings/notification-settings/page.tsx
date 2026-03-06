@@ -92,7 +92,7 @@ const NotificationSettingsPage = () => {
       return;
     }
 
-    // Extract language code from locale (e.g., "en" from "en-US")
+    // Extract language code from locale (e.g., "en" from "en" or "nl" from "nl-NL")
     const languageCode = locale?.split("-")[0] || "en";
 
     const payload = {
@@ -167,7 +167,7 @@ const NotificationSettingsPage = () => {
                 <div
                   className={cn(
                     "flex items-center justify-between py-4 px-6",
-                    item.enabled ? "opacity-100" : "opacity-50"
+                    item.enabled ? "opacity-100" : "opacity-50",
                   )}
                 >
                   <div>
@@ -182,7 +182,9 @@ const NotificationSettingsPage = () => {
                     onClick={() => handleToggle(item.key)}
                     disabled={item.enabled}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      notifications[item.key] ? "bg-purple-600" : "bg-gray-200 dark:bg-gray-700"
+                      notifications[item.key]
+                        ? "bg-purple-600"
+                        : "bg-gray-200 dark:bg-gray-700"
                     }`}
                   >
                     <span

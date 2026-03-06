@@ -1,7 +1,7 @@
 import type { JobsTranslationNamespace } from "./types";
 
 export const jobsTranslations: JobsTranslationNamespace = {
-  "en-US": {
+  "en": {
     title: "Jobs - Find Your Dream Job Today | BuyOrSell",
     description:
       "Connecting Talent with Opportunity: Your Gateway to Career Success. Browse featured jobs, apply to positions, and manage your job applications.",

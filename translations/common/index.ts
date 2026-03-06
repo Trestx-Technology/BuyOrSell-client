@@ -2,7 +2,7 @@ import { createTranslationNamespace } from '../../validations/utils';
 import type { CommonTranslations } from './types';
 
 export const commonTranslations = createTranslationNamespace<CommonTranslations>({
-  'en-US': {
+  'en': {
     viewAll: 'View all',
     loading: 'Loading...',
     error: 'An error occurred',

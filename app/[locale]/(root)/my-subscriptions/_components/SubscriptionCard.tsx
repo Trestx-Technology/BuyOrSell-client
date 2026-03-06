@@ -3,7 +3,15 @@
 import React, { useState } from "react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
-import { Star, Zap, Award, BrainCircuit, Layout, Sparkles, Clock } from "lucide-react";
+import {
+  Star,
+  Zap,
+  Award,
+  BrainCircuit,
+  Layout,
+  Sparkles,
+  Clock,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
@@ -19,12 +27,15 @@ interface SubscriptionCardProps {
   perMonthText: string;
 }
 
-export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription, perMonthText }) => {
+export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
+  subscription,
+  perMonthText,
+}) => {
   const { plan } = subscription;
   const user = useAuthStore((state) => state.session.user);
   const router = useRouter();
   const params = useParams();
-  const locale = params?.locale || "en-US";
+  const locale = params?.locale || "en";
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { fetchSubscriptions } = useSubscriptionStore();
 
@@ -46,7 +57,11 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
   const getFeatures = () => {
     if (!plan.features || plan.features.length === 0) return [];
     let featuresList = plan.features;
-    if (plan.features.length === 1 && typeof plan.features[0] === 'string' && plan.features[0].includes(",")) {
+    if (
+      plan.features.length === 1 &&
+      typeof plan.features[0] === "string" &&
+      plan.features[0].includes(",")
+    ) {
       featuresList = plan.features[0].split(",");
     }
     return featuresList.map((f) => f.trim());
@@ -54,7 +69,9 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
 
   const features = getFeatures();
   const planName = locale === "ar" && plan.planAr ? plan.planAr : plan.plan;
-  const isPremium = plan.plan.toLowerCase().includes("platinum") || plan.plan.toLowerCase().includes("premium");
+  const isPremium =
+    plan.plan.toLowerCase().includes("platinum") ||
+    plan.plan.toLowerCase().includes("premium");
 
   const displayPrice = plan.discountedPrice
     ? plan.discountedPrice.toFixed(0).toString()
@@ -78,14 +95,26 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
     });
   };
 
-  const adsRemaining = (subscription.addsAvailable || 0) - (subscription.adsUsed || 0);
-  const adsProgress = subscription.addsAvailable ? (subscription.adsUsed / subscription.addsAvailable) * 100 : 0;
+  const adsRemaining =
+    (subscription.addsAvailable || 0) - (subscription.adsUsed || 0);
+  const adsProgress = subscription.addsAvailable
+    ? (subscription.adsUsed / subscription.addsAvailable) * 100
+    : 0;
 
-  const featuredAdsRemaining = (subscription.featuredAdsAvailable || 0) - (subscription.featuredAdsUsed || 0);
-  const featuredAdsProgress = subscription.featuredAdsAvailable ? ((subscription.featuredAdsUsed || 0) / subscription.featuredAdsAvailable) * 100 : 0;
+  const featuredAdsRemaining =
+    (subscription.featuredAdsAvailable || 0) -
+    (subscription.featuredAdsUsed || 0);
+  const featuredAdsProgress = subscription.featuredAdsAvailable
+    ? ((subscription.featuredAdsUsed || 0) /
+        subscription.featuredAdsAvailable) *
+      100
+    : 0;
 
-  const aiRemaining = (subscription.aiAvailable || 0) - (subscription.numberOfAiUsed || 0);
-  const aiProgress = subscription.aiAvailable ? (subscription.numberOfAiUsed / subscription.aiAvailable) * 100 : 0;
+  const aiRemaining =
+    (subscription.aiAvailable || 0) - (subscription.numberOfAiUsed || 0);
+  const aiProgress = subscription.aiAvailable
+    ? (subscription.numberOfAiUsed / subscription.aiAvailable) * 100
+    : 0;
 
   return (
     <div
@@ -93,7 +122,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
         "group relative flex flex-col rounded-[2.5rem] p-7 transition-all duration-500 border-2 overflow-hidden w-full sm:max-w-xs",
         isPremium
           ? "bg-gray-950 border-purple-500/20 shadow-2xl shadow-purple-500/10 text-white"
-          : "bg-white border-gray-100 hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/5"
+          : "bg-white border-gray-100 hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/5",
       )}
     >
       {/* Premium Glow */}
@@ -106,7 +135,9 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
         <div
           className={cn(
             "size-14 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 shadow-lg",
-            isPremium ? "bg-purple-600 text-white shadow-purple-900/40" : "bg-purple-50 text-purple-600 shadow-purple-100"
+            isPremium
+              ? "bg-purple-600 text-white shadow-purple-900/40"
+              : "bg-purple-50 text-purple-600 shadow-purple-100",
           )}
         >
           <IconComponent className="size-7" />
@@ -117,17 +148,25 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
             className={cn(
               "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
               subscription.isActive
-                ? (isPremium ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400" : "bg-emerald-50 border-emerald-100 text-emerald-600")
-                : (isPremium ? "bg-red-500/20 border-red-500/30 text-red-400" : "bg-red-50 border-red-100 text-red-600")
+                ? isPremium
+                  ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
+                  : "bg-emerald-50 border-emerald-100 text-emerald-600"
+                : isPremium
+                  ? "bg-red-500/20 border-red-500/30 text-red-400"
+                  : "bg-red-50 border-red-100 text-red-600",
             )}
           >
             {subscription.isActive ? "Active" : "Inactive"}
           </span>
           {subscription.cancelAtPeriodEnd && (
-            <span className={cn(
-              "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
-              isPremium ? "bg-amber-500/20 border-amber-500/30 text-amber-400" : "bg-amber-50 border-amber-100 text-amber-600"
-            )}>
+            <span
+              className={cn(
+                "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
+                isPremium
+                  ? "bg-amber-500/20 border-amber-500/30 text-amber-400"
+                  : "bg-amber-50 border-amber-100 text-amber-600",
+              )}
+            >
               Ending Soon
             </span>
           )}
@@ -139,7 +178,10 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
         <div className="flex items-center gap-2 mb-1">
           <Typography
             variant="xl-semibold"
-            className={cn("text-left font-black tracking-tight", isPremium ? "text-white" : "text-gray-900")}
+            className={cn(
+              "text-left font-black tracking-tight",
+              isPremium ? "text-white" : "text-gray-900",
+            )}
           >
             {planName}
           </Typography>
@@ -158,9 +200,22 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
         {/* Regular Ads */}
         <div className="space-y-2">
           <div className="flex justify-between items-end">
-            <span className={cn("text-xs font-bold uppercase tracking-tight", isPremium ? "text-gray-400" : "text-gray-500")}>Regular Ads</span>
-            <span className={cn("text-sm font-black", isPremium ? "text-white" : "text-gray-900")}>
-              {adsRemaining} <span className="text-[10px] opacity-60 font-medium">Left</span>
+            <span
+              className={cn(
+                "text-xs font-bold uppercase tracking-tight",
+                isPremium ? "text-gray-400" : "text-gray-500",
+              )}
+            >
+              Regular Ads
+            </span>
+            <span
+              className={cn(
+                "text-sm font-black",
+                isPremium ? "text-white" : "text-gray-900",
+              )}
+            >
+              {adsRemaining}{" "}
+              <span className="text-[10px] opacity-60 font-medium">Left</span>
             </span>
           </div>
           <div className="relative h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
@@ -179,9 +234,21 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
         {(subscription.featuredAdsAvailable || 0) > 0 && (
           <div className="space-y-2">
             <div className="flex justify-between items-end">
-              <span className={cn("text-xs font-bold uppercase tracking-tight text-amber-500")}>Featured Ads</span>
-              <span className={cn("text-sm font-black", isPremium ? "text-amber-400" : "text-amber-600")}>
-                {featuredAdsRemaining} <span className="text-[10px] opacity-60 font-medium">Left</span>
+              <span
+                className={cn(
+                  "text-xs font-bold uppercase tracking-tight text-amber-500",
+                )}
+              >
+                Featured Ads
+              </span>
+              <span
+                className={cn(
+                  "text-sm font-black",
+                  isPremium ? "text-amber-400" : "text-amber-600",
+                )}
+              >
+                {featuredAdsRemaining}{" "}
+                <span className="text-[10px] opacity-60 font-medium">Left</span>
               </span>
             </div>
             <div className="relative h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
@@ -214,19 +281,37 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
       </div>
 
       {/* Expiry / Renewal Info */}
-      <div className={cn(
-        "mb-8 p-4 rounded-3xl flex items-center gap-4 border",
-        isPremium ? "bg-white/5 border-white/5" : "bg-gray-50 border-gray-100"
-      )}>
-        <div className={cn("size-10 rounded-2xl flex items-center justify-center", isPremium ? "bg-purple-500/20" : "bg-purple-100")}>
+      <div
+        className={cn(
+          "mb-8 p-4 rounded-3xl flex items-center gap-4 border",
+          isPremium
+            ? "bg-white/5 border-white/5"
+            : "bg-gray-50 border-gray-100",
+        )}
+      >
+        <div
+          className={cn(
+            "size-10 rounded-2xl flex items-center justify-center",
+            isPremium ? "bg-purple-500/20" : "bg-purple-100",
+          )}
+        >
           <Clock className="size-5 text-purple" />
         </div>
         <div className="flex flex-col text-left">
           <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
             {subscription.cancelAtPeriodEnd ? "Expires On" : "Renews On"}
           </span>
-          <span className={cn("text-sm font-bold", isPremium ? "text-white" : "text-gray-900")}>
-            {new Date(subscription.endDate).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })}
+          <span
+            className={cn(
+              "text-sm font-bold",
+              isPremium ? "text-white" : "text-gray-900",
+            )}
+          >
+            {new Date(subscription.endDate).toLocaleDateString(locale, {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })}
           </span>
         </div>
       </div>
@@ -245,7 +330,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
                   "w-full h-12 rounded-2xl font-bold transition-all active:scale-95",
                   isPremium
                     ? "bg-white/10 text-red-400 hover:bg-white/20"
-                    : "bg-red-50 text-red-600 hover:bg-red-100"
+                    : "bg-red-50 text-red-600 hover:bg-red-100",
                 )}
               >
                 Stop Recurring
@@ -274,8 +359,11 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({ subscription
         ) : (
           <Button
             variant="outline"
-            className={cn("w-full h-12 rounded-2xl font-bold", isPremium ? "border-white/10 text-white" : "")}
-            onClick={() => router.push('/plans')}
+            className={cn(
+              "w-full h-12 rounded-2xl font-bold",
+              isPremium ? "border-white/10 text-white" : "",
+            )}
+            onClick={() => router.push("/plans")}
           >
             Renew Now
           </Button>

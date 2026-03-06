@@ -34,7 +34,8 @@ interface FooterProps {
 }
 
 export function Footer({ className }: FooterProps) {
-  const { data: categories, isLoading: categoriesLoading } = useGetMainCategories();
+  const { data: categories, isLoading: categoriesLoading } =
+    useGetMainCategories();
   const { data: emirates, isLoading: emiratesLoading } = useEmirates();
 
   const scrollToTop = () => {
@@ -43,7 +44,10 @@ export function Footer({ className }: FooterProps) {
 
   return (
     <footer
-      className={cn("w-full bg-purple dark:bg-[#0B0F19] text-primary-foreground", className)}
+      className={cn(
+        "w-full bg-purple dark:bg-[#0B0F19] text-primary-foreground",
+        className,
+      )}
     >
       <motion.div
         className="w-full bg-black dark:bg-[#080B14]"
@@ -132,27 +136,27 @@ export function Footer({ className }: FooterProps) {
               UAE
             </Typography>
             <div className="space-y-3">
-              {emiratesLoading ? (
-                // Skeleton for emirates
-                Array.from({ length: 8 }).map((_, i) => (
-                  <Skeleton key={i} className="h-6 w-30 rounded" />
-                ))
-              ) : (
-                (emirates || []).slice(0, 8).map((emirateObj: Emirate, idx: number) => (
-                  <Link
-                    href={`/categories/${slugify(categories?.[idx]?.name)}?location=${emirateObj.emirate}`}
-                    key={idx}
-                    className="block"
-                  >
-                    <Typography
-                      variant="body"
-                      className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
-                    >
-                      {emirateObj.emirate}
-                    </Typography>
-                  </Link>
-                ))
-              )}
+              {emiratesLoading
+                ? // Skeleton for emirates
+                  Array.from({ length: 8 }).map((_, i) => (
+                    <Skeleton key={i} className="h-6 w-30 rounded" />
+                  ))
+                : (emirates || [])
+                    .slice(0, 8)
+                    .map((emirateObj: Emirate, idx: number) => (
+                      <Link
+                        href={`/categories/${slugify(categories?.[idx]?.name)}?location=${emirateObj.emirate}`}
+                        key={idx}
+                        className="block"
+                      >
+                        <Typography
+                          variant="body"
+                          className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
+                        >
+                          {emirateObj.emirate}
+                        </Typography>
+                      </Link>
+                    ))}
             </div>
           </motion.div>
 
@@ -165,27 +169,25 @@ export function Footer({ className }: FooterProps) {
               Categories
             </Typography>
             <div className="space-y-3">
-              {categoriesLoading ? (
-                // Skeleton for categories
-                Array.from({ length: 8 }).map((_, i) => (
-                  <Skeleton key={i} className="h-6 w-30 rounded" />
-                ))
-              ) : (
-                categories?.map((cat, idx: number) => (
-                  <Link
-                    href={`/categories/${slugify(cat.name)}`}
-                    key={idx}
-                    className="block"
-                  >
-                    <Typography
-                      variant="body"
-                      className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
+              {categoriesLoading
+                ? // Skeleton for categories
+                  Array.from({ length: 8 }).map((_, i) => (
+                    <Skeleton key={i} className="h-6 w-30 rounded" />
+                  ))
+                : categories?.map((cat, idx: number) => (
+                    <Link
+                      href={`/categories/${slugify(cat.name)}`}
+                      key={idx}
+                      className="block"
                     >
-                      {cat.name}
-                    </Typography>
-                  </Link>
-                ))
-              )}
+                      <Typography
+                        variant="body"
+                        className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
+                      >
+                        {cat.name}
+                      </Typography>
+                    </Link>
+                  ))}
             </div>
           </motion.div>
 
@@ -232,7 +234,7 @@ export function Footer({ className }: FooterProps) {
                     onClick={() =>
                       window.open(
                         "https://play.google.com/store/apps/details?id=com.yourpackage",
-                        "_blank"
+                        "_blank",
                       )
                     }
                     className="bg-black px-3 md:px-6 font-medium text-white hover:bg-black/70 h-12 text-left capitalize"
@@ -260,7 +262,7 @@ export function Footer({ className }: FooterProps) {
                     onClick={() =>
                       window.open(
                         `https://apps.apple.com/app/idXXXXXXXXX`,
-                        "_blank"
+                        "_blank",
                       )
                     }
                     className="bg-black px-3  font-medium text-white hover:bg-black/70 h-12 text-left capitalize"
@@ -316,7 +318,7 @@ export function Footer({ className }: FooterProps) {
                   className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-colors duration-200"
                 >
                   Rate Us
-              </Typography>
+                </Typography>
               </Link>
               <ShareDialog title="Share" url={"https://buyorsell.ae"}>
                 <Typography
@@ -339,7 +341,7 @@ export function Footer({ className }: FooterProps) {
             </Typography>
             <div className="space-y-3 flex flex-col">
               <Link
-                href="/en-US"
+                href="/en"
                 className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
                 English
@@ -363,13 +365,20 @@ export function Footer({ className }: FooterProps) {
             </Typography>
             <div className="space-y-3">
               <div className="flex flex-col gap-2">
-                <Typography variant="body" className="text-[10px] opacity-60 text-white italic">
+                <Typography
+                  variant="body"
+                  className="text-[10px] opacity-60 text-white italic"
+                >
                   Quick Navigation
                 </Typography>
                 <div className="flex items-center gap-1.5 grayscale opacity-70">
-                  <kbd className="px-2 py-1 rounded bg-white/10 border border-white/20 text-[10px] font-sans text-white">Ctrl</kbd>
+                  <kbd className="px-2 py-1 rounded bg-white/10 border border-white/20 text-[10px] font-sans text-white">
+                    Ctrl
+                  </kbd>
                   <span className="text-white/40 text-[10px]">+</span>
-                  <kbd className="px-2 py-1 rounded bg-white/10 border border-white/20 text-[10px] font-sans text-white">K</kbd>
+                  <kbd className="px-2 py-1 rounded bg-white/10 border border-white/20 text-[10px] font-sans text-white">
+                    K
+                  </kbd>
                 </div>
               </div>
             </div>

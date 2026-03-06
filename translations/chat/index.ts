@@ -1,7 +1,7 @@
 import type { ChatTranslationNamespace } from "./types";
 
 export const chatTranslations: ChatTranslationNamespace = {
-  "en-US": {
+  "en": {
     loadingChats: "Loading chats...",
     pleaseLogin: "Please login to view your chats",
     goToLogin: "Go to Login",

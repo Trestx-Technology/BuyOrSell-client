@@ -2,7 +2,7 @@ import { createTranslationNamespace } from "@/validations/utils";
 import type { ExchangeTranslations } from "./types";
 
 export const exchangeTranslations = createTranslationNamespace<ExchangeTranslations>({
-  "en-US": {
+  "en": {
     title: "Exchange Ads",
     subtitle: "Find great deals for swapping items",
     searchPlaceholder: "Search for exchange ads",

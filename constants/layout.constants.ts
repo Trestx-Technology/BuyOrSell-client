@@ -46,14 +46,14 @@ export const PAGES_WITH_NAV_MOBILE: string[] = [
  */
 export function shouldShowComponent(
   pathname: string,
-  visiblePaths: string[]
+  visiblePaths: string[],
 ): boolean {
   if (!pathname) return false;
 
   // If no visible paths configured, show by default (backward compatibility)
   if (visiblePaths.length === 0) return true;
 
-  // Remove locale prefix if present (e.g., "/en-US/login" -> "/login")
+  // Remove locale prefix if present (e.g., "/en/login" -> "/login")
   const pathWithoutLocale = pathname.replace(/^\/[^/]+/, "") || "/";
 
   return visiblePaths.some((visiblePath) => {

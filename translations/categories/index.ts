@@ -3,7 +3,7 @@ import type { CategoriesTranslations } from './types';
 
 export const categoriesTranslations =
   createTranslationNamespace<CategoriesTranslations>({
-    "en-US": {
+    "en": {
       // Breadcrumbs
       categories: "Categories",
 

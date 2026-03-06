@@ -294,6 +294,7 @@ export default function FloatingChatCTA() {
                 <input
                   id="ai-chat-input"
                   value={input}
+                  autoComplete="off"
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask anything..."
                   className={cn(

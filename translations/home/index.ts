@@ -2,7 +2,7 @@ import { createTranslationNamespace } from '../../validations/utils';
 import type { HomeTranslations } from './types';
 
 export const homeTranslations = createTranslationNamespace<HomeTranslations>({
-  "en-US": {
+  "en": {
     popularCategories: {
       title: "Popular Categories",
       viewAll: "View All",

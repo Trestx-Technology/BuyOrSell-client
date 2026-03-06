@@ -2,7 +2,7 @@ import { createTranslationNamespace } from "../../validations/utils";
 import type { UserTranslations } from "./types";
 
 export const userTranslations = createTranslationNamespace<UserTranslations>({
-  "en-US": {
+  "en": {
     profile: {
       pageTitle: "My Profile",
       myProfile: "My Profile",
