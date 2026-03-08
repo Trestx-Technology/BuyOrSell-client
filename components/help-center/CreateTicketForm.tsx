@@ -36,8 +36,9 @@ export function CreateTicketForm() {
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      queryType: "technical",
-      priority: "medium",
+      queryType: (typeParam as QueryType) || "technical",
+      priority: typeParam === "custom_planning" ? "urgent" : "medium",
+      subject: typeParam === "custom_planning" ? "Custom Planning Request" : "",
     },
   });
 
