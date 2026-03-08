@@ -24,6 +24,7 @@ import { useLocale } from "@/hooks/useLocale";
 import { OrganizationForm } from "../_components/OrganizationForm";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
+import { PageBannerCarousel } from "@/components/global/page-banner-carousel";
 
 const NewOrganizationPage = () => {
   const router = useRouter();
@@ -152,6 +153,10 @@ const NewOrganizationPage = () => {
         </Typography>
       </div>
 
+      <div className="px-4 mb-6">
+        <PageBannerCarousel slug="organization-create-page" />
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Form Section */}
         <div className="lg:col-span-2">
@@ -246,7 +251,7 @@ const NewOrganizationPage = () => {
                     <Button variant="outline" size="sm" className="w-full mt-2">
                       {t.organizations.form.viewAllCount.replace(
                         "{count}",
-                        organizations.length.toString()
+                        organizations.length.toString(),
                       )}
                     </Button>
                   </Link>

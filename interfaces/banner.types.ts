@@ -2,6 +2,10 @@ export interface Banner {
   _id: string;
   title: string;
   titleAr?: string;
+  subTitle?: string;
+  subTitleAr?: string;
+  content?: string;
+  contentAr?: string;
   description?: string;
   descriptionAr?: string;
   image: string;
@@ -9,6 +13,11 @@ export interface Banner {
   link?: string;
   callToAction?: string[];
   callToActionAr?: string;
+  sponsored?: boolean;
+  isSponsored?: boolean; // alias fallback
+  sponsoredLink?: string;
+  buttonLabel?: string;
+  buttonLabelAr?: string;
   position?: string;
   order?: number;
   isActive: boolean;
@@ -47,6 +56,10 @@ export interface BannersListApiResponse {
 export interface CreateBannerPayload {
   title: string;
   titleAr?: string;
+  subTitle?: string;
+  subTitleAr?: string;
+  content?: string;
+  contentAr?: string;
   description?: string;
   descriptionAr?: string;
   image: string;
@@ -54,6 +67,11 @@ export interface CreateBannerPayload {
   link?: string;
   callToAction?: string;
   callToActionAr?: string;
+  sponsored?: boolean;
+  isSponsored?: boolean; // alias fallback
+  sponsoredLink?: string;
+  buttonLabel?: string;
+  buttonLabelAr?: string;
   position?: string;
   order?: number;
   isActive?: boolean;
