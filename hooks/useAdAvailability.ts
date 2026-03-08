@@ -68,8 +68,9 @@ export const useAdAvailability = () => {
       activeSubscriptions.forEach((sub) => {
         const subType = sub.plan?.type?.toLowerCase();
         const targetType = type?.toLowerCase();
+        const isDefaultPlan = subType === "basic" || sub.plan?.isDefault;
 
-        if (subType === targetType) {
+        if (subType === targetType || isDefaultPlan) {
           const coversCategory =
             !sub.plan.categories ||
             sub.plan.categories.length === 0 ||
@@ -139,7 +140,9 @@ export const useAdAvailability = () => {
       return plansData.data.some((plan) => {
         if (!plan.isActive) return false;
         const planType = (plan.type || "Ads").toLowerCase();
-        if (planType !== typeLower) return false;
+        const isDefaultPlan = planType === "basic" || plan.isDefault;
+
+        if (planType !== typeLower && !isDefaultPlan) return false;
 
         // If any active plan for this type has no categories, it covers everything of that type
         if (!plan.categories || plan.categories.length === 0) return true;
