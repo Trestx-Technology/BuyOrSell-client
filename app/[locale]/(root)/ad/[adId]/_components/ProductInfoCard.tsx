@@ -3,19 +3,14 @@
 import React, { useMemo, useState } from "react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
-import { Phone, Info } from "lucide-react";
+import { Phone, Info, MapIcon } from "lucide-react";
 import { FaWhatsapp, FaMapMarkerAlt } from "react-icons/fa";
 import { MdMessage } from "react-icons/md";
 import { GoClockFill } from "react-icons/go";
-import Image from "next/image";
-import { ICONS } from "@/constants/icons";
 import { useRouter } from "nextjs-toploader/app";
 import { AD } from "@/interfaces/ad";
 import { formatDistanceToNow } from "date-fns";
-import {
-  getSpecifications,
-  normalizeExtraFieldsToArray,
-} from "@/utils/normalize-extra-fields";
+import { getSpecifications } from "@/utils/normalize-extra-fields";
 import { PriceDisplay } from "@/components/global/price-display";
 import { SpecificationsDisplay } from "@/components/global/specifications-display";
 import {
@@ -23,7 +18,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { toast } from "sonner";
 import { useLocale } from "@/hooks/useLocale";
 import { useAuthStore } from "@/stores/authStore";
 import { ChatInit } from "@/components/global/chat-init";
@@ -169,13 +163,13 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
 
       {/* Location and Time */}
       {hasLocationOrTime && (
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between gap-4 mb-4">
           {hasLocation && (
-            <div className="flex items-center gap-1.5">
-              <FaMapMarkerAlt className="size-4 text-dark-blue dark:text-gray-300" />
+            <div className="flex items-center gap-1.5 flex-1">
+              <MapIcon className="size-4 text-dark-blue dark:text-gray-300" />
               <Typography
                 variant="body-small"
-                className="text-grey-blue dark:text-gray-400 text-xs"
+                className="text-grey-blue dark:text-gray-400 text-xs line-clamp-2"
               >
                 {location}
               </Typography>

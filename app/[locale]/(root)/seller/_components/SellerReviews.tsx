@@ -33,10 +33,7 @@ interface SellerReviewsProps {
   organization?: Organization;
 }
 
-const SellerReviews: React.FC<SellerReviewsProps> = ({
-  sellerId,
-  organization,
-}) => {
+const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
   const { t, locale } = useLocale();
   const [sortBy, setSortBy] = useState<
     "latest" | "oldest" | "highest" | "lowest"
@@ -79,10 +76,17 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({
     // Handle structured response object where data might be nested
     const responseData = reviewsResponse.data;
     if (Array.isArray(responseData)) {
-      return responseData;
+      return responseData as Review[];
     }
-    if (responseData && Array.isArray((responseData as any).data)) {
-      return (responseData as any).data;
+    if (
+      responseData &&
+      typeof responseData === "object" &&
+      "data" in responseData
+    ) {
+      const nestedData = (responseData as { data: unknown }).data;
+      if (Array.isArray(nestedData)) {
+        return nestedData as Review[];
+      }
     }
     return [];
   }, [reviewsResponse]);
