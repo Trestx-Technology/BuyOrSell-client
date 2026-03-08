@@ -3,6 +3,10 @@ export const subscriptionQueries = {
     endpoint: "/subscriptions",
     Key: ["createSubscription"],
   },
+  activateFreeSubscription: {
+    endpoint: "/subscriptions/free",
+    Key: ["activateFreeSubscription"],
+  },
   getAllSubscriptions: {
     endpoint: "/subscriptions",
     Key: ["getAllSubscriptions"],
