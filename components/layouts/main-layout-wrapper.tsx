@@ -12,6 +12,7 @@ import {
   PAGES_WITH_NAV_MOBILE,
   shouldShowComponent,
 } from "@/constants/layout.constants";
+import { MobileAppStrip } from "@/components/global/MobileAppStrip";
 
 interface MainLayoutWrapperProps {
   children: React.ReactNode;
@@ -62,9 +63,12 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
 
   return (
     <main className="min-h-[600px] relative flex flex-col bg-white dark:bg-gray-950">
-      <div className="sticky top-0 z-50 flex flex-col bg-white dark:bg-gray-900 items-center">
-        <Navbar className={navbarClassName} />
-        <CategoryNav className={categoryNavClassName} />
+      <div className="sticky top-0 z-50 flex flex-col items-center">
+        <MobileAppStrip />
+        <div className="w-full bg-white dark:bg-gray-900 flex flex-col items-center">
+          <Navbar className={navbarClassName} />
+          <CategoryNav className={categoryNavClassName} />
+        </div>
       </div>
       <section className="w-full mx-auto flex-grow">{children}</section>
       <CommandMenu />

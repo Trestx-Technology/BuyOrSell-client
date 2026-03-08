@@ -50,6 +50,7 @@ Comprehensive documentation of feature logic, codebase architecture, and domain 
 - 💳 **[Subscription & Eligibility](file:///c:/Users/shivm/BuyOrSell-client/docs/subscriptions/index.md)**
 - 🤖 **[AI Tokens & Setup](file:///c:/Users/shivm/BuyOrSell-client/docs/ai/index.md)**
 - 🤝 **[Connections & Messaging](file:///c:/Users/shivm/BuyOrSell-client/docs/connections/index.md)**
+- 🎫 **[Support Ticket System](file:///c:/Users/shivm/BuyOrSell-client/docs/tickets/index.md)**
 
 ---
 

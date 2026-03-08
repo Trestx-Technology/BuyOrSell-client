@@ -30,6 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/map-view", // Map Explorer
     "/watch", // Watch/Shorts
     "/organizations", // Business Directory
+    "/download", // App Download Page
   ];
 
   const entries: MetadataRoute.Sitemap = [];
