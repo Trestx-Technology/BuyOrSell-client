@@ -706,13 +706,15 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
       )}
       <div
         hidden={isJobsPage}
-        className="animate-fade-in"
+        className="animate-fade-in shrink-0 ml-1"
         style={{ animationDelay: "350ms" }}
       >
         <Button
-          icon={<MapPin className="w-4 h-4 -mr-3" />}
+          icon={<MapPin className="w-3 h-3 sm:w-4 sm:h-4 -mr-1.5 sm:-mr-3" />}
           iconPosition="center"
-          className={cn("py-5 md:py-4")}
+          className={cn(
+            "h-[40px] px-2.5 sm:px-4 text-[11px] sm:text-xs md:h-[42px] whitespace-nowrap",
+          )}
           variant={"filled"}
           size="sm"
           onClick={() => router.push("/map-view")}
