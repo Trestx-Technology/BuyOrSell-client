@@ -7,6 +7,7 @@ import {
   getSubscriptionUsers,
   updateSubscription,
   stopRecurringSubscription,
+  activateFreeSubscription,
 } from "@/app/api/subscription/subscription.services";
 import {
   CreateSubscriptionPayload,
@@ -107,6 +108,25 @@ export const useStopRecurring = () => {
   return useMutation<any, Error, string>({
     mutationFn: (id: string) => stopRecurringSubscription(id),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: subscriptionQueries.getMySubscription.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: subscriptionQueries.getMyActiveSubscription.Key,
+      });
+    },
+  });
+};
+
+export const useActivateFreeSubscription = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<SingleSubscriptionResponse, Error>({
+    mutationFn: activateFreeSubscription,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: subscriptionQueries.getAllSubscriptions.Key,
+      });
       queryClient.invalidateQueries({
         queryKey: subscriptionQueries.getMySubscription.Key,
       });

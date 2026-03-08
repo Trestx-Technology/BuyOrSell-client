@@ -12,6 +12,7 @@ import {
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
 import { useRouter, useParams } from "next/navigation";
+import { useActivateFreeSubscription } from "@/hooks/useSubscriptions";
 
 interface PlanCardProps {
   plan: {
@@ -28,6 +29,7 @@ interface PlanCardProps {
     isPopular: boolean;
     isPremium: boolean;
     isCurrent?: boolean;
+    isDefault?: boolean;
   };
   perMonthText: string;
 }
@@ -44,8 +46,10 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
     useCreatePlanSubscriptionCheckout();
   const { mutate: createOneTimeCheckout, isPending: isOneTimePending } =
     useCreatePlanOneTimeCheckout();
+  const { mutate: activateFree, isPending: isActivatePending } =
+    useActivateFreeSubscription();
 
-  const isPending = isSubPending || isOneTimePending;
+  const isPending = isSubPending || isOneTimePending || isActivatePending;
 
   const handleSubscribe = () => {
     if (!user) {
@@ -63,6 +67,21 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
     const successUrl = `${baseUrl}/${locale}/pay/response?session_id={CHECKOUT_SESSION_ID}&type=PLAN`;
     const cancelUrl = `${baseUrl}/${locale}/plans`;
+
+    if (plan.isDefault) {
+      activateFree(undefined, {
+        onSuccess: () => {
+          toast.success("Free plan activated successfully!");
+          router.push(`/${locale}/profile`);
+        },
+        onError: (error: any) => {
+          toast.error(
+            error?.response?.data?.message || "Failed to activate free plan",
+          );
+        },
+      });
+      return;
+    }
 
     if (isLifetime) {
       // One-time payment
