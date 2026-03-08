@@ -12,6 +12,7 @@ export type QueryType =
   | "account"
   | "feature_request"
   | "bug_report"
+  | "custom_planning"
   | "other";
 export type Priority = "low" | "medium" | "high" | "urgent";
 

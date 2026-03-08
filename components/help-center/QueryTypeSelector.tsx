@@ -8,7 +8,7 @@ import {
 import { QueryType } from "@/lib/firebase/tickets/types";
 
 interface QueryTypeSelectorProps {
-  value: QueryType | '';
+  value: QueryType | "";
   onChange: (value: QueryType) => void;
   placeholder?: string;
 }
@@ -19,12 +19,20 @@ const queryTypes: { value: QueryType; label: string }[] = [
   { value: "account", label: "Account Management" },
   { value: "feature_request", label: "Feature Request" },
   { value: "bug_report", label: "Report a Bug" },
+  { value: "custom_planning", label: "Custom Planning (Priority)" },
   { value: "other", label: "Other" },
 ];
 
-export function QueryTypeSelector({ value, onChange, placeholder = "Select query type" }: QueryTypeSelectorProps) {
+export function QueryTypeSelector({
+  value,
+  onChange,
+  placeholder = "Select query type",
+}: QueryTypeSelectorProps) {
   return (
-    <Select value={value || undefined} onValueChange={(val) => onChange(val as QueryType)}>
+    <Select
+      value={value || undefined}
+      onValueChange={(val) => onChange(val as QueryType)}
+    >
       <SelectTrigger className="w-full">
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>

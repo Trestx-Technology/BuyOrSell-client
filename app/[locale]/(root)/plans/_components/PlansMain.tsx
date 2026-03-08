@@ -353,7 +353,9 @@ function PlansContent() {
               </div>
 
               <Button
-                onClick={() => router.push(`/${locale}/contact-us`)}
+                onClick={() =>
+                  router.push(`/${locale}/help-centre/new?type=custom_planning`)
+                }
                 className="w-full rounded-lg font-medium bg-purple text-white hover:bg-gray-800"
               >
                 Contact Us
