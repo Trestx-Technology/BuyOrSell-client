@@ -202,7 +202,9 @@ function PlansContent() {
                         value={type}
                         className="cursor-pointer"
                       >
-                        {type}
+                        {type.toLowerCase() === "basic"
+                          ? `${type} (Free)`
+                          : type}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -214,13 +216,18 @@ function PlansContent() {
                   <button
                     key={type}
                     onClick={() => setSelectedType(type)}
-                    className={`px-6 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                    className={`px-6 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-2 ${
                       selectedType === type
                         ? "bg-white text-black shadow-sm"
                         : "text-gray-500 hover:text-gray-900"
                     }`}
                   >
                     {type}
+                    {type.toLowerCase() === "basic" && (
+                      <span className="text-[10px] bg-emerald-500 text-white px-1.5 py-0.5 rounded-full font-bold">
+                        Free
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -276,13 +283,12 @@ function PlansContent() {
                 originalPrice: displayOriginalPrice,
                 description: description,
                 features: features,
-                features: features,
                 buttonText: isCurrentPlan
                   ? "Current Plan"
                   : plan.isDefault
                     ? "Start Free Plan"
                     : "Subscribe",
-                isPopular: plan.isPopular,
+                isPopular: plan.isPopular || plan.isDefault,
                 isPremium:
                   plan.plan.toLowerCase() === "platinum" ||
                   plan.plan.toLowerCase() === "premium",

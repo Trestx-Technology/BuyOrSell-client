@@ -150,9 +150,14 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
           : "bg-white border border-gray-200 hover:shadow-lg"
       } ${plan.isPopular ? "border-purple shadow-md shadow-purple" : ""}`}
     >
-      {plan.isPopular && (
+      {plan.isPopular && !plan.isDefault && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm z-10">
           Most Popular
+        </div>
+      )}
+      {plan.isDefault && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm z-10 whitespace-nowrap">
+          Recommended Free Plan
         </div>
       )}
       {/* Icon */}
