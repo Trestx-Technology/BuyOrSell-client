@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
-import { Phone, Info, MapIcon } from "lucide-react";
+import { Phone, Info, MapIcon, Clock, MapPin } from "lucide-react";
 import { FaWhatsapp, FaMapMarkerAlt } from "react-icons/fa";
 import { MdMessage } from "react-icons/md";
 import { GoClockFill } from "react-icons/go";
@@ -145,6 +145,7 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
           <SpecificationsDisplay
             specifications={specifications}
             maxVisible={4}
+            className="gap-4"
             showPopover={true}
           />
         </div>
@@ -166,7 +167,7 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
         <div className="flex items-center justify-between gap-4 mb-4">
           {hasLocation && (
             <div className="flex items-center gap-1.5 flex-1">
-              <MapIcon className="size-4 text-dark-blue dark:text-gray-300" />
+              <MapPin className="min-w-4 text-dark-blue dark:text-gray-300" />
               <Typography
                 variant="body-small"
                 className="text-grey-blue dark:text-gray-400 text-xs line-clamp-2"
@@ -177,7 +178,7 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
           )}
           {hasCreatedAt && (
             <div className="flex items-center gap-1.5">
-              <GoClockFill className="size-4 text-dark-blue dark:text-gray-300" />
+              <Clock className="min-w-4 text-dark-blue dark:text-gray-300" />
               <Typography
                 variant="body-small"
                 className="text-grey-blue dark:text-gray-400 text-xs"
