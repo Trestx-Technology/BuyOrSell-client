@@ -88,8 +88,8 @@ export default function DownloadAppPage() {
                   }
                   className="bg-black px-6 font-medium text-white hover:bg-black/90 h-14 rounded-xl text-left capitalize transition-all hover:scale-105 shadow-xl"
                 >
-                  <span className="flex flex-col gap-0 justify-start relative pt-2 text-md">
-                    <span className="text-[10px] tracking-wider absolute top-[-5px] font-inter">
+                  <span className="flex flex-col gap-0 justify-start relative px-2 text-md">
+                    <span className="text-[10px] tracking-wider absolute top-[-10px] font-inter">
                       Available on the
                     </span>
                     App Store
