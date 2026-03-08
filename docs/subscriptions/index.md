@@ -72,3 +72,19 @@ The Collection Manager handles the grouping of ads into curated sets.
 
 - **Logic**: Aggregates ads based on user-defined labels or system-generated criteria.
 - **Access Control**: Users can only manage collections belonging to their UID.
+- **Limit Enforcement**: Collection creation is gated by the active subscription's `addsAvailable` limit if the user is not on a basic plan.
+
+---
+
+## 5. Enterprise Custom Planning
+
+For large scale organizations requiring more than what standard plans offer, the platform provides a **Custom Planning** flow.
+
+### The Flow:
+
+1. **Entry Point**: A "Contact Us" CTA on the [Enterprise Card](/plans) redirects to the Ticket creation page.
+2. **Prioritization**: Requests are tagged with `type=custom_planning`.
+3. **Admin Visibility**:
+   - Priority is automatically set to **Urgent**.
+   - A specialized UI banner in the support dashboard highlights these as Enterprise leads.
+4. **Data Prefilling**: To ensure high-quality leads, the ticket message is pre-filled with a template asking for category estimates and team requirements.

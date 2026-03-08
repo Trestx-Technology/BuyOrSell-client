@@ -46,6 +46,10 @@ export function CreateTicketForm() {
       setValue("queryType", "custom_planning");
       setValue("priority", "urgent");
       setValue("subject", "Custom Planning Request");
+      setValue(
+        "message",
+        "I am interested in a custom enterprise plan with the following requirements:\n\n- Estimate monthly postings:\n- Specific categories needed:\n- Team size/Accounts:\n- Integration requirements:\n\nPlease contact me to discuss a tailored solution.",
+      );
     }
   }, [typeParam, setValue]);
 
