@@ -13,11 +13,12 @@ import { AISearchAdsDialog } from "./ai-search-ads-dialog";
 export function SearchAnimated() {
   const [isAIOpen, setIsAIOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
-  
+
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const nextRouter = useNextRouter();
-  const [selectedCategory, setSelectedCategory] = React.useState("All Categories");
+  const [selectedCategory, setSelectedCategory] =
+    React.useState("All Categories");
 
   // Initialize category and search query from URL query parameters
   useQueryParams(searchParams, {
@@ -32,7 +33,7 @@ export function SearchAnimated() {
       pathname,
       nextRouter,
       "search",
-      setSearchQuery
+      setSearchQuery,
     );
     handler(value);
   };
@@ -42,25 +43,25 @@ export function SearchAnimated() {
   return (
     <div
       className={cn(
-        "relative flex items-center shadow rounded-lg flex-col flex-1 z-50 "
+        "relative flex items-center shadow rounded-lg flex-col flex-1 z-50 h-[40px]",
       )}
     >
-      <div className="h-fit absolute top-0 left-0 right-0">
+      <div className="h-fit absolute top-1/2 -translate-y-1/2 h-full left-0 right-0 w-full">
         <motion.section
           layout
           aria-label="Search"
-          className={cn(
-            "w-full bg-transparent rounded-lg h-full relative"
-          )}
+          className={cn("w-full bg-transparent rounded-lg h-full relative")}
           animate={{
             backgroundColor: "transparent",
             boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
           }}
           transition={{ type: "spring" as const, stiffness: 140, damping: 18 }}
         >
-          <motion.div layout
+          <motion.div
+            layout
             className="relative flex items-center flex-1 h-full"
-            aria-live="polite">
+            aria-live="polite"
+          >
             <SimpleSearchInput
               onTrigger={handleTrigger}
               selectedCategory={selectedCategory}
@@ -74,4 +75,3 @@ export function SearchAnimated() {
     </div>
   );
 }
-

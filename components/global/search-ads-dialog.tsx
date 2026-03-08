@@ -3,7 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "nextjs-toploader/app";
 import { Search } from "lucide-react";
-import { ResponsiveModal, ResponsiveModalContent } from "@/components/ui/responsive-modal";
+import {
+  ResponsiveModal,
+  ResponsiveModalContent,
+} from "@/components/ui/responsive-modal";
 import { useAdsByKeyword } from "@/hooks/useAds";
 import { useAuthStore } from "@/stores/authStore";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
@@ -28,13 +31,13 @@ export function SearchAdsDialog() {
   const userId = session?.user?._id;
 
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  
+
   const [localSearchQuery, setLocalSearchQuery] = useDebouncedValue(
     "",
     (value) => {
       setDebouncedQuery(value);
     },
-    500
+    500,
   );
 
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
@@ -54,7 +57,7 @@ export function SearchAdsDialog() {
 
   const { data: keywordData, isLoading } = useAdsByKeyword(
     debouncedQuery.trim(),
-    userId ? { userId } : undefined
+    userId ? { userId } : undefined,
   );
 
   const keywordResults = (keywordData?.data || []) as SearchResult[];
@@ -68,14 +71,14 @@ export function SearchAdsDialog() {
     if (open && itemRefs.current[selectedIndex]) {
       itemRefs.current[selectedIndex]?.scrollIntoView({
         block: "nearest",
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   }, [selectedIndex, open]);
 
   const handleSearch = (result: SearchResult) => {
     const { relatedCategories, name, category } = result;
-    
+
     // Log search history
     saveSearchTerm({
       searchTerm: name,
@@ -85,9 +88,13 @@ export function SearchAdsDialog() {
 
     if (relatedCategories.length > 0) {
       if (relatedCategories[0] === "Jobs") {
-        router.push(`/jobs/listing/${relatedCategories.map((cat) => slugify(cat)).join("/")}`);
+        router.push(
+          `/jobs/listing/${relatedCategories.map((cat) => slugify(cat)).join("/")}`,
+        );
       } else {
-        router.push(`/categories/${relatedCategories.map((cat) => slugify(cat)).join("/")}`);
+        router.push(
+          `/${relatedCategories.map((cat) => slugify(cat)).join("/")}`,
+        );
       }
       setOpen(false);
       setLocalSearchQuery("");
@@ -101,7 +108,11 @@ export function SearchAdsDialog() {
       setSelectedIndex((prev) => (prev + 1) % (keywordResults.length || 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex((prev) => (prev - 1 + (keywordResults.length || 1)) % (keywordResults.length || 1));
+      setSelectedIndex(
+        (prev) =>
+          (prev - 1 + (keywordResults.length || 1)) %
+          (keywordResults.length || 1),
+      );
     } else if (e.key === "Enter") {
       e.preventDefault();
       const selected = keywordResults[selectedIndex];
@@ -113,7 +124,10 @@ export function SearchAdsDialog() {
 
   return (
     <ResponsiveModal open={open} onOpenChange={setOpen}>
-      <ResponsiveModalContent showCloseButton={false} className="p-0 overflow-hidden border-none shadow-2xl max-w-lg bg-white dark:bg-gray-950">
+      <ResponsiveModalContent
+        showCloseButton={false}
+        className="p-0 overflow-hidden border-none shadow-2xl max-w-lg bg-white dark:bg-gray-950"
+      >
         <div className="flex items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800">
           <Search className="w-5 h-5 text-gray-400 mr-3" />
           <input
@@ -143,7 +157,9 @@ export function SearchAdsDialog() {
             </div>
           ) : keywordResults.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="text-sm text-gray-500">No results found for "{debouncedQuery}"</p>
+              <p className="text-sm text-gray-500">
+                No results found for "{debouncedQuery}"
+              </p>
             </div>
           ) : (
             <ul className="space-y-1">
@@ -161,21 +177,37 @@ export function SearchAdsDialog() {
                         "w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 text-left outline-none",
                         isSelected
                           ? "bg-purple/10 text-purple"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-purple/5 hover:text-purple"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-purple/5 hover:text-purple",
                       )}
                     >
                       <div className="flex-1 min-w-0">
-                        <p className={cn("text-sm font-medium truncate", isSelected ? "text-purple" : "text-gray-900 dark:text-white")}>
+                        <p
+                          className={cn(
+                            "text-sm font-medium truncate",
+                            isSelected
+                              ? "text-purple"
+                              : "text-gray-900 dark:text-white",
+                          )}
+                        >
                           {result.name}
                         </p>
-                        <p className={cn("text-xs mt-1", isSelected ? "text-purple/70" : "text-gray-500")}>
+                        <p
+                          className={cn(
+                            "text-xs mt-1",
+                            isSelected ? "text-purple/70" : "text-gray-500",
+                          )}
+                        >
                           {result.category}
                         </p>
                       </div>
-                      <span className={cn(
-                        "flex-shrink-0 text-xs font-semibold px-2 py-1 rounded",
-                        isSelected ? "text-purple bg-purple/20" : "text-purple bg-gray-100 dark:bg-gray-800"
-                      )}>
+                      <span
+                        className={cn(
+                          "flex-shrink-0 text-xs font-semibold px-2 py-1 rounded",
+                          isSelected
+                            ? "text-purple bg-purple/20"
+                            : "text-purple bg-gray-100 dark:bg-gray-800",
+                        )}
+                      >
                         {result.adCount} {result.adCount === 1 ? "ad" : "ads"}
                       </span>
                     </button>
@@ -189,11 +221,15 @@ export function SearchAdsDialog() {
         <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 flex items-center justify-between">
           <div className="flex items-center gap-4 text-[10px] text-gray-400">
             <div className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">↵</kbd>
+              <kbd className="px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+                ↵
+              </kbd>
               <span>to select</span>
             </div>
             <div className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">↑↓</kbd>
+              <kbd className="px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+                ↑↓
+              </kbd>
               <span>to navigate</span>
             </div>
           </div>

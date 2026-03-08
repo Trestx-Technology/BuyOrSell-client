@@ -8,8 +8,12 @@ import HostDeals from "./host-deals";
 import FloatingChatCTA from "@/components/global/flowting-ai-cta";
 import ExchangeDeals from "./exchange-deals";
 import { useHome } from "@/hooks/useHome";
-import CategoryTabbedCarousel, { CategoryTabbedCarouselSkeleton } from "@/components/global/category-tabbed-carousel";
-import JobsTabbedCarousel, { JobsTabbedCarouselSkeleton } from "@/components/global/jobs-tabbed-carousel";
+import CategoryTabbedCarousel, {
+  CategoryTabbedCarouselSkeleton,
+} from "@/components/global/category-tabbed-carousel";
+import JobsTabbedCarousel, {
+  JobsTabbedCarouselSkeleton,
+} from "@/components/global/jobs-tabbed-carousel";
 import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "nextjs-toploader/app";
 import { VideoAdCarousel } from "./video-ad-carousel";
@@ -40,7 +44,6 @@ export function HomeContent() {
         />
 
         <VideoAdCarousel />
-
 
         <div className="my-8 space-y-5">
           <HostDeals
@@ -102,9 +105,9 @@ export function HomeContent() {
                       router.push(
                         localePath(
                           `/jobs/listing/${category.category}/${slugify(
-                            categoryName
-                          )}`
-                        )
+                            categoryName,
+                          )}`,
+                        ),
                       )
                     }
                     onTabChange={(tabId) =>
@@ -126,7 +129,7 @@ export function HomeContent() {
                     viewAllText={t.common.viewAll}
                     onViewAll={(categoryName) =>
                       router.push(
-                        `/categories/${category.category}/${categoryName}`
+                        `/${slugify(category.category)}/${slugify(categoryName)}`,
                       )
                     }
                     onTabChange={(tabId) =>

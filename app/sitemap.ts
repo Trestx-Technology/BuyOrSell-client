@@ -14,7 +14,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
     "", // Home
     "/jobs", // Jobs Portal
-    "/categories", // Category Explorer
     "/deals", // Hot Deals
     "/exchange", // Exchange Section
     "/help-centre", // Support/FAQ
@@ -47,7 +46,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ].includes(route);
       const isDynamic = [
         "/jobs",
-        "/categories",
         "/deals",
         "/organizations",
         "/map-view",

@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { H2 } from "@/components/typography";
 import { useAdAvailability } from "@/hooks/useAdAvailability";
 import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
+import { PageBannerCarousel } from "@/components/global/page-banner-carousel";
 
 export default function SelectJobCategoryContent() {
   const router = useRouter();
@@ -100,6 +101,10 @@ export default function SelectJobCategoryContent() {
               <p className="text-[#667085] dark:text-gray-400 mt-1">
                 Select a job category to get started
               </p>
+            </div>
+
+            <div className="mb-8">
+              <PageBannerCarousel slug="post-job-page" />
             </div>
 
             <div className="space-y-[13px]">

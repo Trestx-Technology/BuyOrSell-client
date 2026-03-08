@@ -16,7 +16,7 @@ import SortAndViewControls, {
   ViewMode,
 } from "@/app/[locale]/(root)/post-ad/_components/SortAndViewControls";
 import Image from "next/image";
-import HorizontalListingCard from "../../categories/_components/horizontal-listing-card";
+import HorizontalListingCard from "../../(categories)/_components/horizontal-listing-card";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 import { formatDate } from "@/utils/format-date";
@@ -86,13 +86,13 @@ export default function CollectionDetailPage() {
         return ads.sort(
           (a, b) =>
             new Date(b.createdAt || 0).getTime() -
-            new Date(a.createdAt || 0).getTime()
+            new Date(a.createdAt || 0).getTime(),
         );
       case "oldest":
         return ads.sort(
           (a, b) =>
             new Date(a.createdAt || 0).getTime() -
-            new Date(b.createdAt || 0).getTime()
+            new Date(b.createdAt || 0).getTime(),
         );
       case "price-asc":
         return ads.sort((a, b) => (a.price || 0) - (b.price || 0));
@@ -263,7 +263,7 @@ export default function CollectionDetailPage() {
               <div
                 className={cn(
                   `grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3`,
-                  view === "list" && "flex flex-col"
+                  view === "list" && "flex flex-col",
                 )}
               >
                 {sortedAds.map((ad: AD) => {
@@ -279,9 +279,9 @@ export default function CollectionDetailPage() {
                       ) : (
                         <>
                           <HorizontalListingCard
-                              {...listingCardProps}
+                            {...listingCardProps}
                             onShare={(id) => console.log("Shared:", id)}
-                              onClick={(id) => router.push(`/ad/${id}`)}
+                            onClick={(id) => router.push(`/ad/${id}`)}
                           />
                         </>
                       )}

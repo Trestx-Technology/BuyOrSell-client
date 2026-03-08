@@ -28,7 +28,7 @@ export function AISearchResults({ results, onSelect }: AISearchResultsProps) {
         exit={{ opacity: 0, height: 0, marginTop: 0 }}
         transition={{ type: "tween", duration: 0.35 }}
         className={cn(
-          "top-0 left-0 w-full p-2 rounded-lg rounded-t-none relative max-h-[300px] overflow-y-auto custom-scrollbar"
+          "top-0 left-0 w-full p-2 rounded-lg rounded-t-none relative max-h-[300px] overflow-y-auto custom-scrollbar",
         )}
         style={{ backgroundColor: COLORS.slate900 }}
       >
@@ -74,10 +74,7 @@ export function AISearchResults({ results, onSelect }: AISearchResultsProps) {
 
               {/* Product Details */}
               <div className="flex-1 min-w-0">
-                <Typography
-                  variant="sm-medium"
-                  className="text-white truncate"
-                >
+                <Typography variant="sm-medium" className="text-white truncate">
                   {ad.title}
                 </Typography>
                 <div className="flex items-center justify-between mt-1">
@@ -85,12 +82,9 @@ export function AISearchResults({ results, onSelect }: AISearchResultsProps) {
                     variant="xs-regular"
                     className="text-gray-400 truncate"
                   >
-                    {ad.category?.name || "Category"}
+                    {ad.category?.name || ad.categoryName || "Category"}
                   </Typography>
-                  <Typography
-                    variant="xs-bold"
-                    className="text-teal-400"
-                  >
+                  <Typography variant="xs-bold" className="text-teal-400">
                     {ad.price ? `AED ${ad.price}` : "Price N/A"}
                   </Typography>
                 </div>

@@ -13,7 +13,6 @@ type Message = {
   action?: { label: string; url: string };
 };
 
-import { searchWithAI } from "@/lib/ai/searchWithAI";
 import { findResolution } from "@/constants/app-context";
 import { itemVariants, tabsVariants } from "@/utils/animation-variants";
 import { buttonVariants } from "../ui/button";

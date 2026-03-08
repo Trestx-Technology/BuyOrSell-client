@@ -10,10 +10,7 @@ interface AISuggestionsProps {
   onSuggestionClick: (label: string) => void;
 }
 
-export function AISuggestions({
-  isAI,
-  onSuggestionClick,
-}: AISuggestionsProps) {
+export function AISuggestions({ isAI, onSuggestionClick }: AISuggestionsProps) {
   return (
     <AnimatePresence>
       {isAI && (
@@ -28,12 +25,15 @@ export function AISuggestions({
           exit={{ opacity: 0, height: 0, marginTop: 0 }}
           transition={{ type: "tween", duration: 0.35 }}
           className={cn(
-            "top-0 left-0 w-full p-4 rounded-lg rounded-t-none relative"
+            "top-0 left-0 w-full p-4 rounded-lg rounded-t-none relative",
           )}
           style={{ backgroundColor: COLORS.slate900 }}
         >
+          <p className="text-[10px] text-gray-500 mb-3 uppercase tracking-wider font-semibold">
+            Try searching for...
+          </p>
           <motion.div
-            className="flex flex-wrap gap-2 rounded-lg"
+            className="flex flex-wrap items-center justify-center gap-2 rounded-lg"
             initial="hidden"
             animate="visible"
             variants={{
@@ -72,5 +72,3 @@ export function AISuggestions({
     </AnimatePresence>
   );
 }
-
-

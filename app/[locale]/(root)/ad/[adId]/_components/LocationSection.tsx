@@ -52,11 +52,15 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
       lat:
         typeof ad.location === "object" && ad.location?.coordinates
           ? ad.location.coordinates[1] || 25.1972
-          : 25.1972,
+          : typeof ad.address === "object" && ad.address?.coordinates
+            ? ad.address.coordinates[1] || 25.1972
+            : 25.1972,
       lng:
         typeof ad.location === "object" && ad.location?.coordinates
           ? ad.location.coordinates[0] || 55.2744
-          : 55.2744,
+          : typeof ad.address === "object" && ad.address?.coordinates
+            ? ad.address.coordinates[0] || 55.2744
+            : 55.2744,
     },
   };
 
@@ -146,7 +150,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
       setError(
         `Failed to initialize map: ${
           err instanceof Error ? err.message : "Unknown error"
-        }`
+        }`,
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

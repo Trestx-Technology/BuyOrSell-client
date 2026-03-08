@@ -50,8 +50,8 @@ export function FormSummaryItem({
   }
 
   const labelClassName = error
-    ? "text-red-500 dark:text-red-400 shrink-0 pr-2"
-    : "text-gray-500 dark:text-gray-400 shrink-0 pr-2";
+    ? "text-red-500 dark:text-red-400 truncate flex-1 pr-2"
+    : "text-gray-500 dark:text-gray-400 truncate flex-1 pr-2";
   const borderClassName = error
     ? "border-b border-red-100 dark:border-red-900/30 pb-2"
     : "border-b border-gray-100 dark:border-gray-800 pb-2";
@@ -68,12 +68,14 @@ export function FormSummaryItem({
     return (
       <div
         className={cn(
-          `flex justify-between items-center ${borderClassName}`,
+          `flex justify-between items-center gap-3 ${borderClassName}`,
           className,
         )}
       >
-        <span className={labelClassName}>{label}</span>
-        <div className="flex items-center gap-2">
+        <span className={labelClassName} title={label}>
+          {label}
+        </span>
+        <div className="flex items-center gap-2 shrink-0">
           {firstImgUrl && (
             <div className="w-8 h-8 relative rounded overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 shrink-0">
               <img
@@ -139,11 +141,13 @@ export function FormSummaryItem({
     return (
       <div
         className={cn(
-          `flex justify-between items-center ${borderClassName}`,
+          `flex justify-between items-center gap-3 ${borderClassName}`,
           className,
         )}
       >
-        <span className={labelClassName}>{label}</span>
+        <span className={labelClassName} title={label}>
+          {label}
+        </span>
         <div className="flex items-center justify-end gap-2 flex-1 min-w-0">
           <span
             className="font-medium text-gray-900 dark:text-white truncate text-right text-xs sm:text-sm"
@@ -186,9 +190,19 @@ export function FormSummaryItem({
   // Handle Single value (objects or primitives)
   let displayValue = "";
   if (type === "price") {
-    displayValue = String(value).includes("AED")
-      ? String(value)
-      : `${value} AED`;
+    const amount =
+      typeof value === "number" ? value : parseFloat(String(value));
+    if (!isNaN(amount)) {
+      displayValue = `${new Intl.NumberFormat("en-AE", {
+        style: "decimal",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      }).format(amount)} AED`;
+    } else {
+      displayValue = String(value).includes("AED")
+        ? String(value)
+        : `${value} AED`;
+    }
   } else if (
     type === "location" &&
     typeof value === "object" &&
@@ -205,11 +219,16 @@ export function FormSummaryItem({
 
   return (
     <div
-      className={cn(`flex justify-between gap-4 ${borderClassName}`, className)}
+      className={cn(
+        `flex justify-between gap-3 items-start ${borderClassName}`,
+        className,
+      )}
     >
-      <span className={labelClassName.replace(" pr-2", "")}>{label}</span>
+      <span className={labelClassName} title={label}>
+        {label}
+      </span>
       <span
-        className="font-medium text-gray-900 dark:text-white truncate max-w-[150px] text-right"
+        className="font-medium text-gray-900 dark:text-white truncate flex-1 text-right"
         title={displayValue}
       >
         {displayValue}

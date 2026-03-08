@@ -26,6 +26,7 @@ import { OrganizationFormSkeleton } from "../../_components/OrganizationFormSkel
 import { OrganizationForm } from "../../_components/OrganizationForm";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { PageBannerCarousel } from "@/components/global/page-banner-carousel";
 
 const EditOrganizationPage = () => {
   const router = useRouter();
@@ -189,7 +190,6 @@ const EditOrganizationPage = () => {
     );
   }
 
-
   if (organization.owner._id !== session.user?._id) {
     toast.error("You are not authorized to edit this organization");
     router.push(localePath("/organizations/my"));
@@ -223,6 +223,10 @@ const EditOrganizationPage = () => {
         >
           {t.organizations.form.updateDetails}
         </Typography>
+      </div>
+
+      <div className="px-4 mb-6">
+        <PageBannerCarousel slug="organization-edit-page" />
       </div>
 
       <div className="px-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -264,10 +268,10 @@ const EditOrganizationPage = () => {
               </div>
             ) : organizations.length === 0 ? (
               <div className="text-center py-8">
-                  <Building2 className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-2" />
+                <Building2 className="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-2" />
                 <Typography
                   variant="xs-regular-inter"
-                    className="text-xs text-[#8A8A8A] dark:text-gray-400"
+                  className="text-xs text-[#8A8A8A] dark:text-gray-400"
                 >
                   {t.organizations.form.noOrganizationsYet}
                 </Typography>
@@ -288,7 +292,7 @@ const EditOrganizationPage = () => {
                         className="w-10 h-10 object-cover rounded flex-shrink-0"
                       />
                     ) : (
-                        <div className="w-10 h-10 bg-purple/20 dark:bg-purple/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 bg-purple/20 dark:bg-purple/10 rounded-full flex items-center justify-center flex-shrink-0">
                         <Typography
                           variant="xs-semibold-inter"
                           className="text-purple font-semibold text-xs"
@@ -321,7 +325,7 @@ const EditOrganizationPage = () => {
                     <Button variant="outline" size="sm" className="w-full mt-2">
                       {t.organizations.form.viewAllCount.replace(
                         "{count}",
-                        organizations.length.toString()
+                        organizations.length.toString(),
                       )}
                     </Button>
                   </Link>

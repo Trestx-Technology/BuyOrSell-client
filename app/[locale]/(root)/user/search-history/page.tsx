@@ -43,7 +43,7 @@ export default function SearchHistoryPage() {
 
   const handleSelectSearch = (item: SearchHistoryItem) => {
     const { searchTerm, categoryId, categoryName } = item;
-    
+
     // Log search history
     saveSearchTerm({
       searchTerm,
@@ -53,7 +53,7 @@ export default function SearchHistoryPage() {
 
     // Redirect to category search
     if (categoryName) {
-      router.push(`/categories/${slugify(categoryName)}`);
+      router.push(`/${slugify(categoryName)}`);
     } else {
       router.push(`/ad?query=${encodeURIComponent(searchTerm)}`);
     }

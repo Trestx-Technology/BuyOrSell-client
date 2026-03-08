@@ -26,12 +26,16 @@ import {
 } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { ChatInit } from "@/components/global/chat-init";
+import { getLocationDisplay } from "@/utils/get-location-display";
+import { useLocale } from "@/hooks/useLocale";
 
 interface ProductInfoCardMobileProps {
   ad: AD;
 }
 
-const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({ ad }) => {
+const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({
+  ad,
+}) => {
   const router = useRouter();
   const { session, isAuthenticated } = useAuthStore((state) => state);
 
@@ -47,10 +51,9 @@ const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({ ad }) => 
   }, [session.user?._id, ad.owner, ad.organization?.owner]);
 
   // Extract location
-  const location =
-    typeof ad.location === "string"
-      ? ad.location
-      : ad.location?.city || ad.address?.city || "Location not specified";
+  const actualLocation = ad.address;
+  const { locale } = useLocale();
+  const location = getLocationDisplay(actualLocation, locale);
 
   // Format posted time
   const postedTime = formatDistanceToNow(new Date(ad.createdAt), {
@@ -69,8 +72,6 @@ const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({ ad }) => 
       console.log("Phone number not available");
     }
   };
-
-
 
   const handleWhatsApp = () => {
     if (ad.contactPhoneNumber) {

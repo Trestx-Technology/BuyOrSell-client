@@ -20,7 +20,7 @@ import ProductInfoCardMobile from "./ProductInfoCardMobile";
 import AdDetailSkeleton from "./AdDetailSkeleton";
 import { ErrorCard } from "@/components/ui/error-card";
 import { useLocale } from "@/hooks/useLocale";
-import AdCard from "../../../categories/_components/AdCard";
+import AdCard from "../../../(categories)/_components/AdCard";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
 

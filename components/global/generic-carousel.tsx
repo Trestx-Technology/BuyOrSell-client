@@ -57,15 +57,11 @@ export function GenericCarousel({
   const totalItems = banners?.length || React.Children.count(children) || 0;
 
   const previousSlide = React.useCallback(() => {
-    setCurrentSlide((curr) =>
-      curr === 0 ? (totalItems || 1) - 1 : curr - 1
-    );
+    setCurrentSlide((curr) => (curr === 0 ? (totalItems || 1) - 1 : curr - 1));
   }, [totalItems]);
 
   const nextSlide = React.useCallback(() => {
-    setCurrentSlide((curr) =>
-      curr === (totalItems || 1) - 1 ? 0 : curr + 1
-    );
+    setCurrentSlide((curr) => (curr === (totalItems || 1) - 1 ? 0 : curr + 1));
   }, [totalItems]);
 
   // Loading state for smooth UX
@@ -102,7 +98,15 @@ export function GenericCarousel({
       key={banner.id}
       className={`${height} w-full flex bg-grey-100 flex-col shrink-0 relative`}
     >
-      <BannerCTAWrapper banner={{ callToAction: banner.callToAction, image: typeof banner.image === 'string' ? banner.image : (banner.image as any).src }}>
+      <BannerCTAWrapper
+        banner={{
+          callToAction: [banner.callToAction],
+          image:
+            typeof banner.image === "string"
+              ? banner.image
+              : (banner.image as any).src,
+        }}
+      >
         <Image
           src={banner.image}
           alt={banner.alt || banner.callToAction}
@@ -129,7 +133,7 @@ export function GenericCarousel({
             {Array.from({ length: Math.min(totalItems || 3, 3) }).map(
               (_, index) => (
                 <div key={index} className="h-2 w-2 rounded-full bg-gray-300" />
-              )
+              ),
             )}
           </div>
         )}
@@ -176,7 +180,10 @@ export function GenericCarousel({
     }
   };
 
-  if ((!banners || banners.length === 0) && (!children || React.Children.count(children) === 0)) {
+  if (
+    (!banners || banners.length === 0) &&
+    (!children || React.Children.count(children) === 0)
+  ) {
     return null;
   }
 
@@ -202,10 +209,10 @@ export function GenericCarousel({
           {banners
             ? banners.map((banner, index) => renderBanner(banner))
             : React.Children.map(children, (child) => (
-              <div className={`${height} w-full shrink-0 relative h-full`}>
-                {child}
-              </div>
-            ))}
+                <div className={`${height} w-full shrink-0 relative h-full`}>
+                  {child}
+                </div>
+              ))}
         </div>
 
         {/* Dot Indicators */}
@@ -233,7 +240,7 @@ export function GenericCarousel({
               className={cn(
                 "hidden md:flex absolute left-[7%] bottom-1/2 bg-dark-blue text-white rounded-full size-8 items-center justify-center border-grey-blue hover:bg-purple hover:text-white",
                 buttonClassName,
-                prevButtonClassName
+                prevButtonClassName,
               )}
               size="icon"
               onClick={previousSlide}
@@ -245,7 +252,7 @@ export function GenericCarousel({
               className={cn(
                 "hidden md:flex bg-dark-blue text-white absolute right-[7%] bottom-1/2 rounded-full size-8 items-center justify-center border-grey-blue hover:bg-purple hover:text-white",
                 buttonClassName,
-                nextButtonClassName
+                nextButtonClassName,
               )}
               size="icon"
               onClick={nextSlide}

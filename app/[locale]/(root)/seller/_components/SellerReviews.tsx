@@ -33,10 +33,7 @@ interface SellerReviewsProps {
   organization?: Organization;
 }
 
-const SellerReviews: React.FC<SellerReviewsProps> = ({
-  sellerId,
-  organization,
-}) => {
+const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
   const { t, locale } = useLocale();
   const [sortBy, setSortBy] = useState<
     "latest" | "oldest" | "highest" | "lowest"
@@ -75,8 +72,23 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({
   // Extract reviews from response
   const reviews = useMemo(() => {
     if (!reviewsResponse) return [];
-    // Handle structured response object
-    return reviewsResponse.data || [];
+
+    // Handle structured response object where data might be nested
+    const responseData = reviewsResponse.data;
+    if (Array.isArray(responseData)) {
+      return responseData as Review[];
+    }
+    if (
+      responseData &&
+      typeof responseData === "object" &&
+      "data" in responseData
+    ) {
+      const nestedData = (responseData as { data: unknown }).data;
+      if (Array.isArray(nestedData)) {
+        return nestedData as Review[];
+      }
+    }
+    return [];
   }, [reviewsResponse]);
 
   // Transform reviews and calculate review data

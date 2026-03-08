@@ -11,6 +11,7 @@ import {
 import { UI_ICONS } from "@/constants/icons";
 import { cn } from "@/lib/utils";
 import { isColor } from "@/utils/utils";
+import { SafeImage } from "../ui/safe-image";
 
 export interface Specification {
   name: string;
@@ -53,7 +54,7 @@ export function SpecificationsDisplay({
     <div
       className={cn(
         `flex items-center justify-start flex-wrap ${className}`,
-        truncate && "max-w-sm"
+        truncate && "max-w-sm",
       )}
     >
       {/* Show visible specifications */}
@@ -62,7 +63,7 @@ export function SpecificationsDisplay({
           key={spec.name}
           className={cn(
             `flex items-center gap-1 w-fit whitespace-nowrap ${itemClassName}`,
-            truncate && "w-full truncate"
+            truncate && "w-full truncate",
           )}
         >
           <div className="flex-shrink-0 flex items-center justify-center w-[22px] h-[22px]">
@@ -74,7 +75,7 @@ export function SpecificationsDisplay({
                   title={`${spec.name}: ${spec.icon}`}
                 />
               ) : (
-                <Image
+                <SafeImage
                   src={spec.icon || UI_ICONS.fallback}
                   alt={spec.name}
                   width={22}
@@ -98,7 +99,7 @@ export function SpecificationsDisplay({
             variant="body-small"
             className={cn(
               "text-black dark:text-gray-200 text-xs",
-              truncate && "max-w-lg truncate"
+              truncate && "max-w-lg truncate",
             )}
           >
             {isColor(spec.value) ? (

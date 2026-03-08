@@ -3,8 +3,10 @@
 import { useState, useMemo } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "@/hooks/useLocale";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+
 import { useCategoryById } from "@/hooks/useCategories";
 import { useCreateAd } from "@/hooks/useAds";
 import { useMyOrganization } from "@/hooks/useOrganizations";
@@ -269,6 +271,31 @@ export default function LeafCategoryContent() {
         onLocationSelect={handleLocationSelect}
       />
     );
+  };
+
+  const onFormError = (errors: FieldErrors<FormValues>) => {
+    const errorFields = Object.keys(errors);
+    if (errorFields.length > 0) {
+      const firstFieldName = errorFields[0];
+      const error = errors[firstFieldName as keyof typeof errors];
+
+      let message = "";
+      if (error && "message" in error && typeof error.message === "string") {
+        message = error.message;
+      } else if (error && typeof error === "object") {
+        const subErrors = Object.values(error);
+        if (subErrors.length > 0) {
+          const subError = subErrors[0] as any;
+          if (subError?.message) {
+            message = subError.message;
+          }
+        }
+      }
+
+      if (message) {
+        toast.error(message);
+      }
+    }
   };
 
   // Handle form submission
@@ -817,8 +844,6 @@ export default function LeafCategoryContent() {
                 />
               </FormField>
 
-
-
               {/* Dynamic Fields from Category */}
               {category.fields && category.fields.length > 0 && (
                 <div className="space-y-3">
@@ -1071,7 +1096,7 @@ export default function LeafCategoryContent() {
                 </Button>
                 <Button
                   className="flex-1 bg-[#7052FB] hover:bg-[#5b3fd4] text-white py-6 text-lg font-medium rounded-full shadow-lg shadow-[#7052FB]/20 transition-all duration-300 hover:scale-[1.02]"
-                  onClick={handleSubmit(onSubmit)}
+                  onClick={handleSubmit(onSubmit, onFormError)}
                   disabled={createAdMutation.isPending}
                 >
                   {createAdMutation.isPending ? (
@@ -1182,7 +1207,7 @@ export default function LeafCategoryContent() {
             </Button>
             <Button
               className="flex-[2] bg-[#7052FB] hover:bg-[#5b3fd4] text-white py-6 rounded-full shadow-lg shadow-[#7052FB]/20"
-              onClick={handleSubmit(onSubmit)}
+              onClick={handleSubmit(onSubmit, onFormError)}
               disabled={createAdMutation.isPending}
             >
               {createAdMutation.isPending ? "Publishing..." : "Post Ad Now"}

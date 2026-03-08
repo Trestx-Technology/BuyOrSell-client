@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { PopularCategory } from "@/interfaces/home.types";
 import { useLocale } from "@/hooks/useLocale";
 import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
+import { slugify } from "@/utils/slug-utils";
 
 interface CategoryCard {
   id: number;
@@ -54,7 +55,10 @@ const PopularCategories = ({
 }: PopularCategoriesProps) => {
   const { t, locale } = useLocale();
   const [showAllCategories, setShowAllCategories] = useState(false);
-  const { ref, isVisible } = useIntersectionObserver({ threshold: 0.1, rootMargin: "-50px" });
+  const { ref, isVisible } = useIntersectionObserver({
+    threshold: 0.1,
+    rootMargin: "-50px",
+  });
 
   // Mobile breakpoint at 500px
   const isMobile = useMediaQuery("(max-width: 500px)");
@@ -82,9 +86,9 @@ const PopularCategories = ({
           activeAds: `${activeAdsCount.toLocaleString()} ${
             t.home.popularCategories.activeAds
           }`,
-          href: `/categories/${category.name}`,
+          href: `/${slugify(category.name)}`,
         };
-      }
+      },
     ) || [];
 
   // Get categories to display based on mobile state and toggle
@@ -105,12 +109,10 @@ const PopularCategories = ({
   return (
     <section
       ref={ref as any}
-      className={`w-full max-w-[1180px] px-4 xl:px-0 mx-auto mt-8 sm:mt-5 reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
+      className={`w-full max-w-[1180px] px-4 xl:px-0 mx-auto mt-8 sm:mt-5 reveal-on-scroll ${isVisible ? "is-visible" : ""}`}
     >
       {/* Section Title */}
-      <h2
-        className="text-[18px] font-medium text-[#1D2939] dark:text-white mb-3 font-poppins"
-      >
+      <h2 className="text-[18px] font-medium text-[#1D2939] dark:text-white mb-3 font-poppins">
         {t.home.popularCategories.title}
       </h2>
 
@@ -118,7 +120,7 @@ const PopularCategories = ({
       <div
         className={cn(
           "grid grid-cols-3 md:grid-cols-3 xl:grid-cols-5 gap-2",
-          showAllCategories && "overflow-y-auto"
+          showAllCategories && "overflow-y-auto",
         )}
       >
         {isLoading || !popularCategories || popularCategories.length === 0
@@ -130,7 +132,7 @@ const PopularCategories = ({
             displayCategories.map((category, index) => (
               <div
                 key={category.id}
-                className={`transition-all duration-300 ease-out reveal-fade-in ${isVisible ? 'is-visible' : ''}`}
+                className={`transition-all duration-300 ease-out reveal-fade-in ${isVisible ? "is-visible" : ""}`}
                 style={{
                   transitionDelay: `${index * 50}ms`,
                   willChange: "transform, opacity",

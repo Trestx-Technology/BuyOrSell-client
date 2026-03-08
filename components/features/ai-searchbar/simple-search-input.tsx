@@ -49,7 +49,7 @@ export function SimpleSearchInput({
     (value) => {
       setDebouncedQuery(value);
     },
-    500
+    500,
   );
 
   // Fetch keyword search results with debounced query
@@ -73,15 +73,19 @@ export function SimpleSearchInput({
       setDebouncedQuery("");
       setSelectedIndex(-1);
     },
-    !!showDropdown
+    !!showDropdown,
   );
 
   const handleSearch = (relatedCategories: string[]) => {
     if (relatedCategories.length > 0) {
       if (relatedCategories[0] === "Jobs") {
-        router.push(`/jobs/listing/${relatedCategories.map((category) => slugify(category)).join("/")}`);
+        router.push(
+          `/jobs/listing/${relatedCategories.map((category) => slugify(category)).join("/")}`,
+        );
       } else {
-        router.push(`/categories/${relatedCategories.map((category) => slugify(category)).join("/")}`);
+        router.push(
+          `/${relatedCategories.map((category) => slugify(category)).join("/")}`,
+        );
       }
     }
   };
@@ -115,7 +119,7 @@ export function SimpleSearchInput({
       event.preventDefault();
       if (keywordResults.length > 0) {
         setSelectedIndex((prev) =>
-          prev < keywordResults.length - 1 ? prev + 1 : prev
+          prev < keywordResults.length - 1 ? prev + 1 : prev,
         );
       }
     } else if (event.key === "ArrowUp") {
@@ -150,36 +154,37 @@ export function SimpleSearchInput({
         className="hidden lg:block h-6 w-px bg-black/10"
         aria-hidden="true"
       />
-      <div className="relative flex-1" ref={dropdownRef}>
-        <div className="relative flex items-center">
-          <Input
-            onRightIconClick={onTrigger}
-            leftIcon={<SearchIcon className="size-5 text-gray-400 -ml-2" />}
-            rightIcon={
-              <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 text-[10px] text-gray-400 font-sans pointer-events-none">
-                  <kbd className="font-sans">Ctrl</kbd>
-                  <span className="text-[8px] opacity-60">+</span>
-                  <kbd className="font-sans">J</kbd>
-                </div>
-                <Image
-                  src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/ai-bg-white.svg"
-                  width={20}
-                  height={20}
-                  alt="AI Logo"
-                  className="cursor-pointer"
-                />
+      <div
+        className="relative flex items-center h-full flex-1"
+        ref={dropdownRef}
+      >
+        <Input
+          onRightIconClick={onTrigger}
+          leftIcon={<SearchIcon className="size-5 text-gray-400 -ml-2" />}
+          rightIcon={
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 text-[10px] text-gray-400 font-sans pointer-events-none">
+                <kbd className="font-sans">Ctrl</kbd>
+                <span className="text-[8px] opacity-60">+</span>
+                <kbd className="font-sans">J</kbd>
               </div>
-            }
-            type="text"
-            inputSize="sm"
-            placeholder="Search anything"
-            value={localSearchQuery}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            className="pl-8 pr-20 flex-1 block w-full bg-transparent text-xs placeholder-gray-500 focus:outline-none focus:ring-0 border-0"
-          />
-        </div>
+              <Image
+                src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/ai-bg-white.svg"
+                width={20}
+                height={20}
+                alt="AI Logo"
+                className="cursor-pointer"
+              />
+            </div>
+          }
+          type="text"
+          inputSize="sm"
+          placeholder="Search anything"
+          value={localSearchQuery}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          className="pl-8 pr-20 flex-1 block w-full h-full bg-transparent text-xs placeholder-gray-500 focus:outline-none focus:ring-0 border-transparent shadow-none rounded-none"
+        />
 
         {showDropdown && (
           <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 max-h-96 overflow-y-auto z-50">

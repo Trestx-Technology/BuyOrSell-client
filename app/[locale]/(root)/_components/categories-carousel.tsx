@@ -8,13 +8,17 @@ import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import { HomeCategory } from "@/interfaces/home.types";
 import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
+import { slugify } from "@/utils/slug-utils";
 
 interface CategoriesCarouselProps {
   categoryList?: HomeCategory[];
   isLoading?: boolean;
 }
 
-const CategoriesCarousel = ({ categoryList = [], isLoading = false }: CategoriesCarouselProps) => {
+const CategoriesCarousel = ({
+  categoryList = [],
+  isLoading = false,
+}: CategoriesCarouselProps) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     slidesToScroll: 1,
     containScroll: "trimSnaps",
@@ -30,17 +34,21 @@ const CategoriesCarousel = ({ categoryList = [], isLoading = false }: Categories
 
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(false);
-  const { ref, isVisible } = useIntersectionObserver({ threshold: 0.1, rootMargin: "-30px" });
+  const { ref, isVisible } = useIntersectionObserver({
+    threshold: 0.1,
+    rootMargin: "-30px",
+  });
 
   // Transform API data to match expected format using API data directly
-  const categoryData = categoryList?.map((category: HomeCategory, index: number) => {
-    return {
-      id: index + 1,
-      name: category.name,
-      icon: category.icon,
-      description: category.desc || `${category.name} category`,
-    };
-  }) || [];
+  const categoryData =
+    categoryList?.map((category: HomeCategory, index: number) => {
+      return {
+        id: index + 1,
+        name: category.name,
+        icon: category.icon,
+        description: category.desc || `${category.name} category`,
+      };
+    }) || [];
 
   // Check scroll availability
   React.useEffect(() => {
@@ -60,7 +68,6 @@ const CategoriesCarousel = ({ categoryList = [], isLoading = false }: Categories
       emblaApi.off("reInit", onSelect);
     };
   }, [emblaApi]);
-
 
   const scrollPrev = React.useCallback(() => {
     if (emblaApi && canScrollPrev) emblaApi.scrollPrev();
@@ -88,7 +95,7 @@ const CategoriesCarousel = ({ categoryList = [], isLoading = false }: Categories
   return (
     <section
       ref={ref as any}
-      className={`hidden sm:block w-full max-w-[1180px] mx-auto mt-5 md:mt-0 reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
+      className={`hidden sm:block w-full max-w-[1180px] mx-auto mt-5 md:mt-0 reveal-on-scroll ${isVisible ? "is-visible" : ""}`}
     >
       <div className="relative">
         {/* Left Navigation Arrow - Only show when can scroll prev */}
@@ -109,19 +116,19 @@ const CategoriesCarousel = ({ categoryList = [], isLoading = false }: Categories
           {isLoading || !categoryList || categoryList.length === 0 ? (
             <LoadingSkeleton />
           ) : (
-              <div
-                className={`flex reveal-fade-in ${isVisible ? 'is-visible' : ''}`}
+            <div
+              className={`flex reveal-fade-in ${isVisible ? "is-visible" : ""}`}
             >
-                {categoryData.map((category, index) => (
-                  <div
+              {categoryData.map((category, index) => (
+                <div
                   key={category.id}
-                    className={`flex flex-col items-center gap-3 min-w-[calc(100%/4)] sm:min-w-[calc(100%/5)] md:min-w-[calc(100%/6)] lg:min-w-[calc(100%/7)] xl:min-w-[calc(100%/7)] cursor-pointer group relative transition-all duration-300 transform hover:scale-105`}
-                    style={{
-                      transitionDelay: `${index * 50}ms`
+                  className={`flex flex-col items-center gap-3 min-w-[calc(100%/4)] sm:min-w-[calc(100%/5)] md:min-w-[calc(100%/6)] lg:min-w-[calc(100%/7)] xl:min-w-[calc(100%/7)] cursor-pointer group relative transition-all duration-300 transform hover:scale-105`}
+                  style={{
+                    transitionDelay: `${index * 50}ms`,
                   }}
                 >
                   <Link
-                    href={`/categories/${category.name}`}
+                    href={`/${slugify(category.name)}`}
                     className="flex flex-col items-center gap-3"
                   >
                     <div className="rounded-full flex items-center justify-center size-[70px] bg-[#FAFAFC] border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-110 group-hover:border-purple-200 group-hover:bg-purple-50">
@@ -142,9 +149,9 @@ const CategoriesCarousel = ({ categoryList = [], isLoading = false }: Categories
                       {category.name}
                     </span>
                   </Link>
-                  </div>
+                </div>
               ))}
-              </div>
+            </div>
           )}
         </div>
 
