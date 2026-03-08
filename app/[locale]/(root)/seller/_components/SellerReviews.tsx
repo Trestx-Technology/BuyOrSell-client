@@ -75,8 +75,16 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({
   // Extract reviews from response
   const reviews = useMemo(() => {
     if (!reviewsResponse) return [];
-    // Handle structured response object
-    return reviewsResponse.data || [];
+
+    // Handle structured response object where data might be nested
+    const responseData = reviewsResponse.data;
+    if (Array.isArray(responseData)) {
+      return responseData;
+    }
+    if (responseData && Array.isArray((responseData as any).data)) {
+      return (responseData as any).data;
+    }
+    return [];
   }, [reviewsResponse]);
 
   // Transform reviews and calculate review data
