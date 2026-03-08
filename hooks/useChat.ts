@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { ChatService } from "@/lib/firebase/chat.service";
@@ -30,6 +30,7 @@ export function useChat() {
   }>({});
   const [isOtherUserOnline, setIsOtherUserOnline] = useState(false);
   const { mutate: sendNotification } = useSendNotification();
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const urlChatType = searchParams.get("type") as ChatType | null;
   const urlChatId = searchParams.get("chatId");
@@ -120,7 +121,12 @@ export function useChat() {
   // Auto-mark chat as read when viewing it
   useEffect(() => {
     const userId = session.user?._id;
-    if (urlChatId && userId && currentChatData?.unreadCount?.[userId] && currentChatData.unreadCount[userId] > 0) {
+    if (
+      urlChatId &&
+      userId &&
+      currentChatData?.unreadCount?.[userId] &&
+      currentChatData.unreadCount[userId] > 0
+    ) {
       ChatService.markChatAsRead(urlChatId, userId).catch(console.error);
     }
   }, [urlChatId, currentChatData?.unreadCount, session.user?._id]);
@@ -300,6 +306,7 @@ export function useChat() {
       });
       if (type === "text") setMessage("");
       ChatService.setTypingStatus(currentChatData.id, session.user._id, false);
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
       if (!isOtherUserOnline) {
         const otherId = currentChatData.participants?.find(
@@ -341,12 +348,44 @@ export function useChat() {
     handleSendMessage,
     handleMessageChange: (val: string) => {
       setMessage(val);
-      if (session.user?._id && currentChatData)
-        ChatService.setTypingStatus(
-          currentChatData.id,
-          session.user._id,
-          !!val.trim(),
-        );
+      if (session.user?._id && currentChatData) {
+        const isTyping = !!val.trim();
+
+        // Clear existing timeout
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
+
+        // Set typing to true immediately if we have text
+        if (isTyping) {
+          // Check if we haven't already marked as typing (using local typingStatus to avoid redundant DB calls)
+          if (!typingStatus[session.user._id]) {
+            ChatService.setTypingStatus(
+              currentChatData.id,
+              session.user._id,
+              true,
+            );
+          }
+
+          // Set a timeout to clear typing status after user stops typing
+          typingTimeoutRef.current = setTimeout(() => {
+            if (session.user?._id && currentChatData?.id) {
+              ChatService.setTypingStatus(
+                currentChatData.id,
+                session.user._id,
+                false,
+              );
+            }
+          }, 2000); // 2 seconds delay
+        } else {
+          // If input is empty, clear typing status immediately
+          ChatService.setTypingStatus(
+            currentChatData.id,
+            session.user._id,
+            false,
+          );
+        }
+      }
     },
     handleAIMessageGenerated: setMessage,
     handleBackToSidebar: () => router.push(localePath("/chat")),
