@@ -123,6 +123,8 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
         isPremium
           ? "bg-gray-950 border-purple-500/20 shadow-2xl shadow-purple-500/10 text-white"
           : "bg-white border-gray-100 hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/5",
+        !subscription.isActive &&
+          "grayscale opacity-70 border-gray-200 dark:border-gray-800",
       )}
     >
       {/* Premium Glow */}
@@ -317,8 +319,8 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
       </div>
 
       {/* CTA Button */}
-      <div className="mt-auto pt-4 border-t border-dashed border-gray-200 dark:border-gray-800">
-        {subscription.isActive && !subscription.cancelAtPeriodEnd ? (
+      {subscription.isActive && !subscription.cancelAtPeriodEnd && (
+        <div className="mt-auto pt-4 border-t border-dashed border-gray-200 dark:border-gray-800">
           <ResponsiveDialogDrawer
             open={isDialogOpen}
             onOpenChange={setIsDialogOpen}
@@ -356,19 +358,8 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               </Button>
             </div>
           </ResponsiveDialogDrawer>
-        ) : (
-          <Button
-            variant="outline"
-            className={cn(
-              "w-full h-12 rounded-2xl font-bold",
-              isPremium ? "border-white/10 text-white" : "",
-            )}
-            onClick={() => router.push("/plans")}
-          >
-            Renew Now
-          </Button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
