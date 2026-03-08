@@ -26,7 +26,7 @@ interface PlanCardProps {
     description: string;
     features: string[];
     buttonText: string;
-    isPopular: boolean;
+    isPopular?: boolean;
     isPremium: boolean;
     isCurrent?: boolean;
     isDefault?: boolean;
@@ -72,7 +72,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
       activateFree(undefined, {
         onSuccess: () => {
           toast.success("Free plan activated successfully!");
-          router.push(`/${locale}/profile`);
+          router.push(`/${locale}/my-subscriptions`);
         },
         onError: (error: any) => {
           toast.error(
