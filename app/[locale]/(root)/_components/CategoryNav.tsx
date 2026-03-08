@@ -493,7 +493,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
 // ============================================================================
 
 const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
-  const { locale, localePath } = useLocale();
+  const { t, locale, localePath } = useLocale();
   const router = useRouter();
   const pathname = usePathname();
 
