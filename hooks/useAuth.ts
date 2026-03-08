@@ -61,7 +61,5 @@ export const useSocialLogin = () => {
 };
 
 export const useIsAuthenticated = () => {
-  const accessToken = useAuthStore((state) => state.session.accessToken);
-  const userSession = useAuthStore((state) => state.session.user);
-  return !!accessToken && !!userSession;
+  return useAuthStore((state) => state.isAuthenticated);
 };
