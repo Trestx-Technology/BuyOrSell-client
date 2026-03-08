@@ -62,7 +62,7 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
 
   return (
     <main className="min-h-[600px] relative flex flex-col bg-white dark:bg-gray-950">
-      <div className="sticky top-0 z-50 border-b dark:border-gray-800 flex flex-col bg-white dark:bg-gray-900 items-center">
+      <div className="sticky top-0 z-50 flex flex-col bg-white dark:bg-gray-900 items-center">
         <Navbar className={navbarClassName} />
         <CategoryNav className={categoryNavClassName} />
       </div>

@@ -3,7 +3,7 @@
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, Bell,  } from "lucide-react";
+import { ChevronDown, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import EmirateSelector from "./EmirateSelector";
@@ -47,84 +47,84 @@ const NavbarContent = ({ className }: { className?: string }) => {
   };
 
   return (
-      <nav
-        className={cn(
-          "flex container-1080 gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between overflow-visible",
-          locale === "ar" ? "flex-row-reverse" : "flex-row",
-          className
-        )}
-      >
-        <div className="flex items-center gap-2">
-          {/*-------------- Side Menu for mobile devices---------- */}
-          <SideMenu
-            user={
-              user
-                ? {
-                    name: `${user.firstName} ${user.lastName}`,
-                    email: user.email,
-                    avatar: user.image || "/images/ai-prompt/add-image.png",
-                    isVerified: user.emailVerified,
-                  }
-                : undefined
-            }
-            trigger={
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                iconPosition="center"
-                className="bg-[#F2F4F7] rounded-full size-8 border-[#E7E7E7] hover:bg-transparent md:hidden"
-                icon={
-                  <Image
-                    src={ICONS.ui.hamburger}
-                    width={18}
-                    height={18}
-                    alt="Hamburger Menu"
-                  />
+    <nav
+      className={cn(
+        "flex container-1080 gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between overflow-visible",
+        locale === "ar" ? "flex-row-reverse" : "flex-row",
+        className,
+      )}
+    >
+      <div className="flex items-center gap-2">
+        {/*-------------- Side Menu for mobile devices---------- */}
+        <SideMenu
+          user={
+            user
+              ? {
+                  name: `${user.firstName} ${user.lastName}`,
+                  email: user.email,
+                  avatar: user.image || "/images/ai-prompt/add-image.png",
+                  isVerified: user.emailVerified,
                 }
-              />
-            }
-            isLoggedIn={isAuthenticated}
-          />
-
-          {/*-------------- Logo and Brand Name---------- */}
-          <Link href="/" className="flex items-center">
-            <Image
-              src={ICONS.logo.main}
-              alt="BuyOrSell Logo"
-            width={150}
-              height={49}
+              : undefined
+          }
+          trigger={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              iconPosition="center"
+              className="bg-[#F2F4F7] rounded-full size-8 border-[#E7E7E7] hover:bg-transparent md:hidden"
+              icon={
+                <Image
+                  src={ICONS.ui.hamburger}
+                  width={18}
+                  height={18}
+                  alt="Hamburger Menu"
+                />
+              }
             />
-          </Link>
-        </div>
+          }
+          isLoggedIn={isAuthenticated}
+        />
 
-        {/*-------------- Center Section - Location and Search---------- */}
-        <div className="flex items-start gap-2 md:flex-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            icon={<Bell className="size-5 mx-1" />}
-            iconPosition="center"
-            className="md:hidden"
+        {/*-------------- Logo and Brand Name---------- */}
+        <Link href="/" className="flex items-center">
+          <Image
+            src={ICONS.logo.main}
+            alt="BuyOrSell Logo"
+            width={150}
+            height={49}
           />
+        </Link>
+      </div>
 
-          {/*---------- Location Selector for desktop devices---------- */}
+      {/*-------------- Center Section - Location and Search---------- */}
+      <div className="flex items-start gap-2 md:flex-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          icon={<Bell className="size-5 mx-1" />}
+          iconPosition="center"
+          className="md:hidden"
+        />
+
+        {/*---------- Location Selector for desktop devices---------- */}
         {/*---------- Location Selector for desktop devices---------- */}
         <EmirateSelector />
 
         <div className="hidden md:flex flex-1 relative group">
-            <SearchAnimated />
+          <SearchAnimated />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 text-[10px] text-gray-400 pointer-events-none hidden lg:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <kbd className="font-sans">Ctrl</kbd>
             <span>+</span>
             <kbd className="font-sans">J</kbd>
           </div>
-          </div>
         </div>
+      </div>
 
-        {/*-------------- Right Section - Action Buttons---------- */}
-        <div className="hidden md:flex items-center gap-5 ml-2">
-          {/*-------------- User Menu---------- */}
-          {isAuthenticated && user ? (
+      {/*-------------- Right Section - Action Buttons---------- */}
+      <div className="hidden md:flex items-center gap-5 ml-2">
+        {/*-------------- User Menu---------- */}
+        {isAuthenticated && user ? (
           <div className="flex items-center gap-3">
             {/* <AITokenBalance /> */}
             <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
@@ -156,7 +156,10 @@ const NavbarContent = ({ className }: { className?: string }) => {
                   </div>
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-fit p-0 rounded-xl border-none shadow-none" align="end">
+              <PopoverContent
+                className="w-fit p-0 rounded-xl border-none shadow-none"
+                align="end"
+              >
                 <UnifiedProfileMenu
                   onLogout={handleLogout}
                   onClose={() => setPopoverOpen(false)}
@@ -164,35 +167,35 @@ const NavbarContent = ({ className }: { className?: string }) => {
               </PopoverContent>
             </Popover>
           </div>
-          ) : (
-            <Link href="/methods" className="text-xs font-medium text-purple">
-              {t.home.navbar.logIn}
-            </Link>
-          )}
+        ) : (
+          <Link href="/methods" className="text-xs font-medium text-purple">
+            {t.home.navbar.logIn}
+          </Link>
+        )}
 
-          {/*-------------- Place Ad Button---------- */}
-          <PostAdDialog>
-            <Button
-              variant="filled"
-              size="icon-sm"
-              iconPosition="right"
-              icon={
-                <Image
-                  src={ICONS.ai.aiPurpleBg}
-                  alt="AI Logo"
-                  width={24}
-                  height={24}
-                />
-              }
-              className="px-4 text-xs font-medium text-white h-10"
-            >
-              <span className="hidden lg:block">{t.home.navbar.placeAd}</span>
-              <span className="block lg:hidden">
-                {t.home.navbar.placeAdShort}
-              </span>
-            </Button>
-          </PostAdDialog>
-        </div>
+        {/*-------------- Place Ad Button---------- */}
+        <PostAdDialog>
+          <Button
+            variant="filled"
+            size="icon-sm"
+            iconPosition="right"
+            icon={
+              <Image
+                src={ICONS.ai.aiPurpleBg}
+                alt="AI Logo"
+                width={24}
+                height={24}
+              />
+            }
+            className="px-4 text-xs font-medium text-white h-10"
+          >
+            <span className="hidden lg:block">{t.home.navbar.placeAd}</span>
+            <span className="block lg:hidden">
+              {t.home.navbar.placeAdShort}
+            </span>
+          </Button>
+        </PostAdDialog>
+      </div>
     </nav>
   );
 };
@@ -200,7 +203,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
 //-------------- Main Navbar component with Suspense wrapper---------- */}
 const Navbar = ({ className }: { className?: string }) => {
   return (
-    <Suspense fallback={<div className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800" />}>
+    <Suspense fallback={<div className="h-16 bg-white dark:bg-gray-900" />}>
       <NavbarContent className={className} />
     </Suspense>
   );

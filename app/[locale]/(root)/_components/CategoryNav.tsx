@@ -38,6 +38,8 @@ import SearchHistoryPopover from "../user/search-history/_components/SearchHisto
 import NotificationsPopover from "../user/notifications/_components/NotificationsPopover";
 import { useIsAuthenticated } from "@/hooks/useAuth";
 import { toSlug, slugify } from "@/utils/slug-utils";
+import PostAdDialog from "@/app/[locale]/(root)/post-ad/_components/PostAdDialog";
+import { ICONS } from "@/constants/icons";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -705,22 +707,30 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
         </TooltipProvider>
       )}
       <div
-        hidden={isJobsPage}
-        className="animate-fade-in shrink-0 ml-1"
+        className="animate-fade-in shrink-0 ml-1 md:hidden"
         style={{ animationDelay: "350ms" }}
       >
-        <Button
-          icon={<MapPin className="w-3 h-3 sm:w-4 sm:h-4 -mr-1.5 sm:-mr-3" />}
-          iconPosition="center"
-          className={cn(
-            "h-[40px] px-2.5 sm:px-4 text-[11px] sm:text-xs md:h-[42px] whitespace-nowrap",
-          )}
-          variant={"filled"}
-          size="sm"
-          onClick={() => router.push("/map-view")}
-        >
-          Map View
-        </Button>
+        <PostAdDialog>
+          <Button
+            variant="filled"
+            size="sm"
+            iconPosition="right"
+            icon={
+              <Image
+                src={ICONS.ai.aiPurpleBg}
+                alt="AI Logo"
+                width={16}
+                height={16}
+                className="w-4 h-4 sm:w-5 sm:h-5"
+              />
+            }
+            className={cn(
+              "h-[40px] px-2.5 sm:px-4 text-[11px] sm:text-xs md:h-[42px] whitespace-nowrap",
+            )}
+          >
+            {t.home.navbar.placeAdShort}
+          </Button>
+        </PostAdDialog>
       </div>
     </nav>
   );
