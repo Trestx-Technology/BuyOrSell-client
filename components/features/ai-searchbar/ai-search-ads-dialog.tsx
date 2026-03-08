@@ -117,10 +117,10 @@ export function AISearchAdsDialog({
 
       if (ad.relatedCategories && ad.relatedCategories.length > 0) {
         router.push(
-          `/categories/${ad.relatedCategories.map((c: string) => slugify(c)).join("/")}`,
+          `/${ad.relatedCategories.map((c: string) => slugify(c)).join("/")}`,
         );
       } else if (ad.categoryName) {
-        router.push(`/categories/${slugify(ad.categoryName)}`);
+        router.push(`/${slugify(ad.categoryName)}`);
       }
     }
     onOpenChange(false);

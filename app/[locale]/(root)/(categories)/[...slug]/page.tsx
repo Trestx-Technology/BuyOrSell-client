@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import { Metadata } from "next";
 import CategoryListingContent from "./_components/CategoryListingContent";
 import { getSeoByRoute } from "@/app/api/seo/seo.services";
 import { validateCategoryPathWithSeo } from "@/app/api/categories/categories.services";
@@ -9,13 +9,14 @@ type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export async function generateMetadata(
-  { params, searchParams }: Props
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: Props): Promise<Metadata> {
   const { slug } = await params;
   const currentCategorySlug = slugify(slug[slug.length - 1]);
   const categoryPath = slugify(...slug);
-  const route = `/categories/${currentCategorySlug}`;
+  const route = `/${categoryPath}`;
 
   let seo = null;
 
@@ -67,7 +68,9 @@ export async function generateMetadata(
   }
 
   // Fallback metadata if both API calls fail or return no data
-  const categoryName = unSlugify(decodeURIComponent(currentCategorySlug || "Category"));
+  const categoryName = unSlugify(
+    decodeURIComponent(currentCategorySlug || "Category"),
+  );
   return {
     title: `${categoryName} | BuyOrSell`,
     description: `Browse the best deals in ${categoryName} on BuyOrSell.`,

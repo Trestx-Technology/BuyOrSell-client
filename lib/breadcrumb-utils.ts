@@ -5,7 +5,7 @@ export const formatLabel = (segment: string): string => unSlugify(segment);
 
 export const generateBreadcrumbs = (
   slugSegments: string[],
-  basePath: string
+  basePath: string,
 ): BreadcrumbItem[] => {
   return slugSegments.map((segment, index) => {
     const path = slugSegments.slice(0, index + 1).join("/");
@@ -21,11 +21,10 @@ export const generateBreadcrumbs = (
 };
 
 export const generateCategoryBreadcrumbs = (
-  slugSegments: string[]
+  slugSegments: string[],
 ): BreadcrumbItem[] => {
-  return generateBreadcrumbs(slugSegments, "/categories");
+  return generateBreadcrumbs(slugSegments, "");
 };
-
 
 export const generateExchangeBreadcrumbs = (
   slugSegments: string[],

@@ -145,7 +145,7 @@ export function Footer({ className }: FooterProps) {
                     .slice(0, 8)
                     .map((emirateObj: Emirate, idx: number) => (
                       <Link
-                        href={`/categories/${slugify(categories?.[idx]?.name)}?location=${emirateObj.emirate}`}
+                        href={`/${slugify(categories?.[idx]?.name)}?location=${emirateObj.emirate}`}
                         key={idx}
                         className="block"
                       >
@@ -176,7 +176,7 @@ export function Footer({ className }: FooterProps) {
                   ))
                 : categories?.map((cat, idx: number) => (
                     <Link
-                      href={`/categories/${slugify(cat.name)}`}
+                      href={`/${slugify(cat.name)}`}
                       key={idx}
                       className="block"
                     >

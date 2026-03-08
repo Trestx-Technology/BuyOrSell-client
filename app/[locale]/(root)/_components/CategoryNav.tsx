@@ -76,7 +76,7 @@ const isJobsCategoryName = (categoryName: string): boolean => {
 
 const buildCategoryUrl = (
   category: SubCategory,
-  allCategories: SubCategory[]
+  allCategories: SubCategory[],
 ): string => {
   const cacheKey = `${category._id}-${category.name}`;
   if (categoryUrlCache.has(cacheKey)) {
@@ -85,7 +85,7 @@ const buildCategoryUrl = (
 
   const findCategoryById = (
     categories: SubCategory[],
-    id: string
+    id: string,
   ): SubCategory | null => {
     for (const cat of categories) {
       if (cat._id === id) {
@@ -101,7 +101,7 @@ const buildCategoryUrl = (
 
   const findDirectParent = (
     categories: SubCategory[],
-    childId: string
+    childId: string,
   ): SubCategory | null => {
     for (const cat of categories) {
       if (cat.children && cat.children.length > 0) {
@@ -118,7 +118,7 @@ const buildCategoryUrl = (
 
   const isJobsSubcategory = (
     cat: SubCategory,
-    categories: SubCategory[]
+    categories: SubCategory[],
   ): boolean => {
     if (cat.parentID) {
       const parent = findCategoryById(categories, cat.parentID);
@@ -146,7 +146,7 @@ const buildCategoryUrl = (
   const buildPathRecursive = (
     cat: SubCategory,
     categories: SubCategory[],
-    excludeJobs: boolean = false
+    excludeJobs: boolean = false,
   ): string[] => {
     const path: string[] = [];
 
@@ -169,7 +169,7 @@ const buildCategoryUrl = (
       const parentPath = buildPathRecursive(
         directParent,
         categories,
-        excludeJobs
+        excludeJobs,
       );
       return [...parentPath, ...path];
     }
@@ -192,7 +192,7 @@ const buildCategoryUrl = (
 
   const url = isJobSub
     ? `/jobs/listing/jobs/${slugifiedPath}`
-    : `/categories/${slugifiedPath}`;
+    : `/${slugifiedPath}`;
 
   categoryUrlCache.set(cacheKey, url);
   return url;
@@ -218,7 +218,12 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
   const [open, setOpen] = useState(false);
 
   return (
-    <HoverCard open={open} onOpenChange={setOpen} openDelay={0} closeDelay={100}>
+    <HoverCard
+      open={open}
+      onOpenChange={setOpen}
+      openDelay={0}
+      closeDelay={100}
+    >
       <HoverCardTrigger asChild>
         <Link
           href={url}
@@ -230,8 +235,8 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
       </HoverCardTrigger>
       {React.isValidElement(children)
         ? React.cloneElement(children as React.ReactElement<any>, {
-          onClose: () => setOpen(false),
-        })
+            onClose: () => setOpen(false),
+          })
         : children}
     </HoverCard>
   );
@@ -267,7 +272,10 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
               {hasChildren ? (
                 <>
                   <div className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 dark:border-gray-700">
-                    <Typography variant="xs-bold" className="text-gray-600 dark:text-gray-300">
+                    <Typography
+                      variant="xs-bold"
+                      className="text-gray-600 dark:text-gray-300"
+                    >
                       {locale === "ar"
                         ? subcategory.nameAr || subcategory.name
                         : subcategory.name}
@@ -299,29 +307,29 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                         return (nameA || "").localeCompare(nameB || "", locale);
                       })
                       .map((child) => {
-                      const childName =
-                        locale === "ar"
-                          ? child.nameAr || child.name
-                          : child.name;
-                      return (
-                        <div key={child._id}>
-                          <Link
-                            href={buildCategoryUrl(child, allCategories)}
-                            className="text-sm text-grey-blue dark:text-gray-400 hover:text-purple hover:underline cursor-pointer transition-colors"
-                            onClick={onClose}
-                          >
-                            {childName}
-                          </Link>
-                        </div>
-                      );
-                    })}
+                        const childName =
+                          locale === "ar"
+                            ? child.nameAr || child.name
+                            : child.name;
+                        return (
+                          <div key={child._id}>
+                            <Link
+                              href={buildCategoryUrl(child, allCategories)}
+                              className="text-sm text-grey-blue dark:text-gray-400 hover:text-purple hover:underline cursor-pointer transition-colors"
+                              onClick={onClose}
+                            >
+                              {childName}
+                            </Link>
+                          </div>
+                        );
+                      })}
                   </div>
                 </>
               ) : (
                 <Link
                   href={buildCategoryUrl(subcategory, allCategories)}
-                    className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-purple/10 hover:text-purple transition-colors"
-                    onClick={onClose}
+                  className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-purple/10 hover:text-purple transition-colors"
+                  onClick={onClose}
                 >
                   <Typography variant="xs-bold">
                     {locale === "ar"
@@ -346,9 +354,8 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
 }) => {
   const { locale } = useLocale();
   const [activeCategory, setActiveCategory] = useState<SubCategory | null>(
-    null
+    null,
   );
-
 
   if (isOtherCategory) {
     return (
@@ -363,8 +370,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
               locale === "ar"
                 ? category.nameAr || category.name
                 : category.name;
-            const displayName =
-              categoryName === "Jobs" ? "Job" : categoryName;
+            const displayName = categoryName === "Jobs" ? "Job" : categoryName;
             return (
               <div
                 key={category._id}
@@ -376,7 +382,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                       ? `/jobs`
                       : buildCategoryUrl(category, allCategories)
                   }
-                  className="text-gray-600 dark:text-gray-300 group-hover:text-purple text-xs w-full"
+                  className="text-gray-600 dark:text-gray-300 group-hover:text-purple text-sm w-full"
                   onClick={onClose}
                 >
                   {displayName}
@@ -412,7 +418,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                     href={buildCategoryUrl(category, allCategories)}
                     className={cn(
                       "flex items-center text-xs justify-between p-3 hover:bg-purple/10 hover:text-purple cursor-pointer transition-colors group",
-                      isActive && "bg-purple/10 text-purple"
+                      isActive && "bg-purple/10 text-purple",
                     )}
                     onClick={onClose}
                   >
@@ -420,7 +426,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                       variant="xs-regular-inter"
                       className={cn(
                         "text-gray-600 dark:text-gray-300 group-hover:text-purple text-xs",
-                        isActive && "text-purple font-semibold"
+                        isActive && "text-purple font-semibold",
                       )}
                     >
                       {locale === "ar"
@@ -438,7 +444,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                 href={buildCategoryUrl(category, allCategories)}
                 className={cn(
                   "flex items-center text-xs justify-between p-3 hover:bg-purple/10 hover:text-purple cursor-pointer transition-colors group",
-                  isActive && "bg-purple/10 text-purple"
+                  isActive && "bg-purple/10 text-purple",
                 )}
                 onMouseEnter={() => setActiveCategory(category)}
                 onClick={(e) => {
@@ -449,7 +455,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                   variant="xs-regular-inter"
                   className={cn(
                     "text-gray-600 dark:text-gray-300 group-hover:text-purple text-xs",
-                    isActive && "text-purple font-semibold"
+                    isActive && "text-purple font-semibold",
                   )}
                 >
                   {locale === "ar"
@@ -472,7 +478,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
             <SubcategoryPanel
               subcategories={activeCategory.children}
               allCategories={allCategories}
-            onClose={onClose}
+              onClose={onClose}
             />
           )}
       </div>
@@ -505,7 +511,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
     if (!categoriesData || !isJobsPage) return null;
 
     const findJobsCategory = (
-      categories: SubCategory[]
+      categories: SubCategory[],
     ): SubCategory | null => {
       for (const category of categories) {
         const categoryName = category.name.toLowerCase();
@@ -542,7 +548,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
 
   const visibleCategoriesList = transformedCategories.slice(
     0,
-    isJobsPage ? VISIBLE_JOBS_CATEGORIES_COUNT : VISIBLE_CATEGORIES_COUNT
+    isJobsPage ? VISIBLE_JOBS_CATEGORIES_COUNT : VISIBLE_CATEGORIES_COUNT,
   );
   const otherCategories = transformedCategories.slice(VISIBLE_CATEGORIES_COUNT);
 
@@ -554,139 +560,156 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
     }
 
     const category = categoriesToDisplay.find(
-      (cat: SubCategory) => cat._id === categoryType
+      (cat: SubCategory) => cat._id === categoryType,
     );
     return category?.children || [];
   };
 
   return (
-    <nav className={cn(" container-1080 px-3 animate-fade-in flex gap-2  items-center justify-between py-1", className)}>
-          {categoriesError ? (
-            <div className="hidden md:flex flex-1 items-center justify-center">
-              <Typography variant="sm-regular" className="text-red-500">
+    <nav
+      className={cn(
+        " container-1080 px-3 animate-fade-in flex gap-2  items-center justify-between py-1",
+        className,
+      )}
+    >
+      {categoriesError ? (
+        <div className="hidden md:flex flex-1 items-center justify-center">
+          <Typography variant="sm-regular" className="text-red-500">
             Note: Failed to load categories. Please try again.
-              </Typography>
+          </Typography>
+        </div>
+      ) : categoriesLoading ? (
+        <CategoryLoader />
+      ) : (
+        <div
+          key={isJobsPage ? "jobs-nav" : "main-nav"}
+          className="hidden w-full md:flex flex-1 gap-6 items-center"
+        >
+          {visibleCategoriesList.map(({ type, label, url }) => (
+            <div key={type}>
+              <CategoryButton categoryType={type} label={label} url={url}>
+                <CategoryDropdownContent
+                  categoryData={getCategoryData(type)}
+                  allCategories={categoriesData || []}
+                />
+              </CategoryButton>
             </div>
-          ) : categoriesLoading ? (
-            <CategoryLoader />
-          ) : (
-            <div
-              key={isJobsPage ? "jobs-nav" : "main-nav"}
-              className="hidden w-full md:flex flex-1 gap-6 items-center"
-            >
-              {visibleCategoriesList.map(({ type, label, url }) => (
-                <div key={type}>
-                  <CategoryButton categoryType={type} label={label} url={url}>
-                    <CategoryDropdownContent
-                      categoryData={getCategoryData(type)}
-                      allCategories={categoriesData || []}
-                    />
-                  </CategoryButton>
-                </div>
-              ))}
+          ))}
 
-              {otherCategories.length > 0 && (
-                <div>
-                  <CategoryButton
-                    categoryType="other"
-                    label="Other"
-                    url={isJobsPage ? "/jobs" : "/categories"}
-                  >
-                    <CategoryDropdownContent
-                      categoryData={getCategoryData("other")}
-                      allCategories={categoriesData || []}
-                      isOtherCategory={true}
-                    />
-                  </CategoryButton>
-                </div>
-              )}
+          {otherCategories.length > 0 && (
+            <div>
+              <CategoryButton
+                categoryType="other"
+                label="Other"
+                url={isJobsPage ? "/jobs" : "/categories"}
+              >
+                <CategoryDropdownContent
+                  categoryData={getCategoryData("other")}
+                  allCategories={categoriesData || []}
+                  isOtherCategory={true}
+                />
+              </CategoryButton>
             </div>
           )}
+        </div>
+      )}
 
-          <div className="flex md:hidden flex-1">
-            <SearchAnimated />
-          </div>
+      <div className="flex md:hidden flex-1">
+        <SearchAnimated />
+      </div>
 
-          {categoriesLoading ? (
-            <div className="flex items-center justify-between gap-5 ml-2">
-              {Array.from({ length: 5 }).map((_, index) => (
-                <div key={index} className="animate-pulse">
-                  <div className="size-8 bg-white/20 rounded-full"></div>
-                </div>
-              ))}
-              <div className="animate-pulse">
-                <div className="h-10 w-20 bg-white/20 rounded-md"></div>
-              </div>
+      {categoriesLoading ? (
+        <div className="flex items-center justify-between gap-5 ml-2">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div key={index} className="animate-pulse">
+              <div className="size-8 bg-white/20 rounded-full"></div>
             </div>
-          ) : (
-            <TooltipProvider delayDuration={200}>
-            <div className="max-[1000px]:hidden flex items-center justify-start gap-5 ml-2">
-                <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
-                  <SearchHistoryPopover />
-                </div>
+          ))}
+          <div className="animate-pulse">
+            <div className="h-10 w-20 bg-white/20 rounded-md"></div>
+          </div>
+        </div>
+      ) : (
+        <TooltipProvider delayDuration={200}>
+          <div className="max-[1000px]:hidden flex items-center justify-start gap-5 ml-2">
+            <div
+              className="animate-fade-in"
+              style={{ animationDelay: "100ms" }}
+            >
+              <SearchHistoryPopover />
+            </div>
 
-                <div className="animate-fade-in" style={{ animationDelay: '150ms' }}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                    <button
-                      onClick={() => router.push(localePath("/user/my-ads"))}
-                      className="min-w-6 md:block hidden cursor-pointer"
-                      >
-                      <UserPlus className="text-purple hover:scale-110 transition-all duration-300" />
-                    </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>My Ads</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+            <div
+              className="animate-fade-in"
+              style={{ animationDelay: "150ms" }}
+            >
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => router.push(localePath("/user/my-ads"))}
+                    className="min-w-6 md:block hidden cursor-pointer"
+                  >
+                    <UserPlus className="text-purple hover:scale-110 transition-all duration-300" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>My Ads</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
 
-                <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                    <button
-                      onClick={() => router.push(localePath("/chat"))}
-                      className="min-w-6 md:block hidden cursor-pointer"
-                      >
-                      <MessageSquare className="text-purple hover:scale-110 transition-all duration-300" />
-                    </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Messages</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+            <div
+              className="animate-fade-in"
+              style={{ animationDelay: "200ms" }}
+            >
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => router.push(localePath("/chat"))}
+                    className="min-w-6 md:block hidden cursor-pointer"
+                  >
+                    <MessageSquare className="text-purple hover:scale-110 transition-all duration-300" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Messages</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
 
-                <div className="animate-fade-in" style={{ animationDelay: '250ms' }}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                    <button
-                      onClick={() => router.push(localePath("/favorites"))}
-                      className="min-w-6 md:block hidden cursor-pointer"
-                      >
-                      <Heart className="size-6 hover:scale-110 transition-all duration-300 text-purple" />
-                    </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Favorites</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
+            <div
+              className="animate-fade-in"
+              style={{ animationDelay: "250ms" }}
+            >
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => router.push(localePath("/favorites"))}
+                    className="min-w-6 md:block hidden cursor-pointer"
+                  >
+                    <Heart className="size-6 hover:scale-110 transition-all duration-300 text-purple" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Favorites</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
 
-                <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
-                  <NotificationsPopover />
-                </div>
-
-
+            <div
+              className="animate-fade-in"
+              style={{ animationDelay: "300ms" }}
+            >
+              <NotificationsPopover />
+            </div>
           </div>
         </TooltipProvider>
       )}
       <div
         hidden={isJobsPage}
         className="animate-fade-in"
-        style={{ animationDelay: '350ms' }}
+        style={{ animationDelay: "350ms" }}
       >
-
         <Button
           icon={<MapPin className="w-4 h-4 -mr-3" />}
           iconPosition="center"

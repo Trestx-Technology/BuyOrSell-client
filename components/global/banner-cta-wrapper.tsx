@@ -7,7 +7,7 @@ import { Banner } from "@/interfaces/banner.types";
 import { slugify } from "@/utils/slug-utils";
 
 interface BannerCTAWrapperProps {
-  banner: Banner;
+  banner: Partial<Banner>;
   children: React.ReactNode;
   className?: string;
 }
@@ -35,9 +35,9 @@ export const BannerCTAWrapper = ({
   } else if (cta) {
     linkHref =
       isArray && (cta as string[]).length > 0
-        ? `/categories/${(cta as string[]).map((item) => slugify(item)).join("/")}`
+        ? `/${(cta as string[]).map((item) => slugify(item)).join("/")}`
         : isString && (cta as string).length > 0
-          ? `/categories/${slugify(cta as string)}`
+          ? `/${slugify(cta as string)}`
           : banner.link;
   }
 

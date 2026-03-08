@@ -14,7 +14,7 @@ import SortAndViewControls, {
   ViewMode,
 } from "@/app/[locale]/(root)/post-ad/_components/SortAndViewControls";
 import { cn } from "@/lib/utils";
-import HorizontalListingCard from "../../../categories/_components/horizontal-listing-card";
+import HorizontalListingCard from "../../../(categories)/_components/horizontal-listing-card";
 import HotDealsListingCard from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
 import Pagination from "@/components/global/pagination";
 import { useAds, useFilterAds } from "@/hooks/useAds";

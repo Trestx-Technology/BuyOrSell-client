@@ -54,17 +54,20 @@ export function MidBannerCarousel({
 }: MidBannerCarouselProps) {
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(true);
-  const { ref, isVisible } = useIntersectionObserver({ threshold: 0.1, rootMargin: "-50px" });
+  const { ref, isVisible } = useIntersectionObserver({
+    threshold: 0.1,
+    rootMargin: "-50px",
+  });
 
   const previousSlide = React.useCallback(() => {
     setCurrentSlide((curr) =>
-      curr === 0 ? (banners?.length || 1) - 1 : curr - 1
+      curr === 0 ? (banners?.length || 1) - 1 : curr - 1,
     );
   }, [banners?.length]);
 
   const nextSlide = React.useCallback(() => {
     setCurrentSlide((curr) =>
-      curr === (banners?.length || 1) - 1 ? 0 : curr + 1
+      curr === (banners?.length || 1) - 1 ? 0 : curr + 1,
     );
   }, [banners?.length]);
 
@@ -100,11 +103,11 @@ export function MidBannerCarousel({
   const LoadingSkeleton = () => (
     <div
       ref={ref as any}
-      className={`${maxWidth} mx-auto flex flex-col items-center justify-center p-4 md:p-0 ${containerClassName} reveal-on-scroll ${isVisible ? 'is-visible' : ''}`}
+      className={`${maxWidth} mx-auto flex flex-col items-center justify-center p-4 md:p-0 ${containerClassName} reveal-on-scroll ${isVisible ? "is-visible" : ""}`}
     >
       {/* Main carousel skeleton */}
       <div
-        className={`relative z-10 ${height} w-full max-w-[880px] overflow-hidden reveal-fade-in ${isVisible ? 'is-visible' : ''} reveal-delay-200`}
+        className={`relative z-10 ${height} w-full max-w-[880px] overflow-hidden reveal-fade-in ${isVisible ? "is-visible" : ""} reveal-delay-200`}
       >
         <div className="h-full w-full bg-gray-200 animate-pulse rounded-xl md:rounded-none"></div>
 
@@ -114,7 +117,7 @@ export function MidBannerCarousel({
             {Array.from({ length: Math.min(banners?.length || 3, 3) }).map(
               (_, index) => (
                 <div key={index} className="h-2 w-2 rounded-full bg-gray-300" />
-              )
+              ),
             )}
           </div>
         )}
@@ -130,14 +133,14 @@ export function MidBannerCarousel({
 
       {/* Bottom dots skeleton */}
       <div
-        className={`flex items-center justify-center bg-gray-200 w-full max-w-[1150px] mx-auto py-3 mb-3 rounded-b-lg animate-pulse reveal-fade-in ${isVisible ? 'is-visible' : ''} reveal-delay-400`}
+        className={`flex items-center justify-center bg-gray-200 w-full max-w-[1150px] mx-auto py-3 mb-3 rounded-b-lg animate-pulse reveal-fade-in ${isVisible ? "is-visible" : ""} reveal-delay-400`}
       >
         {showDots && (
           <div className="flex space-x-2 w-full justify-center items-center">
             {Array.from({ length: Math.min(banners?.length || 3, 3) }).map(
               (_, index) => (
                 <div key={index} className="h-2 w-2 rounded-full bg-gray-300" />
-              )
+              ),
             )}
           </div>
         )}
@@ -156,12 +159,12 @@ export function MidBannerCarousel({
         "mx-auto flex flex-col items-center justify-center p-4 md:p-0 relative overflow-visible bg-white dark:bg-gray-950 reveal-on-scroll",
         maxWidth,
         containerClassName,
-        isVisible ? "is-visible" : ""
+        isVisible ? "is-visible" : "",
       )}
     >
       {/* Main Carousel */}
       <div
-        className={`relative z-10 ${height} w-full max-w-[880px] overflow-hidden ${className} reveal-fade-in ${isVisible ? 'is-visible' : ''} reveal-delay-200`}
+        className={`relative z-10 ${height} w-full max-w-[880px] overflow-hidden ${className} reveal-fade-in ${isVisible ? "is-visible" : ""} reveal-delay-200`}
       >
         <div
           className="flex transition-transform duration-500 ease-out"
@@ -172,7 +175,15 @@ export function MidBannerCarousel({
               key={slide.id}
               className={`${height} w-full flex bg-grey-100 flex-col shrink-0 relative`}
             >
-              <BannerCTAWrapper banner={{ callToAction: slide.callToAction, image: typeof slide.image === 'string' ? slide.image : (slide.image as any).src }}>
+              <BannerCTAWrapper
+                banner={{
+                  callToAction: [slide.callToAction],
+                  image:
+                    typeof slide.image === "string"
+                      ? slide.image
+                      : (slide.image as any).src,
+                }}
+              >
                 <Image
                   src={slide.image}
                   alt={slide.alt || slide.callToAction}
@@ -193,7 +204,7 @@ export function MidBannerCarousel({
               className={cn(
                 "hidden md:flex absolute left-[7%] bottom-1/2 bg-black text-white rounded-full size-8 items-center justify-center border-grey-blue hover:bg-purple hover:text-white",
                 buttonClassName,
-                prevButtonClassName
+                prevButtonClassName,
               )}
               size="icon"
               icon={<ChevronLeft />}
@@ -205,7 +216,7 @@ export function MidBannerCarousel({
               className={cn(
                 "hidden md:flex absolute right-[7%] bottom-1/2 bg-black text-white rounded-full size-8 items-center justify-center border-grey-blue hover:bg-purple hover:text-white",
                 buttonClassName,
-                nextButtonClassName
+                nextButtonClassName,
               )}
               size="icon"
               icon={<ChevronRight />}
@@ -217,7 +228,7 @@ export function MidBannerCarousel({
       </div>
 
       <div
-        className={`flex items-center justify-center bg-black w-full mx-auto py-3 rounded-b-lg reveal-fade-in ${isVisible ? 'is-visible' : ''} reveal-delay-400`}
+        className={`flex items-center justify-center bg-black w-full mx-auto py-3 rounded-b-lg reveal-fade-in ${isVisible ? "is-visible" : ""} reveal-delay-400`}
       >
         {showDots && (
           <div className="flex space-x-2 w-full justify-center items-center">

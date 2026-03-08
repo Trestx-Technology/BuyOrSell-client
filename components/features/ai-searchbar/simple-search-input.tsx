@@ -49,7 +49,7 @@ export function SimpleSearchInput({
     (value) => {
       setDebouncedQuery(value);
     },
-    500
+    500,
   );
 
   // Fetch keyword search results with debounced query
@@ -73,15 +73,19 @@ export function SimpleSearchInput({
       setDebouncedQuery("");
       setSelectedIndex(-1);
     },
-    !!showDropdown
+    !!showDropdown,
   );
 
   const handleSearch = (relatedCategories: string[]) => {
     if (relatedCategories.length > 0) {
       if (relatedCategories[0] === "Jobs") {
-        router.push(`/jobs/listing/${relatedCategories.map((category) => slugify(category)).join("/")}`);
+        router.push(
+          `/jobs/listing/${relatedCategories.map((category) => slugify(category)).join("/")}`,
+        );
       } else {
-        router.push(`/categories/${relatedCategories.map((category) => slugify(category)).join("/")}`);
+        router.push(
+          `/${relatedCategories.map((category) => slugify(category)).join("/")}`,
+        );
       }
     }
   };
@@ -115,7 +119,7 @@ export function SimpleSearchInput({
       event.preventDefault();
       if (keywordResults.length > 0) {
         setSelectedIndex((prev) =>
-          prev < keywordResults.length - 1 ? prev + 1 : prev
+          prev < keywordResults.length - 1 ? prev + 1 : prev,
         );
       }
     } else if (event.key === "ArrowUp") {

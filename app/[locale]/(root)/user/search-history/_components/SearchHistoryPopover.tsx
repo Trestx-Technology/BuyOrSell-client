@@ -71,7 +71,7 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
 
     // Redirect to category search
     if (categoryName) {
-      router.push(`/categories/${slugify(categoryName)}`);
+      router.push(`/${slugify(categoryName)}`);
     } else {
       // Fallback if no category info (though user requested to log it, so it should exist)
       router.push(`/ad?query=${encodeURIComponent(searchTerm)}`);
