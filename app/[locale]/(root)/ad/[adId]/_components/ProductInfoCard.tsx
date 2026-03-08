@@ -18,11 +18,16 @@ import {
 } from "@/utils/normalize-extra-fields";
 import { PriceDisplay } from "@/components/global/price-display";
 import { SpecificationsDisplay } from "@/components/global/specifications-display";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { toast } from "sonner";
 import { useLocale } from "@/hooks/useLocale";
 import { useAuthStore } from "@/stores/authStore";
 import { ChatInit } from "@/components/global/chat-init";
+import { getLocationDisplay } from "@/utils/get-location-display";
 
 interface ProductInfoCardProps {
   ad: AD;
@@ -44,10 +49,9 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
   }, [session.user?._id, ad.owner, ad.organization?.owner]);
 
   // Extract location
-  const location =
-    typeof ad.location === "string"
-      ? ad.location
-      : ad.location?.city || ad.address?.city || "Location not specified";
+  const actualLocation = ad.location || ad.address;
+  const { locale } = useLocale();
+  const location = getLocationDisplay(actualLocation, locale);
 
   // Format posted time
   const postedTime = formatDistanceToNow(new Date(ad.createdAt), {
@@ -68,8 +72,6 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
       console.log("Phone number not available");
     }
   };
-
-
 
   const handleWhatsApp = () => {
     if (ad.contactPhoneNumber) {
@@ -157,7 +159,11 @@ const ProductInfoCard: React.FC<ProductInfoCardProps> = ({ ad }) => {
       {/* Price Section */}
       {hasPrice && (
         <div className="mb-6">
-          <PriceDisplay ad={ad} currencyIconWidth={18} className="dark:text-white" />
+          <PriceDisplay
+            ad={ad}
+            currencyIconWidth={18}
+            className="dark:text-white"
+          />
         </div>
       )}
 

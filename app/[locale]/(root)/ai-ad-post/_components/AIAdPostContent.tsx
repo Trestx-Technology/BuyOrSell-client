@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useLocale } from "@/hooks/useLocale";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { useAITokenBalance, useConsumeTokens } from "@/hooks/useAITokens";
+import { useAdPostingStore } from "@/stores/adPostingStore";
 
 // Components
 import { AIHowItWorks } from "./AIHowItWorks";
@@ -38,6 +39,8 @@ export const AIAdPostContent = () => {
   const { data: tokenBalance } = useAITokenBalance();
   const currentBalance = tokenBalance?.data?.tokensRemaining ?? 0;
   const { mutateAsync: consumeTokens } = useConsumeTokens();
+  const { setStep, clearCategoryArray, addToCategoryArray, setActiveCategory } =
+    useAdPostingStore();
 
   const MAGIC_SUGGEST_CREDITS = 5;
   const CATEGORIZATION_CREDITS = 3;
@@ -140,15 +143,17 @@ export const AIAdPostContent = () => {
     const toastId = toast.loading("Analyzing your ad details...");
     console.log("[Client] Calling identifyCategory...");
     try {
-      const { redirectUrl, suggestedTitle } = await identifyCategory(
-        prompt,
-        uploadedImages,
-        undefined, // categoriesData removed to fix serialization issues
-        adType,
-      );
+      const { redirectUrl, suggestedTitle, categoryPath } =
+        await identifyCategory(
+          prompt,
+          uploadedImages,
+          undefined, // categoriesData removed to fix serialization issues
+          adType,
+        );
       console.log("[Client] identifyCategory response:", {
         redirectUrl,
         suggestedTitle,
+        categoryPath,
       });
 
       // Consume 3 tokens on success
@@ -164,6 +169,20 @@ export const AIAdPostContent = () => {
         );
         return;
       }
+
+      // 1. Sync the global ad posting store with the AI findings
+      clearCategoryArray();
+      if (categoryPath && categoryPath.length > 0) {
+        // Populate the breadcrumb/category array
+        categoryPath.forEach((cat) => {
+          addToCategoryArray({ id: cat.id, name: cat.name });
+        });
+        // Set the leaf as active
+        setActiveCategory(categoryPath[categoryPath.length - 1].id);
+      }
+
+      // 2. Set step to 3 (Details filling step)
+      setStep(3);
 
       toast.success("Category identified! Redirecting you to the form...", {
         id: toastId,

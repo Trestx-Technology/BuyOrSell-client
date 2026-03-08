@@ -227,7 +227,7 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
       <HoverCardTrigger asChild>
         <Link
           href={url}
-          className="h-9 px-2 flex items-center cursor-pointer text-xs font-regular rounded-sm text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:text-purple transition-colors  data-[state=open]:text-purple"
+          className="h-9 px-2 flex items-center cursor-pointer text-[13px] font-semibold rounded-sm text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:text-purple transition-colors  data-[state=open]:text-purple"
           onClick={() => setOpen(false)}
         >
           {label}
@@ -494,7 +494,6 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   const { locale, localePath } = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const isAuthenticated = useIsAuthenticated();
 
   const {
     data: categoriesData,
