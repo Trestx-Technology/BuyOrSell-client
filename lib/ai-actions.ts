@@ -1,6 +1,10 @@
 "use server";
 
 import OpenAI from "openai";
+import {
+  getCategoriesTree,
+  semanticSearchCategories,
+} from "@/app/api/categories/categories.services";
 
 // Initialize OpenAI client on server side
 const openai = new OpenAI({
@@ -447,6 +451,11 @@ export async function identifyCategory(
   categoryPath: CategoryHierarchy[];
   suggestedTitle?: string;
 }> {
+  console.log("[AI] identifyCategory called with:", {
+    userPromptLength: userPrompt?.length,
+    imagesCount: imageUrls?.length,
+    adType,
+  });
   try {
     if (!process.env.OPENAI_API_KEY) {
       throw new Error(
@@ -454,134 +463,7 @@ export async function identifyCategory(
       );
     }
 
-    console.log(
-      "[AI] providedCategories type:",
-      typeof providedCategories,
-      "isArray:",
-      Array.isArray(providedCategories),
-      "length:",
-      providedCategories?.length,
-    );
-
-    // 1. Fetch the category tree using the service or use provided categories
-    let categories: any[] = [];
-    if (
-      providedCategories &&
-      Array.isArray(providedCategories) &&
-      providedCategories.length > 0
-    ) {
-      // Check if first item has children (proper tree structure)
-      const firstCat = providedCategories[0];
-      console.log(
-        "[AI] First provided category:",
-        JSON.stringify({
-          name: firstCat?.name,
-          _id: firstCat?._id,
-          hasChildren: !!firstCat?.children,
-          childrenCount: firstCat?.children?.length,
-        }).substring(0, 300),
-      );
-
-      categories = providedCategories;
-      console.log(
-        `[AI] Using ${categories.length} pre-provided root categories.`,
-      );
-    } else {
-      // Fallback: fetch directly via fetch() since axiosInstance doesn't work in Server Actions
-      console.log(
-        "[AI] providedCategories not usable, fetching via direct fetch...",
-      );
-      const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-      if (!BACKEND_URL) {
-        console.error("[AI] NEXT_PUBLIC_BACKEND_URL is not set!");
-        return { redirectUrl: null, categoryPath: [] };
-      }
-
-      const res = await fetch(`${BACKEND_URL}/categories/tree`);
-      const result = await res.json();
-
-      console.log("[AI] Direct fetch response keys:", Object.keys(result));
-      // API returns { statusCode, timestamp, data: SubCategory[] }
-      categories = result.data || [];
-
-      if (!categories || categories.length === 0) {
-        console.error(
-          "[AI] No categories from direct fetch:",
-          JSON.stringify(result).substring(0, 500),
-        );
-      } else {
-        console.log(
-          `[AI] Fetched ${categories.length} root categories via direct fetch.`,
-        );
-      }
-    }
-
-    // 2. Flatten the tree to ALL categories with hierarchy tracking
-    const allCategories: {
-      id: string;
-      name: string;
-      path: string;
-      rootId: string;
-      hierarchy: CategoryHierarchy[];
-      isLeaf: boolean;
-    }[] = [];
-
-    function traverse(
-      cats: any[],
-      path: string = "",
-      rootId: string | null = null,
-      hierarchy: CategoryHierarchy[] = [],
-    ) {
-      cats.forEach((cat) => {
-        const currentPath = path ? `${path} > ${cat.name}` : cat.name;
-        const currentRootId = rootId || cat._id;
-        const currentHierarchy = [
-          ...hierarchy,
-          {
-            id: cat._id,
-            name: cat.name,
-            parentId:
-              hierarchy.length > 0 ? hierarchy[hierarchy.length - 1].id : null,
-          },
-        ];
-
-        const isLeaf = !cat.children || cat.children.length === 0;
-
-        allCategories.push({
-          id: cat._id,
-          name: cat.name,
-          path: currentPath,
-          rootId: currentRootId,
-          hierarchy: currentHierarchy,
-          isLeaf: isLeaf,
-        });
-
-        if (!isLeaf) {
-          traverse(cat.children, currentPath, currentRootId, currentHierarchy);
-        }
-      });
-    }
-
-    traverse(categories);
-
-    if (allCategories.length === 0) {
-      console.error(
-        "[AI] CRITICAL: traverse() produced 0 categories! Categories input had",
-        categories.length,
-        "root items.",
-      );
-      console.error(
-        "[AI] First root item keys:",
-        categories[0] ? Object.keys(categories[0]) : "N/A",
-      );
-      return { redirectUrl: null, categoryPath: [] };
-    }
-
-    console.log(
-      `[AI] Flattened ${allCategories.length} total categories from ${categories.length} roots. ${adType ? `Intent: ${adType}` : ""}`,
-    );
-
-    // 3. Use AI to refine the search query and suggest a title
+    // 1. Use AI to refine the search query and suggest a title/type
     const aiResponse = await openai.chat.completions.create({
       model: MODEL,
       messages: [
@@ -593,11 +475,13 @@ Your task: Analyze the user's ad description and images to extract the core sear
 INSTRUCTIONS:
 1. Extract the primary product type and brand (e.g., "Rolex watch", "Used BMW", "3 bedroom villa").
 2. Determine if the user is looking for a JOB or an AD.
-3. Return a JSON object only.
+3. Your search query should be targeted towards finding a SPECIFIC LEAF CATEGORY (the most granular level).
+   Example: If the product is a laptop, don't just search for "Electronics", search for "Laptops".
+4. Return a JSON object only.
 
 OUTPUT (JSON only):
 {
-  "searchQuery": "refined search query for category search",
+  "searchQuery": "refined search query for leaf category search",
   "title": "Short catchy ad title (max 50 chars)",
   "adType": "AD" | "JOB",
   "reasoning": "Quick reasoning"
@@ -620,18 +504,37 @@ OUTPUT (JSON only):
     } = parsedResponse;
 
     console.log(
-      `[AI] Refined Query: "${searchQuery}", Intent: ${intentAdType}`,
+      `[AI] Refined Query: "${searchQuery}", intentAdType: ${intentAdType}`,
     );
 
-    // 4. Use the Semantic Search API to find the best category
+    // 2. Use the Semantic Category Search API directly via fetch (safer in Server Actions)
     const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-    const semanticRes = await fetch(
-      `${BACKEND_URL}/categories/search/semantic?query=${encodeURIComponent(searchQuery)}&limit=5`,
-    );
-    const semanticData = await semanticRes.json();
-    const semanticResults = semanticData.results || [];
+    if (!BACKEND_URL) {
+      console.error("[AI] NEXT_PUBLIC_BACKEND_URL is missing!");
+      return { redirectUrl: null, categoryPath: [] };
+    }
 
-    if (semanticResults.length === 0) {
+    console.log(
+      `[AI] Fetching semantic results from: ${BACKEND_URL}/categories/search/semantic`,
+    );
+
+    const semanticRes = await fetch(
+      `${BACKEND_URL}/categories/search/semantic?query=${encodeURIComponent(searchQuery)}&limit=1`,
+      { cache: "no-store" },
+    );
+
+    if (!semanticRes.ok) {
+      console.error(
+        `[AI] Semantic API failed: ${semanticRes.status} ${semanticRes.statusText}`,
+      );
+      return { redirectUrl: null, categoryPath: [] };
+    }
+
+    const semanticData = await semanticRes.json();
+    // API structure: { statusCode: 200, data: { results: [...] } }
+    let bestMatch = semanticData.data?.results?.[0];
+
+    if (!bestMatch) {
       console.warn(
         "[AI] Semantic API returned no results for query:",
         searchQuery,
@@ -639,44 +542,68 @@ OUTPUT (JSON only):
       return { redirectUrl: null, categoryPath: [] };
     }
 
-    // 5. Match: Find the best result in our local tree to get full hierarchy
-    const bestSemanticId = semanticResults[0].id;
-    let matchedCategory = allCategories.find((c) => c.id === bestSemanticId);
+    // Capture initial parent hierarchy if it exists from semantic search result
+    let parentId = bestMatch.parentId;
+    let parentName = bestMatch.parentName;
 
-    // Fallback fuzzy match if exact ID not found in current tree for some reason
-    if (!matchedCategory) {
-      const bestName = semanticResults[0].name.toLowerCase();
-      matchedCategory = allCategories.find(
-        (c) => c.name.toLowerCase() === bestName,
-      );
+    // Recursively drill down to the absolute leaf node
+    // We follow the 'tree' property returned by the API which contains nested children
+    let currentTree = bestMatch.tree;
+    while (
+      currentTree &&
+      currentTree.children &&
+      currentTree.children.length > 0
+    ) {
+      console.log(`[AI] Drilling down from: ${currentTree.name}`);
+
+      // Update parent info as we move down
+      parentId = currentTree._id;
+      parentName = currentTree.name;
+
+      // Take the first child (most relevant usually)
+      const nextChild = currentTree.children[0];
+
+      // Update bestMatch reference for the final ID/Name
+      bestMatch = {
+        ...bestMatch,
+        id: nextChild._id,
+        name: nextChild.name,
+        parentId: parentId,
+        parentName: parentName,
+        // Update the tree reference to continue recursion
+        tree: nextChild,
+      };
+
+      // Move deeper
+      currentTree = nextChild;
     }
 
-    if (!matchedCategory) {
-      console.warn(
-        "[AI] Could not match semantic result ID to local tree:",
-        bestSemanticId,
-      );
-      return { redirectUrl: null, categoryPath: [] };
+    console.log(`[AI] FINAL LEAF -> ${bestMatch.name} (ID: ${bestMatch.id})`);
+
+    // 3. Determine redirect parameters
+    const pathPrefix = intentAdType === "JOB" ? "post-job" : "post-ad";
+
+    // Create a hierarchy for the redirect
+    const hierarchy: CategoryHierarchy[] = [];
+    if (bestMatch.parentId && bestMatch.parentName) {
+      hierarchy.push({
+        id: bestMatch.parentId,
+        name: bestMatch.parentName,
+        parentId: null,
+      });
     }
+    hierarchy.push({
+      id: bestMatch.id,
+      name: bestMatch.name,
+      parentId: bestMatch.parentId || null,
+    });
 
-    console.log(
-      `[AI] SUCCESS -> ${matchedCategory?.path} (ID: ${matchedCategory?.id})`,
-    );
-
-    // 6. Build redirect URL
-    const JOBS_ROOT_ID = categories.find((c: any) =>
-      c.name.toLowerCase().includes("job"),
-    )?._id;
-    const pathPrefix =
-      matchedCategory.rootId === JOBS_ROOT_ID ? "post-job" : "post-ad";
-    const categoryPathParam = encodeURIComponent(
-      JSON.stringify(matchedCategory.hierarchy),
-    );
-    const redirectUrl = `/${pathPrefix}/details/${matchedCategory.id}?categoryPath=${categoryPathParam}`;
+    const categoryPathParam = encodeURIComponent(JSON.stringify(hierarchy));
+    const redirectUrl = `/${pathPrefix}/details/${bestMatch.id}?categoryPath=${categoryPathParam}`;
 
     return {
       redirectUrl,
-      categoryPath: matchedCategory.hierarchy,
+      categoryPath: hierarchy,
       suggestedTitle: suggestedTitle || "",
     };
   } catch (error) {

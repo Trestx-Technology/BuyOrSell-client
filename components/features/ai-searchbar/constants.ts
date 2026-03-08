@@ -11,12 +11,10 @@ export const COLORS = {
 };
 
 export const suggestions = [
-  "Motors",
-  "Job",
-  "Property for Rent",
-  "Property for Sell",
-  "Furniture",
-  "Community",
-  "Others",
+  "used SUV in mint condition",
+  "2BHK apartment in Downtown",
+  "Modern sofa for living room",
+  "Gaming laptop with RTX 40 series graphics",
+  "Vintage wardrobe for bedroom",
+  "Pre-owned luxury watches under 20k",
 ];
-

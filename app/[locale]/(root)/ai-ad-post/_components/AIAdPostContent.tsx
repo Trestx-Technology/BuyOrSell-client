@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { useLocale } from "@/hooks/useLocale";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { useAITokenBalance, useConsumeTokens } from "@/hooks/useAITokens";
-import { useCategoriesTree } from "@/hooks/useCategories";
 
 // Components
 import { AIHowItWorks } from "./AIHowItWorks";
@@ -18,8 +17,14 @@ import { TemplateList } from "./TemplateList";
 import { NoCreditsDialog } from "@/components/global/NoCreditsDialog";
 
 export const AIAdPostContent = () => {
-  const { t, locale } = useLocale();
+  console.log("[AIAdPostContent] Component rendered");
+  const { t } = useLocale();
   const router = useRouter();
+
+  // Diagnostic log on mount
+  useMemo(() => {
+    console.log("[AIAdPostContent] Initialized");
+  }, []);
 
   const [prompt, setPrompt] = useState("");
   const [images, setImages] = useState<AIImageItem[]>([]);
@@ -33,7 +38,6 @@ export const AIAdPostContent = () => {
   const { data: tokenBalance } = useAITokenBalance();
   const currentBalance = tokenBalance?.data?.tokensRemaining ?? 0;
   const { mutateAsync: consumeTokens } = useConsumeTokens();
-  const { data: categoriesData } = useCategoriesTree();
 
   const MAGIC_SUGGEST_CREDITS = 5;
   const CATEGORIZATION_CREDITS = 3;
@@ -45,7 +49,7 @@ export const AIAdPostContent = () => {
       { id: "sell-laptop", label: t.aiAdPost.templateLabels.sellLaptop },
       { id: "more-examples", label: t.aiAdPost.templateLabels.moreExamples },
     ],
-    [t]
+    [t],
   );
 
   const handleRemoveImage = (index: number) => {
@@ -64,7 +68,7 @@ export const AIAdPostContent = () => {
     };
 
     setPrompt(
-      templatePrompts[templateId as keyof typeof templatePrompts] || ""
+      templatePrompts[templateId as keyof typeof templatePrompts] || "",
     );
   };
 
@@ -90,10 +94,17 @@ export const AIAdPostContent = () => {
         setPrompt(data.description);
         setAdType(data.adType);
         // Consume 5 tokens
-        await consumeTokens({ tokens: MAGIC_SUGGEST_CREDITS, purpose: "magic_suggestion" });
-        toast.success("Voila! Here's a suggested description.", { id: toastId });
+        await consumeTokens({
+          tokens: MAGIC_SUGGEST_CREDITS,
+          purpose: "magic_suggestion",
+        });
+        toast.success("Voila! Here's a suggested description.", {
+          id: toastId,
+        });
       } else {
-        toast.error("I couldn't generate a suggestion right now.", { id: toastId });
+        toast.error("I couldn't generate a suggestion right now.", {
+          id: toastId,
+        });
       }
     } catch (error) {
       console.error("Magic suggest error:", error);
@@ -106,6 +117,10 @@ export const AIAdPostContent = () => {
   // Auto-suggest removed as per user request
 
   const handleSubmit = async () => {
+    console.log("[Client] handleSubmit triggered", {
+      promptLength: prompt.length,
+      imagesCount: images.length,
+    });
     const uploadedImages = images
       .filter((img) => !img.uploading)
       .map((img) => img.url);
@@ -123,18 +138,36 @@ export const AIAdPostContent = () => {
 
     setIsGenerating(true);
     const toastId = toast.loading("Analyzing your ad details...");
+    console.log("[Client] Calling identifyCategory...");
     try {
-      const { redirectUrl, suggestedTitle } = await identifyCategory(prompt, uploadedImages, categoriesData, adType);
+      const { redirectUrl, suggestedTitle } = await identifyCategory(
+        prompt,
+        uploadedImages,
+        undefined, // categoriesData removed to fix serialization issues
+        adType,
+      );
+      console.log("[Client] identifyCategory response:", {
+        redirectUrl,
+        suggestedTitle,
+      });
 
       // Consume 3 tokens on success
-      await consumeTokens({ tokens: CATEGORIZATION_CREDITS, purpose: "ad_categorization" });
+      await consumeTokens({
+        tokens: CATEGORIZATION_CREDITS,
+        purpose: "ad_categorization",
+      });
 
       if (!redirectUrl) {
-        toast.error("I couldn't identify a clear category. Please try adding more detail to your description or ensure images are clear.", { id: toastId, duration: 6000 });
+        toast.error(
+          "I couldn't identify a clear category. Please try adding more detail to your description or ensure images are clear.",
+          { id: toastId, duration: 6000 },
+        );
         return;
       }
 
-      toast.success("Category identified! Redirecting you to the form...", { id: toastId });
+      toast.success("Category identified! Redirecting you to the form...", {
+        id: toastId,
+      });
 
       let redirectUrlWithParams = `${redirectUrl}&prompt=${encodeURIComponent(prompt)}`;
 
@@ -149,7 +182,9 @@ export const AIAdPostContent = () => {
       router.push(redirectUrlWithParams);
     } catch (error: any) {
       console.error("Error generating with AI:", error);
-      const errorMessage = error.message || "Something went wrong while analyzing your description. Please try again.";
+      const errorMessage =
+        error.message ||
+        "Something went wrong while analyzing your description. Please try again.";
       toast.error(errorMessage, { id: toastId });
     } finally {
       setIsGenerating(false);
@@ -185,53 +220,50 @@ export const AIAdPostContent = () => {
             isAIGenerated={adType.length > 0}
           />
 
-          {/* Single Adaptive CTA Button */}
-          <div className="mt-4">
-            {prompt.trim().length > 0 ? (
-              <button
-                onClick={handleSubmit}
-                disabled={isGenerating}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-[#8B31E1] hover:bg-[#7A2BC8] text-white transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(139,49,225,0.3)] hover:shadow-[0_0_20px_rgba(139,49,225,0.5)]"
-              >
-                {isGenerating ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Finding the best category...
-                  </>
-                ) : (
-                  <>
-                    Continue to Post Ad
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            ) : images.length > 0 && !images.some(img => img.uploading) ? (
+          {/* AI CTA Buttons */}
+          <div className="mt-4 flex flex-col gap-3">
+            {images.length > 0 && !images.some((img) => img.uploading) && (
               <button
                 onClick={handleMagicSuggestManual}
-                disabled={isSuggesting}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-[#8B31E1] hover:bg-[#7A2BC8] text-white transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(139,49,225,0.3)] hover:shadow-[0_0_20px_rgba(139,49,225,0.5)]"
+                disabled={isSuggesting || isGenerating}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-lg border border-[#8B31E1] text-[#8B31E1] hover:bg-[#8B31E1]/10 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSuggesting ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-[#8B31E1]/30 border-t-[#8B31E1] rounded-full animate-spin" />
                     Analyzing images...
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    Generate Description from Images
+                    Generate Details from Images
                   </>
                 )}
               </button>
-            ) : null}
+            )}
+
+            <button
+              onClick={handleSubmit}
+              disabled={isGenerating || isSuggesting || !prompt.trim()}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-[#8B31E1] hover:bg-[#7A2BC8] text-white transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(139,49,225,0.3)] hover:shadow-[0_0_20px_rgba(139,49,225,0.5)]"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Finding the best category...
+                </>
+              ) : (
+                <>
+                  Continue to Post Ad
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
           </div>
         </div>
 
         {/* Templates Section */}
-        <TemplateList
-          templates={templates}
-          onSelect={handleTemplateClick}
-        />
+        <TemplateList templates={templates} onSelect={handleTemplateClick} />
 
         {/* Loading State */}
         {isGenerating && (

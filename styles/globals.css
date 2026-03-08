@@ -19,6 +19,25 @@
       /* Safari and Chrome */
 }
 
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+}
+
 @theme inline {
       --color-background: var(--background);
       --color-foreground: var(--foreground);
@@ -450,9 +469,17 @@
       transform: translateX(0);
 }
 
-.reveal-delay-100 { transition-delay: 100ms; }
-.reveal-delay-200 { transition-delay: 200ms; }
-.reveal-delay-300 { transition-delay: 300ms; }
+.reveal-delay-100 {
+      transition-delay: 100ms;
+}
+
+.reveal-delay-200 {
+      transition-delay: 200ms;
+}
+
+.reveal-delay-300 {
+      transition-delay: 300ms;
+}
 
 /* Video Card Styles */
 .video-card-gradient {
