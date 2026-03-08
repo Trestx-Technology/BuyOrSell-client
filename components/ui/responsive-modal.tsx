@@ -99,14 +99,20 @@ const ResponsiveModalContent = ({
 
   if (isMobile) {
     return (
-      <DrawerContent className={cn(className, "z-999")} style={style}>
+      <DrawerContent className={cn(className, "z-[999] !w-full")} style={style}>
         {children}
       </DrawerContent>
     );
   }
 
   return (
-    <DialogContent className={cn(className, "z-999")} style={style} showCloseButton={showCloseButton}>{children}</DialogContent>
+    <DialogContent
+      className={cn(className, "z-999")}
+      style={style}
+      showCloseButton={showCloseButton}
+    >
+      {children}
+    </DialogContent>
   );
 };
 
