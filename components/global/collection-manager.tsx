@@ -41,7 +41,9 @@ export type CollectionManagerChildrenProps = {
 };
 
 export interface CollectionManagerProps {
-  children: React.ReactNode | ((props: CollectionManagerChildrenProps) => React.ReactNode);
+  children:
+    | React.ReactNode
+    | ((props: CollectionManagerChildrenProps) => React.ReactNode);
   itemId: string;
   itemTitle?: string;
   itemImage?: string;
@@ -77,10 +79,14 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const isFavoritesPage =
+    pathname.includes("/favorite") || pathname.includes("/favourite");
+
   // Fetch collections when user is authenticated to support isSaved status
+  // Reduced to only fire off requests natively on user interacting or checking favorites directly
   const { data: collectionsResponse, isLoading: isLoadingCollections } =
     useGetMyCollections(undefined, {
-      enabled: isAuthenticated,
+      enabled: isAuthenticated && (isFavoritesPage || open),
     });
 
   const addToCollectionMutation = useAddAdsToCollection();
@@ -88,7 +94,9 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
 
   const [localCollections, setLocalCollections] = useState<Collection[]>([]);
 
-  const [loadingCollectionId, setLoadingCollectionId] = useState<string | null>(null);
+  const [loadingCollectionId, setLoadingCollectionId] = useState<string | null>(
+    null,
+  );
 
   // Sync local state with fetched data
   React.useEffect(() => {
@@ -116,7 +124,7 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
             };
           }
           return col;
-        })
+        }),
       );
 
       try {
@@ -128,7 +136,6 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
         });
 
         // Invalidate to ensure consistency with server
-
 
         onSuccess?.(true);
         setOpen(false);
@@ -142,7 +149,13 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
         setLoadingCollectionId(null);
       }
     },
-    [itemId, addToCollectionMutation, queryClient, onSuccess, collectionsResponse?.data]
+    [
+      itemId,
+      addToCollectionMutation,
+      queryClient,
+      onSuccess,
+      collectionsResponse?.data,
+    ],
   );
 
   // Handle removing item from collection
@@ -151,7 +164,7 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
       setLoadingCollectionId(collectionId);
       const wasInOtherCollections = localCollections.some(
         (collection) =>
-          collection._id !== collectionId && collection.adIds?.includes(itemId)
+          collection._id !== collectionId && collection.adIds?.includes(itemId),
       );
 
       // Optimistic update using local state
@@ -166,7 +179,7 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
             };
           }
           return col;
-        })
+        }),
       );
 
       try {
@@ -191,7 +204,14 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
         setLoadingCollectionId(null);
       }
     },
-    [itemId, removeFromCollectionMutation, queryClient, localCollections, onSuccess, collectionsResponse?.data]
+    [
+      itemId,
+      removeFromCollectionMutation,
+      queryClient,
+      localCollections,
+      onSuccess,
+      collectionsResponse?.data,
+    ],
   );
 
   // Handle collection creation success
@@ -209,7 +229,7 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
       // Check if adId exists in the collection's adIds array
       return collection.adIds?.includes(itemId) ?? false;
     },
-    [itemId]
+    [itemId],
   );
 
   // Determine if the item is in any collection
@@ -337,8 +357,9 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
             </Typography>
           </div>
         ) : localCollections.length > 0 ? (
-            localCollections.filter((collection) => collection.name !== "Favourites")
-              .map(renderCollectionItem)
+          localCollections
+            .filter((collection) => collection.name !== "Favourites")
+            .map(renderCollectionItem)
         ) : (
           <div className="text-center py-8">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -395,7 +416,7 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
       },
     })
   ) : (
-      <div onClick={handleTriggerClick}>{renderChildren()}</div>
+    <div onClick={handleTriggerClick}>{renderChildren()}</div>
   );
 
   return (
@@ -406,8 +427,8 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
           className={`max-w-md w-[95%] overflow-y-auto max-h-[500px] rounded-lg ${className}`}
         >
           <ResponsiveModalHeader className="pb-4">
-              <ResponsiveModalTitle className="text-xl font-bold text-dark-blue">
-                {t.favorites?.myFavorites || "Favorites"}
+            <ResponsiveModalTitle className="text-xl font-bold text-dark-blue">
+              {t.favorites?.myFavorites || "Favorites"}
             </ResponsiveModalTitle>
           </ResponsiveModalHeader>
           {content}

@@ -67,12 +67,12 @@ export const useOrganizationById = (id: string) => {
 };
 
 // Get my organization
-export const useMyOrganization = (enabled?: boolean) => {
+export const useMyOrganization = (enabled = true) => {
   const isAuthenticated = useIsAuthenticated();
   return useQuery<OrganizationResponse, Error>({
     queryKey: [...organizationQueries.getMyOrganization.Key],
     queryFn: () => getMyOrganization(),
-    enabled: isAuthenticated || !enabled,
+    enabled: isAuthenticated && enabled,
   });
 };
 
@@ -282,7 +282,7 @@ export const useUnfollowOrganization = () => {
 // Get organization followers list with pagination
 export const useFollowers = (
   id: string,
-  params?: { page?: number; limit?: number }
+  params?: { page?: number; limit?: number },
 ) => {
   return useQuery<
     {

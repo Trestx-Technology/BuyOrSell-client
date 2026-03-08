@@ -232,19 +232,23 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   isLoggedIn = false,
   user,
 }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
   // Fetch current user's organization using /organizations/me endpoint
-  const { data: myOrganizationData } = useMyOrganization(!isLoggedIn);
+  // strictly when the sidebar operates in open state to save API calls
+  const { data: myOrganizationData } = useMyOrganization(isOpen);
   const router = useRouter();
 
   const organizations = myOrganizationData?.data ?? [];
 
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>{trigger}</SheetTrigger>
       <SheetContent side="left" className="min-w-[250px] p-0 gap-0">
         <SheetHeader className="p-0">
           {/* Header Section */}
-          <div className={`${isLoggedIn ? "bg-purple" : "bg-white dark:bg-gray-900"} px-4 py-4`}>
+          <div
+            className={`${isLoggedIn ? "bg-purple" : "bg-white dark:bg-gray-900"} px-4 py-4`}
+          >
             {!isLoggedIn && (
               <div className="flex items-center justify-between">
                 {/* Logo */}
@@ -267,7 +271,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                     className={`${
                       isLoggedIn
                         ? "text-white hover:bg-white/10"
-                      : "text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                        : "text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
                     }`}
                   >
                     <X className="w-5 h-5" />
@@ -367,7 +371,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                   "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/profile.svg"
                 }
                 label="Profile"
-                  href="/user/profile"
+                href="/user/profile"
               />
             )}
           </div>
