@@ -2,10 +2,23 @@
 
 import React, { useState, useMemo, useEffect, Suspense } from "react";
 import { Typography } from "@/components/typography";
-import { Star, Zap, Award, Building2, CheckCircle2, Gem, Crown, Rocket, Sparkles, Diamond, ShieldCheck, Medal } from "lucide-react";
+import {
+  Star,
+  Zap,
+  Award,
+  Building2,
+  CheckCircle2,
+  Gem,
+  Crown,
+  Rocket,
+  Sparkles,
+  Diamond,
+  ShieldCheck,
+  Medal,
+} from "lucide-react";
 import { useLocale } from "@/hooks/useLocale";
 import { PlanCard } from "./PlanCard";
-import { useGetPlans } from "@/hooks/usePlans";
+import { useGetPlans, useGetDefaultPlans } from "@/hooks/usePlans";
 import { IPlan } from "@/interfaces/plan.types";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 import { useGetMySubscription } from "@/hooks/useSubscriptions";
@@ -26,8 +39,17 @@ function PlansContent() {
   const searchParams = useSearchParams();
   const urlType = searchParams.get("type");
   const [selectedType, setSelectedType] = useState<string>(urlType || "");
-  const { data: plansData, isLoading, error } = useGetPlans();
+  const {
+    data: plansData,
+    isLoading: isPlansLoading,
+    error: plansError,
+  } = useGetPlans();
+  const { data: defaultPlans, isLoading: isDefaultLoading } =
+    useGetDefaultPlans();
   const { data: mySubscription } = useGetMySubscription();
+
+  const isLoading = isPlansLoading || isDefaultLoading;
+  const error = plansError;
   const router = useRouter();
   const user = useAuthStore((state) => state.session.user);
   const isVerifiedEmarati = user?.emaratiStatus === "VERIFIED";
@@ -70,18 +92,37 @@ function PlansContent() {
     return featuresList.map((f) => f.trim());
   };
 
+  const allPlans = useMemo(() => {
+    const plans = plansData?.data || [];
+    // Ensure default plans are included if they have data
+    if (defaultPlans?.data) {
+      const defaultPlansData = Array.isArray(defaultPlans.data)
+        ? defaultPlans.data
+        : [defaultPlans.data];
+      return [...defaultPlansData, ...plans];
+    }
+    return plans;
+  }, [plansData, defaultPlans]);
+
   // Extract unique plan types
   const planTypes = useMemo(() => {
-    if (!plansData?.data) return [];
-    const types = new Set(plansData.data.map((plan) => plan.type));
-    return Array.from(types).filter((type): type is string => !!type).sort();
-  }, [plansData]);
+    if (!allPlans) return [];
+    const types = new Set(allPlans.map((plan) => plan.type));
+    return Array.from(types)
+      .filter((type): type is string => !!type)
+      .sort();
+  }, [allPlans]);
 
   // Set default selected type when data loads
   useEffect(() => {
     if (planTypes.length > 0) {
-      if (urlType && planTypes.some(t => t.toLowerCase() === urlType.toLowerCase())) {
-        const matchedType = planTypes.find(t => t.toLowerCase() === urlType.toLowerCase());
+      if (
+        urlType &&
+        planTypes.some((t) => t.toLowerCase() === urlType.toLowerCase())
+      ) {
+        const matchedType = planTypes.find(
+          (t) => t.toLowerCase() === urlType.toLowerCase(),
+        );
         if (matchedType) setSelectedType(matchedType);
       } else if (!selectedType) {
         setSelectedType(planTypes[0]);
@@ -89,7 +130,7 @@ function PlansContent() {
     }
   }, [planTypes, selectedType, urlType]);
 
-  const displayPlans = (plansData?.data || []).filter((plan) => {
+  const displayPlans = allPlans.filter((plan) => {
     return plan.type === selectedType;
   });
 
@@ -156,8 +197,14 @@ function PlansContent() {
                   </SelectTrigger>
                   <SelectContent>
                     {planTypes.map((type) => (
-                      <SelectItem key={type} value={type} className="cursor-pointer">
-                        {type}
+                      <SelectItem
+                        key={type}
+                        value={type}
+                        className="cursor-pointer"
+                      >
+                        {type.toLowerCase() === "basic"
+                          ? `${type} (Free)`
+                          : type}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -169,12 +216,18 @@ function PlansContent() {
                   <button
                     key={type}
                     onClick={() => setSelectedType(type)}
-                    className={`px-6 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${selectedType === type
-                      ? "bg-white text-black shadow-sm"
-                      : "text-gray-500 hover:text-gray-900"
-                      }`}
+                    className={`px-6 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-2 ${
+                      selectedType === type
+                        ? "bg-white text-black shadow-sm"
+                        : "text-gray-500 hover:text-gray-900"
+                    }`}
                   >
                     {type}
+                    {type.toLowerCase() === "basic" && (
+                      <span className="text-[10px] bg-emerald-500 text-white px-1.5 py-0.5 rounded-full font-bold">
+                        Free
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -204,7 +257,8 @@ function PlansContent() {
           <div className="flex flex-wrap justify-center gap-8 mx-auto">
             {displayPlans.map((plan, index) => {
               const features = getFeatures(plan);
-              const planName = locale === "ar" && plan.planAr ? plan.planAr : plan.plan;
+              const planName =
+                locale === "ar" && plan.planAr ? plan.planAr : plan.plan;
 
               const displayPrice = plan.discountedPrice
                 ? plan.discountedPrice.toFixed(0).toString()
@@ -214,7 +268,10 @@ function PlansContent() {
                 : "";
 
               const isCurrentPlan = currentPlanId === plan._id;
-              const description = locale === "ar" && plan.descriptionAr ? plan.descriptionAr : (plan.description || "");
+              const description =
+                locale === "ar" && plan.descriptionAr
+                  ? plan.descriptionAr
+                  : plan.description || "";
 
               const cardProps = {
                 id: plan._id,
@@ -226,10 +283,17 @@ function PlansContent() {
                 originalPrice: displayOriginalPrice,
                 description: description,
                 features: features,
-                buttonText: isCurrentPlan ? "Current Plan" : "Subscribe",
-                isPopular: plan.isPopular,
-                isPremium: plan.plan.toLowerCase() === "platinum" || plan.plan.toLowerCase() === "premium",
-                isCurrent: isCurrentPlan
+                buttonText: isCurrentPlan
+                  ? "Current Plan"
+                  : plan.isDefault
+                    ? "Start Free Plan"
+                    : "Subscribe",
+                isPopular: plan.isPopular || plan.isDefault,
+                isPremium:
+                  plan.plan.toLowerCase() === "platinum" ||
+                  plan.plan.toLowerCase() === "premium",
+                isCurrent: isCurrentPlan,
+                isDefault: plan.isDefault,
               };
 
               return (
@@ -249,7 +313,10 @@ function PlansContent() {
                 </div>
               </div>
 
-              <Typography variant="xl-semibold" className="text-left mb-2 text-black">
+              <Typography
+                variant="xl-semibold"
+                className="text-left mb-2 text-black"
+              >
                 Enterprise
               </Typography>
 
@@ -259,8 +326,12 @@ function PlansContent() {
                 </Typography>
               </div>
 
-              <Typography variant="sm-regular" className="text-left mb-6 text-gray-600">
-                Custom solutions for large organizations requiring tailored features and priority support.
+              <Typography
+                variant="sm-regular"
+                className="text-left mb-6 text-gray-600"
+              >
+                Custom solutions for large organizations requiring tailored
+                features and priority support.
               </Typography>
 
               <div className="space-y-3 flex-1 mb-8">
@@ -270,7 +341,7 @@ function PlansContent() {
                   "Custom Integration",
                   "Priority Support",
                   "Advanced Analytics",
-                  "SLA Agreement"
+                  "SLA Agreement",
                 ].map((feature, featureIndex) => (
                   <div key={featureIndex} className="flex items-start gap-3">
                     <CheckCircle2 className="size-6 mt-0.5 flex-shrink-0 text-purple fill-white" />
@@ -297,11 +368,13 @@ function PlansContent() {
 
 export function PlansMain() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+        </div>
+      }
+    >
       <PlansContent />
     </Suspense>
   );

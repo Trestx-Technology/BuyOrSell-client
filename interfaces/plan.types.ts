@@ -14,7 +14,9 @@ export interface IPlan {
   type: string;
   isPopular: boolean;
   userIds: string[];
-  numberOfFeaturedAds: number;
+  featuredAdsAvailable?: number;
+  isVisible?: boolean;
+  isDefault?: boolean;
   createdAt: string;
   updatedAt: string;
   __v: number;

@@ -1,6 +1,6 @@
-import { axiosInstance } from '@/services/axios-api-client';
-import { planQueries } from './index';
-import type { PlanListResponse } from '@/interfaces/plan.types';
+import { axiosInstance } from "@/services/axios-api-client";
+import { planQueries } from "./index";
+import type { PlanListResponse } from "@/interfaces/plan.types";
 
 // ============================================================================
 // PLAN OPERATIONS
@@ -8,7 +8,14 @@ import type { PlanListResponse } from '@/interfaces/plan.types';
 
 export const getPlans = async (): Promise<PlanListResponse> => {
   const response = await axiosInstance.get<PlanListResponse>(
-    planQueries.getPlans.endpoint
+    planQueries.getPlans.endpoint,
+  );
+  return response.data;
+};
+
+export const getDefaultPlans = async (): Promise<PlanListResponse> => {
+  const response = await axiosInstance.get<PlanListResponse>(
+    planQueries.getDefaultPlans.endpoint,
   );
   return response.data;
 };
