@@ -50,8 +50,6 @@ export interface SessionUser {
 }
 
 export interface AuthSession {
-  accessToken: string | null;
-  refreshToken: string | null;
   user: SessionUser | null;
 }
 
@@ -64,7 +62,7 @@ export interface AuthStore {
   setSession: (
     accessToken: string,
     refreshToken: string,
-    user: SessionUser
+    user: SessionUser,
   ) => Promise<void>;
   clearSession: () => Promise<void>;
   updateUser: (user: Partial<SessionUser>) => void;
@@ -76,8 +74,6 @@ export interface AuthStore {
 // ============================================================================
 
 const initialSession: AuthSession = {
-  accessToken: null,
-  refreshToken: null,
   user: null,
 };
 
@@ -151,21 +147,23 @@ export const useAuthStore = create<AuthStore>()(
         // Store in Zustand state
         set({
           session: {
-            accessToken,
-            refreshToken,
             user: sessionUser,
           },
           isAuthenticated: true,
         });
 
         // Also store in localStorage for backward compatibility
-        LocalStorageService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken);
-        LocalStorageService.set(AUTH_TOKEN_NAMES.REFRESH_TOKEN, refreshToken);
         LocalStorageService.set("user", sessionUser);
 
         // Set cookie using client-side CookieService
-        const maxAge = Number(process.env.NEXT_PUBLIC_COOKIE_MAX_AGE) || 86400; // Default to 24 hours
+        const maxAge = 7 * 24 * 60 * 60; // 1 week
         CookieService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken, {
+          maxAge,
+          path: "/",
+          secure: true,
+          sameSite: "lax",
+        });
+        CookieService.set(AUTH_TOKEN_NAMES.REFRESH_TOKEN, refreshToken, {
           maxAge,
           path: "/",
           secure: true,
@@ -191,6 +189,7 @@ export const useAuthStore = create<AuthStore>()(
 
         // Clear cookie using client-side CookieService
         CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: "/" });
+        CookieService.remove(AUTH_TOKEN_NAMES.REFRESH_TOKEN, { path: "/" });
       },
 
       // Update User Data
@@ -217,39 +216,33 @@ export const useAuthStore = create<AuthStore>()(
 
       // Refresh Tokens
       refreshTokens: async (accessToken, refreshToken) => {
-        const currentSession = get().session;
-
-        set({
-          session: {
-            ...currentSession,
-            accessToken,
-            ...(refreshToken && { refreshToken }),
-          },
-        });
-
-        // Update localStorage
-        LocalStorageService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken);
-        if (refreshToken) {
-          LocalStorageService.set(AUTH_TOKEN_NAMES.REFRESH_TOKEN, refreshToken);
-        }
-
         // Update cookie using client-side CookieService
-        const maxAge = Number(process.env.NEXT_PUBLIC_COOKIE_MAX_AGE) || 86400; // Default to 24 hours
+        const maxAge = 7 * 24 * 60 * 60; // 1 week
         CookieService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken, {
           maxAge,
           path: "/",
           secure: true,
           sameSite: "lax",
         });
+        if (refreshToken) {
+          CookieService.set(AUTH_TOKEN_NAMES.REFRESH_TOKEN, refreshToken, {
+            maxAge,
+            path: "/",
+            secure: true,
+            sameSite: "lax",
+          });
+        }
       },
     }),
     {
       name: "buyorsell-auth-store",
-      storage: createJSONStorage(() => (typeof window !== "undefined" ? localStorage : ({} as Storage))),
+      storage: createJSONStorage(() =>
+        typeof window !== "undefined" ? localStorage : ({} as Storage),
+      ),
       partialize: (state) => ({
         session: state.session,
         isAuthenticated: state.isAuthenticated,
       }),
-    }
-  )
+    },
+  ),
 );

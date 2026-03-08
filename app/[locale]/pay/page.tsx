@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { Typography } from "@/components/typography";
-import { LocalStorageService } from "@/services/local-storage";
+import { CookieService } from "@/services/cookie-service";
 import { AUTH_TOKEN_NAMES } from "@/constants/auth.constants";
 import { Loader2 } from "lucide-react";
 
@@ -15,7 +15,7 @@ import { MissingParamsError } from "@/components/payment/MissingParamsError";
 
 // Initialize Stripe outside of component to avoid recreating it
 const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "",
 );
 
 function PayPageContent() {
@@ -47,10 +47,16 @@ function PayPageContent() {
   // Handle Auth Token for direct payment if accessToken is present
   useEffect(() => {
     if (accessToken) {
-      LocalStorageService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken);
+      const maxAge = 7 * 24 * 60 * 60; // 1 week
+      CookieService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken, {
+        maxAge,
+        path: "/",
+        secure: true,
+        sameSite: "lax",
+      });
       setIsAuthSet(true);
     } else if (checkoutUrl) {
-      // If it's a checkout flow, we don't necessarily need the token set here 
+      // If it's a checkout flow, we don't necessarily need the token set here
       // as redirect happens to Stripe.
       setIsAuthSet(true);
     }
@@ -65,7 +71,9 @@ function PayPageContent() {
           <Typography variant="h3" className="font-bold text-gray-900 mb-2">
             Redirecting to Checkout...
           </Typography>
-          <p className="text-gray-500">Wait a moment while we set up your secure payment session.</p>
+          <p className="text-gray-500">
+            Wait a moment while we set up your secure payment session.
+          </p>
         </div>
       </div>
     );
@@ -91,9 +99,8 @@ function PayPageContent() {
     () => ({
       clientSecret: clientSecret!,
       appearance: { theme: "stripe" as const },
-
     }),
-    [clientSecret]
+    [clientSecret],
   );
 
   if (!isAuthSet) {

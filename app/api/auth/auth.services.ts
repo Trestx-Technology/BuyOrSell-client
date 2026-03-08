@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { axiosInstance } from '@/services/axios-api-client';
-import { authQueries } from './index';
+import { axiosInstance } from "@/services/axios-api-client";
+import { authQueries } from "./index";
 import type {
   loginResponse,
   SocialLoginPayload,
   User,
-} from '@/interfaces/auth.types';
+} from "@/interfaces/auth.types";
 
 export type { loginResponse, SocialLoginPayload, User };
-import { CookieService } from '@/services/cookie-service';
-import { AUTH_TOKEN_NAMES } from '@/constants/auth.constants';
-import { LocalStorageService } from '@/services/local-storage';
+import { CookieService } from "@/services/cookie-service";
+import { AUTH_TOKEN_NAMES } from "@/constants/auth.constants";
+import { LocalStorageService } from "@/services/local-storage";
 
 // Signup
 export interface SignUpPayload {
@@ -70,14 +70,13 @@ export const signUp = async (data: SignUpPayload): Promise<SignUpResponse> => {
 export const logout = async (): Promise<any> => {
   const response = await axiosInstance.post(authQueries.logout.endpoint);
   LocalStorageService.clear();
-  CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: '/' });
+  CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: "/" });
+  CookieService.remove(AUTH_TOKEN_NAMES.REFRESH_TOKEN, { path: "/" });
   return response.data;
 };
 
 // Send Reset Password Email
-export const sendResetPasswordEmail = async (
-  email: string,
-): Promise<any> => {
+export const sendResetPasswordEmail = async (email: string): Promise<any> => {
   const response = await axiosInstance.post(
     authQueries.sendResetPasswordEmail.endpoint,
     {
@@ -155,9 +154,7 @@ export const verifyPhoneOtp = async (data: {
 };
 
 // Refresh Token
-export const refreshToken = async (
-  refreshToken: string,
-): Promise<any> => {
+export const refreshToken = async (refreshToken: string): Promise<any> => {
   const response = await axiosInstance.post(authQueries.refreshToken.endpoint, {
     refreshToken,
   });

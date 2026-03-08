@@ -91,10 +91,12 @@ async function handleLogoutAndRedirect(): Promise<void> {
     const { clearSession } = useAuthStore.getState();
     await clearSession();
     CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: "/" });
+    CookieService.remove(AUTH_TOKEN_NAMES.REFRESH_TOKEN, { path: "/" });
   } catch (error) {
     console.error("Error clearing auth store:", error);
     LocalStorageService.clear();
     CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: "/" });
+    CookieService.remove(AUTH_TOKEN_NAMES.REFRESH_TOKEN, { path: "/" });
   }
 
   setTimeout(() => {
@@ -148,11 +150,9 @@ function createRefreshAxiosInstance() {
 }
 
 function getRefreshToken(): string | null {
-  let refreshToken = LocalStorageService.get<string>(
-    AUTH_TOKEN_NAMES.REFRESH_TOKEN,
-  );
+  let refreshToken = CookieService.get(AUTH_TOKEN_NAMES.REFRESH_TOKEN);
 
-  // Fallback: try direct localStorage access
+  // Fallback: try direct localStorage access for migration
   if (!refreshToken && typeof window !== "undefined") {
     const rawRefreshToken = localStorage.getItem(
       AUTH_TOKEN_NAMES.REFRESH_TOKEN,
@@ -202,23 +202,26 @@ async function executeRefreshFlow(refreshToken: string): Promise<string> {
     }
 
     console.log("[Token Refresh] Successful");
-    LocalStorageService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, newToken);
 
-    if (newRefresh) {
-      LocalStorageService.set(AUTH_TOKEN_NAMES.REFRESH_TOKEN, newRefresh);
-    }
-
-    // Also set cookie to maintain consistency
+    const maxAge = 7 * 24 * 60 * 60; // 1 week
     try {
-      const maxAge = Number(process.env.NEXT_PUBLIC_COOKIE_MAX_AGE) || 86400;
       CookieService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, newToken, {
         maxAge,
         path: "/",
         secure: true,
         sameSite: "lax",
       });
+
+      if (newRefresh) {
+        CookieService.set(AUTH_TOKEN_NAMES.REFRESH_TOKEN, newRefresh, {
+          maxAge,
+          path: "/",
+          secure: true,
+          sameSite: "lax",
+        });
+      }
     } catch (e) {
-      console.error("Failed to set cookie after refresh", e);
+      console.error("Failed to set cookies after refresh", e);
     }
 
     isRedirecting = false;
@@ -315,11 +318,22 @@ axiosInstance.interceptors.request.use(
     }
 
     // 2. Auth logic
-    let token = LocalStorageService.get<string>(AUTH_TOKEN_NAMES.ACCESS_TOKEN);
+    let token = CookieService.get(AUTH_TOKEN_NAMES.ACCESS_TOKEN);
+    if (!token && typeof window !== "undefined") {
+      token = LocalStorageService.get<string>(AUTH_TOKEN_NAMES.ACCESS_TOKEN);
+    }
+    const refreshToken = getRefreshToken();
+
+    // Clear session data if both tokens aren't present
+    if (!token && !refreshToken) {
+      const authState = useAuthStore.getState();
+      if (authState.isAuthenticated) {
+        void authState.clearSession();
+      }
+    }
 
     // Check if we need to refresh: No token OR Token is expired
     if (!token || isTokenExpired(token)) {
-      const refreshToken = getRefreshToken();
       const isRefreshValid = refreshToken && !isTokenExpired(refreshToken, 0);
 
       if (isRefreshValid) {

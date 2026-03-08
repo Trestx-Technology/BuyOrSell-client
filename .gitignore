@@ -15,6 +15,12 @@
 
 .playwright-mcp
 
+# Agents
+.claude
+.cursor
+.clinerules
+.idea
+
 # next.js
 /.next/
 /out/
