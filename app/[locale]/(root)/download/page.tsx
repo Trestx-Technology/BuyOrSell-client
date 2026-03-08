@@ -4,16 +4,7 @@ import React from "react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Container1080 } from "@/components/layouts/container-1080";
-import {
-  Smartphone,
-  Apple,
-  PlayCircle,
-  QrCode,
-  CheckCircle2,
-  Star,
-  ShieldCheck,
-  Zap,
-} from "lucide-react";
+import { Smartphone, QrCode, Star, ShieldCheck, Zap } from "lucide-react";
 import { useLocale } from "@/hooks/useLocale";
 import Image from "next/image";
 
@@ -78,26 +69,58 @@ export default function DownloadAppPage() {
               </p>
 
               <div className="flex flex-wrap gap-4 pt-4">
-                <Button className="h-14 px-8 bg-black hover:bg-gray-900 border-none rounded-xl flex items-center gap-3 group transition-all hover:scale-105 active:scale-95 shadow-xl">
-                  <Apple className="size-6 fill-white" />
-                  <div className="text-left">
-                    <p className="text-[10px] uppercase leading-none opacity-70">
-                      Download on the
-                    </p>
-                    <p className="text-lg font-bold leading-none">App Store</p>
-                  </div>
+                <Button
+                  icon={
+                    <Image
+                      src="https://firebasestorage.googleapis.com/v0/b/dealdome-12a90.firebasestorage.app/o/icons%2FGroup%20(1).svg?alt=media&token=697b0ca8-67bf-44d9-bc5d-ee12e36822a7"
+                      alt="app store"
+                      width={25}
+                      height={25}
+                      className="size-[25px]"
+                    />
+                  }
+                  iconPosition="left"
+                  onClick={() =>
+                    window.open(
+                      `https://apps.apple.com/app/idXXXXXXXXX`,
+                      "_blank",
+                    )
+                  }
+                  className="bg-black px-6 font-medium text-white hover:bg-black/90 h-14 rounded-xl text-left capitalize transition-all hover:scale-105 shadow-xl"
+                >
+                  <span className="flex flex-col gap-0 justify-start relative pt-2 text-md">
+                    <span className="text-[10px] tracking-wider absolute top-[-5px] font-inter">
+                      Available on the
+                    </span>
+                    App Store
+                  </span>
                 </Button>
 
-                <Button className="h-14 px-8 bg-black hover:bg-gray-900 border-none rounded-xl flex items-center gap-3 group transition-all hover:scale-105 active:scale-95 shadow-xl">
-                  <PlayCircle className="size-6 text-white" />
-                  <div className="text-left">
-                    <p className="text-[10px] uppercase leading-none opacity-70">
-                      Get it on
-                    </p>
-                    <p className="text-lg font-bold leading-none">
-                      Google Play
-                    </p>
-                  </div>
+                <Button
+                  icon={
+                    <Image
+                      src="https://firebasestorage.googleapis.com/v0/b/dealdome-12a90.firebasestorage.app/o/icons%2FGroup.svg?alt=media&token=08d8b0d5-e352-4d63-9ead-4824478c6065"
+                      alt="google play"
+                      width={25}
+                      height={25}
+                      className="size-[25px]"
+                    />
+                  }
+                  iconPosition="left"
+                  onClick={() =>
+                    window.open(
+                      "https://play.google.com/store/apps/details?id=com.yourpackage",
+                      "_blank",
+                    )
+                  }
+                  className="bg-black px-6 font-medium text-white hover:bg-black/90 h-14 rounded-xl text-left capitalize transition-all hover:scale-105 shadow-xl"
+                >
+                  <span className="flex flex-col gap-0 justify-start relative pt-2 text-md">
+                    <span className="text-[10px] tracking-wider absolute top-[-5px] font-inter">
+                      GET IT ON
+                    </span>
+                    Google play
+                  </span>
                 </Button>
               </div>
             </div>
