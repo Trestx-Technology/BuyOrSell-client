@@ -123,6 +123,8 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
         isPremium
           ? "bg-gray-950 border-purple-500/20 shadow-2xl shadow-purple-500/10 text-white"
           : "bg-white border-gray-100 hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/5",
+        !subscription.isActive &&
+          "grayscale opacity-70 border-gray-200 dark:border-gray-800",
       )}
     >
       {/* Premium Glow */}
@@ -317,58 +319,50 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
       </div>
 
       {/* CTA Button */}
-      <div className="mt-auto pt-4 border-t border-dashed border-gray-200 dark:border-gray-800">
-        {subscription.isActive && !subscription.cancelAtPeriodEnd ? (
-          <ResponsiveDialogDrawer
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            title="Stop Auto-Renewal?"
-            description="Your subscription will remain active until the end of your current billing period, but it will not renew automatically. Are you sure?"
-            trigger={
-              <Button
-                className={cn(
-                  "w-full h-12 rounded-2xl font-bold transition-all active:scale-95",
-                  isPremium
-                    ? "bg-white/10 text-red-400 hover:bg-white/20"
-                    : "bg-red-50 text-red-600 hover:bg-red-100",
-                )}
-              >
-                Stop Recurring
-              </Button>
-            }
-          >
-            <div className="p-4 pt-0 flex flex-col gap-3">
-              <Button
-                variant="danger"
-                className="rounded-2xl h-12 font-bold"
-                onClick={handleCancelSubscription}
-                disabled={isPending}
-              >
-                {isPending ? "Stopping..." : "Confirm Stop Auto-Renewal"}
-              </Button>
-              <Button
-                variant="outline"
-                className="rounded-2xl h-12 font-bold"
-                onClick={() => setIsDialogOpen(false)}
-                disabled={isPending}
-              >
-                Go Back
-              </Button>
-            </div>
-          </ResponsiveDialogDrawer>
-        ) : (
-          <Button
-            variant="outline"
-            className={cn(
-              "w-full h-12 rounded-2xl font-bold",
-              isPremium ? "border-white/10 text-white" : "",
-            )}
-            onClick={() => router.push("/plans")}
-          >
-            Renew Now
-          </Button>
+      {subscription.isActive &&
+        !subscription.cancelAtPeriodEnd &&
+        plan.type !== "basic" &&
+        !plan.isDefault && (
+          <div className="mt-auto pt-4 border-t border-dashed border-gray-200 dark:border-gray-800">
+            <ResponsiveDialogDrawer
+              open={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+              title="Stop Auto-Renewal?"
+              description="Your subscription will remain active until the end of your current billing period, but it will not renew automatically. Are you sure?"
+              trigger={
+                <Button
+                  className={cn(
+                    "w-full h-12 rounded-2xl font-bold transition-all active:scale-95",
+                    isPremium
+                      ? "bg-white/10 text-red-400 hover:bg-white/20"
+                      : "bg-red-50 text-red-600 hover:bg-red-100",
+                  )}
+                >
+                  Stop Recurring
+                </Button>
+              }
+            >
+              <div className="p-4 pt-0 flex flex-col gap-3">
+                <Button
+                  variant="danger"
+                  className="rounded-2xl h-12 font-bold"
+                  onClick={handleCancelSubscription}
+                  disabled={isPending}
+                >
+                  {isPending ? "Stopping..." : "Confirm Stop Auto-Renewal"}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="rounded-2xl h-12 font-bold"
+                  onClick={() => setIsDialogOpen(false)}
+                  disabled={isPending}
+                >
+                  Go Back
+                </Button>
+              </div>
+            </ResponsiveDialogDrawer>
+          </div>
         )}
-      </div>
     </div>
   );
 };
