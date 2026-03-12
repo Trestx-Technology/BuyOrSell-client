@@ -38,8 +38,15 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
     return pathWithoutLocale === "/";
   }, [pathname]);
 
+  const isBlogPage = useMemo(() => {
+    const pathWithoutLocale = pathname?.replace(/^\/[^/]+/, "") || "/";
+    return pathWithoutLocale.startsWith("/blog");
+  }, [pathname]);
+
   // Determine navbar className
   const navbarClassName = useMemo(() => {
+    // Hide on blog pages
+    if (isBlogPage) return "hidden";
     // Root page: always visible (no hidden class)
     if (isRootPage) return "";
     // Pages in PAGES_WITH_NAV: check mobile hiding
@@ -48,9 +55,11 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
     }
     // Pages NOT in PAGES_WITH_NAV: desktop only
     return "hidden sm:flex";
-  }, [isRootPage, shouldShowNav, shouldHideNavOnMobile]);
+  }, [isRootPage, shouldShowNav, shouldHideNavOnMobile, isBlogPage]);
 
   const categoryNavClassName = useMemo(() => {
+    // Hide on blog pages
+    if (isBlogPage) return "hidden";
     // Root page: always visible (no hidden class)
     if (isRootPage) return "";
     // Pages in PAGES_WITH_NAV: check mobile hiding
@@ -59,7 +68,7 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
     }
     // Pages NOT in PAGES_WITH_NAV: desktop only
     return "hidden md:flex";
-  }, [isRootPage, shouldShowNav, shouldHideNavOnMobile]);
+  }, [isRootPage, shouldShowNav, shouldHideNavOnMobile, isBlogPage]);
 
   return (
     <main className="min-h-[600px] relative flex flex-col bg-white dark:bg-gray-950">
