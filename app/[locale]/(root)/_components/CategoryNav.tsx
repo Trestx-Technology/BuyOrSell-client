@@ -364,7 +364,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
     return (
       <HoverCardContent
         className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[80vh] p-0 w-fit"
-        align="start"
+        align={locale === "ar" ? "end" : "start"}
         sideOffset={4}
       >
         <div className="w-full max-w-md overflow-y-auto max-h-[80vh]">
@@ -401,11 +401,11 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
   return (
     <HoverCardContent
       className="bg-white dark:bg-gray-900 rounded-none rounded-b-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden max-h-[40vh] p-0 w-fit"
-      align="start"
+      align={locale === "ar" ? "end" : "start"}
       sideOffset={0}
     >
-      <div className="flex w-full">
-        <div className="w-60 border-r border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[40vh] overflow-y-auto">
+      <div className={cn("flex w-full", locale === "ar" && "flex-row-reverse")}>
+        <div className={cn("w-60 border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[40vh]", locale === "ar" ? "border-l" : "border-r")}>
           {categoryData.map((category) => {
             const hasChildren =
               category.children && category.children.length > 0;
@@ -466,9 +466,9 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                     : category.name}
                 </Typography>
                 {isActive ? (
-                  <ChevronLeft className="w-4 h-4" />
+                  locale === "ar" ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />
                 ) : (
-                  <ChevronRight className="w-4 h-4" />
+                  locale === "ar" ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
                 )}
               </Link>
             );
