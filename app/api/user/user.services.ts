@@ -13,6 +13,7 @@ import type {
   AddUserTypePayload,
   UpdateEmaratiPayload,
   AssignRolePayload,
+  UserStatusResponse,
 } from "@/interfaces/user.types";
 
 // Get all users
@@ -240,6 +241,14 @@ export const assignRole = async (
   const response = await axiosInstance.put<UserResponse>(
     userQueries.assignRole(id).endpoint,
     data
+  );
+  return response.data;
+};
+
+// Get user status
+export const getUserStatus = async (id: string): Promise<UserStatusResponse> => {
+  const response = await axiosInstance.get<UserStatusResponse>(
+    userQueries.getUserStatus(id).endpoint
   );
   return response.data;
 };

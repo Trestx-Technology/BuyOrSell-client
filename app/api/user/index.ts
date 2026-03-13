@@ -79,4 +79,8 @@ export const userQueries = {
     Key: ["user", id, "role"],
     endpoint: `/users/${id}/role`,
   }),
+  getUserStatus: (id: string) => ({
+    Key: ["user", id, "status"],
+    endpoint: `/users/user/${id}/status`,
+  }),
 };
