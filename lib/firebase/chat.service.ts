@@ -116,10 +116,7 @@ export class ChatService {
       const chatsRef = collection(this.db, COLLECTIONS.CHATS);
 
       // 1. Try direct lookup using deterministic ID (fastest and most reliable for new logic)
-      const typeId =
-        params.type === "organisation" && params.adId && params.organisationId
-          ? `${params.organisationId}_${params.adId}`
-          : params.adId || params.organisationId || "direct";
+      const typeId = params.adId || params.organisationId || "direct";
 
       const chatId = this.generateChatId(
         params.type,
@@ -149,13 +146,12 @@ export class ChatService {
         const paramsAdId = params.adId || null;
         const dataAdId = data.adId || null;
 
-        // Check type-specific IDs
-        if (params.type === "ad") {
-          if (dataAdId !== paramsAdId) return false;
-        } else if (params.type === "organisation") {
+        // Match Ad ID if present (ensures separate chats for different ads)
+        if (paramsAdId !== dataAdId) return false;
+
+        // Match Organisation ID if it's an organisation chat
+        if (params.type === "organisation") {
           if (data.organisationId !== params.organisationId) return false;
-          // Scope by adId as well if it's an organization ad chat
-          if (dataAdId !== paramsAdId) return false;
         }
 
         // Check if participants match exactly
@@ -184,10 +180,7 @@ export class ChatService {
     }
 
     // Determine the typeId for the chatId generation
-    // For organisation chats with an ad, combine both IDs to ensure uniqueness
-    const typeId = (params.type === "organisation" && params.adId && params.organisationId)
-      ? `${params.organisationId}_${params.adId}`
-      : (params.adId || params.organisationId || "direct");
+    const typeId = params.adId || params.organisationId || "direct";
 
     // Generate deterministic chat ID
     const chatId = this.generateChatId(
