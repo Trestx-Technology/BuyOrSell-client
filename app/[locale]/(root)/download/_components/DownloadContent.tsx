@@ -40,7 +40,7 @@ export function DownloadContent() {
   return (
     <div className="min-h-screen bg-slate-50 overflow-hidden">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-purple-700 via-purple-600 to-indigo-700 pt-20 pb-40 relative">
+      <div className="bg-gradient-to-br from-purple-700 via-purple-600 to-indigo-700 pt-32 pb-48 relative px-4 lg:px-0">
         <Container1080>
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="text-white space-y-8 animate-in fade-in slide-in-from-left-8 duration-700">

@@ -80,7 +80,7 @@ export function MessageInput({
 
     const newRows = Math.max(
       minRows,
-      Math.min(maxRows, Math.ceil((scrollHeight - padding) / lineHeight))
+      Math.min(maxRows, Math.ceil((scrollHeight - padding) / lineHeight)),
     );
 
     setRows(newRows);
@@ -148,7 +148,7 @@ export function MessageInput({
   };
 
   return (
-    <div className="border-t border-gray-200 sticky bottom-0 bg-white">
+    <div className="border-t border-gray-200  bg-white">
       <div className="flex items-center gap-2 md:gap-3 bg-purple/10 p-4">
         <input
           type="file"
@@ -167,7 +167,11 @@ export function MessageInput({
             disabled={isUploading}
             title="Send Image"
           >
-            {isUploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Paperclip className="h-5 w-5" />}
+            {isUploading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Paperclip className="h-5 w-5" />
+            )}
           </Button>
 
           <Button

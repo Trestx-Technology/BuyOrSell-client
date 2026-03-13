@@ -39,6 +39,16 @@ export const PAGES_WITH_NAV_MOBILE: string[] = [
 ];
 
 /**
+ * Pages where Navbar and CategoryNav should be completely hidden (all screen sizes)
+ * Supports exact paths and path patterns
+ */
+export const PAGES_WITHOUT_NAV: string[] = [
+  "/download",
+  "/privacy-policy",
+  "/terms-and-conditions",
+];
+
+/**
  * Check if a path matches any of the configured paths
  * @param pathname - The current pathname
  * @param visiblePaths - Array of paths to check against

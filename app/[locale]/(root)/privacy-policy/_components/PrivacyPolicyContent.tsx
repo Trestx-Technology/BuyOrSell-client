@@ -124,8 +124,8 @@ export function PrivacyPolicyContent() {
   );
 
   return (
-    <div className="bg-gray-50 dark:bg-[#0B0F19] min-h-screen py-10 px-4 md:px-8 lg:px-12 font-inter shadow-inner scroll-smooth">
-      <div className="max-w-6xl mx-auto bg-white dark:bg-[#121827] shadow-2xl rounded-[2.5rem] mt-10 mb-20 border border-gray-100 dark:border-gray-800">
+    <div className="bg-gray-50 dark:bg-[#0B0F19] min-h-screen py-20 px-4 md:px-8 lg:px-12 font-inter shadow-inner scroll-smooth">
+      <div className="max-w-6xl mx-auto bg-white dark:bg-[#121827] shadow-2xl rounded-[2.5rem] mb-20 border border-gray-100 dark:border-gray-800">
         {/* Header */}
         <div className="text-center py-16 px-6 bg-gradient-to-b from-purple/10 to-transparent rounded-t-[2.5rem]">
           <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">

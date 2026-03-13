@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { TermsHeader } from "./TermsHeader";
+import Link from "next/link";
+import { Mail } from "lucide-react";
 import { Section1Introduction } from "./sections/Section1_Introduction";
 import { Section2Eligibility } from "./sections/Section2_Eligibility";
 import { Section3NatureOfPlatform } from "./sections/Section3_NatureOfPlatform";
@@ -32,7 +33,6 @@ import {
   Section22ContactUs,
 } from "./sections/Sections21_22";
 import { Annex1Property, Annex2Motors, Annex3Jobs } from "./sections/Annexes";
-import Link from "next/link";
 
 const sections = [
   { title: "1. Introduction", id: "introduction" },
@@ -95,16 +95,32 @@ export function TermsContent() {
   }, [activeSection]);
 
   return (
-    <div className="bg-gray-50 min-h-screen py-10 px-4 md:px-8 lg:px-12 font-inter shadow-inner scroll-smooth">
-      <div className="max-w-6xl mx-auto bg-white shadow-2xl rounded-[2.5rem] mt-10 mb-20 border border-gray-100">
-        <TermsHeader />
+    <div className="bg-gray-50 dark:bg-[#0B0F19] min-h-screen py-20 px-4 md:px-8 lg:px-12 font-inter shadow-inner scroll-smooth">
+      <div className="max-w-6xl mx-auto bg-white dark:bg-[#121827] shadow-2xl rounded-[2.5rem] mb-20 border border-gray-100 dark:border-gray-800">
+        {/* Header */}
+        <div className="text-center py-16 px-6 bg-gradient-to-b from-purple/10 to-transparent rounded-t-[2.5rem]">
+          <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
+            BuyOrSell.ae Terms & Conditions
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+            Your Roadmap to a Safe and Transparent Marketplace Experience
+          </p>
+          <div className="mt-8 flex justify-center gap-4 text-xs font-bold text-gray-400">
+            <span className="bg-white dark:bg-gray-800 py-2 px-4 rounded-full shadow-sm">
+              Last Updated: February 2025
+            </span>
+            <span className="bg-white dark:bg-gray-800 py-2 px-4 rounded-full shadow-sm">
+              Region: UAE
+            </span>
+          </div>
+        </div>
 
         <div className="flex flex-col lg:flex-row p-6 md:p-12 lg:p-16 gap-12">
           {/* Table of Contents Sidebar */}
           <aside className="hidden lg:block w-64 shrink-0">
             <div className="sticky top-24 space-y-8">
               <div className="relative">
-                <div className="absolute left-[7px] top-10 bottom-0 w-[1px] bg-gray-100"></div>
+                <div className="absolute left-[7px] top-10 bottom-0 w-[1px] bg-gray-100 dark:bg-gray-800"></div>
                 <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-purple/40 mb-6 px-4">
                   Navigation
                 </h3>
@@ -117,15 +133,15 @@ export function TermsContent() {
                         href={`#${section.id}`}
                         className={`group flex items-center py-2 px-4 text-[11px] transition-all duration-300 font-bold rounded-xl ${
                           isActive
-                            ? "text-purple translate-x-1"
-                            : "text-gray-400 hover:text-gray-600"
+                            ? "text-purple translate-x-1 bg-purple/5"
+                            : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                         }`}
                       >
                         <div
                           className={`w-[3px] h-3 rounded-full mr-3 transition-all duration-500 scale-y-0 opacity-0 ${
                             isActive
                               ? "bg-purple scale-y-100 opacity-100 shadow-[0_0_8px_rgba(111,44,242,0.6)]"
-                              : "bg-gray-200"
+                              : "bg-gray-200 dark:bg-gray-700"
                           }`}
                         ></div>
                         <span
@@ -139,7 +155,7 @@ export function TermsContent() {
                 </nav>
               </div>
 
-              <div className="p-6 bg-purple/10 border border-purple/10 rounded-[2rem] relative overflow-hidden group">
+              <div className="p-6 bg-purple/5 dark:bg-purple/10 border border-purple/10 rounded-[2rem] relative overflow-hidden group hover:border-purple/30 transition-colors">
                 <h4 className="text-xs font-black text-purple mb-1 relative z-10">
                   Assistance
                 </h4>
@@ -149,9 +165,9 @@ export function TermsContent() {
                 <div className="mt-4 flex items-center gap-2 relative z-10">
                   <a
                     href="mailto:support@buyorsell.ae"
-                    className="text-[9px] font-black text-purple hover:underline uppercase tracking-widest transition-all hover:tracking-[0.2em]"
+                    className="text-[9px] font-black text-purple hover:underline uppercase tracking-widest transition-all hover:tracking-[0.2em] flex items-center gap-1"
                   >
-                    Email Support
+                    <Mail className="w-3 h-3" /> Email Support
                   </a>
                 </div>
               </div>
@@ -192,7 +208,7 @@ export function TermsContent() {
           </div>
         </div>
 
-        <div className="bg-gray-50 p-8 md:p-12 text-center border-t border-gray-100 rounded-b-[2.5rem]">
+        <div className="bg-gray-50 dark:bg-gray-800/50 p-8 md:p-12 text-center border-t border-gray-100 dark:border-gray-800 rounded-b-[2.5rem]">
           <p className="text-[10px] text-gray-400 font-inter tracking-[0.3em] uppercase mb-6">
             © 2025 Souq Labs Technologies LLC SPC | BuyOrSell.ae
           </p>
@@ -206,9 +222,9 @@ export function TermsContent() {
               <Link
                 key={item.name}
                 href={item.link}
-                className="text-[10px] font-bold text-gray-400 hover:text-purple transition-colors flex items-center gap-2"
+                className="text-[10px] font-bold text-gray-400 dark:text-gray-500 hover:text-purple transition-colors flex items-center gap-2"
               >
-                <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
+                <span className="w-1 h-1 bg-gray-200 dark:bg-gray-700 rounded-full"></span>
                 {item.name}
               </Link>
             ))}

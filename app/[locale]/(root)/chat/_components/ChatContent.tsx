@@ -18,15 +18,17 @@ const ChatSidebar = dynamic(
     })),
   {
     ssr: false,
-  }
+  },
 );
 
 const ChatArea = dynamic(
   () =>
-    import("../_components/ChatArea").then((mod) => ({ default: mod.ChatArea })),
+    import("../_components/ChatArea").then((mod) => ({
+      default: mod.ChatArea,
+    })),
   {
     ssr: false,
-  }
+  },
 );
 
 import { Container1080 } from "@/components/layouts/container-1080";
@@ -89,7 +91,7 @@ export default function ChatContent() {
   }
 
   return (
-    <Container1080 className="flex relative h-[calc(100vh-84px)] border-r">
+    <Container1080 className="flex relative  h-screen min-h-[500px] border">
       {/* Sidebar - Always visible on desktop, full width on mobile when no chat selected */}
 
       <ChatSidebar
@@ -108,7 +110,7 @@ export default function ChatContent() {
         messages={formattedMessages}
         message={message}
         isTyping={Object.entries(typingStatus).some(
-          ([userId, isTyping]) => userId !== session.user?._id && isTyping
+          ([userId, isTyping]) => userId !== session.user?._id && isTyping,
         )}
         onMessageChange={handleMessageChange}
         onSendMessage={handleSendMessage}
