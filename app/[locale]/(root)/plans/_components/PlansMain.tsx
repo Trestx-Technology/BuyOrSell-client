@@ -284,7 +284,9 @@ function PlansContent() {
                 description: description,
                 features: features,
                 buttonText: isCurrentPlan
-                  ? "Current Plan"
+                  ? plan.isDefault
+                    ? "Free Trial Started"
+                    : "Current Plan"
                   : plan.isDefault
                     ? "Start Free Plan"
                     : "Subscribe",
