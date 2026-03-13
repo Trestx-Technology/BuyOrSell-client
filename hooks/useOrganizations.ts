@@ -91,6 +91,8 @@ export const useCreateOrganization = () => {
       queryClient.invalidateQueries({
         queryKey: organizationQueries.getMyOrganization.Key,
       });
+      // Invalidate the generic 'organization' key as well to be safe
+      queryClient.invalidateQueries({ queryKey: ["organization"] });
     },
   });
 };

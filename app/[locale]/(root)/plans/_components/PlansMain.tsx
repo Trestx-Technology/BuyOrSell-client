@@ -134,11 +134,19 @@ function PlansContent() {
     return plan.type === selectedType;
   });
 
-  const activeSubscription = Array.isArray(mySubscription?.data)
-    ? mySubscription?.data.find((sub) => sub.isActive)
-    : undefined;
-
-  const currentPlanId = activeSubscription?.plan?._id;
+  const subscribedPlanIds = useMemo(() => {
+    return Array.isArray(mySubscription?.data)
+      ? mySubscription.data
+          .filter(
+            (sub) =>
+              sub.isActive ||
+              sub.status === "active" ||
+              sub.status === "confirmed",
+          )
+          .map((sub) => sub.plan?._id)
+          .filter(Boolean)
+      : [];
+  }, [mySubscription]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -267,7 +275,7 @@ function PlansContent() {
                 ? plan.price.toFixed(0).toString()
                 : "";
 
-              const isCurrentPlan = currentPlanId === plan._id;
+              const isCurrentPlan = subscribedPlanIds.includes(plan._id);
               const description =
                 locale === "ar" && plan.descriptionAr
                   ? plan.descriptionAr
