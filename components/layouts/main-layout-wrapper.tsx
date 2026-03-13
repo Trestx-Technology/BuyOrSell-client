@@ -13,6 +13,7 @@ import {
   shouldShowComponent,
 } from "@/constants/layout.constants";
 import { MobileAppStrip } from "@/components/global/MobileAppStrip";
+import { Container1280 } from "./container-1280";
 
 interface MainLayoutWrapperProps {
   children: React.ReactNode;
@@ -74,10 +75,10 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
     <main className="min-h-[600px] relative flex flex-col bg-white dark:bg-gray-950">
       <div className="sticky top-0 z-50 flex flex-col items-center">
         <MobileAppStrip />
-        <div className="w-full bg-white dark:bg-gray-900 flex flex-col items-center">
+        <Container1280 className="w-full bg-white dark:bg-gray-900 flex px-4 xl:px-0  flex-col items-center">
           <Navbar className={navbarClassName} />
           <CategoryNav className={categoryNavClassName} />
-        </div>
+        </Container1280>
       </div>
       <section className="w-full mx-auto flex-grow">{children}</section>
       <CommandMenu />

@@ -1,6 +1,6 @@
 "use client";
 
-import { HomeCarousel } from "./home-carousel";
+import { HomeHero } from "./home-hero";
 import CategoriesCarousel from "./categories-carousel";
 import PopularCategories from "./popular-categories";
 import RecentViews from "./recent-views";
@@ -28,11 +28,11 @@ export function HomeContent() {
   const router = useRouter();
   return (
     <>
-      <div className="max-w-[1280px] mx-auto">
-        {/* Promotional Banners with Sponsored Banner */}
-        <HomeCarousel />
-      </div>
-      <div className="max-w-[1280px] mx-auto relative">
+      {/* Promotional Banners with Sponsored Banner */}
+
+      <HomeHero />
+
+      <div className="max-w-[1180px] mx-auto relative">
         {/* Category Carousel */}
         {/* <CategoriesCarousel
           categoryList={homeData?.data?.categoryList}

@@ -119,7 +119,7 @@ const PopularCategories = ({
       {/* Categories Grid */}
       <div
         className={cn(
-          "grid grid-cols-3 md:grid-cols-3 xl:grid-cols-5 gap-2",
+          "flex flex-wrap justify-center gap-2",
           showAllCategories && "overflow-y-auto",
         )}
       >
@@ -132,7 +132,11 @@ const PopularCategories = ({
             displayCategories.map((category, index) => (
               <div
                 key={category.id}
-                className={`transition-all duration-300 ease-out reveal-fade-in ${isVisible ? "is-visible" : ""}`}
+                className={cn(
+                  "transition-all duration-300 ease-out reveal-fade-in",
+                  "w-[calc(33.33%-8px)] md:w-[calc(33.33%-8px)] xl:w-[224px]",
+                  isVisible ? "is-visible" : "",
+                )}
                 style={{
                   transitionDelay: `${index * 50}ms`,
                   willChange: "transform, opacity",
@@ -169,7 +173,7 @@ const PopularCategories = ({
                     </div>
 
                     {/* Description */}
-                    <p className="text-xs text-slate-400 dark:text-gray-500 text-center font-inter leading-tight line-clamp-2 md:block hidden truncate">
+                    <p className="text-xs text-slate-400 dark:text-gray-500 text-center font-inter leading-tight hidden md:line-clamp-2">
                       {category.description}
                     </p>
                   </div>

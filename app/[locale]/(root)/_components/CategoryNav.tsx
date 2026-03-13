@@ -9,6 +9,7 @@ import {
   MapPin,
   MessageSquare,
   UserPlus,
+  MapPinIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -569,7 +570,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <nav
       className={cn(
-        " container-1080 px-3 animate-fade-in flex gap-2  items-center justify-between py-1",
+        "animate-fade-in flex gap-2 w-full items-center justify-between py-1",
         className,
       )}
     >
@@ -619,118 +620,134 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
         <SearchAnimated />
       </div>
 
-      {categoriesLoading ? (
-        <div className="flex items-center justify-between gap-5 ml-2">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="animate-pulse">
-              <div className="size-8 bg-white/20 rounded-full"></div>
+      <div className="flex gap-3 items-center">
+        {categoriesLoading ? (
+          <div className="flex items-center justify-between gap-5 ml-2">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="animate-pulse">
+                <div className="size-8 bg-white/20 rounded-full"></div>
+              </div>
+            ))}
+            <div className="animate-pulse">
+              <div className="h-10 w-20 bg-white/20 rounded-md"></div>
             </div>
-          ))}
-          <div className="animate-pulse">
-            <div className="h-10 w-20 bg-white/20 rounded-md"></div>
           </div>
+        ) : (
+          <div className="max-[1000px]:hidden flex gap-3 items-center">
+            <TooltipProvider delayDuration={200}>
+              <div
+                className="animate-fade-in"
+                style={{ animationDelay: "100ms" }}
+              >
+                <SearchHistoryPopover />
+              </div>
+
+              <div
+                className="animate-fade-in"
+                style={{ animationDelay: "150ms" }}
+              >
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => router.push(localePath("/user/my-ads"))}
+                      className="min-w-6 md:block hidden cursor-pointer"
+                    >
+                      <UserPlus className="text-purple hover:scale-110 transition-all duration-300" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>My Ads</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+
+              <div
+                className="animate-fade-in"
+                style={{ animationDelay: "200ms" }}
+              >
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => router.push(localePath("/chat"))}
+                      className="min-w-6 md:block hidden cursor-pointer"
+                    >
+                      <MessageSquare className="text-purple hover:scale-110 transition-all duration-300" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Messages</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+
+              <div
+                className="animate-fade-in"
+                style={{ animationDelay: "250ms" }}
+              >
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => router.push(localePath("/favorites"))}
+                      className="min-w-6 md:block hidden cursor-pointer"
+                    >
+                      <Heart className="size-6 hover:scale-110 transition-all duration-300 text-purple" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Favorites</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+
+              <div
+                className="animate-fade-in"
+                style={{ animationDelay: "300ms" }}
+              >
+                <NotificationsPopover />
+              </div>
+            </TooltipProvider>
+          </div>
+        )}
+        <div
+          className="animate-fade-in shrink-0 ml-1 md:hidden"
+          style={{ animationDelay: "350ms" }}
+        >
+          <PostAdDialog>
+            <Button
+              variant="filled"
+              size="sm"
+              iconPosition="right"
+              icon={
+                <Image
+                  src={ICONS.ai.aiPurpleBg}
+                  alt="AI Logo"
+                  width={16}
+                  height={16}
+                  className="w-4 h-4 sm:w-5 sm:h-5"
+                />
+              }
+              className={cn(
+                "h-[40px] px-2.5 sm:px-4 text-[11px] sm:text-xs md:h-[42px] whitespace-nowrap",
+              )}
+            >
+              {t.home.navbar.placeAdShort}
+            </Button>
+          </PostAdDialog>
         </div>
-      ) : (
-        <TooltipProvider delayDuration={200}>
-          <div className="max-[1000px]:hidden flex items-center justify-start gap-5 ml-2">
-            <div
-              className="animate-fade-in"
-              style={{ animationDelay: "100ms" }}
-            >
-              <SearchHistoryPopover />
-            </div>
 
-            <div
-              className="animate-fade-in"
-              style={{ animationDelay: "150ms" }}
-            >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => router.push(localePath("/user/my-ads"))}
-                    className="min-w-6 md:block hidden cursor-pointer"
-                  >
-                    <UserPlus className="text-purple hover:scale-110 transition-all duration-300" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>My Ads</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-
-            <div
-              className="animate-fade-in"
-              style={{ animationDelay: "200ms" }}
-            >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => router.push(localePath("/chat"))}
-                    className="min-w-6 md:block hidden cursor-pointer"
-                  >
-                    <MessageSquare className="text-purple hover:scale-110 transition-all duration-300" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Messages</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-
-            <div
-              className="animate-fade-in"
-              style={{ animationDelay: "250ms" }}
-            >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => router.push(localePath("/favorites"))}
-                    className="min-w-6 md:block hidden cursor-pointer"
-                  >
-                    <Heart className="size-6 hover:scale-110 transition-all duration-300 text-purple" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Favorites</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-
-            <div
-              className="animate-fade-in"
-              style={{ animationDelay: "300ms" }}
-            >
-              <NotificationsPopover />
-            </div>
-          </div>
-        </TooltipProvider>
-      )}
-      <div
-        className="animate-fade-in shrink-0 ml-1 md:hidden"
-        style={{ animationDelay: "350ms" }}
-      >
-        <PostAdDialog>
+        <div
+          className="animate-fade-in shrink-0 ml-1 hidden md:block"
+          style={{ animationDelay: "350ms" }}
+        >
           <Button
             variant="filled"
             size="sm"
-            iconPosition="right"
-            icon={
-              <Image
-                src={ICONS.ai.aiPurpleBg}
-                alt="AI Logo"
-                width={16}
-                height={16}
-                className="w-4 h-4 sm:w-5 sm:h-5"
-              />
-            }
-            className={cn(
-              "h-[40px] px-2.5 sm:px-4 text-[11px] sm:text-xs md:h-[42px] whitespace-nowrap",
-            )}
+            iconPosition="center"
+            icon={<MapPinIcon className="-mr-2" />}
           >
-            {t.home.navbar.placeAdShort}
+            Map View
           </Button>
-        </PostAdDialog>
+        </div>
       </div>
     </nav>
   );
