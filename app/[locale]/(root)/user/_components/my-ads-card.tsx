@@ -57,6 +57,7 @@ export interface MyAdCardProps {
   onShare?: (id: string) => void;
   onClick?: (id: string) => void;
   isSaved: boolean;
+  status: "live" | "rejected" | "created";
 }
 
 const MyAdCard: React.FC<MyAdCardProps> = ({
@@ -73,6 +74,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
   validity,
   className,
   isSaved,
+  status,
 }) => {
   const { t } = useLocale();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -193,12 +195,30 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
                 // Implement share if needed
               }}
             />
-            {isExpired && (
-              <div className="absolute inset-0 bg-black/60 z-20 flex items-center justify-center">
-                <Badge variant="destructive" className="text-sm px-3 py-1">
+            {isExpired ? (
+              <div className="absolute inset-x-0 top-0 p-2 z-20 flex justify-between items-start pointer-events-none">
+                <Badge variant="destructive" className="bg-red-600 text-white border-none shadow-sm">
                   EXPIRED
                 </Badge>
               </div>
+            ) : (
+                <div className="absolute inset-x-0 top-0 p-2 z-20 flex justify-between items-start pointer-events-none">
+                    {status === "live" && (
+                        <Badge className="bg-green-600 text-white border-none shadow-sm">
+                            LIVE
+                        </Badge>
+                    )}
+                    {status === "created" && (
+                        <Badge className="bg-orange-500 text-white border-none shadow-sm">
+                            PENDING
+                        </Badge>
+                    )}
+                    {status === "rejected" && (
+                        <Badge variant="destructive" className="bg-red-500 text-white border-none shadow-sm">
+                            REJECTED
+                        </Badge>
+                    )}
+                </div>
             )}
           </div>
 

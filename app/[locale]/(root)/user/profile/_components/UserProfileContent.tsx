@@ -18,6 +18,8 @@ import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useMemo } from "react";
 
 // Transform AD to MyAdCard props
 const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
@@ -79,6 +81,7 @@ const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
     isPremium: ad.isFeatured || false,
     validity: ad.validity,
     isSaved: ad.isSaved || false,
+    status: ad.status || "created",
   };
 };
 
@@ -170,6 +173,23 @@ const UserProfileContent = () => {
     router.push(localePath("/post-ad/select"));
   };
 
+  const [activeTab, setActiveTab] = useState("ads");
+  const [adStatusTab, setAdStatusTab] = useState("all");
+
+  const filteredAds = useMemo(() => {
+    const now = new Date();
+    return transformedAds.filter((ad) => {
+      const isExpired = ad.validity ? new Date(ad.validity) < now : false;
+
+      if (adStatusTab === "all") return true;
+      if (adStatusTab === "live") return ad.status === "live" && !isExpired;
+      if (adStatusTab === "expired") return isExpired;
+      if (adStatusTab === "pending") return ad.status === "created";
+      if (adStatusTab === "rejected") return ad.status === "rejected";
+      return true;
+    });
+  }, [transformedAds, adStatusTab]);
+
   return (
     <Container1080>
       <MobileStickyHeader title={t.user.profile.myProfile} />
@@ -233,68 +253,123 @@ const UserProfileContent = () => {
           />
         ) : null}
 
-        {/* My Ads Section */}
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <Typography
-                variant="h3"
-                className="text-base font-semibold text-dark-blue dark:text-white"
-              >
-                My Ads ({transformedAds.length})
-              </Typography>
-            </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="flex bg-transparent border-b border-gray-200 dark:border-gray-800 rounded-none h-auto p-0 mb-6 gap-8">
+            <TabsTrigger 
+              value="ads" 
+              className="px-0 py-3 text-base rounded-none border-b-2 border-transparent data-[state=active]:border-purple data-[state=active]:bg-transparent data-[state=active]:text-purple font-semibold transition-all h-auto"
+            >
+              My Ads ({transformedAds.length})
+            </TabsTrigger>
+            <TabsTrigger 
+              value="reviews" 
+              className="px-0 py-3 text-base rounded-none border-b-2 border-transparent data-[state=active]:border-purple data-[state=active]:bg-transparent data-[state=active]:text-purple font-semibold transition-all h-auto"
+            >
+              Reviews ({Array.isArray(reviewsResponse) ? reviewsResponse.length : (reviewsResponse as any)?.total || 0})
+            </TabsTrigger>
+          </TabsList>
 
-            <Button variant="primary" size="sm" onClick={handlePostAd}>
-              Post New Ad
-            </Button>
-          </div>
+          <TabsContent value="ads" className="mt-0 outline-none">
+            {/* My Ads Section */}
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div className="flex flex-col gap-1">
+                  <Typography
+                    variant="h3"
+                    className="text-lg font-bold text-dark-blue dark:text-white"
+                  >
+                    My Advertisements ({filteredAds.length})
+                  </Typography>
+                  <Typography variant="body-small" className="text-gray-500">
+                    Manage your active, pending, and expired listings
+                  </Typography>
+                </div>
 
-          {isLoadingAds ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <ListingCardSkeleton key={i} />
-              ))}
-            </div>
-          ) : adsError ? (
-            <div className="flex items-center justify-center py-8">
-              <Typography variant="body-small" className="text-red-500">
-                Failed to load ads
-              </Typography>
-            </div>
-          ) : transformedAds.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {transformedAds.map((ad) => (
-                <MyAdCard key={ad.id} {...ad} />
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-200 rounded-lg bg-gray-50">
-              <Typography
-                variant="body"
-                className="text-gray-500 mb-4 font-medium"
-              >
-                You haven't posted any ads yet.
-              </Typography>
-              <Button
-                variant="outline"
-                onClick={handlePostAd}
-                className="bg-white hover:bg-gray-50"
-              >
-                Post your first ad
-              </Button>
-            </div>
-          )}
-        </div>
+                <div className="flex items-center gap-3">
+                  <Button variant="primary" size="sm" onClick={handlePostAd} className="h-10 px-6 rounded-xl font-bold">
+                    Post New Ad
+                  </Button>
+                </div>
+              </div>
 
-        <UserReviews
-          userId={user?._id || "1"}
-          reviewsData={reviewsResponse}
-          isLoadingReviews={isLoadingReviews}
-          reviewsError={reviewsError}
-          sortBy={sortBy}
-          onSort={setSortBy}
-        />
+              <div className="mb-6">
+                <Tabs value={adStatusTab} onValueChange={setAdStatusTab} className="w-full">
+                  <TabsList className="bg-gray-50 dark:bg-gray-800/50 p-1 rounded-xl border border-gray-100 dark:border-gray-700 w-full md:w-auto flex overflow-x-auto scrollbar-hide">
+                    <TabsTrigger value="all" className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium">All</TabsTrigger>
+                    <TabsTrigger value="live" className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium">Live</TabsTrigger>
+                    <TabsTrigger value="pending" className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium">Pending</TabsTrigger>
+                    <TabsTrigger value="expired" className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium">Expired</TabsTrigger>
+                    <TabsTrigger value="rejected" className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium">Rejected</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+
+              {isLoadingAds ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <ListingCardSkeleton key={i} />
+                  ))}
+                </div>
+              ) : adsError ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Typography variant="body-small" className="text-red-500 font-medium">
+                    Failed to load ads. Please try again.
+                  </Typography>
+                </div>
+              ) : transformedAds.length > 0 ? (
+                <>
+                  {filteredAds.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {filteredAds.map((ad) => (
+                        <MyAdCard key={ad.id} {...ad} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <Typography variant="body-small" className="text-gray-500 italic">
+                        No ads found for the "{adStatusTab}" status.
+                      </Typography>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 gap-6 text-center bg-gray-50 dark:bg-gray-800/20 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
+                  <div className="p-4 bg-white dark:bg-gray-800 rounded-full shadow-sm">
+                    <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  </div>
+                  <div>
+                    <Typography variant="h6" className="text-gray-900 dark:text-white font-bold mb-2">
+                      You haven't posted any ads yet
+                    </Typography>
+                    <Typography variant="body-small" className="text-gray-500 mb-6">
+                      Start selling your items on BuyOrSell today!
+                    </Typography>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={handlePostAd}
+                    className="bg-white hover:bg-gray-50 rounded-xl px-8 h-11 font-bold border-gray-200 shadow-sm"
+                  >
+                    Post your first ad
+                  </Button>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="reviews" className="mt-0 outline-none">
+            <UserReviews
+              userId={user?._id || "1"}
+              reviewsData={reviewsResponse}
+              isLoadingReviews={isLoadingReviews}
+              reviewsError={reviewsError}
+              sortBy={sortBy}
+              onSort={setSortBy}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </Container1080>
   );
