@@ -74,11 +74,37 @@ export function VideoViewer() {
       const adId = searchParams.get("adId");
       const [initialAdId] = useState(() => searchParams.get("adId"));
       const isInitialSeekDone = useRef(false);
-      const [selectedCategory, setSelectedCategory] = useState<string>("all");
+      const [selectedCategory, setSelectedCategory] = useState<string>(
+            () => searchParams.get("category") || "all"
+      );
       const {
             data: categoriesData,
             isLoading: isCategoriesLoading
       } = useGetMainCategories();
+
+      const categoryFromUrl = searchParams.get("category") || "all";
+      useEffect(() => {
+            if (categoryFromUrl !== selectedCategory) {
+                  setSelectedCategory(categoryFromUrl);
+                  setCurrentIndex(0);
+                  isInitialSeekDone.current = true;
+            }
+      }, [categoryFromUrl, selectedCategory]);
+
+      const handleCategoryChange = (val: string) => {
+            setSelectedCategory(val);
+            const params = new URLSearchParams(window.location.search);
+            if (val === "all") {
+                  params.delete("category");
+            } else {
+                  params.set("category", val);
+            }
+            // Reset to first video of new category
+            params.delete("adId");
+            window.history.replaceState(null, "", `?${params.toString()}`);
+            setCurrentIndex(0);
+            isInitialSeekDone.current = true;
+      };
 
       const {
             data: adsData,
@@ -396,15 +422,24 @@ export function VideoViewer() {
                         <div className="flex-1 max-w-[200px] mx-4">
                               <Select
                                     value={selectedCategory}
-                                    onValueChange={setSelectedCategory}
+                                    onValueChange={handleCategoryChange}
                               >
-                                    <SelectTrigger className="bg-white/10 border-white/20 text-white backdrop-blur-md h-9">
+                                    <SelectTrigger className="bg-white/10 dark:bg-zinc-900/50 border-white/20 dark:border-zinc-800 text-white backdrop-blur-md h-11 px-4 hover:bg-white/20 hover:text-white transition-all [&_svg]:text-white text-base">
                                           <SelectValue placeholder="All Categories" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
-                                          <SelectItem value="all">All Categories</SelectItem>
+                                    <SelectContent className="bg-zinc-900/95 border-white/10 text-white backdrop-blur-xl min-w-[200px]">
+                                          <SelectItem 
+                                                value="all" 
+                                                className="hover:bg-white/10 focus:bg-white/20 focus:text-white py-3 px-3 cursor-pointer transition-colors text-sm"
+                                          >
+                                                All Categories
+                                          </SelectItem>
                                           {categoriesData?.map((category) => (
-                                                <SelectItem key={category._id} value={category.name}>
+                                                <SelectItem 
+                                                      key={category._id} 
+                                                      value={category.name}
+                                                      className="hover:bg-white/10 focus:bg-white/20 focus:text-white py-3 px-3 cursor-pointer transition-colors text-sm"
+                                                >
                                                       {category.name}
                                                 </SelectItem>
                                           ))}
