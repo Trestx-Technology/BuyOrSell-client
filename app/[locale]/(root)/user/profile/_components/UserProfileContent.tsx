@@ -254,16 +254,16 @@ const UserProfileContent = () => {
         ) : null}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="flex bg-transparent border-b border-gray-200 dark:border-gray-800 rounded-none h-auto p-0 mb-6 gap-8">
+          <TabsList className="flex bg-transparent rounded-none h-auto p-0 mb-6 gap-3">
             <TabsTrigger 
               value="ads" 
-              className="px-0 py-3 text-base rounded-none border-b-2 border-transparent data-[state=active]:border-purple data-[state=active]:bg-transparent data-[state=active]:text-purple font-semibold transition-all h-auto"
+              className="px-6 py-2.5 text-sm font-semibold transition-all h-auto"
             >
               My Ads ({transformedAds.length})
             </TabsTrigger>
             <TabsTrigger 
               value="reviews" 
-              className="px-0 py-3 text-base rounded-none border-b-2 border-transparent data-[state=active]:border-purple data-[state=active]:bg-transparent data-[state=active]:text-purple font-semibold transition-all h-auto"
+              className="px-6 py-2.5 text-sm font-semibold transition-all h-auto"
             >
               Reviews ({Array.isArray(reviewsResponse) ? reviewsResponse.length : (reviewsResponse as any)?.total || 0})
             </TabsTrigger>
