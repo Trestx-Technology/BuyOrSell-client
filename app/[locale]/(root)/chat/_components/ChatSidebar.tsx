@@ -8,6 +8,7 @@ import { User } from "lucide-react";
 import { useState, memo } from "react";
 import { cn } from "@/lib/utils";
 import { ICONS } from "@/constants/icons";
+import { motion, AnimatePresence } from "framer-motion";
 
 export interface AdDetails {
   adId: string;
@@ -84,6 +85,7 @@ export const AvatarImage = ({
   );
 };
 
+
 // Memoized Chat Item to prevent unnecessary re-renders when other chats change
 const ChatListItem = memo(({
   chat,
@@ -98,7 +100,17 @@ const ChatListItem = memo(({
   const displayImage = chat.avatar;
 
   return (
-    <div
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 500, 
+        damping: 40,
+        opacity: { duration: 0.2 }
+      }}
       onClick={() => onClick(chat.id)}
       className={cn(
         "p-4 border-b border-gray-100 cursor-pointer transition-colors duration-200 hover:bg-gray-50",
@@ -187,7 +199,7 @@ const ChatListItem = memo(({
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 });
 
@@ -246,14 +258,16 @@ export function ChatSidebar({
             </Typography>
           </div>
         ) : (
-          chats.map((chat) => (
-            <ChatListItem
-              key={chat.id}
-              chat={chat}
-              isActive={activeChat === chat.id}
-              onClick={onChatSelect}
-            />
-          ))
+          <AnimatePresence initial={false}>
+            {chats.map((chat) => (
+              <ChatListItem
+                key={chat.id}
+                chat={chat}
+                isActive={activeChat === chat.id}
+                onClick={onChatSelect}
+              />
+            ))}
+          </AnimatePresence>
         )}
       </div>
     </div>

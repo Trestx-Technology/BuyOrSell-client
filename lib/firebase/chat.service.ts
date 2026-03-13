@@ -258,14 +258,10 @@ export class ChatService {
       chatsArr = chatsArr.filter((c) => c.type === type);
     }
 
-    // Sort by updatedAt descending with fallback to lastMessage.createdAt
+    // Sort by lastMessage.createdAt descending
     return chatsArr.sort((a, b) => {
-      const timeA =
-        this.getTimestampValue(a.updatedAt) ||
-        this.getTimestampValue(a.lastMessage?.createdAt);
-      const timeB =
-        this.getTimestampValue(b.updatedAt) ||
-        this.getTimestampValue(b.lastMessage?.createdAt);
+      const timeA = this.getTimestampValue(a.lastMessage?.createdAt);
+      const timeB = this.getTimestampValue(b.lastMessage?.createdAt);
       return timeB - timeA;
     });
   }
@@ -297,14 +293,10 @@ export class ChatService {
           chatsArr = chatsArr.filter((c) => c.type === type);
         }
 
-        // Sort by updatedAt descending with fallback to lastMessage.createdAt
+        // Sort by lastMessage.createdAt descending
         chatsArr.sort((a, b) => {
-          const timeA =
-            this.getTimestampValue(a.updatedAt) ||
-            this.getTimestampValue(a.lastMessage?.createdAt);
-          const timeB =
-            this.getTimestampValue(b.updatedAt) ||
-            this.getTimestampValue(b.lastMessage?.createdAt);
+          const timeA = this.getTimestampValue(a.lastMessage?.createdAt);
+          const timeB = this.getTimestampValue(b.lastMessage?.createdAt);
           return timeB - timeA;
         });
 
