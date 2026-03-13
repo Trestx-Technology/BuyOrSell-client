@@ -232,7 +232,7 @@ export function ChatSidebar({
       </div>
 
       {/* Chat List */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
+      <div className="flex-1 overflow-y-scroll custom-scrollbar">
         {chats.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-gray-50/30">
             <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mb-6">
