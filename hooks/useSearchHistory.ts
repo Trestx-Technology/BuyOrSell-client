@@ -33,17 +33,11 @@ export const useGetSearchHistory = (
   }
 ) => {
   const isAuthenticated = useIsAuthenticated();
-  const userId = useAuthStore((state) => state.session.user?._id);
-
-  const queryParams = {
-    ...params,
-    userId: userId || undefined,
-  };
 
   return useQuery<SearchHistoryListResponse, Error>({
-    queryKey: searchHistoryQueries.getSearchHistory(queryParams).Key,
-    queryFn: () => getSearchHistory(queryParams),
-    enabled: isAuthenticated || (options?.enabled ?? true),
+    queryKey: searchHistoryQueries.getSearchHistory(params).Key,
+    queryFn: () => getSearchHistory(params),
+    enabled: isAuthenticated && (options?.enabled ?? true),
   });
 };
 
@@ -101,8 +95,12 @@ export const useDeleteUserSearchHistory = () => {
           if (!oldData) return oldData;
           return {
             ...oldData,
-            data: [],
-            total: 0,
+            data: {
+              ...oldData.data,
+              items: [],
+              total: 0,
+              totalPages: 0,
+            },
           };
         }
       );

@@ -42,7 +42,7 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
 
   const { data: searchHistory } = useQuery({
     queryKey: searchHistoryQueries.getSearchHistory({ limit: 5 }).Key,
-    queryFn: () => getSearchHistory({ limit: 5, userId: session?.user?._id }),
+    queryFn: () => getSearchHistory({ limit: 5 }),
     enabled: isAuthenticated && isOpen, // Only fetch when authenticated and popover is open
   });
 
@@ -98,7 +98,7 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
             <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
               {t.searchHistory.mySearches}
             </h3>
-            {searchHistory?.data && searchHistory.data.length > 0 && (
+            {searchHistory?.data?.items && searchHistory.data.items.length > 0 && (
               <button
                 onClick={handleClearAll}
                 disabled={deleteAllMutation.isPending}
@@ -114,8 +114,8 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
           {/* Search Items */}
           <ScrollArea className="h-[250px] w-full pr-3">
             <div className="space-y-2">
-              {searchHistory?.data && searchHistory.data.length > 0 ? (
-                searchHistory.data.map((item) => (
+              {searchHistory?.data?.items && searchHistory.data.items.length > 0 ? (
+                searchHistory.data.items.map((item) => (
                   <div
                     className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                     key={item._id}
@@ -153,7 +153,7 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
             </div>
           </ScrollArea>
 
-          {searchHistory?.total && searchHistory.total > 5 && (
+          {searchHistory?.data?.total && searchHistory.data.total > 5 && (
             <div className="flex justify-center">
               <Link
                 href={localePath("/user/search-history")}
