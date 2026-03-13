@@ -23,13 +23,19 @@ export const OrganizationInfo: React.FC<OrganizationInfoProps> = ({ ad }) => {
   const hasAvatar = !!avatarUrl;
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-4 shadow-sm relative block w-full">
-      <Typography
-        variant="h3"
-        className="text-lg font-semibold text-dark-blue dark:text-gray-100 mb-4"
-      >
-        {t.organizations.list.organization}
-      </Typography>
+    <Link
+      href={localePath(`/organizations/${org._id}`)}
+      className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 p-4 shadow-sm relative block w-full hover:border-purple/50 transition-colors group"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <Typography
+          variant="h3"
+          className="text-lg font-semibold text-dark-blue dark:text-gray-100"
+        >
+          {t.organizations.list.organization}
+        </Typography>
+        <ExternalLink size={16} className="text-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+      </div>
 
       {/* Organization Profile */}
       <div className="flex items-center gap-3 mb-6">
@@ -59,7 +65,7 @@ export const OrganizationInfo: React.FC<OrganizationInfoProps> = ({ ad }) => {
       </div>
 
       {/* Organization Details */}
-      <div className="space-y-3 mb-6">
+      <div className="space-y-3">
         {org.tradeLicenseNumber && (
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-grey-blue dark:text-gray-400">
@@ -88,16 +94,7 @@ export const OrganizationInfo: React.FC<OrganizationInfoProps> = ({ ad }) => {
           </div>
         )}
       </div>
-
-      {/* Action Button */}
-      <Link
-        href={localePath(`/organizations/${org._id}`)}
-        className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-purple/10 hover:bg-purple/20 text-purple text-sm font-semibold rounded-lg transition-colors group"
-      >
-        {t.organizations.form.viewAll.replace('({count})', '').trim() || "View Profile"}
-        <ExternalLink size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-      </Link>
-    </div>
+    </Link>
   );
 };
 
