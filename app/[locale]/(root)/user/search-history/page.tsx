@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useLocale } from "@/hooks/useLocale";
 import {
   useGetSearchHistory,
@@ -33,14 +33,6 @@ export default function SearchHistoryPage() {
   } = useGetSearchHistory({
     page: pagination.pageIndex + 1,
     limit: pagination.pageSize,
-  });
-
-  console.log("SearchHistoryPage Render:", { 
-    searchHistory, 
-    isLoading, 
-    error: error?.message,
-    hasData: !!searchHistory?.data,
-    itemsLength: searchHistory?.data?.items?.length 
   });
 
   const deleteMutation = useDeleteSearchHistory();
