@@ -16,6 +16,7 @@ import {
 } from "@/constants/layout.constants";
 import { MobileAppStrip } from "@/components/global/MobileAppStrip";
 import { Container1280 } from "./container-1280";
+import { Container1080 } from "./container-1080";
 
 interface MainLayoutWrapperProps {
   children: React.ReactNode;
@@ -62,7 +63,13 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
     }
     // Pages NOT in PAGES_WITH_NAV: desktop only
     return "hidden sm:flex";
-  }, [isRootPage, shouldShowNav, shouldHideNavOnMobile, isBlogPage, shouldHideNavCompletely]);
+  }, [
+    isRootPage,
+    shouldShowNav,
+    shouldHideNavOnMobile,
+    isBlogPage,
+    shouldHideNavCompletely,
+  ]);
 
   const categoryNavClassName = useMemo(() => {
     // Hide on blog pages or specific without-nav pages
@@ -75,16 +82,27 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
     }
     // Pages NOT in PAGES_WITH_NAV: desktop only
     return "hidden md:flex";
-  }, [isRootPage, shouldShowNav, shouldHideNavOnMobile, isBlogPage, shouldHideNavCompletely]);
+  }, [
+    isRootPage,
+    shouldShowNav,
+    shouldHideNavOnMobile,
+    isBlogPage,
+    shouldHideNavCompletely,
+  ]);
 
   return (
     <main className="min-h-[600px] relative flex flex-col bg-white dark:bg-gray-950">
       <div className="sticky top-0 z-50 flex flex-col items-center">
         {!shouldHideNavCompletely && <MobileAppStrip />}
-        <Container1280 className={cn("w-full bg-white dark:bg-gray-900 flex px-4 xl:px-0  flex-col items-center", shouldHideNavCompletely && "hidden")}>
+        <Container1080
+          className={cn(
+            "w-full bg-white dark:bg-gray-900 flex px-4 xl:px-0  flex-col items-center",
+            shouldHideNavCompletely && "hidden",
+          )}
+        >
           <Navbar className={navbarClassName} />
           <CategoryNav className={categoryNavClassName} />
-        </Container1280>
+        </Container1080>
       </div>
       <section className="w-full mx-auto flex-grow">{children}</section>
       <CommandMenu />
