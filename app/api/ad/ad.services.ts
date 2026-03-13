@@ -31,6 +31,7 @@ export const getAds = async (
 export const getAdById = async (id: string): Promise<GetAdsByIdResponse> => {
   const response = await axiosInstance.get<GetAdsByIdResponse>(
     adQueries.adById(id).endpoint,
+    { skipErrorToast: true },
   );
   return response.data;
 };

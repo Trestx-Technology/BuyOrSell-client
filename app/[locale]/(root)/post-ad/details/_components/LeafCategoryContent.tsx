@@ -154,6 +154,7 @@ export default function LeafCategoryContent() {
       deal: false,
       dealValidThru: "",
       discountedPrice: 0,
+      connectionTypes: ["chat", "call", "whatsapp"],
     },
     mode: "onChange",
   });

@@ -28,7 +28,11 @@ import OTPVerificationDialog from "@/app/[locale]/(root)/user/_components/otp-ve
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { calculatePasswordStrength } from "@/utils/password-strength";
-import { createSignupSchema, countryCodes, type SignupFormData } from "@/schemas/signup.schema";
+import {
+  createSignupSchema,
+  countryCodes,
+  type SignupFormData,
+} from "@/schemas/signup.schema";
 import { useLocale } from "@/hooks/useLocale";
 import Image from "next/image";
 import { firebase } from "@/lib/firebase/config";
@@ -49,7 +53,7 @@ const Signup = () => {
 
   const signupSchema = useMemo(
     () => createSignupSchema(selectedCountryCode),
-    [selectedCountryCode]
+    [selectedCountryCode],
   );
 
   const {
@@ -73,7 +77,7 @@ const Signup = () => {
   const password = watch("password");
   const passwordStrength = useMemo(
     () => calculatePasswordStrength(password || ""),
-    [password]
+    [password],
   );
 
   const onSubmit = async (data: SignupFormData) => {
@@ -88,8 +92,8 @@ const Signup = () => {
     } catch (error: unknown) {
       console.error("Send OTP error:", error);
       const errorMessage =
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-        "Failed to send OTP. Please try again.";
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || "Failed to send OTP. Please try again.";
       toast.error(errorMessage);
     }
   };
@@ -136,7 +140,7 @@ const Signup = () => {
           await setSession(
             response.data.accessToken,
             response.data.refreshToken || "",
-            response.data.user as unknown as Parameters<typeof setSession>[2]
+            response.data.user as unknown as Parameters<typeof setSession>[2],
           );
         }
 
@@ -144,14 +148,17 @@ const Signup = () => {
         setShowOtpDialog(false);
         router.push(localePath("/"));
       } else {
-        toast.error(response.message || "Failed to create account. Please try again.");
+        toast.error(
+          response.message || "Failed to create account. Please try again.",
+        );
       }
     } catch (error: unknown) {
       console.error("Verify OTP or Signup error:", error);
       const errorMessage =
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message ||
         "Failed to verify OTP or create account. Please try again.";
-      toast.error(errorMessage);
+      // toast.error(errorMessage);
     } finally {
       setIsVerifyingOtp(false);
       setIsGeneratingDeviceKey(false);
@@ -178,9 +185,7 @@ const Signup = () => {
       >
         <ChevronLeft className="size-5" /> {t.auth.signup.back}
       </Link>
-      <H2
-        className="py-4 text-left font-extrabold text-black dark:text-white"
-      >
+      <H2 className="py-4 text-left font-extrabold text-black dark:text-white">
         {t.auth.signup.title}
       </H2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
@@ -188,7 +193,9 @@ const Signup = () => {
           <Input
             {...register("fullName")}
             autoComplete="name"
-            leftIcon={<CircleUserRound className="size-6 -ml-0.5 text-grey-blue dark:text-gray-400" />}
+            leftIcon={
+              <CircleUserRound className="size-6 -ml-0.5 text-grey-blue dark:text-gray-400" />
+            }
             placeholder={t.auth.signup.fullName}
             inputSize="lg"
             className="w-full text-sm pl-12 dark:bg-gray-800 dark:text-white dark:border-gray-700"
@@ -227,7 +234,10 @@ const Signup = () => {
 
         {/* Phone Number with Country Code */}
         <div className="flex gap-3">
-          <Select value={selectedCountryCode} onValueChange={handleCountryCodeChange}>
+          <Select
+            value={selectedCountryCode}
+            onValueChange={handleCountryCodeChange}
+          >
             <SelectTrigger className="min-w-fit border-grey-blue/30 hover:border-purple/50 bg-white dark:bg-gray-800 text-dark-blue dark:text-white border-grey-blue/30 dark:border-gray-700 text-sm font-medium py-6">
               <SelectValue />
             </SelectTrigger>
@@ -257,7 +267,9 @@ const Signup = () => {
           </div>
         </div>
         {errors.phoneNumber && (
-          <p className="text-error text-xs mt-1">{errors.phoneNumber.message}</p>
+          <p className="text-error text-xs mt-1">
+            {errors.phoneNumber.message}
+          </p>
         )}
 
         <div>
@@ -285,7 +297,7 @@ const Signup = () => {
                 />
               ) : (
                 <EyeOffIcon
-                    className={`size-5 ${showPassword ? "text-purple" : "text-gray-500 dark:text-gray-400"}`}
+                  className={`size-5 ${showPassword ? "text-purple" : "text-gray-500 dark:text-gray-400"}`}
                 />
               )
             }
@@ -299,9 +311,10 @@ const Signup = () => {
 
           {/* Password Strength Indicator with Progress Bar */}
           <div className="space-y-2 mt-2">
-            <div className="text-sm text-gray-600 dark:text-gray-400">{t.auth.signup.passwordStrength}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              {t.auth.signup.passwordStrength}
+            </div>
             <Progress value={passwordStrength.progress} className="h-2" />
-          
           </div>
         </div>
 
@@ -310,10 +323,20 @@ const Signup = () => {
           className="w-full text-sm mt-6"
           size="lg"
           variant="filled"
-          disabled={signUpMutation.isPending || sendPhoneOtpMutation.isPending || isGeneratingDeviceKey}
-          isLoading={signUpMutation.isPending || sendPhoneOtpMutation.isPending || isGeneratingDeviceKey}
+          disabled={
+            signUpMutation.isPending ||
+            sendPhoneOtpMutation.isPending ||
+            isGeneratingDeviceKey
+          }
+          isLoading={
+            signUpMutation.isPending ||
+            sendPhoneOtpMutation.isPending ||
+            isGeneratingDeviceKey
+          }
         >
-          {signUpMutation.isPending || sendPhoneOtpMutation.isPending || isGeneratingDeviceKey
+          {signUpMutation.isPending ||
+          sendPhoneOtpMutation.isPending ||
+          isGeneratingDeviceKey
             ? "Sending OTP..."
             : t.auth.signup.createAccount}
         </Button>
@@ -325,7 +348,12 @@ const Signup = () => {
         onClose={() => setShowOtpDialog(false)}
         phoneNumber={`${selectedCountryCode}${watch("phoneNumber")?.replace(/\D/g, "") || ""}`}
         onVerify={handleVerifyOtp}
-        isLoading={isVerifyingOtp || verifyPhoneOtpMutation.isPending || signUpMutation.isPending || isGeneratingDeviceKey}
+        isLoading={
+          isVerifyingOtp ||
+          verifyPhoneOtpMutation.isPending ||
+          signUpMutation.isPending ||
+          isGeneratingDeviceKey
+        }
       />
 
       <H5 className="text-center text-sm py-6 text-gray-600 dark:text-gray-400">
@@ -340,11 +368,12 @@ const Signup = () => {
         className="space-y-3"
       />
 
-      <H5
-        className="text-center mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit text-gray-600 dark:text-gray-400"
-      >
+      <H5 className="text-center mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit text-gray-600 dark:text-gray-400">
         {t.auth.signup.alreadyHaveAccount}{" "}
-        <Link href={localePath("/login")} className="text-purple m-custom-8 hover:underline">
+        <Link
+          href={localePath("/login")}
+          className="text-purple m-custom-8 hover:underline"
+        >
           {t.auth.signup.logIn}
         </Link>
       </H5>

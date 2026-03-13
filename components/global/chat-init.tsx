@@ -46,6 +46,12 @@ interface ChatInitProps {
       organisationId?: string;
 
       /** 
+       * Optional initial message to send when a new chat is created.
+       * If not provided, a default message will be generated based on the ad title.
+       */
+      initialMessage?: string;
+
+      /** 
        * Custom trigger element. 
        * Can be a React node or a function (render prop) that receives { isLoading, onClick }.
        */
@@ -83,6 +89,7 @@ export const ChatInit: React.FC<ChatInitProps> = ({
       sellerIsVerified,
       type = "ad",
       organisationId,
+      initialMessage,
       children,
       className,
       variant = "ghost",
@@ -105,30 +112,45 @@ export const ChatInit: React.FC<ChatInitProps> = ({
                   return;
             }
 
+            // Resolve Chat Type & Organisation
+            let finalType = type;
+            let finalOrganisationId = organisationId;
+            if (ad?.organization) {
+                  finalType = "organisation";
+                  finalOrganisationId = ad.organization._id;
+            }
+
             // Resolve Ad Data
             const finalAdId = ad?._id || adId;
             const finalAdTitle = ad?.title || adTitle;
             const finalAdTitleAr = ad?.titleAr || adTitleAr || finalAdTitle;
             const finalAdImage = ad?.images?.[0] || adImage || "";
 
-            // Resolve Seller Data
+            // Construct default initial message if not provided
+            const finalInitialMessage = initialMessage || (finalAdTitle ? `Hi, I am interested in: ${finalAdTitle}` : "Hi");
+
+            // Resolve Seller/Recipient Data
             const ownerId = ad?.owner && (typeof ad.owner === 'object' ? ad.owner._id : ad.owner);
-            const finalSellerId = ownerId || sellerId;
+            const orgOwnerId = ad?.organization?.owner;
+            const finalSellerId = orgOwnerId || ownerId || sellerId;
 
             const owner = ad?.owner && typeof ad.owner === 'object' ? ad.owner : null;
-            const finalSellerName = owner?.firstName
+            const orgInfo = ad?.organization;
+
+            const finalSellerName = orgInfo?.tradeName || orgInfo?.legalName || (owner?.firstName
                   ? `${owner.firstName} ${owner.lastName}`.trim()
-                  : (sellerName || "Seller");
-            const finalSellerNameAr = owner?.firstNameAr || sellerNameAr || finalSellerName;
-            const finalSellerImage = owner?.image || sellerImage || "";
-            const finalSellerVerified = owner?.emailVerified || owner?.phoneVerified || sellerIsVerified || false;
+                  : (sellerName || "Seller"));
+
+            const finalSellerNameAr = orgInfo?.tradeNameAr || orgInfo?.legalNameAr || (owner?.firstNameAr || sellerNameAr || finalSellerName);
+            const finalSellerImage = orgInfo?.logoUrl || owner?.image || sellerImage || "";
+            const finalSellerVerified = orgInfo?.verified || owner?.emailVerified || owner?.phoneVerified || sellerIsVerified || false;
 
             if (!finalSellerId) {
                   toast.error("Recipient information not available");
                   return;
             }
 
-            // Prevent chatting with self
+            // Prevent chatting with self (can be user ID or organization owner ID)
             if (session.user._id === finalSellerId) {
                   toast.info("This is your own listing");
                   return;
@@ -137,7 +159,7 @@ export const ChatInit: React.FC<ChatInitProps> = ({
             setIsLoading(true);
             try {
                   const chatParams: CreateChatParams = {
-                        type: type,
+                        type: finalType,
                         title: finalAdTitle || finalSellerName || "Chat",
                         titleAr: finalAdTitleAr || finalSellerNameAr || "Chat",
                         image: finalAdImage || finalSellerImage,
@@ -159,16 +181,29 @@ export const ChatInit: React.FC<ChatInitProps> = ({
                         adId: finalAdId,
                         adOwnerId: finalSellerId as string,
                         initiatorId: session.user._id,
-                        organisationId: organisationId,
+                        organisationId: finalOrganisationId,
                   };
 
                   let chatId = await ChatService.findExistingChat(chatParams);
+                  let isNewChat = false;
                   if (!chatId) {
                         chatId = await ChatService.createChat(chatParams);
+                        isNewChat = true;
+                  }
+
+                  // Send pre-message if it's a new chat
+                  if (chatId && isNewChat && finalInitialMessage) {
+                        await ChatService.sendMessage({
+                              chatId,
+                              senderId: session.user._id,
+                              text: finalInitialMessage,
+                              type: "text",
+                              userImage: session.user.image || "",
+                        });
                   }
 
                   if (chatId) {
-                        router.push(`/chat?chatId=${chatId}&type=${type}`);
+                        router.push(`/chat?chatId=${chatId}&type=${finalType}`);
                   }
             } catch (error) {
                   console.error("Failed to initiate chat", error);

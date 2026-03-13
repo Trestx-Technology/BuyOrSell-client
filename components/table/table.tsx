@@ -45,6 +45,7 @@ interface TableComponentProps<T> {
     pageSize: number;
   }) => void;
   showPagination?: boolean;
+  pageCount?: number;
   paginationType?: "infinite-scroll" | "pagination";
   rowClassName?: RowClassName<T>;
 }
@@ -60,6 +61,7 @@ export function Table<T>({
   className = "",
   loading = false,
   rowCount,
+  pageCount,
   pagination,
   onPaginationChange,
   showPagination,
@@ -78,11 +80,13 @@ export function Table<T>({
     getCoreRowModel: getCoreRowModel(),
     columnResizeMode: "onChange",
     ...(shouldPaginate && {
-      getPaginationRowModel: isControlled ? undefined : getPaginationRowModel(),
+      getPaginationRowModel: getPaginationRowModel(),
       manualPagination: isControlled,
-      pageCount: isControlled
-        ? Math.ceil((rowCount || 0) / (pagination?.pageSize || 10))
-        : undefined,
+      pageCount:
+        pageCount ??
+        (isControlled
+          ? Math.ceil((rowCount || 0) / (pagination?.pageSize || 10))
+          : undefined),
       onPaginationChange: isControlled
         ? (updater) => {
             const newPagination =

@@ -115,7 +115,21 @@ export class ChatService {
     try {
       const chatsRef = collection(this.db, COLLECTIONS.CHATS);
 
-      // We query by participants[0] and filter locally to avoid complex indexes
+      // 1. Try direct lookup using deterministic ID (fastest and most reliable for new logic)
+      const typeId = params.adId || params.organisationId || "direct";
+
+      const chatId = this.generateChatId(
+        params.type,
+        typeId,
+        params.participants,
+      );
+      const chatDoc = await getDoc(doc(this.db, COLLECTIONS.CHATS, chatId));
+      if (chatDoc.exists()) {
+        return chatId;
+      }
+
+      // 2. Fallback: Search all user chats if deterministic ID didn't match
+      // This catches legacy chats or those created with slightly different parameters
       const q = query(
         chatsRef,
         where("participants", "array-contains", params.participants[0]),
@@ -128,13 +142,17 @@ export class ChatService {
         // Check type
         if (data.type !== params.type) return false;
 
-        // Check type-specific IDs
-        if (params.type === "ad" && data.adId !== params.adId) return false;
-        if (
-          params.type === "organisation" &&
-          data.organisationId !== params.organisationId
-        )
-          return false;
+        // Normalize adId for reliable comparison
+        const paramsAdId = params.adId || null;
+        const dataAdId = data.adId || null;
+
+        // Match Ad ID if present (ensures separate chats for different ads)
+        if (paramsAdId !== dataAdId) return false;
+
+        // Match Organisation ID if it's an organisation chat
+        if (params.type === "organisation") {
+          if (data.organisationId !== params.organisationId) return false;
+        }
 
         // Check if participants match exactly
         const docParticipants = (data.participants as string[]) || [];
@@ -258,14 +276,10 @@ export class ChatService {
       chatsArr = chatsArr.filter((c) => c.type === type);
     }
 
-    // Sort by updatedAt descending with fallback to lastMessage.createdAt
+    // Sort by lastMessage.createdAt descending
     return chatsArr.sort((a, b) => {
-      const timeA =
-        this.getTimestampValue(a.updatedAt) ||
-        this.getTimestampValue(a.lastMessage?.createdAt);
-      const timeB =
-        this.getTimestampValue(b.updatedAt) ||
-        this.getTimestampValue(b.lastMessage?.createdAt);
+      const timeA = this.getTimestampValue(a.lastMessage?.createdAt);
+      const timeB = this.getTimestampValue(b.lastMessage?.createdAt);
       return timeB - timeA;
     });
   }
@@ -297,14 +311,10 @@ export class ChatService {
           chatsArr = chatsArr.filter((c) => c.type === type);
         }
 
-        // Sort by updatedAt descending with fallback to lastMessage.createdAt
+        // Sort by lastMessage.createdAt descending
         chatsArr.sort((a, b) => {
-          const timeA =
-            this.getTimestampValue(a.updatedAt) ||
-            this.getTimestampValue(a.lastMessage?.createdAt);
-          const timeB =
-            this.getTimestampValue(b.updatedAt) ||
-            this.getTimestampValue(b.lastMessage?.createdAt);
+          const timeA = this.getTimestampValue(a.lastMessage?.createdAt);
+          const timeB = this.getTimestampValue(b.lastMessage?.createdAt);
           return timeB - timeA;
         });
 

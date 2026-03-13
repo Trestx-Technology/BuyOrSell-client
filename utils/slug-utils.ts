@@ -14,7 +14,7 @@
  * @example
  * ```ts
  * toSlug("Software Engineering") // "software-engineering"
- * toSlug("Mobile & Tablets") // "mobile-tablets"
+ * toSlug("Mobile & Tablets") // "mobile-&-tablets"
  * toSlug("  Hello   World  ") // "hello-world"
  * ```
  */
@@ -23,9 +23,11 @@ export function toSlug(text: string): string {
 
   return text
     .trim()
+    .toLowerCase()
     .replace(/\//g, "~") // Replace forward slash with tilde (RFC 3986 unreserved)
+    .replace(/&/g, "-&-") // Explicitly handle ampersand
     .replace(/\s+/g, "-")
-    .replace(/[^A-Za-z0-9\(\)\[\]\{\}\-\~\_\.]+/g, "") // Added ~ and . to whitelist
+    .replace(/[^A-Za-z0-9\(\)\[\]\{\}\-\~\_\.\&]+/g, "") // Added & to whitelist
     .replace(/-+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
@@ -83,7 +85,7 @@ export function toSlugPath(
  * // "jobs/software-engineering/mobile"
  *
  * slugify("Categories", "Electronics", "Mobile & Tablets")
- * // "categories/electronics/mobile-tablets"
+ * // "categories/electronics/mobile-&-tablets"
  * ```
  */
 export function slugify(...parts: (string | null | undefined)[]): string {

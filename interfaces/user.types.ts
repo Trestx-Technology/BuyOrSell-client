@@ -255,3 +255,13 @@ export interface BlockHistoryResponse {
   message?: string;
   data: BlockHistory[];
 }
+
+export interface UserStatusResponse {
+  statusCode: number;
+  timestamp: string;
+  message?: string;
+  data: {
+    status: string;
+    _id: string;
+  };
+}

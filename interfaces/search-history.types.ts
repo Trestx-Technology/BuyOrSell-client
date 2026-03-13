@@ -11,6 +11,7 @@ export interface SearchHistoryItem {
   timestamp: string;
   createdAt: string;
   updatedAt: string;
+  __v: number;
 }
 
 export interface CreateSearchHistoryPayload {
@@ -28,11 +29,15 @@ export interface SearchHistoryResponse {
 }
 
 export interface SearchHistoryListResponse {
-  success: boolean;
-  data: SearchHistoryItem[];
-  total: number;
-  page: number;
-  limit: number;
+  statusCode: number;
+  timestamp: string;
+  data: {
+    items: SearchHistoryItem[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
   message?: string;
 }
 

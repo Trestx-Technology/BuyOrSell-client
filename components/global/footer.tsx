@@ -16,6 +16,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import { AppStoreButtons } from "./app-store-buttons";
 import {
   fastContainerVariants,
   fastItemVariants,
@@ -218,63 +219,7 @@ export function Footer({ className }: FooterProps) {
                   />
                 </div>
                 {/* App Store Buttons */}
-                <div className="space-y-1 w-full flex md:flex-col gap-3 md:gap-0">
-                  {/* Google Play Button */}
-                  <Button
-                    icon={
-                      <Image
-                        src="https://firebasestorage.googleapis.com/v0/b/dealdome-12a90.firebasestorage.app/o/icons%2FGroup.svg?alt=media&token=08d8b0d5-e352-4d63-9ead-4824478c6065"
-                        alt="google play"
-                        width={25}
-                        height={25}
-                        className="size-[20px] sm:size-[25px]"
-                      />
-                    }
-                    iconPosition="left"
-                    onClick={() =>
-                      window.open(
-                        "https://play.google.com/store/apps/details?id=com.yourpackage",
-                        "_blank",
-                      )
-                    }
-                    className="bg-black px-3 md:px-6 font-medium text-white hover:bg-black/70 h-12 text-left capitalize"
-                  >
-                    <span className="flex flex-col gap-0 justify-start relative songMyung pt-2 text-sm sm:text-md">
-                      <span className="text-[8px] sm:text-[10px] tracking-wider absolute top-[-5px] font-inter">
-                        GET IT ON
-                      </span>
-                      Google play
-                    </span>
-                  </Button>
-
-                  {/* App Store Button */}
-                  <Button
-                    icon={
-                      <Image
-                        src="https://firebasestorage.googleapis.com/v0/b/dealdome-12a90.firebasestorage.app/o/icons%2FGroup%20(1).svg?alt=media&token=697b0ca8-67bf-44d9-bc5d-ee12e36822a7"
-                        alt="google play"
-                        width={25}
-                        height={25}
-                        className="size-[20px] sm:size-[25px]"
-                      />
-                    }
-                    iconPosition="left"
-                    onClick={() =>
-                      window.open(
-                        `https://apps.apple.com/app/idXXXXXXXXX`,
-                        "_blank",
-                      )
-                    }
-                    className="bg-black px-3  font-medium text-white hover:bg-black/70 h-12 text-left capitalize"
-                  >
-                    <span className="flex flex-col gap-0 justify-start relative songMyung pt-2 text-sm sm:text-md">
-                      <span className="text-[8px] sm:text-[10px] tracking-wider absolute top-[-5px] font-inter">
-                        Available on the
-                      </span>
-                      App Store
-                    </span>
-                  </Button>
-                </div>
+                <AppStoreButtons className="lg:flex-col" />
               </div>
             </div>
           </motion.div>

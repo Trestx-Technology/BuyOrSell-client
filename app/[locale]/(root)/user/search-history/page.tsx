@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useLocale } from "@/hooks/useLocale";
 import {
   useGetSearchHistory,
@@ -108,13 +108,14 @@ export default function SearchHistoryPage() {
         </div>
         {/* Search History Table */}
         <Table
-          data={searchHistory?.data || []}
+          data={searchHistory?.data?.items || []}
           columns={columns}
           loading={isLoading}
           pagination={pagination}
           onPaginationChange={setPagination}
           showPagination={true}
-          rowCount={searchHistory?.total || 0}
+          rowCount={searchHistory?.data?.total || 0}
+          pageCount={searchHistory?.data?.totalPages || 0}
         />
       </div>
     </Container1080>

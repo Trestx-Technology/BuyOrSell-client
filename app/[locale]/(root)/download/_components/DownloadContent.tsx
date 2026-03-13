@@ -7,6 +7,7 @@ import { Container1080 } from "@/components/layouts/container-1080";
 import { Smartphone, QrCode, Star, ShieldCheck, Zap } from "lucide-react";
 import { useLocale } from "@/hooks/useLocale";
 import Image from "next/image";
+import { AppStoreButtons } from "@/components/global/app-store-buttons";
 
 export function DownloadContent() {
   const { locale } = useLocale();
@@ -39,7 +40,7 @@ export function DownloadContent() {
   return (
     <div className="min-h-screen bg-slate-50 overflow-hidden">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-purple-700 via-purple-600 to-indigo-700 pt-20 pb-40 relative">
+      <div className="bg-gradient-to-br from-purple-700 via-purple-600 to-indigo-700 pt-32 pb-48 relative px-4 lg:px-0">
         <Container1080>
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="text-white space-y-8 animate-in fade-in slide-in-from-left-8 duration-700">
@@ -68,61 +69,7 @@ export function DownloadContent() {
                   : "Experience the #1 marketplace in UAE with our native mobile app. Get real-time notifications, secure messaging, and faster browsing."}
               </p>
 
-              <div className="flex flex-wrap gap-4 pt-4">
-                <Button
-                  icon={
-                    <Image
-                      src="https://firebasestorage.googleapis.com/v0/b/dealdome-12a90.firebasestorage.app/o/icons%2FGroup%20(1).svg?alt=media&token=697b0ca8-67bf-44d9-bc5d-ee12e36822a7"
-                      alt="app store"
-                      width={25}
-                      height={25}
-                      className="size-[25px]"
-                    />
-                  }
-                  iconPosition="left"
-                  onClick={() =>
-                    window.open(
-                      `https://apps.apple.com/app/idXXXXXXXXX`,
-                      "_blank",
-                    )
-                  }
-                  className="bg-black px-6 font-medium text-white hover:bg-black/90 h-14 rounded-xl text-left capitalize transition-all hover:scale-105 shadow-xl"
-                >
-                  <span className="flex flex-col gap-0 justify-start relative px-2 text-md">
-                    <span className="text-[10px] tracking-wider absolute top-[-10px] font-inter">
-                      Available on the
-                    </span>
-                    App Store
-                  </span>
-                </Button>
-
-                <Button
-                  icon={
-                    <Image
-                      src="https://firebasestorage.googleapis.com/v0/b/dealdome-12a90.firebasestorage.app/o/icons%2FGroup.svg?alt=media&token=08d8b0d5-e352-4d63-9ead-4824478c6065"
-                      alt="google play"
-                      width={25}
-                      height={25}
-                      className="size-[25px]"
-                    />
-                  }
-                  iconPosition="left"
-                  onClick={() =>
-                    window.open(
-                      "https://play.google.com/store/apps/details?id=com.yourpackage",
-                      "_blank",
-                    )
-                  }
-                  className="bg-black px-6 font-medium text-white hover:bg-black/90 h-14 rounded-xl text-left capitalize transition-all hover:scale-105 shadow-xl"
-                >
-                  <span className="flex flex-col gap-0 justify-start relative pt-2 text-md">
-                    <span className="text-[10px] tracking-wider absolute top-[-5px] font-inter">
-                      GET IT ON
-                    </span>
-                    Google play
-                  </span>
-                </Button>
-              </div>
+              <AppStoreButtons />
             </div>
 
             <div className="relative hidden lg:block animate-in fade-in zoom-in duration-1000 delay-300">
@@ -198,13 +145,16 @@ export function DownloadContent() {
               </p>
             </div>
 
-            <div className="p-8 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200 flex flex-col items-center gap-4">
-              <div className="size-48 bg-white rounded-2xl shadow-inner flex items-center justify-center">
-                <QrCode className="size-32 text-gray-200" strokeWidth={1} />
+            <div className="flex flex-col items-center gap-6">
+              <div className="p-8 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200 flex flex-col items-center gap-4">
+                <div className="size-48 bg-white rounded-2xl shadow-inner flex items-center justify-center">
+                  <QrCode className="size-32 text-gray-200" strokeWidth={1} />
+                </div>
+                <p className="text-[10px] text-gray-400 font-medium tracking-widest uppercase">
+                  Play Store & App Store
+                </p>
               </div>
-              <p className="text-[10px] text-gray-400 font-medium tracking-widest uppercase">
-                Play Store & App Store
-              </p>
+              <AppStoreButtons theme="light" />
             </div>
           </div>
         </div>

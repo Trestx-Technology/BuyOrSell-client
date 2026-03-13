@@ -23,6 +23,13 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 import { useLocale } from "@/hooks/useLocale";
@@ -57,6 +64,7 @@ export interface MyAdCardProps {
   onShare?: (id: string) => void;
   onClick?: (id: string) => void;
   isSaved: boolean;
+  status: "live" | "rejected" | "created";
 }
 
 const MyAdCard: React.FC<MyAdCardProps> = ({
@@ -73,6 +81,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
   validity,
   className,
   isSaved,
+  status,
 }) => {
   const { t } = useLocale();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -193,12 +202,30 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
                 // Implement share if needed
               }}
             />
-            {isExpired && (
-              <div className="absolute inset-0 bg-black/60 z-20 flex items-center justify-center">
-                <Badge variant="destructive" className="text-sm px-3 py-1">
+            {isExpired ? (
+              <div className="absolute inset-x-0 top-0 p-2 z-20 flex justify-between items-start pointer-events-none">
+                <Badge variant="destructive" className="bg-red-600 text-white border-none shadow-sm">
                   EXPIRED
                 </Badge>
               </div>
+            ) : (
+                <div className="absolute inset-x-0 top-0 p-2 z-20 flex justify-between items-start pointer-events-none">
+                    {status === "live" && (
+                        <Badge className="bg-green-600 text-white border-none shadow-sm">
+                            LIVE
+                        </Badge>
+                    )}
+                    {status === "created" && (
+                        <Badge className="bg-orange-500 text-white border-none shadow-sm">
+                            PENDING
+                        </Badge>
+                    )}
+                    {status === "rejected" && (
+                        <Badge variant="destructive" className="bg-red-500 text-white border-none shadow-sm">
+                            REJECTED
+                        </Badge>
+                    )}
+                </div>
             )}
           </div>
 
@@ -240,46 +267,43 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
           )}
 
           {/* Actions Footer */}
-          {/* Actions Footer */}
-          <div className="mt-auto border-t border-gray-100 dark:border-gray-800 p-3 flex items-center gap-2 z-20 relative bg-white dark:bg-gray-900 rounded-b-2xl">
+          <div className="mt-auto border-t border-gray-100 dark:border-gray-800 p-3.5 flex items-center gap-2.5 z-20 relative bg-white dark:bg-gray-900 rounded-b-2xl">
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
-              className="flex-1 h-8 px-2 text-xs"
+              className="flex-1 h-9 rounded-xl font-semibold text-xs border-none"
               onClick={handleEditClick}
-              icon={<Pencil className="w-3.5 h-3.5" />}
+              icon={<Pencil className="w-4 h-4" />}
               iconPosition="left"
             >
               {t.user.profileEdit.editAd}
             </Button>
 
-            {!isExpired && (
+            {isExpired ? (
               <Button
-                variant="outline"
+                variant="success"
                 size="sm"
-                className={cn(
-                  "h-8 px-2 text-xs text-yellow-600 border-yellow-200 hover:bg-yellow-50 dark:hover:bg-yellow-900/20",
-                  isPremium &&
-                    "bg-yellow-500 text-white border-yellow-200 hover:bg-yellow-600",
-                )}
-                onClick={handleFeatureClick}
-                disabled={updateAdMutation.isPending || isPremium}
-                icon={<Star className="w-3.5 h-3.5" />}
-                iconPosition="left"
-              >
-                {isPremium ? "Featured" : "Feature"}
-              </Button>
-            )}
-
-            {isExpired && (
-              <Button
-                size="sm"
-                className="h-8 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
+                className="flex-1 h-9 rounded-xl font-bold text-xs shadow-sm hover:shadow-md transition-all"
                 onClick={handleRenewClick}
-                icon={<RefreshCw className="w-3.5 h-3.5" />}
+                icon={<RefreshCw className="w-4 h-4" />}
                 iconPosition="left"
               >
                 Renew
+              </Button>
+            ) : (
+              <Button
+                variant={isPremium ? "warning" : "warningOutlined"}
+                size="sm"
+                className={cn(
+                  "flex-1 h-9 rounded-xl font-semibold text-xs transition-all",
+                  !isPremium && "border-warning-100 text-warning-100 dark:border-warning-100"
+                )}
+                onClick={handleFeatureClick}
+                disabled={updateAdMutation.isPending || isPremium}
+                icon={<Star className={cn("w-4 h-4", isPremium && "fill-current")} />}
+                iconPosition="left"
+              >
+                {isPremium ? "Featured" : "Feature"}
               </Button>
             )}
 
@@ -288,17 +312,17 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 shrink-0 text-gray-500 hover:text-dark-blue dark:hover:text-white"
+                  className="h-9 w-9 shrink-0 text-gray-400 hover:text-dark-blue dark:hover:text-white rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <MoreVertical className="w-4 h-4" />
+                  <MoreVertical className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="z-[9999]">
+              <DropdownMenuContent align="end" className="z-[9999] rounded-xl border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden min-w-[140px] p-1">
                 <DropdownMenuItem
                   onClick={handleDeleteClick}
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/10 cursor-pointer"
+                  className="text-red-500 focus:text-white focus:bg-red-500 dark:focus:bg-red-600 cursor-pointer font-semibold rounded-lg p-2.5 flex items-center gap-2 transition-colors"
                 >
-                  <Trash2 className="w-4 h-4 mr-2" />
+                  <Trash2 className="w-4 h-4" />
                   {t.user.profileEdit.deleteAd}
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -325,21 +349,28 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
         open={showRenewDialog}
         onOpenChange={setShowRenewDialog}
         title="Renew Ad"
-        description="Extend the validity of your ad. Enter the number of days you want to extend it for."
+        description="Choose how long you want to extend your ad's validity."
       >
         <div className="grid gap-4 py-4 px-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="days" className="text-right">
-              Days
+              Duration
             </Label>
-            <Input
-              id="days"
-              type="number"
-              value={renewDays}
-              onChange={(e) => setRenewDays(Number(e.target.value))}
-              className="col-span-3"
-              min={1}
-            />
+            <div className="col-span-3">
+              <Select
+                value={String(renewDays)}
+                onValueChange={(val) => setRenewDays(Number(val))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select duration" />
+                </SelectTrigger>
+                <SelectContent className="z-[9999]">
+                  <SelectItem value="30">30 Days</SelectItem>
+                  <SelectItem value="60">60 Days</SelectItem>
+                  <SelectItem value="90">90 Days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="flex justify-end gap-2 mt-4">
             <Button

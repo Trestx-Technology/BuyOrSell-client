@@ -49,7 +49,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
   return (
     <nav
       className={cn(
-        "flex container-1080 gap-2 mx-auto items-center w-full py-2 px-4 xl:px-0 justify-between overflow-visible",
+        "flex gap-2 mx-auto items-center w-full py-2 justify-between overflow-visible",
         locale === "ar" ? "flex-row-reverse" : "flex-row",
         className,
       )}

@@ -43,7 +43,7 @@ export const Section14CookiePolicy = () => (
             <tbody className="divide-y divide-gray-50">
               {[
                 { name: "session_id, csrf_token", provider: "BuyOrSell.ae", purpose: "Manages login sessions, security and CSRF protection", duration: "Session", cat: "Essential" },
-                { name: "cookie_consent", provider: "BuyOrSell.ae", purpose: "Stores your cookie preferences", duration: "1 year", cat: "Essential" },
+                { name: "buyorsell_cookie_consent", provider: "BuyOrSell.ae", purpose: "Stores your cookie preferences", duration: "1 year", cat: "Essential" },
                 { name: "_ga, _gid, _gat_UA-*", provider: "Google Analytics", purpose: "Usage analytics and request throttling", duration: "2 years / 24h", cat: "Performance" },
                 { name: "_gcl_au", provider: "Google Ads", purpose: "Ad performance and conversion tracking", duration: "3 months", cat: "Marketing" },
                 { name: "stripe_*", provider: "Stripe", purpose: "Secure payment processing and fraud prevention", duration: "Session", cat: "Essential" },

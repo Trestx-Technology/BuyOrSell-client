@@ -59,13 +59,8 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ ad }) => {
 
   return (
     <Link
-      onClick={() => {
-        if (!isOrganization) {
-          toast.info("This Ad is posted by a Private Seller");
-        }
-      }}
-      href={isOrganization ? localePath(sellerRoute) : "#"}
-      className="bg-white dark:bg-slate-900 group rounded-xl border border-gray-200 dark:border-slate-800 p-4 shadow-sm relative block w-full"
+      href={localePath(sellerRoute)}
+      className="bg-white dark:bg-slate-900 group rounded-xl border border-gray-200 dark:border-slate-800 p-4 shadow-sm relative block w-full hover:border-purple/50 transition-colors"
     >
       <Typography
         variant="h3"

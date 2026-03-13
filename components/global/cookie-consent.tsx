@@ -16,6 +16,10 @@ import Link from "next/link";
 import { firebase } from "@/lib/firebase/config";
 import { useAuthStore } from "@/stores/authStore";
 import { updateUser } from "@/app/api/user/user.services";
+import { CookieService } from "@/services/cookie-service";
+
+const CONSENT_COOKIE_NAME = "buyorsell_cookie_consent";
+const ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
 
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
@@ -29,15 +33,23 @@ export function CookieConsent() {
   });
 
   useEffect(() => {
-    // Check if consent has already been given
-    const consent = localStorage.getItem("site-consent");
+    // Check if consent has already been given - prioritizing cookie over localStorage
+    const consent = CookieService.get(CONSENT_COOKIE_NAME) || localStorage.getItem("site-consent");
+    
     if (!consent) {
       setShowBanner(true);
     } else {
       try {
-        setPreferences(JSON.parse(consent));
+        const parsedConsent = JSON.parse(consent);
+        setPreferences(parsedConsent);
+        
+        // Migrate to cookie if it was only in localStorage
+        if (!CookieService.get(CONSENT_COOKIE_NAME)) {
+          CookieService.set(CONSENT_COOKIE_NAME, consent, { maxAge: ONE_YEAR_IN_SECONDS });
+        }
       } catch (e) {
         console.error("Error parsing consent", e);
+        setShowBanner(true);
       }
     }
   }, []);
@@ -54,8 +66,13 @@ export function CookieConsent() {
   };
 
   const savePreferences = (prefs: any) => {
+    const prefsString = JSON.stringify(prefs);
     setPreferences(prefs);
-    localStorage.setItem("site-consent", JSON.stringify(prefs));
+    
+    // Store in both for maximum persistence
+    CookieService.set(CONSENT_COOKIE_NAME, prefsString, { maxAge: ONE_YEAR_IN_SECONDS });
+    localStorage.setItem("site-consent", prefsString);
+    
     setShowBanner(false);
     setShowPreferences(false);
   };
@@ -80,12 +97,13 @@ export function CookieConsent() {
           const permission = await Notification.requestPermission();
           if (permission === "granted") {
             const currentPrefs = JSON.parse(
-              localStorage.getItem("site-consent") || "{}",
+              CookieService.get(CONSENT_COOKIE_NAME) || localStorage.getItem("site-consent") || "{}",
             );
-            localStorage.setItem(
-              "site-consent",
-              JSON.stringify({ ...currentPrefs, notifications: true }),
-            );
+            const newPrefs = { ...currentPrefs, notifications: true };
+            const prefsString = JSON.stringify(newPrefs);
+            
+            CookieService.set(CONSENT_COOKIE_NAME, prefsString, { maxAge: ONE_YEAR_IN_SECONDS });
+            localStorage.setItem("site-consent", prefsString);
 
             // Register FCM Token if the user is logged in
             if (user?._id) {

@@ -6,7 +6,7 @@ import { getLocale, locales } from "./lib/i18n/config";
  * Proxy function for handling locale redirection and routing logic.
  * This is the Next.js 16 equivalent of middleware.
  */
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Basic Locale Check
@@ -45,6 +45,36 @@ export function proxy(request: NextRequest) {
 
   if (shouldBeExcluded) {
     return NextResponse.next();
+  }
+
+  // 2. User Status Check
+  const userId = request.cookies.get("buyorsell_user_id")?.value;
+  const isHaltedPage = pathname.includes("/account-halted");
+
+  if (userId && !isHaltedPage && !pathname.startsWith("/api")) {
+    try {
+      const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+      const res = await fetch(`${BACKEND_URL}/users/user/${userId}/status`, {
+        next: { revalidate: 60 } // Cache for 1 minute
+      } as any);
+
+      if (res.ok) {
+        const responseData = await res.json();
+        const status = responseData?.data?.status?.toUpperCase();
+
+        if (status === "BLOCKED" || status === "BANNED" || status === "SUSPENDED") {
+          const currentLocale = locales.find(
+            (l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`
+          ) || getLocale(request);
+          
+          const url = request.nextUrl.clone();
+          url.pathname = `/${currentLocale}/account-halted`;
+          return NextResponse.redirect(url);
+        }
+      }
+    } catch (error) {
+      console.error("[Proxy] User status check failed:", error);
+    }
   }
 
   // 3. Double-check: safeguard to prevent multiple redirects

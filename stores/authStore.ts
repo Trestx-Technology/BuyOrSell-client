@@ -169,6 +169,12 @@ export const useAuthStore = create<AuthStore>()(
           secure: true,
           sameSite: "lax",
         });
+        CookieService.set("buyorsell_user_id", sessionUser._id, {
+          maxAge,
+          path: "/",
+          secure: true,
+          sameSite: "lax",
+        });
       },
 
       // Clear Session (Logout)
@@ -190,6 +196,7 @@ export const useAuthStore = create<AuthStore>()(
         // Clear cookie using client-side CookieService
         CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: "/" });
         CookieService.remove(AUTH_TOKEN_NAMES.REFRESH_TOKEN, { path: "/" });
+        CookieService.remove("buyorsell_user_id", { path: "/" });
       },
 
       // Update User Data
@@ -239,6 +246,17 @@ export const useAuthStore = create<AuthStore>()(
       storage: createJSONStorage(() =>
         typeof window !== "undefined" ? localStorage : ({} as Storage),
       ),
+      onRehydrateStorage: () => (state) => {
+        if (state?.session?.user?._id) {
+          const maxAge = 7 * 24 * 60 * 60; // 1 week
+          CookieService.set("buyorsell_user_id", state.session.user._id, {
+            maxAge,
+            path: "/",
+            secure: true,
+            sameSite: "lax",
+          });
+        }
+      },
       partialize: (state) => ({
         session: state.session,
         isAuthenticated: state.isAuthenticated,
