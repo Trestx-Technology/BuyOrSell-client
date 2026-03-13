@@ -100,6 +100,7 @@ export default function JobLeafCategoryContent() {
       maxSalary: 0,
       phoneNumber: "",
       address: { address: "" },
+      connectionTypes: ["chat", "call", "whatsapp"],
     },
     mode: "onChange",
   });
