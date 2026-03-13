@@ -41,8 +41,11 @@ export default function SelectJobCategoryContent() {
   } = useJobSubcategories();
 
   // Fetch user organizations
-  const { data: organizationsData, isLoading: organizationsLoading } =
-    useMyOrganization();
+  const {
+    data: organizationsData,
+    isLoading: organizationsLoading,
+    refetch: refetchOrganizations,
+  } = useMyOrganization();
   const organizations = organizationsData?.data || [];
 
   useEffect(() => {
@@ -88,7 +91,10 @@ export default function SelectJobCategoryContent() {
     <Container1080>
       <OrganizationRequiredDialog
         isOpen={showOrgDialog}
-        onClose={() => setShowOrgDialog(false)}
+        onClose={() => {
+          setShowOrgDialog(false);
+          refetchOrganizations();
+        }}
       />
       <InsufficientAdsDialog {...dialogProps} />
       <div className=" w-full max-w-[888px] flex-1 mx-auto bg-transparent">
