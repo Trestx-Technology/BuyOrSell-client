@@ -129,12 +129,13 @@ export class ChatService {
         if (data.type !== params.type) return false;
 
         // Check type-specific IDs
-        if (params.type === "ad" && data.adId !== params.adId) return false;
-        if (
-          params.type === "organisation" &&
-          data.organisationId !== params.organisationId
-        )
-          return false;
+        if (params.type === "ad") {
+          if (data.adId !== params.adId) return false;
+        } else if (params.type === "organisation") {
+          if (data.organisationId !== params.organisationId) return false;
+          // Scope by adId as well if it's an organization ad chat
+          if (data.adId !== params.adId) return false;
+        }
 
         // Check if participants match exactly
         const docParticipants = (data.participants as string[]) || [];
