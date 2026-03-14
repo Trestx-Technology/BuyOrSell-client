@@ -92,11 +92,11 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
 
   return (
     <main className="min-h-[600px] relative flex flex-col bg-white dark:bg-gray-950">
-      <div className="sticky top-0 z-50 flex flex-col items-center">
+      <div className="sticky w-full bg-white dark:bg-gray-900 top-0 z-50 flex flex-col items-center">
         {!shouldHideNavCompletely && <MobileAppStrip />}
         <Container1080
           className={cn(
-            "w-full bg-white dark:bg-gray-900 flex px-4 xl:px-0  flex-col items-center",
+            "w-full flex px-4 xl:px-0  flex-col items-center",
             shouldHideNavCompletely && "hidden",
           )}
         >
