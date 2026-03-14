@@ -1,6 +1,8 @@
 "use server";
 
 import OpenAI from "openai";
+import { cookies } from "next/headers";
+import { AUTH_TOKEN_NAMES } from "@/constants/auth.constants";
 import {
   getCategoriesTree,
   semanticSearchCategories,
@@ -532,13 +534,23 @@ OUTPUT (JSON only):
       return { redirectUrl: null, categoryPath: [] };
     }
 
+    // Get auth token from cookies for the server-side request
+    const cookieStore = await cookies();
+    const token = cookieStore.get(AUTH_TOKEN_NAMES.ACCESS_TOKEN)?.value;
+
     console.log(
       `[AI] Fetching semantic results from: ${BACKEND_URL}/categories/search/semantic`,
     );
 
     const semanticRes = await fetch(
       `${BACKEND_URL}/categories/search/semantic?query=${encodeURIComponent(searchQuery)}&limit=1`,
-      { cache: "no-store" },
+      {
+        cache: "no-store",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Accept: "application/json",
+        },
+      },
     );
 
     if (!semanticRes.ok) {
