@@ -88,7 +88,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} ${poppins.variable} antialiased`}>
         <NextTopLoader color="#8B31E1" showSpinner={false} />
         <Toaster position="top-center" richColors duration={2000} />
