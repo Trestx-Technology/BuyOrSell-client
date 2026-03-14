@@ -71,9 +71,8 @@ const UserSellerContent: React.FC = () => {
                         </div>
 
                         {/* Seller Header Mobile */}
-                        <div className="block sm:hidden">
-                              <div className="sticky top-0 h-40 overflow-hidden">
-                                    {/* TODO: Add cover image for individual seller */}
+                        <div className="block sm:hidden -mx-4">
+                              <div className="relative h-40 overflow-hidden">
                                     <Image
                                           src="/seller-banner.png"
                                           alt="Seller banner"
@@ -81,9 +80,9 @@ const UserSellerContent: React.FC = () => {
                                           className="object-cover object-center"
                                     />
                               </div>
-                              <div className="relative px-4 -mt-10 mb-4 flex items-end">
+                              <div className="relative px-4 -mt-10 mb-4 flex items-end justify-between">
                                     <div className="relative">
-                                          <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white bg-gray-100 relative">
+                                          <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white bg-gray-100 relative shadow-sm">
                                                 {user?.image ? (
                                                       <Image
                                                             src={user.image}
@@ -92,34 +91,60 @@ const UserSellerContent: React.FC = () => {
                                                             className="object-cover"
                                                       />
                                                 ) : (
-                                                      <div className="w-full h-full flex items-center justify-center bg-purple/10 text-purple text-xl font-bold">
+                                                      <div className="w-full h-full flex items-center justify-center bg-purple/10 text-purple text-2xl font-bold">
                                                             {user.firstName?.charAt(0)}
                                                             {user.lastName?.charAt(0)}
                                                       </div>
                                                 )}
                                           </div>
+                                          {user.isVerified && (
+                                                <div className="absolute bottom-0 right-0 bg-white rounded-full p-0.5 shadow-sm border border-gray-100">
+                                                      <Image
+                                                            src="/icons/verified.svg"
+                                                            alt="Verified"
+                                                            width={18}
+                                                            height={18}
+                                                      />
+                                                </div>
+                                          )}
                                     </div>
                               </div>
-                              <div className="px-4 mb-6">
-                                    <Typography variant="h2" className="text-dark-blue mb-1">
-                                          {user?.firstName} {user?.lastName}
-                                    </Typography>
+                              <div className="px-4 mb-2">
+                                    <div className="flex items-center gap-2">
+                                          <Typography variant="h2" className="text-xl font-bold text-dark-blue">
+                                                {user?.firstName} {user?.lastName}
+                                          </Typography>
+                                    </div>
+                                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                                          <div className="flex items-center gap-1.5 text-grey-blue">
+                                                <div className="w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center">
+                                                      <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                                </div>
+                                                <Typography variant="body" className="text-xs">
+                                                      Online
+                                                </Typography>
+                                          </div>
+                                          {user.createdAt && (
+                                                <div className="flex items-center gap-1.5 text-grey-blue">
+                                                      <Typography variant="body" className="text-xs">
+                                                            Member since {new Date(user.createdAt).getFullYear()}
+                                                      </Typography>
+                                                </div>
+                                          )}
+                                          {user.phoneVerified && (
+                                                <div className="flex items-center gap-1.5 text-success">
+                                                      <Typography variant="body" className="text-xs font-medium">
+                                                            Phone Verified
+                                                      </Typography>
+                                                </div>
+                                          )}
+                                    </div>
                               </div>
-                              {/* <SellerListingsMobileHeader
-            sellerId={userId}
-            organization={undefined}
-            user={user}
-          /> */}
                         </div>
 
                         {/* Seller Information */}
                         <div className="mt-8">
                               <SellerInfo sellerId={userId} organization={undefined} user={user} />
-                        </div>
-
-                        {/* Seller Reviews */}
-                        <div className="mt-8">
-                              <SellerReviews sellerId={userId} organization={undefined} />
                         </div>
 
                         {/* Seller Listings */}

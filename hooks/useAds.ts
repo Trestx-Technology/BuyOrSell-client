@@ -97,11 +97,13 @@ export const useAdsByUser = (
     limit?: number;
     status?: "live" | "rejected" | "pending";
   },
+  options?: { enabled?: boolean },
 ) => {
   return useQuery<GetLiveAdsResponse, Error>({
     queryKey: [...adQueries.adsByUser(userId).Key, params],
     queryFn: () => getAdsByUser(userId, params),
-    enabled: !!userId,
+    enabled: options?.enabled !== undefined ? options.enabled : !!userId,
+    ...options,
   });
 };
 

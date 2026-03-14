@@ -54,7 +54,7 @@ const SellerInfo: React.FC<SellerInfoProps> = ({ ad }) => {
   const sellerId = ad.organization?._id || ad.owner?._id || "";
 
   // Determine the correct seller route based on seller type
-  const sellerRoute = isOrganization && ad.organization?.type === "company" ? `/organizations/${ad.organization._id}` : `/seller/org/${sellerId}`
+  const sellerRoute = isOrganization && ad.organization?.type === "company" ? `/organizations/${ad.organization._id}` : `/seller/user/${sellerId}`
 
 
   return (

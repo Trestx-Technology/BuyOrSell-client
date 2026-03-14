@@ -6,7 +6,7 @@ import SortAndViewControls from "@/app/[locale]/(root)/post-ad/_components/SortA
 import { ProductExtraFields, AD } from "@/interfaces/ad";
 import ListingCard from "@/components/features/listing-card/listing-card";
 import { useLocale } from "@/hooks/useLocale";
-import { useAds } from "@/hooks/useAds";
+import { useAds, useAdsByUser, useFilterAds } from "@/hooks/useAds";
 import { Organization } from "@/interfaces/organization.types";
 import { User } from "@/interfaces/user.types";
 
@@ -42,17 +42,34 @@ export default function SellerListings({
   const [view, setView] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState("default");
 
-  // Fetch ads for organization or user
-  const {
-    data: adsResponse,
-    isLoading,
-    error,
-  } = useAds({
-    userId: user?._id,
-    organizationName: organization?.tradeName || organization?.legalName,
-    limit: 100,
-    page: 1,
-  });
+  // Fetch ads based on whether we have an organization or a user
+  // For Organization: Use the filter API with organizationId
+  const organizationAds = useFilterAds(
+    {
+      organizationId: sellerId,
+    },
+    1,
+    100,
+    !!organization
+  );
+
+  // For Individual User: Use the dedicated /ad/user/{userId} endpoint
+  // We use sellerId here which is passed as the userId from UserSellerContent
+  const userAds = useAdsByUser(
+    sellerId,
+    {
+      limit: 100,
+      page: 1,
+    },
+    { enabled: !organization && !!sellerId }
+  );
+
+  // Determine which response to use
+  const adsResponse = organization ? organizationAds.data : userAds.data;
+  const isLoading = organization
+    ? organizationAds.isLoading
+    : userAds.isLoading;
+  const error = organization ? organizationAds.error : userAds.error;
 
   // Extract ads from response
   const sellerAds = useMemo(() => {
