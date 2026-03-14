@@ -24,7 +24,6 @@ export function ExploreDealsBanner() {
   const bannersData = (exploreDealsBanners as any)?.data || exploreDealsBanners;
   const banners = bannersData?.banners || [];
 
-
   if (!banners || banners.length === 0) {
     // Fallback if no banners are returned from API
     return (
@@ -42,15 +41,17 @@ export function ExploreDealsBanner() {
           <p className="text-white/80 text-xs mb-6 leading-relaxed max-w-[220px]">
             Explore our exclusive collection of premium properties in UAE.
           </p>
-          <Button
-            className="w-fit bg-white text-black hover:bg-gray-100 dark:bg-white dark:text-black rounded-full h-[48px] px-6 text-sm font-bold group transition-all"
-            asChild
-          >
-            <Link href="/ad/create">
+          <Link href="/ad/create">
+            <Button
+              className="w-fit bg-white text-black hover:bg-gray-100 dark:bg-white dark:text-black rounded-2xl h-[48px] px-6 text-sm font-bold group transition-all"
+              icon={
+                <ChevronRight className="-ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+              }
+              iconPosition="right"
+            >
               Explore More
-              <ChevronRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         </div>
       </div>
     );
@@ -83,12 +84,15 @@ export function ExploreDealsBanner() {
                 "Explore our exclusive collection of premium properties in UAE."}
             </p>
             <Button
-              className="w-fit bg-white text-black hover:bg-gray-100 dark:bg-white dark:text-black rounded-full h-[48px] px-6 text-sm font-bold group transition-all"
+              className="w-fit bg-white text-black hover:bg-gray-100 dark:bg-white dark:text-black rounded-2xl h-[48px] px-6 text-sm font-bold group transition-all"
               asChild
+              icon={
+                <ChevronRight className="-ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+              }
+              iconPosition="right"
             >
               <Link href={banner.sponsoredLink || banner.link || "/ad/create"}>
                 {banner.buttonLabel || "Explore More"}
-                <ChevronRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
           </div>
