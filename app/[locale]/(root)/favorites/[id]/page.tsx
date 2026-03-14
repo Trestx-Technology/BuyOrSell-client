@@ -21,7 +21,10 @@ import { Container1080 } from "@/components/layouts/container-1080";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 import { formatDate } from "@/utils/format-date";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { ListingCardSkeleton, HorizontalListingCardSkeleton } from "@/components/features/listing-card/listing-card-skeleton";
+import {
+  ListingCardSkeleton,
+  HorizontalListingCardSkeleton,
+} from "@/components/features/listing-card/listing-card-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Sort options
@@ -111,31 +114,31 @@ export default function CollectionDetailPage() {
         <div className="w-full px-4 space-y-6 py-8">
           {/* Breadcrumbs Skeleton */}
           <div className="flex gap-2 mb-4">
-             <Skeleton className="h-4 w-20" />
-             <Skeleton className="h-4 w-4" />
-             <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-4" />
+            <Skeleton className="h-4 w-32" />
           </div>
 
           {/* Header Skeleton */}
           <div className="space-y-3 mb-8">
-             <Skeleton className="h-10 w-1/3" />
-             <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-10 w-1/3" />
+            <Skeleton className="h-4 w-1/2" />
           </div>
 
           {/* Grid/List Skeleton */}
           <div
             className={cn(
               "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3",
-              view === "list" && "flex flex-col"
+              view === "list" && "flex flex-col",
             )}
           >
-            {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length: 8 }).map((_, i) =>
               view === "grid" ? (
                 <ListingCardSkeleton key={i} />
               ) : (
                 <HorizontalListingCardSkeleton key={i} />
-              )
-            ))}
+              ),
+            )}
           </div>
         </div>
       </Container1080>
