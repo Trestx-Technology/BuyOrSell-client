@@ -6,24 +6,32 @@ import {
   semanticSearchCategories,
 } from "@/app/api/categories/categories.services";
 
-// Initialize OpenAI client on server side
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Helper to get OpenAI client lazily to ensure environment variables are loaded
+function getOpenAIClient() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    console.warn("[AI] OPENAI_API_KEY is missing in current environment!");
+    return null;
+  }
+  return new OpenAI({ apiKey });
+}
 
-// Use environment variable or fallback to cost-effective model
-const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
+// Helper to get model with fallback
+function getAIModel() {
+  return process.env.OPENAI_MODEL || "gpt-4o-mini";
+}
 
 // Proofread and improve message
 export async function proofreadMessage(message: string): Promise<string> {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      console.log("No OpenAI API key found, returning fallback message");
+    const openai = getOpenAIClient();
+    if (!openai) {
+      console.log("[AI] No OpenAI API key found, returning fallback message");
       return `[AI Proofread] ${message}`;
     }
 
     const response = await openai.chat.completions.create({
-      model: MODEL,
+      model: getAIModel(),
       messages: [
         {
           role: "system",
@@ -76,13 +84,14 @@ Make it:
 // Generate professional inquiry
 export async function generateInquiry(itemTitle: string): Promise<string> {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      console.log("No OpenAI API key found, returning fallback inquiry");
+    const openai = getOpenAIClient();
+    if (!openai) {
+      console.log("[AI] No OpenAI API key found, returning fallback inquiry");
       return `Hi! I'm interested in your ${itemTitle}. Could you please provide more details about the condition, price, and availability?`;
     }
 
     const response = await openai.chat.completions.create({
-      model: MODEL,
+      model: getAIModel(),
       messages: [
         {
           role: "system",
@@ -135,13 +144,14 @@ export async function generateNegotiation(
   originalPrice: string,
 ): Promise<string> {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      console.log("No OpenAI API key found, returning fallback negotiation");
+    const openai = getOpenAIClient();
+    if (!openai) {
+      console.log("[AI] No OpenAI API key found, returning fallback negotiation");
       return `Hi! I'm interested in your item. Is the price negotiable? I'm looking to pay around ${originalPrice}.`;
     }
 
     const response = await openai.chat.completions.create({
-      model: MODEL,
+      model: getAIModel(),
       messages: [
         {
           role: "system",
@@ -193,15 +203,16 @@ The message should:
 // Generate meeting request
 export async function generateMeetingRequest(): Promise<string> {
   try {
-    if (!process.env.OPENAI_API_KEY) {
+    const openai = getOpenAIClient();
+    if (!openai) {
       console.log(
-        "No OpenAI API key found, returning fallback meeting request",
+        "[AI] No OpenAI API key found, returning fallback meeting request",
       );
       return "Hi! I'd like to arrange a meeting to view the item. When would be a convenient time for you?";
     }
 
     const response = await openai.chat.completions.create({
-      model: MODEL,
+      model: getAIModel(),
       messages: [
         {
           role: "system",
@@ -256,13 +267,14 @@ export async function translateMessage(
   targetLanguage: string = "English",
 ): Promise<string> {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      console.log("No OpenAI API key found, returning original message");
+    const openai = getOpenAIClient();
+    if (!openai) {
+      console.log("[AI] No OpenAI API key found, returning original message");
       return message;
     }
 
     const response = await openai.chat.completions.create({
-      model: MODEL,
+      model: getAIModel(),
       messages: [
         {
           role: "system",
@@ -318,7 +330,9 @@ export async function generateDescription(
   existingDescription?: string,
 ): Promise<string> {
   try {
-    if (!process.env.OPENAI_API_KEY) {
+    const openai = getOpenAIClient();
+    if (!openai) {
+      console.log("[AI] No OpenAI API key found, using fallback");
       return (
         existingDescription ||
         `Excellent ${categoryPath} for sale. Please contact for details.`
@@ -326,7 +340,7 @@ export async function generateDescription(
     }
 
     const response = await openai.chat.completions.create({
-      model: MODEL,
+      model: getAIModel(),
       messages: [
         {
           role: "system",
@@ -376,7 +390,9 @@ export async function generatePromptFromImages(
   imageUrls: string[],
 ): Promise<{ description: string; adType: string }> {
   try {
-    if (!process.env.OPENAI_API_KEY || imageUrls.length === 0) {
+    const openai = getOpenAIClient();
+    if (!openai || imageUrls.length === 0) {
+      console.log("[AI] Skipping prompt generation: missing OpenAI key or no images");
       return { description: "", adType: "Item/Classified" };
     }
 
@@ -406,7 +422,7 @@ Return a JSON object:
     });
 
     const response = await openai.chat.completions.create({
-      model: MODEL,
+      model: getAIModel(),
       messages: [
         {
           role: "system",
@@ -457,7 +473,9 @@ export async function identifyCategory(
     adType,
   });
   try {
-    if (!process.env.OPENAI_API_KEY) {
+    // 0. Preliminary credentials check
+    const openai = getOpenAIClient();
+    if (!openai) {
       throw new Error(
         "AI credentials are not configured. Please contact support.",
       );
@@ -465,7 +483,7 @@ export async function identifyCategory(
 
     // 1. Use AI to refine the search query and suggest a title/type
     const aiResponse = await openai.chat.completions.create({
-      model: MODEL,
+      model: getAIModel(),
       messages: [
         {
           role: "system",
