@@ -37,7 +37,7 @@ export const ContactUsContent = () => {
     (
       e: React.ChangeEvent<
         HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-      >
+      >,
     ) => {
       setFormData((prev) => ({
         ...prev,
@@ -137,8 +137,7 @@ export const ContactUsContent = () => {
                     {/* Heading */}
                     <div className="mb-6">
                       <h1 className="text-4xl lg:text-5xl font-bold mb-4 drop-shadow-lg">
-                        Send us
-                        <br />a Message
+                        Contact Us
                       </h1>
                       <p className="text-lg text-purple-100 drop-shadow-sm leading-relaxed">
                         Let&apos;s make your vision a reality. Contact us today

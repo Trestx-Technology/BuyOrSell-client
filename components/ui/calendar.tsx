@@ -20,11 +20,21 @@ function Calendar({
   buttonVariant = "outline",
   formatters,
   components,
+  disabled,
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
 }) {
   const defaultClassNames = getDefaultClassNames();
+
+  const combinedDisabled = React.useMemo(() => {
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+    const futureDateMatcher = { after: todayEnd };
+    if (!disabled) return futureDateMatcher;
+    if (Array.isArray(disabled)) return [...disabled, futureDateMatcher];
+    return [disabled, futureDateMatcher];
+  }, [disabled]);
 
   return (
     <DayPicker
@@ -39,9 +49,10 @@ function Calendar({
       captionLayout={captionLayout}
       formatters={{
         formatMonthDropdown: (date) =>
-          date.toLocaleString("default", { month: "short" }),
+            date.toLocaleString("default", { month: "short" }),
         ...formatters,
       }}
+      disabled={combinedDisabled}
       classNames={{
         root: cn("w-fit", defaultClassNames.root),
         months: cn(

@@ -2,11 +2,19 @@
 
 import OpenAI from "openai";
 
-const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
+// Helper to get OpenAI client lazily
+function getOpenAIClient() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    console.warn("[AI Search] OPENAI_API_KEY is missing!");
+    return null;
+  }
+  return new OpenAI({ apiKey });
+}
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function getAIModel() {
+  return process.env.OPENAI_MODEL || "gpt-4o-mini";
+}
 
 export async function searchWithAI(userQuery: string): Promise<{
   keywords: string[];
@@ -15,7 +23,9 @@ export async function searchWithAI(userQuery: string): Promise<{
   success: boolean;
 }> {
   try {
-    if (!process.env.OPENAI_API_KEY || !userQuery.trim()) {
+    const openai = getOpenAIClient();
+    if (!openai || !userQuery.trim()) {
+      console.log("[AI Search] Skipping due to missing credentials or empty query");
       return {
         keywords: [],
         searchQuery: userQuery,
@@ -26,7 +36,7 @@ export async function searchWithAI(userQuery: string): Promise<{
 
     // Step 1: Use AI to extract keywords and optimize query
     const response = await openai.chat.completions.create({
-      model: MODEL, // Use a smart model for better query understanding
+      model: getAIModel(), // Use a smart model for better query understanding
       messages: [
         {
           role: "system",

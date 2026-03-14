@@ -27,7 +27,7 @@ export function DatePicker({
   label,
   value,
   onChange,
-  placeholder = "Tomorrow or next week",
+  placeholder = "Today or yesterday",
   disabled,
   minDate,
 }: DatePickerProps) {
@@ -40,6 +40,13 @@ export function DatePicker({
 
   React.useEffect(() => {
     if (value) {
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+      if (value > todayEnd) {
+        setDate(undefined);
+        setInputValue("");
+        return;
+      }
       setDate(value);
       setMonth(value);
       setInputValue(formatDateLocale(value));
@@ -55,6 +62,10 @@ export function DatePicker({
     const parsedDate = parseDate(newValue);
     if (parsedDate) {
       const parsed = new Date(parsedDate);
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+      if (parsed > todayEnd) return;
+      
       if (!minDate || parsed >= minDate) {
         setDate(parsed);
         setMonth(parsed);

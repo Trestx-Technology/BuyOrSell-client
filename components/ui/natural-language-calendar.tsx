@@ -39,7 +39,7 @@ export function NaturalLanguageCalendar({
   label,
   value = "",
   onChange,
-  placeholder = "Tomorrow or next week",
+  placeholder = "Today or yesterday",
   className,
 }: NaturalLanguageCalendarProps) {
   const [open, setOpen] = React.useState(false)
@@ -48,7 +48,12 @@ export function NaturalLanguageCalendar({
   const initialDate = React.useMemo(() => {
     if (!value) return undefined;
     const timestamp = Date.parse(value);
-    return isNaN(timestamp) ? undefined : new Date(timestamp);
+    if (isNaN(timestamp)) return undefined;
+    const date = new Date(timestamp);
+    // Don't allow future dates even from initial value
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+    return date > todayEnd ? undefined : date;
   }, [value]);
 
   // Initial display value is formatted date if valid, otherwise empty 
@@ -73,6 +78,11 @@ export function NaturalLanguageCalendar({
     const timestamp = Date.parse(value);
     if (!isNaN(timestamp)) {
       const newDate = new Date(timestamp);
+      // Skip if future
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+      if (newDate > todayEnd) return;
+
       if (date?.toISOString() !== newDate.toISOString()) {
         setDate(newDate);
         setMonth(newDate);
@@ -90,15 +100,17 @@ export function NaturalLanguageCalendar({
     const parsedDate = parseDate(newValue)
 
     if (parsedDate) {
+      // Check if future
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+      if (parsedDate > todayEnd) return;
+
       setDate(parsedDate)
       setMonth(parsedDate)
       // Send ISO string to parent
       onChange?.(parsedDate.toISOString())
     } else {
       // If invalid date/still typing, we don't update the parent with a date yet
-      // OR we can choose to clear it? 
-      // User requested "value should be in the ISO", so if invalid, we probably shouldn't emit an ISO string.
-      // However, typical behavior is to clear the date if input is cleared.
       if (newValue === "") {
         setDate(undefined)
         onChange?.("")
@@ -108,6 +120,11 @@ export function NaturalLanguageCalendar({
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
+      // Calendar component already disables future dates, but for safety:
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+      if (selectedDate > todayEnd) return;
+
       setDate(selectedDate)
       const formatted = formatDate(selectedDate)
       setInputValue(formatted)

@@ -77,6 +77,15 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const hasError = !!error;
     const finalState = hasError ? "error" : state;
 
+    let finalMax = (props as any).max;
+    if (type === "date") {
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+        if (!finalMax || finalMax > today) {
+            finalMax = today;
+        }
+    }
+
     return (
       <div className="w-full space-y-2">
         {label && (
@@ -127,6 +136,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                   : undefined
             }
             {...props}
+            max={finalMax}
           />
 
           {rightIcon && (
