@@ -46,6 +46,8 @@ export const PAGES_WITHOUT_NAV: string[] = [
   "/download",
   "/privacy-policy",
   "/terms-and-conditions",
+  "/user/profile/settings",
+  "/account-halted",
 ];
 
 /**

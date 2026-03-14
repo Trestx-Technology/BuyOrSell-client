@@ -29,6 +29,8 @@ import { Skeleton } from "../ui/skeleton";
 import { ShareDialog } from "../ui/share-dialog";
 import { slugify } from "@/utils/slug-utils";
 import { ICONS } from "@/constants/icons";
+import { usePathname } from "next/navigation";
+import { PAGES_WITHOUT_NAV, shouldShowComponent } from "@/constants/layout.constants";
 
 interface FooterProps {
   className?: string;
@@ -38,10 +40,17 @@ export function Footer({ className }: FooterProps) {
   const { data: categories, isLoading: categoriesLoading } =
     useGetMainCategories();
   const { data: emirates, isLoading: emiratesLoading } = useEmirates();
+  const pathname = usePathname();
+
+  const shouldHideFooter = React.useMemo(() => {
+    return shouldShowComponent(pathname || "", PAGES_WITHOUT_NAV);
+  }, [pathname]);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  if (shouldHideFooter) return null;
 
   return (
     <footer
@@ -300,34 +309,7 @@ export function Footer({ className }: FooterProps) {
             </div>
           </motion.div>
 
-          {/* Quick Navigation Hint Section */}
-          <motion.div
-            className="space-y-6 hidden lg:block"
-            variants={fastItemVariants}
-          >
-            <Typography variant="h6" className="font-medium text-sm text-white">
-              Shortcut
-            </Typography>
-            <div className="space-y-3">
-              <div className="flex flex-col gap-2">
-                <Typography
-                  variant="body"
-                  className="text-[10px] opacity-60 text-white italic"
-                >
-                  Quick Navigation
-                </Typography>
-                <div className="flex items-center gap-1.5 grayscale opacity-70">
-                  <kbd className="px-2 py-1 rounded bg-white/10 border border-white/20 text-[10px] font-sans text-white">
-                    Ctrl
-                  </kbd>
-                  <span className="text-white/40 text-[10px]">+</span>
-                  <kbd className="px-2 py-1 rounded bg-white/10 border border-white/20 text-[10px] font-sans text-white">
-                    K
-                  </kbd>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+
         </div>
 
         {/* Divider */}

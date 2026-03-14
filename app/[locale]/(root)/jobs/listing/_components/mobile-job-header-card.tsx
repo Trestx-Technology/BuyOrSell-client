@@ -444,7 +444,7 @@ export default function MobileJobHeaderCard({
                   variant="outline"
                   size="sm"
                   showLabel
-                  label="Chat with employer"
+                  label="Chat with Employer"
                   className="w-full"
                   icon={<MessageSquareText className="size-4" />}
                 />

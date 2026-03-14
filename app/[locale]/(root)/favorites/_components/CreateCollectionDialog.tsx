@@ -121,7 +121,15 @@ export function CreateCollectionDialog({
         <ResponsiveModalContent className="max-w-md">
           <ResponsiveModalHeader>
             <div className="flex items-center justify-between gap-4">
-              <ResponsiveModalTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleDialogClose(false)}
+                className="p-1"
+              >
+                <ChevronLeft className="size-6" />
+              </Button>
+              <ResponsiveModalTitle className="text-lg font-semibold text-gray-900 dark:text-white text-center flex-1">
                 Create List
               </ResponsiveModalTitle>
               <Button

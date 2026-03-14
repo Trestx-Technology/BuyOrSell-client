@@ -363,7 +363,7 @@ export default function JobHeaderCard({
                     variant="outline"
                     size="small"
                     showLabel
-                    label="Chat with employer"
+                    label="Chat with Employer"
                     className="px-4 py-2"
                     icon={<MessageSquareText className="size-4" />}
                   />
