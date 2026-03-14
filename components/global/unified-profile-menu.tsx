@@ -21,6 +21,7 @@ import { ICONS } from "@/constants/icons";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuthStore } from "@/stores/authStore";
 import { Typography } from "@/components/typography";
+import { SafeImage } from "../ui/safe-image";
 
 interface UnifiedProfileMenuProps {
   onLogout: () => void;
@@ -235,7 +236,7 @@ export function UnifiedProfileMenu({
     <>
       <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center group-hover:bg-purple-50 transition-colors">
         {typeof icon === "string" ? (
-          <Image
+          <SafeImage
             src={icon}
             alt={label}
             width={24}
@@ -261,7 +262,7 @@ export function UnifiedProfileMenu({
       {session?.user && (
         <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-4 bg-gray-50/50 dark:bg-gray-900/50">
           <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-purple/20 flex-shrink-0">
-            <Image
+            <SafeImage
               src={session.user.image || ICONS.navigation.profile}
               alt={session.user.firstName || "User"}
               fill

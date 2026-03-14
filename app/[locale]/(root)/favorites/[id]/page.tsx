@@ -21,6 +21,8 @@ import { Container1080 } from "@/components/layouts/container-1080";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 import { formatDate } from "@/utils/format-date";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { ListingCardSkeleton, HorizontalListingCardSkeleton } from "@/components/features/listing-card/listing-card-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Sort options
 
@@ -105,26 +107,38 @@ export default function CollectionDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="w-full space-y-8 sm:py-4">
-        <div className="flex justify-center sm:hidden border sticky top-0 bg-white z-10 py-4 shadow-sm">
-          <Button
-            variant={"ghost"}
-            icon={<ChevronLeft className="h-4 w-4 -mr-2" />}
-            iconPosition="center"
-            size={"icon-sm"}
-            className="absolute left-4 text-purple"
-            onClick={() => router.back()}
-          />
-          <Typography variant="lg-semibold" className="text-dark-blue">
-            {t.favorites.collection}
-          </Typography>
+      <Container1080>
+        <div className="w-full px-4 space-y-6 py-8">
+          {/* Breadcrumbs Skeleton */}
+          <div className="flex gap-2 mb-4">
+             <Skeleton className="h-4 w-20" />
+             <Skeleton className="h-4 w-4" />
+             <Skeleton className="h-4 w-32" />
+          </div>
+
+          {/* Header Skeleton */}
+          <div className="space-y-3 mb-8">
+             <Skeleton className="h-10 w-1/3" />
+             <Skeleton className="h-4 w-1/2" />
+          </div>
+
+          {/* Grid/List Skeleton */}
+          <div
+            className={cn(
+              "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3",
+              view === "list" && "flex flex-col"
+            )}
+          >
+            {Array.from({ length: 8 }).map((_, i) => (
+              view === "grid" ? (
+                <ListingCardSkeleton key={i} />
+              ) : (
+                <HorizontalListingCardSkeleton key={i} />
+              )
+            ))}
+          </div>
         </div>
-        <div className="text-center py-12">
-          <Typography variant="body-small" className="text-gray-500">
-            {t.favorites.loadingCollection}
-          </Typography>
-        </div>
-      </div>
+      </Container1080>
     );
   }
 

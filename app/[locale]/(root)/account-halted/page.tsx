@@ -34,7 +34,8 @@ export default function AccountHaltedPage() {
             variant="body-large"
             className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto leading-relaxed"
           >
-            Your account has been temporarily halted by administration for review following reports from the community.
+            Your account has been temporarily halted by administration for
+            review following reports from the community.
           </Typography>
         </div>
 
@@ -54,16 +55,18 @@ export default function AccountHaltedPage() {
                 onClick={() =>
                   (window.location.href = "mailto:buyrorsell@gmail.com")
                 }
+                icon={<Mail className="w-5 h-5 -mr-2 text-purple" />}
+                iconPosition="center"
               >
-                <Mail className="w-5 h-5 text-purple" />
                 <span className="text-sm font-semibold">Email Support</span>
               </Button>
               <Button
                 variant="outline"
                 className="flex-1 rounded-2xl h-14 gap-3 border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800"
                 onClick={() => (window.location.href = "tel:+9712662262622")}
+                icon={<Phone className="w-5 h-5 -mr-2 text-purple" />}
+                iconPosition="center"
               >
-                <Phone className="w-5 h-5 text-purple" />
                 <span className="text-sm font-semibold">Call Us</span>
               </Button>
             </div>
@@ -76,14 +79,6 @@ export default function AccountHaltedPage() {
               onClick={() => router.push(localePath("/contact-us"))}
             >
               Raise a Dispute
-            </Button>
-
-            <Button
-              variant="ghost"
-              className="w-full rounded-2xl h-12 text-gray-400 hover:text-purple hover:bg-purple/5 font-medium"
-              onClick={() => router.push(localePath("/"))}
-            >
-              Return to Website
             </Button>
           </div>
         </div>
