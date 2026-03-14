@@ -245,7 +245,7 @@ export const FilterControl = ({
             value={value || ""}
             onChange={(e) => onChange(key, e.target.value)}
             className={cn(
-              "w-40 border-none",
+              "w-full border-none",
               "bg-muted text-foreground placeholder:text-muted-foreground"
             )}
           />
@@ -255,7 +255,7 @@ export const FilterControl = ({
     case "calendar":
       return (
         <FormField label={labelWithClear} required={false}>
-          <div className="min-w-40">
+          <div className="w-full">
             <NaturalLanguageCalendar
               value={value || ""}
               onChange={(newValue) => onChange(key, newValue)}

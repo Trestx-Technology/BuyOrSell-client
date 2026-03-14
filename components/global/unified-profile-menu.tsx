@@ -19,6 +19,9 @@ import { useLocale } from "@/hooks/useLocale";
 import { cn } from "@/lib/utils";
 import { ICONS } from "@/constants/icons";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useAuthStore } from "@/stores/authStore";
+import { Typography } from "@/components/typography";
+import { SafeImage } from "../ui/safe-image";
 
 interface UnifiedProfileMenuProps {
   onLogout: () => void;
@@ -30,6 +33,7 @@ export function UnifiedProfileMenu({
   onClose,
 }: UnifiedProfileMenuProps) {
   const { t, locale, localePath } = useLocale();
+  const { session } = useAuthStore((state: any) => state);
 
   const menuGroups = [
     {
@@ -232,7 +236,7 @@ export function UnifiedProfileMenu({
     <>
       <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center group-hover:bg-purple-50 transition-colors">
         {typeof icon === "string" ? (
-          <Image
+          <SafeImage
             src={icon}
             alt={label}
             width={24}
@@ -254,7 +258,35 @@ export function UnifiedProfileMenu({
 
   return (
     <div className="w-[320px] bg-white dark:bg-gray-950 rounded-xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800 flex flex-col">
-      <ScrollArea className="h-[calc(100vh-160px)] sm:h-[400px] w-full">
+      {/* Profile Section */}
+      {session?.user && (
+        <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-4 bg-gray-50/50 dark:bg-gray-900/50">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-purple/20 flex-shrink-0">
+            <SafeImage
+              src={session.user.image || ICONS.navigation.profile}
+              alt={session.user.firstName || "User"}
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <Typography
+              variant="body"
+              className="font-bold truncate text-gray-900 dark:text-white block"
+            >
+              {session.user.firstName} {session.user.lastName}
+            </Typography>
+            <Typography
+              variant="body-small"
+              className="truncate text-gray-500 dark:text-gray-400 block text-xs"
+            >
+              {session.user.email}
+            </Typography>
+          </div>
+        </div>
+      )}
+
+      <ScrollArea className="h-[calc(100vh-220px)] sm:h-[400px] w-full">
         <div className="p-2 space-y-4">
           {menuGroups.map((group, gIdx) => (
             <div key={group.label} className="space-y-1">
@@ -313,26 +345,6 @@ export function UnifiedProfileMenu({
             {t.home.navbar.signOut}
           </span>
         </button>
-
-        <div className="px-3 py-2 rounded-xl bg-purple/5 border border-purple/10 flex items-center justify-between group">
-          <div className="space-y-0.5">
-            <p className="text-[10px] font-bold text-purple uppercase tracking-tight">
-              Quick Navigator
-            </p>
-            <p className="text-[9px] text-gray-500 dark:text-gray-400">
-              Jump anywhere instantly
-            </p>
-          </div>
-          <div className="flex items-center gap-1">
-            <kbd className="px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 text-[10px] text-gray-400 font-sans shadow-sm">
-              Ctrl
-            </kbd>
-            <span className="text-[10px] text-gray-300">+</span>
-            <kbd className="px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 text-[10px] text-gray-400 font-sans shadow-sm">
-              K
-            </kbd>
-          </div>
-        </div>
       </div>
     </div>
   );

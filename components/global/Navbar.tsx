@@ -25,6 +25,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { logout as LogoutAPI } from "@/app/api/auth/auth.services";
 import { toast } from "sonner";
 import { useLocale } from "@/hooks/useLocale";
+import { SafeImage } from "../ui/safe-image";
 
 // Internal component that uses useSearchParams
 const NavbarContent = ({ className }: { className?: string }) => {
@@ -132,7 +133,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
                 <button className="flex items-center gap-2 rounded-full p-1 hover:bg-purple-100 transition-colors">
                   <div className="size-[35px] rounded-full border-2 border-purple overflow-hidden bg-purple-100 flex items-center justify-center">
                     {user.image ? (
-                      <Image
+                      <SafeImage
                         src={user.image}
                         alt="Profile"
                         className="object-cover w-full h-full"
@@ -148,11 +149,11 @@ const NavbarContent = ({ className }: { className?: string }) => {
                   </div>
                   <div className="flex items-center gap-1 pr-1 pl-0.5">
                     <ChevronDown className="size-5 text-purple" />
-                    <div className="hidden lg:flex items-center gap-0.5 px-1.5 py-0.5 rounded-md border border-purple/20 bg-purple/10 text-[10px] text-purple/70 font-sans pointer-events-none">
+                    {/* <div className="hidden lg:flex items-center gap-0.5 px-1.5 py-0.5 rounded-md border border-purple/20 bg-purple/10 text-[10px] text-purple/70 font-sans pointer-events-none">
                       <kbd className="font-sans font-bold">Ctrl</kbd>
                       <span className="text-[8px] opacity-60">+</span>
                       <kbd className="font-sans font-bold">K</kbd>
-                    </div>
+                    </div> */}
                   </div>
                 </button>
               </PopoverTrigger>

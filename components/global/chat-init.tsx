@@ -59,6 +59,7 @@ interface ChatInitProps {
 
       /** Styles applied to the wrapper or default button */
       className?: string;
+      icon?: React.ReactNode;
 
       // Default Button props (used only if 'children' is not provided)
       variant?:
@@ -92,6 +93,7 @@ export const ChatInit: React.FC<ChatInitProps> = ({
       initialMessage,
       children,
       className,
+      icon,
       variant = "ghost",
       size = "icon",
       showLabel = false,
@@ -242,7 +244,7 @@ export const ChatInit: React.FC<ChatInitProps> = ({
                   className={cn("hover:bg-purple/10", className)}
                   onClick={handleChat}
                   isLoading={isLoading}
-                  icon={<MessageSquareText size={iconSize} className="text-purple" />}
+                  icon={icon || <MessageSquareText size={iconSize} className="text-purple" />}
             >
                   {showLabel && !isLoading && <span className="ml-2">{label}</span>}
                   {isLoading && showLabel && <span className="ml-2">Loading...</span>}

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLocale } from "@/hooks/useLocale";
 import { CreateCollectionDialog } from "./CreateCollectionDialog";
 import CollectionCard from "./CollectionCard";
+import CollectionCardSkeleton from "./CollectionCardSkeleton";
 import { Typography } from "@/components/typography";
 
 import { AD } from "@/interfaces/ad";
@@ -152,10 +153,10 @@ export function FavoritesContent() {
           </Typography>
 
           {isLoadingCollections ? (
-            <div className="text-center py-8">
-              <Typography variant="body-small" className="text-gray-500">
-                {t.favorites.loadingCollections}
-              </Typography>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <CollectionCardSkeleton key={i} />
+              ))}
             </div>
           ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-x-auto pb-4 scrollbar-hide bg-white dark:bg-gray-900 md:bg-transparent border border-gray-100 dark:border-gray-800 md:border-none rounded-xl p-4 md:p-0 shadow-sm md:shadow-none">
