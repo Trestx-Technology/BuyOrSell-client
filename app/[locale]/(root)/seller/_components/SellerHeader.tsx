@@ -209,8 +209,11 @@ const SellerHeader: React.FC<SellerHeaderProps> = ({ organization, user }) => {
                   <MdCalendarToday className="w-4 h-4 text-grey-blue" />
                   <Typography variant="body" className="text-sm text-dark-blue">
                     {t.seller.header.memberSince}{" "}
-                    {organization?.createdAt &&
-                      formatDate(organization?.createdAt)}
+                    {organization?.createdAt
+                      ? formatDate(organization.createdAt)
+                      : user?.createdAt
+                      ? formatDate(user.createdAt)
+                      : "N/A"}
                   </Typography>
                 </div>
               </div>
