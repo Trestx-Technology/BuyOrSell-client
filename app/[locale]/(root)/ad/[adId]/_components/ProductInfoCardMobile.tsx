@@ -167,7 +167,7 @@ const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({
       {hasLocationOrTime && (
         <div className="flex items-center justify-between mb-4">
           {hasLocation && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex max-w-[70%] items-center gap-1.5">
               <FaMapMarkerAlt className="size-4 text-dark-blue dark:text-gray-300" />
               <Typography
                 variant="body-small"
@@ -192,79 +192,11 @@ const ProductInfoCardMobile: React.FC<ProductInfoCardMobileProps> = ({
       )}
 
       {/* Divider Line - Only show if there's content above and below */}
-      {hasContactActions && (
+      {/* {hasContactActions && (
         <div className="border-b border-dashed border-gray-300 dark:border-slate-700 mb-4"></div>
-      )}
+      )} */}
 
       {/* Contact Actions - Only show if user is not the owner */}
-      {hasContactActions && (
-        <div className="space-y-3">
-          {/* Call Button */}
-          {ad.contactPhoneNumber && (
-            <Button
-              onClick={handleCall}
-              variant="primary"
-              icon={<Phone className="h-5 w-5 -mr-2 fill-white" stroke="0" />}
-              iconPosition="center"
-              className="w-full h-12"
-            >
-              Call Seller
-            </Button>
-          )}
-
-          {/* Message Button */}
-          {ad.owner?._id && (
-            <ChatInit ad={ad}>
-              {({ isLoading, onClick }) => (
-                <Button
-                  onClick={onClick}
-                  disabled={isLoading}
-                  isLoading={isLoading}
-                  variant="outline"
-                  icon={
-                    <MdMessage
-                      className="h-5 w-5 -mr-2 fill-dark-blue dark:fill-gray-300"
-                      stroke="white"
-                    />
-                  }
-                  iconPosition="center"
-                  className="w-full border-gray-300 dark:border-slate-700 text-dark-blue dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center justify-center gap-2 h-12 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Send Message
-                </Button>
-              )}
-            </ChatInit>
-          )}
-
-          {/* WhatsApp Button */}
-          {ad.contactPhoneNumber && (
-            <Button
-              onClick={handleWhatsApp}
-              variant="outline"
-              icon={
-                <FaWhatsapp
-                  className="h-5 w-5 -mr-2 fill-green-500"
-                  stroke="0"
-                />
-              }
-              iconPosition="center"
-              className="w-full border-gray-300 dark:border-slate-700 text-dark-blue dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-slate-800 flex items-center justify-center gap-2 h-12"
-            >
-              WhatsApp
-            </Button>
-          )}
-
-          {/* Show message if no contact options available */}
-          {!ad.contactPhoneNumber && !ad.owner?._id && (
-            <Typography
-              variant="body-small"
-              className="text-grey-blue text-center py-2"
-            >
-              Contact information not available
-            </Typography>
-          )}
-        </div>
-      )}
     </div>
   );
 };

@@ -117,13 +117,13 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
 
   const handlePrevious = () => {
     setCurrentImageIndex((prev) =>
-      prev === 0 ? mediaItems.length - 1 : prev - 1
+      prev === 0 ? mediaItems.length - 1 : prev - 1,
     );
   };
 
   const handleNext = () => {
     setCurrentImageIndex((prev) =>
-      prev === mediaItems.length - 1 ? 0 : prev + 1
+      prev === mediaItems.length - 1 ? 0 : prev + 1,
     );
   };
 
@@ -182,7 +182,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                 </div>
               </div>
             ) : (
-                <GalleryImage
+              <GalleryImage
                 src={mediaItems[currentImageIndex].src}
                 alt={mediaItems[currentImageIndex].alt}
                 fill
@@ -227,11 +227,16 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                 className="w-full"
               >
                 <button className="flex items-center gap-2 bg-white dark:bg-slate-800 border dark:border-slate-700 p-2 rounded-full sm:p-0 sm:rounded-none shadow sm:shadow-none sm:border-none sm:bg-transparent text-gray-600 dark:text-gray-300 hover:text-purple transition-all cursor-pointer hover:scale-110">
-                  <Heart className={cn("h-5 w-5", ad.isAddedInCollection && "fill-purple text-purple")} />
-                    <span className="text-sm font-medium sm:block hidden">
+                  <Heart
+                    className={cn(
+                      "h-5 w-5",
+                      ad.isAddedInCollection && "fill-purple text-purple",
+                    )}
+                  />
+                  <span className="text-sm font-medium sm:block hidden">
                     {ad.isAddedInCollection ? "Saved" : "Save"}
-                    </span>
-                  </button>
+                  </span>
+                </button>
               </CollectionManager>
             </div>
 
@@ -249,8 +254,8 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                   {hasVideo && currentImageIndex === 0
                     ? "Media"
                     : mediaItems.length === 1 && hasVideo
-                    ? "Video"
-                    : "Photos"}
+                      ? "Video"
+                      : "Photos"}
                 </span>
               </button>
             )}
@@ -264,7 +269,7 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                   title="Exchange Information"
                   dialogContentClassName="sm:max-w-2xl"
                   trigger={
-                    <button className="border bg-white dark:bg-slate-800 dark:border-slate-700 px-2 py-1 rounded-sm text-sm flex items-center gap-1 cursor-pointer hover:scale-110 transition-all border-accent">
+                    <button className="bg-purple text-white px-2 py-1 rounded-sm text-sm flex items-center gap-1 cursor-pointer hover:scale-110 transition-all border-accent">
                       <Repeat className="h-4 w-4" />
                       <span className="text-xs font-semibold">
                         Exchange Available
@@ -280,9 +285,9 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 rounded-full"
+                        className="h-6 w-6 bg-white rounded-lg"
                       >
-                        <Info className="h-4 w-4 text-muted-foreground" />
+                        <Info className="h-4 w-4 text-purple" />
                         <span className="sr-only">What is Exchange?</span>
                       </Button>
                     </TooltipTrigger>
@@ -343,8 +348,8 @@ const ProductGallery: React.FC<ProductGalleryProps> = ({ ad }) => {
             )}
           </div>
         ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800">
-              <div className="text-center text-gray-400 dark:text-gray-500">
+          <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-slate-800">
+            <div className="text-center text-gray-400 dark:text-gray-500">
               <Camera className="h-12 w-12 mx-auto mb-2" />
               <p className="text-sm">No images available</p>
             </div>
