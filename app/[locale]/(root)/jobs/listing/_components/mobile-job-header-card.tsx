@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   Edit,
   Trash2,
+  MessageSquareText
 } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
@@ -440,11 +441,12 @@ export default function MobileJobHeaderCard({
             <>
                 <ChatInit
                   ad={job}
-                variant="outline"
+                  variant="outline"
                   size="sm"
                   showLabel
                   label="Chat with employer"
-                className="w-full"
+                  className="w-full"
+                  icon={<MessageSquareText className="size-4" />}
                 />
               <Button
                 variant={isApplied ? "outline" : "filled"}

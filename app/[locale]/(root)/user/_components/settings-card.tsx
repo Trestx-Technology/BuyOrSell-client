@@ -160,7 +160,7 @@ export default function SettingsCard() {
   };
 
   return (
-    <div className="sm:bg-white sm:dark:bg-gray-900 sm:rounded-2xl border-0 sm:border border-gray-200 sm:dark:border-gray-800 sm:shadow-sm max-w-2xl w-full mx-auto">
+    <div className="bg-white dark:bg-gray-900 sm:rounded-2xl border-0 sm:border border-gray-200 sm:dark:border-gray-800 sm:shadow-sm max-w-2xl w-full mx-auto">
       <div className="hidden sm:block text-center py-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
           {t.user.settings.settings}

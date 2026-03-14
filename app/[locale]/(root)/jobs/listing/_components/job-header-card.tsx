@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Briefcase, Clock, MapPin, Share2, Heart } from "lucide-react";
+import { Briefcase, Clock, MapPin, Share2, Heart, MessageSquareText } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -360,11 +360,12 @@ export default function JobHeaderCard({
               <>
                   <ChatInit
                     ad={job}
-                  variant="outline"
+                    variant="outline"
                     size="small"
                     showLabel
                     label="Chat with employer"
-                  className="px-4 py-2"
+                    className="px-4 py-2"
+                    icon={<MessageSquareText className="size-4" />}
                   />
                 <Button
                     variant={isApplied || isSuccess ? "outline" : "filled"}

@@ -136,7 +136,7 @@ export function NaturalLanguageCalendar({
   return (
     <div className={cn("w-full",className)}>
       {label && <Label className="px-1 mb-2 block">{label}</Label>}
-      <div className="w-fit relative flex gap-2">
+      <div className="w-full relative flex gap-2">
         <Input
           value={inputValue}
           placeholder={placeholder}
