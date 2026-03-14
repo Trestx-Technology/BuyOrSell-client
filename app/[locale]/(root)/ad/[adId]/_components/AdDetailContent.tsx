@@ -23,7 +23,7 @@ import { useLocale } from "@/hooks/useLocale";
 import AdCard from "../../../(categories)/_components/AdCard";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
-import { ExchangeableAdWrapper } from "./ExchangeableAdWrapper";
+
 
 export default function AdDetailContent() {
   const { adId } = useParams();
@@ -142,19 +142,7 @@ export default function AdDetailContent() {
             {/* Right Column - Sidebar */}
             <div className="space-y-6 hidden md:block">
               {/* Product Information Card */}
-              {ad.upForExchange || ad.isExchangable ? (
-                <ExchangeableAdWrapper
-                  exchangeAd={{
-                    title: ad.exchangeWith?.title || "Exchange Item",
-                    description: ad.exchangeWith?.description || "",
-                    image: ad.exchangeWith?.imageUrl || "",
-                  }}
-                >
-                  <ProductInfoCard ad={ad} />
-                </ExchangeableAdWrapper>
-              ) : (
-                <ProductInfoCard ad={ad} />
-              )}
+              <ProductInfoCard ad={ad} />
 
               {/* Seller Information */}
               <SellerInfo ad={ad} />
@@ -177,19 +165,7 @@ export default function AdDetailContent() {
             {/* TODO: update the zindex of the gallery in the mobile layout */}
             <ProductGallery ad={ad} />
             <div className="bg-[#F9FAFC] dark:bg-slate-900/50 space-y-6 relative z-10 rounded-t-xl -mt-8">
-              {ad.upForExchange || ad.isExchangable ? (
-                <ExchangeableAdWrapper
-                  exchangeAd={{
-                    title: ad.exchangeWith?.title || "Exchange Item",
-                    description: ad.exchangeWith?.description || "",
-                    image: ad.exchangeWith?.imageUrl || "",
-                  }}
-                >
-                  <ProductInfoCardMobile ad={ad} />
-                </ExchangeableAdWrapper>
-              ) : (
-                <ProductInfoCardMobile ad={ad} />
-              )}
+              <ProductInfoCardMobile ad={ad} />
 
               <ProductInfoTabs
                 onTabChange={(tab) => setActiveTab(tab)}
