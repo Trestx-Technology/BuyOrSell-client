@@ -22,6 +22,7 @@ import {
   getSimilarAds,
   getAdsByKeyword,
   renewAd,
+  featureAd,
   getCategoryAdsCount,
   getDealsAdsCount,
   getExchangeAdsCount,
@@ -256,8 +257,13 @@ export const useUpdateAdStatus = () => {
 export const useRenewAd = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<PostAdResponse, Error, { id: string; days: number }>({
-    mutationFn: ({ id, days }) => renewAd(id, days),
+  return useMutation<
+    PostAdResponse,
+    Error,
+    { id: string; days: number; subscriptionId: string }
+  >({
+    mutationFn: ({ id, days, subscriptionId }) =>
+      renewAd(id, days, subscriptionId),
     onSuccess: (_, variables) => {
       // Invalidate and refetch ads
       queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
@@ -266,6 +272,24 @@ export const useRenewAd = () => {
       });
       queryClient.invalidateQueries({ queryKey: adQueries.myAds.Key });
       queryClient.invalidateQueries({ queryKey: adQueries.liveAds.Key });
+    },
+  });
+};
+
+// Feature ad
+export const useFeatureAd = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<PostAdResponse, Error, { id: string }>({
+    mutationFn: ({ id }) => featureAd(id),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
+      queryClient.invalidateQueries({
+        queryKey: [...adQueries.adById(variables.id).Key],
+      });
+      queryClient.invalidateQueries({ queryKey: adQueries.myAds.Key });
+      queryClient.invalidateQueries({ queryKey: adQueries.liveAds.Key });
+      queryClient.invalidateQueries({ queryKey: adQueries.featuredAds.Key });
     },
   });
 };

@@ -18,6 +18,7 @@ interface NoActivePlansDialogProps {
   onClose: () => void;
   categoryName?: string;
   categoryType?: string;
+  onPay?: () => void;
 }
 
 export const NoActivePlansDialog: React.FC<NoActivePlansDialogProps> = ({
@@ -25,6 +26,7 @@ export const NoActivePlansDialog: React.FC<NoActivePlansDialogProps> = ({
   onClose,
   categoryName,
   categoryType,
+  onPay,
 }) => {
   const router = useRouter();
   const { locale } = useLocale();
@@ -63,6 +65,16 @@ export const NoActivePlansDialog: React.FC<NoActivePlansDialogProps> = ({
             >
               Explore Plans
             </Button>
+
+            {onPay && (
+              <Button
+                variant="outline"
+                className="w-full rounded-xl h-12 text-base font-semibold border-purple text-purple hover:bg-purple/5"
+                onClick={onPay}
+              >
+                Pay 2 AED & Continue
+              </Button>
+            )}
 
             <Button
               variant="ghost"

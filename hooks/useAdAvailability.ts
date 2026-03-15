@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import { useSubscriptionStore } from "@/stores/subscriptionStore";
 import { useGetPlans } from "./usePlans";
 import { ISubscription } from "@/interfaces/subscription.types";
+import { isSubscriptionValidForType } from "@/utils/subscription-match";
 
 export interface AdAvailability {
   normalAvailable: number;
@@ -45,19 +46,18 @@ export const useAdAvailability = () => {
   }, [subscriptions, getActiveSubscriptions]);
 
   const getAvailability = useCallback(
-    (type: string, category: string, categoryId?: string): AdAvailability & { matchingPlansCount: number } => {
+    (
+      type: string,
+      category: string,
+      categoryId?: string,
+    ): AdAvailability & { matchingPlansCount: number } => {
       let normalAvailableTotal = 0;
       let featuredAvailableTotal = 0;
       let matchingPlansCount = 0;
 
       activeSubscriptions.forEach((sub) => {
-        const subType = sub.plan?.type?.toLowerCase();
-        const targetType = type?.toLowerCase();
-        const isWildcardPlan =
-          subType === "basic" || subType === "ads" || sub.plan?.isDefault;
-
         // A plan matches if its type matches targetType or it is a wildcard plan
-        if (isWildcardPlan || subType === targetType) {
+        if (isSubscriptionValidForType(sub, type || "Ads")) {
           matchingPlansCount++;
           const available = (sub.addsAvailable || 0) - (sub.adsUsed || 0);
           const featured =
@@ -99,17 +99,11 @@ export const useAdAvailability = () => {
 
   const getCompatibleSubscriptions = useCallback(
     (type: string, categoryId?: string): ISubscription[] => {
-      const targetType = type?.toLowerCase();
       return activeSubscriptions.filter((sub) => {
-        const subType = sub.plan?.type?.toLowerCase();
-        // Plans with type 'basic' or 'ads' are considered wildcards
-        const isWildcardPlan =
-          subType === "basic" || subType === "ads" || sub.plan?.isDefault;
-
         // A plan matches if:
         // 1. It's a wildcard plan
         // 2. Its type specifically matches the target category (e.g., Electronics matches Electronics)
-        if (isWildcardPlan || subType === targetType) {
+        if (isSubscriptionValidForType(sub, type || "Ads")) {
           const available = (sub.addsAvailable || 0) - (sub.adsUsed || 0);
           return available > 0;
         }
@@ -130,13 +124,14 @@ export const useAdAvailability = () => {
     // Case 1: No plans exist for this category in the system (free posting usually, but requires Basic sub check)
     if (!plansExistForCategory(type, category, categoryId)) {
       const hasBasicSubscription = activeSubscriptions.some(
-        (sub) => sub.plan?.type?.toLowerCase() === "basic" || sub.plan?.isDefault,
+        (sub) =>
+          sub.plan?.type?.toLowerCase() === "basic" || sub.plan?.isDefault,
       );
 
       if (hasBasicSubscription) {
         return true;
       }
-      
+
       setDialogState({
         isOpen: true,
         mode: "no_plans",

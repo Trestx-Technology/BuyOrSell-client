@@ -48,15 +48,13 @@ import PostStatusView, {
 import { useAdAvailability } from "@/hooks/useAdAvailability";
 import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
 import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
-import { PlanSelectionDialog } from "@/components/global/PlanSelectionDialog";
-import { ISubscription } from "@/interfaces/subscription.types";
 
 export default function JobLeafCategoryContent() {
   const { localePath, locale } = useLocale();
   const { leafCategoryId } = useParams<{ leafCategoryId: string }>();
   const router = useRouter();
   const { session } = useAuthStore((state) => state);
-  const { canFeatureAd, getAvailableFeaturedAdsCount } = useSubscriptionStore();
+  const { getAvailableFeaturedAdsCount } = useSubscriptionStore();
   const { categoryArray, currentStep, setStep, selectedSubscriptionId } =
     useAdPostingStore((state) => state);
   const searchParams = useSearchParams();

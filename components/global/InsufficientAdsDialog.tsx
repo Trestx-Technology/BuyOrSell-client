@@ -20,6 +20,7 @@ interface InsufficientAdsDialogProps {
   type?: "normal" | "featured";
   categoryType?: string;
   categoryName?: string;
+  onPay?: () => void;
 }
 
 export const InsufficientAdsDialog: React.FC<InsufficientAdsDialogProps> = ({
@@ -28,6 +29,7 @@ export const InsufficientAdsDialog: React.FC<InsufficientAdsDialogProps> = ({
   type = "normal",
   categoryType,
   categoryName,
+  onPay,
 }) => {
   const router = useRouter();
   const { locale } = useLocale();
@@ -72,6 +74,16 @@ export const InsufficientAdsDialog: React.FC<InsufficientAdsDialogProps> = ({
             >
               Explore Plans
             </Button>
+
+            {onPay && (
+              <Button
+                variant="outline"
+                className="w-full rounded-xl h-12 text-base font-semibold border-purple text-purple hover:bg-purple/5"
+                onClick={onPay}
+              >
+                Pay 2 AED & Continue
+              </Button>
+            )}
 
             <Button
               variant="ghost"

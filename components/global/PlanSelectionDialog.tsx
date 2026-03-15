@@ -26,7 +26,7 @@ interface PlanSelectionDialogProps {
   onClose: () => void;
   subscriptions: ISubscription[];
   onSelect: (subscriptionId: string) => void;
-  categoryName: string;
+  categoryName?: string;
   categoryType?: string;
   mode?: "selection";
 }

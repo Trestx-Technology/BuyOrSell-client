@@ -97,15 +97,24 @@ export const updateAdStatus = async (
 export const renewAd = async (
   id: string,
   days: number,
+  subscriptionId: string,
 ): Promise<PostAdResponse> => {
   const response = await axiosInstance.patch<PostAdResponse>(
     adQueries.renewAd(id).endpoint,
-    { days },
+    { days, subscriptionId },
     {
       headers: {
         "Content-Type": "application/json",
       },
     },
+  );
+  return response.data;
+};
+
+// Feature ad
+export const featureAd = async (id: string): Promise<PostAdResponse> => {
+  const response = await axiosInstance.patch<PostAdResponse>(
+    adQueries.featureAd(id).endpoint,
   );
   return response.data;
 };

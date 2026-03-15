@@ -46,14 +46,12 @@ import { AD_SYSTEM_FIELDS } from "@/constants/ad.constants";
 import { removeUndefinedFields } from "@/utils/remove-undefined-fields";
 import PhoneNumberInput from "@/components/global/phone-number-input";
 import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import { CheckCircle2,  } from "lucide-react";
 import { FormSummaryItem } from "./FormSummaryItem";
 import PostStatusView, { PostStatus } from "./PostStatusView";
 import { useAdAvailability } from "@/hooks/useAdAvailability";
-import { PlanSelectionDialog } from "@/components/global/PlanSelectionDialog";
 import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
 import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
-import { ISubscription } from "@/interfaces/subscription.types";
 
 export default function LeafCategoryContent() {
   const { localePath } = useLocale();
@@ -69,7 +67,7 @@ export default function LeafCategoryContent() {
     setStep,
     selectedSubscriptionId,
   } = useAdPostingStore((state) => state);
-  const { canFeatureAd, getAvailableFeaturedAdsCount } = useSubscriptionStore();
+  const { getAvailableFeaturedAdsCount } = useSubscriptionStore();
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt");
   const initialTitle = searchParams.get("title");
