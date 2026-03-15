@@ -12,8 +12,11 @@ import { Container1080 } from "@/components/layouts/container-1080";
 import { toast } from "sonner";
 import { H2 } from "@/components/typography";
 import { useAdAvailability } from "@/hooks/useAdAvailability";
+import { PlanSelectionDialog } from "@/components/global/PlanSelectionDialog";
+import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
 import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
 import { PageBannerCarousel } from "@/components/global/page-banner-carousel";
+import { ISubscription } from "@/interfaces/subscription.types";
 
 export default function SelectJobCategoryContent() {
   const router = useRouter();
@@ -29,9 +32,19 @@ export default function SelectJobCategoryContent() {
   // Availability Hook
   const {
     checkAvailability,
+    getCompatibleSubscriptions,
     dialogProps,
     isLoading: subscriptionsLoading,
   } = useAdAvailability();
+
+  const setSubscriptionId = useAdPostingStore((state) => state.setSubscriptionId);
+  const [isPlanSelectionDialogOpen, setIsPlanSelectionDialogOpen] = useState(false);
+  const [compatibleSubs, setCompatibleSubs] = useState<ISubscription[]>([]);
+  const [pendingSelection, setPendingSelection] = useState<{
+    categoryId: string;
+    categoryName: string;
+    categoryType: string;
+  } | null>(null);
 
   // Fetch categories using the hook
   const {
@@ -65,20 +78,75 @@ export default function SelectJobCategoryContent() {
       }
 
       // Check ad availability for "Jobs" plan type and this category
-      if (!checkAvailability("Jobs", selectedCategory.name)) {
+      const typeToPass = selectedCategory.relatedTo || "Jobs";
+      if (!checkAvailability(typeToPass, selectedCategory.name, selectedCategory._id)) {
         return;
       }
 
-      addToCategoryArray({
-        id: selectedCategory._id,
-        name: selectedCategory.name,
-      });
+      const subs = getCompatibleSubscriptions(typeToPass, selectedCategory._id);
+      const paidPlans = subs.filter(sub => !sub.plan?.isDefault && sub.plan?.type?.toLowerCase() !== 'basic');
+      const basicPlans = subs.filter(sub => sub.plan?.isDefault || sub.plan?.type?.toLowerCase() === 'basic');
 
-      setActiveCategory(selectedCategory._id);
-      setStep(2);
+      // Rule 1: Both basic and paid -> Auto-select 1st paid and proceed
+      if (paidPlans.length > 0 && basicPlans.length > 0) {
+        setSubscriptionId(paidPlans[0]._id);
+        handleNavigation(selectedCategory._id, selectedCategory.name);
+        return;
+      }
+
+      // Rule 2: No paid but has basic -> Show dialog (per user request)
+      if (paidPlans.length === 0 && basicPlans.length > 0) {
+        setCompatibleSubs(subs);
+        setPendingSelection({ 
+          categoryId: selectedCategory._id, 
+          categoryName: selectedCategory.name,
+          categoryType: typeToPass
+        });
+        setIsPlanSelectionDialogOpen(true);
+        return;
+      }
+
+      // Case 3: Only paid plans or multiple basic plans -> Show Dialog to be safe
+      if (subs.length > 1) {
+        setCompatibleSubs(subs);
+        setPendingSelection({ 
+          categoryId: selectedCategory._id, 
+          categoryName: selectedCategory.name,
+          categoryType: typeToPass
+        });
+        setIsPlanSelectionDialogOpen(true);
+        return;
+      }
+
+      // Case 4: Only 1 plan total -> Auto-select
+      if (subs.length === 1) {
+        setSubscriptionId(subs[0]._id);
+        handleNavigation(selectedCategory._id, selectedCategory.name);
+        return;
+      }
+
+      handleNavigation(selectedCategory._id, selectedCategory.name);
     }
+  };
+
+  const handleNavigation = (categoryId: string, categoryName: string) => {
+    addToCategoryArray({
+      id: categoryId,
+      name: categoryName,
+    });
+
+    setActiveCategory(categoryId);
+    setStep(2);
 
     router.push(`/post-job/${categoryId}`);
+  };
+
+  const onPlanSelect = (subscriptionId: string) => {
+    setSubscriptionId(subscriptionId);
+    setIsPlanSelectionDialogOpen(false);
+    if (pendingSelection) {
+      handleNavigation(pendingSelection.categoryId, pendingSelection.categoryName);
+    }
   };
 
   useEffect(() => {
@@ -96,7 +164,25 @@ export default function SelectJobCategoryContent() {
           refetchOrganizations();
         }}
       />
-      <InsufficientAdsDialog {...dialogProps} />
+
+      {/* Availability/Error Dialogs */}
+      {dialogProps.mode === "no_plans" && (
+        <NoActivePlansDialog {...dialogProps} />
+      )}
+      {dialogProps.mode === "insufficient" && (
+        <InsufficientAdsDialog {...dialogProps} />
+      )}
+
+      {/* Manual Selection Dialog */}
+      <PlanSelectionDialog
+        isOpen={isPlanSelectionDialogOpen}
+        onClose={() => setIsPlanSelectionDialogOpen(false)}
+        subscriptions={compatibleSubs}
+        onSelect={onPlanSelect}
+        categoryName={pendingSelection?.categoryName || "Category"}
+        categoryType={pendingSelection?.categoryType}
+        mode="selection"
+      />
       <div className=" w-full max-w-[888px] flex-1 mx-auto bg-transparent">
         <div className="w-full mx-auto bg-transparent">
           <div className="pb-8">

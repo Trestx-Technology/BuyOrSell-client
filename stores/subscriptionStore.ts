@@ -58,7 +58,9 @@ export const useSubscriptionStore = create<SubscriptionState>()(
         return get().subscriptions.filter(
           (sub) =>
             sub.isActive &&
-            (sub.status === "active" || sub.status === "confirmed"),
+            (sub.status === "active" ||
+              sub.status === "confirmed" ||
+              sub.status === "created"),
         );
       },
 
@@ -78,8 +80,9 @@ export const useSubscriptionStore = create<SubscriptionState>()(
         return activeSubs.some((sub) => {
           const subType = sub.plan?.type?.toLowerCase();
           const targetType = type?.toLowerCase();
+          const isBasicPlan = subType === "basic" || sub.plan?.isDefault;
 
-          if (subType !== targetType) return false;
+          if (subType !== targetType && !isBasicPlan) return false;
 
           // If no categories specified in plan, it covers all categories of that type
           if (!sub.plan.categories || sub.plan.categories.length === 0)

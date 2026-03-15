@@ -16,6 +16,11 @@ import { ImageGrid, AIImageItem } from "./ImageGrid";
 import { PromptInput } from "./PromptInput";
 import { TemplateList } from "./TemplateList";
 import { NoCreditsDialog } from "@/components/global/NoCreditsDialog";
+import { useAdAvailability } from "@/hooks/useAdAvailability";
+import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
+import { PlanSelectionDialog } from "@/components/global/PlanSelectionDialog";
+import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
+import { ISubscription } from "@/interfaces/subscription.types";
 
 export const AIAdPostContent = () => {
   console.log("[AIAdPostContent] Component rendered");
@@ -39,6 +44,27 @@ export const AIAdPostContent = () => {
   const { data: tokenBalance } = useAITokenBalance();
   const currentBalance = tokenBalance?.data?.tokensRemaining ?? 0;
   const { mutateAsync: consumeTokens } = useConsumeTokens();
+
+  const [isPlanSelectionOpen, setIsPlanSelectionOpen] = useState(false);
+  const [compatibleSubscriptions, setCompatibleSubscriptions] = useState<
+    ISubscription[]
+  >([]);
+  const [pendingRedirectData, setPendingRedirectData] = useState<{
+    url: string;
+    categoryName: string;
+    categoryType: string;
+    categoryPath: any[];
+    suggestedTitle?: string;
+  } | null>(null);
+
+  // Availability Hook
+  const {
+    checkAvailability,
+    getCompatibleSubscriptions,
+    dialogProps: availabilityDialogProps,
+    isLoading: subscriptionsLoading,
+  } = useAdAvailability();
+
   const { setStep, clearCategoryArray, addToCategoryArray, setActiveCategory } =
     useAdPostingStore();
 
@@ -143,7 +169,7 @@ export const AIAdPostContent = () => {
     const toastId = toast.loading("Analyzing your ad details...");
     console.log("[Client] Calling identifyCategory...");
     try {
-      const { redirectUrl, suggestedTitle, categoryPath } =
+      let { redirectUrl, suggestedTitle, categoryPath } =
         await identifyCategory(
           prompt,
           uploadedImages,
@@ -162,43 +188,85 @@ export const AIAdPostContent = () => {
         purpose: "ad_categorization",
       });
 
+      // CHECK AD AVAILABILITY
+      if (categoryPath && categoryPath.length > 0) {
+        const rootCategoryName = categoryPath[0]?.name || "Ads";
+        const categoryId = categoryPath[categoryPath.length - 1]?.id;
+
+        // Check availability for identified category (using root name as type)
+        if (!checkAvailability(rootCategoryName, categoryPath[0].name, categoryId)) {
+          toast.dismiss(toastId);
+          setIsGenerating(false);
+          return;
+        }
+
+        // Get compatible subscriptions for selection
+        const compatibleSubs = getCompatibleSubscriptions(
+          rootCategoryName,
+          categoryId
+        );
+
+        const paidPlans = compatibleSubs.filter(sub => !sub.plan?.isDefault && sub.plan?.type?.toLowerCase() !== 'basic');
+        const basicPlans = compatibleSubs.filter(sub => sub.plan?.isDefault || sub.plan?.type?.toLowerCase() === 'basic');
+
+        // Rule 1: Both basic and paid -> Auto-select 1st paid and proceed
+        if (paidPlans.length > 0 && basicPlans.length > 0) {
+          toast.dismiss(toastId);
+          handleFinalRedirect(redirectUrl || "", paidPlans[0]._id, categoryPath, suggestedTitle);
+          setIsGenerating(false);
+          return;
+        }
+
+        if (paidPlans.length === 0 && basicPlans.length > 0) {
+          setCompatibleSubscriptions(compatibleSubs);
+          setPendingRedirectData({
+            url: redirectUrl || "",
+            categoryName: categoryPath[0].name,
+            categoryType: rootCategoryName,
+            categoryPath,
+            suggestedTitle,
+          });
+          setIsPlanSelectionOpen(true);
+          toast.dismiss(toastId);
+          setIsGenerating(false);
+          return;
+        }
+
+        if (compatibleSubs.length > 1) {
+          setCompatibleSubscriptions(compatibleSubs);
+          setPendingRedirectData({
+            url: redirectUrl || "",
+            categoryName: categoryPath[0].name,
+            categoryType: rootCategoryName,
+            categoryPath,
+            suggestedTitle,
+          });
+          setIsPlanSelectionOpen(true);
+          toast.dismiss(toastId);
+          setIsGenerating(false);
+          return;
+        }
+
+        // Case 4: Only 1 plan total -> Auto-select
+        if (compatibleSubs.length === 1) {
+          toast.dismiss(toastId);
+          handleFinalRedirect(redirectUrl || "", compatibleSubs[0]._id, categoryPath, suggestedTitle);
+          setIsGenerating(false);
+          return;
+        }
+      }
+
       if (!redirectUrl) {
         toast.error(
           "I couldn't identify a clear category. Please try adding more detail to your description or ensure images are clear.",
           { id: toastId, duration: 6000 },
         );
+        setIsGenerating(false);
         return;
       }
 
-      // 1. Sync the global ad posting store with the AI findings
-      clearCategoryArray();
-      if (categoryPath && categoryPath.length > 0) {
-        // Populate the breadcrumb/category array
-        categoryPath.forEach((cat) => {
-          addToCategoryArray({ id: cat.id, name: cat.name });
-        });
-        // Set the leaf as active
-        setActiveCategory(categoryPath[categoryPath.length - 1].id);
-      }
-
-      // 2. Set step to 3 (Details filling step)
-      setStep(3);
-
-      toast.success("Category identified! Redirecting you to the form...", {
-        id: toastId,
-      });
-
-      let redirectUrlWithParams = `${redirectUrl}&prompt=${encodeURIComponent(prompt)}`;
-
-      if (suggestedTitle) {
-        redirectUrlWithParams += `&title=${encodeURIComponent(suggestedTitle)}`;
-      }
-
-      if (uploadedImages.length > 0) {
-        redirectUrlWithParams += `&images=${encodeURIComponent(JSON.stringify(uploadedImages))}`;
-      }
-
-      router.push(redirectUrlWithParams);
+      // No compatible plans found (bypass case) or no plans needed
+      handleFinalRedirect(redirectUrl, undefined, categoryPath, suggestedTitle);
     } catch (error: any) {
       console.error("Error generating with AI:", error);
       const errorMessage =
@@ -210,7 +278,50 @@ export const AIAdPostContent = () => {
     }
   };
 
+  const handleFinalRedirect = (
+    rawUrl: string,
+    subId?: string,
+    catPath?: any[],
+    suggestedTitle?: string,
+  ) => {
+    // 1. Sync store
+    clearCategoryArray();
+    if (catPath && catPath.length > 0) {
+      catPath.forEach((cat) => {
+        addToCategoryArray({ id: cat.id, name: cat.name });
+      });
+      setActiveCategory(catPath[catPath.length - 1].id);
+    }
+    setStep(3);
+
+    // 2. Build URL
+    let finalUrl = `${rawUrl}&prompt=${encodeURIComponent(prompt)}`;
+    if (subId) finalUrl += `&subscriptionId=${subId}`;
+    if (suggestedTitle) finalUrl += `&title=${encodeURIComponent(suggestedTitle)}`;
+
+    const uploadedImages = images
+      .filter((img) => !img.uploading)
+      .map((img) => img.url);
+
+    if (uploadedImages.length > 0) {
+      finalUrl += `&images=${encodeURIComponent(JSON.stringify(uploadedImages))}`;
+    }
+
+    router.push(finalUrl);
+  };
+
   const handleMagicSuggestManual = () => handleMagicSuggest(images);
+
+  const handlePlanSelect = (subscriptionId: string) => {
+    if (!pendingRedirectData) return;
+    setIsPlanSelectionOpen(false);
+    handleFinalRedirect(
+      pendingRedirectData.url,
+      subscriptionId,
+      pendingRedirectData.categoryPath,
+      pendingRedirectData.suggestedTitle,
+    );
+  };
 
   return (
     <Container1080 className="flex justify-center items-center min-h-[550px] sm:min-h-[calc(100dvh-150px)]">
@@ -294,6 +405,25 @@ export const AIAdPostContent = () => {
           </div>
         )}
       </div>
+
+      {/* Availability/Error Dialogs */}
+      {availabilityDialogProps.mode === "no_plans" && (
+        <NoActivePlansDialog {...availabilityDialogProps} />
+      )}
+      {availabilityDialogProps.mode === "insufficient" && (
+        <InsufficientAdsDialog {...availabilityDialogProps} />
+      )}
+
+      {/* Manual Selection Dialog */}
+      <PlanSelectionDialog
+        isOpen={isPlanSelectionOpen}
+        onClose={() => setIsPlanSelectionOpen(false)}
+        subscriptions={compatibleSubscriptions}
+        categoryName={pendingRedirectData?.categoryName || "selected category"}
+        categoryType={pendingRedirectData?.categoryType}
+        onSelect={handlePlanSelect}
+        mode="selection"
+      />
 
       <NoCreditsDialog
         isOpen={isNoCreditsOpen}

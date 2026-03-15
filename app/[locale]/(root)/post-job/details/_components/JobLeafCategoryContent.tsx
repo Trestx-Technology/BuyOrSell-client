@@ -34,6 +34,7 @@ import {
 import {
   getFieldOptions,
   shouldShowField,
+  isJobCategory,
 } from "@/validations/post-ad.validation";
 import { AD_SYSTEM_FIELDS } from "@/constants/ad.constants";
 import { removeUndefinedFields } from "@/utils/remove-undefined-fields";
@@ -44,6 +45,11 @@ import { FormSummaryItem } from "@/app/[locale]/(root)/post-ad/details/_componen
 import PostStatusView, {
   PostStatus,
 } from "@/app/[locale]/(root)/post-ad/details/_components/PostStatusView";
+import { useAdAvailability } from "@/hooks/useAdAvailability";
+import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
+import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
+import { PlanSelectionDialog } from "@/components/global/PlanSelectionDialog";
+import { ISubscription } from "@/interfaces/subscription.types";
 
 export default function JobLeafCategoryContent() {
   const { localePath, locale } = useLocale();
@@ -51,9 +57,8 @@ export default function JobLeafCategoryContent() {
   const router = useRouter();
   const { session } = useAuthStore((state) => state);
   const { canFeatureAd, getAvailableFeaturedAdsCount } = useSubscriptionStore();
-  const { categoryArray, currentStep, setStep } = useAdPostingStore(
-    (state) => state,
-  );
+  const { categoryArray, currentStep, setStep, selectedSubscriptionId } =
+    useAdPostingStore((state) => state);
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt");
   const createAdMutation = useCreateAd();
@@ -62,6 +67,7 @@ export default function JobLeafCategoryContent() {
     coordinates: { lat: number; lng: number };
   } | null>(null);
   const [postStatus, setPostStatus] = useState<PostStatus>("idle");
+  const { checkAvailability, getCompatibleSubscriptions, dialogProps } = useAdAvailability();
 
   // Fetch category by ID
   const {
@@ -185,6 +191,32 @@ export default function JobLeafCategoryContent() {
   };
 
   const onSubmit = async (data: FormValues) => {
+    // If we already have a subscription selected in the store, use it
+    if (selectedSubscriptionId) {
+      await processJobSubmission(data, selectedSubscriptionId);
+      return;
+    }
+
+    const categoryType = categoryArray[0]?.name || "Jobs";
+    // Fallback: If for some reason subscription was not selected
+    const compatibleSubs = getCompatibleSubscriptions(
+      categoryType,
+      leafCategoryId as string,
+    );
+
+    if (compatibleSubs.length > 0) {
+      // Just pick the first one as fallback
+      await processJobSubmission(data, compatibleSubs[0]._id);
+      return;
+    }
+
+    await processJobSubmission(data);
+  };
+
+  const processJobSubmission = async (
+    data: FormValues,
+    subscriptionId?: string,
+  ) => {
     const minSalary = (data.minSalary as number) || 0;
     const maxSalary = (data.maxSalary as number) || 0;
     const jobMode = (data.jobMode as string) || "";
@@ -273,6 +305,8 @@ export default function JobLeafCategoryContent() {
       documents: [],
       extraFields: extraFields,
       adType: adType,
+      subscriptionId:
+        subscriptionId || searchParams.get("subscriptionId") || undefined,
       ...(isIndividual ? {} : { organizationId: organizationValue }),
     };
 
@@ -345,6 +379,14 @@ export default function JobLeafCategoryContent() {
 
   return (
     <GoogleMapsProvider>
+      {/* Availability/Error Dialogs */}
+      {dialogProps.mode === "no_plans" && (
+        <NoActivePlansDialog {...dialogProps} />
+      )}
+      {dialogProps.mode === "insufficient" && (
+        <InsufficientAdsDialog {...dialogProps} />
+      )}
+
       <section className="w-full max-w-[888px] mx-auto relative">
         {/* Breadcrumbs */}
         <div className="flex h-full gap-5 relative">
@@ -570,7 +612,6 @@ export default function JobLeafCategoryContent() {
                   />
                 </FormField>
               </div>
-
 
               {/* Phone Number */}
               <FormField
