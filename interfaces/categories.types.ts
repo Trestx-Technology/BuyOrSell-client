@@ -162,6 +162,7 @@ export interface JobSubcategory {
   image?: string | null;
   mobileImage?: string | null;
   bgColor?: string | null;
+  relatedTo?: string;
   adCount: number;
 }
 

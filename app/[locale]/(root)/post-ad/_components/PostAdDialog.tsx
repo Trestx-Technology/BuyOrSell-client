@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import {
   ResponsiveModal,
   ResponsiveModalContent,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
 } from "@/components/ui/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -64,9 +66,11 @@ export default function PostAdDialog({ children }: PostAdDialogProps) {
           {/* Content */}
           <div className="relative p-8 text-center">
             {/* Main Title */}
-            <h2 className="text-sm sm:text-lg font-semibold text-[#1D2939] mb-8">
-              Placing an Ad now become more easy
-            </h2>
+            <ResponsiveModalHeader>
+              <ResponsiveModalTitle className="text-sm sm:text-lg font-semibold text-[#1D2939] mb-8">
+                Placing an Ad now become more easy
+              </ResponsiveModalTitle>
+            </ResponsiveModalHeader>
 
             {/* Ad Posting Illustration */}
             <div className="flex justify-center mb-8">

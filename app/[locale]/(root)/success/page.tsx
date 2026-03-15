@@ -62,11 +62,11 @@ function StepCircle({
 export default function SuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { localePath } = useLocale();
+  const { locale, localePath } = useLocale();
   const adId = searchParams.get("id");
   const { clearCategoryArray } = useAdPostingStore((state) => state);
 
-  const { data: adResponse, isLoading, isError } = useAdById(adId || "");
+  const { data: adResponse, isLoading, isError } = useAdById(adId!);
   const ad = adResponse?.data;
   const normalizedFields = useMemo(
     () => (ad ? normalizeExtraFieldsToArray(ad.extraFields) : []),
@@ -201,7 +201,6 @@ export default function SuccessPage() {
     : "";
 
   const actualLocation = ad.location || ad.address;
-  const { locale } = useLocale();
   const locationDisplay = getLocationDisplay(actualLocation, locale);
 
   return (

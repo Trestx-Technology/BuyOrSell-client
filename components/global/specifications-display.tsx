@@ -96,7 +96,7 @@ export function SpecificationsDisplay({
             )}
           </div>
           <Typography
-            as="p"
+            as="div"
             variant="body-small"
             className={cn(
               "text-black dark:text-gray-200 text-xs",

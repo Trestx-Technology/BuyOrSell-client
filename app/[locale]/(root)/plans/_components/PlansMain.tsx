@@ -113,22 +113,40 @@ function PlansContent() {
       .sort();
   }, [allPlans]);
 
-  // Set default selected type when data loads
+  // Sync state from URL and handle initial default
   useEffect(() => {
-    if (planTypes.length > 0) {
-      if (
-        urlType &&
-        planTypes.some((t) => t.toLowerCase() === urlType.toLowerCase())
-      ) {
-        const matchedType = planTypes.find(
-          (t) => t.toLowerCase() === urlType.toLowerCase(),
-        );
-        if (matchedType) setSelectedType(matchedType);
-      } else if (!selectedType) {
-        setSelectedType(planTypes[0]);
+    if (planTypes.length === 0) return;
+
+    const queryType = searchParams.get("type");
+    
+    // 1. If there's a type in the URL, try to match it
+    if (queryType) {
+      const matched = planTypes.find(t => t.toLowerCase() === queryType.toLowerCase());
+      if (matched) {
+        if (matched !== selectedType) {
+          setSelectedType(matched);
+        }
+        return; // Prevent falling through to default logic
       }
     }
-  }, [planTypes, selectedType, urlType]);
+
+    // 2. If no valid URL type, ensure we have a valid selectedType or default to first
+    if (!selectedType || !planTypes.includes(selectedType)) {
+      setSelectedType(planTypes[0]);
+    }
+  }, [planTypes, searchParams]); // Removed selectedType from dependencies to prevent ping-pong
+
+  // Sync URL from state (only when state changes manually)
+  useEffect(() => {
+    if (!selectedType || planTypes.length === 0) return;
+
+    const currentUrlType = searchParams.get("type");
+    if (currentUrlType?.toLowerCase() !== selectedType.toLowerCase()) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("type", selectedType);
+      router.replace(`/${locale}/plans?${params.toString()}`, { scroll: false });
+    }
+  }, [selectedType, locale, router]); // Only watch selectedType for manual changes
 
   const displayPlans = allPlans.filter((plan) => {
     return plan.type === selectedType;
@@ -141,7 +159,8 @@ function PlansContent() {
             (sub) =>
               sub.isActive ||
               sub.status === "active" ||
-              sub.status === "confirmed",
+              sub.status === "confirmed" ||
+              sub.status === "created",
           )
           .map((sub) => sub.plan?._id)
           .filter(Boolean)
