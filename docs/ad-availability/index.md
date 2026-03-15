@@ -57,10 +57,30 @@ featuredAvailableTotal += Math.max(
 ### The `checkAvailability` Flow
 
 1. **Bypass Check**: If no plans exist in the database for the given category/type, the user is allowed to post for free (bypass) **ONLY if they have at least one active subscription**.
-   - If a user has **0 active subscriptions**, they are blocked and prompted to get a plan (even the free Basic plan), regardless of whether plans exist for that category.
-2. **Featured Post**: Checks `featuredAvailableTotal > 0`.
-3. **Normal Post**: Checks `normalAvailableTotal > 0`.
-4. **Dialog Trigger**: If no slots are available or no subscription is found, the `InsufficientAdsDialog` is triggered. It shows a specific "Subscription Required" message if the user is completely unsubscribed.
+   - If a user has **0 active subscriptions**, they are blocked and prompted to get a plan (using `no_plans` mode).
+2. **Matching Check**: Filters subscriptions that match the category type and satisfy the hierarchical category checks.
+3. **Credit Check**: 
+   - If matching subscriptions exist, it checks if `normalAvailableTotal > 0`.
+   - If `0`, it sets the mode to `insufficient`.
+4. **Multiple Plan Selection**: 
+   - If multiple valid plans exist (e.g., both a Basic and a Premium plan), the system sets a `selection` mode.
+   - Priority handling: If the user has both Basic and Paid plans, the first available **Premium** plan is automatically selected to ensure feature availability (like `isFeatured` auto-tagging).
+
+## 3. Availability Dialog System
+
+The system uses three specialized dialogs to handle different blocking/warning scenarios, coordinated by the `mode` property in `dialogProps`:
+
+| Mode | Component | Trigger Scenario | Action |
+| :--- | :--- | :--- | :--- |
+| `no_plans` | `NoActivePlansDialog` | User has no subscriptions at all OR none that match the selected category. | Redirects to plans page pre-filtered to the category type. |
+| `insufficient` | `InsufficientAdsDialog` | User has a matching plan but has exhausted all posting credits (normal or featured). | Prompts to upgrade or renew existing plan. |
+| `selection` | `PlanSelectionDialog` | User has multiple valid plans OR only a Basic plan (warning about recommended paid plans). | Allows manual selection or informs about paid plan benefits. |
+
+---
+
+## 4. Featured Ad Logic
+
+When posting, the system automatically determines if an ad should be `isFeatured` based on the selected subscription. If the subscription is a **Paid/Premium** plan and has `featuredAdsAvailable > 0`, the `isFeatured` flag is set to `true` in the submission payload.
 
 ---
 

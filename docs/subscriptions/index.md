@@ -55,10 +55,14 @@ featuredAvailableTotal += Math.max(
 
 ### The `checkAvailability` Flow
 
-1. **Bypass Check**: If no plans exist in the database for the given category/type, the user is allowed to post for free (bypass).
+1. **Bypass Check**: If no plans exist in the database for the given category/type, the user is allowed to post for free (bypass) **ONLY if they have at least one active subscription**.
+   - If a user has **0 active subscriptions**, they are blocked and prompted to get a plan (using `no_plans` mode).
 2. **Featured Post**: Checks `featuredAvailableTotal > 0`.
 3. **Normal Post**: Checks `normalAvailableTotal > 0`.
-4. **Dialog Trigger**: If no slots are available, a "Plans Dialog" is triggered to prompt the user to purchase a plan.
+4. **Dialog System**: The system triggers specialized dialogs based on the error state:
+   - `NoActivePlansDialog`: No matching plan found.
+   - `InsufficientAdsDialog`: Credits exhausted.
+   - `PlanSelectionDialog`: User needs to choose or resolve basic plan warnings.
 
 ---
 
