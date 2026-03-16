@@ -1,6 +1,6 @@
 ---
 name: git-commit
-description: Creates feature-scoped Git commits following standardized prefix conventions and strict formatting rules.
+description: Creates feature-scoped Git commits and raises Pull Requests via GitHub CLI following standardized conventions.
 ---
 
 # Git Commit Skill
@@ -84,11 +84,30 @@ This skill executes outside the standard pipeline workflow but respects the feat
 
 ### 7. Execute Commit and Push
    - Ensure the commit executes automatically in Explicit mode, or upon user 'yes' in Suggested mode, via: `git commit -m "<message>"`
-   - If the user requested push, execute `git push` **only after a successful commit**.
+   - If the user requested push, execute `git push` **only after a successful commit`.
+
+### 8. Raise Pull Request (via GitHub CLI)
+- **Requirement**: Use this when the user requests to `raise a PR`, `create pull request`, or specifies a target branch (e.g., "to staging").
+- **Tooling**: Always use the GitHub CLI (`gh`) for creating PRs.
+- **Title**: Follow the standard convention: `<prefix>(<scope>): <short_summary>`.
+- **Body Structure**: Generate a clean, structured Markdown body:
+  - **Summary**: A high-level overview of the work.
+  - **Commit Report**: A detailed list of all commits included in the PR (use `git log <base_branch>..<head_branch> --oneline`).
+  - **Affected Files**: A brief list of key modified files.
+- **Protocol**:
+  1. **Determine Base Branch**:
+     - Never assume which branch to raise the PR to (e.g., do not assume `main`).
+     - If the user did not specify a branch, check the base branches of the 10 most recent merged PRs using `gh pr list --state merged --limit 10 --json baseRefName`.
+     - Identify the most frequent base branch from this list.
+     - **MANDATORY**: Ask the user: "I've detected that `<frequent_branch>` is the most common target. Would you like to raise the PR to this branch or another one?"
+  2. Verify the current branch is pushed: `git push origin <current_branch>`.
+  3. Create the PR: `gh pr create --base <target_branch> --title "<title>" --body "<body>"`.
+  4. Provide the user with the PR URL and a confirmation of the branches involved.
 
 ## Constraints & Safety Rules
 - Unrelated files must NEVER be staged or committed. The commit must remain tightly locally scoped to the single feature detected.
-- Never use multi-line commits or bullet points.
-- Enforce the 150-200 character count limit strictly.
-- **NO AUTOMATIC COMMITS permitted under any pipelines without explicit or suggested commit mode flows.**
+- Never use multi-line commits or bullet points in the *commit message* (PR bodies should use bullets for readability).
+- Enforce the 150-200 character count limit strictly for commit messages.
+- **NO AUTOMATIC COMMITS or PRs** permitted without explicit user request.
 - **Suggested commits REQUIRE MANDATORY user confirmation.**
+- **GitHub CLI (`gh`) is the mandatory tool for PR creation.**
