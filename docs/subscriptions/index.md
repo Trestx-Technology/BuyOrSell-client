@@ -1,82 +1,79 @@
 # Subscription & Ad Availability Logic
 
-This document explains the logic behind subscription management and ad/job availability checks in the BuyOrSell platform.
+This document explains the logic behind subscription management, ad/job posting, featuring, and renewal availability checks in the BuyOrSell platform.
 
 ## Overview
 
-The platform uses a subscription-based model where users purchase plans that grant them a certain number of ad postings, featured ads, and AI-powered assists.
+The platform uses a subscription-based model where users purchase plans that grant them a certain number of ad postings, featured ads, and AI-powered assists. Availability checks ensure users operate within their plan limits across three main flows: **Posting**, **Featuring**, and **Renewing**.
 
-## 1. Subscription Management
+## 1. Subscription Matching Logic (`utils/subscription-match.ts`)
 
-### Core Components
+Centralized logic determines if a subscription covers a specific category type (e.g., "Electronics", "Motors").
 
-- **`useSubscriptionStore`**: React state management (Zustand) for fetching and filtering user subscriptions.
-- **`Subscription` Interface**: Defines the structure of a user's active plan, including:
-  - `addsAvailable`: Total postings allowed.
-  - `adsUsed`: Postings already consumed.
-  - `featuredAdsAvailable`: Total featured slots allowed.
-  - `featuredAdsUsed`: Featured slots consumed.
-  - `categories`: The categories this plan applies to (e.g., "Properties", "Motors").
-
-### Active Subscription Logic
-
-A subscription is considered active if:
-
-1. `isActive` is true.
-2. The current date is within the `startDate` and `endDate` (validation period).
+### Matching Rules:
+1.  **Wildcard Plans**: Plans with type `"basic"` or `"ads"`, or marked as `isDefault`, match **all** categories.
+2.  **Specific Plans**: If not a wildcard, the plan's `type` must strictly match the target category type (case-insensitive).
 
 ---
 
-## 2. Ad Availability Logic (`useAdAvailability.ts`)
+## 2. Ad Posting Availability (`useAdAvailability.ts`)
 
-Before a user can post an ad or a job, the system performs an availability check to ensure they have remaining slots in their plan.
+Used during the `Post Ad` flow to verify the user can create a new listing.
 
-### Category-Based Filtering
-
-Plans can be generic or category-specific. The check handles hierarchical categories:
-
-- **Default/Universal Plans**: If `plan.categories` is empty, it applies to all categories of that type.
-- **Property/Motor Plans**: Specific logic handles broad categories like "Properties for Sale" or "Motors" to cover their respective sub-categories.
-
-### Availability Calculation
-
-The total available slots are calculated by iterating through all active subscriptions that match the target category:
-
-```typescript
-normalAvailableTotal += Math.max(
-  0,
-  (sub.addsAvailable || 0) - (sub.adsUsed || 0),
-);
-featuredAvailableTotal += Math.max(
-  0,
-  (sub.featuredAdsAvailable || 0) - (sub.featuredAdsUsed || 0),
-);
-```
-
-### The `checkAvailability` Flow
-
-1. **Bypass Check**: If no plans exist in the database for the given category/type, the user is allowed to post for free (bypass).
-2. **Featured Post**: Checks `featuredAvailableTotal > 0`.
-3. **Normal Post**: Checks `normalAvailableTotal > 0`.
-4. **Dialog Trigger**: If no slots are available, a "Plans Dialog" is triggered to prompt the user to purchase a plan.
+### The `checkAvailability` Flow:
+1.  **System Check**: Checks if any paid plans exist in the system for this category. If none exist, posting is free (bypass) **provided the user has at least one active subscription**.
+2.  **Plan Match**: Filters active subscriptions that cover the target category.
+3.  **Credit Check**: Sums available credits across matching plans.
+4.  **Mode Resolution**:
+    *   `no_plans`: No valid plan exists.
+    *   `insufficient`: Plans exist but 0 credits remain.
+    *   `selection`: Multiple valid plans found, or user only has a Basic plan (prompting a better choice).
 
 ---
 
-## 3. Job Posting Logic
+## 3. Featured Ad Availability (`useFeatureAdAvailability.ts`)
 
-Job postings follow a similar logic to ads but are typically mapped to a specific "Jobs" plan type within the subscription system.
+Used when a user clicks "Feature" on an existing ad.
 
-## 4. Collection Manager
-
-The Collection Manager handles the grouping of ads into curated sets.
-
-- **Logic**: Aggregates ads based on user-defined labels or system-generated criteria.
-- **Access Control**: Users can only manage collections belonging to their UID.
-- **Limit Enforcement**: Collection creation is gated by the active subscription's `addsAvailable` limit if the user is not on a basic plan.
+### Logic Flow:
+1.  **Credit Check**: Finds a matching subscription with `featuredAdsAvailable > 0`.
+2.  **Modes**:
+    *   **`has_credits`**: Matching credits found. Shows `FeatureConfirmDialog` (Free, uses credit).
+    *   **`no_featured_credits`**: No plan covers the ad OR all featured credits consumed. Shows `FeatureAdDialog` (Pay fee to feature).
 
 ---
 
-## 5. Enterprise Custom Planning
+## 4. Ad Renewal Availability (`useRenewAdAvailability.ts`)
+
+Used when a user clicks "Renew" on an existing ad to extend its validity.
+
+### Logic Flow:
+1.  **System Check**: Verifies if the category requires a plan to exist.
+2.  **Matching Check**: Filters subscriptions valid for the ad's category.
+3.  **Modes**:
+    *   `no_plans`: User has no valid plan covering this ad. Shows `NoActivePlansDialog`.
+    *   `insufficient`: Matching plan found but 0 ad credits remain. Shows `InsufficientAdsDialog`.
+    *   `select_plan`: Multiple valid subscriptions found with credits. Shows `PlanSelectionDialog`.
+    *   `has_credits`: Exactly one valid subscription with credits found. Shows `RenewAdDialog`.
+
+---
+
+## 5. Availability Dialog System
+
+The platform uses a unified set of dialogs to handle these states:
+
+| Mode | Component | Usage | Action |
+| :--- | :--- | :--- | :--- |
+| `no_plans` | `NoActivePlansDialog` | Posting / Renewing | Redirects to plans page. |
+| `insufficient` | `InsufficientAdsDialog` | Posting / Renewing | Prompts to upgrade or pay single fee. |
+| `selection` / `select_plan` | `PlanSelectionDialog` | Posting / Renewing | Allows manual subscription selection. |
+| `no_featured_credits` | `FeatureAdDialog` | Featuring | Pay a flat fee (e.g., 2 AED) to feature. |
+| `has_credits` | `FeatureConfirmDialog` | Featuring | Confirm using a plan credit for free. |
+| `has_credits` | `RenewAdDialog` | Renewing | Choose duration (30/60/90 days) and confirm. |
+
+---
+
+## 6. Enterprise Custom Planning
 
 For large scale organizations requiring more than what standard plans offer, the platform provides a **Custom Planning** flow.
 

@@ -77,6 +77,8 @@ export function AIDescriptionAssistant({
             <ResponsiveDialogDrawer
                   open={isOpen}
                   onOpenChange={(open) => !open && onClose()}
+                  title="AI Description Assistant"
+                  hideHeader={true}
                   dialogContentClassName="sm:max-w-[640px] bg-white dark:bg-gray-900 rounded-xl overflow-hidden p-0 gap-0"
                   drawerContentClassName="bg-white dark:bg-gray-900 rounded-t-2xl p-0"
             >

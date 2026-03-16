@@ -171,7 +171,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {isActuallyLoading ? (
           <Loader2 className="animate-spin" />
         ) : (
-          <>
+          <span className="contents">
             {icon && iconPosition === "left" && (
               <span className="flex-shrink-0">{icon}</span>
             )}
@@ -209,7 +209,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             {icon && iconPosition === "right" && (
               <span className="flex-shrink-0">{icon}</span>
             )}
-          </>
+          </span>
         )}
       </Comp>
     );

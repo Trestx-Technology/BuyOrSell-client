@@ -32,10 +32,16 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   perMonthText,
 }) => {
   const { plan } = subscription;
+
+  // Add safety check for null plan
+  if (!plan) {
+    return null;
+  }
+
   const user = useAuthStore((state) => state.session.user);
   const router = useRouter();
   const params = useParams();
-  const locale = params?.locale || "en";
+  const locale = (params?.locale as string) || "en";
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { fetchSubscriptions } = useSubscriptionStore();
 

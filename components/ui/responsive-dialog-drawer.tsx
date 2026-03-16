@@ -28,6 +28,7 @@ interface ResponsiveDialogDrawerProps {
   dialogContentClassName?: string;
   drawerContentClassName?: string;
   mobileBreakpoint?: number;
+  hideHeader?: boolean;
 }
 
 export function ResponsiveDialogDrawer({
@@ -40,6 +41,7 @@ export function ResponsiveDialogDrawer({
   dialogContentClassName,
   drawerContentClassName,
   mobileBreakpoint = 650,
+  hideHeader = false,
 }: ResponsiveDialogDrawerProps) {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const isMobile = useMediaQuery(`(max-width: ${mobileBreakpoint}px)`);
@@ -95,14 +97,12 @@ export function ResponsiveDialogDrawer({
         {triggerElement}
         <Drawer open={open} onOpenChange={setOpen}>
           <DrawerContent className={cn(drawerContentClassName)}>
-            {(title || description) && (
-              <DrawerHeader>
-                {title && <DrawerTitle>{title}</DrawerTitle>}
-                {description && (
-                  <DrawerDescription>{description}</DrawerDescription>
-                )}
-              </DrawerHeader>
-            )}
+            <DrawerHeader className={cn(!(title || description || hideHeader) && "sr-only", hideHeader && "sr-only")}>
+              <DrawerTitle>{title || "Dialog"}</DrawerTitle>
+              {description && (
+                <DrawerDescription>{description}</DrawerDescription>
+              )}
+            </DrawerHeader>
             {children}
           </DrawerContent>
         </Drawer>
@@ -115,14 +115,12 @@ export function ResponsiveDialogDrawer({
       {triggerElement}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className={cn(dialogContentClassName, "p-0")}>
-          {(title || description) && (
-            <DialogHeader className="p-4">
-              {title && <DialogTitle>{title}</DialogTitle>}
-              {description && (
-                <DialogDescription>{description}</DialogDescription>
-              )}
-            </DialogHeader>
-          )}
+          <DialogHeader className={cn("p-4", !(title || description || hideHeader) && "sr-only", hideHeader && "sr-only")}>
+            <DialogTitle>{title || "Dialog"}</DialogTitle>
+            {description && (
+              <DialogDescription>{description}</DialogDescription>
+            )}
+          </DialogHeader>
           {children}
         </DialogContent>
       </Dialog>

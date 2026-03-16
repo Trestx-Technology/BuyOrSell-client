@@ -82,6 +82,10 @@ const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
     validity: ad.validity,
     isSaved: ad.isSaved || false,
     status: ad.status || "created",
+    categoryId: (ad.category as any)?._id,
+    categoryName: (ad.category as any)?.name,
+    categoryType: ad.relatedCategories?.[0],
+    adType: ad.adType,
   };
 };
 
@@ -255,17 +259,21 @@ const UserProfileContent = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="flex bg-transparent rounded-none h-auto p-0 mb-6 gap-3">
-            <TabsTrigger 
-              value="ads" 
+            <TabsTrigger
+              value="ads"
               className="px-6 py-2.5 text-sm font-semibold transition-all h-auto"
             >
               My Ads ({transformedAds.length})
             </TabsTrigger>
-            <TabsTrigger 
-              value="reviews" 
+            <TabsTrigger
+              value="reviews"
               className="px-6 py-2.5 text-sm font-semibold transition-all h-auto"
             >
-              Reviews ({Array.isArray(reviewsResponse) ? reviewsResponse.length : (reviewsResponse as any)?.total || 0})
+              Reviews (
+              {Array.isArray(reviewsResponse)
+                ? reviewsResponse.length
+                : (reviewsResponse as any)?.total || 0}
+              )
             </TabsTrigger>
           </TabsList>
 
@@ -286,20 +294,54 @@ const UserProfileContent = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <Button variant="primary" size="sm" onClick={handlePostAd} className="h-10 px-6 rounded-xl font-bold">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handlePostAd}
+                    className="h-10 px-6 rounded-xl font-bold"
+                  >
                     Post New Ad
                   </Button>
                 </div>
               </div>
 
               <div className="mb-6">
-                <Tabs value={adStatusTab} onValueChange={setAdStatusTab} className="w-full">
+                <Tabs
+                  value={adStatusTab}
+                  onValueChange={setAdStatusTab}
+                  className="w-full"
+                >
                   <TabsList className="bg-gray-50 dark:bg-gray-800/50 p-1 rounded-xl border border-gray-100 dark:border-gray-700 w-full md:w-auto flex overflow-x-auto scrollbar-hide">
-                    <TabsTrigger value="all" className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium">All</TabsTrigger>
-                    <TabsTrigger value="live" className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium">Live</TabsTrigger>
-                    <TabsTrigger value="pending" className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium">Pending</TabsTrigger>
-                    <TabsTrigger value="expired" className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium">Expired</TabsTrigger>
-                    <TabsTrigger value="rejected" className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium">Rejected</TabsTrigger>
+                    <TabsTrigger
+                      value="all"
+                      className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium"
+                    >
+                      All
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="live"
+                      className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium"
+                    >
+                      Live
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="pending"
+                      className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium"
+                    >
+                      Pending
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="expired"
+                      className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium"
+                    >
+                      Expired
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="rejected"
+                      className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium"
+                    >
+                      Rejected
+                    </TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
@@ -312,7 +354,10 @@ const UserProfileContent = () => {
                 </div>
               ) : adsError ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Typography variant="body-small" className="text-red-500 font-medium">
+                  <Typography
+                    variant="body-small"
+                    className="text-red-500 font-medium"
+                  >
                     Failed to load ads. Please try again.
                   </Typography>
                 </div>
@@ -326,7 +371,10 @@ const UserProfileContent = () => {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-16 text-center">
-                      <Typography variant="body-small" className="text-gray-500 italic">
+                      <Typography
+                        variant="body-small"
+                        className="text-gray-500 italic"
+                      >
                         No ads found for the "{adStatusTab}" status.
                       </Typography>
                     </div>
@@ -335,15 +383,31 @@ const UserProfileContent = () => {
               ) : (
                 <div className="flex flex-col items-center justify-center py-16 gap-6 text-center bg-gray-50 dark:bg-gray-800/20 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-800">
                   <div className="p-4 bg-white dark:bg-gray-800 rounded-full shadow-sm">
-                    <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    <svg
+                      className="w-12 h-12 text-gray-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.5"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                      />
                     </svg>
                   </div>
                   <div>
-                    <Typography variant="h6" className="text-gray-900 dark:text-white font-bold mb-2">
+                    <Typography
+                      variant="h6"
+                      className="text-gray-900 dark:text-white font-bold mb-2"
+                    >
                       You haven't posted any ads yet
                     </Typography>
-                    <Typography variant="body-small" className="text-gray-500 mb-6">
+                    <Typography
+                      variant="body-small"
+                      className="text-gray-500 mb-6"
+                    >
                       Start selling your items on BuyOrSell today!
                     </Typography>
                   </div>

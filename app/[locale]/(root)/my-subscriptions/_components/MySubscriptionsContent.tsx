@@ -24,9 +24,10 @@ export const MySubscriptionsContent = () => {
   const [statusTab, setStatusTab] = useState<"active" | "inactive">("active");
 
   const subscriptions = useMemo(() => {
-    return Array.isArray(mySubscriptionData?.data)
+    const list = Array.isArray(mySubscriptionData?.data)
       ? mySubscriptionData.data
       : [];
+    return list.filter((sub) => sub && sub.plan);
   }, [mySubscriptionData]);
 
   const activeSubscriptions = useMemo(() => {

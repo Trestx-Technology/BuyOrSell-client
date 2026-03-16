@@ -27,6 +27,10 @@ export const adQueries = {
     Key: ["ad", id, "renew"],
     endpoint: `/ad/renew/${id}`,
   }),
+  featureAd: (id: string) => ({
+    Key: ["ad", id, "feature"],
+    endpoint: `/ad/feature/${id}`,
+  }),
   adsByUser: (userId: string) => ({
     Key: ["ads", "user", userId],
     endpoint: `/ad/user/${userId}`,

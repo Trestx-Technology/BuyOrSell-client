@@ -1,6 +1,8 @@
 "use server";
 
 import OpenAI from "openai";
+import { cookies } from "next/headers";
+import { AUTH_TOKEN_NAMES } from "@/constants/auth.constants";
 import {
   getCategoriesTree,
   semanticSearchCategories,
@@ -452,6 +454,7 @@ export interface CategoryHierarchy {
   id: string;
   name: string;
   parentId: string | null;
+  relatedTo?: string;
 }
 
 /**
@@ -532,13 +535,23 @@ OUTPUT (JSON only):
       return { redirectUrl: null, categoryPath: [] };
     }
 
+    // Get auth token from cookies for the server-side request
+    const cookieStore = await cookies();
+    const token = cookieStore.get(AUTH_TOKEN_NAMES.ACCESS_TOKEN)?.value;
+
     console.log(
       `[AI] Fetching semantic results from: ${BACKEND_URL}/categories/search/semantic`,
     );
 
     const semanticRes = await fetch(
       `${BACKEND_URL}/categories/search/semantic?query=${encodeURIComponent(searchQuery)}&limit=1`,
-      { cache: "no-store" },
+      {
+        cache: "no-store",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          Accept: "application/json",
+        },
+      },
     );
 
     if (!semanticRes.ok) {
@@ -563,6 +576,7 @@ OUTPUT (JSON only):
     // Capture initial parent hierarchy if it exists from semantic search result
     let parentId = bestMatch.parentId;
     let parentName = bestMatch.parentName;
+    let rootRelatedTo = bestMatch.tree?.relatedTo;
 
     // Recursively drill down to the absolute leaf node
     // We follow the 'tree' property returned by the API which contains nested children
@@ -590,6 +604,7 @@ OUTPUT (JSON only):
         parentName: parentName,
         // Update the tree reference to continue recursion
         tree: nextChild,
+        relatedTo: nextChild.relatedTo || rootRelatedTo,
       };
 
       // Move deeper
@@ -608,12 +623,14 @@ OUTPUT (JSON only):
         id: bestMatch.parentId,
         name: bestMatch.parentName,
         parentId: null,
+        relatedTo: rootRelatedTo,
       });
     }
     hierarchy.push({
       id: bestMatch.id,
       name: bestMatch.name,
       parentId: bestMatch.parentId || null,
+      relatedTo: bestMatch.relatedTo || rootRelatedTo,
     });
 
     const categoryPathParam = encodeURIComponent(JSON.stringify(hierarchy));

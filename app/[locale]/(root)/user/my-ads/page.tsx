@@ -1,10 +1,11 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import MyAdCard from "../_components/my-ads-card";
 import { H2, Typography } from "@/components/typography";
 import { useLocale } from "@/hooks/useLocale";
-import { useMyAds } from "@/hooks/useAds";
+import { useMyAds, useFeatureAd } from "@/hooks/useAds";
 import { AD, AdLocation } from "@/interfaces/ad";
 import { formatDate } from "@/utils/format-date";
 import { MyAdCardProps } from "../_components/my-ads-card";
@@ -13,6 +14,7 @@ import { useRouter } from "nextjs-toploader/app";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 // Transform AD to MyAdCard props
 const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
@@ -73,12 +75,60 @@ const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
             validity: ad.validity,
             isSaved: ad.isSaved || false,
             status: ad.status || "created",
+            categoryId: (ad.category as any)?._id,
+            categoryName: (ad.category as any)?.name,
+            // relatedCategories[0] is the top-level category name used to match subscription plan types
+            categoryType: ad.relatedCategories?.[0],
+            adType: ad.adType,
       };
 };
 
 const MyAdsPage = () => {
       const router = useRouter();
       const { t, localePath, locale } = useLocale();
+      const searchParams = useSearchParams();
+      const featureAdMutation = useFeatureAd();
+      // Prevent double-firing on StrictMode double-mount
+      const featureHandledRef = useRef(false);
+
+      // ── Handle return from Stripe featured-ad checkout ──────────────────────
+      useEffect(() => {
+        const featurePayment = searchParams.get("feature_payment");
+        const featuredAdId = searchParams.get("featured_ad_id");
+
+        if (featureHandledRef.current) return;
+
+        if (featurePayment === "success" && featuredAdId) {
+          featureHandledRef.current = true;
+          featureAdMutation.mutate(
+            { id: featuredAdId },
+            {
+              onSuccess: () => {
+                toast.success("Ad marked as featured successfully!");
+              },
+              onError: () => {
+                toast.error(
+                  "Payment was received but we could not update your ad. Please contact support.",
+                );
+              },
+            },
+          );
+          // Clean the URL so params don't persist on refresh
+          const clean = new URL(window.location.href);
+          clean.searchParams.delete("feature_payment");
+          clean.searchParams.delete("featured_ad_id");
+          clean.searchParams.delete("session_id");
+          router.replace(clean.pathname + (clean.search || ""));
+        } else if (featurePayment === "cancelled") {
+          featureHandledRef.current = true;
+          toast.info("Featured ad payment was cancelled.");
+          const clean = new URL(window.location.href);
+          clean.searchParams.delete("feature_payment");
+          router.replace(clean.pathname + (clean.search || ""));
+        }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [searchParams]);
+      // ────────────────────────────────────────────────────────────────────────
 
       // Fetch user's ads
       const {

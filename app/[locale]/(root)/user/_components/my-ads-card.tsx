@@ -3,39 +3,27 @@
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, RefreshCw, Star, MoreVertical } from "lucide-react";
-import { Typography } from "@/components/typography";
 import Link from "next/link";
-import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer";
-import {
-  ResponsiveModal,
-  ResponsiveModalContent,
-  ResponsiveModalHeader,
-  ResponsiveModalTitle,
-  ResponsiveModalDescription,
-  ResponsiveModalFooter,
-} from "@/components/ui/responsive-modal";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 
 import { useLocale } from "@/hooks/useLocale";
-import { useDeleteAd, useRenewAd, useUpdateAd } from "@/hooks/useAds";
-import { useSubscriptionStore } from "@/stores/subscriptionStore";
+import { useDeleteAd, useRenewAd, useFeatureAd } from "@/hooks/useAds";
 import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
+import { RenewAdDialog } from "@/app/[locale]/(root)/user/my-ads/_components/RenewAdDialog";
+import { FeatureAdDialog } from "@/app/[locale]/(root)/user/my-ads/_components/FeatureAdDialog";
+import { FeatureConfirmDialog } from "@/app/[locale]/(root)/user/my-ads/_components/FeatureConfirmDialog";
+import { useFeatureAdAvailability } from "@/hooks/useFeatureAdAvailability";
+import { useRenewAdAvailability } from "@/hooks/useRenewAdAvailability";
+import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
+import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
+import { PlanSelectionDialog } from "@/components/global/PlanSelectionDialog";
 import { useRouter } from "nextjs-toploader/app";
 import { ProductExtraFields, AdLocation } from "@/interfaces/ad";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
@@ -54,17 +42,23 @@ export interface MyAdCardProps {
   location: AdLocation;
   images: string[];
   extraFields?: ProductExtraFields;
-  postedTime: string; // Keep for interface compatibility, though might not be used in actions
+  postedTime: string;
   views?: number;
   isPremium?: boolean;
   validity?: string;
   className?: string;
   // Handlers
-  onFavorite?: (id: string) => void; // Kept for compatibility if passed
+  onFavorite?: (id: string) => void;
   onShare?: (id: string) => void;
   onClick?: (id: string) => void;
   isSaved: boolean;
   status: "live" | "rejected" | "created";
+  categoryId?: string;
+  /** Leaf category name (ad.category.name) */
+  categoryName?: string;
+  /** Top-level category name — first entry of ad.relatedCategories — used as plan type */
+  categoryType?: string;
+  adType?: "AD" | "JOB";
 }
 
 const MyAdCard: React.FC<MyAdCardProps> = ({
@@ -82,17 +76,26 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
   className,
   isSaved,
   status,
+  categoryId,
+  categoryName,
+  categoryType,
+  adType,
 }) => {
   const { t } = useLocale();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showRenewDialog, setShowRenewDialog] = useState(false);
-  const [showFeatureDialog, setShowFeatureDialog] = useState(false);
   const [renewDays, setRenewDays] = useState(30);
 
   const deleteAdMutation = useDeleteAd();
-  const updateAdMutation = useUpdateAd();
+  const featureAdMutation = useFeatureAd();
   const { mutate: renewAd, isPending: isRenewing } = useRenewAd();
-  const { canFeatureAd } = useSubscriptionStore();
+  const { checkFeaturedAvailability, dialogState, closeDialog } =
+    useFeatureAdAvailability();
+  const { 
+    checkRenewAvailability, 
+    dialogState: renewDialogState, 
+    closeDialog: closeRenewDialog,
+    setDialogState: setRenewDialogState 
+  } = useRenewAdAvailability();
   const router = useRouter();
 
   // Check Expiration
@@ -140,37 +143,60 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
   const handleRenewClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setShowRenewDialog(true);
+
+    // Detect type if missing or generic
+    let effectiveType = categoryType;
+    if (!effectiveType || effectiveType === "Ads") {
+      const name = (categoryName || "").toLowerCase();
+      if (name.includes("electronic")) effectiveType = "Electronics";
+      else if (name.includes("motor") || name.includes("car"))
+        effectiveType = "Motors";
+      else if (name.includes("property")) effectiveType = "Properties";
+      else if (name.includes("job")) effectiveType = "Jobs";
+      else effectiveType = effectiveType || (adType === "JOB" ? "Jobs" : "Ads");
+    }
+
+    const effectiveCategory = categoryName || effectiveType || "Ad";
+    checkRenewAvailability(effectiveType, effectiveCategory);
   };
 
   const handleFeatureClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    // Use relatedCategories[0] as the plan type; fall back to adType if not available
+    const effectiveType = categoryType || adType || "Ads";
+    const effectiveCategory = categoryName || effectiveType;
+    checkFeaturedAvailability(effectiveType, effectiveCategory);
+  };
 
-    if (canFeatureAd()) {
-      updateAdMutation.mutate(
-        { id, payload: { isFeatured: true } },
-        {
-          onSuccess: () => {
-            toast.success("Ad marked as featured successfully!");
-          },
-          onError: () => {
-            toast.error("Failed to mark ad as featured.");
-          },
+  /** Called when the user confirms featuring using an existing plan credit */
+  const handleConfirmFeature = () => {
+    const sub = dialogState.matchedSubscription;
+    if (!sub) return;
+    featureAdMutation.mutate(
+      { id },
+      {
+        onSuccess: () => {
+          toast.success("Ad marked as featured successfully!");
+          closeDialog();
         },
-      );
-    } else {
-      setShowFeatureDialog(true);
-    }
+        onError: () => {
+          toast.error("Failed to mark ad as featured.");
+        },
+      },
+    );
   };
 
   // Renew mutation handler
   const onRenewSubmit = () => {
+    const sub = renewDialogState.matchedSubscription;
+    if (!sub) return;
+
     renewAd(
-      { id, days: Number(renewDays) },
+      { id, days: Number(renewDays), subscriptionId: sub._id },
       {
         onSuccess: () => {
-          setShowRenewDialog(false);
+          setRenewDialogState((prev) => ({ ...prev, isOpen: false }));
         },
       },
     );
@@ -204,28 +230,34 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
             />
             {isExpired ? (
               <div className="absolute inset-x-0 top-0 p-2 z-20 flex justify-between items-start pointer-events-none">
-                <Badge variant="destructive" className="bg-red-600 text-white border-none shadow-sm">
+                <Badge
+                  variant="destructive"
+                  className="bg-red-600 text-white border-none shadow-sm"
+                >
                   EXPIRED
                 </Badge>
               </div>
             ) : (
-                <div className="absolute inset-x-0 top-0 p-2 z-20 flex justify-between items-start pointer-events-none">
-                    {status === "live" && (
-                        <Badge className="bg-green-600 text-white border-none shadow-sm">
-                            LIVE
-                        </Badge>
-                    )}
-                    {status === "created" && (
-                        <Badge className="bg-orange-500 text-white border-none shadow-sm">
-                            PENDING
-                        </Badge>
-                    )}
-                    {status === "rejected" && (
-                        <Badge variant="destructive" className="bg-red-500 text-white border-none shadow-sm">
-                            REJECTED
-                        </Badge>
-                    )}
-                </div>
+              <div className="absolute inset-x-0 top-0 p-2 z-20 flex justify-between items-start pointer-events-none">
+                {status === "live" && (
+                  <Badge className="bg-green-600 text-white border-none shadow-sm">
+                    LIVE
+                  </Badge>
+                )}
+                {status === "created" && (
+                  <Badge className="bg-orange-500 text-white border-none shadow-sm">
+                    PENDING
+                  </Badge>
+                )}
+                {status === "rejected" && (
+                  <Badge
+                    variant="destructive"
+                    className="bg-red-500 text-white border-none shadow-sm"
+                  >
+                    REJECTED
+                  </Badge>
+                )}
+              </div>
             )}
           </div>
 
@@ -296,11 +328,16 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
                 size="sm"
                 className={cn(
                   "flex-1 h-9 rounded-xl font-semibold text-xs transition-all",
-                  !isPremium && "border-warning-100 text-warning-100 dark:border-warning-100"
+                  !isPremium &&
+                    "border-warning-100 text-warning-100 dark:border-warning-100",
                 )}
                 onClick={handleFeatureClick}
-                disabled={updateAdMutation.isPending || isPremium}
-                icon={<Star className={cn("w-4 h-4", isPremium && "fill-current")} />}
+                disabled={featureAdMutation.isPending || isPremium}
+                icon={
+                  <Star
+                    className={cn("w-4 h-4", isPremium && "fill-current")}
+                  />
+                }
                 iconPosition="left"
               >
                 {isPremium ? "Featured" : "Feature"}
@@ -317,7 +354,10 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
                   <MoreVertical className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="z-[9999] rounded-xl border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden min-w-[140px] p-1">
+              <DropdownMenuContent
+                align="end"
+                className="z-[9999] rounded-xl border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden min-w-[140px] p-1"
+              >
                 <DropdownMenuItem
                   onClick={handleDeleteClick}
                   className="text-red-500 focus:text-white focus:bg-red-500 dark:focus:bg-red-600 cursor-pointer font-semibold rounded-lg p-2.5 flex items-center gap-2 transition-colors"
@@ -344,97 +384,73 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
         confirmVariant="danger"
       />
 
-      {/* Renew Dialog */}
-      <ResponsiveDialogDrawer
-        open={showRenewDialog}
-        onOpenChange={setShowRenewDialog}
-        title="Renew Ad"
-        description="Choose how long you want to extend your ad's validity."
-      >
-        <div className="grid gap-4 py-4 px-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="days" className="text-right">
-              Duration
-            </Label>
-            <div className="col-span-3">
-              <Select
-                value={String(renewDays)}
-                onValueChange={(val) => setRenewDays(Number(val))}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select duration" />
-                </SelectTrigger>
-                <SelectContent className="z-[9999]">
-                  <SelectItem value="30">30 Days</SelectItem>
-                  <SelectItem value="60">60 Days</SelectItem>
-                  <SelectItem value="90">90 Days</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setShowRenewDialog(false)}
-              disabled={isRenewing}
-            >
-              Cancel
-            </Button>
-            <Button onClick={onRenewSubmit} disabled={isRenewing}>
-              {isRenewing ? "Renewing..." : "Confirm Renewal"}
-            </Button>
-          </div>
-        </div>
-      </ResponsiveDialogDrawer>
+      <RenewAdDialog
+        open={renewDialogState.isOpen && renewDialogState.mode === "has_credits"}
+        onOpenChange={(open) => {
+          if (!open) closeRenewDialog();
+        }}
+        renewDays={renewDays}
+        onRenewDaysChange={setRenewDays}
+        onConfirm={onRenewSubmit}
+        isRenewing={isRenewing}
+      />
 
-      {/* Feature Credit Dialog */}
-      <ResponsiveModal
-        open={showFeatureDialog}
-        onOpenChange={setShowFeatureDialog}
-      >
-        <ResponsiveModalContent>
-          <ResponsiveModalHeader>
-            <ResponsiveModalTitle>Get Featured!</ResponsiveModalTitle>
-            <ResponsiveModalDescription>
-              Boost your ad visibility by marking it as featured.
-            </ResponsiveModalDescription>
-          </ResponsiveModalHeader>
-          <div className="p-4 space-y-4">
-            <div className="p-4 bg-yellow-50 border border-yellow-100 rounded-lg text-center">
-              <Star className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-              <h3 className="font-semibold text-yellow-900 mb-1">
-                Insufficient Credits
-              </h3>
-              <p className="text-sm text-yellow-700">
-                You don&apos;t have enough featured ad credits in your current
-                plan.
-              </p>
-            </div>
-            <p className="text-center text-sm text-gray-600">
-              Pay <strong>2 AED</strong> to mark this ad as featured
-              immediately.
-            </p>
-          </div>
-          <ResponsiveModalFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowFeatureDialog(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="bg-yellow-600 hover:bg-yellow-700 text-white"
-              onClick={() => {
-                // Determine payment flow here
-                toast.info("Payment integration coming soon!");
-                setShowFeatureDialog(false);
-              }}
-            >
-              Pay 2 AED & Feature
-            </Button>
-          </ResponsiveModalFooter>
-        </ResponsiveModalContent>
-      </ResponsiveModal>
+      {/* Renew Flow Dialogs */}
+      <NoActivePlansDialog
+        isOpen={renewDialogState.isOpen && renewDialogState.mode === "no_plans"}
+        onClose={closeRenewDialog}
+        categoryName={renewDialogState.categoryName}
+        categoryType={renewDialogState.categoryType}
+      />
+
+      <InsufficientAdsDialog
+        isOpen={renewDialogState.isOpen && renewDialogState.mode === "insufficient"}
+        onClose={closeRenewDialog}
+        categoryName={renewDialogState.categoryName}
+        categoryType={renewDialogState.categoryType}
+        type="normal"
+      />
+
+      <PlanSelectionDialog
+        isOpen={renewDialogState.isOpen && renewDialogState.mode === "select_plan"}
+        onClose={closeRenewDialog}
+        subscriptions={renewDialogState.compatibleSubscriptions || []}
+        onSelect={(subId) => {
+          const sub = renewDialogState.compatibleSubscriptions?.find(s => s._id === subId);
+          if (sub) {
+            setRenewDialogState({
+              isOpen: true,
+              mode: "has_credits",
+              matchedSubscription: sub,
+              categoryName: renewDialogState.categoryName,
+              categoryType: renewDialogState.categoryType,
+            });
+          }
+        }}
+        categoryType={renewDialogState.categoryType}
+      />
+
+      {/* ── Feature Ad Dialogs (2 states) ─────────────────────────────────── */}
+
+      {/* State 2: matching plan exists but no featured credits → Stripe pay flow */}
+      <FeatureAdDialog
+        open={dialogState.isOpen && dialogState.mode === "no_featured_credits"}
+        onOpenChange={(open) => {
+          if (!open) closeDialog();
+        }}
+        adId={id}
+      />
+
+      {/* State 3: matching plan with featured credits → free confirmation */}
+      <FeatureConfirmDialog
+        open={dialogState.isOpen && dialogState.mode === "has_credits"}
+        onOpenChange={(open) => {
+          if (!open) closeDialog();
+        }}
+        planName={dialogState.matchedSubscription?.plan?.plan}
+        onConfirm={handleConfirmFeature}
+        isLoading={featureAdMutation.isPending}
+      />
     </>
   );
 };

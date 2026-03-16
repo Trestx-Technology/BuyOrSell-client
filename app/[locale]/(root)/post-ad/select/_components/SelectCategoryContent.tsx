@@ -9,6 +9,9 @@ import { Container1080 } from "@/components/layouts/container-1080";
 import { useAdAvailability } from "@/hooks/useAdAvailability";
 import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
 import { PageBannerCarousel } from "@/components/global/page-banner-carousel";
+import { PlanSelectionDialog } from "@/components/global/PlanSelectionDialog";
+import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
+import { ISubscription } from "@/interfaces/subscription.types";
 
 export default function SelectCategoryContent() {
   const router = useRouter();
@@ -23,9 +26,19 @@ export default function SelectCategoryContent() {
   // Availability Hook
   const {
     checkAvailability,
+    getCompatibleSubscriptions,
     dialogProps,
     isLoading: subscriptionsLoading,
   } = useAdAvailability();
+
+  const setSubscriptionId = useAdPostingStore((state) => state.setSubscriptionId);
+  const [isPlanSelectionDialogOpen, setIsPlanSelectionDialogOpen] = useState(false);
+  const [compatibleSubs, setCompatibleSubs] = useState<ISubscription[]>([]);
+  const [pendingSelection, setPendingSelection] = useState<{
+    categoryId: string;
+    categoryName: string;
+    categoryType: string;
+  } | null>(null);
 
   // Fetch categories using the hook
   const {
@@ -42,41 +55,104 @@ export default function SelectCategoryContent() {
     const selectedCategory = categories.find((cat) => cat._id === categoryId);
 
     if (selectedCategory) {
-      // Determine the plan type based on the category name
-      const categoryName = selectedCategory.name.toLowerCase();
-      let typeToPass = "Ads"; // Default for most categories
+      // Use relatedTo if available, otherwise fallback to name-based detection or "Ads"
+      let typeToPass = selectedCategory.relatedTo || "Ads";
 
-      if (categoryName.includes("property") || categoryName === "properties") {
-        typeToPass = "Properties";
-      } else if (
-        categoryName.includes("motor") ||
-        categoryName === "motors" ||
-        categoryName === "cars" ||
-        categoryName === "vehicles"
-      ) {
-        typeToPass = "Motors";
+      // If it's a generic "Ads" type, still do a quick name check for legacy/fallback
+      if (typeToPass === "Ads") {
+        const categoryName = selectedCategory.name.toLowerCase();
+        if (
+          categoryName.includes("property") ||
+          categoryName === "properties"
+        ) {
+          typeToPass = "Properties";
+        } else if (
+          categoryName.includes("motor") ||
+          categoryName === "motors" ||
+          categoryName === "cars" ||
+          categoryName === "vehicles"
+        ) {
+          typeToPass = "Motors";
+        } else if (categoryName.includes("electronic")) {
+          typeToPass = "Electronics";
+        }
       }
 
       // Check ad availability for the determined plan type and this category
-      if (!checkAvailability(typeToPass, selectedCategory.name)) {
+      if (!checkAvailability(typeToPass, selectedCategory.name, selectedCategory._id)) {
         return;
       }
 
-      // Add to category array for breadcrumbs
-      addToCategoryArray({
-        id: selectedCategory._id,
-        name: selectedCategory.name,
-      });
+      const subs = getCompatibleSubscriptions(typeToPass, selectedCategory._id);
+      const paidPlans = subs.filter(sub => !sub.plan?.isDefault && sub.plan?.type?.toLowerCase() !== 'basic');
+      const basicPlans = subs.filter(sub => sub.plan?.isDefault || sub.plan?.type?.toLowerCase() === 'basic');
 
-      // Set as active category
-      setActiveCategory(selectedCategory._id);
+      // Rule 1: Both basic and paid -> Auto-select 1st paid and proceed
+      if (paidPlans.length > 0 && basicPlans.length > 0) {
+        setSubscriptionId(paidPlans[0]._id);
+        handleNavigation(selectedCategory._id, selectedCategory.name);
+        return;
+      }
 
-      // Update step to 2 (traverse categories after selecting)
-      setStep(2);
+      // Rule 2: No paid but has basic -> Show dialog (per user request)
+      if (paidPlans.length === 0 && basicPlans.length > 0) {
+        setCompatibleSubs(subs);
+        setPendingSelection({ 
+          categoryId: selectedCategory._id, 
+          categoryName: selectedCategory.name,
+          categoryType: typeToPass
+        });
+        setIsPlanSelectionDialogOpen(true);
+        return;
+      }
+
+      // Case 3: Only paid plans or multiple basic plans -> Show Dialog to be safe
+      if (subs.length > 1) {
+        setCompatibleSubs(subs);
+        setPendingSelection({ 
+          categoryId: selectedCategory._id, 
+          categoryName: selectedCategory.name,
+          categoryType: typeToPass
+        });
+        setIsPlanSelectionDialogOpen(true);
+        return;
+      }
+
+      // Case 4: Only 1 plan total -> Auto-select
+      if (subs.length === 1) {
+        setSubscriptionId(subs[0]._id);
+        handleNavigation(selectedCategory._id, selectedCategory.name);
+        return;
+      }
+
+      // Fallback
+      handleNavigation(selectedCategory._id, selectedCategory.name);
     }
+  };
+
+  const handleNavigation = (categoryId: string, categoryName: string) => {
+    // Add to category array for breadcrumbs
+    addToCategoryArray({
+      id: categoryId,
+      name: categoryName,
+    });
+
+    // Set as active category
+    setActiveCategory(categoryId);
+
+    // Update step to 2
+    setStep(2);
 
     // Navigate to the category ID route
     router.push(`/post-ad/${categoryId}`);
+  };
+
+  const onPlanSelect = (subscriptionId: string) => {
+    setSubscriptionId(subscriptionId);
+    setIsPlanSelectionDialogOpen(false);
+    if (pendingSelection) {
+      handleNavigation(pendingSelection.categoryId, pendingSelection.categoryName);
+    }
   };
 
   useEffect(() => {
@@ -87,7 +163,24 @@ export default function SelectCategoryContent() {
 
   return (
     <Container1080>
-      <InsufficientAdsDialog {...dialogProps} />
+      {/* Availability/Error Dialogs */}
+      {dialogProps.mode === "no_plans" && (
+        <NoActivePlansDialog {...dialogProps} />
+      )}
+      {dialogProps.mode === "insufficient" && (
+        <InsufficientAdsDialog {...dialogProps} />
+      )}
+
+      {/* Manual Selection Dialog */}
+      <PlanSelectionDialog
+        isOpen={isPlanSelectionDialogOpen}
+        onClose={() => setIsPlanSelectionDialogOpen(false)}
+        subscriptions={compatibleSubs}
+        onSelect={onPlanSelect}
+        categoryName={pendingSelection?.categoryName || "Category"}
+        categoryType={pendingSelection?.categoryType}
+        mode="selection"
+      />
 
       <div className=" w-full max-w-[888px] flex-1 mx-auto bg-transparent">
         {/* Main Container */}

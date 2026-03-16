@@ -27,11 +27,12 @@ export const SelectableTabsInput = forwardRef<
         disabled={disabled}
         className="flex flex-wrap gap-3"
       >
-        {options.map((option) => {
+        {options.map((option, index) => {
           const isSelected = value === option.value;
+          const uniqueId = `tab-${option.value}-${index}`;
           return (
             <label
-              key={option.value}
+              key={uniqueId}
               className={cn(
                 "px-3 py-2.5 rounded-lg text-xs font-normal transition-all duration-200",
                 "border h-11 flex items-center justify-center cursor-pointer",
@@ -43,7 +44,7 @@ export const SelectableTabsInput = forwardRef<
             >
               <RadioGroupItem
                 value={option.value}
-                id={option.value}
+                id={uniqueId}
                 className="sr-only"
               />
               <span className="capitalize">{option.label}</span>

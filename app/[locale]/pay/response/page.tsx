@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCompleteCheckoutSession } from "@/hooks/usePayments";
 import { useAITokenBalance } from "@/hooks/useAITokens";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
 
 function ResponseContent() {
   const searchParams = useSearchParams();
@@ -21,6 +22,7 @@ function ResponseContent() {
 
   const { data, isLoading, error } = useCompleteCheckoutSession(sessionId || "");
   const { data: balanceData } = useAITokenBalance();
+  const fetchSubscriptions = useSubscriptionStore((state) => state.fetchSubscriptions);
 
   useEffect(() => {
     if (data?.data?.status) {
@@ -32,6 +34,7 @@ function ResponseContent() {
     }
 
     if (data?.data?.status === "succeeded") {
+      fetchSubscriptions();
       const timer = setTimeout(() => {
         if (isAITokens) {
           router.push(`/${locale}/ai-tokens?status=success`);

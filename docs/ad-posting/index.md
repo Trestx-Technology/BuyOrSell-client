@@ -43,7 +43,7 @@ The form is divided into several logical sections:
 
 #### C. Pricing & Deals
 
-- **Featured Ad**: If the user's subscription allows, they can toggle `isFeatured`. The availability is checked via `getAvailableFeaturedAdsCount`.
+- **Featured Ad**: The system automatically determines if an ad should be `isFeatured`. If the selected subscription is a **Paid/Premium** plan and has `featuredAdsAvailable > 0`, the flag is set to `true` in the submission payload for maximum visibility.
 - **Deals**: Users can toggle a "Deal" status, providing a discounted price and expiration date.
 - **Exchange**: Option to offer the item for exchange/barter.
 
@@ -52,7 +52,10 @@ The form is divided into several logical sections:
 Before submission, the system performs two final checks:
 
 1.  **Zod Validation**: Ensures all required client-side fields meet the schema (phone formats, price ranges, required selects).
-2.  **Ad Availability**: Uses the `useAdAvailability` hook to ensure the user has sufficient "slots" in their active subscription plan to post in this category.
+2.  **Ad Availability**: Uses the `useAdAvailability` hook to ensure the user has sufficient slots. This triggers one of several specialized dialogs if issues are found:
+    - **NoActivePlansDialog**: If the user has no plan for the category.
+    - **InsufficientAdsDialog**: If the user has reached their posting limit.
+    - **PlanSelectionDialog**: If the user needs to choose between multiple compatible plans.
 
 ### 5. Step 5: Submission & Success
 

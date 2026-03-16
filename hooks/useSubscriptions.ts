@@ -18,6 +18,7 @@ import {
 } from "@/interfaces/subscription.types";
 import { subscriptionQueries } from "@/app/api/subscription/index";
 import { useIsAuthenticated } from "@/hooks/useAuth";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
 
 // ============================================================================
 // SUBSCRIPTION QUERY HOOKS
@@ -77,6 +78,7 @@ export const useCreateSubscription = () => {
       queryClient.invalidateQueries({
         queryKey: subscriptionQueries.getMySubscription.Key,
       });
+      useSubscriptionStore.getState().fetchSubscriptions();
     },
   });
 };
@@ -97,6 +99,7 @@ export const useUpdateSubscription = () => {
       queryClient.invalidateQueries({
         queryKey: subscriptionQueries.getMySubscription.Key,
       });
+      useSubscriptionStore.getState().fetchSubscriptions();
       // Invalidate specific if needed, though getMySubscription might cover it
     },
   });
@@ -133,6 +136,7 @@ export const useActivateFreeSubscription = () => {
       queryClient.invalidateQueries({
         queryKey: subscriptionQueries.getMyActiveSubscription.Key,
       });
+      useSubscriptionStore.getState().fetchSubscriptions();
     },
   });
 };

@@ -378,6 +378,7 @@ export interface PostAdPayload {
   organizationId?: string;
   adType: "AD" | "JOB";
   isFeatured?: boolean;
+  subscriptionId?: string;
 }
 
 export interface PostAdResponse {

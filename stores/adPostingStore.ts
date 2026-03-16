@@ -23,6 +23,10 @@ export interface AdPostingStore {
   // Steps (1, 2, 3, or 4)
   currentStep: number;
   setStep: (step: number) => void;
+
+  // Selected Subscription
+  selectedSubscriptionId: string | null;
+  setSubscriptionId: (id: string | null) => void;
 }
 
 // ============================================================================
@@ -32,6 +36,7 @@ const initialState = {
   categoryArray: [],
   activeCategory: null,
   currentStep: 1, // Step 1: Default initial state
+  selectedSubscriptionId: null,
 };
 
 // ============================================================================
@@ -76,7 +81,12 @@ export const useAdPostingStore = create<AdPostingStore>()(
       },
 
       clearCategoryArray: () => {
-        set({ categoryArray: [], currentStep: 1, activeCategory: null });
+        set({
+          categoryArray: [],
+          currentStep: 1,
+          activeCategory: null,
+          selectedSubscriptionId: null,
+        });
       },
 
       // Active Category
@@ -89,6 +99,11 @@ export const useAdPostingStore = create<AdPostingStore>()(
         // Ensure step is between 1 and 4
         const validStep = Math.max(1, Math.min(4, step));
         set({ currentStep: validStep });
+      },
+
+      // Selected Subscription
+      setSubscriptionId: (id: string | null) => {
+        set({ selectedSubscriptionId: id });
       },
 
       nextStep: () => {
@@ -118,6 +133,7 @@ export const useAdPostingStore = create<AdPostingStore>()(
         categoryArray: state.categoryArray,
         activeCategory: state.activeCategory,
         currentStep: state.currentStep,
+        selectedSubscriptionId: state.selectedSubscriptionId,
       }),
     }
   )

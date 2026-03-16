@@ -13,6 +13,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
 import { useRouter, useParams } from "next/navigation";
 import { useActivateFreeSubscription } from "@/hooks/useSubscriptions";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
 
 interface PlanCardProps {
   plan: {
@@ -48,6 +49,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
     useCreatePlanOneTimeCheckout();
   const { mutate: activateFree, isPending: isActivatePending } =
     useActivateFreeSubscription();
+  const fetchSubscriptions = useSubscriptionStore((state) => state.fetchSubscriptions);
 
   const isPending = isSubPending || isOneTimePending || isActivatePending;
 
@@ -72,6 +74,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
       activateFree(undefined, {
         onSuccess: () => {
           toast.success("Free plan activated successfully!");
+          fetchSubscriptions();
           router.push(`/${locale}/my-subscriptions`);
         },
         onError: (error: any) => {

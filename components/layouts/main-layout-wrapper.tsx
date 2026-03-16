@@ -94,15 +94,15 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
     <main className="min-h-[600px] relative flex flex-col bg-white dark:bg-gray-950">
       <div className="sticky w-full bg-white dark:bg-gray-900 top-0 z-50 flex flex-col items-center">
         {!shouldHideNavCompletely && <MobileAppStrip />}
-        <Container1080
+        <div
           className={cn(
-            "w-full flex px-4 xl:px-0  flex-col items-center",
+            "w-full max-w-[1180px] flex px-4 xl:px-0  flex-col items-center",
             shouldHideNavCompletely && "hidden",
           )}
         >
           <Navbar className={navbarClassName} />
           <CategoryNav className={categoryNavClassName} />
-        </Container1080>
+        </div>
       </div>
       <section className="w-full mx-auto flex-grow">{children}</section>
       <CommandMenu />

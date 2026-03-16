@@ -46,9 +46,12 @@ import { AD_SYSTEM_FIELDS } from "@/constants/ad.constants";
 import { removeUndefinedFields } from "@/utils/remove-undefined-fields";
 import PhoneNumberInput from "@/components/global/phone-number-input";
 import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import { CheckCircle2,  } from "lucide-react";
 import { FormSummaryItem } from "./FormSummaryItem";
 import PostStatusView, { PostStatus } from "./PostStatusView";
+import { useAdAvailability } from "@/hooks/useAdAvailability";
+import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
+import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
 
 export default function LeafCategoryContent() {
   const { localePath } = useLocale();
@@ -62,8 +65,9 @@ export default function LeafCategoryContent() {
     setActiveCategory,
     currentStep,
     setStep,
+    selectedSubscriptionId,
   } = useAdPostingStore((state) => state);
-  const { canFeatureAd, getAvailableFeaturedAdsCount } = useSubscriptionStore();
+  const { getAvailableFeaturedAdsCount } = useSubscriptionStore();
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt");
   const initialTitle = searchParams.get("title");
@@ -108,6 +112,7 @@ export default function LeafCategoryContent() {
     coordinates: { lat: number; lng: number };
   } | null>(null);
   const [postStatus, setPostStatus] = useState<PostStatus>("idle");
+  const { checkAvailability, getCompatibleSubscriptions, dialogProps } = useAdAvailability();
 
   // Fetch category by ID
   const {
@@ -130,14 +135,10 @@ export default function LeafCategoryContent() {
     return createPostAdSchema(category);
   }, [category]);
 
-  const adTypeCheck = useMemo(() => {
-    return category?.name && isJobCategory(category.name) ? "JOB" : "AD";
-  }, [category]);
-
   const availableFeaturedAds = useMemo(() => {
     if (!category) return 0;
-    return getAvailableFeaturedAdsCount(adTypeCheck, category.name);
-  }, [category, adTypeCheck, getAvailableFeaturedAdsCount]);
+    return getAvailableFeaturedAdsCount("AD", category.name);
+  }, [category, getAvailableFeaturedAdsCount]);
 
   const {
     control,
@@ -299,8 +300,45 @@ export default function LeafCategoryContent() {
     }
   };
 
-  // Handle form submission
   const onSubmit = async (data: FormValues) => {
+    // Determine adType and category details
+    const categoryName = categoryArray[0]?.name || "";
+
+    // If we already have a subscription selected in the store, use it
+    if (selectedSubscriptionId) {
+      await processAdSubmission(data, selectedSubscriptionId);
+      return;
+    }
+
+    // Fallback: If for some reason subscription was not selected (e.g. direct URL entry)
+    // Show the dialog here as a safety net
+    const compatibleSubs = getCompatibleSubscriptions(
+      categoryName,
+      leafCategoryId as string,
+    );
+
+    if (compatibleSubs.length > 0) {
+      // If only one sub is compatible, just use it
+      if (compatibleSubs.length === 1) {
+        await processAdSubmission(data, compatibleSubs[0]._id);
+        return;
+      }
+
+      // Otherwise, we might need a dialog fallback, but the user said "rather than in the post ad button end"
+      // So I'll just pick the first one and warn or toast?
+      // Actually, picking the first one is safer than failing.
+      await processAdSubmission(data, compatibleSubs[0]._id);
+      return;
+    }
+
+    // Final fallback: proceed without sub (likely to fail but keeps flow moving)
+    await processAdSubmission(data);
+  };
+
+  const processAdSubmission = async (
+    data: FormValues,
+    subscriptionId?: string,
+  ) => {
     // Extract image URLs from ImageItem[]
     const images = (data.images as ImageItem[]) || [];
     const imageUrls = images
@@ -426,6 +464,9 @@ export default function LeafCategoryContent() {
       // Convert extraFields array to Record<string, unknown> format
       extraFields: extraFields,
       adType: adType,
+      // Pass subscription ID if selected from dialog, AI flow or previous selection
+      subscriptionId:
+        subscriptionId || searchParams.get("subscriptionId") || undefined,
       // Only include organizationId if not posting as individual
       ...(isIndividual ? {} : { organizationId: organizationValue }),
     };
@@ -439,8 +480,11 @@ export default function LeafCategoryContent() {
       setStep(4);
       const response = await createAdMutation.mutateAsync(payload);
       router.push(localePath(`/success?id=${response.data._id}`));
-    } catch (error: unknown) {
-      console.error("Error creating ad", error);
+    } catch (error: any) {
+      console.error(
+        "Error creating ad:",
+        error.response?.data || error.message || error,
+      );
       setPostStatus("error");
     }
   };
@@ -499,6 +543,14 @@ export default function LeafCategoryContent() {
 
   return (
     <GoogleMapsProvider>
+      {/* Availability/Error Dialogs */}
+      {dialogProps.mode === "no_plans" && (
+        <NoActivePlansDialog {...dialogProps} />
+      )}
+      {dialogProps.mode === "insufficient" && (
+        <InsufficientAdsDialog {...dialogProps} />
+      )}
+
       <section className="w-full max-w-[888px] mx-auto relative">
         {/* Breadcrumbs */}
 

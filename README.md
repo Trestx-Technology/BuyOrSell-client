@@ -40,35 +40,26 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## 📂 Project Structure & Logic
 
-Comprehensive documentation of feature logic, codebase architecture, and domain flows can be found in the [docs/](file:///c:/Users/shivm/BuyOrSell-client/docs/) directory.
+Comprehensive documentation of the codebase architecture, feature logic, and domain flows can be found in the [docs/](file:///c:/Users/shivm/BuyOrSell-client/docs/) directory.
 
-### Key Logic Guides:
+### 📖 System Documentation:
+- 🗺️ **[Architecture & Folder Structure](file:///c:/Users/shivm/BuyOrSell-client/docs/codebase-architecture.md)**
+- 🛠️ **[Technology Stack](file:///c:/Users/shivm/BuyOrSell-client/docs/tech-stack.md)**
+- 🏗️ **[Project Structure](file:///c:/Users/shivm/BuyOrSell-client/docs/project-structure.md)**
+- 🔌 **[API Structure & Flow](file:///c:/Users/shivm/BuyOrSell-client/docs/api-structure.md)**
+- 🧱 **[Core Architecture Blocks](file:///c:/Users/shivm/BuyOrSell-client/docs/core-architecture.md)**
+- 📦 **[Application Modules](file:///c:/Users/shivm/BuyOrSell-client/docs/modules.md)**
+- 🌐 **[Environment Variables](file:///c:/Users/shivm/BuyOrSell-client/docs/environment-variables.md)**
 
-- 🏗️ **[Architecture & Folder Map](file:///c:/Users/shivm/BuyOrSell-client/docs/codebase-structure/index.md)**
+### 📝 Feature Logic Guides:
+
+- 🏗️ **[Architecture Overview](file:///c:/Users/shivm/BuyOrSell-client/docs/codebase-structure/index.md)**
 - 📝 **[Ad Posting Logic](file:///c:/Users/shivm/BuyOrSell-client/docs/ad-posting/index.md)**
 - 💼 **[Job Posting Logic](file:///c:/Users/shivm/BuyOrSell-client/docs/job-posting/index.md)**
 - 💳 **[Subscription & Eligibility](file:///c:/Users/shivm/BuyOrSell-client/docs/subscriptions/index.md)**
 - 🤖 **[AI Tokens & Setup](file:///c:/Users/shivm/BuyOrSell-client/docs/ai/index.md)**
 - 🤝 **[Connections & Messaging](file:///c:/Users/shivm/BuyOrSell-client/docs/connections/index.md)**
 - 🎫 **[Support Ticket System](file:///c:/Users/shivm/BuyOrSell-client/docs/tickets/index.md)**
-
----
-
-## 🏗️ Root Directory Overview
-
-- `actions/`: Server actions for Next.js.
-- `app/`: Next.js App Router (Pages, Layouts, and API Services).
-- `components/`: Reusable primitive and feature-based UI components.
-- `constants/`: Global configurations, icons, and static data.
-- `docs/`: Technical guides and feature logic documentation.
-- `hooks/`: Domain-specific custom React hooks (React Query & state).
-- `interfaces/`: Centralized TypeScript types and interfaces.
-- `lib/`: Third-party library configurations (Axios, Stripe, Firebase).
-- `public/`: Static assets (Logos, SVGs, Images).
-- `schemas/`: Zod validation schemas for forms and API payloads.
-- `stores/`: Zustand global state management.
-- `translations/`: Localization JSON files (en, ar).
-- `utils/`: Shared helper functions and formatters.
 
 ---
 
