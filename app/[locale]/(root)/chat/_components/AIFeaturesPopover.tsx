@@ -110,17 +110,17 @@ export function AIFeaturesPopover({
         </PopoverTrigger>
 
         <PopoverContent
-          className="w-80 p-0"
+          className="w-80 p-0 dark:bg-black dark:border-gray-800"
           align="end"
           side="top"
           sideOffset={8}
         >
           <div className="p-3">
             <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="h-4 w-4 text-purple-600" />
+              <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
               <Typography
                 variant="2xs-regular"
-                className="font-semibold text-gray-900"
+                className="font-semibold text-gray-900 dark:text-gray-100"
               >
                 AI Assistant
               </Typography>
@@ -131,7 +131,7 @@ export function AIFeaturesPopover({
                 <Button
                   key={feature.id}
                   variant="ghost"
-                  className="w-full justify-start p-2 h-auto hover:bg-purple-50 border border-transparent hover:border-purple-200 rounded-lg transition-all"
+                  className="w-full justify-start p-2 h-auto hover:bg-purple-50 dark:hover:bg-purple/10 border border-transparent hover:border-purple-200 dark:hover:border-purple/20 rounded-lg transition-all"
                   onClick={() => handleFeatureClick(feature)}
                   disabled={isLoading !== null}
                 >
@@ -142,32 +142,32 @@ export function AIFeaturesPopover({
                     <div className="flex-1 text-left min-w-0 overflow-hidden">
                       <Typography
                         variant="2xs-regular"
-                        className="font-medium text-gray-900 block text-xs break-words whitespace-normal"
+                        className="font-medium text-gray-900 dark:text-gray-100 block text-xs break-words whitespace-normal"
                       >
                         {feature.name}
                       </Typography>
                       <Typography
                         variant="2xs-regular"
-                        className="text-gray-500 text-xs break-words leading-relaxed whitespace-normal"
+                        className="text-gray-500 dark:text-gray-400 text-xs break-words leading-relaxed whitespace-normal"
                       >
                         {feature.description}
                       </Typography>
                     </div>
                     {isLoading === feature.id && (
-                      <Loader2 className="h-3 w-3 animate-spin text-purple-600 flex-shrink-0 mt-0.5" />
+                      <Loader2 className="h-3 w-3 animate-spin text-purple-600 dark:text-purple-400 flex-shrink-0 mt-0.5" />
                     )}
                   </div>
                 </Button>
               ))}
             </div>
 
-            <div className="mt-3 pt-2 border-t border-gray-100">
+            <div className="mt-3 pt-2 border-t border-gray-100 dark:border-gray-800">
               <Typography
                 variant="2xs-regular"
-                className="text-gray-400 text-center text-xs"
+                className="text-gray-400 dark:text-gray-500 text-center text-xs"
               >
                 Powered by{" "}
-                <span className="font-medium text-purple">BuyorSell</span>
+                <span className="font-medium text-purple dark:text-purple-400">BuyorSell</span>
               </Typography>
             </div>
           </div>

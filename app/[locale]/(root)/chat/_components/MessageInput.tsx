@@ -148,8 +148,8 @@ export function MessageInput({
   };
 
   return (
-    <div className="border-t border-gray-200  bg-white">
-      <div className="flex items-center gap-2 md:gap-3 bg-purple/10 p-4">
+    <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
+      <div className="flex items-center gap-2 md:gap-3 bg-purple/10 dark:bg-purple/5 p-4">
         <input
           type="file"
           ref={fileInputRef}

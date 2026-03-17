@@ -67,10 +67,10 @@ export default function ChatContent() {
   // Show loading state
   if (loading) {
     return (
-      <div className="h-dvh flex items-center justify-center">
+      <div className="h-dvh flex items-center justify-center bg-white dark:bg-black">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-500">{t.chat.loadingChats}</p>
+          <p className="text-gray-500 dark:text-gray-400">{t.chat.loadingChats}</p>
         </div>
       </div>
     );
@@ -79,7 +79,7 @@ export default function ChatContent() {
   // Show login prompt if not authenticated
   if (!isAuthenticated || !session.user) {
     return (
-      <div className="h-dvh">
+      <div className="h-dvh bg-white dark:bg-black">
         <LoginRequiredDialog
           onOpenChange={() => router.push(localePath("/login"))}
           open={true}
@@ -91,7 +91,7 @@ export default function ChatContent() {
   }
 
   return (
-    <Container1080 className="flex relative  h-screen min-h-[500px] border">
+    <Container1080 className="flex relative h-screen min-h-[500px] border border-gray-100 dark:border-gray-800">
       {/* Sidebar - Always visible on desktop, full width on mobile when no chat selected */}
 
       <ChatSidebar

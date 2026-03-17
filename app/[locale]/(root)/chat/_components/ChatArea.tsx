@@ -68,9 +68,9 @@ export function ChatArea({
   // Empty State - Only shown on desktop when no chat is selected
   if (!currentChat) {
     return (
-      <div className={cn("flex flex-1 items-center justify-center bg-gray-50", className)}>
+      <div className={cn("flex flex-1 items-center justify-center bg-gray-50 dark:bg-black", className)}>
         <div className="text-center">
-          <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-purple-100 dark:bg-purple/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
               className="w-8 h-8 text-purple-600"
               fill="none"
@@ -85,10 +85,10 @@ export function ChatArea({
               />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
             Select a chat to continue
           </h3>
-          <p className="text-gray-500 max-w-sm">
+          <p className="text-gray-500 dark:text-gray-400 max-w-sm">
             Choose a conversation from the left sidebar to start chatting with
             other users.
           </p>
@@ -107,7 +107,7 @@ export function ChatArea({
 
   // Chat Area - Shown when chat is selected
   return (
-    <div className={cn("flex-1 w-full flex flex-col bg-white relative", className)}>
+    <div className={cn("flex-1 w-full flex flex-col bg-white dark:bg-black relative", className)}>
       <ChatHeader
         currentChat={currentChat}
         onSearch={onSearch}
@@ -127,7 +127,7 @@ export function ChatArea({
       {currentChat.chatType === "organisation" && currentChat.organisation && (
         <Link
           href={`/organisations/${currentChat.organisation.organisationId}`}
-          className="border-b border-gray-200 bg-gray-50 p-4 hover:bg-gray-100 transition-colors"
+          className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-4 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
           <div className="flex items-center gap-4">
             {currentChat.organisation.orgImage && (
@@ -144,7 +144,7 @@ export function ChatArea({
               {currentChat.organisation.orgTradeName && (
                 <Typography
                   variant="body-small"
-                  className="font-semibold text-gray-900 mb-1 line-clamp-1"
+                  className="font-semibold text-gray-900 dark:text-gray-100 mb-1 line-clamp-1"
                 >
                   {currentChat.organisation.orgTradeName}
                 </Typography>
