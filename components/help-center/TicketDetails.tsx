@@ -12,16 +12,8 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, CheckCircle, XCircle, RotateCcw } from "lucide-react";
 import { formatDate } from "@/utils/format-date";
-import {
-  collection,
-  doc,
-  setDoc,
-  onSnapshot,
-  query,
-  limit,
-  serverTimestamp,
-} from "firebase/firestore";
-import { getFirebaseDb } from "@/lib/firebase/config";
+import { ChatService } from "@/lib/firebase/chat.service";
+import { Message } from "@/lib/firebase/types";
 
 interface TicketDetailsProps {
   ticketId: string;
@@ -35,41 +27,41 @@ export function TicketDetails({ ticketId }: TicketDetailsProps) {
 
   const [messages, setMessages] = useState<any[]>([]);
   const [inputText, setInputText] = useState("");
+  const [chatId, setChatId] = useState<string | null>(null);
 
+  // Initialize Chat ID and Presence
   useEffect(() => {
     if (!ticketId || !userId) return;
 
-    const db = getFirebaseDb();
-    // Subscribe to messages from tickets/{ticketId}/messages
-    const messagesRef = collection(db, "tickets", ticketId, "messages");
-    const q = query(messagesRef, limit(50));
+    const id = ChatService.generateChatId("ticket", ticketId, [userId, "support_team"]);
+    setChatId(id);
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const newMessages = snapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
+    // Initial visit: mark as read and set online
+    ChatService.visitChat(id, userId).catch(console.error);
 
-      // Sort chronologically (oldest -> newest)
-      newMessages.sort((a: any, b: any) => {
-        const getTime = (ts: any) => {
-          if (!ts) return 0;
-          if (ts.toDate) return ts.toDate().getTime();
-          if (ts instanceof Date) return ts.getTime();
-          if (typeof ts === "number") return ts;
-          if (ts.seconds) return ts.seconds * 1000;
-          return 0;
-        };
-        return getTime(a.createdAt) - getTime(b.createdAt);
-      });
+    const handleBeforeUnload = () => {
+      ChatService.setChatOnlineStatus(id, userId, false).catch(() => {});
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      ChatService.setChatOnlineStatus(id, userId, false).catch(console.error);
+    };
+  }, [ticketId, userId]);
+
+  // Subscribe to Messages via ChatService
+  useEffect(() => {
+    if (!chatId || !userId) return;
+
+    const unsubscribe = ChatService.subscribeToMessages(chatId, (newMessages: Message[]) => {
       // Map to UI format required by MessagesList
-      const uiMessages = newMessages.map((msg: any) => ({
+      const uiMessages = newMessages.map((msg) => ({
         id: msg.id,
         text: msg.text,
         time: msg.createdAt
           ? new Date(
-              msg.createdAt.toDate ? msg.createdAt.toDate() : msg.createdAt,
+              (msg.createdAt as any).toDate ? (msg.createdAt as any).toDate() : msg.createdAt,
             ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
           : "",
         isFromUser: msg.senderId === userId,
@@ -80,25 +72,17 @@ export function TicketDetails({ ticketId }: TicketDetailsProps) {
     });
 
     return () => unsubscribe();
-  }, [ticketId, userId]);
+  }, [chatId, userId]);
 
   const handleSendMessage = async () => {
-    if (!inputText.trim() || !ticketId || !userId) return;
+    if (!inputText.trim() || !chatId || !userId) return;
 
     try {
-      const db = getFirebaseDb();
-      const messagesRef = collection(db, "tickets", ticketId, "messages");
-      const messageRef = doc(messagesRef);
-
-      await setDoc(messageRef, {
-        id: messageRef.id,
-        ticketId,
+      await ChatService.sendMessage({
+        chatId,
         senderId: userId,
         text: inputText,
         type: "text",
-        isRead: false,
-        readBy: [],
-        createdAt: serverTimestamp(),
       });
       setInputText("");
     } catch (err) {
@@ -137,9 +121,9 @@ export function TicketDetails({ ticketId }: TicketDetailsProps) {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-100px)] lg:h-[calc(100vh-120px)] bg-white rounded-lg shadow-sm border overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-100px)] lg:h-[calc(100vh-120px)] bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-b bg-white gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 gap-4">
         <div className="flex items-center gap-3 overflow-hidden">
           <Button
             variant="ghost"
@@ -150,13 +134,13 @@ export function TicketDetails({ ticketId }: TicketDetailsProps) {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="min-w-0">
-            <h1 className="text-base sm:text-lg font-bold flex items-center gap-2 flex-wrap">
+            <h1 className="text-base sm:text-lg font-bold flex items-center gap-2 flex-wrap text-gray-900 dark:text-gray-100">
               <span className="truncate">
                 #{ticket.id.slice(0, 8)} - {ticket.subject}
               </span>
               <TicketStatusBadge status={ticket.status} />
             </h1>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               Created on {formatDate(ticket.createdAt as any)} &bull;{" "}
               <span className="capitalize">
                 {ticket.queryType.replace("_", " ")}
@@ -205,14 +189,14 @@ export function TicketDetails({ ticketId }: TicketDetailsProps) {
       {/* Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Ticket Info & Chat */}
-        <div className="flex-1 flex flex-col bg-gray-50 relative">
+        <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-950 relative">
           <div className="flex-1 overflow-y-auto">
             {/* Initial Description Block */}
-            <div className="p-4 mx-4 mt-4 bg-white rounded-lg shadow-sm border border-purple-100 mb-4">
-              <h3 className="text-xs uppercase font-semibold text-gray-400 mb-2">
+            <div className="p-4 mx-4 mt-4 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-purple-100 dark:border-purple-900/50 mb-4">
+              <h3 className="text-xs uppercase font-semibold text-gray-400 dark:text-gray-500 mb-2">
                 Original Request
               </h3>
-              <p className="text-gray-800 whitespace-pre-wrap">
+              <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
                 {ticket.message}
               </p>
             </div>
@@ -224,9 +208,9 @@ export function TicketDetails({ ticketId }: TicketDetailsProps) {
           </div>
 
           {/* Input Area */}
-          <div className="bg-white border-t">
+          <div className="bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
             {ticket.status === "closed" ? (
-              <div className="text-center text-gray-500 py-6 bg-gray-50">
+              <div className="text-center text-gray-500 dark:text-gray-400 py-6 bg-gray-50 dark:bg-gray-950/50">
                 This ticket is closed. Reopen to send messages.
               </div>
             ) : (

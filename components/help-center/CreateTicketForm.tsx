@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 
 interface FormData {
@@ -92,27 +93,38 @@ export function CreateTicketForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6 max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-sm border border-gray-100"
+      className="space-y-6 max-w-2xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800"
     >
-      <div>
-        <h2 className="text-xl font-bold mb-1 text-gray-900">
-          Create New Support Ticket
-        </h2>
-        <p className="text-sm text-gray-500">
-          Describe your issue and we'll help you resolve it.
-        </p>
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => router.push("/help-centre")}
+          type="button"
+          className="shrink-0 -ml-2"
+        >
+          <ArrowLeft className="h-6 w-6" />
+        </Button>
+        <div>
+          <h2 className="text-xl font-bold mb-1 text-gray-900 dark:text-gray-100">
+            Create New Support Ticket
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Describe your issue and we'll help you resolve it.
+          </p>
+        </div>
       </div>
 
       {isCustomPlanning && (
-        <div className="bg-purple-50 border border-purple-100 p-4 rounded-xl flex items-start gap-3">
-          <div className="size-8 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
-            <span className="text-purple-600 font-bold">!</span>
+        <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800 p-4 rounded-xl flex items-start gap-3">
+          <div className="size-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center shrink-0">
+            <span className="text-purple-600 dark:text-purple-400 font-bold">!</span>
           </div>
           <div>
-            <h4 className="text-purple-900 font-bold text-sm">
+            <h4 className="text-purple-900 dark:text-purple-100 font-bold text-sm">
               Enterprise Custom Planning
             </h4>
-            <p className="text-purple-700 text-xs mt-0.5">
+            <p className="text-purple-700 dark:text-purple-300 text-xs mt-0.5">
               This request will be marked as **Urgent** and prioritized by our
               administration team for tailored solution design.
             </p>
@@ -121,7 +133,7 @@ export function CreateTicketForm() {
       )}
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Query Type</label>
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Query Type</label>
         <QueryTypeSelector
           value={queryType}
           onChange={(val) => setValue("queryType", val)}
@@ -129,11 +141,11 @@ export function CreateTicketForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Subject</label>
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Subject</label>
         <Input
           {...register("subject", { required: "Subject is required" })}
           placeholder="Brief summary of the issue"
-          className={errors.subject ? "border-red-500" : ""}
+          className={errors.subject ? "border-red-500" : "dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"}
         />
         {errors.subject && (
           <span className="text-red-500 text-xs">
@@ -143,12 +155,12 @@ export function CreateTicketForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Message</label>
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
         <Textarea
           {...register("message", { required: "Message is required" })}
           placeholder="Describe your issue in detail..."
           rows={5}
-          className={`w-full ${errors.message ? "border-red-500" : ""}`}
+          className={`w-full ${errors.message ? "border-red-500" : "dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"}`}
         />
         {errors.message && (
           <span className="text-red-500 text-xs">
