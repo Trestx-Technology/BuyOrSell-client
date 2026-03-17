@@ -48,17 +48,17 @@ export const getConnectionsColumns = ({
 
                         return (
                               <Link href={localePath!(`/jobs/jobseeker/${profileId}?type=profileVisit`)} className="flex items-center gap-3 group">
-                                    <Avatar className="h-10 w-10 border border-gray-100 group-hover:border-purple/30 transition-colors">
+                                    <Avatar className="h-10 w-10 border border-gray-100 dark:border-gray-800 group-hover:border-purple/30 transition-colors">
                                           <AvatarImage src={otherUser.image} alt={displayName} />
-                                          <AvatarFallback className="bg-purple/5 text-purple text-xs">
+                                          <AvatarFallback className="bg-purple/5 dark:bg-purple/10 text-purple dark:text-purple-400 text-xs">
                                                 {displayName.charAt(0).toUpperCase()}
                                           </AvatarFallback>
                                     </Avatar>
                                     <div className="flex flex-col">
-                                          <Typography variant="sm-semibold" className="text-dark-blue group-hover:text-purple transition-colors">
+                                          <Typography variant="sm-semibold" className="text-dark-blue dark:text-gray-100 group-hover:text-purple dark:group-hover:text-purple-400 transition-colors">
                                                 {displayName}
                                           </Typography>
-                                          <Typography variant="xs-regular" className="text-grey-blue">
+                                          <Typography variant="xs-regular" className="text-grey-blue dark:text-gray-400">
                                                 Professional
                                           </Typography>
                                     </div>
@@ -70,7 +70,7 @@ export const getConnectionsColumns = ({
                   accessorKey: "status",
                   header: "Status",
                   cell: () => (
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-100 text-[10px] py-0.5 uppercase tracking-wider font-semibold">
+                        <Badge variant="outline" className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-100 dark:border-green-800/30 text-[10px] py-0.5 uppercase tracking-wider font-semibold">
                               Connected
                         </Badge>
                   ),
@@ -101,13 +101,13 @@ export const getConnectionsColumns = ({
                                           sellerImage={otherUser.image}
                                           variant="ghost"
                                           size="icon"
-                                          className="h-8 text-purple hover:bg-purple-100 transition-all shadow-sm"
+                                          className="h-8 text-purple dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/20 transition-all shadow-sm"
                                           iconSize={14}
                                     />
                                     <Button
                                           size="sm"
                                           variant="ghost"
-                                          className="h-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                          className="h-8 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                                           onClick={(e) => {
                                                 e.stopPropagation();
                                                 onRemove?.(id);
@@ -144,18 +144,18 @@ export const getReceivedColumns = ({
 
                         return (
                               <Link href={localePath!(`/jobs/jobseeker/${profileId}?type=profileVisit`)} className="flex items-center gap-3 group">
-                                    <Avatar className="h-10 w-10 border border-gray-100 group-hover:border-purple/30 transition-colors">
+                                    <Avatar className="h-10 w-10 border border-gray-100 dark:border-gray-800 group-hover:border-purple/30 transition-colors">
                                           <AvatarImage src={sender.image} alt={displayName} />
-                                          <AvatarFallback className="bg-purple/5 text-purple text-xs">
+                                          <AvatarFallback className="bg-purple/5 dark:bg-purple/10 text-purple dark:text-purple-400 text-xs">
                                                 {displayName.charAt(0).toUpperCase()}
                                           </AvatarFallback>
                                     </Avatar>
                                     <div className="flex flex-col">
-                                          <Typography variant="sm-semibold" className="text-dark-blue group-hover:text-purple transition-colors">
+                                          <Typography variant="sm-semibold" className="text-dark-blue dark:text-gray-100 group-hover:text-purple dark:group-hover:text-purple-400 transition-colors">
                                                 {displayName}
                                           </Typography>
-                                          <div className="flex items-center gap-1 text-[10px] text-grey-blue">
-                                                <ArrowDownLeft className="w-3 h-3 text-blue-500" />
+                                          <div className="flex items-center gap-1 text-[10px] text-grey-blue dark:text-gray-400">
+                                                <ArrowDownLeft className="w-3 h-3 text-blue-500 dark:text-blue-400" />
                                                 INCOMING REQUEST
                                           </div>
                                     </div>
@@ -167,7 +167,7 @@ export const getReceivedColumns = ({
                   accessorKey: "message",
                   header: "Message",
                   cell: ({ row }) => (
-                        <Typography variant="xs-regular" className="text-grey-blue italic truncate max-w-[200px]">
+                        <Typography variant="xs-regular" className="text-grey-blue dark:text-gray-400 italic truncate max-w-[200px]">
                               {row.original.message || "No message included"}
                         </Typography>
                   ),
@@ -204,7 +204,7 @@ export const getReceivedColumns = ({
                                     <Button
                                           size="sm"
                                           variant="outline"
-                                          className="h-8 text-red-500 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                                          className="h-8 text-red-500 border-red-200 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 hover:border-red-300"
                                           onClick={(e) => {
                                                 e.stopPropagation();
                                                 onReject?.(id);
@@ -239,18 +239,18 @@ export const getSentColumns = ({
 
                         return (
                               <Link href={localePath!(`/jobs/jobseeker/${profileId}?type=profileVisit`)} className="flex items-center gap-3 group">
-                                    <Avatar className="h-10 w-10 border border-gray-100 group-hover:border-purple/30 transition-colors">
+                                    <Avatar className="h-10 w-10 border border-gray-100 dark:border-gray-800 group-hover:border-purple/30 transition-colors">
                                           <AvatarImage src={receiver.image} alt={displayName} />
-                                          <AvatarFallback className="bg-purple/5 text-purple text-xs">
+                                          <AvatarFallback className="bg-purple/5 dark:bg-purple/10 text-purple dark:text-purple-400 text-xs">
                                                 {displayName.charAt(0).toUpperCase()}
                                           </AvatarFallback>
                                     </Avatar>
                                     <div className="flex flex-col">
-                                          <Typography variant="sm-semibold" className="text-dark-blue group-hover:text-purple transition-colors">
+                                          <Typography variant="sm-semibold" className="text-dark-blue dark:text-gray-100 group-hover:text-purple dark:group-hover:text-purple-400 transition-colors">
                                                 {displayName}
                                           </Typography>
-                                          <div className="flex items-center gap-1 text-[10px] text-grey-blue">
-                                                <ArrowUpRight className="w-3 h-3 text-orange-500" />
+                                          <div className="flex items-center gap-1 text-[10px] text-grey-blue dark:text-gray-400">
+                                                <ArrowUpRight className="w-3 h-3 text-orange-500 dark:text-orange-400" />
                                                 OUTGOING REQUEST
                                           </div>
                                     </div>
@@ -262,7 +262,7 @@ export const getSentColumns = ({
                   accessorKey: "status",
                   header: "Status",
                   cell: () => (
-                        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-100 text-[10px] py-0.5 uppercase tracking-wider font-semibold">
+                        <Badge variant="outline" className="bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 border-orange-100 dark:border-orange-800/30 text-[10px] py-0.5 uppercase tracking-wider font-semibold">
                               Pending
                         </Badge>
                   ),
@@ -276,7 +276,7 @@ export const getSentColumns = ({
                   id: "message",
                   header: "Message",
                   cell: ({ row }) => (
-                        <Typography variant="xs-regular" className="text-grey-blue italic truncate max-w-[200px]">
+                        <Typography variant="xs-regular" className="text-grey-blue dark:text-gray-400 italic truncate max-w-[200px]">
                               {row.original.message || "No message included"}
                         </Typography>
                   ),

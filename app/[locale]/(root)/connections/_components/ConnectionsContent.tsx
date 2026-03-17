@@ -143,13 +143,13 @@ export default function ConnectionsContent() {
 
       const renderEmptyState = (message: string) => (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <div className="w-16 h-16 bg-purple/10 rounded-full flex items-center justify-center mb-4">
-                        <Users className="w-8 h-8 text-purple" />
+                  <div className="w-16 h-16 bg-purple/10 dark:bg-purple/20 rounded-full flex items-center justify-center mb-4">
+                        <Users className="w-8 h-8 text-purple dark:text-purple-400" />
                   </div>
-                  <Typography variant="h3" className="text-dark-blue font-semibold mb-2">
+                  <Typography variant="h3" className="text-dark-blue dark:text-gray-100 font-semibold mb-2">
                         {message}
                   </Typography>
-                  <Typography variant="body-small" className="text-grey-blue max-w-xs">
+                  <Typography variant="body-small" className="text-grey-blue dark:text-gray-400 max-w-xs">
                         Expand your professional network to see more connections here.
                   </Typography>
             </div>
@@ -159,66 +159,75 @@ export default function ConnectionsContent() {
             <Container1080>
                   <MobileStickyHeader title="My Network" />
 
-                  <div className="px-4 py-8">
+                  <div className="px-4 py-8 min-h-screen bg-gray-50 dark:bg-gray-950">
                         <div className="mb-8">
-                              <H2 className="font-bold text-dark-blue mb-2">
+                              <H2 className="font-bold text-dark-blue dark:text-gray-100 mb-2">
                                     Professional Network
                               </H2>
-                              <Typography variant="body-small" className="text-grey-blue">
+                              <Typography variant="body-small" className="text-grey-blue dark:text-gray-400">
                                     Manage your professional connections and network requests.
                               </Typography>
                         </div>
 
                         <Tabs defaultValue="connections" className="w-full">
-                              <TabsList className="mb-6 flex justify-start border-b border-gray-200">
-                                    <TabsTrigger value="connections" className="relative pb-4 rounded-none border-b-2 border-transparent data-[state=active]:border-purple data-[state=active]:bg-transparent data-[state=active]:text-purple data-[state=active]:shadow-none data-[state=inactive]:border-transparent">
+                              <TabsList className="mb-8 p-1 bg-gray-100 dark:bg-gray-900/50 rounded-lg w-fit border border-transparent dark:border-gray-800">
+                                    <TabsTrigger 
+                                          value="connections" 
+                                          className="px-6 py-2 rounded-md transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple dark:data-[state=active]:text-purple-400 data-[state=active]:shadow-sm"
+                                    >
                                           Connections {acceptedConnections?.data?.total ? `(${acceptedConnections.data.total})` : ""}
                                     </TabsTrigger>
-                                    <TabsTrigger value="received" className="relative pb-4 rounded-none border-b-2 border-transparent data-[state=active]:border-purple data-[state=active]:bg-transparent data-[state=active]:text-purple data-[state=active]:shadow-none data-[state=inactive]:border-transparent">
-                                          Received Requests {receivedRequests?.data?.total ? `(${receivedRequests.data.total})` : ""}
+                                    <TabsTrigger 
+                                          value="received" 
+                                          className="px-6 py-2 rounded-md transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple dark:data-[state=active]:text-purple-400 data-[state=active]:shadow-sm"
+                                    >
+                                          Received {receivedRequests?.data?.total ? `(${receivedRequests.data.total})` : ""}
                                     </TabsTrigger>
-                                    <TabsTrigger value="sent" className="relative pb-4 rounded-none border-b-2 border-transparent data-[state=active]:border-purple data-[state=active]:bg-transparent data-[state=active]:text-purple data-[state=active]:shadow-none data-[state=inactive]:border-transparent">
-                                          Sent Requests {sentRequests?.data?.total ? `(${sentRequests.data.total})` : ""}
+                                    <TabsTrigger 
+                                          value="sent" 
+                                          className="px-6 py-2 rounded-md transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple dark:data-[state=active]:text-purple-400 data-[state=active]:shadow-sm"
+                                    >
+                                          Sent {sentRequests?.data?.total ? `(${sentRequests.data.total})` : ""}
                                     </TabsTrigger>
                               </TabsList>
 
                               {/* Connections Tab */}
                               <TabsContent value="connections">
-                                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                                          <Table<Connection>
-                                                data={acceptedConnections?.data?.items || []}
-                                                columns={connectionsColumns || []}
-                                                loading={isLoadingAccepted}
-                                                containerClassName="p-0 border-none shadow-none"
-                                          />
-                                          {!isLoadingAccepted && !acceptedConnections?.data?.items.length && renderEmptyState("No connections yet")}
-                                    </div>
+                                     <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+                                           <Table<Connection>
+                                                 data={acceptedConnections?.data?.items || []}
+                                                 columns={connectionsColumns || []}
+                                                 loading={isLoadingAccepted}
+                                                 containerClassName="p-0 border-none shadow-none"
+                                                 renderEmptyState={() => renderEmptyState("No connections yet")}
+                                           />
+                                     </div>
                               </TabsContent>
 
                               {/* Received Requests Tab */}
                               <TabsContent value="received">
-                                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                                          <Table<Connection>
-                                                data={receivedRequests?.data?.items || []}
-                                                columns={receivedColumns || []}
-                                                loading={isLoadingReceived}
-                                                containerClassName="p-0 border-none shadow-none"
-                                          />
-                                          {!isLoadingReceived && !receivedRequests?.data?.items.length && renderEmptyState("No pending requests")}
-                                    </div>
+                                     <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+                                           <Table<Connection>
+                                                 data={receivedRequests?.data?.items || []}
+                                                 columns={receivedColumns || []}
+                                                 loading={isLoadingReceived}
+                                                 containerClassName="p-0 border-none shadow-none"
+                                                 renderEmptyState={() => renderEmptyState("No pending requests")}
+                                           />
+                                     </div>
                               </TabsContent>
 
                               {/* Sent Requests Tab */}
                               <TabsContent value="sent">
-                                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                                          <Table<Connection>
-                                                data={sentRequests?.data?.items || []}
-                                                columns={sentColumns || []}
-                                                loading={isLoadingSent}
-                                                containerClassName="p-0 border-none shadow-none"
-                                          />
-                                          {!isLoadingSent && !sentRequests?.data?.items.length && renderEmptyState("No sent requests")}
-                                    </div>
+                                     <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+                                           <Table<Connection>
+                                                 data={sentRequests?.data?.items || []}
+                                                 columns={sentColumns || []}
+                                                 loading={isLoadingSent}
+                                                 containerClassName="p-0 border-none shadow-none"
+                                                 renderEmptyState={() => renderEmptyState("No sent requests")}
+                                           />
+                                     </div>
                               </TabsContent>
                         </Tabs>
                   </div>
