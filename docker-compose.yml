@@ -1,0 +1,14 @@
+services:
+  app:
+    image: ${DOCKER_IMAGE_NAME:-buyorsell-client}:${IMAGE_TAG:-latest}
+    container_name: buyorsell-client
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
