@@ -10,24 +10,34 @@ import { SelectInput } from "@/app/[locale]/(root)/post-ad/details/_components/S
 import { TextareaInput } from "@/app/[locale]/(root)/post-ad/details/_components/TextareaInput";
 import { DatePicker } from "./DatePicker";
 import {
-  SingleImageUpload,
-  SingleImageItem,
-} from "./SingleImageUpload";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { SingleImageUpload, SingleImageItem } from "./SingleImageUpload";
 import { BusinessHoursInput } from "./BusinessHoursInput";
 import { CertificatesInput } from "./CertificatesInput";
 import { ChipsInput } from "@/components/ui/chips-input";
 import { Typography } from "@/components/typography";
-import {
-  OrganizationType,
-  ORGANIZATION_TYPE_OPTIONS,
-} from "@/constants/enums";
+import { OrganizationType, ORGANIZATION_TYPE_OPTIONS } from "@/constants/enums";
+import { COUNTRY_OPTIONS } from "@/constants/country.constants";
 import {
   organizationSchema,
   type OrganizationFormData,
 } from "@/schemas/organization.schema";
 import { useLocale } from "@/hooks/useLocale";
 import { Organization } from "@/interfaces/organization.types";
-import { useEmirates } from "@/hooks/useLocations";
+import { useEmirates, useCountries } from "@/hooks/useLocations";
+import { cn } from "@/lib/utils";
 
 export interface OrganizationFormProps {
   initialData?: Organization;
@@ -46,15 +56,61 @@ export const OrganizationForm = ({
 }: OrganizationFormProps) => {
   const { locale, t } = useLocale();
   const { data: emirates = [], isLoading: isLoadingEmirates } = useEmirates();
+  const { data: countries = [], isLoading: isLoadingCountries } =
+    useCountries();
   const [logoImage, setLogoImage] = useState<SingleImageItem | null>(null);
-  const [tradeLicenseImage, setTradeLicenseImage] = useState<SingleImageItem | null>(null);
-  const [ownerDocsImage, setOwnerDocsImage] = useState<SingleImageItem | null>(null);
+  const [tradeLicenseImage, setTradeLicenseImage] =
+    useState<SingleImageItem | null>(null);
+  const [ownerDocsImage, setOwnerDocsImage] = useState<SingleImageItem | null>(
+    null,
+  );
   const [poaImage, setPoaImage] = useState<SingleImageItem | null>(null);
+  const [countrySearch, setCountrySearch] = useState("");
+  const [isCountryOpen, setIsCountryOpen] = useState(false);
 
   const emirateOptions = emirates.map((emirate) => ({
     value: emirate.emirate,
     label: locale === "ar" ? emirate.emirateAr : emirate.emirate,
   }));
+
+  // Merge static COUNTRY_OPTIONS with dynamic data from hook
+  // Use a map to ensure unique values by country code
+  const countryOptionsMap = new Map();
+
+  // Add static options first
+  COUNTRY_OPTIONS.forEach((option) => {
+    countryOptionsMap.set(option.value, {
+      value: option.value,
+      label: locale === "ar" ? option.labelAr : option.label,
+    });
+  });
+
+  // Supplement with dynamic data from API if available
+  if (countries.length > 0) {
+    countries.forEach((c) => {
+      // If code already exists, the static label might be better/translated
+      // But if it's new, add it
+      if (!countryOptionsMap.has(c.country)) {
+        countryOptionsMap.set(c.country, {
+          value: c.country,
+          label: locale === "ar" ? c.countryAr : c.country,
+        });
+      }
+    });
+  }
+
+  const countryOptions = Array.from(countryOptionsMap.values()).sort((a, b) => {
+    // Keep UAE at the top
+    if (a.value === "AE") return -1;
+    if (b.value === "AE") return 1;
+    return a.label.localeCompare(b.label);
+  });
+
+  const filteredCountryOptions = countryOptions.filter(
+    (option) =>
+      option.label.toLowerCase().includes(countrySearch.toLowerCase()) ||
+      option.value.toLowerCase().includes(countrySearch.toLowerCase()),
+  );
 
   const {
     control,
@@ -100,11 +156,13 @@ export const OrganizationForm = ({
   }, [logoImage, setValue]);
 
   useEffect(() => {
-    if (tradeLicenseImage?.presignedUrl) setValue("tradeLicenseUrl", tradeLicenseImage.presignedUrl);
+    if (tradeLicenseImage?.presignedUrl)
+      setValue("tradeLicenseUrl", tradeLicenseImage.presignedUrl);
   }, [tradeLicenseImage, setValue]);
 
   useEffect(() => {
-    if (ownerDocsImage?.presignedUrl) setValue("ownerDocsUrl", ownerDocsImage.presignedUrl);
+    if (ownerDocsImage?.presignedUrl)
+      setValue("ownerDocsUrl", ownerDocsImage.presignedUrl);
   }, [ownerDocsImage, setValue]);
 
   useEffect(() => {
@@ -185,7 +243,7 @@ export const OrganizationForm = ({
       const validEmirate = initialData.emirate
         ? emirates.find(
             (e) =>
-              e.emirate.toLowerCase() === initialData.emirate?.toLowerCase()
+              e.emirate.toLowerCase() === initialData.emirate?.toLowerCase(),
           )?.emirate || ""
         : "";
 
@@ -216,7 +274,7 @@ export const OrganizationForm = ({
         certificates,
         languages: initialData.languages || [],
       });
-      
+
       // Secondary update for selects after potential reset async behavior
       setTimeout(() => {
         if (validType) setValue("type", validType);
@@ -270,41 +328,107 @@ export const OrganizationForm = ({
                 name="country"
                 control={control}
                 render={({ field }) => (
-                  <TextInput
-                    value={field.value}
-                    onChange={field.onChange}
-                    placeholder={t.organizations.form.country}
-                    disabled
-                  />
+                  <Popover open={isCountryOpen} onOpenChange={setIsCountryOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className={cn(
+                          "w-full h-12 flex items-center justify-between bg-white dark:bg-gray-900",
+                          "border-[#D8B1FF] rounded-lg px-3 text-[#8B31E1] dark:text-[#D8B1FF] text-xs font-medium border",
+                          "hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors",
+                          errors.country && "border-red-500",
+                          isLoadingCountries && "opacity-50 cursor-not-allowed",
+                        )}
+                        disabled={isLoadingCountries}
+                      >
+                        <span>
+                          {countryOptions.find(
+                            (opt) => opt.value === field.value,
+                          )?.label || t.organizations.form.selectCountry}
+                        </span>
+                        <Search className="size-4 opacity-50" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="p-0 w-[var(--radix-popover-trigger-width)] bg-white dark:bg-gray-900 border-[#D8B1FF] dark:border-purple/50 overflow-hidden"
+                      align="start"
+                    >
+                      <div className="p-2 border-b dark:border-gray-800">
+                        <div className="relative">
+                          <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
+                          <input
+                            autoFocus
+                            placeholder={t.common.search}
+                            className="w-full pl-8 pr-3 py-2 text-xs bg-gray-50 dark:bg-gray-800 rounded-md outline-none focus:ring-1 focus:ring-purple/30 dark:text-gray-200"
+                            value={countrySearch}
+                            onChange={(e) => setCountrySearch(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="max-h-60 overflow-y-auto">
+                        {filteredCountryOptions.length > 0 ? (
+                          filteredCountryOptions.map((option) => (
+                            <button
+                              key={option.value}
+                              type="button"
+                              className={cn(
+                                "w-full text-left px-3 py-2 text-xs transition-colors",
+                                "hover:bg-purple/10 dark:hover:bg-purple/20",
+                                field.value === option.value
+                                  ? "bg-purple/10 text-purple font-medium"
+                                  : "text-gray-700 dark:text-gray-300",
+                              )}
+                              onClick={() => {
+                                field.onChange(option.value);
+                                if (option.value !== "AE") {
+                                  setValue("emirate", "");
+                                }
+                                setIsCountryOpen(false);
+                                setCountrySearch("");
+                              }}
+                            >
+                              {option.label}
+                            </button>
+                          ))
+                        ) : (
+                          <div className="p-4 text-center text-xs text-gray-500">
+                            No country found
+                          </div>
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 )}
               />
             </FormField>
           </div>
 
-          <FormField
-            label={t.organizations.form.emirate}
-            htmlFor="emirate"
-            required
-            error={errors.emirate?.message}
-          >
-            <Controller
-              name="emirate"
-              control={control}
-              render={({ field }) => (
-                <SelectInput
-                  value={field.value}
-                  onChange={field.onChange}
-                  options={emirateOptions}
-                  placeholder={
-                    isLoadingEmirates
-                      ? t.organizations.form.loadingEmirates
-                      : t.organizations.form.selectEmirate
-                  }
-                  disabled={isLoadingEmirates}
-                />
-              )}
-            />
-          </FormField>
+          {watch("country") === "AE" && (
+            <FormField
+              label={t.organizations.form.emirate}
+              htmlFor="emirate"
+              required
+              error={errors.emirate?.message}
+            >
+              <Controller
+                name="emirate"
+                control={control}
+                render={({ field }) => (
+                  <SelectInput
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    options={emirateOptions}
+                    placeholder={
+                      isLoadingEmirates
+                        ? t.organizations.form.loadingEmirates
+                        : t.organizations.form.selectEmirate
+                    }
+                    disabled={isLoadingEmirates}
+                  />
+                )}
+              />
+            </FormField>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
@@ -698,7 +822,10 @@ export const OrganizationForm = ({
                 <TextareaInput
                   value={field.value || ""}
                   onChange={field.onChange}
-                  placeholder={t.organizations.form.enterDescription || "Describe your organization..."}
+                  placeholder={
+                    t.organizations.form.enterDescription ||
+                    "Describe your organization..."
+                  }
                   rows={5}
                   showAI={true}
                   categoryPath={`Organization > ${watch("type") || "About"}`}
@@ -789,8 +916,8 @@ export const OrganizationForm = ({
                 ? t.organizations.form.updating
                 : t.organizations.form.creating
               : isEdit
-              ? t.organizations.form.updateOrganization
-              : t.organizations.form.createOrganization)}
+                ? t.organizations.form.updateOrganization
+                : t.organizations.form.createOrganization)}
         </Button>
       </div>
     </form>
