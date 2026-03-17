@@ -11,7 +11,7 @@ import type { Chat } from "@/app/[locale]/(root)/chat/_components/ChatSidebar";
 import { AD } from "@/interfaces/ad";
 import { useSendNotification } from "@/hooks/useNotifications";
 
-export function useChat() {
+export function useChat(customBasePath?: string, customBackPath?: string) {
   const { t, localePath } = useLocale();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -340,11 +340,12 @@ export function useChat() {
     handleChatTypeChange: setChatType,
     handleChatSelect: (id: string, type?: ChatType) => {
       const sel = chats.find((c) => c.id === id);
+      const basePath = customBasePath || "/chat";
       router.push(
-        `${localePath("/chat")}?chatId=${id}&type=${type || sel?.type || chatType}`,
+        `${localePath(basePath)}?chatId=${id}&type=${type || sel?.type || chatType}`,
       );
     },
-    handleBack: () => router.push(localePath("/chat")),
+    handleBack: () => router.push(localePath(customBackPath || customBasePath || "/chat")),
     handleSendMessage,
     handleMessageChange: (val: string) => {
       setMessage(val);
@@ -388,7 +389,7 @@ export function useChat() {
       }
     },
     handleAIMessageGenerated: setMessage,
-    handleBackToSidebar: () => router.push(localePath("/chat")),
+    handleBackToSidebar: () => router.push(localePath(customBasePath || "/chat")),
     handleSearch: () => {},
     handleCall: () => {},
     handleMoreOptions: () => {},

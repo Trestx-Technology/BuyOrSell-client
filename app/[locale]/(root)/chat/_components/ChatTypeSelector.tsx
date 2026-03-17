@@ -3,7 +3,7 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUrlParams } from "@/hooks/useUrlParams";
 
-export type ChatType = "ad" | "dm" | "organisation";
+export type ChatType = "ad" | "dm" | "organisation" | "ticket";
 
 interface ChatTypeSelectorProps {
   value: ChatType;
