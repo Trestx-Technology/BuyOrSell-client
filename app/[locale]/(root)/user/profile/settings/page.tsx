@@ -16,7 +16,7 @@ const SettingsPage = () => {
   const router = useRouter();
 
   return (
-    <Container1080>
+    <Container1080 className="min-h-dvh">
       <MobileStickyHeader title={t.user.settings.pageTitle} />
       <div className="px-4 py-8 space-y-6">
         <Breadcrumbs

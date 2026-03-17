@@ -46,30 +46,33 @@ const BlockedUsersPage = () => {
 
   // Transform API data to display format
   const blockedUsers: DisplayBlockedUser[] = useMemo(() => {
-    if (!blockedUsersData?.data) return [];
+    if (!blockedUsersData?.data || !Array.isArray(blockedUsersData.data)) return [];
 
     return blockedUsersData.data.map((blockRecord: BlockedUser) => {
       const blockedUser = blockRecord.blocked;
+
+      if (!blockedUser) return null;
+
       const name =
         blockedUser.firstName && blockedUser.lastName
           ? `${blockedUser.firstName} ${blockedUser.lastName}`
           : blockedUser.name || blockedUser.email || "Unknown User";
       const email = blockedUser.email || "";
-      const company = ""; // Company info not available in API response
+      const company = blockRecord.organization || ""; 
       const reason = blockRecord.reason || "No reason provided";
       const blockedDate = blockRecord.createdAt
         ? formatDate(blockRecord.createdAt)
         : "Unknown date";
 
       return {
-        id: blockRecord._id, // Use block record _id for unblocking
+        id: blockRecord._id,
         name,
         email,
         company,
         reason,
         blockedDate,
       };
-    });
+    }).filter(Boolean) as DisplayBlockedUser[];
   }, [blockedUsersData]);
 
   const filteredUsers = blockedUsers.filter(
@@ -149,7 +152,7 @@ const BlockedUsersPage = () => {
   };
 
   return (
-    <Container1080>
+    <Container1080 className="min-h-dvh">
       <MobileStickyHeader title={t.user.blockedUsers.pageTitle} />
       <div className="p-4 bg-gray-100 mb-4 rounded-lg block sm:hidden">
         <h3 className="text-sm text-black font-semibold mb-2 drop-shadow-lg">

@@ -7,29 +7,30 @@ import type { User } from "@/interfaces/user.types";
 
 export interface BlockedUser {
   _id: string;
-  blocker: User;
+  blocker: string | User;
   blocked: User;
   reason?: string;
+  organization?: string | null;
   createdAt?: string;
   updatedAt?: string;
   __v?: number;
 }
 
 export interface BlockedUserResponse {
-  statusCode: number;
-  timestamp: string;
+  statusCode?: number;
+  timestamp?: string;
   message?: string;
   data: BlockedUser;
 }
 
 export interface BlockedUsersListResponse {
-  statusCode: number;
-  timestamp: string;
+  statusCode?: number;
+  timestamp?: string;
   message?: string;
   data: BlockedUser[];
   total?: number;
-  page?: number;
-  limit?: number;
+  page?: number | null;
+  limit?: number | null;
 }
 
 export interface IsBlockedResponse {
