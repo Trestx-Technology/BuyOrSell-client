@@ -6,7 +6,7 @@ import { cn } from "../../lib/utils";
 import { Loader2 } from "lucide-react";
 
 export const buttonVariants = cva(
-  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed  [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300",
+  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0 dark:ring-offset-neutral-950 dark:focus-visible:ring-neutral-300 hover:scale-105 active:scale-95",
   {
     variants: {
       variant: {
@@ -135,8 +135,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         "bg-white dark:bg-gray-800 text-[#C1C1C1] border-[#C1C1C1] border-2 cursor-not-allowed opacity-60",
           variant === "primary" &&
             "bg-grey-blue/20 text-grey-blue cursor-not-allowed opacity-60",
-          // Remove hover effects for disabled state
-          "hover:bg-purple/90 hover:bg-purple/10 active:bg-purple/80 active:bg-purple/20 hover:bg-primary-300 hover:bg-primary-50"
+          // Remove hover effects and scaling for disabled state
+          "hover:bg-purple/90 hover:bg-purple/10 active:bg-purple/80 active:bg-purple/20 hover:bg-primary-300 hover:bg-primary-50 hover:scale-100 active:scale-100"
         )
       : "";
 
