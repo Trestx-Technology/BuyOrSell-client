@@ -59,13 +59,13 @@ export default function ProfessionalCard({
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      className="bg-white w-full flex flex-col items-center gap-4 rounded-2xl p-4 hover:shadow-xl border border-[#E2E2E2] transition-all duration-300 space-y-4"
+      className="bg-white dark:bg-zinc-900 w-full flex flex-col items-center gap-4 rounded-2xl p-4 hover:shadow-xl border border-[#E2E2E2] dark:border-zinc-800 transition-all duration-300 space-y-4"
     >
       <div className="flex-1 flex flex-col items-center justify-between gap-2 group rounded-2xl relative">
 
       {/* Profile Picture */}
         <div className="relative">
-        <div className="size-24 bg-gradient-to-br from-purple/20 to-purple/10 rounded-full flex items-center justify-center overflow-hidden border-4 border-white shadow-lg ring-2 ring-purple/10 group-hover:ring-purple/20 transition-all">
+        <div className="size-24 bg-gradient-to-br from-purple/20 to-purple/10 rounded-full flex items-center justify-center overflow-hidden border-4 border-white dark:border-zinc-800 shadow-lg ring-2 ring-purple/10 group-hover:ring-purple/20 transition-all">
             {photoUrl && !imgError ? (
             <Image
               src={photoUrl}
@@ -88,7 +88,7 @@ export default function ProfessionalCard({
         ></Link>
         <Typography
           variant="h3"
-          className="line-clamp-2 max-w-[220px] text-dark-blue font-bold text-lg text-center group-hover:text-purple transition-colors cursor-pointer line-clamp-1"
+          className="line-clamp-2 max-w-[220px] text-dark-blue dark:text-zinc-100 font-bold text-lg text-center group-hover:text-purple transition-colors cursor-pointer line-clamp-1"
         >
           {name}
         </Typography>
@@ -96,7 +96,7 @@ export default function ProfessionalCard({
       {/* Headline */}
       {headline && (
           <H6
-            className="text-grey-blue line-clamp-2 max-w-[220px] text-xs text-center line-clamp-1"
+            className="text-grey-blue dark:text-zinc-400 line-clamp-2 max-w-[220px] text-xs text-center line-clamp-1"
         >
           {headline}
           </H6>
@@ -109,7 +109,7 @@ export default function ProfessionalCard({
           stroke="currentColor"
           className="w-4 h-4 text-grey-blue"
         />
-          <H6 className="text-grey-blue text-xs">
+          <H6 className="text-grey-blue dark:text-zinc-400 text-xs">
           {location}
           </H6>
         </div>
