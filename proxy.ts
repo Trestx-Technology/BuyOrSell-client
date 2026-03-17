@@ -12,7 +12,7 @@ export async function proxy(request: NextRequest) {
   // 1. Basic Locale Check
   // Check if there is any supported locale in the pathname
   const pathnameHasLocale = locales.some(
-    (locale) => pathname.startsWith(\`/\${locale}/\`) || pathname === \`/\${locale}\`,
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   );
 
   // If pathname already has a locale, allow the request to proceed
@@ -52,7 +52,7 @@ export async function proxy(request: NextRequest) {
   if (userId && !isHaltedPage && !pathname.startsWith("/api")) {
     try {
       const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-      const res = await fetch(\`\${BACKEND_URL}/users/user/\${userId}/status\`, {
+      const res = await fetch(`${BACKEND_URL}/users/user/${userId}/status`, {
         next: { revalidate: 60 } // Cache for 1 minute
       } as any);
 
@@ -62,11 +62,11 @@ export async function proxy(request: NextRequest) {
 
         if (status === "BLOCKED" || status === "BANNED" || status === "SUSPENDED") {
           const currentLocale = locales.find(
-            (l) => pathname.startsWith(\`/\${l}/\`) || pathname === \`/\${l}\`
+            (l) => pathname.startsWith(`/${l}/`) || pathname === `/${l}`
           ) || getLocale(request);
           
           const url = request.nextUrl.clone();
-          url.pathname = \`/\${currentLocale}/account-halted\`;
+          url.pathname = `/${currentLocale}/account-halted`;
           return NextResponse.redirect(url);
         }
       }
@@ -77,7 +77,7 @@ export async function proxy(request: NextRequest) {
 
   // 3. Double-check: safeguard to prevent multiple redirects
   const hasLocalePrefix = locales.some(
-    (locale) => pathname.startsWith(\`/\${locale}/\`) || pathname === \`/\${locale}\`,
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`,
   );
 
   if (hasLocalePrefix) {
@@ -86,7 +86,7 @@ export async function proxy(request: NextRequest) {
 
   // 4. Redirect with detected locale
   const locale = getLocale(request);
-  request.nextUrl.pathname = \`/\${locale}\${pathname}\`;
+  request.nextUrl.pathname = `/${locale}${pathname}`;
 
   return NextResponse.redirect(request.nextUrl);
 }
