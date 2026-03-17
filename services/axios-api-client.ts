@@ -371,8 +371,8 @@ axiosInstance.interceptors.request.use(
       }
     }
 
-    if (token && !isTokenExpired(token)) {
-      setAuthHeader(config, token);
+    if (token) {
+      setAuthHeader(config, token as string);
     }
 
     // 3. Add emirate context (for protected endpoints)
@@ -413,7 +413,7 @@ axiosInstance.interceptors.response.use(
 
     if (!error.response && isConnectionError(error)) {
       refreshPromise = null;
-      redirectToNoInternet();
+      // redirectToNoInternet();
       return Promise.reject(error);
     }
 
@@ -431,7 +431,7 @@ axiosInstance.interceptors.response.use(
       if (originalRequest._retry) {
         if (!isRedirecting) {
           void handleLogoutAndRedirect();
-          toast.error("Session expired. Please log in again.");
+          // toast.error("Session expired. Please log in again.");
         }
         return Promise.reject(error);
       }
@@ -492,7 +492,7 @@ axiosInstance.interceptors.response.use(
       !window.location.pathname.includes("/no-internet") &&
       !skipToast
     ) {
-      toast.error(errorResponse.message);
+      // toast.error(errorResponse.message);
     }
 
     return Promise.reject(errorResponse);

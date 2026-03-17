@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
 import { AppStoreButtons } from "./app-store-buttons";
 import {
@@ -29,7 +30,6 @@ import { Skeleton } from "../ui/skeleton";
 import { ShareDialog } from "../ui/share-dialog";
 import { slugify } from "@/utils/slug-utils";
 import { ICONS } from "@/constants/icons";
-import { usePathname } from "next/navigation";
 import { PAGES_WITHOUT_NAV, shouldShowComponent } from "@/constants/layout.constants";
 
 interface FooterProps {
@@ -46,11 +46,13 @@ export function Footer({ className }: FooterProps) {
     return shouldShowComponent(pathname || "", PAGES_WITHOUT_NAV);
   }, [pathname]);
 
+
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (shouldHideFooter) return null;
+  if (shouldHideFooter || pathname.includes("/coming-soon")) return null;
 
   return (
     <footer
