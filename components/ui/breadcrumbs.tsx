@@ -54,7 +54,7 @@ const Breadcrumbs = React.forwardRef<HTMLDivElement, BreadcrumbsProps>(
     };
 
     const defaultSeparator = (
-      <ChevronsRight className="h-5 w-5 text-[#8A8A8A]" aria-hidden="true" />
+      <ChevronsRight className="h-5 w-5 text-[#8A8A8A] dark:text-gray-500" aria-hidden="true" />
     );
 
     const displayItems = items.map((item) => ({
@@ -94,7 +94,7 @@ const Breadcrumbs = React.forwardRef<HTMLDivElement, BreadcrumbsProps>(
                   onItemClick({ id: "home", label: homeLabel }, 0);
                 }
               }}
-              className="flex items-center justify-center w-fit text-[#8A8A8A] hover:text-[#8B31E1] transition-colors duration-200 rounded"
+              className="flex items-center justify-center w-fit text-[#8A8A8A] dark:text-gray-400 hover:text-[#8B31E1] dark:hover:text-purple-400 transition-colors duration-200 rounded"
               aria-label={homeLabel}
             >
               <Home className="w-4 h-4" /> &nbsp; Home &nbsp;
@@ -110,7 +110,7 @@ const Breadcrumbs = React.forwardRef<HTMLDivElement, BreadcrumbsProps>(
           {showSelectCategoryLink && (
             <Link
               href={selectCategoryHref}
-              className="flex items-center gap-1 font-normal text-[#8A8A8A] hover:text-purple cursor-pointer transition-colors duration-200 rounded px-1 whitespace-nowrap flex-shrink-0"
+              className="flex items-center gap-1 font-normal text-[#8A8A8A] dark:text-gray-400 hover:text-purple dark:hover:text-purple-400 cursor-pointer transition-colors duration-200 rounded px-1 whitespace-nowrap flex-shrink-0"
             >
               {selectCategoryLabel} <ChevronsRight className="w-5 h-5" />
             </Link>
@@ -125,7 +125,7 @@ const Breadcrumbs = React.forwardRef<HTMLDivElement, BreadcrumbsProps>(
             return (
               <React.Fragment key={item.id || index}>
                 {isEllipsis ? (
-                  <span className="flex items-center gap-1 font-normal text-[#8A8A8A] px-1 whitespace-nowrap flex-shrink-0">
+                  <span className="flex items-center gap-1 font-normal text-[#8A8A8A] dark:text-gray-500 px-1 whitespace-nowrap flex-shrink-0">
                     <span>{item.label}</span>
                   </span>
                 ) : (
@@ -137,8 +137,8 @@ const Breadcrumbs = React.forwardRef<HTMLDivElement, BreadcrumbsProps>(
                     className={cn(
                       "flex items-center gap-1 font-normal cursor-pointer transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8B31E1] focus:ring-opacity-50 rounded px-1 whitespace-nowrap flex-shrink-0",
                       isActive
-                        ? "text-[#8B31E1] font-semibold"
-                        : "text-[#8A8A8A] hover:text-purple"
+                        ? "text-[#8B31E1] dark:text-purple-400 font-semibold"
+                        : "text-[#8A8A8A] dark:text-gray-400 hover:text-purple dark:hover:text-purple-400"
                     )}
                   >
                     <span>{item.label}</span>
