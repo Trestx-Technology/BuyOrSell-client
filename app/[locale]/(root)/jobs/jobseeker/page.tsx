@@ -21,6 +21,7 @@ import { defaultJobseekerFilters } from "@/constants/job.constants";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useJobSubcategories } from "@/hooks/useCategories";
 import { useGetAllSkills } from "@/hooks/useSkills";
+import { useEmirates } from "@/hooks/useLocations";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { useUrlParams } from "@/hooks/useUrlParams";
 import { NoDataCard } from "@/components/global/fallback-cards";
@@ -147,6 +148,9 @@ export default function JobseekersPage() {
     limit: 1000, // Get a large number of skills
   });
 
+  // Fetch Emirates for Location filter
+  const { data: emiratesData } = useEmirates();
+
   // Build filter config with additional filters for jobseeker search
   const filterConfig = useMemo(() => {
     const industryOptions =
@@ -161,13 +165,15 @@ export default function JobseekersPage() {
         label: skill.name,
       })) || [];
 
+    const locationOptions =
+      emiratesData?.map((emirate) => ({
+        value: emirate.emirate.toLowerCase(),
+        label: emirate.emirate,
+      })) || defaultJobseekerFilters[0].options;
+
     // Mark first 5 filters as static (visible outside), rest go in dialog
     return [
       // First 5 filters - visible outside
-      {
-        ...defaultJobseekerFilters[0], // location
-        isStatic: true,
-      },
       {
         key: "minExp",
         label: "Min Experience",
@@ -220,7 +226,7 @@ export default function JobseekersPage() {
         isStatic: false,
       })),
     ];
-  }, [industriesData, skillsData]);
+  }, [industriesData, skillsData, emiratesData]);
 
   // Build API params for jobseeker search
   const searchParams_api = useMemo(() => {
@@ -410,7 +416,7 @@ export default function JobseekersPage() {
           <Button
             icon={<ChevronLeft />}
             iconPosition="left"
-            className="bg-white text-purple w-8 rounded-full"
+            className="bg-white dark:bg-zinc-800 text-purple w-8 rounded-full"
             size={"icon-sm"}
           />
           <Button
@@ -427,7 +433,7 @@ export default function JobseekersPage() {
           placeholder={"Search jobseekers..."}
           value={localSearchQuery}
           onChange={(e) => setLocalSearchQuery(e.target.value)}
-          className="pl-10 bg-gray-100 border-0"
+          className="pl-10 bg-gray-100 dark:bg-zinc-800 dark:text-zinc-100 border-0"
         />
       </div>
 
@@ -438,7 +444,7 @@ export default function JobseekersPage() {
 
         {/* Page Header */}
         <div className="flex items-center justify-between mb-6 px-4">
-          <Typography variant="md-black-inter" className="font-semibold">
+          <Typography variant="md-black-inter" className="font-semibold text-black dark:text-zinc-100">
             {categoryName} in Dubai ({jobseekers.length})
           </Typography>
 
@@ -492,7 +498,7 @@ export default function JobseekersPage() {
         <div className="space-y-6">
           {isLoading ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">Loading jobseekers...</p>
+              <p className="text-gray-500 dark:text-zinc-400 text-lg">Loading jobseekers...</p>
             </div>
           ) : jobseekers.length > 0 ? (
             <div

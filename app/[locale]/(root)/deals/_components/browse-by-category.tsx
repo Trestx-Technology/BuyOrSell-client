@@ -69,7 +69,7 @@ export const BrowseByCategory: React.FC<BrowseByCategoryProps> = ({
       <div className="space-y-4 px-4 sm:px-0">
         <Typography
           variant="body-small"
-          className="text-white/70 font-medium font-inter"
+          className="text-zinc-600 dark:text-zinc-400 font-medium font-inter"
         >
           Browse by Category
         </Typography>
@@ -86,13 +86,13 @@ export const BrowseByCategory: React.FC<BrowseByCategoryProps> = ({
     <div className="space-y-4 px-4 sm:px-0">
       <Typography
         variant="body-small"
-        className="text-white/70 font-medium font-inter"
+        className="text-zinc-600 dark:text-zinc-400 font-medium font-inter"
       >
         Browse by Category
       </Typography>
 
       <CarouselWrapper
-        shadowColorClassName="from-[#020617]"
+        shadowColorClassName="from-gray-50 dark:from-gray-950"
         className="pb-2"
         containerClassName="gap-3"
       >
@@ -103,7 +103,7 @@ export const BrowseByCategory: React.FC<BrowseByCategoryProps> = ({
             "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-200 whitespace-nowrap",
             !selectedCategory
               ? "bg-purple border-purple text-white"
-              : "bg-transparent border-white/20 text-white/70 hover:border-white/40 hover:text-white"
+              : "bg-transparent border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700 hover:text-zinc-900 dark:hover:text-white"
           )}
         >
           <span className="text-sm font-semibold">{getLabel()}</span>
@@ -112,7 +112,7 @@ export const BrowseByCategory: React.FC<BrowseByCategoryProps> = ({
               "text-[10px] px-1.5 py-0.5 rounded-md font-bold",
               !selectedCategory
                 ? "bg-white text-purple"
-                : "bg-white/20 text-white"
+                : "bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
             )}
           >
             {totalAds}
@@ -135,14 +135,14 @@ export const BrowseByCategory: React.FC<BrowseByCategoryProps> = ({
                 "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-200 whitespace-nowrap",
                 isActive
                   ? "bg-purple border-purple text-white"
-                  : "bg-transparent border-white/20 text-white/70 hover:border-white/40 hover:text-white"
+                  : "bg-transparent border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700 hover:text-zinc-900 dark:hover:text-white"
               )}
             >
               <span className="text-sm font-semibold">{displayName}</span>
               <span
                 className={cn(
                   "text-[10px] px-1.5 py-0.5 rounded-md font-bold",
-                  isActive ? "bg-white text-purple" : "bg-white/20 text-white"
+                  isActive ? "bg-white text-purple" : "bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
                 )}
               >
                 {count}

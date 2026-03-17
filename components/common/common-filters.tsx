@@ -11,6 +11,8 @@ import { GlobalMoreFilters } from "./global-more-filters";
 import { FilterControl, FilterConfig } from "./filter-control";
 import { useUrlParams } from "@/hooks/useUrlParams";
 import { CarouselWrapper } from "../global/carousel-wrapper";
+import { useEmirates } from "@/hooks/useLocations";
+import { SearchableDropdownInput } from "@/app/[locale]/(root)/post-ad/details/_components/SearchableDropdownInput";
 
 export interface CommonFiltersProps {
       filters: Record<string, any>; // Current applied filters
@@ -49,6 +51,15 @@ export const CommonFilters = ({
             updateUrlParam(key, value);
             onStaticFilterChange(key, value);
       };
+
+      // Fetch Emirates
+      const { data: emiratesData } = useEmirates();
+      const locationOptions = React.useMemo(() => {
+            return emiratesData?.map((emirate) => ({
+                  value: emirate.emirate.toLowerCase(),
+                  label: emirate.emirate,
+            })) || [];
+      }, [emiratesData]);
 
       // Initialize from URL on mount
       useEffect(() => {
@@ -128,7 +139,7 @@ export const CommonFilters = ({
       return (
             <Card
                   className={cn(
-                        "shadow-none pl-4 sm:pl-0 bg-transparent sm:bg-white dark:sm:bg-gray-950 sm:shadow-sm border-none sm:border sm:border-gray-200 dark:sm:border-gray-800 rounded-xl",
+                        "shadow-none pl-4 sm:pl-0 bg-transparent sm:bg-white dark:sm:bg-zinc-900 sm:shadow-sm border-none sm:border sm:border-gray-200 dark:sm:border-zinc-800 rounded-xl",
                         className
                   )}
             >
@@ -137,29 +148,34 @@ export const CommonFilters = ({
                               <div className="flex gap-3">
                                     {/* Search Bar */}
                                     {onSearchChange && (
-                                          <Input
-                                                leftIcon={<Search className="h-4 w-4" />}
-                                                placeholder={searchPlaceholder}
-                                                value={localSearchQuery}
-                                                onChange={(e) => setLocalSearchQuery(e.target.value)}
-                                                className={cn(
-                                                      "pl-10 border-gray-200 dark:border-gray-800 flex-1 h-11",
-                                                      "bg-white dark:bg-gray-900 text-foreground placeholder:text-muted-foreground focus-visible:ring-purple/20"
-                                                )}
-                                          />
+                                          <div className="flex-1">
+                                                <Input
+                                                      leftIcon={<Search className="h-4 w-4" />}
+                                                      placeholder={searchPlaceholder}
+                                                      value={localSearchQuery}
+                                                      onChange={(e) => setLocalSearchQuery(e.target.value)}
+                                                      className={cn(
+                                                            "pl-10 border-gray-200 dark:border-zinc-800 h-11",
+                                                            "bg-white dark:bg-zinc-900 text-foreground placeholder:text-muted-foreground focus-visible:ring-purple/20"
+                                                      )}
+                                                />
+                                          </div>
                                     )}
                                     {/* Location Bar */}
                                     {onLocationChange && (
-                                          <Input
-                                                leftIcon={<MapPin className="h-4 w-4" />}
-                                                placeholder={locationPlaceholder}
-                                                value={localLocationQuery}
-                                                onChange={(e) => setLocalLocationQuery(e.target.value)}
-                                                className={cn(
-                                                      "pl-10 border-gray-200 dark:border-gray-800 flex-1 h-11",
-                                                      "bg-white dark:bg-gray-900 text-foreground placeholder:text-muted-foreground focus-visible:ring-purple/20"
-                                                )}
-                                          />
+                                          <div className="flex-1">
+                                                <SearchableDropdownInput
+                                                      value={localLocationQuery || ""}
+                                                      onChange={(val) => setLocalLocationQuery(val as string)}
+                                                      options={locationOptions}
+                                                      placeholder={locationPlaceholder}
+                                                      icon={<MapPin className="h-4 w-4 text-muted-foreground mr-2 shrink-0" />}
+                                                      className={cn(
+                                                            "w-full h-11 border-gray-200 dark:border-zinc-800",
+                                                            "bg-white dark:bg-zinc-900 focus-visible:ring-purple/20 text-foreground"
+                                                      )}
+                                                />
+                                          </div>
                                     )}
                               </div>
                         </div>

@@ -60,13 +60,13 @@ export default function ApplicantCard({
       .slice(0, 2) || "A";
 
   return (
-    <div className="bg-white flex flex-col justify-between border border-[#E2E2E2] rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full lg:max-w-[256px] space-y-4 relative">
+    <div className="bg-white dark:bg-zinc-900 flex flex-col justify-between border border-[#E2E2E2] dark:border-zinc-800 rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full lg:max-w-[256px] space-y-4 relative">
       {/* Header with Badge and Actions */}
       <div className="flex-1 space-y-4">
 
       <div className="flex flex-col gap-[21.33px]">
         <div className="flex justify-between items-start">
-          <Badge className="bg-[#F5EBFF] text-purple px-2 py-1.5 rounded-[24px] text-xs font-normal">
+          <Badge className="bg-[#F5EBFF] dark:bg-purple/20 text-purple dark:text-purple px-2 py-1.5 rounded-[24px] text-xs font-normal border-none">
             {postedTime}
           </Badge>
           <div className="flex items-center gap-2">
@@ -98,24 +98,24 @@ export default function ApplicantCard({
           <div className="space-y-2 flex-1">
             <Typography
               variant="h3"
-              className="text-black font-bold text-lg leading-tight line-clamp-2 "
+              className="text-black dark:text-zinc-100 font-bold text-lg leading-tight line-clamp-2 "
             >
               {name}
             </Typography>
             <Typography
               variant="body-small"
-              className="text-black text-sm line-clamp-2"
+              className="text-black dark:text-zinc-300 text-sm line-clamp-2"
             >
               {role}
             </Typography>
             <Typography
               variant="body-small"
-              className="text-[#8A8A8A] text-xs line-clamp-1"
+              className="text-[#8A8A8A] dark:text-zinc-400 text-xs line-clamp-1"
             >
               working in {company}
             </Typography>
           </div>
-            <div className="w-8 h-8 rounded-full border-[1px] border-purple flex items-center justify-center bg-white overflow-hidden shadow-sm">
+            <div className="w-8 h-8 rounded-full border-[1px] border-purple flex items-center justify-center bg-white dark:bg-zinc-800 overflow-hidden shadow-sm">
               {logo && !imgError ? (
                 <Image
                   src={logo}
@@ -137,10 +137,10 @@ export default function ApplicantCard({
       {/* Applicant Details */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-1.5">
-          <Briefcase className="w-5 h-5 text-grey-blue" />
+          <Briefcase className="w-5 h-5 text-grey-blue dark:text-zinc-400" />
           <Typography
             variant="body-small"
-            className="text-dark-blue text-xs font-medium"
+            className="text-dark-blue dark:text-zinc-300 text-xs font-medium"
           >
             Exp {experience}
           </Typography>
@@ -154,18 +154,18 @@ export default function ApplicantCard({
             height={16}
           />
           <div className="flex items-center gap-1">
-            <span className="text-[9.19px]">AED</span>
+            <span className="text-[9.19px] dark:text-zinc-400">AED</span>
             <Typography
               variant="body-small"
-              className="text-dark-blue text-xs font-medium"
+              className="text-dark-blue dark:text-zinc-300 text-xs font-medium"
             >
               {salaryMin.toLocaleString()}
             </Typography>
-            <span className="text-[#8A8A8A] text-[10.83px]">-</span>
-            <span className="text-[9.19px]">AED</span>
+            <span className="text-[#8A8A8A] dark:text-zinc-500 text-[10.83px]">-</span>
+            <span className="text-[9.19px] dark:text-zinc-400">AED</span>
             <Typography
               variant="body-small"
-              className="text-dark-blue text-xs font-medium"
+              className="text-dark-blue dark:text-zinc-300 text-xs font-medium"
             >
               {salaryMax.toLocaleString()}
             </Typography>
@@ -173,20 +173,20 @@ export default function ApplicantCard({
         </div>
 
         <div className="flex items-center gap-1.5">
-          <Clock className="w-5 h-5 text-grey-blue" />
+          <Clock className="w-5 h-5 text-grey-blue dark:text-zinc-400" />
           <Typography
             variant="body-small"
-            className="text-dark-blue text-xs font-medium"
+            className="text-dark-blue dark:text-zinc-300 text-xs font-medium"
           >
             {jobType}
           </Typography>
         </div>
 
         <div className="flex items-center gap-1.5">
-          <MapPin className="w-5 h-5 text-grey-blue" />
+          <MapPin className="w-5 h-5 text-grey-blue dark:text-zinc-400" />
           <Typography
             variant="body-small"
-            className="text-dark-blue text-xs font-medium"
+            className="text-dark-blue dark:text-zinc-300 text-xs font-medium"
           >
             {location}
           </Typography>

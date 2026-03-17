@@ -140,7 +140,10 @@ export function NaturalLanguageCalendar({
         <Input
           value={inputValue}
           placeholder={placeholder}
-          className="bg-secondary h-11 font-semibold text-grey-blue border-0"
+          className={cn(
+            "h-11 font-semibold border text-gray-900 dark:text-zinc-100 placeholder:text-muted-foreground",
+            "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 focus-visible:ring-purple/20"
+          )}
           onChange={handleInputChange}
           onKeyDown={(e) => {
             if (e.key === "ArrowDown") {

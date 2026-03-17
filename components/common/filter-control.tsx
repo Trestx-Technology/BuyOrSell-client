@@ -158,8 +158,8 @@ export const FilterControl = ({
             <div
               className={cn(
                 "p-3 rounded-xl border transition-all duration-200",
-                "bg-gray-50 dark:bg-gray-900/50 border-gray-100 dark:border-gray-800 shadow-none",
-                variant === "dark" && "bg-gray-900/80 border-gray-700"
+                "bg-gray-50 dark:bg-zinc-900 border-gray-100 dark:border-zinc-800 shadow-none",
+                variant === "dark" && "bg-zinc-900 border-zinc-700"
               )}
             >
               <div
@@ -260,10 +260,6 @@ export const FilterControl = ({
               value={value || ""}
               onChange={(newValue) => onChange(key, newValue)}
               placeholder={placeholder || "Tomorrow"}
-              className={cn(
-                variant === "dark" &&
-                "bg-white/10 text-white border-none hover:bg-white/20"
-              )}
             />
           </div>
         </FormField>

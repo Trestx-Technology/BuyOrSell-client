@@ -19,6 +19,7 @@ interface SearchableDropdownInputProps {
   placeholder?: string;
   error?: string;
   isMulti?: boolean;
+  icon?: React.ReactNode;
 }
 
 export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDropdownInputProps>(
@@ -32,6 +33,7 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
       placeholder = "Item",
       error,
       isMulti = false,
+      icon,
     },
     ref
   ) => {
@@ -76,7 +78,7 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
             type="button"
             disabled={disabled}
             className={cn(
-              "w-full h-11 px-3 py-2.5 rounded-lg border bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white",
+              "w-full h-11 px-3 py-2.5 rounded-lg border bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100",
               "flex items-center justify-between text-xs font-medium",
               "focus:outline-none focus:ring-2 focus:ring-purple/20 transition-all duration-200",
               isOpen && "border-purple ring-2 ring-purple/20",
@@ -87,7 +89,11 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
             )}
           >
             <div className="w-full flex items-center">
-              <Search className="w-4 h-4 text-purple mr-2 shrink-0" />
+              {icon ? (
+                icon
+              ) : (
+                <Search className="w-4 h-4 text-purple mr-2 shrink-0" />
+              )}
               <div className="flex-1 text-left truncate">
                 {isOpen ? (
                   <span className="text-muted-foreground">{searchQuery || placeholder}</span>
@@ -109,12 +115,12 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
           </button>
         </PopoverTrigger>
         <PopoverContent
-          className="p-0 w-[var(--radix-popover-trigger-width)] bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 overflow-hidden shadow-xl"
+          className="p-0 w-[var(--radix-popover-trigger-width)] bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 overflow-hidden shadow-xl"
           align="start"
           sideOffset={4}
         >
           {/* Search Input inside Popover */}
-          <div className="p-2 border-b border-gray-100 dark:border-gray-800">
+          <div className="p-2 border-b border-gray-100 dark:border-zinc-800">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
@@ -122,7 +128,7 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
                 placeholder="Search options..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-8 pl-8 text-xs bg-gray-50 dark:bg-gray-900 border-none focus-visible:ring-1 focus-visible:ring-purple/30"
+                className="h-8 pl-8 text-xs bg-gray-50 dark:bg-zinc-800 border-none focus-visible:ring-1 focus-visible:ring-purple/30"
               />
             </div>
           </div>
@@ -136,16 +142,16 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
                   type="button"
                   onClick={() => handleSelect(option.value)}
                   className={cn(
-                          "w-full text-left p-3 cursor-pointer text-xs font-normal border-b border-gray-50 dark:border-gray-800 last:border-0",
+                          "w-full text-left p-3 cursor-pointer text-xs font-normal border-b border-gray-50 dark:border-zinc-800 last:border-0",
                           "flex items-center gap-3 transition-colors",
-                          "hover:bg-purple/5 dark:hover:bg-purple/10 text-gray-700 dark:text-gray-200",
+                          "hover:bg-purple/5 dark:hover:bg-zinc-800 text-gray-700 dark:text-zinc-200",
                           isSelected(option.value) && "bg-purple/10 text-purple font-medium"
                         )}
                   >
                     {isMulti && (
                       <div className={cn(
                         "w-4 h-4 rounded border flex items-center justify-center transition-colors",
-                              isSelected(option.value) ? "bg-purple border-purple" : "border-gray-300 dark:border-gray-600"
+                              isSelected(option.value) ? "bg-purple border-purple" : "border-gray-300 dark:border-zinc-600"
                             )}>
                         {isSelected(option.value) && (
                           <div className="w-1.5 h-1.5 rounded-full bg-white" />

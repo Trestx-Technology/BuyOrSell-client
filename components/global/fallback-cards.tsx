@@ -41,11 +41,11 @@ const FallbackCard: React.FC<FallbackCardProps> = ({
                               </div>
                         )}
                         <div className="space-y-2 max-w-md">
-                              <Typography variant="h1" className="text-gray-900">
+                              <Typography variant="h1" className="text-gray-900 dark:text-zinc-100">
                                     {title}
                               </Typography>
                               {description && (
-                                    <Typography variant="body" className="text-gray-500">
+                                    <Typography variant="body" className="text-gray-500 dark:text-zinc-400">
                                           {description}
                                     </Typography>
                               )}

@@ -524,7 +524,7 @@ export const MapViewContent = () => {
   return (
     <GoogleMapsProvider>
       <section className="w-full flex flex-col relative h-full">
-        <div className="w-full border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 relative z-20 shadow-sm">
+        <div className="w-full border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 relative z-20 shadow-sm py-5">
           <Container1080>
             <CommonFilters
               filters={commonFiltersMap}
@@ -561,7 +561,7 @@ export const MapViewContent = () => {
           hasMore={!!hasNextPage}
           isLoading={isFetchingNextPage}
         >
-          <Container1080 className="flex items-start justify-between gap-4 relative p-2 h-auto min-h-full">
+          <Container1080 className="flex items-start justify-between gap-4 relative p-2 pt-6 h-auto min-h-full !overflow-visible">
             <ProductsGrid
               ads={ads}
               isLoading={isLoading}
@@ -575,7 +575,7 @@ export const MapViewContent = () => {
 
             {filters.showMap && (
               // <div className="flex-1 bg-red-500 flex-1 relative w-full h-full min-h-[500px]">
-              <div className="sticky top-2 min-h-[500px] h-[calc(100vh-200px)] flex-1 w-full">
+              <div className="sticky top-6 self-start min-h-[500px] h-[calc(100vh-200px)] flex-1 w-full z-10">
                 <Map
                   markers={mapMarkers}
                   onMarkerClick={handleMarkerClick}

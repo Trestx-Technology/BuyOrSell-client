@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import {
   LogOut,
@@ -34,6 +35,7 @@ export function UnifiedProfileMenu({
 }: UnifiedProfileMenuProps) {
   const { t, locale, localePath } = useLocale();
   const { session } = useAuthStore((state: any) => state);
+  const pathname = usePathname();
 
   const menuGroups = [
     {
@@ -103,6 +105,12 @@ export function UnifiedProfileMenu({
           href: "/post-job/select",
           icon: ICONS.jobNavigation.postJob,
           label: t.home.navbar.postJob,
+        },
+        {
+          id: "job-listings",
+          href: "/jobs/listing",
+          icon: ICONS.navigation.search,
+          label: "Job Listings",
         },
         {
           id: "my-job-listings",
@@ -232,9 +240,14 @@ export function UnifiedProfileMenu({
     },
   ];
 
-  const renderItemContent = (icon: any, label: string) => (
+  const renderItemContent = (icon: any, label: string, isActive: boolean = false) => (
     <>
-      <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center group-hover:bg-purple-50 transition-colors">
+      <div className={cn(
+        "flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-colors",
+        isActive 
+          ? "bg-purple text-white dark:bg-purple/80" 
+          : "bg-gray-50 dark:bg-gray-800 group-hover:bg-purple-50"
+      )}>
         {typeof icon === "string" ? (
           <SafeImage
             src={icon}
@@ -245,14 +258,25 @@ export function UnifiedProfileMenu({
           />
         ) : (
           React.createElement(icon, {
-            className: "w-6 h-6 text-gray-500 group-hover:text-purple",
+            className: cn(
+              "w-6 h-6",
+              isActive ? "text-white" : "text-gray-500 group-hover:text-purple"
+            )
           })
         )}
       </div>
-      <span className="flex-grow text-gray-700 dark:text-gray-200 font-medium text-sm group-hover:text-purple transition-colors">
+      <span className={cn(
+        "flex-grow font-medium text-sm transition-colors",
+        isActive 
+          ? "text-purple dark:text-purple-400 font-bold" 
+          : "text-gray-700 dark:text-gray-200 group-hover:text-purple"
+      )}>
         {label}
       </span>
-      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-purple group-hover:translate-x-0.5 transition-all opacity-0 group-hover:opacity-100" />
+      <ChevronRight className={cn(
+        "w-4 h-4 transition-all opacity-0 group-hover:opacity-100",
+        isActive ? "text-purple" : "text-gray-400 group-hover:text-purple group-hover:translate-x-0.5"
+      )} />
     </>
   );
 
@@ -294,9 +318,16 @@ export function UnifiedProfileMenu({
                 {group.label}
               </div>
               {group.items.map((item: any) => {
-                const content = renderItemContent(item.icon, item.label);
-                const className =
-                  "group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition-all duration-200 w-full text-left";
+                const itemHref = item.href ? localePath(item.href) : "";
+                const isActive = pathname === itemHref;
+                
+                const content = renderItemContent(item.icon, item.label, isActive);
+                const className = cn(
+                  "group flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 w-full text-left",
+                  isActive 
+                    ? "bg-purple-50/50 dark:bg-purple-900/40" 
+                    : "hover:bg-purple-50/50 dark:hover:bg-purple-900/20"
+                );
 
                 if (item.onClick) {
                   return (
@@ -316,7 +347,7 @@ export function UnifiedProfileMenu({
                 return (
                   <Link
                     key={item.id}
-                    href={localePath(item.href)}
+                    href={itemHref}
                     onClick={onClose}
                     className={className}
                   >
