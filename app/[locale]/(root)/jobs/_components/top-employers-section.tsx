@@ -47,13 +47,13 @@ export default function TopEmployersSection({
 
   if (isLoading) {
     return (
-      <section className="w-full bg-white py-8">
+      <section className="w-full bg-white dark:bg-black py-8">
         <div className="max-w-[1280px] mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-gray-200 rounded-2xl h-48 animate-pulse"
+                className="bg-gray-200 dark:bg-zinc-800 rounded-2xl h-48 animate-pulse"
               />
             ))}
           </div>
@@ -72,7 +72,7 @@ export default function TopEmployersSection({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-100px" }}
-      className="w-full bg-white py-8"
+      className="w-full bg-white dark:bg-black py-8"
     >
       <div className="max-w-[1080px] mx-auto px-4">
         <div className="py-8 space-y-4">

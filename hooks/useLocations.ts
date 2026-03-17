@@ -11,6 +11,7 @@ import {
   CitiesApiResponse,
   CountriesApiResponse,
   Emirate,
+  Country,
 } from "@/interfaces/location.types";
 import { locationQueries } from "@/app/api/location/index";
 
@@ -67,9 +68,20 @@ export const useCities = (params?: { emirate?: string; country?: string }) => {
 };
 
 export const useCountries = () => {
-  return useQuery<CountriesApiResponse, Error, string[]>({
+  return useQuery<CountriesApiResponse, Error, Country[]>({
     queryKey: locationQueries.countries.Key,
     queryFn: getCountries,
-    select: (data: CountriesApiResponse) => data.data || [],
+    select: (data: CountriesApiResponse) => {
+      const rawData = data.data || [];
+      // If it's already an array of objects, return as is
+      if (rawData.length > 0 && typeof rawData[0] === "object") {
+        return rawData as Country[];
+      }
+      // If it's a string array, convert to Country format
+      return (rawData as string[]).map((country) => ({
+        country,
+        countryAr: country,
+      }));
+    },
   });
 };

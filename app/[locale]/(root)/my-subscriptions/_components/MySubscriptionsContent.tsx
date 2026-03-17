@@ -142,7 +142,7 @@ export const MySubscriptionsContent = () => {
           {/* New Plan CTA */}
           <Link href="/plans">
             <Button
-              className="h-12 px-8 rounded-2xl bg-white border-2 border-purple dark:bg-white text-purple hover:text-white dark:text-black font-bold hover:scale-105 transition-transform active:scale-95 shadow-xl"
+              className="h-12 px-8 rounded-2xl bg-white border-2 border-purple dark:bg-white text-purple hover:text-white dark:text-black font-bold shadow-xl"
               icon={<Sparkles className={cn("size-4")} />}
               iconPosition={isArabic ? "right" : "left"}
             >
@@ -354,7 +354,7 @@ export const MySubscriptionsContent = () => {
               </p>
             </div>
             <Link href="/plans">
-              <Button className="h-14 px-10 rounded-2xl bg-purple text-white font-black text-lg shadow-xl shadow-purple/20 hover:scale-105 transition-transform active:scale-95">
+              <Button className="h-14 px-10 rounded-2xl bg-purple text-white font-black text-lg shadow-xl shadow-purple/20">
                 {isArabic ? "ترقية الآن" : "Upgrade Now"}
               </Button>
             </Link>

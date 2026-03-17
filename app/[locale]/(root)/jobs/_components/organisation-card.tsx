@@ -47,10 +47,10 @@ export function EmployerCard({
   };
 
   return (
-    <div className="w-[240px] rounded-3xl bg-gradient-to-br from-purple-100 to-purple-50 py-2 px-4 shadow-lg relative">
+    <div className="w-[240px] rounded-3xl bg-gradient-to-br from-purple-100 to-purple-50 dark:from-zinc-900 dark:to-zinc-950 py-2 px-4 shadow-lg relative border dark:border-zinc-800">
       {/* Header with Logo and Wishlist */}
       <div className="flex items-center justify-between">
-        <div className="size-[32px] rounded-full flex items-center justify-center bg-white overflow-hidden border border-purple/10 shadow-sm">
+        <div className="size-[32px] rounded-full flex items-center justify-center bg-white dark:bg-zinc-800 overflow-hidden border border-purple/10 shadow-sm">
           {logo && !imgError ? (
             <Image
               src={logo}
@@ -75,17 +75,17 @@ export function EmployerCard({
         <Link href={href || `/organizations/${employerId}`}>
           <Typography
             variant="h3"
-            className="text-xl font-bold text-gray-900 hover:text-purple transition-colors cursor-pointer truncate"
+            className="text-xl font-bold text-gray-900 dark:text-zinc-100 hover:text-purple transition-colors cursor-pointer truncate"
           >
             {name}
           </Typography>
         </Link>
-        <Typography variant="body-small" className="mb-1 text-gray-700">
+        <Typography variant="body-small" className="mb-1 text-gray-700 dark:text-zinc-400">
           {category}
         </Typography>
         <Typography
           variant="body-small"
-          className="text-sm font-medium text-gray-600"
+          className="text-sm font-medium text-gray-600 dark:text-zinc-400"
         >
           {formatFollowers(followers)} Followers
         </Typography>

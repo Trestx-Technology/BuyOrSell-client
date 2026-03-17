@@ -24,7 +24,7 @@ export function ChatAdInfo({ ad }: ChatAdInfoProps) {
 
   if (isLoading) {
     return (
-      <div className="sticky top-0 border-b border-gray-200 bg-gray-50 p-4">
+      <div className="sticky top-0 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-4">
         <div className="flex items-center gap-4">
           <Skeleton className="w-20 h-20 rounded-lg flex-shrink-0" />
           <div className="flex-1 min-w-0 space-y-2">
@@ -43,7 +43,7 @@ export function ChatAdInfo({ ad }: ChatAdInfoProps) {
   return (
     <Link
       href={`/ad/${ad.adId}`}
-      className="sticky top-0 border-b border-gray-200 bg-gray-50 p-4 hover:bg-gray-100 transition-colors"
+      className="sticky top-0 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-4 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
     >
       <div className="flex items-center gap-4">
         {image && (
@@ -60,7 +60,7 @@ export function ChatAdInfo({ ad }: ChatAdInfoProps) {
           {title && (
             <Typography
               variant="body-small"
-              className="font-semibold text-gray-900 mb-1 line-clamp-1"
+              className="font-semibold text-gray-900 dark:text-gray-100 mb-1 line-clamp-1"
             >
               {title}
             </Typography>
@@ -73,7 +73,7 @@ export function ChatAdInfo({ ad }: ChatAdInfoProps) {
                 width={16}
                 height={16}
               />
-              <span className="text-sm font-bold text-purple-600">
+              <span className="text-sm font-bold text-purple-600 dark:text-purple-400">
                 {formatPrice(price)}
               </span>
             </div>

@@ -15,7 +15,20 @@ import {
   Diamond,
   ShieldCheck,
   Medal,
+  Car,
+  Home,
+  Briefcase,
+  Laptop,
+  Armchair,
+  Tags,
+  Users,
+  Factory,
+  Package,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 import { useLocale } from "@/hooks/useLocale";
 import { PlanCard } from "./PlanCard";
 import { useGetPlans, useGetDefaultPlans } from "@/hooks/usePlans";
@@ -26,17 +39,13 @@ import { PlanSkeleton } from "./plancard-skeleton";
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 function PlansContent() {
   const { t, locale } = useLocale();
   const searchParams = useSearchParams();
+  const tabsRef = React.useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const urlType = searchParams.get("type");
   const [selectedType, setSelectedType] = useState<string>(urlType || "");
   const {
@@ -81,6 +90,21 @@ function PlansContent() {
     ];
 
     return fallbackIcons[index % fallbackIcons.length];
+  };
+
+  const getCategoryIcon = (type: string) => {
+    const t = type.toLowerCase();
+    if (t.includes("motor") || t.includes("car")) return Car;
+    if (t.includes("property") || t.includes("real estate") || t.includes("home"))
+      return Home;
+    if (t.includes("job")) return Briefcase;
+    if (t.includes("electronic") || t.includes("phone")) return Laptop;
+    if (t.includes("furniture")) return Armchair;
+    if (t.includes("classified")) return Tags;
+    if (t.includes("community")) return Users;
+    if (t.includes("business") || t.includes("industrial")) return Factory;
+    if (t.includes("basic") || t.includes("free")) return Zap;
+    return Package;
   };
 
   const getFeatures = (plan: IPlan) => {
@@ -148,6 +172,31 @@ function PlansContent() {
     }
   }, [selectedType, locale, router]); // Only watch selectedType for manual changes
 
+  // Scroll logic
+  const checkScroll = () => {
+    if (tabsRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = tabsRef.current;
+      setCanScrollLeft(scrollLeft > 5);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    return () => window.removeEventListener("resize", checkScroll);
+  }, [planTypes]);
+
+  const scroll = (direction: "left" | "right") => {
+    if (tabsRef.current) {
+      const scrollAmount = 300;
+      tabsRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
   const displayPlans = allPlans.filter((plan) => {
     return plan.type === selectedType;
   });
@@ -168,7 +217,7 @@ function PlansContent() {
   }, [mySubscription]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-black transition-colors duration-300">
       <MobileStickyHeader title={"Our Plans"} />
       <div className="container mx-auto px-4 py-8 md:py-16">
         {/* Header Section */}
@@ -177,12 +226,12 @@ function PlansContent() {
             {t.plans.badge}
           </div>
 
-          <Typography variant="5xl-semibold" className="text-black mb-4">
+          <Typography variant="5xl-semibold" className="text-black dark:text-white mb-4">
             {t.plans.title}
           </Typography>
           <Typography
             variant="md-regular"
-            className="text-gray-600 max-w-2xl mx-auto mb-8"
+            className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8"
           >
             {t.plans.subtitle}
           </Typography>
@@ -216,48 +265,87 @@ function PlansContent() {
 
           {/* Plan Types Tabs */}
           {!isLoading && planTypes.length > 0 && (
-            <div className="w-full flex justify-center mb-8">
-              <div className="md:hidden w-full max-w-xs relative">
-                <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-full bg-gray-100 text-black border-none rounded-xl font-medium focus:ring-2 focus:ring-black/5">
-                    <SelectValue placeholder="Select plan type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {planTypes.map((type) => (
-                      <SelectItem
+            <div className="w-full relative flex items-center group max-w-4xl mx-auto mb-12">
+              <AnimatePresence>
+                {canScrollLeft && (
+                  <motion.button
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    onClick={() => scroll("left")}
+                    className="absolute left-0 z-20 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-lg border border-gray-200 dark:border-gray-700 text-purple transition-all hover:scale-110 active:scale-95"
+                  >
+                    <ChevronLeft className="size-5" />
+                  </motion.button>
+                )}
+              </AnimatePresence>
+
+              <div
+                ref={tabsRef}
+                onScroll={checkScroll}
+                className={cn(
+                  "relative flex items-center bg-gray-50/80 dark:bg-gray-900/50 backdrop-blur-xl p-1.5 rounded-[2.5rem] border border-gray-200/50 dark:border-gray-800 shadow-xl w-full overflow-x-auto scrollbar-hide scroll-smooth mx-4 md:mx-0",
+                )}
+              >
+                <div className="flex items-center gap-1.5">
+                  {planTypes.map((type) => {
+                    const Icon = getCategoryIcon(type);
+                    const isActive = selectedType === type;
+                    return (
+                      <button
                         key={type}
-                        value={type}
-                        className="cursor-pointer"
+                        onClick={() => setSelectedType(type)}
+                        className={cn(
+                          "relative px-6 py-3 rounded-full text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2.5 z-10",
+                          isActive
+                            ? "text-purple"
+                            : "text-gray-500 hover:text-gray-800 dark:hover:text-gray-200",
+                        )}
                       >
-                        {type.toLowerCase() === "basic"
-                          ? `${type} (Free)`
-                          : type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                        {isActive && (
+                          <motion.div
+                            layoutId="activePlanTab"
+                            className="absolute inset-0 bg-white dark:bg-gray-800 border-2 border-purple-100 dark:border-purple-600/20 rounded-full -z-10 shadow-lg shadow-purple/10"
+                            transition={{
+                              type: "spring",
+                              bounce: 0.2,
+                              duration: 0.6,
+                            }}
+                          />
+                        )}
+                        <Icon
+                          className={cn(
+                            "size-4.5 transition-transform duration-300",
+                            isActive
+                              ? "text-purple scale-110"
+                              : "text-gray-400 group-hover:scale-110",
+                          )}
+                        />
+                        <span>{type}</span>
+                        {type.toLowerCase() === "basic" && (
+                          <span className="text-[10px] bg-purple/10 text-purple px-2 py-0.5 rounded-lg font-black uppercase tracking-tight border border-purple/20">
+                            Free
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="hidden md:flex bg-gray-100 p-1.5 rounded-full items-center">
-                {planTypes.map((type) => (
-                  <button
-                    key={type}
-                    onClick={() => setSelectedType(type)}
-                    className={`px-6 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 flex items-center gap-2 ${
-                      selectedType === type
-                        ? "bg-white text-black shadow-sm"
-                        : "text-gray-500 hover:text-gray-900"
-                    }`}
+              <AnimatePresence>
+                {canScrollRight && (
+                  <motion.button
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 10 }}
+                    onClick={() => scroll("right")}
+                    className="absolute right-0 z-20 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-lg border border-gray-200 dark:border-gray-700 text-purple transition-all hover:scale-110 active:scale-95"
                   >
-                    {type}
-                    {type.toLowerCase() === "basic" && (
-                      <span className="text-[10px] bg-emerald-500 text-white px-1.5 py-0.5 rounded-full font-bold">
-                        Free
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
+                    <ChevronRight className="size-5" />
+                  </motion.button>
+                )}
+              </AnimatePresence>
             </div>
           )}
         </div>
@@ -333,29 +421,29 @@ function PlansContent() {
             })}
 
             {/* Static Enterprise Card */}
-            <div className="w-full sm:max-w-xs rounded-2xl flex flex-col p-8 transition-all duration-300 bg-white border border-gray-200 hover:shadow-lg">
+            <div className="w-full sm:max-w-xs rounded-2xl flex flex-col p-8 transition-all duration-300 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:shadow-lg hover:shadow-purple/5">
               <div className="flex justify-start mb-6">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-purple">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-purple dark:bg-purple/90">
                   <Building2 className="w-6 h-6 text-white" />
                 </div>
               </div>
 
               <Typography
                 variant="xl-semibold"
-                className="text-left mb-2 text-black"
+                className="text-left mb-2 text-black dark:text-white"
               >
                 Enterprise
               </Typography>
 
               <div className="text-left mb-4">
-                <Typography variant="2xl-bold" className="text-black">
+                <Typography variant="2xl-bold" className="text-black dark:text-white">
                   Custom Pricing
                 </Typography>
               </div>
 
               <Typography
                 variant="sm-regular"
-                className="text-left mb-6 text-gray-600"
+                className="text-left mb-6 text-gray-600 dark:text-gray-400"
               >
                 Custom solutions for large organizations requiring tailored
                 features and priority support.
@@ -371,8 +459,8 @@ function PlansContent() {
                   "SLA Agreement",
                 ].map((feature, featureIndex) => (
                   <div key={featureIndex} className="flex items-start gap-3">
-                    <CheckCircle2 className="size-6 mt-0.5 flex-shrink-0 text-purple fill-white" />
-                    <Typography variant="sm-regular" className="text-gray-600">
+                    <CheckCircle2 className="size-6 mt-0.5 flex-shrink-0 text-purple fill-white dark:fill-gray-900" />
+                    <Typography variant="sm-regular" className="text-gray-600 dark:text-gray-400">
                       {feature}
                     </Typography>
                   </div>
@@ -383,7 +471,7 @@ function PlansContent() {
                 onClick={() =>
                   router.push(`/${locale}/help-centre/new?type=custom_planning`)
                 }
-                className="w-full rounded-lg font-medium bg-purple text-white hover:bg-gray-800"
+                className="w-full rounded-lg font-medium bg-purple text-white hover:bg-purple/90 dark:bg-purple/80"
               >
                 Contact Us
               </Button>

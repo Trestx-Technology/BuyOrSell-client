@@ -48,6 +48,8 @@ interface TableComponentProps<T> {
   pageCount?: number;
   paginationType?: "infinite-scroll" | "pagination";
   rowClassName?: RowClassName<T>;
+  emptyMessage?: string;
+  renderEmptyState?: () => React.ReactNode;
 }
 
 export type RowClassName<T> =
@@ -68,6 +70,8 @@ export function Table<T>({
   ContentActionSheet,
   containerClassName = "",
   rowClassName = "",
+  emptyMessage,
+  renderEmptyState,
 }: TableComponentProps<T>) {
   const isControlled =
     pagination !== undefined && onPaginationChange !== undefined;
@@ -208,17 +212,22 @@ export function Table<T>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={headersLength} className="py-8 text-center">
-                  <Typography
-                    variant="xs-regular"
-                    className="text-greys-850"
-                  >
-                    You didn&apos;t have any content yet. Choose book to start
-                    creating your content.
-                  </Typography>
-                  <div className="mt-4 flex justify-center">
-                    {ContentActionSheet && ContentActionSheet()}
-                  </div>
+                <TableCell colSpan={headersLength} className="py-8 text-center bg-transparent">
+                  {renderEmptyState ? (
+                    renderEmptyState()
+                  ) : (
+                    <>
+                      <Typography
+                        variant="xs-regular"
+                        className="text-grey-blue dark:text-gray-400"
+                      >
+                        {emptyMessage || "No data available."}
+                      </Typography>
+                      <div className="mt-4 flex justify-center">
+                        {ContentActionSheet && ContentActionSheet()}
+                      </div>
+                    </>
+                  )}
                 </TableCell>
               </TableRow>
             )}

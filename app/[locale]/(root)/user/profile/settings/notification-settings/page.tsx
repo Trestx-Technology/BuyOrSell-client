@@ -124,7 +124,7 @@ const NotificationSettingsPage = () => {
     updateUserSettingsMutation.isPending;
 
   return (
-    <Container1080>
+    <Container1080 className="min-h-dvh">
       <MobileStickyHeader title={t.user.notificationSettings.pageTitle} />
 
       <div className="py-8 space-y-6">

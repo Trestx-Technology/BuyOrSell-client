@@ -26,7 +26,7 @@ export const organizationSchema = z.object({
     message: "Organization type must be one of: AGENCY, DEALERSHIP, COMPANY",
   }),
   country: z.string().min(1, "Country is required"),
-  emirate: z.string().min(1, "Emirate is required"),
+  emirate: z.string().optional(),
   tradeLicenseNumber: z.string().min(1, "Trade license number is required"),
   tradeLicenseExpiry: z.string().min(1, "Trade license expiry is required"),
   tradeLicenseUrl: z.string().min(1, "Trade license image is required"),
@@ -54,6 +54,14 @@ export const organizationSchema = z.object({
   businessHours: z.array(businessHourSchema).optional(),
   certificates: z.array(certificateSchema).optional(),
   languages: z.array(z.string()).optional(),
+}).superRefine((data, ctx) => {
+  if (data.country === "AE" && !data.emirate) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Emirate is required for UAE organizations",
+      path: ["emirate"],
+    });
+  }
 });
 
 export type OrganizationFormData = z.infer<typeof organizationSchema>;

@@ -111,7 +111,7 @@ export function MessagesList({
     return (
       <Typography
         variant="body-small"
-        className="text-gray-900 text-ellipsis break-words whitespace-pre-wrap"
+        className="text-gray-900 dark:text-gray-100 text-ellipsis break-words whitespace-pre-wrap"
       >
         {msg.text}
       </Typography>
@@ -157,8 +157,8 @@ export function MessagesList({
         {groupedMessages.map((group, groupIdx) => (
           <div key={group.dateLabel} className="space-y-4">
             <div className="flex items-center justify-center">
-              <div className="px-4 py-1.5 bg-gray-50 rounded-full border border-gray-100">
-                <Typography variant="caption" className="text-gray-500 font-medium">
+              <div className="px-4 py-1.5 bg-gray-50 dark:bg-gray-900 rounded-full border border-gray-100 dark:border-gray-800">
+                <Typography variant="caption" className="text-gray-500 dark:text-gray-400 font-medium">
                   {group.dateLabel}
                 </Typography>
               </div>
@@ -173,8 +173,8 @@ export function MessagesList({
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity self-center mr-2">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-gray-100">
-                          <MoreVertical className="h-4 w-4 text-gray-500" />
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                          <MoreVertical className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -198,20 +198,20 @@ export function MessagesList({
 
                 <div
                   className={`max-w-[75%] lg:max-w-[60%] px-4 py-2.5 rounded-2xl ${msg.isFromUser
-                    ? "bg-purple-100 rounded-br-md text-gray-900 shadow-sm"
-                    : "bg-gray-100 rounded-bl-md text-gray-900"
+                    ? "bg-purple-100 dark:bg-purple/20 rounded-br-md text-gray-900 dark:text-gray-100 shadow-sm"
+                    : "bg-gray-100 dark:bg-gray-800 rounded-bl-md text-gray-900 dark:text-gray-100"
                     } ${msg.type === "file" ? "p-1" : ""}`}
                 >
                   {renderMessageContent(msg)}
                   <div className="flex items-center justify-end gap-1 mt-1">
                     <Typography
                       variant="caption"
-                      className="text-[10px] text-gray-500 font-medium"
+                      className="text-[10px] text-gray-500 dark:text-gray-400 font-medium"
                     >
                       {msg.time}
                     </Typography>
                     {msg.isFromUser && (
-                      <div className={`flex items-center ml-1 ${msg.isRead ? "text-purple-600" : "text-gray-400"}`}>
+                      <div className={`flex items-center ml-1 ${msg.isRead ? "text-purple-600 dark:text-purple-400" : "text-gray-400 dark:text-gray-500"}`}>
                         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12"></polyline>
                           {msg.isRead && <polyline points="22 10 13 19 8 14" className="-ml-3"></polyline>}
@@ -229,20 +229,20 @@ export function MessagesList({
 
         {isTyping && (
           <div className="flex justify-start">
-            <div className="max-w-xs px-4 py-2 rounded-2xl bg-gray-100 rounded-bl-md">
+            <div className="max-w-xs px-4 py-2 rounded-2xl bg-gray-100 dark:bg-gray-800 rounded-bl-md">
               <div className="flex items-center space-x-1.5">
                 <div className="flex space-x-1">
-                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
+                  <div className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></div>
                   <div
-                    className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+                    className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"
                     style={{ animationDelay: "0.1s" }}
                   ></div>
                   <div
-                    className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+                    className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"
                     style={{ animationDelay: "0.2s" }}
                   ></div>
                 </div>
-                <Typography variant="caption" className="text-gray-400 ml-2">
+                <Typography variant="caption" className="text-gray-400 dark:text-gray-500 ml-2">
                   typing...
                 </Typography>
               </div>

@@ -42,7 +42,7 @@ export function ChatHeader({
 
   return (
     <>
-      <div className="border-b border-gray-200 p-4">
+      <div className="border-b border-gray-200 dark:border-gray-800 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {/* Back to sidebar button */}
@@ -50,10 +50,10 @@ export function ChatHeader({
               <Button
                 variant="ghost"
                 size="sm"
-                className="p-2"
+                className="p-2 dark:hover:bg-gray-800"
                 onClick={onBackToSidebar}
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-5 w-5 dark:text-gray-400" />
               </Button>
             )}
 
@@ -64,13 +64,13 @@ export function ChatHeader({
                 width={10}
                 height={10}
                 className="w-10 h-10 object-contain rounded-full"
-              /> : <User className="w-6 h-6 object-contain rounded-full text-gray-400" />}
+              /> : <User className="w-6 h-6 object-contain rounded-full text-gray-400 dark:text-gray-500" />}
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <Typography
                   variant="body-small"
-                  className="font-semibold text-gray-900"
+                  className="font-semibold text-gray-900 dark:text-gray-100"
                 >
                   {currentChat?.name || "Unknown"}
                 </Typography>
@@ -86,14 +86,14 @@ export function ChatHeader({
                   </div>
                 )}
                 {currentChat?.isOnline && (
-                  <div className="w-2.5 h-2.5 bg-green-500 rounded-full border border-white shadow-sm" />
+                  <div className="w-2.5 h-2.5 bg-green-500 rounded-full border border-white dark:border-gray-900 shadow-sm" />
                 )}
               </div>
               <Typography
                 variant="caption"
                 className={cn(
-                  "text-gray-500 transition-colors duration-300",
-                  currentChat?.isOnline && "text-green-600 font-medium"
+                  "text-gray-500 dark:text-gray-400 transition-colors duration-300",
+                  currentChat?.isOnline && "text-green-600 dark:text-green-400 font-medium"
                 )}
               >
                 {currentChat?.isOnline ? "Online" : currentChat?.lastSeen ? `Last seen ${currentChat.lastSeen}` : "Last seen recently"}

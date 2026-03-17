@@ -21,8 +21,13 @@ export interface CitiesApiResponse {
   data: string[];
 }
 
+export interface Country {
+  country: string;
+  countryAr: string;
+}
+
 export interface CountriesApiResponse {
   statusCode: number;
   timestamp: string;
-  data: string[];
+  data: Country[] | string[];
 }

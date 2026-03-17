@@ -70,7 +70,7 @@ export const SelectInput = forwardRef<HTMLButtonElement, SelectInputProps>(
                 if (!selectedOption) return value;
                 return (
                   <div className="flex items-center gap-2">
-                    {selectedOption.icon ? (
+                    {selectedOption.icon && (
                       <div className="size-5 relative flex-shrink-0">
                         <Image
                           src={selectedOption.icon}
@@ -78,10 +78,6 @@ export const SelectInput = forwardRef<HTMLButtonElement, SelectInputProps>(
                           fill
                           className="object-cover rounded"
                         />
-                      </div>
-                    ) : (
-                      <div className="size-5 flex items-center justify-center flex-shrink-0">
-                        <ImageOff className="size-4 text-gray-400" />
                       </div>
                     )}
                     <span>{selectedOption.label}</span>
@@ -114,7 +110,7 @@ export const SelectInput = forwardRef<HTMLButtonElement, SelectInputProps>(
               )}
             >
               <div className="flex items-center gap-2">
-                {option.icon ? (
+                {option.icon && (
                   <div className="size-6 relative flex-shrink-0">
                     <Image
                       src={option.icon}
@@ -122,10 +118,6 @@ export const SelectInput = forwardRef<HTMLButtonElement, SelectInputProps>(
                       fill
                       className="object-cover rounded"
                     />
-                  </div>
-                ) : (
-                  <div className="size-6 flex items-center justify-center flex-shrink-0">
-                    <ImageOff className="size-4 text-gray-400" />
                   </div>
                 )}
                 <span className="flex-1">{option.label}</span>

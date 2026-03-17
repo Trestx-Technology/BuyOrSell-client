@@ -11,18 +11,18 @@ const EmiratisSupport = () => {
   const { localePath } = useLocale();
   return (
     <Container1080 className="px-4 my-10">
-      <div className="relative h-[388px] bg-[#CEFFF2] rounded-2xl border-[0.5px] border-[#E2E2E2] shadow-[0px_2.67px_7.11px_0px_rgba(48,150,137,0.08)] overflow-hidden">
+      <div className="relative h-[388px] bg-[#CEFFF2] dark:bg-emerald-950 rounded-2xl border-[0.5px] border-[#E2E2E2] dark:border-emerald-900 shadow-[0px_2.67px_7.11px_0px_rgba(48,150,137,0.08)] overflow-hidden">
         {/* Content Section - positioned at x:44, y:83 */}
         <div className="absolute left-11 top-[83px] flex flex-col gap-6 w-[659px]">
           {/* Title and Subtitle Group */}
           <div className="flex flex-col gap-6">
             <H1
-              className="font-bold leading-[1.21] uppercase text-[#1D2939]"
+              className="font-bold leading-[1.21] uppercase text-[#1D2939] dark:text-emerald-50"
             >
               Supporting Emiratisation
             </H1>
             <H3
-              className="font-normal leading-[1.21] uppercase text-[#1D2939]"
+              className="font-normal leading-[1.21] uppercase text-[#1D2939] dark:text-emerald-200"
             >
               Connecting UAE citizens to jobs & Opportunities
             </H3>

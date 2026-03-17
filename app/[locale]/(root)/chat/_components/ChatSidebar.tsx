@@ -65,7 +65,7 @@ export const AvatarImage = ({
   if (error || !src) {
     return (
       <div
-        className={`flex items-center justify-center bg-gray-100 text-gray-400 w-full h-full ${className}`}
+        className={`flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 w-full h-full ${className}`}
       >
         <User className="w-1/2 h-1/2" />
       </div>
@@ -113,13 +113,13 @@ const ChatListItem = memo(({
       }}
       onClick={() => onClick(chat.id)}
       className={cn(
-        "p-4 border-b border-gray-100 cursor-pointer transition-colors duration-200 hover:bg-gray-50",
-        isActive ? "bg-purple-50" : "bg-white"
+        "p-4 border-b border-gray-100 dark:border-gray-800 cursor-pointer transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/50",
+        isActive ? "bg-purple-50 dark:bg-purple/10" : "bg-white dark:bg-black"
       )}
     >
       <div className="flex items-center gap-4">
         <div className="relative">
-          <div className="w-14 h-14 relative rounded-full overflow-hidden shrink-0 border border-gray-100">
+          <div className="w-14 h-14 relative rounded-full overflow-hidden shrink-0 border border-gray-100 dark:border-gray-800">
             <AvatarImage
               src={displayImage || "/assets/images/placeholder-avatar.png"}
               alt={displayName}
@@ -128,7 +128,7 @@ const ChatListItem = memo(({
           </div>
 
           {chat.chatType === "ad" && chat.ad && (
-            <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full overflow-hidden border-2 border-white shadow-sm z-10">
+            <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full overflow-hidden border-2 border-white dark:border-gray-900 shadow-sm z-10">
               <Image
                 src={chat.ad.adImage}
                 alt="Ad"
@@ -142,7 +142,7 @@ const ChatListItem = memo(({
           {chat.isOnline && (
             <div
               className={cn(
-                "absolute w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full z-20",
+                "absolute w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full z-20",
                 chat.chatType === "ad" && chat.ad ? "top-0 right-0" : "bottom-0 right-0"
               )}
             ></div>
@@ -154,7 +154,7 @@ const ChatListItem = memo(({
             <div className="flex items-center gap-2 max-w-[70%]">
               <Typography
                 variant="body-small"
-                className="font-semibold text-gray-900 truncate"
+                className="font-semibold text-gray-900 dark:text-gray-100 truncate"
               >
                 {displayName}
               </Typography>
@@ -173,8 +173,8 @@ const ChatListItem = memo(({
             <Typography
               variant="caption"
               className={cn(
-                "text-gray-500 whitespace-nowrap ml-2 text-[11px]",
-                chat.unreadCount > 0 && "text-purple-600 font-bold"
+                "text-gray-500 dark:text-gray-400 whitespace-nowrap ml-2 text-[11px]",
+                chat.unreadCount > 0 && "text-purple-600 dark:text-purple-400 font-bold"
               )}
             >
               {chat.time}
@@ -185,8 +185,8 @@ const ChatListItem = memo(({
             <Typography
               variant="body-small"
               className={cn(
-                "truncate flex-1 mr-2 text-gray-500",
-                chat.unreadCount > 0 && "text-gray-900 font-medium"
+                "truncate flex-1 mr-2 text-gray-500 dark:text-gray-400",
+                chat.unreadCount > 0 && "text-gray-900 dark:text-gray-100 font-medium"
               )}
             >
               {chat.lastMessage}
@@ -214,7 +214,7 @@ export function ChatSidebar({
   className,
 }: ChatSidebarProps) {
   return (
-    <div className={cn("w-full md:max-w-sm flex flex-col h-full bg-white border-r border-gray-100", className)}>
+    <div className={cn("w-full md:max-w-sm flex flex-col h-full bg-white dark:bg-black border-r border-gray-100 dark:border-gray-800", className)}>
       {/* Header */}
       <div className="bg-purple p-4 space-y-3 shadow-md z-10">
         <ChatTypeSelector value={chatType} onChange={onChatTypeChange} />
@@ -222,7 +222,7 @@ export function ChatSidebar({
           <div className="relative w-full">
             <Input
               placeholder="Search Chat"
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/60 pl-9 focus:bg-white focus:text-gray-900 focus:placeholder:text-gray-400 transition-all duration-300"
+              className="bg-white/10 dark:bg-white/10 border-white/20 text-white placeholder:text-white/60 pl-9 focus:bg-white focus:text-gray-900 dark:focus:text-gray-900 focus:placeholder:text-gray-400 transition-all duration-300"
             />
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -232,10 +232,10 @@ export function ChatSidebar({
       </div>
 
       {/* Chat List */}
-      <div className="flex-1 overflow-y-scroll custom-scrollbar">
+      <div className="flex-1 overflow-y-scroll custom-scrollbar dark:bg-black">
         {chats.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-gray-50/30">
-            <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mb-6">
+          <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-gray-50/30 dark:bg-gray-900/10">
+            <div className="w-20 h-20 bg-purple-50 dark:bg-purple/10 rounded-full flex items-center justify-center mb-6">
               <svg
                 className="w-10 h-10 text-purple-200"
                 fill="none"
@@ -250,10 +250,10 @@ export function ChatSidebar({
                 />
               </svg>
             </div>
-            <Typography variant="body-large" className="text-gray-900 font-semibold mb-2">
+            <Typography variant="body-large" className="text-gray-900 dark:text-gray-100 font-semibold mb-2">
               No chats found
             </Typography>
-            <Typography variant="body-small" className="text-gray-400">
+            <Typography variant="body-small" className="text-gray-400 dark:text-gray-500">
               Your conversations will appear here
             </Typography>
           </div>

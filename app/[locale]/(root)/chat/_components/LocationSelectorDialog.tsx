@@ -100,7 +100,7 @@ export function LocationSelectorDialog({
       <GoogleMapsProvider>
 
         <div className="flex flex-col h-full p-4 md:h-auto gap-4">
-        <div className="flex-1 min-h-[400px] w-full relative rounded-lg overflow-hidden border border-gray-200">
+        <div className="flex-1 min-h-[400px] w-full relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800">
           <Map
             className="w-full h-full min-h-[400px]"
             onMapClick={handleMapClick}
@@ -110,8 +110,8 @@ export function LocationSelectorDialog({
         </div>
 
         {selectedLocation && (
-          <div className="text-sm text-gray-600 px-1">
-            <span className="font-medium">Selected:</span> {selectedLocation.address}
+          <div className="text-sm text-gray-600 dark:text-gray-400 px-1">
+            <span className="font-medium text-gray-900 dark:text-gray-100">Selected:</span> {selectedLocation.address}
           </div>
         )}
 

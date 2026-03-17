@@ -38,7 +38,7 @@ export function MessagesList({
     <div className="h-full overflow-y-auto p-4 space-y-4">
       {showDateHeader && (
         <div className="text-center">
-          <Typography variant="body-small" className="text-gray-500">
+          <Typography variant="body-small" className="text-gray-500 dark:text-gray-400">
             {dateHeaderText}
           </Typography>
         </div>
@@ -52,14 +52,14 @@ export function MessagesList({
           <div
             className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
               msg.isFromUser
-                ? "bg-purple-100 rounded-br-md"
-                : "bg-gray-100 rounded-bl-md"
+                ? "bg-purple-100 dark:bg-purple-900/30 rounded-br-md"
+                : "bg-gray-100 dark:bg-gray-800 rounded-bl-md"
             }`}
           >
             <Typography
               variant="body-small"
               className={`${
-                msg.isFromUser ? "text-gray-900" : "text-gray-900"
+                msg.isFromUser ? "text-gray-900 dark:text-gray-100" : "text-gray-900 dark:text-gray-100"
               }`}
             >
               {msg.text}
@@ -68,7 +68,7 @@ export function MessagesList({
               <Typography
                 variant="caption"
                 className={`${
-                  msg.isFromUser ? "text-gray-900" : "text-gray-500"
+                  msg.isFromUser ? "text-gray-700 dark:text-gray-400" : "text-gray-500 dark:text-gray-400"
                 }`}
               >
                 {msg.time}
@@ -76,11 +76,11 @@ export function MessagesList({
               {msg.isFromUser && (
                 <div
                   className={`w-3 h-3 ${
-                    msg.isRead ? "text-gray-900" : "text-gray-400"
+                    msg.isRead ? "text-purple-600 dark:text-purple-400" : "text-gray-400 dark:text-gray-500"
                   }`}
                 >
                   <svg viewBox="0 0 14 14" fill="currentColor">
-                    <path d="M1.76 3.51l10.19 7.58L1.76 3.51z" />
+                    <path d="M11.59.5L13 1.91 5.41 9.5 1 5.09 2.41 3.68 5.4 6.67 11.59.5zM11.59 4.5L13 5.91 5.41 13.5 1 9.09 2.41 7.68 5.4 10.67 11.59 4.5z" />
                   </svg>
                 </div>
               )}
@@ -92,20 +92,20 @@ export function MessagesList({
       {/* Typing Indicator */}
       {isTyping && (
         <div className="flex justify-start">
-          <div className="max-w-xs lg:max-w-md px-4 py-2 rounded-2xl bg-gray-100 rounded-bl-md">
+          <div className="max-w-xs lg:max-w-md px-4 py-2 rounded-2xl bg-gray-100 dark:bg-gray-800 rounded-bl-md">
             <div className="flex items-center space-x-1">
               <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></div>
                 <div
-                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"
                   style={{ animationDelay: "0.1s" }}
                 ></div>
                 <div
-                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"
                   style={{ animationDelay: "0.2s" }}
                 ></div>
               </div>
-              <Typography variant="caption" className="text-gray-500 ml-2">
+              <Typography variant="caption" className="text-gray-500 dark:text-gray-400 ml-2">
                 typing...
               </Typography>
             </div>

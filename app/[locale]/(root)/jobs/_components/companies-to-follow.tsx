@@ -65,7 +65,7 @@ export default function CompaniesToFollow({
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-gray-200 rounded-3xl h-[200px] animate-pulse"
+                className="bg-gray-200 dark:bg-zinc-800 rounded-3xl h-[200px] animate-pulse"
               />
             ))}
           </div>

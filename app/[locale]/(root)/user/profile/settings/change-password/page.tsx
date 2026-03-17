@@ -70,7 +70,7 @@ const ChangePasswordPage = () => {
   const isLoading = changePasswordMutation.isPending || isSubmitting;
 
   return (
-    <Container1080>
+    <Container1080 className="min-h-dvh">
       <MobileStickyHeader title={t.user.changePassword.pageTitle} />
 
       <div className="px-4 py-8 space-y-6">

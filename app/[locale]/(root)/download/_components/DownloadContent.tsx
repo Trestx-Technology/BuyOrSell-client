@@ -38,7 +38,7 @@ export function DownloadContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-950 overflow-hidden text-gray-900 dark:text-gray-100">
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-purple-700 via-purple-600 to-indigo-700 pt-32 pb-48 relative px-4 lg:px-0">
         <Container1080>
@@ -79,7 +79,7 @@ export function DownloadContent() {
 
               {/* Stylized Phone Frame */}
               <div className="relative z-10 mx-auto w-[320px] h-[640px] bg-gray-900 rounded-[3rem] border-8 border-gray-800 shadow-[0_0_80px_rgba(0,0,0,0.4)] p-3 overflow-hidden">
-                <div className="w-full h-full bg-purple-50 rounded-[2rem] overflow-hidden flex flex-col items-center justify-center p-8 text-center space-y-6">
+                <div className="w-full h-full bg-purple-50 dark:bg-gray-800 rounded-[2rem] overflow-hidden flex flex-col items-center justify-center p-8 text-center space-y-6">
                   <div className="size-20 bg-purple rounded-3xl flex items-center justify-center shadow-lg transform -rotate-12">
                     <Image
                       src="/logo.svg"
@@ -90,7 +90,7 @@ export function DownloadContent() {
                     />
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-900">BuyOrSell UAE</h4>
+                    <h4 className="font-bold text-gray-900 dark:text-gray-100">BuyOrSell UAE</h4>
                     <div className="flex justify-center gap-0.5 mt-1">
                       {[1, 2, 3, 4, 5].map((i) => (
                         <Star
@@ -100,11 +100,11 @@ export function DownloadContent() {
                       ))}
                     </div>
                   </div>
-                  <div className="w-full h-32 bg-white rounded-xl shadow-sm border border-gray-100" />
+                  <div className="w-full h-32 bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-gray-100 dark:border-gray-600" />
                   <div className="w-full h-8 bg-purple/10 rounded-full" />
                   <div className="grid grid-cols-2 gap-2 w-full">
-                    <div className="h-16 bg-white rounded-lg border border-gray-100" />
-                    <div className="h-16 bg-white rounded-lg border border-gray-100" />
+                    <div className="h-16 bg-white dark:bg-gray-700 rounded-lg border border-gray-100 dark:border-gray-600" />
+                    <div className="h-16 bg-white dark:bg-gray-700 rounded-lg border border-gray-100 dark:border-gray-600" />
                   </div>
                 </div>
               </div>
@@ -115,30 +115,30 @@ export function DownloadContent() {
 
       {/* Benefits Content */}
       <Container1080 className="-mt-20 relative z-20">
-        <div className="bg-white rounded-[2.5rem] shadow-2xl p-8 lg:p-16">
+        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl dark:shadow-none p-8 lg:p-16 border border-transparent dark:border-gray-800">
           <div className="grid md:grid-cols-3 gap-12">
             {features.map((f, i) => (
               <div key={i} className="space-y-4 text-center md:text-left">
-                <div className="size-12 bg-purple-50 rounded-2xl flex items-center justify-center mx-auto md:mx-0">
+                <div className="size-12 bg-purple-50 dark:bg-purple-900/20 rounded-2xl flex items-center justify-center mx-auto md:mx-0">
                   {f.icon}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">{f.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{f.title}</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
                   {f.desc}
                 </p>
               </div>
             ))}
           </div>
 
-          <hr className="my-16 border-gray-100" />
+          <hr className="my-16 border-gray-100 dark:border-gray-800" />
 
           {/* QR Code Section */}
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
             <div className="max-w-md text-center lg:text-left space-y-4">
-              <h2 className="text-3xl font-bold text-gray-900">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                 {isArabic ? "امسح الرمز للتحميل" : "Scan to download"}
               </h2>
-              <p className="text-gray-500">
+              <p className="text-gray-500 dark:text-gray-400">
                 {isArabic
                   ? "وجه كاميرا هاتفك نحو رمز الاستجابة السريعة وسيتم توجيهك مباشرة لصفحة التحميل."
                   : "Point your phone camera toward the QR code and you'll be redirected to your app store instantly."}
@@ -146,15 +146,16 @@ export function DownloadContent() {
             </div>
 
             <div className="flex flex-col items-center gap-6">
-              <div className="p-8 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200 flex flex-col items-center gap-4">
-                <div className="size-48 bg-white rounded-2xl shadow-inner flex items-center justify-center">
-                  <QrCode className="size-32 text-gray-200" strokeWidth={1} />
+              <div className="p-8 bg-gray-50 dark:bg-gray-800/50 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center gap-4">
+                <div className="size-48 bg-white dark:bg-gray-800 rounded-2xl shadow-inner flex items-center justify-center">
+                  <QrCode className="size-32 text-gray-200 dark:text-gray-600" strokeWidth={1} />
                 </div>
-                <p className="text-[10px] text-gray-400 font-medium tracking-widest uppercase">
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium tracking-widest uppercase">
                   Play Store & App Store
                 </p>
               </div>
-              <AppStoreButtons theme="light" />
+              <AppStoreButtons theme="light" className="dark:hidden" />
+              <AppStoreButtons theme="dark" className="hidden dark:flex" />
             </div>
           </div>
         </div>

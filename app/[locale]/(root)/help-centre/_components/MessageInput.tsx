@@ -88,7 +88,7 @@ export function MessageInput({
   };
 
   return (
-    <div className="border-t border-gray-200 bg-purple/10 p-4">
+    <div className="border-t border-gray-200 dark:border-gray-800 bg-purple/10 dark:bg-purple-900/10 p-4">
       <div className="flex items-center gap-3">
         <AIFeaturesPopover
           onMessageGenerated={onAIMessageGenerated ? onAIMessageGenerated : () => { }}
@@ -105,6 +105,7 @@ export function MessageInput({
             value={value}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
+            className="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
           />
 
           <Button
@@ -112,14 +113,14 @@ export function MessageInput({
             size="sm"
             className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1"
           >
-            <Smile className="h-5 w-5 text-gray-400" />
+            <Smile className="h-5 w-5 text-gray-400 dark:text-gray-500" />
           </Button>
         </div>
 
         <Button
           onClick={onSend}
           disabled={!value.trim()}
-          className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 p-3"
+          className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 dark:disabled:bg-gray-800 p-3"
         >
           <Send className="h-5 w-5" />
         </Button>

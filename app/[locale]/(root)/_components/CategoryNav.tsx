@@ -405,7 +405,12 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
       sideOffset={0}
     >
       <div className={cn("flex w-full", locale === "ar" && "flex-row-reverse")}>
-        <div className={cn("w-60 border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[40vh]", locale === "ar" ? "border-l" : "border-r")}>
+        <div
+          className={cn(
+            "w-60 border-gray-300 dark:border-gray-700 overflow-y-auto max-h-[40vh]",
+            locale === "ar" ? "border-l" : "border-r",
+          )}
+        >
           {categoryData.map((category) => {
             const hasChildren =
               category.children && category.children.length > 0;
@@ -466,9 +471,15 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                     : category.name}
                 </Typography>
                 {isActive ? (
-                  locale === "ar" ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />
+                  locale === "ar" ? (
+                    <ChevronRight className="w-4 h-4" />
+                  ) : (
+                    <ChevronLeft className="w-4 h-4" />
+                  )
+                ) : locale === "ar" ? (
+                  <ChevronLeft className="w-4 h-4" />
                 ) : (
-                  locale === "ar" ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4" />
                 )}
               </Link>
             );
@@ -744,6 +755,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
             size="sm"
             iconPosition="center"
             icon={<MapPinIcon className="-mr-2" />}
+            onClick={() => router.push(localePath("/map-view"))}
           >
             Map View
           </Button>

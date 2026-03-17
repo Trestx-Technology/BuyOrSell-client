@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 
-export type ChatType = "ad" | "dm" | "organisation";
+export type ChatType = "ad" | "dm" | "organisation" | "ticket";
 
 export interface User {
   id: string;
@@ -66,6 +66,7 @@ export interface Chat {
   adId?: string;
   adOwnerId?: string;
   organisationId?: string;
+  ticketId?: string;
   initiatorId?: string;
 }
 
@@ -108,6 +109,7 @@ export interface CreateChatParams {
   adId?: string;
   adOwnerId?: string;
   organisationId?: string;
+  ticketId?: string;
   initiatorId?: string;
 }
 

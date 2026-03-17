@@ -157,7 +157,7 @@ export default function ExchangeAdsContent() {
   };
 
   return (
-    <div className="w-full bg-[#020617] min-h-screen">
+    <div className="w-full bg-gray-50 dark:bg-gray-950 min-h-screen">
       <Container1080 className="min-h-[calc(100dvh)]">
         {/* Mobile Header */}
         <div className="w-full bg-purple sm:hidden p-4 space-y-4">
@@ -207,10 +207,10 @@ export default function ExchangeAdsContent() {
           <div className="px-4 mb-6">
             <div className="flex items-center justify-between">
               <div>
-                <Typography variant="h3" className="text-white font-bold">
+                <Typography variant="h3" className="text-zinc-900 dark:text-zinc-100 font-bold">
                   {t.exchange.title}
                 </Typography>
-                <Typography variant="body-small" className="text-white/60">
+                <Typography variant="body-small" className="text-zinc-500 dark:text-zinc-400">
                   {t.categories.forSaleIn
                     .replace(
                       "{{category}}",
@@ -230,7 +230,6 @@ export default function ExchangeAdsContent() {
                 showFilterButton={false}
                 size="fit"
                 className="hidden sm:flex"
-                variant="dark"
               />
             </div>
           </div>
@@ -244,7 +243,6 @@ export default function ExchangeAdsContent() {
             showFilterButton={false}
             size="fit"
             className="px-4 flex justify-end mb-4 sm:hidden"
-            variant="dark"
           />
 
           {/* Main Content */}
@@ -279,12 +277,15 @@ export default function ExchangeAdsContent() {
                     return (
                       <React.Fragment key={ad._id}>
                         {showSponsored && (
-                          <div className="col-span-2 sm:col-span-3 lg:col-span-4 my-4">
+                          <div className="w-full h-full min-h-[350px] sm:min-h-[400px] relative rounded-xl overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                             <SponsoredCarousel
                               banners={sponsoredBanners}
-                              className="max-w-full !max-h-[200px]"
-                              height="h-[200px]"
+                              className="w-full h-full absolute inset-0 [&_.carousel-item]:h-full"
+                              height="100%"
                             />
+                            <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/50 backdrop-blur-md rounded text-[10px] text-white font-medium z-10 pointer-events-none">
+                              Ad
+                            </div>
                           </div>
                         )}
                         {isGrid ? (
@@ -311,7 +312,6 @@ export default function ExchangeAdsContent() {
                       currentPage={currentPage}
                       totalPages={totalPages}
                       onPageChange={handlePageChange}
-                      variant="dark"
                     />
                   </div>
                 )}

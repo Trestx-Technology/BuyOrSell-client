@@ -71,15 +71,15 @@ export default function CandidateSearchBar() {
 
       return (
             <form onSubmit={handleSearch} className="w-full max-w-[1080px]">
-                  <div className="flex flex-col lg:flex-row items-center gap-3 lg:gap-0 lg:bg-white lg:rounded-[14.22px] lg:overflow-hidden lg:shadow-lg">
+                  <div className="flex flex-col lg:flex-row items-center gap-3 lg:gap-0 lg:bg-white lg:dark:bg-zinc-900 lg:rounded-[14.22px] lg:overflow-hidden lg:shadow-xl lg:h-[72px]">
 
                         {/* Search Type Dropdown */}
-                        <div className="flex items-center justify-start h-12 lg:h-10 px-4 lg:border-r border-[rgba(199,199,199,0.6)] min-w-[150px] w-full lg:w-auto flex-none lg:flex-1 bg-white rounded-[14.22px] lg:bg-transparent lg:rounded-none shadow-sm lg:shadow-none">
+                        <div className="flex items-center justify-start h-[60px] lg:h-full px-4 lg:border-r border-[rgba(199,199,199,0.6)] dark:border-zinc-800 min-w-[150px] w-full lg:w-auto flex-none lg:flex-1 bg-white dark:bg-zinc-900 rounded-[14.22px] lg:rounded-none lg:bg-transparent shadow-sm lg:shadow-none">
                               <Select
                                     value={searchType}
                                     onValueChange={setSearchType}
                               >
-                                    <SelectTrigger className="border-0 rounded-none h-full lg:h-[71.11px] px-0 text-[14.22px] focus:ring-0 bg-transparent hover:bg-transparent text-[#8A8A8A] w-full">
+                                    <SelectTrigger className="border-0 rounded-none h-full px-0 text-[14.22px] focus:ring-0 bg-transparent hover:bg-transparent text-[#8A8A8A] dark:text-zinc-400 w-full">
                                           <SelectValue placeholder="Type" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -90,7 +90,7 @@ export default function CandidateSearchBar() {
                         </div>
 
                         {/* Search Query Input (Auto-complete) */}
-                        <div className="flex-1 w-full lg:w-auto lg:max-w-[350px] flex items-center h-[72px] lg:h-10 px-4 lg:border-r border-[rgba(199,199,199,0.6)] relative bg-white rounded-[14.22px] lg:bg-transparent lg:rounded-none shadow-sm lg:shadow-none">
+                        <div className="flex-1 w-full lg:w-auto lg:max-w-[350px] flex items-center h-[60px] lg:h-full px-4 lg:border-r border-[rgba(199,199,199,0.6)] dark:border-zinc-800 relative bg-white dark:bg-zinc-900 rounded-[14.22px] lg:rounded-none lg:bg-transparent shadow-sm lg:shadow-none">
                               <Popover open={openSearch && !!inputSearch} onOpenChange={setOpenSearch}>
                                     <PopoverAnchor asChild>
                                           <div className="relative w-full">
@@ -103,13 +103,13 @@ export default function CandidateSearchBar() {
                                                             setOpenSearch(true);
                                                       }}
                                                       onFocus={() => setOpenSearch(true)}
-                                                      className="w-full border-0 focus:outline-none focus:ring-0 bg-transparent text-[14.22px] placeholder:text-[#8A8A8A] text-[#1D2939] font-medium h-full py-4"
+                                                      className="w-full border-0 focus:outline-none focus:ring-0 bg-transparent text-[14.22px] placeholder:text-[#8A8A8A] dark:placeholder:text-zinc-500 text-[#1D2939] dark:text-zinc-100 font-medium h-full py-4"
                                                 />
                                                 {(candidateSuggestionsPending || jobSuggestionsPending) && <Loader2 className="absolute right-3 text-purple top-1/2 -translate-y-1/2 animate-spin" />}
                                           </div>
                                     </PopoverAnchor>
                                     <PopoverContent
-                                          className="p-1 w-[200px] sm:w-[300px]"
+                                          className="p-1 w-[200px] sm:w-[300px] bg-white dark:bg-zinc-900 border dark:border-zinc-800"
                                           align="start"
                                           onOpenAutoFocus={(e) => e.preventDefault()}
                                     >
@@ -125,7 +125,7 @@ export default function CandidateSearchBar() {
                                                             <button
                                                                   key={idx}
                                                                   type="button"
-                                                                  className="text-left px-3 py-2 hover:bg-gray-100 rounded-sm text-sm"
+                                                                  className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-sm text-sm dark:text-zinc-200"
                                                                   onClick={() => {
                                                                         setInputSearch(item.value);
                                                                         setOpenSearch(false);
@@ -158,7 +158,7 @@ export default function CandidateSearchBar() {
                         </div>
 
                         {/* Location Input (Auto-complete) */}
-                        <div className="flex-1 w-full lg:w-auto flex items-center pl-4 relative bg-white rounded-[14.22px] lg:bg-transparent lg:rounded-none shadow-sm lg:shadow-none h-[72px] lg:h-auto">
+                        <div className="flex-1 w-full lg:w-auto flex items-center pl-4 relative bg-white dark:bg-zinc-900 rounded-[14.22px] lg:rounded-none lg:bg-transparent shadow-sm lg:shadow-none h-[60px] lg:h-full">
                               <MapPin className="size-5 lg:size-10 text-purple mr-2" />
                               <Popover open={openLocation && (emirates?.length || 0) > 0} onOpenChange={setOpenLocation}>
                                     <PopoverAnchor asChild>
@@ -171,11 +171,11 @@ export default function CandidateSearchBar() {
                                                       setOpenLocation(true);
                                                 }}
                                                 onFocus={() => setOpenLocation(true)}
-                                                className="w-fit border-0 focus:outline-none focus:ring-0 bg-transparent text-[14.22px] placeholder:text-[#8A8A8A] text-[#1D2939] font-medium h-full py-4"
+                                                className="w-fit border-0 focus:outline-none focus:ring-0 bg-transparent text-[14.22px] placeholder:text-[#8A8A8A] dark:placeholder:text-zinc-500 text-[#1D2939] dark:text-zinc-100 font-medium h-full py-4"
                                           />
                                     </PopoverAnchor>
                                     <PopoverContent
-                                          className="p-1 w-[200px] sm:w-[300px]"
+                                          className="p-1 w-[200px] sm:w-[300px] bg-white dark:bg-zinc-900 border dark:border-zinc-800"
                                           align="start"
                                           onOpenAutoFocus={(e) => e.preventDefault()}
                                     >
@@ -184,7 +184,7 @@ export default function CandidateSearchBar() {
                                                       <button
                                                             key={idx}
                                                             type="button"
-                                                            className="text-left px-3 py-2 hover:bg-gray-100 rounded-sm text-sm"
+                                                            className="text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-sm text-sm dark:text-zinc-200"
                                                             onClick={() => {
                                                                   setInputLocation(item.emirate);
                                                                   setOpenLocation(false);

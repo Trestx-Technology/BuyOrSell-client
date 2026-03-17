@@ -51,7 +51,8 @@ function CTACard({
   return (
     <motion.div
       variants={cardVariants}
-      className={`w-full md:flex-1 p-6 h-[202px] flex flex-col gap-3 rounded-2xl border-[0.5px] border-[#E2E2E2] shadow-[0px_2.67px_7.11px_0px_rgba(48,150,137,0.08)] ${isJobSeekers ? "bg-slate-100" : "bg-purple"
+      className={`w-full md:flex-1 p-6 h-[202px] flex flex-col gap-3 rounded-2xl border-[0.5px] border-[#E2E2E2] dark:border-zinc-800 shadow-[0px_2.67px_7.11px_0px_rgba(48,150,137,0.08)] ${
+        isJobSeekers ? "bg-slate-100 dark:bg-zinc-900" : "bg-purple"
       } relative overflow-hidden`}
     >
       {/* Title - positioned at x:26, y:30.5 */}
@@ -59,7 +60,7 @@ function CTACard({
         <Typography
           variant="h3"
           className={`text-lg font-bold leading-[1.21] ${
-            isJobSeekers ? "text-black" : "text-white"
+            isJobSeekers ? "text-black dark:text-white" : "text-white"
           }`}
         >
           {title}
@@ -69,7 +70,7 @@ function CTACard({
         <Typography
           variant="body-small"
           className={`text-xs font-normal leading-[1.5] ${
-            isJobSeekers ? "text-[#1D2939]" : "text-white"
+            isJobSeekers ? "text-[#1D2939] dark:text-gray-300" : "text-white"
           }`}
         >
           {description}
@@ -82,8 +83,8 @@ function CTACard({
           size={"sm"}
           className={`w-[160px] font-semibold h-10  ${
             isJobSeekers
-              ? "bg-white text-purple hover:bg-purple hover:text-white"
-              : "bg-white text-purple hover:bg-purple/90 hover:text-white"
+              ? "bg-white dark:bg-gray-900 dark:border-gray-700 text-purple dark:text-gray-100 hover:bg-purple hover:text-white"
+              : "bg-white dark:bg-gray-900 dark:border-gray-700 text-purple hover:bg-purple/90 hover:text-white"
           } transition-all`}
           variant={isJobSeekers ? "outline" : "outline"}
         >

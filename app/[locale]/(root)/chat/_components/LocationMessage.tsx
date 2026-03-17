@@ -32,10 +32,10 @@ export default function LocationMessage({
 
   return (
     <div className="max-w-xs sm:max-w-sm">
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-zinc-800 hover:shadow-md transition-shadow">
+      <div className="bg-white dark:bg-black rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md transition-shadow">
         {/* Map Preview */}
         {isExpanded && (
-          <div className="relative w-full h-32 sm:h-40 bg-gray-100 dark:bg-zinc-800 overflow-hidden">
+          <div className="relative w-full h-32 sm:h-40 bg-gray-100 dark:bg-gray-900 overflow-hidden">
             {/* Using Next.js Image for optimization, but handling the dynamic URL */}
             <Image
               src={mapImageUrl}
@@ -80,7 +80,7 @@ export default function LocationMessage({
           <div className="flex gap-2 mt-3">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
+              className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium rounded-lg transition-colors"
             >
               {isExpanded ? "Hide Map" : "Show Map"}
             </button>

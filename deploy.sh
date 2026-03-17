@@ -1,56 +1,32 @@
 #!/bin/bash
 
-# Deployment script for BuyOrSell Client
-# This script should be run on the EC2 instance
+# Docker Deployment script for BuyOrSell Client
+# Usage: ./deploy.sh [tag]
 
 set -e
 
-# Configuration
-APP_NAME="buy-or-sell-client"
-DEPLOY_PATH="/var/www/buy-or-sell-client"
-BACKUP_PATH="/var/www/backups"
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+TAG=${1:-latest}
+IMAGE_NAME="buyorsell-client"
+CONTAINER_NAME="buyorsell-client"
 
-echo "🚀 Starting deployment for $APP_NAME..."
+echo "🚀 Starting Docker deployment for $IMAGE_NAME:$TAG..."
 
-# Create backup directory if it doesn't exist
-mkdir -p $BACKUP_PATH
+# Pull latest image if using a registry
+# docker pull your-registry/$IMAGE_NAME:$TAG
 
-# Backup current version if it exists
-if [ -d "$DEPLOY_PATH" ]; then
-    echo "📦 Creating backup of current version..."
-    tar -czf "$BACKUP_PATH/${APP_NAME}_${TIMESTAMP}.tar.gz" -C "$DEPLOY_PATH" .
-    
-    # Keep only last 5 backups
-    ls -t "$BACKUP_PATH"/${APP_NAME}_*.tar.gz | tail -n +6 | xargs -r rm
-fi
+# Stop and remove existing container
+echo "⏹️  Stopping existing container..."
+docker stop $CONTAINER_NAME || true
+docker rm $CONTAINER_NAME || true
 
-# Stop the application
-echo "⏹️  Stopping application..."
-pm2 stop $APP_NAME || true
-
-# Navigate to deployment directory
-cd $DEPLOY_PATH
-
-# Install dependencies
-echo "📦 Installing dependencies..."
-yarn install --frozen-lockfile --production
-
-# Start the application
-echo "▶️  Starting application..."
-if [ -f "ecosystem.config.js" ]; then
-    pm2 start ecosystem.config.js --env production
-else
-    pm2 start npm --name $APP_NAME -- start
-fi
-
-# Save PM2 configuration
-echo "💾 Saving PM2 configuration..."
-pm2 save
-
-# Check application status
-echo "📊 Application status:"
-pm2 status
+# Run new container
+echo "▶️  Starting new container..."
+docker run -d \
+    --name $CONTAINER_NAME \
+    --restart always \
+    -p 3000:3000 \
+    --env-file .env \
+    $IMAGE_NAME:$TAG
 
 echo "✅ Deployment completed successfully!"
-echo "🌐 Application should be running on port 3000"
+docker ps | grep $CONTAINER_NAME

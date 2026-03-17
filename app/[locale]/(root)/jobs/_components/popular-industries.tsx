@@ -22,14 +22,14 @@ export default function PopularIndustries() {
   // Show loading skeleton
   if (isLoading) {
     return (
-      <section className="w-full bg-[#F2F4F7] py-8">
+      <section className="w-full bg-[#F2F4F7] dark:bg-black py-8">
         <div className="max-w-[1080px] mx-auto px-4">
           <JobsSectionTitle>Popular Industries</JobsSectionTitle>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {Array.from({ length: 5 }).map((_, index) => (
               <div
                 key={index}
-                className="bg-white w-[200px] h-[180px] rounded-2xl animate-pulse"
+                className="bg-white dark:bg-zinc-900 w-[200px] h-[180px] rounded-2xl animate-pulse"
               />
             ))}
           </div>
@@ -65,7 +65,7 @@ export default function PopularIndustries() {
               <motion.div key={industryId} variants={itemVariants}>
                 <Link
                   href={href}
-                  className="bg-white w-full h-full rounded-2xl py-6 hover:shadow-lg hover:border-purple border border-[#E2E2E2] transition-all duration-300 flex flex-col items-center gap-2 group"
+                  className="bg-white dark:bg-zinc-900 w-full h-full rounded-2xl py-6 hover:shadow-lg hover:border-purple border border-[#E2E2E2] dark:border-zinc-800 transition-all duration-300 flex flex-col items-center gap-2 group"
                 >
                   {/* Logo/Icon */}
                   <div className="flex-1 flex flex-col items-center justify-center">
@@ -90,7 +90,7 @@ export default function PopularIndustries() {
 
                   {/* Industry Name */}
                     <H4
-                      className="text-dark-blue font-semibold  text-center group-hover:text-purple transition-colors line-clamp-2"
+                      className="text-dark-blue dark:text-zinc-100 font-semibold  text-center group-hover:text-purple transition-colors line-clamp-2"
                   >
                     {industryName}
                     </H4>

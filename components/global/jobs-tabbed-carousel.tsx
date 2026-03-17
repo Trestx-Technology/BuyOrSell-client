@@ -40,18 +40,18 @@ export const JobsTabbedCarouselSkeleton = ({
 }) => (
   <section className="max-w-[1220px] mx-auto py-5">
     <div className="w-full mx-auto">
-      <div className="h-6 bg-gray-200 rounded w-48 animate-pulse mb-2 pl-5"></div>
+      <div className="h-6 bg-gray-200 dark:bg-zinc-800 rounded w-48 animate-pulse mb-2 pl-5"></div>
       <div className="mb-4 flex items-center justify-between px-5">
         <div className="flex items-center gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"
+              className="h-8 w-20 bg-gray-200 dark:bg-zinc-800 rounded-lg animate-pulse"
             ></div>
           ))}
         </div>
         {showViewAll && (
-          <div className="h-8 w-20 bg-gray-200 rounded-lg animate-pulse"></div>
+          <div className="h-8 w-20 bg-gray-200 dark:bg-zinc-800 rounded-lg animate-pulse"></div>
         )}
       </div>
       <div className="relative">
@@ -304,7 +304,7 @@ export default function JobsTabbedCarousel({
   const renderCards = () => {
     if (currentAds.length === 0) {
       return (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           No jobs available for this category.
         </div>
       );

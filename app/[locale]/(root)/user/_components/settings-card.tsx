@@ -196,12 +196,12 @@ export default function SettingsCard() {
           onClick={handleChangePassword}
         />
 
-        <SettingsItem
+{/* <SettingsItem
           icon={<FileText className="w-5 h-5" />}
           title="Account Reports"
           description="View your account activity reports"
           onClick={handleAccountReports}
-        />
+        /> */}
 
         <SettingsItem
           icon={<UserX className="w-5 h-5" />}
@@ -237,13 +237,13 @@ export default function SettingsCard() {
         </div>
         <div className="border-b border-gray-200 dark:border-gray-800 mx-6" />
 
-        <SettingsItem
+{/* <SettingsItem
           icon={<Trash2 className="w-5 h-5" />}
           title="Delete Account"
           description="Permanently delete your account"
           onClick={handleDeleteAccount}
           danger={true}
-        />
+        /> */}
 
         <SettingsItem
           icon={<LogOut className="w-5 h-5" />}

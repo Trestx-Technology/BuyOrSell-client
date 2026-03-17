@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import NextTopLoader from "nextjs-toploader";
 import QueryProvider from "@/services/query-client";
 import { ThemeProvider } from "@/components/provider/theme-provider";
+import { ThemeShortcut } from "@/components/provider/theme-shortcut";
 import Script from "next/script";
 import { CookieConsent } from "@/components/global/cookie-consent";
 
@@ -100,6 +101,7 @@ export default function RootLayout({
         >
           <QueryProvider>{children}</QueryProvider>
           <CookieConsent />
+          <ThemeShortcut />
         </ThemeProvider>
 
         {/* Google Analytics */}

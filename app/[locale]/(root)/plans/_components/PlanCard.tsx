@@ -147,11 +147,13 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
 
   return (
     <div
-      className={`w-full sm:max-w-xs rounded-2xl flex flex-col p-8 transition-all duration-300 relative ${
+      className={cn(
+        "w-full sm:max-w-xs rounded-2xl flex flex-col p-8 transition-all duration-300 relative",
         plan.isPremium
-          ? "bg-purple-600 text-white"
-          : "bg-white border border-gray-200 hover:shadow-lg"
-      } ${plan.isPopular ? "border-purple shadow-md shadow-purple" : ""}`}
+          ? "bg-purple-600 dark:bg-purple/90 text-white"
+          : "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:shadow-lg",
+        plan.isPopular && !plan.isDefault && "border-purple shadow-md shadow-purple/20",
+      )}
     >
       {plan.isPopular && !plan.isDefault && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm z-10">
@@ -166,14 +168,16 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
       {/* Icon */}
       <div className="flex justify-start mb-6">
         <div
-          className={`w-12 h-12 rounded-full flex items-center justify-center ${
-            plan.isPremium ? "bg-white" : "bg-purple-600"
-          }`}
+          className={cn(
+            "w-12 h-12 rounded-full flex items-center justify-center",
+            plan.isPremium ? "bg-white dark:bg-white/90" : "bg-purple-600 dark:bg-purple",
+          )}
         >
           <IconComponent
-            className={`w-6 h-6 ${
-              plan.isPremium ? "text-purple-600" : "text-white"
-            }`}
+            className={cn(
+              "w-6 h-6",
+              plan.isPremium ? "text-purple-600" : "text-white",
+            )}
           />
         </div>
       </div>
@@ -181,9 +185,10 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
       {/* Plan Name */}
       <Typography
         variant="xl-semibold"
-        className={`text-left mb-2 ${
-          plan.isPremium ? "text-white" : "text-black"
-        }`}
+        className={cn(
+          "text-left mb-2",
+          plan.isPremium ? "text-white" : "text-black dark:text-white",
+        )}
       >
         {plan.name}
       </Typography>
@@ -195,7 +200,7 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
             variant="4xl-bold"
             className={cn(
               "flex items-center",
-              plan.isPremium ? "text-white" : "text-black",
+              plan.isPremium ? "text-white" : "text-black dark:text-white",
             )}
           >
             <Image
@@ -213,9 +218,10 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
           <div>
             <Typography
               variant="sm-regular"
-              className={`line-through ${
-                plan.isPremium ? "text-purple-200" : "text-gray-400"
-              }`}
+              className={cn(
+                "line-through",
+                plan.isPremium ? "text-purple-200" : "text-gray-400 dark:text-gray-500",
+              )}
             >
               {plan.originalPrice &&
               plan.originalPrice !== "0" &&
@@ -227,9 +233,11 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
               variant="sm-regular"
               className={cn(
                 "font-medium",
-                plan.isPremium ? "text-purple-100" : "text-purple-600",
+                plan.isPremium
+                  ? "text-purple-100 dark:text-purple-200"
+                  : "text-purple-600 dark:text-purple/80",
                 plan.validation > 1 &&
-                  "bg-purple-100/50 text-purple-700 px-2 py-0.5 rounded-md mt-1 inline-block",
+                  "bg-purple-100/50 dark:bg-purple/10 text-purple-700 dark:text-purple/90 px-2 py-0.5 rounded-md mt-1 inline-block",
               )}
             >
               {plan.validation > 1
@@ -243,9 +251,10 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
       {/* Description */}
       <Typography
         variant="sm-regular"
-        className={`text-left mb-6 ${
-          plan.isPremium ? "text-purple-200" : "text-gray-600"
-        }`}
+        className={cn(
+          "text-left mb-6",
+          plan.isPremium ? "text-purple-100" : "text-gray-600 dark:text-gray-400",
+        )}
       >
         {plan.description}
       </Typography>
@@ -254,10 +263,15 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
       <div className="space-y-3 flex-1 mb-8">
         {plan.features.map((feature, featureIndex) => (
           <div key={featureIndex} className="flex items-start gap-3">
-            <CheckCircle2 className="size-6 mt-0.5 flex-shrink-0 text-purple fill-white border-black" />
+            <CheckCircle2
+              className={cn(
+                "size-6 mt-0.5 flex-shrink-0 text-purple",
+                plan.isPremium ? "fill-white/20" : "fill-purple/10",
+              )}
+            />
             <Typography
               variant="sm-regular"
-              className={plan.isPremium ? "text-white" : "text-gray-600"}
+              className={plan.isPremium ? "text-white" : "text-gray-600 dark:text-gray-400"}
             >
               {feature}
             </Typography>
@@ -273,11 +287,14 @@ export const PlanCard: React.FC<PlanCardProps> = ({ plan, perMonthText }) => {
             : handleSubscribe
         }
         disabled={isPending || plan.isCurrent}
-        className={`w-full rounded-lg font-medium ${
+        className={cn(
+          "w-full rounded-lg font-medium",
           plan.isPremium
-            ? "bg-white text-purple-600 hover:bg-gray-100"
-            : "bg-purple-600 text-white hover:bg-purple-700"
-        } ${plan.isCurrent ? "opacity-100 bg-purple-200 text-purple-500 cursor-not-allowed" : ""}`}
+            ? "bg-white text-purple-600 hover:bg-white/90"
+            : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple/80 dark:hover:bg-purple/90",
+          plan.isCurrent &&
+            "opacity-100 bg-purple-200 dark:bg-purple/20 text-purple-500 dark:text-purple/60 cursor-not-allowed",
+        )}
       >
         {isPending ? "Processing..." : plan.buttonText}
       </Button>

@@ -39,6 +39,7 @@ export type OrganizationTranslations = {
     organizationType: string;
     selectOrganizationType: string;
     country: string;
+    selectCountry: string;
     emirate: string;
     selectEmirate: string;
     loadingEmirates: string;

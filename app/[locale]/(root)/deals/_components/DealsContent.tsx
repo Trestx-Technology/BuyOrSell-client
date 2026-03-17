@@ -183,10 +183,10 @@ export default function HotDealsContent() {
         <div className="px-4 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <Typography variant="h3" className="text-white font-bold">
+              <Typography variant="h3" className="text-zinc-900 dark:text-zinc-100 font-bold">
                 Hot Deals
               </Typography>
-              <Typography variant="body-small" className="text-white/60">
+              <Typography variant="body-small" className="text-zinc-500 dark:text-zinc-400">
                 Limited time offers you don&apos;t want to miss
               </Typography>
             </div>
@@ -200,7 +200,6 @@ export default function HotDealsContent() {
               showFilterButton={false}
               size="fit"
               className="hidden sm:flex"
-              variant="dark"
             />
           </div>
         </div>
@@ -214,7 +213,6 @@ export default function HotDealsContent() {
           showFilterButton={false}
           size="fit"
           className="px-4 flex justify-end mb-4 sm:hidden"
-          variant="dark"
         />
 
         {/* Main Content */}
@@ -249,12 +247,15 @@ export default function HotDealsContent() {
                   return (
                     <React.Fragment key={ad._id}>
                       {showSponsored && (
-                        <div className="col-span-2 sm:col-span-3 lg:col-span-4 my-4">
+                        <div className="w-full h-full min-h-[350px] sm:min-h-[400px] relative rounded-xl overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                           <SponsoredCarousel
                             banners={sponsoredBanners}
-                            className="max-w-full !max-h-[200px]"
-                            height="h-[200px]"
+                            className="w-full h-full absolute inset-0 [&_.carousel-item]:h-full"
+                            height="100%"
                           />
+                          <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/50 backdrop-blur-md rounded text-[10px] text-white font-medium z-10 pointer-events-none">
+                            Ad
+                          </div>
                         </div>
                       )}
                       {isGrid ? (
@@ -281,7 +282,6 @@ export default function HotDealsContent() {
                     currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={handlePageChange}
-                    variant="dark"
                   />
                 </div>
               )}

@@ -64,7 +64,7 @@ export default function JobsHomePage() {
       {/* Popular Industries Section */}
       <PopularIndustries />
 
-      <section className="bg-white">
+      <section className="bg-white dark:bg-black">
 
         {/* Connect Professionals Section */}
         <ConnectProfessionals />

@@ -116,7 +116,7 @@ export class ChatService {
       const chatsRef = collection(this.db, COLLECTIONS.CHATS);
 
       // 1. Try direct lookup using deterministic ID (fastest and most reliable for new logic)
-      const typeId = params.adId || params.organisationId || "direct";
+      const typeId = params.adId || params.organisationId || params.ticketId || "direct";
 
       const chatId = this.generateChatId(
         params.type,
@@ -142,17 +142,18 @@ export class ChatService {
         // Check type
         if (data.type !== params.type) return false;
 
-        // Normalize adId for reliable comparison
+        // Normalize IDs for reliable comparison
         const paramsAdId = params.adId || null;
         const dataAdId = data.adId || null;
-
-        // Match Ad ID if present (ensures separate chats for different ads)
         if (paramsAdId !== dataAdId) return false;
 
-        // Match Organisation ID if it's an organisation chat
-        if (params.type === "organisation") {
-          if (data.organisationId !== params.organisationId) return false;
-        }
+        const paramsOrgId = params.organisationId || null;
+        const dataOrgId = data.organisationId || null;
+        if (paramsOrgId !== dataOrgId) return false;
+
+        const paramsTicketId = params.ticketId || null;
+        const dataTicketId = data.ticketId || null;
+        if (paramsTicketId !== dataTicketId) return false;
 
         // Check if participants match exactly
         const docParticipants = (data.participants as string[]) || [];
@@ -180,7 +181,7 @@ export class ChatService {
     }
 
     // Determine the typeId for the chatId generation
-    const typeId = params.adId || params.organisationId || "direct";
+    const typeId = params.adId || params.organisationId || params.ticketId || "direct";
 
     // Generate deterministic chat ID
     const chatId = this.generateChatId(
@@ -226,6 +227,7 @@ export class ChatService {
       updatedAt: serverTimestamp() as Timestamp,
       ...(params.adId && { adId: params.adId }),
       ...(params.organisationId && { organisationId: params.organisationId }),
+      ...(params.ticketId && { ticketId: params.ticketId }),
       ...(params.initiatorId && { initiatorId: params.initiatorId }),
     };
 
