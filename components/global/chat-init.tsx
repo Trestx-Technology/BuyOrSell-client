@@ -180,10 +180,14 @@ export const ChatInit: React.FC<ChatInitProps> = ({
                                     isVerified: finalSellerVerified,
                               },
                         },
-                        adId: finalAdId,
-                        adOwnerId: finalSellerId as string,
-                        initiatorId: session.user._id,
-                        organisationId: finalOrganisationId,
+                        jobProfileId: (session.user as any).jobProfileId || "", 
+                        context: {
+                              ...(finalAdId && { adId: finalAdId }),
+                              ...(finalOrganisationId && { organisationId: finalOrganisationId }),
+                              ...(ad?.price !== undefined && { adPrice: ad.price }),
+                              adOwnerId: finalSellerId as string,
+                              initiatorId: session.user._id,
+                        }
                   };
 
                   let chatId = await ChatService.findExistingChat(chatParams);

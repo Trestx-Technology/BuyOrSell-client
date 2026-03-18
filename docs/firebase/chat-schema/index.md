@@ -27,12 +27,12 @@ Stores chat metadata, participants, and real-time status.
 
 ```typescript
 {
-  id: string;                    // Chat ID (Format: type_typeId_user1_user2)
-  type: "ad" | "dm" | "organisation";    // Chat type
+  id: string;                    // Chat ID (Firestore auto-generated ID)
+  type: "ad" | "dm" | "organisation" | "ticket"; // Chat type
   title: string;                 // Chat title (e.g. Ad title or Organisation name)
   titleAr: string;               // Arabic Chat title
   image: string;                 // Chat image (Ad image or Organisation logo)
-  participants: string[];        // Array of user IDs
+  participants: string[];        // Array of user IDs (ALWAYS userIds, never jobProfileId)
   participantDetails: {          // Participant information
     [userId: string]: {
       name: string;
@@ -40,6 +40,9 @@ Stores chat metadata, participants, and real-time status.
       image: string;             // User image/avatar URL
       isVerified: boolean;
     }
+  };
+  jobProfiles: {                 // Mapping of userId to jobProfileId
+    [userId: string]: string;    
   };
   lastMessage: {                 // Last message preview
     text: string;
@@ -58,6 +61,15 @@ Stores chat metadata, participants, and real-time status.
   };
   createdAt: Timestamp;          // Chat creation date
   updatedAt: Timestamp;          // Last update timestamp
+  context?: {                    // Metadata related to the chat context
+    adId?: string;
+    organisationId?: string;
+    ticketId?: string;
+    [key: string]: any;
+  };
+  roles?: {                      // Role mapping per user
+    [userId: string]: string;
+  };
 }
 ```
 
@@ -158,13 +170,30 @@ service cloud.firestore {
 
 ## Key Features
 
-1. **Chat Types**: Supports three types - Ad, DM, and Organisation
-2. **Real-time Updates**: Uses Firestore real-time listeners for messages, typing status, and online presence
-3. **Unread Counts**: Tracks unread messages per user per chat
-4. **Typing Indicators**: Real-time typing status per user
-5. **Online/Offline Status**: Tracks user presence
-6. **Optimized Queries**: User chats index for fast retrieval
-7. **Message Read Status**: Tracks which users have read each message
+1. **Chat ID**: Uses Firestore auto-generated IDs instead of concatenated strings.
+2. **Participants**: The `participants` array must ALWAYS contain only **userIds** (UUIDs). Never store `jobProfileId` in the `participants` array.
+3. **Job Profile Mapping**: The `jobProfiles` field maps a user's `userId` to their `jobProfileId`. This allows identifying which profile a user is acting from in the context of the chat.
+4. **Chat Context**: Identifiers like `adId`, `organisationId`, or `ticketId` are stored within the `context` object rather than at the top level, keeping the schema clean.
+5. **Real-time Updates**: Uses Firestore real-time listeners for messages, typing status, and online presence.
+6. **Unread Counts**: Tracks unread messages per user per chat.
+7. **Typing Indicators**: Real-time typing status per user.
+8. **Online/Offline Status**: Tracks user presence.
+9. **Optimized Queries**: User chats index (if used) or direct queries on `participants` array.
+10. **Message Read Status**: Tracks which users have read each message.
+
+## Job Profiles in Chats
+
+The `jobProfiles` field is a map: `Record<userId, jobProfileId>`.
+- On chat creation, the `jobProfileId` of the **initiator** (createdBy) is always stored.
+- The second user's `jobProfileId` is optional and can be populated later when they interact with the chat or when it's resolved from their profile.
+- This mapping ensures we know the context of the user's participation without cluttering the `participants` array with irrelevant IDs.
+
+## Backward Compatibility & Migration
+
+- **Existing Chats**: Chats created with the old deterministic ID format will still work as long as the code handles both ID lookup and auto-generated ID storage.
+- **Lazy Population**: `jobProfiles` for existing chats can be populated lazily when users interact with the chat.
+- **Top-level Fields**: Code should handle cases where `adId` or `organisationId` might be at the top level (legacy) or within the `context` object (new).
+
 
 ## Data Flow
 

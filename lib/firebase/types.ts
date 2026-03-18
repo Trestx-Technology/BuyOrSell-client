@@ -55,6 +55,7 @@ export interface Chat {
   image: string;
   participants: string[];
   participantDetails: ParticipantDetails;
+  jobProfiles: Record<string, string>;
   lastMessage: LastMessage;
   unreadCount: UnreadCount;
   typing: TypingStatus;
@@ -62,12 +63,14 @@ export interface Chat {
   lastSeen: LastSeen;
   createdAt: Timestamp | Date;
   updatedAt: Timestamp | Date;
-  // Optional references if needed for navigation, though specific data is now flat
+  context?: Record<string, any>;
+  roles?: Record<string, string>;
   adId?: string;
   adOwnerId?: string;
+  adPrice?: number;
   organisationId?: string;
-  ticketId?: string;
   initiatorId?: string;
+  ticketId?: string;
 }
 
 export interface Message {
@@ -106,11 +109,14 @@ export interface CreateChatParams {
   image: string;
   participants: string[];
   participantDetails: ParticipantDetails;
+  jobProfileId?: string; // profileId of the initiator
+  context?: Record<string, any>;
+  roles?: Record<string, string>;
   adId?: string;
   adOwnerId?: string;
   organisationId?: string;
-  ticketId?: string;
   initiatorId?: string;
+  ticketId?: string;
 }
 
 export interface SendMessageParams {

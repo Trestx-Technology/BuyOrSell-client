@@ -118,18 +118,28 @@ export function useChat(customBasePath?: string, customBackPath?: string) {
     };
   }, [urlChatId, chats]);
 
-  // Auto-mark chat as read when viewing it
+  // Auto-mark chat as read when viewing it (resets counter)
   useEffect(() => {
     const userId = session.user?._id;
-    if (
-      urlChatId &&
-      userId &&
-      currentChatData?.unreadCount?.[userId] &&
-      currentChatData.unreadCount[userId] > 0
-    ) {
+    const count = userId ? currentChatData?.unreadCount?.[userId] : 0;
+    if (urlChatId && userId && count && count > 0) {
       ChatService.markChatAsRead(urlChatId, userId).catch(console.error);
     }
   }, [urlChatId, currentChatData?.unreadCount, session.user?._id]);
+
+  // Mark incoming messages as read in real-time if active in chat
+  useEffect(() => {
+    const userId = session.user?._id;
+    if (!urlChatId || !userId || messages.length === 0) return;
+
+    const hasUnreadFromOthers = messages.some(
+      (m) => m.senderId !== userId && !m.isRead
+    );
+
+    if (hasUnreadFromOthers) {
+      ChatService.markMessagesAsRead(urlChatId, userId).catch(console.error);
+    }
+  }, [urlChatId, messages, session.user?._id]);
 
   // Derive Other User Online Status
   useEffect(() => {
@@ -186,8 +196,13 @@ export function useChat(customBasePath?: string, customBackPath?: string) {
       const otherId = firebaseChat.participants?.find((id) => id !== userId);
       const other = otherId ? firebaseChat.participantDetails?.[otherId] : null;
       const type = firebaseChat.type as ChatType;
-      const showOrg =
-        type === "organisation" && userId !== firebaseChat.initiatorId;
+      
+      const initiatorId = (firebaseChat as any).initiatorId || firebaseChat.context?.initiatorId;
+      const adId = (firebaseChat as any).adId || firebaseChat.context?.adId;
+      const organisationId = (firebaseChat as any).organisationId || firebaseChat.context?.organisationId;
+      const adOwnerId = (firebaseChat as any).adOwnerId || firebaseChat.context?.adOwnerId;
+      
+      const showOrg = type === "organisation" && userId !== initiatorId;
 
       return {
         id: firebaseChat.id,
@@ -206,22 +221,22 @@ export function useChat(customBasePath?: string, customBackPath?: string) {
         ad:
           type === "ad"
             ? {
-                adId: firebaseChat.adId!,
-                adTitle: firebaseChat.title!,
-                adImage: firebaseChat.image!,
-                adPrice: 0,
+                adId: adId!,
+                adTitle: firebaseChat.title || firebaseChat.context?.adTitle || "",
+                adImage: firebaseChat.image || firebaseChat.context?.adImage || "",
+                adPrice: firebaseChat.context?.adPrice || (firebaseChat as any).adPrice || 0,
               }
             : undefined,
         organisation:
           type === "organisation"
             ? {
-                organisationId: firebaseChat.organisationId!,
-                orgTradeName: firebaseChat.title!,
-                orgImage: firebaseChat.image!,
+                organisationId: organisationId!,
+                orgTradeName: firebaseChat.title || "",
+                orgImage: firebaseChat.image || "",
               }
             : undefined,
-        amIAdOwner: userId === firebaseChat.adOwnerId,
-        initiatorId: firebaseChat.initiatorId,
+        amIAdOwner: userId === adOwnerId,
+        initiatorId: initiatorId,
         lastSeen: formatLastSeen(firebaseChat.lastSeen?.[otherId || ""]),
       };
     });
@@ -235,8 +250,11 @@ export function useChat(customBasePath?: string, customBackPath?: string) {
       ? currentChatData.participantDetails?.[otherId]
       : null;
     const type = currentChatData.type as ChatType;
-    const showOrg =
-      type === "organisation" && userId !== currentChatData.initiatorId;
+    const initiatorId = (currentChatData as any).initiatorId || currentChatData.context?.initiatorId;
+    const adId = (currentChatData as any).adId || currentChatData.context?.adId;
+    const organisationId = (currentChatData as any).organisationId || currentChatData.context?.organisationId;
+    
+    const showOrg = type === "organisation" && userId !== initiatorId;
 
     return {
       id: currentChatData.id,
@@ -255,21 +273,21 @@ export function useChat(customBasePath?: string, customBackPath?: string) {
       ad:
         type === "ad"
           ? {
-              adId: currentChatData.adId!,
-              adTitle: currentChatData.title!,
-              adImage: currentChatData.image!,
-              adPrice: 0,
+              adId: adId!,
+              adTitle: currentChatData.title || currentChatData.context?.adTitle || "",
+              adImage: currentChatData.image || currentChatData.context?.adImage || "",
+              adPrice: currentChatData.context?.adPrice || (currentChatData as any).adPrice || 0,
             }
           : undefined,
       organisation:
         type === "organisation"
           ? {
-              organisationId: currentChatData.organisationId!,
-              orgTradeName: currentChatData.title!,
-              orgImage: currentChatData.image!,
+              organisationId: organisationId!,
+              orgTradeName: currentChatData.title || "",
+              orgImage: currentChatData.image || "",
             }
           : undefined,
-      initiatorId: currentChatData.initiatorId,
+      initiatorId: initiatorId,
       lastSeen: formatLastSeen(currentChatData.lastSeen?.[otherId || ""]),
     };
   }, [currentChatData, session.user?._id, isOtherUserOnline]);
@@ -423,10 +441,12 @@ export function useChat(customBasePath?: string, customBackPath?: string) {
             isVerified: !!session.user!.emailVerified,
           },
         },
-        adId: ad._id,
-        adOwnerId:
-          (typeof ad.owner === "string" ? ad.owner : ad.owner?._id) || "",
-        initiatorId: session.user!._id,
+        context: {
+          adId: ad._id,
+          adOwnerId: (typeof ad.owner === "string" ? ad.owner : ad.owner?._id) || "",
+          initiatorId: session.user!._id,
+          adPrice: ad.price,
+        },
       });
       return id;
     },
