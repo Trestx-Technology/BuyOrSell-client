@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/hooks/useLocale";
 import { ListingActions } from "./listing-actions";
 import { SafeImage } from "@/components/ui/safe-image";
 
@@ -122,14 +123,17 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
     [isTransitioning, currentImageIndex, images.length]
   );
 
+  const { locale } = useLocale();
+  const isRTL = locale === "ar";
+
   return (
-    <div className="relative z-10 pointer-events-none aspect-[3/3] sm:aspect-[4/3] w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
+    <div className="relative z-10 pointer-events-none aspect-[3/3] sm:aspect-[4/3] w-full h-full min-h-[122px] max-h-[177px] overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
       {images.length > 0 ? (
         <div className="relative w-full h-full overflow-hidden">
           <div
             className="flex transition-transform duration-500 ease-in-out h-full"
             style={{
-              transform: `translateX(-${currentImageIndex * 100}%)`,
+              transform: `translateX(${isRTL ? "" : "-"}${currentImageIndex * 100}%)`,
               willChange: isTransitioning ? "transform" : "auto",
             }}
           >
@@ -160,21 +164,21 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
 
       {/* Premium Badge */}
       {isPremium && (
-        <div className="absolute top-3 left-3 z-20">
+        <div className={cn("absolute top-3 z-20", isRTL ? "right-3" : "left-3")}>
           <Image src="/premium.svg" alt="Premium" width={31} height={31} />
         </div>
       )}
 
       {isExchange && (
-        <Badge className="absolute h-6 bg-[#FE9800] top-3 left-2 z-20 pointer-events-none">
-          <Repeat size={22} />
-          Exchange Available
+        <Badge className={cn("absolute h-6 bg-[#FE9800] top-3 z-20 pointer-events-none", isRTL ? "right-2" : "left-2")}>
+          <Repeat size={22} className={cn(isRTL && "ml-1")} />
+          {isRTL ? "تبادل متاح" : "Exchange Available"}
         </Badge>
       )}
 
       {/* Image Counter */}
       {images?.length > 1 && (
-        <div className="absolute bottom-3 left-3 w-fit z-20 pointer-events-none">
+        <div className={cn("absolute bottom-3 w-fit z-20 pointer-events-none", isRTL ? "right-3" : "left-3")}>
           <div className="bg-[#777777] rounded-lg px-2 py-1 flex items-center gap-1 w-fit">
             <ImageIcon className="size-3 sm:size-4 text-white" />
             <span className="text-[10px] text-white font-medium">
@@ -185,7 +189,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
       )}
 
       {/* Views Counter */}
-      <div className="absolute bottom-3 right-3 z-20 pointer-events-none">
+      <div className={cn("absolute bottom-3 z-20 pointer-events-none", isRTL ? "left-3" : "right-3")}>
         <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
           <Eye className="size-3 sm:size-4 text-white" />
           <span className="text-[10px] text-white font-medium">
@@ -202,26 +206,28 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
             variant="secondary"
             disabled={isTransitioning}
             className={cn(
-              "absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg z-30 p-0 pointer-events-auto",
+              "absolute top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg z-30 p-0 pointer-events-auto",
+              isRTL ? "right-2" : "left-2",
               isTransitioning && "opacity-50 cursor-not-allowed"
             )}
-            onClick={handlePreviousImage}
+            onClick={isRTL ? handleNextImage : handlePreviousImage}
             aria-label="Previous image"
           >
-            <ChevronLeft className="h-4 w-4 text-slate-700" />
+            {isRTL ? <ChevronRight className="h-4 w-4 text-slate-700" /> : <ChevronLeft className="h-4 w-4 text-slate-700" />}
           </Button>
           <Button
             size="sm"
             variant="secondary"
             disabled={isTransitioning}
             className={cn(
-              "absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg p-0 pointer-events-auto",
+              "absolute top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg p-0 pointer-events-auto",
+              isRTL ? "left-2" : "right-2",
               isTransitioning && "opacity-50 cursor-not-allowed"
             )}
-            onClick={handleNextImage}
+            onClick={isRTL ? handlePreviousImage : handleNextImage}
             aria-label="Next image"
           >
-            <ChevronRight className="h-4 w-4 text-slate-700" />
+            {isRTL ? <ChevronLeft className="h-4 w-4 text-slate-700" /> : <ChevronRight className="h-4 w-4 text-slate-700" />}
           </Button>
         </>
       )}
