@@ -33,22 +33,62 @@ export function TicketDetails({ ticketId }: TicketDetailsProps) {
   useEffect(() => {
     if (!ticketId || !userId) return;
 
-    const id = ChatService.generateChatId("ticket", ticketId, [userId, "support_team"]);
-    setChatId(id);
+    let activeChatId: string | null = null;
 
-    // Initial visit: mark as read and set online
-    ChatService.visitChat(id, userId).catch(console.error);
+    const initChat = async () => {
+      try {
+        const id = await ChatService.createChat({
+          type: "ticket",
+          title: ticket?.subject || "Ticket Chat",
+          titleAr: ticket?.subject || "Ticket Chat",
+          image: "",
+          participants: [userId, "support_team"],
+          participantDetails: {
+            [userId]: {
+              name: session?.user?.firstName || "User",
+              nameAr: session?.user?.firstName || "User",
+              image: session?.user?.image || "",
+              isVerified: !!session?.user?.emailVerified,
+            },
+            "support_team": {
+              name: "Support Team",
+              nameAr: "فريق الدعم",
+              image: "/images/support-avatar.png",
+              isVerified: true,
+            }
+          },
+          context: {
+            ticketId: ticketId,
+            initiatorId: userId,
+          }
+        });
+        
+        setChatId(id);
+        activeChatId = id;
+
+        // Initial visit: mark as read and set online
+        await ChatService.visitChat(id, userId);
+      } catch (err) {
+        console.error("Failed to init ticket chat:", err);
+      }
+    };
+
+    initChat();
 
     const handleBeforeUnload = () => {
-      ChatService.setChatOnlineStatus(id, userId, false).catch(() => {});
+      if (activeChatId) {
+        ChatService.setChatOnlineStatus(activeChatId, userId, false).catch(() => {});
+      }
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      ChatService.setChatOnlineStatus(id, userId, false).catch(console.error);
+      if (activeChatId) {
+        ChatService.setChatOnlineStatus(activeChatId, userId, false).catch(console.error);
+      }
     };
-  }, [ticketId, userId]);
+  }, [ticketId, userId, ticket?.subject]);
 
   // Subscribe to Messages via ChatService
   useEffect(() => {

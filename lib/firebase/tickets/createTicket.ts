@@ -31,7 +31,7 @@ export async function createTicket(
   try {
     const userData = await ChatService.getUser(params.userId);
     
-    await ChatService.createChat({
+    const chatId = await ChatService.createChat({
       type: "ticket",
       title: params.subject,
       titleAr: params.subject,
@@ -51,13 +51,15 @@ export async function createTicket(
           isVerified: true,
         }
       },
-      ticketId: ticketId,
-      initiatorId: params.userId,
+      context: {
+        ticketId: ticketId,
+        initiatorId: params.userId,
+      }
     });
 
     // 3. Send the initial message via ChatService
     await ChatService.sendMessage({
-      chatId: ChatService.generateChatId("ticket", ticketId, [params.userId, "support_team"]),
+      chatId,
       senderId: params.userId,
       text: params.message,
       type: "text",
