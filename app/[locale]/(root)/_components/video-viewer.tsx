@@ -16,6 +16,7 @@ import {
       User,
 } from "lucide-react";
 import { useInfiniteAds, useAdById } from "@/hooks/useAds";
+import { useLocale } from "@/hooks/useLocale";
 import { Video } from "./video-card";
 import { InfiniteScrollContainer } from "@/components/global/infinite-scroll-container";
 import { useGetMainCategories } from "@/hooks/useCategories";
@@ -68,6 +69,8 @@ export function VideoViewer() {
       const router = useRouter();
       const searchParams = useSearchParams();
       const queryClient = useQueryClient();
+      const { t, locale } = useLocale();
+      const isArabic = locale === 'ar';
       const containerRef = useRef<HTMLDivElement>(null);
       const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
@@ -401,7 +404,7 @@ export function VideoViewer() {
                   }).catch(() => { });
             } else {
                   navigator.clipboard.writeText(window.location.href);
-                  toast.success("Link copied to clipboard");
+                  toast.success(t.watch.linkCopied);
             }
       };
 
@@ -415,8 +418,8 @@ export function VideoViewer() {
                               onClick={() => router.back()}
                               className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
                         >
-                              <ArrowLeft className="w-6 h-6" />
-                              <span className="text-sm font-medium hidden sm:inline">Back</span>
+                               <ArrowLeft className="w-6 h-6" />
+                              <span className="text-sm font-medium hidden sm:inline">{t.watch.back}</span>
                         </button>
 
                         <div className="flex-1 max-w-[200px] mx-4">
@@ -425,14 +428,14 @@ export function VideoViewer() {
                                     onValueChange={handleCategoryChange}
                               >
                                     <SelectTrigger className="bg-white/10 dark:bg-zinc-900/50 border-white/20 dark:border-zinc-800 text-white backdrop-blur-md h-11 px-4 hover:bg-white/20 hover:text-white transition-all [&_svg]:text-white text-base">
-                                          <SelectValue placeholder="All Categories" />
+                                          <SelectValue placeholder={t.watch.allCategories} />
                                     </SelectTrigger>
                                     <SelectContent className="bg-zinc-900/95 border-white/10 text-white backdrop-blur-xl min-w-[200px]">
                                           <SelectItem 
                                                 value="all" 
                                                 className="hover:bg-white/10 focus:bg-white/20 focus:text-white py-3 px-3 cursor-pointer transition-colors text-sm"
                                           >
-                                                All Categories
+                                                {t.watch.allCategories}
                                           </SelectItem>
                                           {categoriesData?.map((category) => (
                                                 <SelectItem 
@@ -440,7 +443,7 @@ export function VideoViewer() {
                                                       value={category.name}
                                                       className="hover:bg-white/10 focus:bg-white/20 focus:text-white py-3 px-3 cursor-pointer transition-colors text-sm"
                                                 >
-                                                      {category.name}
+                                                      {isArabic && category.nameAr ? category.nameAr : category.name}
                                                 </SelectItem>
                                           ))}
                                     </SelectContent>
@@ -461,17 +464,17 @@ export function VideoViewer() {
                         <InfiniteScrollContainer
                         ref={containerRef}
                         onLoadMore={async () => {
-                              if (hasNextPage && !isFetchingNextPage) {
-                                    await fetchNextPage();
-                              }
+                               if (hasNextPage && !isFetchingNextPage) {
+                                     await fetchNextPage();
+                               }
                         }}
                         isLoading={isFetchingNextPage}
                         hasMore={hasNextPage}
-                                    className="h-full w-full overflow-y-auto snap-y snap-mandatory hide-scrollbar overscroll-none"
-                                    style={{
-                                          scrollSnapType: "y mandatory",
-                                          WebkitOverflowScrolling: "touch",
-                                    }}
+                                     className="h-full w-full overflow-y-auto snap-y snap-mandatory hide-scrollbar overscroll-none"
+                                     style={{
+                                           scrollSnapType: "y mandatory",
+                                           WebkitOverflowScrolling: "touch",
+                                     }}
                   >
                         {videos.map((video, index) => (
                               <div
@@ -527,7 +530,7 @@ export function VideoViewer() {
                                                       </p>
                                                       <div className="flex items-center gap-2 mt-2">
                                                             <span className="text-xs text-white/60 bg-white/10 px-2 py-0.5 rounded-full backdrop-blur-sm">
-                                                                  {video.views} views
+                                                                  {t.watch.views.replace("{count}", video.views)}
                                                             </span>
                                                             {durations[video.id] && (
                                                                   <span className="text-xs text-white/40">
@@ -578,7 +581,7 @@ export function VideoViewer() {
                                                                   <Heart className={cn("w-6 h-6", video.isSaved && "fill-red-500 text-red-500")} />
                                                             </button>
                                                       </CollectionManager>
-                                                      <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">Save</span>
+                                                      <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">{t.watch.save}</span>
                                                 </div>
 
                                                 {/* Play/Pause */}
@@ -593,7 +596,7 @@ export function VideoViewer() {
                                                             {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 fill-current" />}
                                                       </button>
                                                       <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">
-                                                            {isPlaying ? "Pause" : "Play"}
+                                                            {isPlaying ? t.watch.pause : t.watch.play}
                                                       </span>
                                                 </div>
 
@@ -609,7 +612,7 @@ export function VideoViewer() {
                                                             {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
                                                       </button>
                                                       <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">
-                                                            {isMuted ? "Mute" : "Unmute"}
+                                                            {isMuted ? t.watch.mute : t.watch.unmute}
                                                       </span>
                                                 </div>
 
@@ -624,18 +627,18 @@ export function VideoViewer() {
                                                       >
                                                             <Share2 className="w-6 h-6" />
                                                       </button>
-                                                      <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">Share</span>
+                                                      <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">{t.watch.share}</span>
                                                 </div>
                                           </div>
                                     </div>
                               </div>
                         ))}
-                              </InfiniteScrollContainer>
+                               </InfiniteScrollContainer>
                   ) : !isLoading && (
                         <div className="flex-1 flex items-center justify-center p-6 text-center">
                               <NoDataCard
-                                    title="No Videos Found"
-                                    description={`We couldn't find any video ads in the ${selectedCategory === "all" ? "selected" : `"${selectedCategory}"`} category. Try another one!`}
+                                    title={t.watch.noVideosFound}
+                                    description={t.watch.tryAnotherCategory.replace("{category}", selectedCategory === "all" ? t.watch.allCategories : `"${selectedCategory}"`)}
                                     className="text-white [&_h1]:text-white [&_p]:text-white/60"
                               />
                         </div>

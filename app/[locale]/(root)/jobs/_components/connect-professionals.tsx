@@ -15,6 +15,8 @@ import { CardsCarousel } from "@/components/global/cards-carousel";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
+import { useLocale } from "@/hooks/useLocale";
+
 interface ConnectProfessionalsProps {
   professionals?: JobseekerProfile[];
   isLoading?: boolean;
@@ -24,7 +26,7 @@ export default function ConnectProfessionals({
   professionals: professionalsProp,
   isLoading: isLoadingProp,
 }: ConnectProfessionalsProps = {}) {
-  // Get current user ID (still useful if needed, but ProfessionalCard handles its own)
+  const { t } = useLocale();
 
   // Fetch jobseeker profiles from API
   const {
@@ -75,13 +77,13 @@ export default function ConnectProfessionals({
       <div className="max-w-[1080px] mx-auto space-y-8 px-4">
         {/* Header */}
         <div className="flex justify-between items-center gap-4">
-          <JobsSectionTitle>Connect Professionals</JobsSectionTitle>
+          <JobsSectionTitle>{t.jobs.connect.title}</JobsSectionTitle>
           <Link href="/jobs/jobseeker" className="group">
             <Typography
               variant="body-large"
               className="text-purple font-semibold text-base hover:underline transition-all flex items-center gap-1"
             >
-              View all
+              {t.jobs.connect.viewAll}
               <svg
                 className="w-4 h-4 transition-transform group-hover:translate-x-1"
                 fill="none"

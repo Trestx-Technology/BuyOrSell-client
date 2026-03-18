@@ -10,30 +10,24 @@ import Image from "next/image";
 import { AppStoreButtons } from "@/components/global/app-store-buttons";
 
 export function DownloadContent() {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const isArabic = locale === "ar";
 
   const features = [
     {
       icon: <Zap className="size-5 text-purple" />,
-      title: isArabic ? "أداء أسرع" : "Faster Performance",
-      desc: isArabic
-        ? "تصفح أسرع بمقدار 2x مقارنة بمتصفح الهاتف"
-        : "Browse 2x faster than mobile web browsers",
+      title: t.download.fastPerformance,
+      desc: t.download.fastPerformanceDesc,
     },
     {
       icon: <ShieldCheck className="size-5 text-purple" />,
-      title: isArabic ? "أمان عالي" : "Secure Experience",
-      desc: isArabic
-        ? "مدفوعات آمنة وحماية متقدمة للبيانات"
-        : "Verified payments and advanced data protection",
+      title: t.download.secureExperience,
+      desc: t.download.secureExperienceDesc,
     },
     {
       icon: <Star className="size-5 text-purple" />,
-      title: isArabic ? "عروض حصرية" : "Exclusive Deals",
-      desc: isArabic
-        ? "خصومات خاصة فقط لمستخدمي التطبيق"
-        : "App-only discounts and early access to deals",
+      title: t.download.exclusiveDeals,
+      desc: t.download.exclusiveDealsDesc,
     },
   ];
 
@@ -47,7 +41,7 @@ export function DownloadContent() {
               <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
                 <Smartphone className="size-4" />
                 <span className="text-xs font-bold uppercase tracking-widest">
-                  {isArabic ? "تطبيق متاح الآن" : "Official App Available"}
+                  {t.download.officialAppAvailable}
                 </span>
               </div>
 
@@ -58,15 +52,11 @@ export function DownloadContent() {
                     : "text-5xl lg:text-7xl font-bold leading-tight"
                 }
               >
-                {isArabic
-                  ? "تداول بذكاء مع تطبيق BuyOrSell"
-                  : "Trade Smarter with BuyOrSell App"}
+                {t.download.tradeSmarter}
               </h1>
 
               <p className="text-lg text-purple-100 max-w-lg leading-relaxed">
-                {isArabic
-                  ? "احصل على أفضل تجربة تسوق وبيع في الإمارات العربية المتحدة. حمل التطبيق الآن واستلم إشعارات فورية."
-                  : "Experience the #1 marketplace in UAE with our native mobile app. Get real-time notifications, secure messaging, and faster browsing."}
+                {t.download.experienceMarketplace}
               </p>
 
               <AppStoreButtons />
@@ -136,12 +126,10 @@ export function DownloadContent() {
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
             <div className="max-w-md text-center lg:text-left space-y-4">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                {isArabic ? "امسح الرمز للتحميل" : "Scan to download"}
+                {t.download.scanToDownload}
               </h2>
               <p className="text-gray-500 dark:text-gray-400">
-                {isArabic
-                  ? "وجه كاميرا هاتفك نحو رمز الاستجابة السريعة وسيتم توجيهك مباشرة لصفحة التحميل."
-                  : "Point your phone camera toward the QR code and you'll be redirected to your app store instantly."}
+                {t.download.scanDesc}
               </p>
             </div>
 

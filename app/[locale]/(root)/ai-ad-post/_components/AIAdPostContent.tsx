@@ -115,7 +115,7 @@ export const AIAdPostContent = () => {
     }
 
     setIsSuggesting(true);
-    const toastId = toast.loading("Analyzing images for you...");
+    const toastId = toast.loading(t.aiAdPost.analyzingPrompt);
 
     try {
       const data = await generatePromptFromImages(uploadedImages);
@@ -127,17 +127,17 @@ export const AIAdPostContent = () => {
           tokens: MAGIC_SUGGEST_CREDITS,
           purpose: "magic_suggestion",
         });
-        toast.success("Voila! Here's a suggested description.", {
+        toast.success(t.aiAdPost.voilaSuggested, {
           id: toastId,
         });
       } else {
-        toast.error("I couldn't generate a suggestion right now.", {
+        toast.error(t.aiAdPost.couldNotGenerateSuggestion, {
           id: toastId,
         });
       }
     } catch (error) {
       console.error("Magic suggest error:", error);
-      toast.error("Something went wrong.", { id: toastId });
+      toast.error(t.aiAdPost.somethingWentWrong, { id: toastId });
     } finally {
       setIsSuggesting(false);
     }
@@ -155,7 +155,7 @@ export const AIAdPostContent = () => {
       .map((img) => img.url);
 
     if (!prompt.trim() && uploadedImages.length === 0) {
-      toast.error("Please provide a description or upload an image first.");
+      toast.error(t.aiAdPost.provideDescriptionOrImage);
       return;
     }
 
@@ -166,7 +166,7 @@ export const AIAdPostContent = () => {
     }
 
     setIsGenerating(true);
-    const toastId = toast.loading("Analyzing your ad details...");
+    const toastId = toast.loading(t.aiAdPost.analyzingPrompt);
     console.log("[Client] Calling identifyCategory...");
     try {
       let { redirectUrl, suggestedTitle, categoryPath } =
@@ -258,7 +258,7 @@ export const AIAdPostContent = () => {
 
       if (!redirectUrl) {
         toast.error(
-          "I couldn't identify a clear category. Please try adding more detail to your description or ensure images are clear.",
+          t.aiAdPost.couldNotIdentifyCategory,
           { id: toastId, duration: 6000 },
         );
         setIsGenerating(false);
@@ -361,12 +361,12 @@ export const AIAdPostContent = () => {
                 {isSuggesting ? (
                   <>
                     <div className="w-4 h-4 border-2 border-[#8B31E1]/30 border-t-[#8B31E1] rounded-full animate-spin" />
-                    Analyzing images...
+                    {t.aiAdPost.analyzingImages}
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    Generate Details from Images
+                    {t.aiAdPost.generateFromImages}
                   </>
                 )}
               </button>
@@ -380,11 +380,11 @@ export const AIAdPostContent = () => {
               {isGenerating ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Finding the best category...
+                  {t.aiAdPost.findingCategory}
                 </>
               ) : (
                 <>
-                  Continue to Post Ad
+                  {t.aiAdPost.continueToPostAd}
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}

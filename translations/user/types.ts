@@ -28,6 +28,24 @@ export type UserTranslations = {
     noReviews: string;
     noReviewsDescription: string;
     rating: string;
+    myAdsTitle: string;
+    myAdsDescription: string;
+    postNewAd: string;
+    statusAll: string;
+    statusLive: string;
+    statusPending: string;
+    statusExpired: string;
+    statusRejected: string;
+    failedToLoadAds: string;
+    noAdsWithStatus: string;
+    noAdsYet: string;
+    startSelling: string;
+    postFirstAd: string;
+    myAdvertisements: string;
+    manageAdsDescription: string;
+    anonymous: string;
+    recently: string;
+    reviewPlaceholder: string;
   };
 
   // Profile Edit

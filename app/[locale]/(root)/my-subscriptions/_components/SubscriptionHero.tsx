@@ -21,7 +21,7 @@ export const SubscriptionHero = ({
       activeSubscriptionsCount,
       isLoading,
 }: SubscriptionHeroProps) => {
-      const { locale } = useLocale();
+      const { locale, t } = useLocale();
       const isArabic = locale === "ar";
 
       return (
@@ -41,10 +41,13 @@ export const SubscriptionHero = ({
                                     </div>
                                     <div className={cn("space-y-0.5", isArabic && "text-right")}>
                                           <Typography variant="h3" className="text-white font-bold text-xl tracking-tight">
-                                                {isArabic ? "نظرة عامة على الاشتراكات" : "Subscription Overview"}
+                                                {t.mySubscriptions.subscriptionOverview}
                                           </Typography>
                                           <p className="text-white/50 text-xs font-medium uppercase tracking-widest">
-                                                {isArabic ? `${activeSubscriptionsCount} خطط نشطة` : `${activeSubscriptionsCount} Active ${activeSubscriptionsCount === 1 ? 'Plan' : 'Plans'}`}
+                                                {isArabic
+                                                      ? `${activeSubscriptionsCount} ${t.mySubscriptions.activePlans}`
+                                                      : `${activeSubscriptionsCount} ${activeSubscriptionsCount === 1 ? 'Active Plan' : 'Active Plans'}`
+                                                }
                                           </p>
                                     </div>
                               </div>
@@ -58,25 +61,25 @@ export const SubscriptionHero = ({
                                     ) : (
                                           <>
                                                 <div className={cn("flex flex-col p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm min-w-[200px] hover:bg-white/10 transition-colors duration-300", isArabic && "text-right")}>
-                                                      <span className="text-white/50 text-sm font-medium mb-1">{isArabic ? "إعلانات عادية" : "Regular Ads"}</span>
+                                                      <span className="text-white/50 text-sm font-medium mb-1">{t.mySubscriptions.regularAds}</span>
                                                       <div className={cn("flex items-baseline gap-2", isArabic && "flex-row-reverse")}>
                                                             <span className="text-4xl font-black tracking-tighter text-white">
                                                                   {totalAdsRemaining}
                                                             </span>
-                                                            <span className="text-sm font-medium text-white/40 uppercase tracking-tighter">{isArabic ? "متبقية" : "Remaining"}</span>
+                                                            <span className="text-sm font-medium text-white/40 uppercase tracking-tighter">{t.mySubscriptions.remaining}</span>
                                                       </div>
                                                 </div>
 
                                                 <div className={cn("flex flex-col p-5 bg-purple/10 rounded-2xl border border-purple/20 backdrop-blur-sm min-w-[200px] hover:bg-purple/20 transition-colors duration-300", isArabic && "text-right")}>
                                                       <span className={cn("text-purple-300/70 text-sm font-medium mb-1 flex items-center gap-1.5", isArabic && "flex-row-reverse")}>
                                                             <Star className="size-3 fill-purple-300/70" />
-                                                            {isArabic ? "إعلانات مميزة" : "Featured Ads"}
+                                                            {t.mySubscriptions.featuredAds}
                                                       </span>
                                                       <div className={cn("flex items-baseline gap-2", isArabic && "flex-row-reverse")}>
                                                             <span className="text-4xl font-black tracking-tighter text-purple-300">
                                                                   {totalFeaturedAdsRemaining}
                                                             </span>
-                                                            <span className="text-sm font-medium text-purple-300/40 uppercase tracking-tighter">{isArabic ? "متبقية" : "Remaining"}</span>
+                                                            <span className="text-sm font-medium text-purple-300/40 uppercase tracking-tighter">{t.mySubscriptions.remaining}</span>
                                                       </div>
                                                 </div>
                                           </>

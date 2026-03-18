@@ -22,5 +22,9 @@ export type NotificationsTranslations = {
   // Status
   read: string;
   unread: string;
+  notification: string;
+  dateTime: string;
+  status: string;
+  actions: string;
 };
 

@@ -13,6 +13,8 @@ import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "nextjs-toploader/app";
 import { ConnectButton } from "./connect-button";
 
+import { useLocale } from "@/hooks/useLocale";
+
 interface ProfessionalCardProps {
   professional: JobseekerProfile;
   isConnected?: boolean;
@@ -26,6 +28,7 @@ export default function ProfessionalCard({
   connectionStatus,
   isLoading = false,
 }: ProfessionalCardProps) {
+  const { t } = useLocale();
   const userId = useAuthStore((state) => state.session.user?._id);
   const isCurrentUser = userId === professional.userId;
   const router = useRouter();
@@ -43,7 +46,7 @@ export default function ProfessionalCard({
   const location =
     preferredLocations && preferredLocations.length > 0
       ? preferredLocations[0]
-      : professional.location || "Not Specified";
+      : professional.location || t.jobs.connect.notSpecified;
 
   // Get initials for fallback avatar
   const initials =

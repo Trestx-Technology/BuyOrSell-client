@@ -12,11 +12,14 @@ import React from "react";
 import { H5 } from "@/components/typography";
 
 import { useRouter } from "next/navigation";
+import { useLocale } from "@/hooks/useLocale";
 
 export const HelpCenterContent = () => {
   const router = useRouter();
   const session = useAuthStore((state) => state.session);
   const userId = session?.user?._id || (session?.user as any)?.id;
+  const { t, localePath } = useLocale();
+  const ht = t.helpCenter;
 
   const stats = useTicketStats(userId || "");
   const { tickets, isLoading } = useUserTickets(userId || "");
@@ -35,25 +38,25 @@ export const HelpCenterContent = () => {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Help Center</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your support tickets and get help.</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{ht.title}</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">{ht.subtitle}</p>
           </div>
         </div>
         <div className="flex gap-3">
-          <Link href="/help-centre/messages">
-            <Button variant="outline">Messages</Button>
+          <Link href={localePath("/help-centre/messages")}>
+            <Button variant="outline">{ht.actions.messages}</Button>
           </Link>
-          <Link href="/help-centre/my-tickets">
-            <Button variant="outline">My Tickets</Button>
+          <Link href={localePath("/help-centre/my-tickets")}>
+            <Button variant="outline">{ht.actions.myTickets}</Button>
           </Link>
-          <Link href="/help-centre/new">
+          <Link href={localePath("/help-centre/new")}>
             <Button
               icon={
                 <Plus className="w-4 h-4 -mr-2" />
               }
               iconPosition="center"
               className="bg-purple-600 hover:bg-purple-700">
-              New Ticket
+              {ht.actions.newTicket}
             </Button>
           </Link>
         </div>
@@ -61,31 +64,35 @@ export const HelpCenterContent = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <StatCard label="Total Tickets" value={stats.total} icon={<TicketIcon className="w-5 h-5 text-purple-600 dark:text-purple-400" />} />
-        <StatCard label="Open" value={stats.open} icon={<div className="w-3 h-3 rounded-full bg-blue-500 ring-2 ring-blue-100 dark:ring-blue-900/40" />} />
-        <StatCard label="In Progress" value={stats.inProgress} icon={<div className="w-3 h-3 rounded-full bg-yellow-500 ring-2 ring-yellow-100 dark:ring-yellow-900/40" />} />
-        <StatCard label="Resolved" value={stats.resolved} icon={<div className="w-3 h-3 rounded-full bg-green-500 ring-2 ring-green-100 dark:ring-green-900/40" />} />
+        <StatCard label={ht.stats.total} value={stats.total} icon={<TicketIcon className="w-5 h-5 text-purple-600 dark:text-purple-400" />} />
+        <StatCard label={ht.stats.open} value={stats.open} icon={<div className="w-3 h-3 rounded-full bg-blue-500 ring-2 ring-blue-100 dark:ring-blue-900/40" />} />
+        <StatCard label={ht.stats.inProgress} value={stats.inProgress} icon={<div className="w-3 h-3 rounded-full bg-yellow-500 ring-2 ring-yellow-100 dark:ring-yellow-900/40" />} />
+        <StatCard label={ht.stats.resolved} value={stats.resolved} icon={<div className="w-3 h-3 rounded-full bg-green-500 ring-2 ring-green-100 dark:ring-green-900/40" />} />
       </div>
 
       {/* Recent Tickets */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Recent Tickets</h2>
-          <Link href="/help-centre/my-tickets" className="text-purple-600 dark:text-purple-400 text-sm font-medium hover:underline">
-            View All
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{ht.recentTickets.title}</h2>
+          <Link href={localePath("/help-centre/my-tickets")} className="text-purple-600 dark:text-purple-400 text-sm font-medium hover:underline">
+            {ht.actions.viewAll}
           </Link>
         </div>
-        <TicketsList tickets={tickets.slice(0, 5)} isLoading={isLoading} emptyMessage="No recent support tickets." />
+        <TicketsList tickets={tickets.slice(0, 5)} isLoading={isLoading} emptyMessage={ht.recentTickets.empty} />
       </div>
 
       {/* Help Resources / FAQ Section (Placeholder) */}
       <div className="mt-12">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Common Topics</h2>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">{ht.commonTopics.title}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {['Account Settings', 'Billing & Payments', 'Security & Privacy'].map((topic) => (
-            <Card key={topic} className="p-4 hover:shadow-sm cursor-pointer border-gray-200 dark:border-gray-800 dark:bg-gray-900">
-              <h3 className="font-medium text-gray-800 dark:text-gray-200">{topic}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Learn more about {topic.toLowerCase()}</p>
+          {[
+            { label: ht.commonTopics.accountSettings, desc: ht.commonTopics.accountSettingsDesc },
+            { label: ht.commonTopics.billingPayments, desc: ht.commonTopics.billingPaymentsDesc },
+            { label: ht.commonTopics.securityPrivacy, desc: ht.commonTopics.securityPrivacyDesc }
+          ].map((topic) => (
+            <Card key={topic.label} className="p-4 hover:shadow-sm cursor-pointer border-gray-200 dark:border-gray-800 dark:bg-gray-900">
+              <h3 className="font-medium text-gray-800 dark:text-gray-200">{topic.label}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{topic.desc}</p>
             </Card>
           ))}
         </div>

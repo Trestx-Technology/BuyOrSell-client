@@ -55,7 +55,17 @@ export async function generateMetadata(
   }
 }
 
-export default function JobsHomePage() {
+import { getTranslations } from "@/translations";
+import { Locale } from "@/lib/i18n/config";
+
+type PageProps = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function JobsHomePage({ params }: PageProps) {
+  const { locale } = await params;
+  const t = await getTranslations(locale as Locale);
+
   return (
     <div className="flex flex-col gap-12">
       {/* Hero Section */}
@@ -78,7 +88,7 @@ export default function JobsHomePage() {
         </Container1080>
 
         {/* Tabbed Jobs Section */}
-        <JobsTabbedSection title="Latest Jobs" titleClassName="font-bold" />
+        <JobsTabbedSection title={t.jobs.tabs.latestJobs} titleClassName="font-bold" />
 
         {/* Emiratis Support Section */}
         <EmiratisSupport />

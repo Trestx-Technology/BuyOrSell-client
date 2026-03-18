@@ -9,7 +9,7 @@ import { useLocale } from "@/hooks/useLocale";
 import { useRouter } from "nextjs-toploader/app";
 
 export default function AccountHaltedPage() {
-  const { localePath } = useLocale();
+  const { localePath, t } = useLocale();
   const router = useRouter();
 
   return (
@@ -28,14 +28,13 @@ export default function AccountHaltedPage() {
             variant="h2"
             className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight"
           >
-            Account Halted
+            {t.accountHalted.accountHalted}
           </Typography>
           <Typography
             variant="body-large"
             className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto leading-relaxed"
           >
-            Your account has been temporarily halted by administration for
-            review following reports from the community.
+            {t.accountHalted.haltDescription}
           </Typography>
         </div>
 
@@ -45,7 +44,7 @@ export default function AccountHaltedPage() {
               variant="md-medium"
               className="text-gray-500 dark:text-gray-400 font-medium mb-4 block"
             >
-              Need assistance? Contact our support team:
+              {t.accountHalted.needAssistance}
             </Typography>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -58,7 +57,7 @@ export default function AccountHaltedPage() {
                 icon={<Mail className="w-5 h-5 -mr-2 text-purple" />}
                 iconPosition="center"
               >
-                <span className="text-sm font-semibold">Email Support</span>
+                <span className="text-sm font-semibold">{t.accountHalted.emailSupport}</span>
               </Button>
               <Button
                 variant="outline"
@@ -67,7 +66,7 @@ export default function AccountHaltedPage() {
                 icon={<Phone className="w-5 h-5 -mr-2 text-purple" />}
                 iconPosition="center"
               >
-                <span className="text-sm font-semibold">Call Us</span>
+                <span className="text-sm font-semibold">{t.accountHalted.callUs}</span>
               </Button>
             </div>
           </div>
@@ -78,14 +77,14 @@ export default function AccountHaltedPage() {
               className="w-full rounded-2xl h-14 font-extrabold text-base shadow-lg shadow-purple/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
               onClick={() => router.push(localePath("/contact-us"))}
             >
-              Raise a Dispute
+              {t.accountHalted.raiseDispute}
             </Button>
           </div>
         </div>
 
         <div className="pt-6 relative">
           <p className="text-[10px] text-gray-400 dark:text-gray-600 uppercase tracking-[0.2em] font-bold">
-            Safety First Environment
+            {t.accountHalted.safetyFirst}
           </p>
         </div>
       </div>

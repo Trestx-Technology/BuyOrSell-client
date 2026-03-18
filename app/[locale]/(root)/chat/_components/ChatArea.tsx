@@ -10,6 +10,7 @@ import { ICONS } from "@/constants/icons";
 import { Typography } from "@/components/typography";
 import Link from "next/link";
 import { ChatAdInfo } from "./ChatAdInfo";
+import { useLocale } from "@/hooks/useLocale";
 
 interface Message {
   id: string;
@@ -65,6 +66,8 @@ export function ChatArea({
   dateHeaderText,
   className,
 }: ChatAreaProps) {
+  const { t } = useLocale();
+
   // Empty State - Only shown on desktop when no chat is selected
   if (!currentChat) {
     return (
@@ -86,11 +89,10 @@ export function ChatArea({
             </svg>
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            Select a chat to continue
+            {t.chat.selectChatTitle}
           </h3>
           <p className="text-gray-500 dark:text-gray-400 max-w-sm">
-            Choose a conversation from the left sidebar to start chatting with
-            other users.
+            {t.chat.selectChatSubtext}
           </p>
         </div>
       </div>

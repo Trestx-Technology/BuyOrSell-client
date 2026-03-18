@@ -16,7 +16,7 @@ import { ArrowLeft, CreditCard, Sparkles, Filter } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export const MySubscriptionsContent = () => {
-  const { t, locale } = useLocale();
+  const { locale, t, localePath } = useLocale();
   const isArabic = locale === "ar";
   const router = useRouter();
   const { data: mySubscriptionData, isLoading, error } = useGetMySubscription();
@@ -70,7 +70,7 @@ export const MySubscriptionsContent = () => {
 
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950">
-      <MobileStickyHeader title={isArabic ? "اشتراكاتي" : "My Subscriptions"} />
+      <MobileStickyHeader title={t.mySubscriptions.mySubscriptions} />
 
       <div className="container-1080 mx-auto px-4 py-8 space-y-10">
         {/* Back navigation */}
@@ -89,7 +89,7 @@ export const MySubscriptionsContent = () => {
                 : "group-hover:-translate-x-1",
             )}
           />
-          <span>{isArabic ? "عودة" : "Back"}</span>
+          <span>{t.mySubscriptions.back}</span>
         </button>
 
         {/* Hero Section */}
@@ -118,7 +118,7 @@ export const MySubscriptionsContent = () => {
               )}
             >
               <div className="h-1 w-6 bg-purple rounded-full" />
-              {isArabic ? "خططك" : "Your Plans"}
+              {t.mySubscriptions.yourPlans}
             </div>
             <Typography
               variant="h2"
@@ -145,8 +145,9 @@ export const MySubscriptionsContent = () => {
               className="h-12 px-8 rounded-2xl bg-white border-2 border-purple dark:bg-white text-purple hover:text-white dark:text-black font-bold shadow-xl"
               icon={<Sparkles className={cn("size-4")} />}
               iconPosition={isArabic ? "right" : "left"}
+              onClick={() => router.push(localePath("/plans"))}
             >
-              {isArabic ? "احصل على خطة جديدة" : "Get New Plan"}
+              {t.mySubscriptions.getNewPlan}
             </Button>
           </Link>
         </div>
@@ -172,7 +173,7 @@ export const MySubscriptionsContent = () => {
                     : "text-gray-500 hover:text-gray-700",
                 )}
               >
-                {isArabic ? "نشط" : "Active"} ({activeSubscriptions.length})
+                {t.mySubscriptions.active} ({activeSubscriptions.length})
               </button>
               <button
                 onClick={() => {
@@ -186,7 +187,7 @@ export const MySubscriptionsContent = () => {
                     : "text-gray-500 hover:text-gray-700",
                 )}
               >
-                {isArabic ? "غير نشط" : "Inactive"} (
+                {t.mySubscriptions.inactive} (
                 {inactiveSubscriptions.length})
               </button>
             </div>
@@ -207,7 +208,7 @@ export const MySubscriptionsContent = () => {
                 >
                   <Filter className="size-4" />
                   <span className="text-sm font-semibold">
-                    {isArabic ? "تصفية حسب الفئة:" : "Filter by Category:"}
+                    {t.mySubscriptions.filterByCategory}
                   </span>
                 </div>
                 <div
@@ -269,7 +270,7 @@ export const MySubscriptionsContent = () => {
                 className="mt-6 rounded-xl"
                 onClick={() => window.location.reload()}
               >
-                {isArabic ? "إعادة المحاولة" : "Retry Now"}
+                {t.mySubscriptions.retryNow}
               </Button>
             </div>
           ) : filteredSubscriptions.length === 0 ? (
@@ -307,7 +308,7 @@ export const MySubscriptionsContent = () => {
                     size="lg"
                     className="h-14 px-10 rounded-2xl bg-purple text-white font-black text-lg shadow-xl shadow-purple/20"
                   >
-                    {isArabic ? "تصفح الخطط" : "Browse Plans"}
+                    {t.mySubscriptions.browsePlans}
                   </Button>
                 </Link>
               )}
@@ -355,7 +356,7 @@ export const MySubscriptionsContent = () => {
             </div>
             <Link href="/plans">
               <Button className="h-14 px-10 rounded-2xl bg-purple text-white font-black text-lg shadow-xl shadow-purple/20">
-                {isArabic ? "ترقية الآن" : "Upgrade Now"}
+                {t.mySubscriptions.upgradeNow}
               </Button>
             </Link>
           </div>

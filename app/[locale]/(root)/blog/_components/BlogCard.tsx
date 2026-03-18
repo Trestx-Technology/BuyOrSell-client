@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Blog } from "@/interfaces/blog";
 import { motion } from "framer-motion";
 import { Calendar, ChevronRight } from "lucide-react";
+import { useLocale } from "@/hooks/useLocale";
 
 interface BlogCardProps {
   blog: Blog;
@@ -11,6 +12,8 @@ interface BlogCardProps {
 }
 
 export const BlogCard = ({ blog, locale }: BlogCardProps) => {
+  const { t } = useLocale();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -46,7 +49,7 @@ export const BlogCard = ({ blog, locale }: BlogCardProps) => {
       <div className="flex flex-1 flex-col p-6">
         <div className="mb-3 flex items-center text-sm text-gray-500 dark:text-gray-400">
           <Calendar className="mr-1.5 h-4 w-4" />
-          {blog.date}
+          {t.blog.postedOn} {blog.date}
         </div>
         
         <h3 className="mb-3 text-xl font-bold text-gray-900 dark:text-white group-hover:text-purple transition-colors">
@@ -58,7 +61,7 @@ export const BlogCard = ({ blog, locale }: BlogCardProps) => {
         </p>
         
         <div className="mt-auto flex items-center font-semibold text-purple">
-          Read More
+          {t.blog.readMore}
           <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
         </div>
       </div>

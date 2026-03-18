@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useLocale } from "@/hooks/useLocale";
 
 interface Message {
   id: string;
@@ -48,6 +49,7 @@ export function MessagesList({
   onEditMessage,
   onDeleteMessage,
 }: MessagesListProps) {
+  const { t } = useLocale();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
@@ -102,7 +104,7 @@ export function MessagesList({
         <LocationMessage
           latitude={msg.coordinates.latitude}
           longitude={msg.coordinates.longitude}
-          placeName="Shared Location"
+          placeName={t.chat.sharedLocation}
           timestamp=""
         />
       );
@@ -127,8 +129,8 @@ export function MessagesList({
   };
 
   const formatDateHeader = (date: Date) => {
-    if (isToday(date)) return "Today";
-    if (isYesterday(date)) return "Yesterday";
+    if (isToday(date)) return t.chat.today;
+    if (isYesterday(date)) return t.chat.yesterday;
     // For 27th June format: 'do MMMM' results in '27th June' (depending on locale, but standard English handles 'do')
     return format(date, "do MMMM yyyy");
   };
@@ -181,7 +183,7 @@ export function MessagesList({
                         {msg.type === "text" && (
                           <DropdownMenuItem onClick={() => handleEditClick(msg)}>
                             <Edit2 className="mr-2 h-4 w-4" />
-                            <span>Edit</span>
+                            <span>{t.chat.edit}</span>
                           </DropdownMenuItem>
                         )}
                         <DropdownMenuItem
@@ -189,7 +191,7 @@ export function MessagesList({
                           className="text-red-600 focus:text-red-600"
                         >
                           < Trash2 className="mr-2 h-4 w-4" />
-                          <span>Delete</span>
+                          <span>{t.chat.delete}</span>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -243,7 +245,7 @@ export function MessagesList({
                   ></div>
                 </div>
                 <Typography variant="caption" className="text-gray-400 dark:text-gray-500 ml-2">
-                  typing...
+                  {t.chat.typing}
                 </Typography>
               </div>
             </div>
@@ -254,21 +256,21 @@ export function MessagesList({
       <Dialog open={!!editingMessage} onOpenChange={(open) => !open && setEditingMessage(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Message</DialogTitle>
+            <DialogTitle>{t.chat.editMessage}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <Input
               value={editedText}
               onChange={(e) => setEditedText(e.target.value)}
-              placeholder="Edit your message..."
+              placeholder={t.chat.editPlaceholder}
               onKeyDown={(e) => e.key === "Enter" && confirmEdit()}
             />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditingMessage(null)}>
-              Cancel
+              {t.chat.cancel}
             </Button>
-            <Button onClick={confirmEdit}>Save Changes</Button>
+            <Button onClick={confirmEdit}>{t.chat.saveChanges}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -276,17 +278,17 @@ export function MessagesList({
       <Dialog open={!!deletingMessageId} onOpenChange={(open) => !open && setDeletingMessageId(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Message</DialogTitle>
+            <DialogTitle>{t.chat.deleteMessage}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this message? This action cannot be undone.
+              {t.chat.confirmDeleteMessage}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeletingMessageId(null)}>
-              Cancel
+              {t.chat.cancel}
             </Button>
             <Button variant="danger" onClick={confirmDelete}>
-              Delete
+              {t.chat.delete}
             </Button>
           </DialogFooter>
         </DialogContent>

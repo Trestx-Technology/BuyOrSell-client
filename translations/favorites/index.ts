@@ -46,6 +46,10 @@ export const favoritesTranslations = createTranslationNamespace<FavoritesTransla
     // Dynamic text
     itemsCount: '{{count}} items',
     createdAt: 'Created {{date}}',
+    deleteCollectionTitle: "Delete Collection",
+    deleteCollectionConfirm: "Are you sure you want to delete this collection? This action cannot be undone.",
+    collectionDeleted: "Collection deleted successfully",
+    failedToDeleteCollection: "Failed to delete collection",
   },
   'nl-NL': {
     // Page titles
@@ -91,6 +95,10 @@ export const favoritesTranslations = createTranslationNamespace<FavoritesTransla
     // Dynamic text
     itemsCount: '{{count}} items',
     createdAt: 'Gemaakt {{date}}',
+    deleteCollectionTitle: "Collectie verwijderen",
+    deleteCollectionConfirm: "Weet je zeker dat je deze collectie wilt verwijderen? Dit kan niet ongedaan worden gemaakt.",
+    collectionDeleted: "Collectie succesvol verwijderd",
+    failedToDeleteCollection: "Verwijderen van collectie mislukt",
   },
   'nl': {
     // Page titles
@@ -136,6 +144,10 @@ export const favoritesTranslations = createTranslationNamespace<FavoritesTransla
     // Dynamic text
     itemsCount: '{{count}} items',
     createdAt: 'Gemaakt {{date}}',
+    deleteCollectionTitle: "Collectie verwijderen",
+    deleteCollectionConfirm: "Weet je zeker dat je deze collectie wilt verwijderen? Dit kan niet ongedaan worden gemaakt.",
+    collectionDeleted: "Collectie succesvol verwijderd",
+    failedToDeleteCollection: "Verwijderen van collectie mislukt",
   },
   'ar': {
     // Page titles
@@ -181,5 +193,9 @@ export const favoritesTranslations = createTranslationNamespace<FavoritesTransla
     // Dynamic text
     itemsCount: '{{count}} عنصر',
     createdAt: 'تم الإنشاء {{date}}',
+    deleteCollectionTitle: "حذف المجموعة",
+    deleteCollectionConfirm: "هل أنت متأكد من حذف هذه المجموعة؟ لا يمكن التراجع عن هذا الإجراء.",
+    collectionDeleted: "تم حذف المجموعة بنجاح",
+    failedToDeleteCollection: "فشل حذف المجموعة",
   },
 });

@@ -39,6 +39,16 @@ export type AIAdPostTranslations = {
   };
   clickToApply: string;
   characters: string;
+  analyzingImages: string;
+  generateFromImages: string;
+  findingCategory: string;
+  continueToPostAd: string;
+  analyzingPrompt: string;
+  voilaSuggested: string;
+  couldNotGenerateSuggestion: string;
+  somethingWentWrong: string;
+  provideDescriptionOrImage: string;
+  couldNotIdentifyCategory: string;
 };
 
 export type AIAdPostTranslationNamespace = Record<Locale, AIAdPostTranslations>;

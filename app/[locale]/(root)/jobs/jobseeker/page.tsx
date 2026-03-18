@@ -26,6 +26,7 @@ import { Container1080 } from "@/components/layouts/container-1080";
 import { useUrlParams } from "@/hooks/useUrlParams";
 import { NoDataCard } from "@/components/global/fallback-cards";
 import { ActiveFilters } from "@/components/common/active-filters";
+import { useLocale } from "@/hooks/useLocale";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -44,6 +45,7 @@ const getArrayParam = (params: URLSearchParams, key: string): string[] => {
 };
 
 export default function JobseekersPage() {
+  const { t } = useLocale();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -129,10 +131,10 @@ export default function JobseekersPage() {
   const categoryName = "Jobseekers";
 
   const breadcrumbItems: BreadcrumbItem[] = [
-    { id: "jobs", label: "Jobs", href: "/jobs" },
+    { id: "jobs", label: t.jobs.title, href: "/jobs" },
     {
       id: "jobseekers",
-      label: "Jobseekers",
+      label: t.jobs.jobseekers.title,
       href: "/jobs/jobseeker",
       isActive: true,
     },
@@ -173,52 +175,51 @@ export default function JobseekersPage() {
 
     // Mark first 5 filters as static (visible outside), rest go in dialog
     return [
-      // First 5 filters - visible outside
       {
         key: "minExp",
-        label: "Min Experience",
+        label: t.jobs.jobseekers.minExp,
         type: "select" as const,
         options: Array.from({ length: 21 }, (_, i) => ({
           value: String(i),
-          label: `${i} ${i === 1 ? "year" : "years"}`,
+          label: `${i} ${i === 1 ? t.jobs.jobseekers.year : t.jobs.jobseekers.years}`,
         })),
-        placeholder: "Min Years",
+        placeholder: t.jobs.jobseekers.minYears,
         isStatic: true,
       },
       {
         key: "maxExp",
-        label: "Max Experience",
+        label: t.jobs.jobseekers.maxExp,
         type: "select" as const,
         options: Array.from({ length: 21 }, (_, i) => ({
           value: String(i),
-          label: `${i} ${i === 1 ? "year" : "years"}`,
+          label: `${i} ${i === 1 ? t.jobs.jobseekers.year : t.jobs.jobseekers.years}`,
         })),
-        placeholder: "Max Years",
+        placeholder: t.jobs.jobseekers.maxYears,
         isStatic: true,
       },
       {
         key: "industryId",
-        label: "Industry",
+        label: t.jobs.jobseekers.industry,
         type: "select" as const,
         options: industryOptions,
-        placeholder: "Select Industry",
+        placeholder: t.jobs.jobseekers.selectIndustry,
         isStatic: true,
       },
       {
         key: "skills",
-        label: "Skills",
+        label: t.jobs.jobseekers.skills,
         type: "multiselect" as const,
         options: skillOptions,
-        placeholder: "Select Skills",
+        placeholder: t.jobs.jobseekers.selectSkills,
         isStatic: true,
       },
       // Rest of filters - go in dialog
       {
         key: "desiredRoles",
-        label: "Desired Roles",
+        label: t.jobs.jobseekers.desiredRoles,
         type: "multiselect" as const,
         options: [], // Will be populated dynamically or from API
-        placeholder: "Select Roles",
+        placeholder: t.jobs.jobseekers.selectRoles,
         isStatic: false,
       },
       ...defaultJobseekerFilters.slice(1).map((filter) => ({
@@ -358,32 +359,32 @@ export default function JobseekersPage() {
     const location =
       profile.preferredLocations && profile.preferredLocations.length > 0
         ? profile.preferredLocations[0]
-        : profile.location || "Not specified";
+        : profile.location || t.jobs.jobseekers.notSpecified;
 
     // Get job type from preferredJobTypes
     const jobType =
       profile.preferredJobTypes && profile.preferredJobTypes.length > 0
         ? profile.preferredJobTypes[0]
-        : "Not specified";
+        : t.jobs.jobseekers.notSpecified;
 
     // Get experience years
     const experience = profile.experienceYears
       ? `${profile.experienceYears} ${
-          profile.experienceYears === 1 ? "year" : "years"
+          profile.experienceYears === 1 ? t.jobs.jobseekers.year : t.jobs.jobseekers.years
         }`
       : profile.isFresher
-      ? "Fresher"
-      : "Not specified";
+      ? t.jobs.jobseekers.fresher
+      : t.jobs.jobseekers.notSpecified;
 
     // Get role/headline
     const role =
-      profile.headline || profile.desiredRoles?.[0] || "Professional";
+      profile.headline || profile.desiredRoles?.[0] || t.jobs.jobseekers.professional;
 
     // Get company from current experience if available
     const company =
       profile.experiences && profile.experiences.length > 0
         ? profile.experiences[0].company
-        : "Not specified";
+        : t.jobs.jobseekers.notSpecified;
 
     // Get salary expectations
     const salaryMin = profile.salaryExpectationMin || 0;
@@ -430,7 +431,7 @@ export default function JobseekersPage() {
         {/* Search Bar */}
         <Input
           leftIcon={<Search className="h-4 w-4" />}
-          placeholder={"Search jobseekers..."}
+          placeholder={t.jobs.jobseekers.searchPlaceholder}
           value={localSearchQuery}
           onChange={(e) => setLocalSearchQuery(e.target.value)}
           className="pl-10 bg-gray-100 dark:bg-zinc-800 dark:text-zinc-100 border-0"
@@ -445,7 +446,7 @@ export default function JobseekersPage() {
         {/* Page Header */}
         <div className="flex items-center justify-between mb-6 px-4">
           <Typography variant="md-black-inter" className="font-semibold text-black dark:text-zinc-100">
-            {categoryName} in Dubai ({jobseekers.length})
+            {t.jobs.jobseekers.title} {t.jobs.jobseekers.in} {locationQuery || t.jobs.jobseekers.allCities} ({jobseekers.length})
           </Typography>
 
           {/* <SortAndViewControls
@@ -463,10 +464,10 @@ export default function JobseekersPage() {
         <JobsFilter
           searchQuery={localSearchQuery}
           onSearchChange={setLocalSearchQuery}
-          searchPlaceholder={`Search ${categoryName}...`}
+          searchPlaceholder={t.jobs.jobseekers.searchPlaceholder}
           locationQuery={locationQuery}
           onLocationChange={handleLocationChange}
-          locationPlaceholder="Dubai"
+          locationPlaceholder={t.jobs.jobseekers.allCities}
           filters={filters}
           onFilterChange={handleFilterChange}
           onClearFilters={clearFilters}
@@ -498,7 +499,7 @@ export default function JobseekersPage() {
         <div className="space-y-6">
           {isLoading ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 dark:text-zinc-400 text-lg">Loading jobseekers...</p>
+              <p className="text-gray-500 dark:text-zinc-400 text-lg">{t.jobs.jobseekers.loading}</p>
             </div>
           ) : jobseekers.length > 0 ? (
             <div
@@ -516,10 +517,10 @@ export default function JobseekersPage() {
             </div>
           ) : (
             <div className="text-center py-12">
-                  <NoDataCard title="No jobseekers found matching your criteria." description="Please try again with different filters." />
+                  <NoDataCard title={t.jobs.jobseekers.noResults} description={t.jobs.jobseekers.tryAgain} />
                   {hasActiveFilters && (
                     <Button variant="outline" onClick={clearFilters} className="mt-4">
-                      Clear Filters
+                      {t.jobs.jobseekers.clearFilters}
                     </Button>
                   )}
             </div>

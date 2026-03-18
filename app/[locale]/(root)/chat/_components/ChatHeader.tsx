@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useState } from "react";
+import { useLocale } from "@/hooks/useLocale";
 
 interface ChatHeaderProps {
   currentChat: Chat | undefined;
@@ -39,6 +40,7 @@ export function ChatHeader({
   onDeleteChat,
 }: ChatHeaderProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { t } = useLocale();
 
   return (
     <>
@@ -96,7 +98,11 @@ export function ChatHeader({
                   currentChat?.isOnline && "text-green-600 dark:text-green-400 font-medium"
                 )}
               >
-                {currentChat?.isOnline ? "Online" : currentChat?.lastSeen ? `Last seen ${currentChat.lastSeen}` : "Last seen recently"}
+                {currentChat?.isOnline
+                  ? t.chat.online
+                  : currentChat?.lastSeen
+                  ? t.chat.lastSeen.replace("{time}", currentChat.lastSeen)
+                  : t.chat.lastSeenRecently}
               </Typography>
             </div>
           </div>
@@ -118,7 +124,7 @@ export function ChatHeader({
                   className="text-red-600 focus:text-red-600"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  <span>Delete Chat</span>
+                  <span>{t.chat.deleteChat}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -130,14 +136,14 @@ export function ChatHeader({
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Chat</DialogTitle>
+            <DialogTitle>{t.chat.deleteChat}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this chat? This action cannot be undone.
+              {t.chat.confirmDeleteChat}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
-              Cancel
+              {t.chat.cancel}
             </Button>
             <Button
               variant="danger"
@@ -146,7 +152,7 @@ export function ChatHeader({
                 setShowDeleteDialog(false);
               }}
             >
-              Delete
+              {t.chat.deleteChat}
             </Button>
           </DialogFooter>
         </DialogContent>

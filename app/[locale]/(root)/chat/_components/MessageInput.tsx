@@ -8,6 +8,7 @@ import { AutosizeTextarea } from "@/components/global/autosize-textarea";
 import { toast } from "sonner";
 import { LocationSelectorDialog } from "./LocationSelectorDialog";
 import { EmojiPopover } from "./EmojiPopover";
+import { useLocale } from "@/hooks/useLocale";
 
 import { useUploadFile } from "@/hooks/useUploadFile";
 
@@ -42,6 +43,7 @@ export function MessageInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [, setRows] = useState(minRows);
   const [isLocationDialogOpen, setIsLocationDialogOpen] = useState(false);
+  const { t } = useLocale();
 
   const { upload, isUploading } = useUploadFile({
     maxFileSize: 5,
@@ -50,7 +52,7 @@ export function MessageInput({
       onSend({
         type: "file",
         fileUrl: url,
-        text: "Shared an image",
+        text: t.chat.sharedImage,
       });
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -130,7 +132,7 @@ export function MessageInput({
         latitude: location.coordinates.lat,
         longitude: location.coordinates.lng,
       },
-      text: "Shared a location", // Or use location.address if preferred
+      text: t.chat.sharedLocation, // Or use location.address if preferred
     });
     setIsLocationDialogOpen(false);
   };
@@ -165,7 +167,7 @@ export function MessageInput({
             className="p-2 text-gray-500 hover:text-purple hover:bg-purple/10"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            title="Send Image"
+            title={t.chat.sendImage}
           >
             {isUploading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -180,7 +182,7 @@ export function MessageInput({
             className="p-2 text-gray-500 hover:text-purple hover:bg-purple/10"
             onClick={handleLocationShare}
             disabled={isUploading}
-            title="Share Location"
+            title={t.chat.shareLocation}
           >
             <MapPin className="h-5 w-5" />
           </Button>
@@ -195,7 +197,7 @@ export function MessageInput({
 
         <div className="flex-1 relative">
           <AutosizeTextarea
-            placeholder="Enter your message"
+            placeholder={t.chat.messagePlaceholder}
             maxHeight={200}
             minHeight={42}
             value={value}

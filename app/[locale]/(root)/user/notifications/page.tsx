@@ -49,6 +49,7 @@ export default function NotificationsPage() {
 
   // Get table columns
   const columns = useNotificationsColumns({
+    t,
     onMarkRead: handleMarkRead,
     onDelete: handleDelete,
     isMarkingRead: markReadMutation.isPending,
@@ -62,8 +63,7 @@ export default function NotificationsPage() {
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple mx-auto mb-4"></div>
             <p className="text-gray-600">
-              {t.notifications?.loadingNotifications ||
-                "Loading notifications..."}
+              {t.notifications.loadingNotifications}
             </p>
           </div>
         </div>
@@ -76,13 +76,8 @@ export default function NotificationsPage() {
       <div className="max-w-[1080px] mx-auto px-4 py-8">
         <ErrorCard
           variant="error"
-          title={
-            t.notifications?.failedToLoad || "Failed to load notifications"
-          }
-          description={
-            t.notifications?.failedToLoadDescription ||
-            "Unable to fetch notifications. Please try again later."
-          }
+          title={t.notifications.failedToLoad}
+          description={t.notifications.failedToLoadDescription}
           className="max-w-md mx-auto"
         />
       </div>
@@ -92,16 +87,15 @@ export default function NotificationsPage() {
   return (
     <Container1080 className="sm:space-y-6">
       <MobileStickyHeader
-        title={t.notifications?.pageTitle || "Notifications"}
+        title={t.notifications.pageTitle}
       />
       <div className="flex items-center justify-between p-4 sm:py-8">
         <div className="hidden sm:block">
           <h1 className="text-xl font-bold text-gray-900 mb-2">
-            {t.notifications?.pageTitle || "Notifications"}
+            {t.notifications.pageTitle}
           </h1>
           <p className="text-sm text-gray-600">
-            {t.notifications?.pageDescription ||
-              "View and manage your notifications"}
+            {t.notifications.pageDescription}
           </p>
         </div>
         {notifications?.data && notifications.data.length > 0 && (
@@ -111,8 +105,8 @@ export default function NotificationsPage() {
             className="px-4 py-2 text-sm font-medium text-purple-600 hover:text-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {markAllReadMutation.isPending
-              ? t.notifications?.markingAll || "Marking..."
-              : t.notifications?.markAllRead || "Mark All as Read"}
+              ? t.notifications.markingAll
+              : t.notifications.markAllRead}
           </button>
         )}
       </div>

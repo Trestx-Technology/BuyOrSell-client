@@ -9,6 +9,7 @@ import { useState, memo } from "react";
 import { cn } from "@/lib/utils";
 import { ICONS } from "@/constants/icons";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocale } from "@/hooks/useLocale";
 
 export interface AdDetails {
   adId: string;
@@ -213,6 +214,9 @@ export function ChatSidebar({
   onChatTypeChange,
   className,
 }: ChatSidebarProps) {
+  const { t, locale } = useLocale();
+  const isArabic = locale === "ar";
+  
   return (
     <div className={cn("w-full md:max-w-sm flex flex-col h-full bg-white dark:bg-black border-r border-gray-100 dark:border-gray-800", className)}>
       {/* Header */}
@@ -221,10 +225,10 @@ export function ChatSidebar({
         <div className="flex items-center gap-4">
           <div className="relative w-full">
             <Input
-              placeholder="Search Chat"
+              placeholder={t.chat.searchPlaceholder}
               className="bg-white/10 dark:bg-white/10 border-white/20 text-white placeholder:text-white/60 pl-9 focus:bg-white focus:text-gray-900 dark:focus:text-gray-900 focus:placeholder:text-gray-400 transition-all duration-300"
             />
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className={cn("absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none", isArabic ? "right-3" : "left-3")} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
@@ -251,10 +255,10 @@ export function ChatSidebar({
               </svg>
             </div>
             <Typography variant="body-large" className="text-gray-900 dark:text-gray-100 font-semibold mb-2">
-              No chats found
+              {t.chat.noChatsFound}
             </Typography>
             <Typography variant="body-small" className="text-gray-400 dark:text-gray-500">
-              Your conversations will appear here
+              {t.chat.noChatsSubtext}
             </Typography>
           </div>
         ) : (
