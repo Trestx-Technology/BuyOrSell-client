@@ -20,9 +20,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogPage({ params }: Props) {
   const { locale } = await params;
   const t = getTranslations(locale as Locale);
-  
+  const isRTL = locale === "ar";
+
   return (
-    <div className="min-h-screen pt-20 pb-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen pt-20 pb-10 px-4 sm:px-6 lg:px-8" dir={isRTL ? "rtl" : "ltr"}>
       <div className="max-w-7xl mx-auto">
         <header className="mb-12 text-center">
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl">

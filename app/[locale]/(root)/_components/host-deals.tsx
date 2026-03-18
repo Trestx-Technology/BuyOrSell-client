@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { Clock, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Typography } from "@/components/typography";
 import HotDealsListingCard from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
 import { CardsCarousel } from "@/components/global/cards-carousel";
@@ -203,6 +204,7 @@ export default function HostDeals({
   return (
     <section
       ref={ref as any}
+      dir={locale === "ar" ? "rtl" : "ltr"}
       style={{
         background:
           "radial-gradient(circle, rgba(180, 207, 199, 1) 0%, rgba(132, 75, 143, 1) 100%)",
@@ -214,7 +216,7 @@ export default function HostDeals({
         <div
           className={`flex items-center justify-between mb-4 reveal-on-scroll reveal-delay-100 ${isVisible ? 'is-visible' : ''}`}
         >
-          <div className="flex items-center gap-4 px-5">
+          <div className="flex items-center gap-4 ps-5">
             {/* Hot Deals Title */}
             <Typography
               variant="lg-black-inter"
@@ -232,8 +234,10 @@ export default function HostDeals({
               onClick={() => (window.location.href = localePath("/deals"))}
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/10 rounded-full transition-colors group"
             >
-              {t.home.hostDeals.viewAll}
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              <Typography variant="body-small" className="font-medium text-white">
+                {t.home.hostDeals.viewAll}
+              </Typography>
+              <ArrowRight className={cn("w-4 h-4 group-hover:translate-x-0.5 transition-transform", locale === 'ar' && "rotate-180")} />
             </button>
           </div>
         </div>

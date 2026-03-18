@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useEmblaCarousel from "embla-carousel-react";
+import { useLocale } from "@/hooks/useLocale";
 import { cn } from "@/lib/utils";
 
 export interface CardsCarouselProps {
@@ -31,8 +32,12 @@ export function CardsCarousel({
     wide: 4,
   },
 }: CardsCarouselProps) {
+  const { locale } = useLocale();
+  const isRTL = locale === "ar";
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
+    direction: isRTL ? "rtl" : "ltr",
     dragFree: true,
     containScroll: "trimSnaps",
     slidesToScroll: 1,

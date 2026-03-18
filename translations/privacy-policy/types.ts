@@ -111,21 +111,48 @@ export type PrivacyPolicyTranslations = {
     };
     yourRights: {
       title: string;
+      intro: string;
+      table: {
+        headers: string[];
+        rows: string[][];
+      };
+      outro: string;
+      accountSelfService: string;
     };
     cookies: {
       title: string;
+      intro: string;
+      outro: string;
     };
     children: {
       title: string;
+      intro: string;
+      middle: string;
+      outro: string;
+      compliance: string;
     };
     thirdParty: {
       title: string;
+      intro: string;
+      middle: string;
+      outro: string;
     };
     changes: {
       title: string;
+      intro: string;
+      items: string[];
+      outro: string;
     };
     contact: {
       title: string;
+      intro: string;
+      dpo: string;
+      company: string;
+      address: string;
+      email: string;
+      support: string;
+      phone: string;
+      responseTime: string;
     };
   };
 };

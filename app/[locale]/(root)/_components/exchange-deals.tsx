@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Typography } from "@/components/typography";
 import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { CardsCarousel } from "@/components/global/cards-carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ListingCard from "@/components/features/listing-card/listing-card";
@@ -13,64 +14,8 @@ import { ListingCardProps } from "@/components/features/listing-card/listing-car
 import { useLocale } from "@/hooks/useLocale";
 import { Skeleton } from "@/components/ui/skeleton";
 import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
-import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver"
 
-// Framer Motion animation variants - using improved patterns from AI search bar
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const headerVariants = {
-  hidden: { opacity: 0, y: 25, scale: 0.98 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 22,
-      delay: 0.1,
-    },
-  },
-};
-
-const tabsVariants = {
-  hidden: { opacity: 0, y: 15, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 22,
-      delay: 0.3,
-    },
-  },
-};
-
-const contentVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 300,
-      damping: 22,
-      delay: 0.5,
-    },
-  },
-};
 
 interface ExchangeDealsProps {
   className?: string;
@@ -212,6 +157,7 @@ export default function ExchangeDeals({
   return (
     <section
       ref={ref as any}
+      dir={locale === "ar" ? "rtl" : "ltr"}
       style={{
         background:
           "radial-gradient(circle,rgba(55, 231, 182, 1) 0%, rgba(46, 31, 148, 1) 100%)",
@@ -221,7 +167,7 @@ export default function ExchangeDeals({
       <div className="w-full mx-auto">
         {/* Header with Timer */}
         <div
-          className={`flex items-center justify-between mb-4 pl-5 reveal-slide-left ${isVisible ? 'is-visible' : ''} reveal-delay-100`}
+          className={`flex items-center justify-between mb-4 ps-5 reveal-slide-left ${isVisible ? 'is-visible' : ''} reveal-delay-100`}
         >
           {/* Hot Deals Title */}
           <Typography
@@ -236,8 +182,10 @@ export default function ExchangeDeals({
               onClick={() => (window.location.href = localePath("/exchange"))}
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white hover:bg-white/10 rounded-full transition-colors group"
             >
-              {t.home.exchangeDeals.viewAll}
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              <Typography variant="body-small" className="font-medium text-white">
+                {t.home.exchangeDeals.viewAll}
+              </Typography>
+              <ArrowRight className={cn("w-4 h-4 group-hover:translate-x-0.5 transition-transform", locale === 'ar' && "rotate-180")} />
             </button>
           </div>
         </div>

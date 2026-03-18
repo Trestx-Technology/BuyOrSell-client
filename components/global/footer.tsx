@@ -31,6 +31,7 @@ import { ShareDialog } from "../ui/share-dialog";
 import { slugify } from "@/utils/slug-utils";
 import { ICONS } from "@/constants/icons";
 import { PAGES_WITHOUT_NAV, shouldShowComponent } from "@/constants/layout.constants";
+import { useLocale } from "@/hooks/useLocale";
 
 interface FooterProps {
   className?: string;
@@ -41,6 +42,8 @@ export function Footer({ className }: FooterProps) {
     useGetMainCategories();
   const { data: emirates, isLoading: emiratesLoading } = useEmirates();
   const pathname = usePathname();
+  const { t, locale, localePath } = useLocale();
+  const isRTL = locale === "ar";
 
   const shouldHideFooter = React.useMemo(() => {
     return shouldShowComponent(pathname || "", PAGES_WITHOUT_NAV);
@@ -60,6 +63,7 @@ export function Footer({ className }: FooterProps) {
         "w-full bg-purple dark:bg-[#0B0F19] text-primary-foreground",
         className,
       )}
+      dir={isRTL ? "rtl" : "ltr"}
     >
       <motion.div
         className="w-full bg-black dark:bg-[#080B14]"
@@ -72,9 +76,9 @@ export function Footer({ className }: FooterProps) {
             className="flex items-center justify-center w-full py-4 text-white hover:text-gray-200 transition-all duration-200 hover:scale-105 cursor-pointer group"
           >
             <Typography variant="body" className="font-medium text-sm">
-              Back to top
+              {t.home.navbar.backToTop}
             </Typography>
-            <ArrowUp className="ml-2 w-4 h-4 transition-transform duration-200 group-hover:-translate-y-1" />
+            <ArrowUp className={cn("w-4 h-4 transition-transform duration-200 group-hover:-translate-y-1", isRTL ? "mr-2" : "ml-2")} />
           </button>
         </div>
       </motion.div>
@@ -90,7 +94,7 @@ export function Footer({ className }: FooterProps) {
           className="mb-8 rounded-lg w-fit mx-auto md:mx-0 bg-white p-2"
           variants={fastItemVariants}
         >
-          <Link href="/">
+          <Link href={localePath("/")}>
             <Image
               src={ICONS.logo.main}
               alt="logo"
@@ -108,33 +112,33 @@ export function Footer({ className }: FooterProps) {
             className="space-y-6 hidden md:block"
             variants={fastItemVariants}
           >
-            <Typography variant="h6" className="font-medium text-sm text-white">
-              Company
+            <Typography variant="h6" className="font-medium text-sm text-white text-start">
+              {t.home.navbar.company}
             </Typography>
-            <div className="space-y-3">
+            <div className="space-y-3 text-start">
               <Typography
                 variant="body"
                 className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
-                About Us
+                {t.home.navbar.aboutUs}
               </Typography>
               <Typography
                 variant="body"
                 className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
-                Advertising
+                {t.home.navbar.advertising}
               </Typography>
               <Typography
                 variant="body"
                 className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
-                Careers
+                {t.home.navbar.careers}
               </Typography>
               <Typography
                 variant="body"
                 className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
-                Legal Help
+                {t.home.navbar.legalHelp}
               </Typography>
             </div>
           </motion.div>
@@ -144,10 +148,10 @@ export function Footer({ className }: FooterProps) {
             className="space-y-6 hidden md:block"
             variants={fastItemVariants}
           >
-            <Typography variant="h6" className="font-medium text-sm text-white">
-              UAE
+            <Typography variant="h6" className="font-medium text-sm text-white text-start">
+              {t.home.navbar.uae}
             </Typography>
-            <div className="space-y-3">
+            <div className="space-y-3 text-start">
               {emiratesLoading
                 ? // Skeleton for emirates
                   Array.from({ length: 8 }).map((_, i) => (
@@ -157,7 +161,7 @@ export function Footer({ className }: FooterProps) {
                     .slice(0, 8)
                     .map((emirateObj: Emirate, idx: number) => (
                       <Link
-                        href={`/${slugify(categories?.[idx]?.name)}?location=${emirateObj.emirate}`}
+                        href={localePath(`/${slugify(categories?.[idx]?.name)}?location=${emirateObj.emirate}`)}
                         key={idx}
                         className="block"
                       >
@@ -165,7 +169,7 @@ export function Footer({ className }: FooterProps) {
                           variant="body"
                           className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
                         >
-                          {emirateObj.emirate}
+                          {isRTL ? emirateObj.emirateAr : emirateObj.emirate}
                         </Typography>
                       </Link>
                     ))}
@@ -177,10 +181,10 @@ export function Footer({ className }: FooterProps) {
             className="space-y-6 hidden md:block"
             variants={fastItemVariants}
           >
-            <Typography variant="h6" className="font-medium text-sm text-white">
-              Categories
+            <Typography variant="h6" className="font-medium text-sm text-white text-start">
+              {t.home.navbar.categories}
             </Typography>
-            <div className="space-y-3">
+            <div className="space-y-3 text-start">
               {categoriesLoading
                 ? // Skeleton for categories
                   Array.from({ length: 8 }).map((_, i) => (
@@ -188,7 +192,7 @@ export function Footer({ className }: FooterProps) {
                   ))
                 : categories?.map((cat, idx: number) => (
                     <Link
-                      href={`/${slugify(cat.name)}`}
+                      href={localePath(`/${slugify(cat.name)}`)}
                       key={idx}
                       className="block"
                     >
@@ -196,7 +200,7 @@ export function Footer({ className }: FooterProps) {
                         variant="body"
                         className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
                       >
-                        {cat.name}
+                        {isRTL ? cat.nameAr || cat.name : cat.name}
                       </Typography>
                     </Link>
                   ))}
@@ -208,15 +212,15 @@ export function Footer({ className }: FooterProps) {
             className="space-y-6 flex flex-col justify-center items-center w-full md:w-auto lg:items-start"
             variants={fastItemVariants}
           >
-            <Typography variant="h6" className="font-medium text-sm text-white">
-              Download App
+            <Typography variant="h6" className={cn("font-medium text-sm text-white", isRTL ? "text-start lg:text-start" : "text-center lg:text-start")}>
+              {t.home.navbar.downloadApp}
             </Typography>
             <div className="space-y-4">
               <Typography
                 variant="body"
                 className="text-sm opacity-70 hidden lg:block text-white"
               >
-                New User Only
+                {t.home.navbar.newUserOnly}
               </Typography>
               <div className="flex flex-col lg:flex-row items-center gap-2">
                 {/* QR Code */}
@@ -226,7 +230,7 @@ export function Footer({ className }: FooterProps) {
                     size={180}
                     bgColor="#ffffff"
                     fgColor="#000000"
-                    aria-label="Scan QR code to download the app"
+                    aria-label={isRTL ? "امسح رمز الاستجابة السريعة لتحميل التطبيق" : "Scan QR code to download the app"}
                   />
                 </div>
                 {/* App Store Buttons */}
@@ -240,48 +244,56 @@ export function Footer({ className }: FooterProps) {
             className="space-y-6 hidden md:block"
             variants={fastItemVariants}
           >
-            <Typography variant="h6" className="font-medium text-sm text-white">
-              Subscribe
+            <Typography variant="h6" className="font-medium text-sm text-white text-start">
+              {t.home.navbar.subscribe}
             </Typography>
-            <div className="space-y-3 flex flex-col">
-              <Link href="/help-centre" className="block">
+            <div className="space-y-3 flex flex-col text-start">
+              <Link href={localePath("/help-centre")} className="block">
                 <Typography
                   variant="body"
                   className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
                 >
-                  Help
+                  {t.home.navbar.help}
                 </Typography>
               </Link>
-              <Link href="/contact-us" className="block">
+              <Link href={localePath("/blog")} className="block">
                 <Typography
                   variant="body"
                   className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
                 >
-                  Contact Us
+                  {t.home.navbar.blog}
                 </Typography>
               </Link>
-              <Link href="/contact-us" className="block">
+              <Link href={localePath("/contact-us")} className="block">
                 <Typography
                   variant="body"
                   className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
                 >
-                  Call Us
+                  {t.home.navbar.contactUs}
                 </Typography>
               </Link>
-              <Link href="/rate-us" className="block">
+              <Link href={localePath("/contact-us")} className="block">
+                <Typography
+                  variant="body"
+                  className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
+                >
+                  {t.home.navbar.callUs}
+                </Typography>
+              </Link>
+              <Link href={localePath("/rate-us")} className="block">
                 <Typography
                   variant="body"
                   className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-colors duration-200"
                 >
-                  Rate Us
+                  {t.home.navbar.rateUs}
                 </Typography>
               </Link>
-              <ShareDialog title="Share" url={"https://buyorsell.ae"}>
+              <ShareDialog title={isRTL ? "مشاركة" : "Share"} url={"https://buyorsell.ae"}>
                 <Typography
                   variant="body"
                   className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
                 >
-                  Share
+                  {t.home.navbar.shareWithFriend.split(" ")[0]}
                 </Typography>
               </ShareDialog>
             </div>
@@ -292,10 +304,10 @@ export function Footer({ className }: FooterProps) {
             className="space-y-6 hidden md:block"
             variants={fastItemVariants}
           >
-            <Typography variant="h6" className="font-medium text-sm text-white">
-              Language
+            <Typography variant="h6" className="font-medium text-sm text-white text-start">
+              {t.home.navbar.language}
             </Typography>
-            <div className="space-y-3 flex flex-col">
+            <div className="space-y-3 flex flex-col text-start ">
               <Link
                 href="/en"
                 className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
@@ -306,7 +318,7 @@ export function Footer({ className }: FooterProps) {
                 href="/ar"
                 className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
-                Arabic
+                {isRTL ? "العربية" : "Arabic"}
               </Link>
             </div>
           </motion.div>
@@ -324,24 +336,24 @@ export function Footer({ className }: FooterProps) {
         >
           {/* Left Side - Legal Links */}
           <div className="hidden md:flex items-center gap-6 ">
-            <Link href="/privacy-policy">
+            <Link href={localePath("/privacy-policy")}>
               <Typography
                 variant="body"
                 className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
-                Privacy & Policy
+                {t.home.navbar.privacyPolicy}
               </Typography>
             </Link>
-            <Link href="/terms-and-conditions">
+            <Link href={localePath("/terms-and-conditions")}>
               <Typography
                 variant="body"
                 className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
               >
-                Terms & Conditions
+                {t.home.navbar.termsConditions}
               </Typography>
             </Link>
-            <Typography variant="body" className="text-sm opacity-60">
-              © 2024 BuyOrSell | All Rights Reserved
+            <Typography variant="body" className={cn("text-sm opacity-60", isRTL ? "mr-4" : "ml-4")}>
+              © 2024 BuyOrSell | {t.home.navbar.allRightsReserved}
             </Typography>
           </div>
 

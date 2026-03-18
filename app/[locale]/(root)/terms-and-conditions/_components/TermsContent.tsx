@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Mail } from "lucide-react";
+import { TermsHeader } from "./TermsHeader";
 import { Section1Introduction } from "./sections/Section1_Introduction";
 import { Section2Eligibility } from "./sections/Section2_Eligibility";
 import { Section3NatureOfPlatform } from "./sections/Section3_NatureOfPlatform";
@@ -41,17 +42,31 @@ export function TermsContent() {
   const [activeSection, setActiveSection] = useState("introduction");
 
   const sections = [
-    { title: t.termsAndConditions.sections.acceptance.title, id: "introduction" },
+    { title: t.termsAndConditions.sections.introduction.title, id: "introduction" },
     { title: t.termsAndConditions.sections.eligibility.title, id: "eligibility" },
-    { title: t.termsAndConditions.sections.account.title, id: "nature-of-platform" }, // Close enough for now
-    { title: t.termsAndConditions.sections.houseRules.title, id: "prohibited-conduct" },
-    { title: t.termsAndConditions.sections.fees.title, id: "fees" },
+    { title: t.termsAndConditions.sections.natureOfPlatform.title, id: "nature-of-platform" },
+    { title: t.termsAndConditions.sections.userObligations.title, id: "user-obligations" },
+    { title: t.termsAndConditions.sections.listingsAndContent.title, id: "listings-content" },
     { title: t.termsAndConditions.sections.intellectualProperty.title, id: "intellectual-property" },
+    { title: t.termsAndConditions.sections.subscriptions.title, id: "subscriptions" },
+    { title: t.termsAndConditions.sections.cancellations.title, id: "cancellations" },
+    { title: t.termsAndConditions.sections.uaeRules.title, id: "uae-rules" },
+    { title: t.termsAndConditions.sections.reviews.title, id: "reviews" },
+    { title: t.termsAndConditions.sections.communication.title, id: "communication" },
+    { title: t.termsAndConditions.sections.thirdParty.title, id: "third-party" },
+    { title: t.termsAndConditions.sections.privacy.title, id: "privacy" },
+    { title: t.termsAndConditions.sections.cookiePolicy.title, id: "cookie-policy" },
     { title: t.termsAndConditions.sections.disclaimer.title, id: "disclaimer" },
     { title: t.termsAndConditions.sections.liability.title, id: "liability" },
+    { title: t.termsAndConditions.sections.indemnity.title, id: "indemnity" },
+    { title: t.termsAndConditions.sections.suspension.title, id: "suspension" },
+    { title: t.termsAndConditions.sections.changes.title, id: "changes" },
     { title: t.termsAndConditions.sections.governingLaw.title, id: "governing-law" },
-    { title: t.termsAndConditions.sections.modifications.title, id: "changes" },
+    { title: t.termsAndConditions.sections.miscellaneous.title, id: "miscellaneous" },
     { title: t.termsAndConditions.sections.contact.title, id: "contact" },
+    { title: t.termsAndConditions.sections.annex1Property.title, id: "annex-1-property" },
+    { title: t.termsAndConditions.sections.annex2Motors.title, id: "annex-2-motors" },
+    { title: t.termsAndConditions.sections.annex3Jobs.title, id: "annex-3-jobs" },
   ];
 
   useEffect(() => {
@@ -87,23 +102,7 @@ export function TermsContent() {
   return (
     <div className="bg-gray-50 dark:bg-[#0B0F19] min-h-screen py-20 px-4 md:px-8 lg:px-12 font-inter shadow-inner scroll-smooth">
       <div className="max-w-6xl mx-auto bg-white dark:bg-[#121827] shadow-2xl rounded-[2.5rem] mb-20 border border-gray-100 dark:border-gray-800">
-        {/* Header */}
-        <div className="text-center py-16 px-6 bg-gradient-to-b from-purple/10 to-transparent rounded-t-[2.5rem]">
-          <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
-            {t.termsAndConditions.title}
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-            {t.termsAndConditions.subtitle}
-          </p>
-          <div className="mt-8 flex justify-center gap-4 text-xs font-bold text-gray-400">
-            <span className="bg-white dark:bg-gray-800 py-2 px-4 rounded-full shadow-sm">
-              {t.termsAndConditions.lastUpdated}
-            </span>
-            <span className="bg-white dark:bg-gray-800 py-2 px-4 rounded-full shadow-sm">
-              Region: UAE
-            </span>
-          </div>
-        </div>
+        <TermsHeader />
 
         <div className="flex flex-col lg:flex-row p-6 md:p-12 lg:p-16 gap-12">
           {/* Table of Contents Sidebar */}

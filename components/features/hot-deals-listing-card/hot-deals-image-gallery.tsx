@@ -10,6 +10,7 @@ import {
   ImageOffIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/hooks/useLocale";
 import { HotDealsActions } from "./hot-deals-actions";
 import { DealTimer } from "@/components/global/deal-timer";
 import { BASE64 } from "@/constants/base64";
@@ -86,14 +87,17 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
   };
 
 
+  const { locale } = useLocale();
+  const isRTL = locale === "ar";
+
   return (
-    <div className="relative aspect-[3/3] sm:aspect-[4/3] bg-primary w-full h-full min-h-[122px] max-h-[177px] overflow-hidden">
+    <div className="relative aspect-[3/3] sm:aspect-[4/3] bg-primary w-full h-full min-h-[122px] max-h-[177px] overflow-hidden" dir={isRTL ? "rtl" : "ltr"}>
       {images.length > 0 ? (
         <div className="relative w-full h-full overflow-hidden">
           <div
             className="flex transition-transform duration-500 ease-in-out h-full"
             style={{
-              transform: `translateX(-${currentImageIndex * 100}%)`,
+              transform: `translateX(${isRTL ? "" : "-"}${currentImageIndex * 100}%)`,
             }}
           >
             {images.map((image, index) => (
@@ -126,7 +130,7 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
 
       {/* Premium Badge - Hidden when discount is present */}
       {isPremium && !(discount && discount > 0) && (
-        <div className="absolute top-3 left-3 z-20">
+        <div className={cn("absolute top-3 z-20", isRTL ? "right-3" : "left-3")}>
           <Image
             src={"/premium.svg"}
             alt="Premium"
@@ -138,7 +142,7 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
 
       {/* Image Counter */}
       {images?.length > 0 && (
-        <div className="absolute bottom-3 left-3 w-fit z-20 pointer-events-none">
+        <div className={cn("absolute bottom-3 w-fit z-20 pointer-events-none", isRTL ? "right-3" : "left-3")}>
           <div className="bg-[#777777] rounded-lg px-2 py-1 flex items-center gap-1 w-fit">
             <ImageIcon className="size-3 sm:size-4 text-white" />
             <span className="text-[10px] text-white font-medium">
@@ -150,7 +154,7 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
 
       {/* Views Counter */}
       {typeof views === "number" && (
-        <div className="absolute bottom-3 right-3 z-20 pointer-events-none">
+        <div className={cn("absolute bottom-3 z-20 pointer-events-none", isRTL ? "left-3" : "right-3")}>
           <div className="bg-black rounded-lg px-2 py-1 flex items-center gap-1">
             <Eye className="size-3 sm:size-4 text-white" />
             <span className="text-[10px] text-white font-medium">
@@ -168,24 +172,26 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
             variant="secondary"
             disabled={isTransitioning}
             className={cn(
-              "absolute left-2 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity z-20",
-              isTransitioning ? "opacity-50 cursor-not-allowed" : "opacity-100"
+               "absolute top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity z-20",
+               isRTL ? "right-2" : "left-2",
+               isTransitioning ? "opacity-50 cursor-not-allowed" : "opacity-100"
             )}
-            onClick={handlePreviousImage}
+            onClick={isRTL ? handleNextImage : handlePreviousImage}
           >
-            <ChevronLeft className="h-4 w-4 text-slate-700" />
+            {isRTL ? <ChevronRight className="h-4 w-4 text-slate-700" /> : <ChevronLeft className="h-4 w-4 text-slate-700" />}
           </Button>
           <Button
             size="sm"
             variant="secondary"
             disabled={isTransitioning}
             className={cn(
-              "absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity z-20",
+              "absolute top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg transition-opacity z-20",
+              isRTL ? "left-2" : "right-2",
               isTransitioning ? "opacity-50 cursor-not-allowed" : "opacity-100"
             )}
-            onClick={handleNextImage}
+            onClick={isRTL ? handlePreviousImage : handleNextImage}
           >
-            <ChevronRight className="h-4 w-4 text-slate-700" />
+            {isRTL ? <ChevronLeft className="h-4 w-4 text-slate-700" /> : <ChevronRight className="h-4 w-4 text-slate-700" />}
           </Button>
         </div>
       )}
@@ -232,7 +238,8 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
       {showDiscountBadge && discount && discount > 0 && (
         <div
           className={cn(
-            "absolute top-0 left-0 px-3 py-1.5 rounded-br-2xl text-[10px] sm:text-xs font-bold shadow-lg z-20 uppercase tracking-wider pointer-events-none",
+            "absolute top-0 px-3 py-1.5 text-[10px] sm:text-xs font-bold shadow-lg z-20 uppercase tracking-wider pointer-events-none",
+            isRTL ? "right-0 rounded-bl-2xl" : "left-0 rounded-br-2xl",
             discountBadgeBg,
             discountBadgeTextColor
           )}
@@ -245,7 +252,8 @@ export const HotDealsImageGallery: React.FC<HotDealsImageGalleryProps> = ({
       {showTimer && dealValidThrough && (
         <div
           className={cn(
-            "absolute bottom-0 right-0 px-3 py-1 rounded-tl-2xl shadow-lg z-20 pointer-events-none",
+            "absolute bottom-0 px-3 py-1 shadow-lg z-20 pointer-events-none",
+            isRTL ? "left-0 rounded-tr-2xl" : "right-0 rounded-tl-2xl",
             timerBg
           )}
         >

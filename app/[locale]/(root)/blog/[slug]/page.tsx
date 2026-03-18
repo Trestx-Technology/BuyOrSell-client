@@ -16,17 +16,21 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const blog = (blogsData as Blog[]).find((b) => b.slug === slug);
 
   if (!blog) return { title: "Blog Not Found" };
 
+  const isRTL = locale === "ar";
+  const displayTitle = isRTL ? blog.title_ar || blog.title : blog.title;
+  const displayExcerpt = isRTL ? blog.excerpt_ar || blog.excerpt : blog.excerpt;
+
   return {
-    title: `${blog.title} | BuyOrSell Blog`,
-    description: blog.excerpt,
+    title: `${displayTitle} | BuyOrSell Blog`,
+    description: displayExcerpt,
     openGraph: {
-      title: blog.title,
-      description: blog.excerpt,
+      title: displayTitle,
+      description: displayExcerpt,
       type: "article",
     },
   };
