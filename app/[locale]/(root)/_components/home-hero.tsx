@@ -65,7 +65,7 @@ export function HomeHero() {
           >
             {BANNERS[currentSlide].type === "custom" ? (
               <div className="relative bg-pink-300/10 w-full h-full flex items-center p-4 md:p-10">
-                <div className="z-10 w-full max-w-1/2 space-y-5">
+                <div className="z-10 w-full sm:max-w-1/2 space-y-2 sm:space-y-5">
                   <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-[#1D2939] dark:text-white leading-[1.25] tracking-tight">
                     The Smarter Way to{" "}
                     <span className="text-[#8B31E1]">Buy</span>{" "}
