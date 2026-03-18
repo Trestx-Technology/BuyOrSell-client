@@ -32,6 +32,8 @@ import { ExchangeTranslations } from "../exchange/types";
 import { ContactUsTranslations } from "../contact-us/types";
 import { HelpCenterTranslations } from "../help-centre/types";
 import { WatchTranslations } from "../watch/types";
+import { PrivacyPolicyTranslations } from "../privacy-policy/types";
+import { TermsAndConditionsTranslations } from "../terms-conditions/types";
 export type { CommonTranslations } from "../common/types";
 
 // Re-export commonly used types
@@ -73,4 +75,6 @@ export type Translations = {
   contactUs: ContactUsTranslations;
   helpCenter: HelpCenterTranslations;
   watch: WatchTranslations;
+  privacyPolicy: PrivacyPolicyTranslations;
+  termsAndConditions: TermsAndConditionsTranslations;
 };

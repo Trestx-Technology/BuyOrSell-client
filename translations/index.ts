@@ -66,6 +66,8 @@ import { blogTranslations } from "./blog";
 import { connectionsTranslations } from "./connections";
 import { downloadTranslations } from "./download";
 import { accountHaltedTranslations } from "./account-halted";
+import { privacyPolicyTranslations } from "./privacy-policy";
+import { termsAndConditionsTranslations } from "./terms-conditions";
 import { mySubscriptionsTranslations } from "./my-subscriptions";
 import { successTranslations } from "./success";
 import type { Translations } from "./types";
@@ -102,6 +104,8 @@ const translationRegistry = {
   accountHalted: accountHaltedTranslations,
   mySubscriptions: mySubscriptionsTranslations,
   success: successTranslations,
+  privacyPolicy: privacyPolicyTranslations,
+  termsAndConditions: termsAndConditionsTranslations,
 } as const;
 
 /**
