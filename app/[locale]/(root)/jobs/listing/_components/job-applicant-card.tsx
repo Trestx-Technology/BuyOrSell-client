@@ -16,6 +16,7 @@ import {
 } from "@/hooks/useJobApplications";
 import { toast } from "sonner";
 import { useLocale } from "@/hooks/useLocale";
+import { ResumeViewer } from "../../jobseeker/[id]/_components/resume-viewer";
 
 const getStatusLabel = (status: JobApplicant["status"]) => {
   switch (status) {
@@ -295,10 +296,25 @@ export default function JobApplicantCard({
                 variant="ghost"
                 size="sm"
                 onClick={onViewProfile}
-                className="min-w-[100px] border boder"
+                className="min-w-[100px] border border-border"
               >
                 View Profile
               </Button>
+            )}
+            {applicant.resumeUrl && (
+              <ResumeViewer
+                resumeUrl={applicant.resumeUrl}
+                candidateName={userName}
+                trigger={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="min-w-[100px] border border-purple text-purple hover:bg-purple/10"
+                  >
+                    View Resume
+                  </Button>
+                }
+              />
             )}
           </div>
         </div>
@@ -411,15 +427,28 @@ export default function JobApplicantCard({
                   {isRejecting ? "Processing..." : "Reject"}
                 </Button>
               </div>
-              {onViewProfile && (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={onViewProfile}
-                >
-                  View Profile
-                </Button>
-              )}
+              <div className="flex gap-2">
+                {onViewProfile && (
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={onViewProfile}
+                  >
+                    View Profile
+                  </Button>
+                )}
+                {applicant.resumeUrl && (
+                  <ResumeViewer
+                    resumeUrl={applicant.resumeUrl}
+                    candidateName={userName}
+                    trigger={
+                      <Button variant="outline" className="flex-1 border-purple text-purple hover:bg-purple/10">
+                        View Resume
+                      </Button>
+                    }
+                  />
+                )}
+              </div>
             </div>
           )}
         </div>

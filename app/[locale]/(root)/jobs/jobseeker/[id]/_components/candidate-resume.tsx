@@ -1,11 +1,10 @@
-"use client";
-
 import React from "react";
 import { H2, Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { JobseekerProfile } from "@/interfaces/job.types";
-import { Download } from "lucide-react";
+import { Download, Eye } from "lucide-react";
 import { format } from "date-fns";
+import { ResumeViewer } from "./resume-viewer";
 
 interface CandidateResumeProps {
   jobseeker: JobseekerProfile;
@@ -27,11 +26,10 @@ export default function CandidateResume({ jobseeker, onDownload }: CandidateResu
 
   return (
     <div className="bg-white dark:bg-gray-900 border border-[#E2E2E2] dark:border-gray-800 rounded-2xl p-6 md:p-8 mb-6 shadow-sm">
-      <H2
-        className="text-dark-blue dark:text-white font-bold mb-4">
+      <H2 className="text-dark-blue dark:text-white font-bold mb-4">
         Resume
       </H2>
-      <div className="flex flex-col sm:flex-row gap-4  items-center justify-between">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div>
           <Typography variant="body-small" className="text-dark-blue dark:text-gray-200 mb-1">
             {jobseeker.resumeFileUrl.split("/").pop() || "Resume"}
@@ -43,14 +41,30 @@ export default function CandidateResume({ jobseeker, onDownload }: CandidateResu
               : "Sep 20, 2020"}
           </Typography>
         </div>
-        <Button
-          onClick={handleDownload}
-          variant="primary"
-          icon={<Download className="w-4 h-4" />}
-          iconPosition="left"
-        >
-          Download Resume
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <ResumeViewer
+            resumeUrl={jobseeker.resumeFileUrl}
+            candidateName={jobseeker.name || "Candidate"}
+            trigger={
+              <Button
+                variant="outline"
+                icon={<Eye className="w-4 h-4" />}
+                iconPosition="left"
+                className="border-purple text-purple hover:bg-purple/10"
+              >
+                View Resume
+              </Button>
+            }
+          />
+          <Button
+            onClick={handleDownload}
+            variant="primary"
+            icon={<Download className="w-4 h-4" />}
+            iconPosition="left"
+          >
+            Download Resume
+          </Button>
+        </div>
       </div>
     </div>
   );
