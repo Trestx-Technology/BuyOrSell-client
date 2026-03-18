@@ -4,6 +4,8 @@ import { Blog } from "@/interfaces/blog";
 import { motion } from "framer-motion";
 import { Calendar, Tag, ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { useLocale } from "@/hooks/useLocale";
+import { cn } from "@/lib/utils";
 
 interface BlogContentProps {
   blog: Blog;
@@ -11,14 +13,19 @@ interface BlogContentProps {
 }
 
 export const BlogContent = ({ blog, locale }: BlogContentProps) => {
+  const { t } = useLocale();
+  const isRTL = locale === "ar";
+  const displayTitle = isRTL ? blog.title_ar || blog.title : blog.title;
+  const displayContent = isRTL ? blog.content_ar || blog.content : blog.content;
+
   return (
-    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8" dir={isRTL ? "rtl" : "ltr"}>
       <Link
         href={`/${locale}/blog`}
         className="inline-flex items-center text-sm font-medium text-purple hover:underline mb-8 group"
       >
-        <ChevronLeft className="mr-1 h-4 w-4 transition-transform group-hover:-translate-x-1" />
-        Back to Blog
+        <ChevronLeft className={cn("h-4 w-4 transition-transform", isRTL ? "ml-1 group-hover:translate-x-1 rotate-180" : "mr-1 group-hover:-translate-x-1")} />
+        {t.common.back}
       </Link>
 
       <motion.header
@@ -28,17 +35,17 @@ export const BlogContent = ({ blog, locale }: BlogContentProps) => {
         className="mb-10 text-center"
       >
         <div className="mb-4 flex items-center justify-center space-x-4 text-sm font-medium text-gray-500 dark:text-gray-400">
-          <span className="inline-flex items-center rounded-full bg-purple/10 px-3 py-1 text-purple">
-            <Tag className="mr-1.5 h-3.5 w-3.5" />
+          <span className={cn("inline-flex items-center rounded-full bg-purple/10 px-3 py-1 text-purple", isRTL ? "space-x-reverse" : "")}>
+            <Tag className={cn("h-3.5 w-3.5", isRTL ? "ml-1.5" : "mr-1.5")} />
             {blog.category}
           </span>
           <span className="flex items-center">
-            <Calendar className="mr-1.5 h-3.5 w-3.5" />
+            <Calendar className={cn("h-3.5 w-3.5", isRTL ? "ml-1.5" : "mr-1.5")} />
             {blog.date}
           </span>
         </div>
         <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl">
-          {blog.title}
+          {displayTitle}
         </h1>
       </motion.header>
 
@@ -51,7 +58,7 @@ export const BlogContent = ({ blog, locale }: BlogContentProps) => {
         {blog.image ? (
           <img
             src={blog.image}
-            alt={blog.title}
+            alt={displayTitle}
             className="h-full w-full object-cover"
           />
         ) : (
@@ -67,11 +74,11 @@ export const BlogContent = ({ blog, locale }: BlogContentProps) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.5 }}
-        className="prose prose-lg prose-purple dark:prose-invert max-w-none"
+        className="prose prose-lg prose-purple dark:prose-invert max-w-none text-start"
       >
-        {/* Simplified rendering of content. In a real app we'd use a markdown component */}
+        {/* Simplified rendering of content */}
         <div className="whitespace-pre-wrap leading-relaxed">
-          {blog.content.split("\n").map((para, index) => {
+          {displayContent.split("\n").map((para, index) => {
             if (para.startsWith("## ")) {
               return (
                 <h2 key={index} className="text-3xl font-bold mt-10 mb-4">
@@ -96,7 +103,7 @@ export const BlogContent = ({ blog, locale }: BlogContentProps) => {
             }
             if (para.startsWith("* ")) {
               return (
-                <li key={index} className="ml-6 list-disc mb-2">
+                <li key={index} className={cn("list-disc mb-2", isRTL ? "mr-6" : "ml-6")}>
                   {para.replace("* ", "")}
                 </li>
               );
@@ -113,10 +120,9 @@ export const BlogContent = ({ blog, locale }: BlogContentProps) => {
       <footer className="mt-16 border-t border-gray-200 dark:border-gray-800 pt-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="text-gray-600 dark:text-gray-400">
-            Enjoyed this guide? Share it with your friends!
+            {isRTL ? "هل استمتعت بهذا الدليل؟ شاركه مع أصدقائك!" : "Enjoyed this guide? Share it with your friends!"}
           </div>
-          <div className="flex space-x-4">
-            {/* Social Share Buttons Placeholder */}
+          <div className="flex space-x-4 space-x-reverse-rtl">
             {["Twitter", "Facebook", "LinkedIn"].map((platform) => (
               <button
                 key={platform}
