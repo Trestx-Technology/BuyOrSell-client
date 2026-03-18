@@ -6,7 +6,6 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useMediaQuery } from "usehooks-ts";
 import { Typography } from "@/components/typography";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PopularCategory } from "@/interfaces/home.types";
 import { useLocale } from "@/hooks/useLocale";
@@ -29,7 +28,7 @@ interface PopularCategoriesProps {
 
 // Skeleton component for loading state
 const CategorySkeleton = () => (
-  <div className="bg-white dark:bg-gray-900 w-full border border-[#F5EBFF] dark:border-gray-800 rounded-lg overflow-hidden">
+  <div className="bg-white dark:bg-gray-900 w-[calc(33.33%-8px)] md:w-[calc(33.33%-8px)] xl:w-[224px] border border-[#F5EBFF] dark:border-gray-800 rounded-lg overflow-hidden">
     <div className="px-5 py-3">
       {/* Icon and Name Section */}
       <div className="flex flex-col items-center text-center mb-5">
@@ -109,6 +108,7 @@ const PopularCategories = ({
   return (
     <section
       ref={ref as any}
+      dir={locale === "ar" ? "rtl" : "ltr"}
       className={`w-full max-w-[1180px] px-4 xl:px-0 mx-auto mt-8 sm:mt-5 reveal-on-scroll ${isVisible ? "is-visible" : ""}`}
     >
       {/* Section Title */}
@@ -125,9 +125,7 @@ const PopularCategories = ({
       >
         {isLoading || !popularCategories || popularCategories.length === 0
           ? // Show skeleton loading state
-            Array.from({ length: 10 }).map((_, index) => (
-              <CategorySkeleton key={index} />
-            ))
+            Array.from({ length: 10 }).map((_, index) => <CategorySkeleton />)
           : // Show actual data with CSS animations
             displayCategories.map((category, index) => (
               <div
