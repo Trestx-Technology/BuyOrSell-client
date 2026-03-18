@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/global/Navbar";
 import CategoryNav from "@/app/[locale]/(root)/_components/CategoryNav";
@@ -24,6 +24,9 @@ interface MainLayoutWrapperProps {
 
 export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const type = searchParams.get("type");
+  const isMobileView = type === "mobile";
   useEmirateInvalidation();
 
   // Determine visibility based on props and constants
@@ -37,8 +40,8 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
   }, [pathname]);
 
   const shouldHideNavCompletely = useMemo(() => {
-    return shouldShowComponent(pathname || "", PAGES_WITHOUT_NAV);
-  }, [pathname]);
+    return isMobileView || shouldShowComponent(pathname || "", PAGES_WITHOUT_NAV);
+  }, [pathname, isMobileView]);
 
   // Check if current path is root '/'
   const isRootPage = useMemo(() => {

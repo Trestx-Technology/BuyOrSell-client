@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Button } from "../ui/button";
 import { AppStoreButtons } from "./app-store-buttons";
 import {
@@ -42,12 +42,15 @@ export function Footer({ className }: FooterProps) {
     useGetMainCategories();
   const { data: emirates, isLoading: emiratesLoading } = useEmirates();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const type = searchParams.get("type");
+  const isMobileView = type === "mobile";
   const { t, locale, localePath } = useLocale();
   const isRTL = locale === "ar";
 
   const shouldHideFooter = React.useMemo(() => {
-    return shouldShowComponent(pathname || "", PAGES_WITHOUT_NAV);
-  }, [pathname]);
+    return isMobileView || shouldShowComponent(pathname || "", PAGES_WITHOUT_NAV);
+  }, [pathname, isMobileView]);
 
 
 

@@ -21,6 +21,8 @@ export const PAGES_WITH_NAV: string[] = [
   "/",
   "/ad",
   "/map-view",
+  "/privacy-policy",
+  "/terms-and-conditions",
 ];
 
 /**
@@ -44,8 +46,6 @@ export const PAGES_WITH_NAV_MOBILE: string[] = [
  */
 export const PAGES_WITHOUT_NAV: string[] = [
   "/download",
-  "/privacy-policy",
-  "/terms-and-conditions",
   "/user/profile/settings",
   "/account-halted",
 ];
