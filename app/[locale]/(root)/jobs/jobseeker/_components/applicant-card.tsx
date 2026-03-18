@@ -16,6 +16,7 @@ import Link from "next/link";
 import { ICONS } from "@/constants/icons";
 
 import { useState } from "react";
+import { useLocale } from "@/hooks/useLocale";
 
 export interface ApplicantCardProps {
   id: string;
@@ -50,6 +51,7 @@ export default function ApplicantCard({
   onFavorite,
   onShare,
 }: ApplicantCardProps) {
+  const { t } = useLocale();
   const [imgError, setImgError] = useState(false);
   const initials =
     name
@@ -112,7 +114,7 @@ export default function ApplicantCard({
               variant="body-small"
               className="text-[#8A8A8A] dark:text-zinc-400 text-xs line-clamp-1"
             >
-              working in {company}
+              {t.jobs.jobseekers.workingIn} {company}
             </Typography>
           </div>
             <div className="w-8 h-8 rounded-full border-[1px] border-purple flex items-center justify-center bg-white dark:bg-zinc-800 overflow-hidden shadow-sm">
@@ -142,7 +144,7 @@ export default function ApplicantCard({
             variant="body-small"
             className="text-dark-blue dark:text-zinc-300 text-xs font-medium"
           >
-            Exp {experience}
+            {t.jobs.jobseekers.exp} {experience}
           </Typography>
         </div>
 
@@ -199,7 +201,7 @@ export default function ApplicantCard({
         className="w-full block uppercase font-medium text-xs bg-purple text-white rounded-lg py-2 px-4 text-center hover:scale-105 transition-all duration-300"
         href={`/jobs/jobseeker/${id}?type=profileVisit`}
       >
-        View profile
+        {t.jobs.jobseekers.viewProfile}
       </Link>
     </div>
   );

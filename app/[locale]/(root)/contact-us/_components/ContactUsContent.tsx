@@ -19,7 +19,8 @@ import { toast } from "sonner";
 import { Container1080 } from "@/components/layouts/container-1080";
 
 export const ContactUsContent = () => {
-  const { localePath } = useLocale();
+  const { localePath, t } = useLocale();
+  const ct = t.contactUs;
   const router = useRouter();
   const submitContactMutation = useSubmitContactForm();
   const [formData, setFormData] = useState({
@@ -50,14 +51,14 @@ export const ContactUsContent = () => {
 
     // Basic validation
     if (!formData.name || !formData.email || !formData.message) {
-      toast.error("Please fill in all required fields");
+      toast.error(ct.messages.requiredFields);
       return;
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      toast.error("Please enter a valid email address");
+      toast.error(ct.messages.invalidEmail);
       return;
     }
 
@@ -72,7 +73,7 @@ export const ContactUsContent = () => {
         orderId: formData.orderId || undefined,
       });
 
-      toast.success("Thank you for your message! We'll get back to you soon.");
+      toast.success(ct.messages.success);
 
       // Reset form
       setFormData({
@@ -86,7 +87,7 @@ export const ContactUsContent = () => {
       });
     } catch (error) {
       console.error("Error submitting contact form:", error);
-      toast.error("Failed to send message. Please try again later.");
+      toast.error(ct.messages.error);
     }
   };
 
@@ -106,7 +107,7 @@ export const ContactUsContent = () => {
           onClick={handleBack}
         />
         <Typography variant="lg-semibold" className="text-dark-blue">
-          Contact us
+          {ct.title}
         </Typography>
       </div>
       <div className="sm:px-4 xl:px-0 flex flex-col gap-5 sm:py-8">
@@ -115,14 +116,14 @@ export const ContactUsContent = () => {
             href={localePath("/")}
             className="text-gray-400 font-semibold text-sm hover:text-purple"
           >
-            Home
+            {ct.breadcrumb.home}
           </Link>
           <ChevronsRight className="size-6 text-purple" />
           <Link
             href={localePath("/contact-us")}
             className="text-purple-600 font-semibold text-sm"
           >
-            Contact us
+            {ct.breadcrumb.contactUs}
           </Link>
         </div>
 
@@ -137,19 +138,17 @@ export const ContactUsContent = () => {
                     {/* Heading */}
                     <div className="mb-6">
                       <h1 className="text-4xl lg:text-5xl font-bold mb-4 drop-shadow-lg">
-                        Contact Us
+                        {ct.title}
                       </h1>
                       <p className="text-lg text-purple-100 drop-shadow-sm leading-relaxed">
-                        Let&apos;s make your vision a reality. Contact us today
-                        and let&apos;s discuss how we can help you innovate and
-                        grow.
+                        {ct.subtitle}
                       </p>
                     </div>
 
                     {/* Contact Information */}
                     <div>
                       <h3 className="text-xl font-semibold mb-6 drop-shadow-lg">
-                        Contact Info
+                        {ct.info.title}
                       </h3>
                       <div className="space-y-4">
                         {/* Email */}
@@ -159,7 +158,7 @@ export const ContactUsContent = () => {
                           </div>
                           <div>
                             <p className="text-purple-100">
-                              buyrorsell@gmail.com
+                              {ct.info.email}
                             </p>
                           </div>
                         </div>
@@ -170,7 +169,7 @@ export const ContactUsContent = () => {
                             <Phone className="w-5 h-5" />
                           </div>
                           <div>
-                            <p className="text-purple-100">+971 2662262622</p>
+                            <p className="text-purple-100">{ct.info.phone}</p>
                           </div>
                         </div>
 
@@ -180,7 +179,7 @@ export const ContactUsContent = () => {
                             <MapPin className="w-5 h-5" />
                           </div>
                           <div>
-                            <p className="text-purple-100">Dubai</p>
+                            <p className="text-purple-100">{ct.info.address}</p>
                           </div>
                         </div>
                       </div>
@@ -194,13 +193,13 @@ export const ContactUsContent = () => {
                     {/* Name */}
                     <div>
                       <label className="block text-sm font-medium text-gray-900 mb-2">
-                        Name *
+                        {ct.form.name}
                       </label>
                       <input
                         type="text"
                         value={formData.name}
                         onChange={handleInputChange("name")}
-                        placeholder="Your Full Name"
+                        placeholder={ct.form.namePlaceholder}
                         className="w-full px-4 py-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm"
                         required
                       />
@@ -209,13 +208,13 @@ export const ContactUsContent = () => {
                     {/* Email */}
                     <div>
                       <label className="block text-sm font-medium text-gray-900 mb-2">
-                        Email *
+                        {ct.form.email}
                       </label>
                       <input
                         type="email"
                         value={formData.email}
                         onChange={handleInputChange("email")}
-                        placeholder="your.email@example.com"
+                        placeholder={ct.form.emailPlaceholder}
                         className="w-full px-4 py-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm"
                         required
                       />
@@ -224,13 +223,13 @@ export const ContactUsContent = () => {
                     {/* Phone */}
                     <div>
                       <label className="block text-sm font-medium text-gray-900 mb-2">
-                        Phone
+                        {ct.form.phone}
                       </label>
                       <input
                         type="tel"
                         value={formData.phone}
                         onChange={handleInputChange("phone")}
-                        placeholder="+12025550123"
+                        placeholder={ct.form.phonePlaceholder}
                         className="w-full px-4 py-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm"
                       />
                     </div>
@@ -238,7 +237,7 @@ export const ContactUsContent = () => {
                     {/* Category */}
                     <div>
                       <label className="block text-sm font-medium text-gray-900 mb-2">
-                        Category
+                        {ct.form.category}
                       </label>
                       <div className="relative">
                         <select
@@ -246,12 +245,12 @@ export const ContactUsContent = () => {
                           onChange={handleInputChange("category")}
                           className="w-full px-4 py-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm appearance-none pr-10"
                         >
-                          <option value="">General Inquiry</option>
-                          <option value="support">Technical Support</option>
-                          <option value="sales">Sales Inquiry</option>
-                          <option value="partnership">Partnership</option>
-                          <option value="feedback">Feedback</option>
-                          <option value="other">Other</option>
+                          <option value="">{ct.form.categories.general}</option>
+                          <option value="support">{ct.form.categories.support}</option>
+                          <option value="sales">{ct.form.categories.sales}</option>
+                          <option value="partnership">{ct.form.categories.partnership}</option>
+                          <option value="feedback">{ct.form.categories.feedback}</option>
+                          <option value="other">{ct.form.categories.other}</option>
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                       </div>
@@ -260,13 +259,13 @@ export const ContactUsContent = () => {
                     {/* Subject */}
                     <div>
                       <label className="block text-sm font-medium text-gray-900 mb-2">
-                        Subject
+                        {ct.form.subject}
                       </label>
                       <input
                         type="text"
                         value={formData.subject}
                         onChange={handleInputChange("subject")}
-                        placeholder="Brief Description of your inquiry"
+                        placeholder={ct.form.subjectPlaceholder}
                         className="w-full px-4 py-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm"
                       />
                     </div>
@@ -274,13 +273,13 @@ export const ContactUsContent = () => {
                     {/* Order ID */}
                     <div>
                       <label className="block text-sm font-medium text-gray-900 mb-2">
-                        Order ID
+                        {ct.form.orderId}
                       </label>
                       <input
                         type="text"
                         value={formData.orderId}
                         onChange={handleInputChange("orderId")}
-                        placeholder="Order ID (if applicable)"
+                        placeholder={ct.form.orderIdPlaceholder}
                         className="w-full px-4 py-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm"
                       />
                     </div>
@@ -288,12 +287,12 @@ export const ContactUsContent = () => {
                     {/* Message */}
                     <div>
                       <label className="block text-sm font-medium text-gray-900 mb-2">
-                        Message *
+                        {ct.form.message}
                       </label>
                       <textarea
                         value={formData.message}
                         onChange={handleInputChange("message")}
-                        placeholder="Please provide details about your inquiry..."
+                        placeholder={ct.form.messagePlaceholder}
                         rows={4}
                         className="w-full px-4 py-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-sm resize-vertical"
                         required
@@ -308,20 +307,18 @@ export const ContactUsContent = () => {
                         className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 text-base font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {submitContactMutation.isPending
-                          ? "Sending..."
-                          : "Send Message"}
+                          ? ct.form.sending
+                          : ct.form.submit}
                       </Button>
                     </div>
                   </form>
 
                   <div className="p-2 bg-purple-100 my-4 rounded-lg block sm:hidden">
                     <h3 className="text-sm text-purple font-semibold mb-2 drop-shadow-lg">
-                      Response Time
+                      {ct.responseTime.title}
                     </h3>
                     <p className="text-xs">
-                      We typically respond to messages within 24 hours during
-                      business days. For urgent matters, please call us
-                      directly.
+                      {ct.responseTime.description}
                     </p>
                   </div>
                 </div>

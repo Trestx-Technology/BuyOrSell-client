@@ -13,6 +13,7 @@ import { AIService } from "@/services/ai-service";
 import { toast } from "sonner";
 import { useAITokenBalance, useConsumeTokens } from "@/hooks/useAITokens";
 import { NoCreditsDialog } from "@/components/global/NoCreditsDialog";
+import { useLocale } from "@/hooks/useLocale";
 
 interface AIFeaturesPopoverProps {
   onMessageGenerated: (message: string) => void;
@@ -30,18 +31,50 @@ export function AIFeaturesPopover({
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [isNoCreditsOpen, setIsNoCreditsOpen] = useState(false);
+  const { t } = useLocale();
 
   const { data: tokenBalance } = useAITokenBalance();
   const currentBalance = tokenBalance?.data?.tokensRemaining ?? 0;
   const { mutateAsync: consumeTokens } = useConsumeTokens();
 
-  const aiFeatures = AIService.getAIFeatures();
+  const aiFeatures = [
+    {
+      id: "proofread",
+      name: t.chat.aiFeatures.proofread.name,
+      description: t.chat.aiFeatures.proofread.description,
+      icon: "✏️",
+    },
+    {
+      id: "inquiry",
+      name: t.chat.aiFeatures.inquiry.name,
+      description: t.chat.aiFeatures.inquiry.description,
+      icon: "💬",
+    },
+    {
+      id: "negotiation",
+      name: t.chat.aiFeatures.negotiation.name,
+      description: t.chat.aiFeatures.negotiation.description,
+      icon: "💰",
+    },
+    {
+      id: "meeting",
+      name: t.chat.aiFeatures.meeting.name,
+      description: t.chat.aiFeatures.meeting.description,
+      icon: "📅",
+    },
+    {
+      id: "translate",
+      name: t.chat.aiFeatures.translate.name,
+      description: t.chat.aiFeatures.translate.description,
+      icon: "🌐",
+    },
+  ];
+
   const CREDIT_COST = 1;
 
   const handleFeatureClick = async (feature: {
     id: string;
     name: string;
-    action: (text: string) => Promise<string>;
   }) => {
     if (currentBalance < CREDIT_COST) {
       setIsNoCreditsOpen(true);
@@ -122,7 +155,7 @@ export function AIFeaturesPopover({
                 variant="2xs-regular"
                 className="font-semibold text-gray-900 dark:text-gray-100"
               >
-                AI Assistant
+                {t.chat.aiAssistant}
               </Typography>
             </div>
 

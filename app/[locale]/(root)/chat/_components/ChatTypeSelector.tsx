@@ -1,7 +1,6 @@
-"use client";
-
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUrlParams } from "@/hooks/useUrlParams";
+import { useLocale } from "@/hooks/useLocale";
 
 export type ChatType = "ad" | "dm" | "organisation" | "ticket";
 
@@ -12,6 +11,8 @@ interface ChatTypeSelectorProps {
 
 export function ChatTypeSelector({ value, onChange }: ChatTypeSelectorProps) {
   const { clearUrlQueries } = useUrlParams()
+  const { t } = useLocale()
+  
   const removeChatId = () => {
     if (clearUrlQueries) {
       clearUrlQueries()
@@ -24,19 +25,19 @@ export function ChatTypeSelector({ value, onChange }: ChatTypeSelectorProps) {
           value="ad"
           className="flex-1 text-xs sm:text-sm"
         >
-          Ad
+          {t.chat.chatTypes.ad}
         </TabsTrigger>
         <TabsTrigger
           value="dm"
           className="flex-1 text-xs sm:text-sm"
         >
-          DM
+          {t.chat.chatTypes.dm}
         </TabsTrigger>
         <TabsTrigger
           value="organisation"
           className="flex-1 text-xs sm:text-sm "
         >
-          Organisation
+          {t.chat.chatTypes.organisation}
         </TabsTrigger>
       </TabsList>
     </Tabs>

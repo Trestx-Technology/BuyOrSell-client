@@ -62,7 +62,7 @@ function StepCircle({
 export default function SuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { locale, localePath } = useLocale();
+  const { locale, localePath, t } = useLocale();
   const adId = searchParams.get("id");
   const { clearCategoryArray } = useAdPostingStore((state) => state);
 
@@ -82,10 +82,10 @@ export default function SuccessPage() {
     return (
       <Container1080 className="min-h-[60vh] flex flex-col items-center justify-center p-4">
         <Typography variant="h3" className="mb-4">
-          Post Not Found
+          {t.success.postNotFound}
         </Typography>
         <Button onClick={() => router.push(localePath("/"))}>
-          Return to Home
+          {t.success.returnToHome}
         </Button>
       </Container1080>
     );
@@ -139,7 +139,7 @@ export default function SuccessPage() {
           </div>
 
           <h2 className="text-lg font-bold text-[#111827] dark:text-white mb-4">
-            Item details
+            {t.success.itemDetails}
           </h2>
           <div className="bg-[#F9FAFB] dark:bg-[#1F2937] rounded-xl p-4 sm:p-6 mb-8 border border-[#E5E7EB] dark:border-gray-800 flex flex-col sm:flex-row gap-8 items-start justify-between">
             <div className="flex-shrink-0 mx-auto sm:mx-0">
@@ -163,15 +163,13 @@ export default function SuccessPage() {
     return (
       <Container1080 className="min-h-[60vh] flex flex-col items-center justify-center p-4 space-y-4 text-center">
         <Typography variant="h3" className="text-red-500">
-          Failed to load details
+          {t.success.failedToLoadDetails}
         </Typography>
         <Typography variant="body-small" className="text-gray-500 max-w-md">
-          We couldn't retrieve the status of your post right now. However, if
-          you didn't receive an error previously, it may still have been
-          submitted successfully.
+          {t.success.failedDescription}
         </Typography>
         <Button onClick={() => router.push(localePath("/"))}>
-          Return to Home
+          {t.success.returnToHome}
         </Button>
       </Container1080>
     );
@@ -180,7 +178,7 @@ export default function SuccessPage() {
   const isLive = ad.status === "live";
   const isRejected = ad.status === "rejected";
   const isJob = ad.adType === "JOB";
-  const typeText = isJob ? "Job" : "Ad";
+  const typeText = isJob ? t.success.jobDetails : t.success.adDetails;
 
   const adImage = ad.images && ad.images.length > 0 ? ad.images[0] : null;
 
@@ -191,7 +189,7 @@ export default function SuccessPage() {
         month: "short",
         day: "numeric",
       })
-    : "Just now";
+    : t.success.justNow;
 
   const formattedTime = ad.createdAt
     ? new Date(ad.createdAt).toLocaleTimeString(undefined, {
@@ -212,14 +210,14 @@ export default function SuccessPage() {
           className="flex items-center text-sm text-[#4B5563] dark:text-gray-400 hover:text-[#111827] dark:hover:text-white transition-colors mb-8 font-medium"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Home
+          {t.success.home}
         </button>
 
         {/* Header Title section */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
           <div className="flex items-center flex-wrap gap-3">
             <h1 className="text-2xl sm:text-3xl font-bold text-[#111827] dark:text-white">
-              {typeText} details{" "}
+              {typeText}{" "}
               <span className="text-[#111827] dark:text-white">
                 #{ad.slug || ad._id.substring(0, 8).toUpperCase()}
               </span>
@@ -239,7 +237,7 @@ export default function SuccessPage() {
           </div>
         </div>
         <p className="text-sm text-[#6B7280] dark:text-gray-400 mb-10">
-          Date: {formattedDate}
+          {t.success.date}: {formattedDate}
         </p>
 
         {/* Stepper progress */}
@@ -266,7 +264,7 @@ export default function SuccessPage() {
           <div className="flex flex-col items-center flex-1 text-center">
             <StepCircle active={true} completed={true} number={1} />
             <span className="mt-3 font-bold text-[11px] sm:text-sm text-[#111827] dark:text-white uppercase tracking-wide">
-              Submitted
+              {t.success.submitted}
             </span>
             <span className="text-[10px] sm:text-xs text-[#6B7280] dark:text-gray-400 mt-1">
               {formattedTime}, {formattedDate}
@@ -281,10 +279,10 @@ export default function SuccessPage() {
               number={2}
             />
             <span className="mt-3 font-bold text-[11px] sm:text-sm text-[#111827] dark:text-white uppercase tracking-wide">
-              Under Review
+              {t.success.underReview}
             </span>
             <span className="text-[10px] sm:text-xs text-[#6B7280] dark:text-gray-400 mt-1">
-              Admin Validation
+              {t.success.adminValidation}
             </span>
           </div>
 
@@ -292,14 +290,14 @@ export default function SuccessPage() {
           <div className="flex flex-col items-center flex-1 text-center">
             <StepCircle active={isLive} completed={isLive} number={3} />
             <span className="mt-3 font-bold text-[11px] sm:text-sm text-[#111827] dark:text-white uppercase tracking-wide">
-              {isRejected ? "Rejected" : "Published"}
+              {isRejected ? t.success.rejected : t.success.published}
             </span>
             <span className="text-[10px] sm:text-xs text-[#6B7280] dark:text-gray-400 mt-1">
               {isLive
-                ? "Visible to buyers"
+                ? t.success.visibleToBuyers
                 : isRejected
-                  ? "Did not pass review"
-                  : "Pending approval"}
+                  ? t.success.didNotPassReview
+                  : t.success.pendingApproval}
             </span>
           </div>
         </div>
@@ -308,7 +306,7 @@ export default function SuccessPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           <div>
             <label className="block text-sm text-[#4B5563] dark:text-gray-400 mb-2">
-              Category
+              {t.success.category}
             </label>
             <div className="border border-[#E5E7EB] dark:border-gray-800 rounded-lg p-3 text-sm text-[#111827] dark:text-white bg-white dark:bg-gray-900 truncate flex items-center gap-2 font-medium">
               <Tag className="w-4 h-4 text-[#9CA3AF] shrink-0" />
@@ -317,7 +315,7 @@ export default function SuccessPage() {
           </div>
           <div>
             <label className="block text-sm text-[#4B5563] dark:text-gray-400 mb-2">
-              Location
+              {t.success.location}
             </label>
             <div className="border border-[#E5E7EB] dark:border-gray-800 rounded-lg p-3 text-sm text-[#111827] dark:text-white bg-white dark:bg-gray-900 truncate flex items-center gap-2 font-medium">
               <MapPin className="w-4 h-4 text-[#9CA3AF] shrink-0" />
@@ -329,7 +327,7 @@ export default function SuccessPage() {
         {(ad.contactPhoneNumber || (ad as any).phoneNumber) && (
           <div className="mb-10 lg:w-[calc(50%-12px)]">
             <label className="block text-sm text-[#4B5563] dark:text-gray-400 mb-2">
-              Contact Number
+              {t.success.contactNumber}
             </label>
             <div className="border border-[#E5E7EB] dark:border-gray-800 rounded-lg p-3 text-sm text-[#111827] dark:text-white bg-white dark:bg-gray-900 flex items-center gap-2 font-medium">
               <Phone className="w-4 h-4 text-[#9CA3AF] shrink-0" />
@@ -342,7 +340,7 @@ export default function SuccessPage() {
         {normalizedFields.length > 0 && (
           <div className="mb-10">
             <h2 className="text-lg font-bold text-[#111827] dark:text-white mb-4">
-              Detailed Overview
+              {t.success.detailedOverview}
             </h2>
             <div className="bg-[#F9FAFB] dark:bg-[#1F2937] p-6 rounded-2xl border border-[#E5E7EB] dark:border-gray-800 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1">
               {normalizedFields.map((field, index) => (
@@ -361,7 +359,7 @@ export default function SuccessPage() {
         {ad.description && (
           <div className="mb-10">
             <h2 className="text-lg font-bold text-[#111827] dark:text-white mb-4">
-              Description
+              {t.success.description}
             </h2>
             <div className="bg-[#F9FAFB] dark:bg-[#1F2937] p-6 rounded-2xl border border-[#E5E7EB] dark:border-gray-800 text-sm text-[#4B5563] dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
               {ad.description}
@@ -371,7 +369,7 @@ export default function SuccessPage() {
 
         {/* Ad summary list - Replaced with Cards */}
         <h2 className="text-lg font-bold text-[#111827] dark:text-white mb-4">
-          Item details
+          {t.success.itemDetails}
         </h2>
         <div className="bg-[#F9FAFB] dark:bg-[#1F2937] rounded-xl p-4 sm:p-6 mb-8 border border-[#E5E7EB] dark:border-gray-800 flex flex-col sm:flex-row gap-8 items-start justify-between">
           <div className="flex-shrink-0 mx-auto sm:mx-0">
@@ -394,7 +392,7 @@ export default function SuccessPage() {
                     ? formatDistanceToNow(new Date(ad.createdAt), {
                         addSuffix: true,
                       })
-                    : "Just now"
+                    : t.success.justNow
                 }
                 seller={ad.owner ? { ...ad.owner } : undefined}
               />
@@ -405,22 +403,22 @@ export default function SuccessPage() {
             {/* Subtotal section */}
             <div className="flex flex-col gap-4 text-sm">
               <div className="flex justify-between items-center text-[#4B5563] dark:text-gray-400">
-                <span>Status</span>
+                <span>{t.success.status}</span>
                 <span className="font-medium text-[#111827] dark:text-white">
-                  {isLive ? "Published" : isRejected ? "Rejected" : "Pending"}
+                  {isLive ? t.success.published : isRejected ? t.success.rejected : t.success.pending}
                 </span>
               </div>
               <div className="flex justify-between items-center text-[#4B5563] dark:text-gray-400">
-                <span>Listing Fee</span>
+                <span>{t.success.listingFee}</span>
                 <span className="font-medium text-[#10B981] dark:text-[#34D399]">
-                  FREE
+                  {t.success.free}
                 </span>
               </div>
 
               <div className="w-full h-px bg-[#E5E7EB] dark:bg-gray-700/50 my-2"></div>
 
               <div className="flex justify-between items-center font-bold text-base text-[#111827] dark:text-white">
-                <span>Action</span>
+                <span>{t.success.action}</span>
                 {isLive ? (
                   <button
                     onClick={() =>
@@ -432,14 +430,14 @@ export default function SuccessPage() {
                     }
                     className="text-[#5645EE] hover:underline flex items-center text-sm font-semibold"
                   >
-                    View Live <Eye className="w-4 h-4 ml-1" />
+                    {t.success.viewLive} <Eye className="w-4 h-4 ml-1" />
                   </button>
                 ) : (
                   <button
                     onClick={() => router.push(localePath(`/my-ads`))}
                     className="text-[#5645EE] hover:underline flex items-center text-sm font-semibold"
                   >
-                    My {isJob ? "Jobs" : "Ads"}{" "}
+                    {isJob ? t.success.myJobs : t.success.myAds}{" "}
                     <ChevronRight className="w-4 h-4 ml-1" />
                   </button>
                 )}

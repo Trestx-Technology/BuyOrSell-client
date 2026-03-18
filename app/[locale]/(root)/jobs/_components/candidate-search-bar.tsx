@@ -10,6 +10,7 @@ import { useAds } from "@/hooks/useAds";
 import { useSearchJobseekerProfiles } from "@/hooks/useJobseeker";
 import { Skeleton } from "@/components/ui/skeleton";
 import { slugify, unSlugify } from '@/utils/slug-utils';
+import { useLocale } from '@/hooks/useLocale';
 
 export default function CandidateSearchBar() {
       const [searchType, setSearchType] = useState('job');
@@ -17,6 +18,8 @@ export default function CandidateSearchBar() {
       const [location, setLocation] = useState('');
       const [openLocation, setOpenLocation] = useState(false);
       const [openSearch, setOpenSearch] = useState(false);
+
+      const { t } = useLocale();
 
       // Debounce inputs
       const [inputLocation, setInputLocation] = useDebouncedValue(location, setLocation, 500);
@@ -80,11 +83,11 @@ export default function CandidateSearchBar() {
                                     onValueChange={setSearchType}
                               >
                                     <SelectTrigger className="border-0 rounded-none h-full px-0 text-[14.22px] focus:ring-0 bg-transparent hover:bg-transparent text-[#8A8A8A] dark:text-zinc-400 w-full">
-                                          <SelectValue placeholder="Type" />
+                                          <SelectValue placeholder={t.jobs.search.typeLabel} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                          <SelectItem value="job">Find a Job</SelectItem>
-                                          <SelectItem value="applicant">Find Candidates</SelectItem>
+                                          <SelectItem value="job">{t.jobs.search.findJob}</SelectItem>
+                                          <SelectItem value="applicant">{t.jobs.search.findCandidates}</SelectItem>
                                     </SelectContent>
                               </Select>
                         </div>
@@ -96,7 +99,7 @@ export default function CandidateSearchBar() {
                                           <div className="relative w-full">
                                                 <input
                                                       type="text"
-                                                      placeholder={searchType === 'job' ? "Job Title, Keywords..." : "Candidate Name, Skills..."}
+                                                      placeholder={searchType === 'job' ? t.jobs.search.jobPlaceholder : t.jobs.search.candidatePlaceholder}
                                                       value={inputSearch}
                                                       onChange={(e) => {
                                                             setInputSearch(e.target.value);
@@ -149,7 +152,7 @@ export default function CandidateSearchBar() {
                                                       ))
                                                 ) : (
                                                       <div className="px-3 py-4 text-center text-sm text-gray-500">
-                                                            No results found
+                                                            {t.jobs.search.noResults}
                                                       </div>
                                                 )}
                                           </div>
@@ -164,7 +167,7 @@ export default function CandidateSearchBar() {
                                     <PopoverAnchor asChild>
                                           <input
                                                 type="text"
-                                                placeholder="City, Emirates..."
+                                                placeholder={t.jobs.search.locationPlaceholder}
                                                 value={inputLocation}
                                                 onChange={(e) => {
                                                       setInputLocation(e.target.value);
@@ -205,7 +208,7 @@ export default function CandidateSearchBar() {
                                     type="submit"
                                     className="hidden lg:flex bg-purple hover:bg-purple/90 text-white rounded-none w-full p-5 h-full"
                               >
-                                    Search
+                                    {t.jobs.search.searchButton}
                               </Button>
                         </div>
 
@@ -216,7 +219,7 @@ export default function CandidateSearchBar() {
                               icon={<Search className="w-5 h-5 -mr-2" />}
                               iconPosition='center'
                         >
-                              Search
+                              {t.jobs.search.searchButton}
                         </Button>
 
                   </div>

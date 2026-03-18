@@ -3,6 +3,7 @@
 import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Connection } from "@/interfaces/connection.types";
+import { type Translations } from "@/translations";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Typography } from "@/components/typography";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +25,7 @@ interface ColumnActionsWrapperProps {
       isAccepting?: string | null;
       isRejecting?: string | null;
       formatDate: (date?: string) => string;
+      t: Translations;
 }
 
 export const getConnectionsColumns = ({
@@ -34,10 +36,11 @@ export const getConnectionsColumns = ({
       isMessageLoading,
       isRemoving,
       formatDate,
+      t,
 }: Partial<ColumnActionsWrapperProps>): ColumnDef<Connection>[] => [
             {
                   accessorKey: "user",
-                  header: "Professional",
+                  header: t!.connections.columns.professional,
                   cell: ({ row }) => {
                         const conn = row.original;
                         const otherUser = conn.user || (conn.fromUserId === currentUserId ? conn.toUser : conn.fromUser);
@@ -59,7 +62,7 @@ export const getConnectionsColumns = ({
                                                 {displayName}
                                           </Typography>
                                           <Typography variant="xs-regular" className="text-grey-blue dark:text-gray-400">
-                                                Professional
+                                                {t!.connections.columns.professional}
                                           </Typography>
                                     </div>
                               </Link>
@@ -68,21 +71,21 @@ export const getConnectionsColumns = ({
             },
             {
                   accessorKey: "status",
-                  header: "Status",
+                  header: t!.connections.columns.status,
                   cell: () => (
                         <Badge variant="outline" className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-100 dark:border-green-800/30 text-[10px] py-0.5 uppercase tracking-wider font-semibold">
-                              Connected
+                              {t!.connections.status.connected}
                         </Badge>
                   ),
             },
             {
                   accessorKey: "connectedAt",
-                  header: "Connected Since",
+                  header: t!.connections.columns.connectedSince,
                   cell: ({ row }) => formatDate!(row.original.connectedAt || row.original.acceptedAt || row.original.updatedAt),
             },
             {
                   id: "actions",
-                  header: () => <div className="text-right">Actions</div>,
+                  header: () => <div className="text-right">{t!.connections.columns.actions}</div>,
                   cell: ({ row }) => {
                         const conn = row.original;
                         const otherUser = conn.user || (conn.fromUserId === currentUserId ? conn.toUser : conn.fromUser);
@@ -130,10 +133,11 @@ export const getReceivedColumns = ({
       isAccepting,
       isRejecting,
       formatDate,
+      t,
 }: Partial<ColumnActionsWrapperProps>): ColumnDef<Connection>[] => [
             {
                   accessorKey: "user",
-                  header: "From",
+                  header: t!.connections.columns.from,
                   cell: ({ row }) => {
                         const conn = row.original;
                         const sender = conn.user || conn.fromUser;
@@ -156,7 +160,7 @@ export const getReceivedColumns = ({
                                           </Typography>
                                           <div className="flex items-center gap-1 text-[10px] text-grey-blue dark:text-gray-400">
                                                 <ArrowDownLeft className="w-3 h-3 text-blue-500 dark:text-blue-400" />
-                                                INCOMING REQUEST
+                                                {t!.connections.status.incoming}
                                           </div>
                                     </div>
                               </Link>
@@ -165,21 +169,21 @@ export const getReceivedColumns = ({
             },
             {
                   accessorKey: "message",
-                  header: "Message",
+                  header: t!.connections.columns.message,
                   cell: ({ row }) => (
                         <Typography variant="xs-regular" className="text-grey-blue dark:text-gray-400 italic truncate max-w-[200px]">
-                              {row.original.message || "No message included"}
+                              {row.original.message || t!.connections.messages.noMessage}
                         </Typography>
                   ),
             },
             {
                   accessorKey: "createdAt",
-                  header: "Received Date",
+                  header: t!.connections.columns.date,
                   cell: ({ row }) => formatDate!(row.original.createdAt),
             },
             {
                   id: "actions",
-                  header: () => <div className="text-right">Actions</div>,
+                  header: () => <div className="text-right">{t!.connections.columns.actions}</div>,
                   cell: ({ row }) => {
                         const conn = row.original;
                         // For requests, the backend uses requestId or _id
@@ -199,7 +203,7 @@ export const getReceivedColumns = ({
                                           isLoading={isAccepting === id}
                                           disabled={isAccepting === id || isRejecting === id}
                                     >
-                                          Accept
+                                          {t!.connections.actions.accept}
                                     </Button>
                                     <Button
                                           size="sm"
@@ -214,7 +218,7 @@ export const getReceivedColumns = ({
                                           isLoading={isRejecting === id}
                                           disabled={isAccepting === id || isRejecting === id}
                                     >
-                                          Reject
+                                          {t!.connections.actions.reject}
                                     </Button>
                               </div>
                         );
@@ -225,10 +229,11 @@ export const getReceivedColumns = ({
 export const getSentColumns = ({
       localePath,
       formatDate,
+      t,
 }: Partial<ColumnActionsWrapperProps>): ColumnDef<Connection>[] => [
             {
                   accessorKey: "user",
-                  header: "Sent To",
+                  header: t!.connections.columns.sentTo,
                   cell: ({ row }) => {
                         const conn = row.original;
                         const receiver = conn.user || conn.toUser;
@@ -251,7 +256,7 @@ export const getSentColumns = ({
                                           </Typography>
                                           <div className="flex items-center gap-1 text-[10px] text-grey-blue dark:text-gray-400">
                                                 <ArrowUpRight className="w-3 h-3 text-orange-500 dark:text-orange-400" />
-                                                OUTGOING REQUEST
+                                                {t!.connections.status.outgoing}
                                           </div>
                                     </div>
                               </Link>
@@ -260,24 +265,24 @@ export const getSentColumns = ({
             },
             {
                   accessorKey: "status",
-                  header: "Status",
+                  header: t!.connections.columns.status,
                   cell: () => (
                         <Badge variant="outline" className="bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 border-orange-100 dark:border-orange-800/30 text-[10px] py-0.5 uppercase tracking-wider font-semibold">
-                              Pending
+                              {t!.connections.status.pending}
                         </Badge>
                   ),
             },
             {
                   accessorKey: "createdAt",
-                  header: "Sent Date",
+                  header: t!.connections.columns.date,
                   cell: ({ row }) => formatDate!(row.original.createdAt),
             },
             {
                   id: "message",
-                  header: "Message",
+                  header: t!.connections.columns.message,
                   cell: ({ row }) => (
                         <Typography variant="xs-regular" className="text-grey-blue dark:text-gray-400 italic truncate max-w-[200px]">
-                              {row.original.message || "No message included"}
+                              {row.original.message || t!.connections.messages.noMessage}
                         </Typography>
                   ),
             },

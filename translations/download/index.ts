@@ -1,0 +1,58 @@
+import { createTranslationNamespace } from "../../validations/utils";
+import type { DownloadTranslations } from "./types";
+
+export const downloadTranslations =
+  createTranslationNamespace<DownloadTranslations>({
+    "en": {
+      officialAppAvailable: "Official App Available",
+      tradeSmarter: "Trade Smarter with BuyOrSell App",
+      experienceMarketplace: "Experience the #1 marketplace in UAE with our native mobile app. Get real-time notifications, secure messaging, and faster browsing.",
+      fastPerformance: "Faster Performance",
+      fastPerformanceDesc: "Browse 2x faster than mobile web browsers",
+      secureExperience: "Secure Experience",
+      secureExperienceDesc: "Verified payments and advanced data protection",
+      exclusiveDeals: "Exclusive Deals",
+      exclusiveDealsDesc: "App-only discounts and early access to deals",
+      scanToDownload: "Scan to download",
+      scanDesc: "Point your phone camera toward the QR code and you'll be redirected to your app store instantly.",
+    },
+    "nl-NL": {
+      officialAppAvailable: "Officiële app beschikbaar",
+      tradeSmarter: "Handel slimmer met de BuyOrSell-app",
+      experienceMarketplace: "Ervaar de nummer 1 marktplaats in de VAE met onze mobiele app. Ontvang realtime meldingen, beveiligde berichten en sneller browsen.",
+      fastPerformance: "Snellere prestaties",
+      fastPerformanceDesc: "Browse 2x sneller dan mobiele webbrowsers",
+      secureExperience: "Veilige ervaring",
+      secureExperienceDesc: "Geverifieerde betalingen en geavanceerde gegevensbescherming",
+      exclusiveDeals: "Exclusieve deals",
+      exclusiveDealsDesc: "Kortingen alleen in de app en vroege toegang tot deals",
+      scanToDownload: "Scan om te downloaden",
+      scanDesc: "Richt uw telefooncamera op de QR-code en u wordt direct doorgestuurd naar uw app store.",
+    },
+    nl: {
+      officialAppAvailable: "Officiële app beschikbaar",
+      tradeSmarter: "Handel slimmer met de BuyOrSell-app",
+      experienceMarketplace: "Ervaar de nummer 1 marktplaats in de VAE met onze mobiele app. Ontvang realtime meldingen, beveiligde berichten en sneller browsen.",
+      fastPerformance: "Snellere prestaties",
+      fastPerformanceDesc: "Browse 2x sneller dan mobiele webbrowsers",
+      secureExperience: "Veilige ervaring",
+      secureExperienceDesc: "Geverifieerde betalingen en geavanceerde gegevensbescherming",
+      exclusiveDeals: "Exclusieve deals",
+      exclusiveDealsDesc: "Kortingen alleen in de app en vroege toegang tot deals",
+      scanToDownload: "Scan om te downloaden",
+      scanDesc: "Richt uw telefooncamera op de QR-code en u wordt direct doorgestuurd naar uw app store.",
+    },
+    ar: {
+      officialAppAvailable: "تطبيق متاح الآن",
+      tradeSmarter: "تداول بذكاء مع تطبيق BuyOrSell",
+      experienceMarketplace: "احصل على أفضل تجربة تسوق وبيع في الإمارات العربية المتحدة. حمل التطبيق الآن واستلم إشعارات فورية.",
+      fastPerformance: "أداء أسرع",
+      fastPerformanceDesc: "تصفح أسرع بمقدار 2x مقارنة بمتصفح الهاتف",
+      secureExperience: "أمان عالي",
+      secureExperienceDesc: "مدفوعات آمنة وحماية متقدمة للبيانات",
+      exclusiveDeals: "عروض حصرية",
+      exclusiveDealsDesc: "خصومات خاصة فقط لمستخدمي التطبيق",
+      scanToDownload: "امسح الرمز للتحميل",
+      scanDesc: "وجه كاميرا هاتفك نحو رمز الاستجابة السريعة وسيتم توجيهك مباشرة لصفحة التحميل.",
+    },
+  });

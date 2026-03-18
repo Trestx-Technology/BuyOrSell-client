@@ -29,10 +29,12 @@ import { transformAdToJobCard } from "@/utils/transform-ad-to-job-card";
 import { buildAdFilterPayload } from "@/utils/ad-payload";
 import { buildAdQueryParams } from "@/utils/ad-query-params";
 import { NoDataCard } from "@/components/global/fallback-cards";
+import { useLocale } from "@/hooks/useLocale";
 
 const ITEMS_PER_PAGE = 12;
 
 export default function ViewJobPage() {
+      const { t } = useLocale();
       const params = useParams();
       const searchParams = useSearchParams();
       const { clearUrlQueries } = useUrlParams();
@@ -66,7 +68,7 @@ export default function ViewJobPage() {
       }, []);
 
       const breadcrumbItems = [
-            { id: "1", label: "Jobs", href: "/jobs" },
+            { id: "1", label: t.jobs.title, href: "/jobs" },
             { id: "2", label: categoryName, href: `/jobs/${currentCategory}` },
       ];
 
@@ -163,7 +165,7 @@ export default function ViewJobPage() {
                         {/* Page Header */}
                         <div className="hidden lg:flex items-center justify-between md:mb-6">
                               <Typography variant="h2" className="text-dark-blue font-bold">
-                                    {categoryName} in Dubai ({totalItems})
+                                    {categoryName} {t.jobs.jobseekers.in} Dubai ({totalItems})
                               </Typography>
                         </div>
 
@@ -175,7 +177,7 @@ export default function ViewJobPage() {
                               onClearFilters={handleClearFilters}
                               searchQuery={searchQuery}
                               onSearchChange={setSearchQuery}
-                              searchPlaceholder={`Search ${categoryName}...`}
+                              searchPlaceholder={`${t.common.search} ${categoryName}...`}
                               locationQuery={locationQuery}
                               onLocationChange={handleLocationChange}
                               locationPlaceholder="Dubai"
@@ -192,13 +194,13 @@ export default function ViewJobPage() {
                         {/* Jobs Listing Layout - Two Column View */}
                         {isLoading ? (
                               <div className="text-center py-12">
-                                    <p className="text-gray-500 text-lg">Loading jobs...</p>
+                                    <p className="text-gray-500 text-lg">{t.jobs.listing.loading}</p>
                               </div>
                         ) : jobs.length === 0 ? (
                               <div className="text-center py-12">
-                                    <NoDataCard title="No jobs found" description="Try adjusting your search or filters to see more results." />
+                                    <NoDataCard title={t.jobs.listing.noResults} description={t.jobs.listing.tryAdjusting} />
                                     <Button variant="outline" onClick={handleClearFilters} className="mt-4">
-                                          Clear Filters
+                                          {t.jobs.jobseekers.clearFilters}
                                     </Button>
                               </div>
                         ) : (
@@ -242,13 +244,13 @@ export default function ViewJobPage() {
                                                       {isJobLoading ? (
                                                             <div className="text-center py-12">
                                                                   <Typography variant="body" className="text-gray-500">
-                                                                        Loading job details...
+                                                                        {t.jobs.listing.loadingDetails}
                                                                   </Typography>
                                                             </div>
                                                       ) : jobError ? (
                                                             <div className="text-center py-12">
                                                                   <Typography variant="body" className="text-red-500">
-                                                                        Job not found
+                                                                        {t.jobs.listing.jobNotFound}
                                                                   </Typography>
                                                             </div>
                                                       ) : selectedJob && (

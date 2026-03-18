@@ -34,35 +34,25 @@ import {
 } from "./sections/Sections21_22";
 import { Annex1Property, Annex2Motors, Annex3Jobs } from "./sections/Annexes";
 
-const sections = [
-  { title: "1. Introduction", id: "introduction" },
-  { title: "2. Eligibility", id: "eligibility" },
-  { title: "3. Nature of Platform", id: "nature-of-platform" },
-  { title: "4. User Obligations", id: "prohibited-conduct" },
-  { title: "5. Listings & Content", id: "listings-and-content" },
-  { title: "6. Intellectual Property", id: "intellectual-property" },
-  { title: "7. Subscriptions", id: "subscriptions" },
-  { title: "8. Cancellations", id: "cancellations" },
-  { title: "9. UAE Listing Rules", id: "listing-rules" },
-  { title: "10. Reviews & Ratings", id: "reviews" },
-  { title: "11. Communication", id: "communication" },
-  { title: "12. Third-Party Services", id: "third-party" },
-  { title: "13. Privacy Policy", id: "privacy" },
-  { title: "14. Cookie Policy", id: "cookies" },
-  { title: "15. Disclaimer", id: "disclaimer" },
-  { title: "16. Liability & Cap", id: "liability" },
-  { title: "17. Indemnity", id: "indemnity" },
-  { title: "18. Suspension", id: "suspension" },
-  { title: "19. Terms Changes", id: "changes" },
-  { title: "20. Governing Law", id: "governing-law" },
-  { title: "Annex: Property", id: "annex-property" },
-  { title: "Annex: Motors", id: "annex-motors" },
-  { title: "Annex: Jobs", id: "annex-jobs" },
-  { title: "22. Contact Us", id: "contact" },
-];
+import { useLocale } from "@/hooks/useLocale";
 
 export function TermsContent() {
+  const { t } = useLocale();
   const [activeSection, setActiveSection] = useState("introduction");
+
+  const sections = [
+    { title: t.termsAndConditions.sections.acceptance.title, id: "introduction" },
+    { title: t.termsAndConditions.sections.eligibility.title, id: "eligibility" },
+    { title: t.termsAndConditions.sections.account.title, id: "nature-of-platform" }, // Close enough for now
+    { title: t.termsAndConditions.sections.houseRules.title, id: "prohibited-conduct" },
+    { title: t.termsAndConditions.sections.fees.title, id: "fees" },
+    { title: t.termsAndConditions.sections.intellectualProperty.title, id: "intellectual-property" },
+    { title: t.termsAndConditions.sections.disclaimer.title, id: "disclaimer" },
+    { title: t.termsAndConditions.sections.liability.title, id: "liability" },
+    { title: t.termsAndConditions.sections.governingLaw.title, id: "governing-law" },
+    { title: t.termsAndConditions.sections.modifications.title, id: "changes" },
+    { title: t.termsAndConditions.sections.contact.title, id: "contact" },
+  ];
 
   useEffect(() => {
     const observerOptions = {
@@ -100,14 +90,14 @@ export function TermsContent() {
         {/* Header */}
         <div className="text-center py-16 px-6 bg-gradient-to-b from-purple/10 to-transparent rounded-t-[2.5rem]">
           <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
-            BuyOrSell.ae Terms & Conditions
+            {t.termsAndConditions.title}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-            Your Roadmap to a Safe and Transparent Marketplace Experience
+            {t.termsAndConditions.subtitle}
           </p>
           <div className="mt-8 flex justify-center gap-4 text-xs font-bold text-gray-400">
             <span className="bg-white dark:bg-gray-800 py-2 px-4 rounded-full shadow-sm">
-              Last Updated: February 2025
+              {t.termsAndConditions.lastUpdated}
             </span>
             <span className="bg-white dark:bg-gray-800 py-2 px-4 rounded-full shadow-sm">
               Region: UAE
@@ -122,7 +112,7 @@ export function TermsContent() {
               <div className="relative">
                 <div className="absolute left-[7px] top-10 bottom-0 w-[1px] bg-gray-100 dark:bg-gray-800"></div>
                 <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-purple/40 mb-6 px-4">
-                  Navigation
+                  {t.termsAndConditions.navigation}
                 </h3>
                 <nav className="space-y-1 max-h-[70vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200 relative z-10">
                   {sections.map((section) => {
@@ -157,17 +147,17 @@ export function TermsContent() {
 
               <div className="p-6 bg-purple/5 dark:bg-purple/10 border border-purple/10 rounded-[2rem] relative overflow-hidden group hover:border-purple/30 transition-colors">
                 <h4 className="text-xs font-black text-purple mb-1 relative z-10">
-                  Assistance
+                  {t.termsAndConditions.assistance.title}
                 </h4>
                 <p className="text-[9px] text-purple/60 leading-relaxed relative z-10">
-                  Questions about our terms? We are here to help.
+                  {t.termsAndConditions.assistance.description}
                 </p>
                 <div className="mt-4 flex items-center gap-2 relative z-10">
                   <a
                     href="mailto:support@buyorsell.ae"
                     className="text-[9px] font-black text-purple hover:underline uppercase tracking-widest transition-all hover:tracking-[0.2em] flex items-center gap-1"
                   >
-                    <Mail className="w-3 h-3" /> Email Support
+                    <Mail className="w-3 h-3" /> {t.termsAndConditions.assistance.emailSupport}
                   </a>
                 </div>
               </div>

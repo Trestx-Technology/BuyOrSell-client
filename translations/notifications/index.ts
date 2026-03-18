@@ -25,6 +25,10 @@ export const notificationsTranslations =
       // Status
       read: "Read",
       unread: "Unread",
+      notification: "Notification",
+      dateTime: "Date & Time",
+      status: "Status",
+      actions: "Actions",
     },
     "nl-NL": {
       // Popover
@@ -48,6 +52,10 @@ export const notificationsTranslations =
       // Status
       read: "Gelezen",
       unread: "Ongelezen",
+      notification: "Melding",
+      dateTime: "Datum & Tijd",
+      status: "Status",
+      actions: "Acties",
     },
     nl: {
       // Popover
@@ -71,6 +79,10 @@ export const notificationsTranslations =
       // Status
       read: "Gelezen",
       unread: "Ongelezen",
+      notification: "Melding",
+      dateTime: "Datum & Tijd",
+      status: "Status",
+      actions: "Acties",
     },
     ar: {
       // Popover
@@ -94,5 +106,9 @@ export const notificationsTranslations =
       // Status
       read: "مقروء",
       unread: "غير مقروء",
+      notification: "الإشعار",
+      dateTime: "التاريخ والوقت",
+      status: "الحالة",
+      actions: "الإجراءات",
     },
   });

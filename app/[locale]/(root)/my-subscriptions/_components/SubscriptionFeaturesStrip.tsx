@@ -50,12 +50,12 @@ export const SubscriptionFeaturesStrip = () => {
           <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple/10 group-hover:bg-purple-100 dark:group-hover:bg-purple/20 transition-colors">
             <f.icon className="size-6 text-purple" />
           </div>
-          <span className="text-sm font-bold text-gray-800 dark:text-gray-200 text-center">
-            {isArabic ? f.titleAr : f.titleEn}
-          </span>
-          <span className="text-[11px] text-gray-500 dark:text-gray-400 text-center leading-relaxed">
-            {isArabic ? f.descAr : f.descEn}
-          </span>
+          <h3 className="text-gray-900 dark:text-gray-100 font-bold text-sm tracking-tight group-hover:text-purple transition-colors">
+            {isArabic ? f.titleAr || f.titleEn : f.titleEn}
+          </h3>
+          <p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed max-w-[200px]">
+            {isArabic ? f.descAr || f.descEn : f.descEn}
+          </p>
         </div>
       ))}
     </div>

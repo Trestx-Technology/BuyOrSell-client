@@ -53,7 +53,7 @@ export function HomeHero() {
   return (
     <div className="max-w-[1200px] w-full mx-auto flex justify-between gap-4 p-4 mb-8 mt-4">
       {/* Main Banner Carousel */}
-      <div className="relative  bg-[#F3E8FF]/40 w-full dark:bg-gray-900 rounded-3xl overflow-hidden min-h-[460px] md:min-h-[380px] flex items-center ">
+      <div className="relative  w-full  shadow-sm rounded-3xl overflow-hidden h-[200px] sm:h-[380px] flex items-center ">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -61,11 +61,11 @@ export function HomeHero() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="absolute inset-0 w-full h-full flex items-center"
+            className="absolute inset-0 w-full h-[200px] sm:h-full flex items-center"
           >
             {BANNERS[currentSlide].type === "custom" ? (
-              <div className="relative w-full h-full flex items-center p-4 md:p-10">
-                <div className="z-10 w-full max-w-1/2 space-y-5">
+              <div className="relative bg-pink-300/10 w-full h-full flex items-center p-4 md:p-10">
+                <div className="z-10 w-full sm:max-w-1/2 space-y-2 sm:space-y-5">
                   <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-[#1D2939] dark:text-white leading-[1.25] tracking-tight">
                     The Smarter Way to{" "}
                     <span className="text-[#8B31E1]">Buy</span>{" "}
@@ -214,7 +214,7 @@ export function HomeHero() {
                 </div>
               </div>
             ) : (
-              <div className="relative w-full h-full">
+              <div className="relative w-full h-[200px] sm:h-full">
                 {/* Desktop Banner */}
                 <div className="hidden sm:block absolute inset-0">
                   <Image
@@ -241,26 +241,26 @@ export function HomeHero() {
         </AnimatePresence>
 
         {/* Carousel Navigation Arrows */}
-        <div className="absolute left-6 top-1/2 -translate-y-1/2 z-20 hidden md:block">
+        <div className="absolute left-6 top-1/2 -translate-y-1/2 z-20 block">
           <button
             onClick={(e) => {
               e.stopPropagation();
               prevSlide();
             }}
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-[0_4px_20px_rgba(0,0,0,0.1)] text-gray-400 hover:text-[#8B31E1] transition-all hover:scale-110"
+            className="size-8 sm:size-10 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-[0_4px_20px_rgba(0,0,0,0.1)] text-gray-400 hover:text-[#8B31E1] transition-all hover:scale-110"
           >
-            <ChevronLeft size={28} strokeWidth={2.5} />
+            <ChevronLeft size={20} strokeWidth={2.5} />
           </button>
         </div>
-        <div className="absolute right-6 top-1/2 -translate-y-1/2 z-20 hidden md:block">
+        <div className="absolute right-6 top-1/2 -translate-y-1/2 z-20 block">
           <button
             onClick={(e) => {
               e.stopPropagation();
               nextSlide();
             }}
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-[0_4px_20px_rgba(0,0,0,0.1)] text-gray-400 hover:text-[#8B31E1] transition-all hover:scale-110"
+            className="size-8 sm:size-10 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-[0_4px_20px_rgba(0,0,0,0.1)] text-gray-400 hover:text-[#8B31E1] transition-all hover:scale-110"
           >
-            <ChevronRight size={28} strokeWidth={2.5} />
+            <ChevronRight size={20} strokeWidth={2.5} />
           </button>
         </div>
 

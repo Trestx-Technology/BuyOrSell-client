@@ -82,12 +82,12 @@ const UserReviews: React.FC<UserReviewsProps> = ({
 
   // Transform Review to display format
   const transformReview = (review: Review) => {
-    const reviewerName = review.reviewerName || "Anonymous";
+    const reviewerName = review.reviewerName || t.user.profile.anonymous;
     const avatar = reviewerName.charAt(0).toUpperCase();
     const reviewText = review.review || "";
     const timeAgo = review.createdAt
       ? formatDate(review.createdAt)
-      : "Recently";
+      : t.user.profile.recently;
 
     return {
       id: review._id,
@@ -366,7 +366,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({
               <textarea
                 className="w-full p-3 border border-gray-300 rounded-lg resize-none"
                 rows={4}
-                placeholder="Share your experience with this seller..."
+                placeholder={t.user.profile.reviewPlaceholder}
               />
             </div>
 

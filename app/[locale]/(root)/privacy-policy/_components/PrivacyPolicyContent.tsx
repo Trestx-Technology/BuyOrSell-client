@@ -2,27 +2,29 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Mail, MapPin } from "lucide-react";
-
-const sections = [
-  { title: "Privacy at a Glance", id: "glance" },
-  { title: "1. Who We Are", id: "who-we-are" },
-  { title: "2. Scope of This Policy", id: "scope" },
-  { title: "3. Personal Data We Collect", id: "data-we-collect" },
-  { title: "4. How We Use Your Data", id: "how-we-use" },
-  { title: "5. How We Share Your Data", id: "how-we-share" },
-  { title: "6. International Transfers", id: "international-transfers" },
-  { title: "7. Data Retention", id: "data-retention" },
-  { title: "8. How We Protect Your Data", id: "how-we-protect" },
-  { title: "9. Your Data Rights", id: "your-rights" },
-  { title: "10. Cookies & Tracking", id: "cookies" },
-  { title: "11. Children's Privacy", id: "children" },
-  { title: "12. Third-Party Services", id: "third-party" },
-  { title: "13. Changes to Policy", id: "changes" },
-  { title: "14. Contact Us", id: "contact" },
-];
+import { useLocale } from "@/hooks/useLocale";
 
 export function PrivacyPolicyContent() {
+  const { t } = useLocale();
   const [activeSection, setActiveSection] = useState("glance");
+
+  const sections = [
+    { title: t.privacyPolicy.sections.glance.title, id: "glance" },
+    { title: t.privacyPolicy.sections.whoWeAre.title, id: "who-we-are" },
+    { title: t.privacyPolicy.sections.scope.title, id: "scope" },
+    { title: t.privacyPolicy.sections.dataWeCollect.title, id: "data-we-collect" },
+    { title: t.privacyPolicy.sections.howWeUse.title, id: "how-we-use" },
+    { title: t.privacyPolicy.sections.howWeShare.title, id: "how-we-share" },
+    { title: t.privacyPolicy.sections.transfers.title, id: "international-transfers" },
+    { title: t.privacyPolicy.sections.retention.title, id: "data-retention" },
+    { title: t.privacyPolicy.sections.security.title, id: "how-we-protect" },
+    { title: t.privacyPolicy.sections.yourRights.title, id: "your-rights" },
+    { title: t.privacyPolicy.sections.cookies.title, id: "cookies" },
+    { title: t.privacyPolicy.sections.children.title, id: "children" },
+    { title: t.privacyPolicy.sections.thirdParty.title, id: "third-party" },
+    { title: t.privacyPolicy.sections.changes.title, id: "changes" },
+    { title: t.privacyPolicy.sections.contact.title, id: "contact" },
+  ];
 
   useEffect(() => {
     const observerOptions = {
@@ -129,17 +131,17 @@ export function PrivacyPolicyContent() {
         {/* Header */}
         <div className="text-center py-16 px-6 bg-gradient-to-b from-purple/10 to-transparent rounded-t-[2.5rem]">
           <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
-            BuyOrSell.ae Privacy Policy
+            {t.privacyPolicy.title}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-            How We Collect, Use, and Protect Your Personal Data
+            {t.privacyPolicy.subtitle}
           </p>
           <div className="mt-8 flex justify-center gap-4 text-xs font-bold text-gray-400">
             <span className="bg-white dark:bg-gray-800 py-2 px-4 rounded-full shadow-sm">
-              Last Updated: February 2025
+              {t.privacyPolicy.lastUpdated}
             </span>
             <span className="bg-white dark:bg-gray-800 py-2 px-4 rounded-full shadow-sm">
-              Effective: February 2025
+              {t.privacyPolicy.effective}
             </span>
           </div>
         </div>
@@ -151,7 +153,7 @@ export function PrivacyPolicyContent() {
               <div className="relative">
                 <div className="absolute left-[7px] top-10 bottom-0 w-[1px] bg-gray-100 dark:bg-gray-800"></div>
                 <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-purple/40 mb-6 px-4">
-                  Navigation
+                  {t.privacyPolicy.navigation}
                 </h3>
                 <nav className="space-y-1 max-h-[70vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200 relative z-10">
                   {sections.map((section) => {
@@ -186,17 +188,17 @@ export function PrivacyPolicyContent() {
 
               <div className="p-6 bg-purple/5 dark:bg-purple/10 border border-purple/10 rounded-[2rem] relative overflow-hidden group hover:border-purple/30 transition-colors">
                 <h4 className="text-xs font-black text-purple mb-1 relative z-10">
-                  Assistance
+                  {t.privacyPolicy.assistance.title}
                 </h4>
                 <p className="text-[9px] text-purple/60 leading-relaxed relative z-10">
-                  Questions about our privacy policy? We are here to help.
+                  {t.privacyPolicy.assistance.description}
                 </p>
                 <div className="mt-4 flex items-center gap-2 relative z-10">
                   <a
                     href="mailto:contact@buyorsell.ae"
                     className="text-[9px] font-black text-purple hover:underline uppercase tracking-widest transition-all hover:tracking-[0.2em] flex items-center gap-1"
                   >
-                    <Mail className="w-3 h-3" /> Email Support
+                    <Mail className="w-3 h-3" /> {t.privacyPolicy.assistance.emailSupport}
                   </a>
                 </div>
               </div>
@@ -206,30 +208,23 @@ export function PrivacyPolicyContent() {
           {/* Content Area */}
           <div className="flex-1 min-w-0 space-y-16">
             <section>
-              <SectionHeading id="glance">Privacy at a Glance</SectionHeading>
+              <SectionHeading id="glance">{t.privacyPolicy.sections.glance.title}</SectionHeading>
               <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-800">
                 <List>
                   <li>
-                    <strong>What we collect:</strong> Name, contact details,
-                    listing data, payment info, device/usage data.
+                    {t.privacyPolicy.sections.glance.items.collect}
                   </li>
                   <li>
-                    <strong>Why:</strong> To operate the Platform, process
-                    payments, prevent fraud, improve our service, and (with
-                    consent) send marketing.
+                    {t.privacyPolicy.sections.glance.items.why}
                   </li>
                   <li>
-                    <strong>Who we share with:</strong> Payment processors
-                    (Stripe), analytics (Google), ad partners (Meta, Bing),
-                    hosting providers - all under strict data agreements.
+                    {t.privacyPolicy.sections.glance.items.share}
                   </li>
                   <li>
-                    <strong>Your rights:</strong> Access, correct, delete,
-                    restrict, object, and port your data. Withdraw consent
-                    anytime.
+                    {t.privacyPolicy.sections.glance.items.rights}
                   </li>
                   <li>
-                    <strong>Contact:</strong> contact@buyorsell.ae
+                    {t.privacyPolicy.sections.glance.items.contact}
                   </li>
                 </List>
               </div>

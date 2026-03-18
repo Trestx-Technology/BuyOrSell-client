@@ -3,12 +3,15 @@
 import { Display2, Typography } from "@/components/typography";
 import CandidateSearchBar from "./candidate-search-bar";
 import { Container1280 } from "@/components/layouts/container-1280";
+import { useLocale } from "@/hooks/useLocale";
 
 export interface JobsHeroProps {
   zoom?: number;
 }
 
 export default function JobsHero({ zoom = 15 }: JobsHeroProps) {
+  const { t } = useLocale();
+  
   return (
     <Container1280 className="relative w-full py-10 xl:h-[350px] flex items-center justify-center overflow-hidden">
       {/* Map Background */}
@@ -32,14 +35,13 @@ export default function JobsHero({ zoom = 15 }: JobsHeroProps) {
               <Display2
                 className="text-white text-center font-bold leading-[1.14]"
               >
-                Find Your Dream Job Today!
+                {t.jobs.hero.title}
               </Display2>
               <Typography
                 variant="body-large"
                 className="text-white/80 text-center font-medium text-base max-w-full"
               >
-                Connecting Talent with Opportunity: Your Gateway to Career
-                Success
+                {t.jobs.hero.subtitle}
               </Typography>
             </div>
           </div>

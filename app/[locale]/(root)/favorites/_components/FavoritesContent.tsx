@@ -113,11 +113,11 @@ export function FavoritesContent() {
 
     deleteCollectionMutation.mutate(collectionToDelete, {
       onSuccess: () => {
-        toast.success("Collection deleted successfully");
+        toast.success(t.favorites.collectionDeleted);
         setCollectionToDelete(null);
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to delete collection");
+        toast.error(error.message || t.favorites.failedToDeleteCollection);
       },
     });
   }, [collectionToDelete, deleteCollectionMutation]);
@@ -202,10 +202,10 @@ export function FavoritesContent() {
         <WarningConfirmationDialog
           open={collectionToDelete !== null}
           onOpenChange={(open) => !open && setCollectionToDelete(null)}
-          title={t.common.delete || "Delete Collection"}
-          description="Are you sure you want to delete this collection? This action cannot be undone."
-          confirmText={t.common.delete || "Delete"}
-          cancelText={t.common.cancel || "Cancel"}
+          title={t.favorites.deleteCollectionTitle}
+          description={t.favorites.deleteCollectionConfirm}
+          confirmText={t.common.delete}
+          cancelText={t.common.cancel}
           onConfirm={handleConfirmDelete}
           isLoading={deleteCollectionMutation.isPending}
           confirmVariant="danger"

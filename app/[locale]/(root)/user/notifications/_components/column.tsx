@@ -5,6 +5,7 @@ import { formatDate } from "@/utils/format-date";
 import type { Notification } from "@/interfaces/notifications.types";
 
 interface UseNotificationsColumnsProps {
+  t: any;
   onMarkRead: (id: string) => void;
   onDelete: (id: string) => void;
   isMarkingRead: boolean;
@@ -12,6 +13,7 @@ interface UseNotificationsColumnsProps {
 }
 
 export function useNotificationsColumns({
+  t,
   onMarkRead,
   onDelete,
   isMarkingRead,
@@ -31,7 +33,7 @@ export function useNotificationsColumns({
   return [
     {
       accessorKey: "title",
-      header: "Notification",
+      header: t.notifications.notification,
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
           {getNotificationIcon(row.original.type)}
@@ -51,7 +53,7 @@ export function useNotificationsColumns({
     },
     {
       accessorKey: "createdAt",
-      header: "Date & Time",
+      header: t.notifications.dateTime,
       cell: ({ getValue }) => (
         <span className="text-gray-600">
           {formatDate(getValue() as string)}
@@ -60,7 +62,7 @@ export function useNotificationsColumns({
     },
     {
       id: "status",
-      header: "Status",
+      header: t.notifications.status,
       cell: ({ row }) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -69,13 +71,13 @@ export function useNotificationsColumns({
               : "bg-purple-100 text-purple-600"
           }`}
         >
-          {row.original.read ? "Read" : "Unread"}
+          {row.original.read ? t.notifications.read : t.notifications.unread}
         </span>
       ),
     },
     {
       id: "actions",
-      header: "Actions",
+      header: t.notifications.actions,
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           {!row.original.read && (

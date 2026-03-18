@@ -14,7 +14,7 @@ import { containerVariants, itemVariants } from "@/utils/animation-variants";
 import { Container1080 } from "@/components/layouts/container-1080";
 
 export default function PopularIndustries() {
-  const { localePath } = useLocale();
+  const { localePath, t } = useLocale();
   const { data: jobSubcategories, isLoading } = useJobSubcategories({
     adType: "job",
   });
@@ -24,7 +24,7 @@ export default function PopularIndustries() {
     return (
       <section className="w-full bg-[#F2F4F7] dark:bg-black py-8">
         <div className="max-w-[1080px] mx-auto px-4">
-          <JobsSectionTitle>Popular Industries</JobsSectionTitle>
+          <JobsSectionTitle>{t.jobs.industries.title}</JobsSectionTitle>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {Array.from({ length: 5 }).map((_, index) => (
               <div
@@ -51,7 +51,7 @@ export default function PopularIndustries() {
       viewport={{ once: true, margin: "-100px" }}
     >
       <Container1080 className="px-4 space-y-6">
-        <JobsSectionTitle>Popular Industries</JobsSectionTitle>
+        <JobsSectionTitle>{t.jobs.industries.title}</JobsSectionTitle>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {jobSubcategories.filter((industry) => industry.adCount > 0).map((industry) => {
@@ -98,7 +98,7 @@ export default function PopularIndustries() {
 
                   {/* Job Count Badge */}
                   <Badge className="bg-purple/10 text-purple px-4 py-1 capitalize rounded-md text-sm font-medium">
-                    {jobCount.toLocaleString()} jobs
+                    {t.jobs.industries.jobsCount.replace("{count}", jobCount.toLocaleString())}
                   </Badge>
                 </Link>
               </motion.div>

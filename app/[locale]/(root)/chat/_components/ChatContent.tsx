@@ -83,7 +83,7 @@ export default function ChatContent() {
         <LoginRequiredDialog
           onOpenChange={() => router.push(localePath("/login"))}
           open={true}
-          message="Please login to chat"
+          message={t.chat.loginToChat}
           redirectUrl={localePath("/chat")}
         />
       </div>

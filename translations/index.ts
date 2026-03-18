@@ -58,6 +58,18 @@ import { chatTranslations } from "./chat";
 import { jobsTranslations } from "./jobs";
 import { mapViewTranslations } from "./map-view";
 import { exchangeTranslations } from "./exchange";
+import { contactUsTranslations } from "./contact-us";
+import { helpCenterTranslations } from "./help-centre";
+import { watchTranslations } from "./watch";
+import { aiTokensTranslations } from "./ai-tokens";
+import { blogTranslations } from "./blog";
+import { connectionsTranslations } from "./connections";
+import { downloadTranslations } from "./download";
+import { accountHaltedTranslations } from "./account-halted";
+import { privacyPolicyTranslations } from "./privacy-policy";
+import { termsAndConditionsTranslations } from "./terms-conditions";
+import { mySubscriptionsTranslations } from "./my-subscriptions";
+import { successTranslations } from "./success";
 import type { Translations } from "./types";
 import { DEFAULT_LOCALE } from "../validations/utils";
 
@@ -82,6 +94,18 @@ const translationRegistry = {
   jobs: jobsTranslations,
   mapView: mapViewTranslations,
   exchange: exchangeTranslations,
+  contactUs: contactUsTranslations,
+  helpCenter: helpCenterTranslations,
+  watch: watchTranslations,
+  aiTokens: aiTokensTranslations,
+  blog: blogTranslations,
+  connections: connectionsTranslations,
+  download: downloadTranslations,
+  accountHalted: accountHaltedTranslations,
+  mySubscriptions: mySubscriptionsTranslations,
+  success: successTranslations,
+  privacyPolicy: privacyPolicyTranslations,
+  termsAndConditions: termsAndConditionsTranslations,
 } as const;
 
 /**
@@ -153,6 +177,16 @@ export { chatTranslations } from "./chat";
 export { jobsTranslations } from "./jobs";
 export { mapViewTranslations } from "./map-view";
 export { exchangeTranslations } from "./exchange";
+export { contactUsTranslations } from "./contact-us";
+export { helpCenterTranslations } from "./help-centre";
+export { watchTranslations } from "./watch";
+export { aiTokensTranslations } from "./ai-tokens";
+export { blogTranslations } from "./blog";
+export { connectionsTranslations } from "./connections";
+export { downloadTranslations } from "./download";
+export { accountHaltedTranslations } from "./account-halted";
+export { mySubscriptionsTranslations } from "./my-subscriptions";
+export { successTranslations } from "./success";
 
 // Export types
 export type { Translations } from "./types";

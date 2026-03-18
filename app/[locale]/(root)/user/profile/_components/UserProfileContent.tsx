@@ -286,10 +286,10 @@ const UserProfileContent = () => {
                     variant="h3"
                     className="text-lg font-bold text-dark-blue dark:text-white"
                   >
-                    My Advertisements ({filteredAds.length})
+                    {t.user.profile.myAdvertisements.replace("{count}", filteredAds.length.toString())}
                   </Typography>
                   <Typography variant="body-small" className="text-gray-500">
-                    Manage your active, pending, and expired listings
+                    {t.user.profile.manageAdsDescription}
                   </Typography>
                 </div>
 
@@ -300,7 +300,7 @@ const UserProfileContent = () => {
                     onClick={handlePostAd}
                     className="h-10 px-6 rounded-xl font-bold"
                   >
-                    Post New Ad
+                    {t.user.profile.postNewAd}
                   </Button>
                 </div>
               </div>
@@ -316,31 +316,31 @@ const UserProfileContent = () => {
                       value="all"
                       className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium"
                     >
-                      All
+                      {t.user.profile.statusAll}
                     </TabsTrigger>
                     <TabsTrigger
                       value="live"
                       className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium"
                     >
-                      Live
+                      {t.user.profile.statusLive}
                     </TabsTrigger>
                     <TabsTrigger
                       value="pending"
                       className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium"
                     >
-                      Pending
+                      {t.user.profile.statusPending}
                     </TabsTrigger>
                     <TabsTrigger
                       value="expired"
                       className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium"
                     >
-                      Expired
+                      {t.user.profile.statusExpired}
                     </TabsTrigger>
                     <TabsTrigger
                       value="rejected"
                       className="flex-1 md:flex-none py-2 px-4 rounded-lg transition-all text-xs font-medium"
                     >
-                      Rejected
+                      {t.user.profile.statusRejected}
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
@@ -358,7 +358,7 @@ const UserProfileContent = () => {
                     variant="body-small"
                     className="text-red-500 font-medium"
                   >
-                    Failed to load ads. Please try again.
+                    {t.user.profile.failedToLoadAds}
                   </Typography>
                 </div>
               ) : transformedAds.length > 0 ? (
@@ -375,7 +375,7 @@ const UserProfileContent = () => {
                         variant="body-small"
                         className="text-gray-500 italic"
                       >
-                        No ads found for the "{adStatusTab}" status.
+                        {t.user.profile.noAdsWithStatus.replace("{status}", t.user.profile[`status${adStatusTab.charAt(0).toUpperCase() + adStatusTab.slice(1)}` as keyof typeof t.user.profile] as string)}
                       </Typography>
                     </div>
                   )}
@@ -402,13 +402,13 @@ const UserProfileContent = () => {
                       variant="h6"
                       className="text-gray-900 dark:text-white font-bold mb-2"
                     >
-                      You haven't posted any ads yet
+                      {t.user.profile.noAdsYet}
                     </Typography>
                     <Typography
                       variant="body-small"
                       className="text-gray-500 mb-6"
                     >
-                      Start selling your items on BuyOrSell today!
+                      {t.user.profile.startSelling}
                     </Typography>
                   </div>
                   <Button
@@ -416,7 +416,7 @@ const UserProfileContent = () => {
                     onClick={handlePostAd}
                     className="bg-white hover:bg-gray-50 rounded-xl px-8 h-11 font-bold border-gray-200 shadow-sm"
                   >
-                    Post your first ad
+                    {t.user.profile.postFirstAd}
                   </Button>
                 </div>
               )}

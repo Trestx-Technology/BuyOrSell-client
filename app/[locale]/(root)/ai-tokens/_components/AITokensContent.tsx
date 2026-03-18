@@ -47,6 +47,8 @@ const BalanceHero = ({
   balance: number;
   isLoading: boolean;
 }) => {
+  const { t } = useLocale();
+
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple via-[#7c3aed] to-[#6d28d9] p-6 sm:p-8 text-white">
       {/* Background decoration */}
@@ -71,7 +73,7 @@ const BalanceHero = ({
               variant="h2"
               className="text-white/90 text-lg font-medium"
             >
-              Your AI Token Balance
+              {t.aiTokens.tokenBalanceTitle}
             </Typography>
           </div>
 
@@ -82,13 +84,12 @@ const BalanceHero = ({
               <span className="text-5xl sm:text-6xl font-black tracking-tight">
                 {balance.toLocaleString()}
               </span>
-              <span className="text-xl font-medium text-white/70">tokens</span>
+              <span className="text-xl font-medium text-white/70">{t.aiTokens.tokens}</span>
             </div>
           )}
 
           <p className="text-sm text-white/60 max-w-sm text-center sm:text-left">
-            Use AI tokens to generate descriptions, enhance your ads, and unlock
-            AI-powered features.
+            {t.aiTokens.tokenBalanceSub}
           </p>
         </div>
 
@@ -105,34 +106,36 @@ const BalanceHero = ({
 // ============================================================================
 // FEATURES STRIP
 // ============================================================================
-const features = [
-  {
-    icon: Zap,
-    title: "AI Descriptions",
-    desc: "Auto-generate compelling ad descriptions",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Smart Translation",
-    desc: "Translate your ads to Arabic instantly",
-  },
-  {
-    icon: TrendingUp,
-    title: "Ad Enhancement",
-    desc: "Optimize your listings for better reach",
-  },
-  {
-    icon: Star,
-    title: "Priority Support",
-    desc: "Get priority AI processing speed",
-  },
-];
+const FeaturesStrip = () => {
+  const { t } = useLocale();
+  const features = [
+    {
+      icon: Zap,
+      title: t.aiTokens.features.aiDescriptions,
+      desc: t.aiTokens.features.aiDescriptionsDesc,
+    },
+    {
+      icon: ShieldCheck,
+      title: t.aiTokens.features.smartTranslation,
+      desc: t.aiTokens.features.smartTranslationDesc,
+    },
+    {
+      icon: TrendingUp,
+      title: t.aiTokens.features.adEnhancement,
+      desc: t.aiTokens.features.adEnhancementDesc,
+    },
+    {
+      icon: Star,
+      title: t.aiTokens.features.prioritySupport,
+      desc: t.aiTokens.features.prioritySupportDesc,
+    },
+  ];
 
-const FeaturesStrip = () => (
-  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-    {features.map((f) => (
-      <div
-        key={f.title}
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      {features.map((f) => (
+        <div
+          key={f.title}
         className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-purple/30 hover:shadow-md transition-all duration-300 group"
       >
         <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple/10 group-hover:bg-purple-100 dark:group-hover:bg-purple/20 transition-colors">
@@ -147,7 +150,8 @@ const FeaturesStrip = () => (
       </div>
     ))}
   </div>
-);
+  );
+};
 
 // ============================================================================
 // PACKAGE CARD
@@ -193,7 +197,7 @@ const PackageCard = ({
   isPopular: boolean;
   onSelect: (pkg: TokenPackage) => void;
 }) => {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const isArabic = locale === "ar";
   const tier = getTier(pkg);
   const TierIcon = tier.icon;
@@ -224,7 +228,7 @@ const PackageCard = ({
         <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
           <div className="bg-gradient-to-r from-purple to-[#7c3aed] text-white text-[10px] font-black py-1 px-4 rounded-full uppercase tracking-widest shadow-lg shadow-purple/30 flex items-center gap-1.5 whitespace-nowrap">
             <Star className="size-3 fill-white" />
-            Most Popular
+            {t.aiTokens.mostPopular}
           </div>
         </div>
       )}
@@ -257,7 +261,7 @@ const PackageCard = ({
                 : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
             )}
           >
-            {pkg.price >= 100 ? "Pro" : pkg.price >= 30 ? "Plus" : "Basic"}
+            {pkg.price >= 100 ? t.aiTokens.pro : pkg.price >= 30 ? t.aiTokens.plus : t.aiTokens.basic}
           </Badge>
         </div>
 
@@ -283,7 +287,7 @@ const PackageCard = ({
           <div className="flex items-center gap-1.5">
             <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700/50" />
             <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-tighter">
-              {pkg.tokens.toLocaleString()} Tokens • {pricePerToken}/token
+              {pkg.tokens.toLocaleString()} {t.aiTokens.tokens} • {pricePerToken}/token
             </span>
             <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700/50" />
           </div>
@@ -291,11 +295,11 @@ const PackageCard = ({
 
         {/* Features Section */}
         <div className="flex flex-col gap-3.5 mb-8 flex-1">
-          <FeatureItem label={`${pkg.tokens.toLocaleString()} AI tokens`} />
-          <FeatureItem label="No tokens expiry" />
-          <FeatureItem label="All AI smart features" />
-          {pkg.price >= 30 && <FeatureItem label="Priority processing speed" />}
-          {pkg.price >= 100 && <FeatureItem label="24/7 Dedicated Support" />}
+          <FeatureItem label={t.aiTokens.tokenDesc.replace("{count}", pkg.tokens.toLocaleString())} />
+          <FeatureItem label={t.aiTokens.noExpiry} />
+          <FeatureItem label={t.aiTokens.allFeatures} />
+          {pkg.price >= 30 && <FeatureItem label={t.aiTokens.prioritySpeed} />}
+          {pkg.price >= 100 && <FeatureItem label={t.aiTokens.dedicatedSupport} />}
         </div>
 
         {/* Action Button */}
@@ -313,7 +317,7 @@ const PackageCard = ({
           )}
           <div className="flex items-center justify-center gap-2">
             <Sparkles className={cn("size-4", isPopular ? "text-yellow-300" : "text-purple")} />
-            <span>Select This Package</span>
+            <span>{t.aiTokens.selectPackage}</span>
           </div>
         </Button>
       </div>
@@ -354,7 +358,7 @@ const PurchaseDialog = ({
   onConfirm: () => void;
   isLoading: boolean;
 }) => {
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const isArabic = locale === "ar";
 
   if (!pkg) return null;
@@ -372,7 +376,7 @@ const PurchaseDialog = ({
             <div className="size-10 rounded-2xl bg-purple/10 flex items-center justify-center">
               <Sparkles className="size-5 text-purple" />
             </div>
-            {isArabic ? "تأكيد الشراء" : "Confirm Purchase"}
+            {t.aiTokens.confirmPurchase}
           </ResponsiveModalTitle>
         </ResponsiveModalHeader>
 
@@ -384,7 +388,7 @@ const PurchaseDialog = ({
             <div className="relative flex justify-between items-start mb-4">
               <div className="space-y-1">
                 <span className="text-[10px] font-black uppercase tracking-widest text-purple/60">
-                  {isArabic ? "الحزمة المختارة" : "Selected Package"}
+                  {t.aiTokens.selectedPackage}
                 </span>
                 <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 uppercase">
                   {displayName}
@@ -410,7 +414,7 @@ const PurchaseDialog = ({
             <div className="flex items-center gap-2 p-3 bg-white/50 dark:bg-gray-900/50 rounded-2xl border border-white dark:border-gray-800">
               <Coins className="size-5 text-purple" />
               <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                {pkg.tokens.toLocaleString()} {isArabic ? "رمز ذكاء اصطناعي" : "AI Tokens"}
+                {pkg.tokens.toLocaleString()} {t.aiTokens.aiTokens}
               </span>
             </div>
           </div>
@@ -423,10 +427,10 @@ const PurchaseDialog = ({
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-bold text-gray-800 dark:text-gray-200">
-                  {isArabic ? "معالجة دفع آمنة" : "Secure Payment"}
+                  {t.aiTokens.securePayment}
                 </span>
                 <span className="text-[11px] text-gray-500">
-                  {isArabic ? "بياناتك مشفرة ومحمية بالكامل" : "Your data is encrypted and fully protected"}
+                  {t.aiTokens.securePaymentDesc}
                 </span>
               </div>
             </div>
@@ -437,10 +441,10 @@ const PurchaseDialog = ({
               </div>
               <div className="flex flex-col">
                 <span className="text-sm font-bold text-gray-800 dark:text-gray-200">
-                  {isArabic ? "تفعيل فوري" : "Instant Activation"}
+                  {t.aiTokens.instantActivation}
                 </span>
                 <span className="text-[11px] text-gray-500">
-                  {isArabic ? "ستضاف الرموز تلقائياً إلى حسابك" : "Tokens will be added automatically to your account"}
+                  {t.aiTokens.instantActivationDesc}
                 </span>
               </div>
             </div>
@@ -454,7 +458,7 @@ const PurchaseDialog = ({
             disabled={isLoading}
             className="flex-1 h-12 rounded-2xl font-bold text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all active:scale-95"
           >
-            {isArabic ? "إلغاء" : "Cancel"}
+            {t.aiTokens.cancel}
           </Button>
           <Button
             onClick={onConfirm}
@@ -464,12 +468,12 @@ const PurchaseDialog = ({
             {isLoading ? (
               <div className="flex items-center gap-2">
                 <Loader2 className="size-4 animate-spin" />
-                <span>{isArabic ? "جاري المعالجة..." : "Processing..."}</span>
+                <span>{t.aiTokens.processing}</span>
               </div>
             ) : (
                 <div className="flex items-center justify-center gap-2">
                   <Sparkles className="size-4 text-yellow-300 group-hover/confirm:scale-110 transition-transform" />
-                  <span>{isArabic ? "تأكيد الدفع" : "Confirm & Pay"}</span>
+                  <span>{t.aiTokens.confirmAndPay}</span>
                 </div>
             )}
           </Button>
@@ -507,7 +511,7 @@ const PackageSkeleton = () => (
 // ============================================================================
 export const AITokensContent = () => {
   const router = useRouter();
-  const { locale } = useLocale();
+  const { locale, t } = useLocale();
   const isArabic = locale === "ar";
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const {
@@ -523,16 +527,10 @@ export const AITokensContent = () => {
   useEffect(() => {
     const status = searchParams.get("status");
     if (status === "success") {
-      toast.success(
-        isArabic
-          ? "تمت عملية الشراء بنجاح! الرصيد سيحدث قريباً."
-          : "Purchase successful! Your balance will update shortly."
-      );
+      toast.success(t.aiTokens.successMessage);
       router.replace(`/${locale}/ai-tokens`);
     } else if (status === "cancel") {
-      toast.error(
-        isArabic ? "تم إلغاء عملية الشراء." : "Purchase was cancelled."
-      );
+      toast.error(t.aiTokens.cancelMessage);
       router.replace(`/${locale}/ai-tokens`);
     }
   }, [searchParams, isArabic, locale, router]);
@@ -582,14 +580,11 @@ export const AITokensContent = () => {
         window.location.href = purchaseData.checkoutUrl;
       }
 
-      toast.success(isArabic ? "جاري تحويلك للدفع..." : "Redirecting to payment...");
+      toast.success(t.aiTokens.redirectingMsg);
       setDialogOpen(false);
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.message ||
-        (isArabic
-          ? "فشل في بدء عملية الشراء. يرجى المحاولة مرة أخرى."
-          : "Failed to initiate purchase. Please try again.")
+        error?.response?.data?.message || t.aiTokens.failedMsg
       );
     }
   };
@@ -608,7 +603,7 @@ export const AITokensContent = () => {
           className="flex items-center gap-2 text-sm text-gray-500 hover:text-purple transition-colors group"
         >
           <ArrowLeft className="size-4 group-hover:-translate-x-1 transition-transform" />
-          Back
+          {t.aiTokens.back}
         </button>
 
         {/* Hero balance */}
@@ -626,11 +621,10 @@ export const AITokensContent = () => {
             variant="h2"
             className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"
           >
-            Choose Your Token Package
+            {t.aiTokens.choosePackage}
           </Typography>
           <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base max-w-lg mx-auto">
-            Top up your AI tokens and unlock the full power of AI features.
-            All packages include instant delivery with no expiry.
+            {t.aiTokens.choosePackageSub}
           </p>
         </div>
 
@@ -653,7 +647,7 @@ export const AITokensContent = () => {
               <div className="col-span-full text-center py-12">
                 <Coins className="size-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" />
                 <p className="text-gray-500 dark:text-gray-400">
-                  No packages available at the moment. Check back later!
+                  {t.aiTokens.noPackages}
                 </p>
               </div>
             )}
@@ -665,45 +659,39 @@ export const AITokensContent = () => {
             variant="h3"
             className="text-lg font-bold text-gray-900 dark:text-white mb-4"
           >
-            Frequently Asked Questions
+            {t.aiTokens.faqTitle}
           </Typography>
           <div className="grid sm:grid-cols-2 gap-6">
             <div>
               <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-1.5">
-                What are AI tokens?
+                {t.aiTokens.faqContext.whatAreTokens}
               </h4>
               <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                AI tokens are credits used to access AI-powered features like
-                auto-generated ad descriptions, smart translations, and ad
-                optimization tools.
+                {t.aiTokens.faqContext.whatAreTokensA}
               </p>
             </div>
             <div>
               <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-1.5">
-                Do tokens expire?
+                {t.aiTokens.faqContext.doTheyExpire}
               </h4>
               <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                No! Your tokens never expire. Use them whenever you need to
-                enhance your ads with AI features.
+                {t.aiTokens.faqContext.doTheyExpireA}
               </p>
             </div>
             <div>
               <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-1.5">
-                How many tokens does each feature use?
+                {t.aiTokens.faqContext.howManyUses}
               </h4>
               <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                Each AI feature uses a different amount of tokens. Generating an
-                ad description typically uses 1–3 tokens, while translations use
-                1–2 tokens.
+                {t.aiTokens.faqContext.howManyUsesA}
               </p>
             </div>
             <div>
               <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-1.5">
-                Can I get a refund?
+                {t.aiTokens.faqContext.refunds}
               </h4>
               <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                Unused tokens may be refundable. Please contact our support team
-                for assistance with refund requests.
+                {t.aiTokens.faqContext.refundsA}
               </p>
             </div>
           </div>

@@ -27,7 +27,7 @@ import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-
 
 
 export default function ConnectionsContent() {
-      const { localePath } = useLocale();
+      const { localePath, t } = useLocale();
       const router = useRouter();
       const session = useAuthStore((state) => state.session);
       const currentUserId = session?.user?._id;
@@ -55,19 +55,19 @@ export default function ConnectionsContent() {
 
       // Mutations
       const acceptMutation = useAcceptConnectionRequest(() => {
-            toast.success("Connection request accepted");
+            toast.success(t.connections.messages.requestAccepted);
             refetchAccepted();
             refetchReceived();
       });
 
       const rejectMutation = useRejectConnectionRequest(() => {
-            toast.success("Connection request rejected");
+            toast.success(t.connections.messages.requestRejected);
             refetchReceived();
             setConfirmConfig(prev => ({ ...prev, open: false }));
       });
 
       const removeMutation = useRemoveConnection(() => {
-            toast.success("Connection removed");
+            toast.success(t.connections.messages.connectionRemoved);
             refetchAccepted();
             setConfirmConfig(prev => ({ ...prev, open: false }));
       });
@@ -84,7 +84,7 @@ export default function ConnectionsContent() {
                   router.push(localePath(`/chat?chatId=${chatId}&type=dm`));
             } catch (error) {
                   console.error("Error starting chat:", error);
-                  toast.error("Failed to start conversation");
+                  toast.error(t.connections.messages.failedToStartChat);
             } finally {
                   setIsMessageLoading(null);
             }
@@ -94,12 +94,13 @@ export default function ConnectionsContent() {
             getConnectionsColumns({
                   currentUserId,
                   localePath,
+                  t,
                   onMessage: handleMessage,
                   onRemove: (id) => {
                         setConfirmConfig({
                               open: true,
-                              title: "Remove Connection",
-                              description: "Are you sure you want to remove this professional from your network?",
+                              title: t.connections.actions.removeConnection,
+                              description: t.connections.actions.removeConfirm,
                               onConfirm: () => removeMutation.mutate(id),
                               isLoading: removeMutation.isPending,
                               type: "remove"
@@ -109,18 +110,19 @@ export default function ConnectionsContent() {
                   isRemoving: removeMutation.isPending ? (removeMutation as any).variables : null,
                   formatDate,
             }),
-            [currentUserId, localePath, isMessageLoading, removeMutation]
+            [currentUserId, localePath, isMessageLoading, removeMutation, t]
       );
 
       const receivedColumns = React.useMemo(() =>
             getReceivedColumns({
                   localePath,
+                  t,
                   onAccept: (id) => acceptMutation.mutate(id),
                   onReject: (id) => {
                         setConfirmConfig({
                               open: true,
-                              title: "Reject Request",
-                              description: "Are you sure you want to reject this connection request?",
+                              title: t.connections.actions.rejectRequest,
+                              description: t.connections.actions.rejectConfirm,
                               onConfirm: () => rejectMutation.mutate(id),
                               isLoading: rejectMutation.isPending,
                               type: "reject"
@@ -130,15 +132,16 @@ export default function ConnectionsContent() {
                   isRejecting: rejectMutation.isPending ? (rejectMutation as any).variables : null,
                   formatDate,
             }),
-            [localePath, acceptMutation, rejectMutation]
+            [localePath, acceptMutation, rejectMutation, t]
       );
 
       const sentColumns = React.useMemo(() =>
             getSentColumns({
                   localePath,
+                  t,
                   formatDate,
             }),
-            [localePath, formatDate]
+            [localePath, formatDate, t]
       );
 
       const renderEmptyState = (message: string) => (
@@ -150,22 +153,22 @@ export default function ConnectionsContent() {
                         {message}
                   </Typography>
                   <Typography variant="body-small" className="text-grey-blue dark:text-gray-400 max-w-xs">
-                        Expand your professional network to see more connections here.
+                        {t.connections.emptyStates.expandNetwork}
                   </Typography>
             </div>
       );
 
       return (
             <Container1080>
-                  <MobileStickyHeader title="My Network" />
+                  <MobileStickyHeader title={t.connections.myNetwork} />
 
                   <div className="px-4 py-8 min-h-screen bg-gray-50 dark:bg-gray-950">
                         <div className="mb-8">
                               <H2 className="font-bold text-dark-blue dark:text-gray-100 mb-2">
-                                    Professional Network
+                                    {t.connections.professionalNetwork}
                               </H2>
                               <Typography variant="body-small" className="text-grey-blue dark:text-gray-400">
-                                    Manage your professional connections and network requests.
+                                    {t.connections.manageConnections}
                               </Typography>
                         </div>
 
@@ -175,19 +178,19 @@ export default function ConnectionsContent() {
                                           value="connections" 
                                           className="px-6 py-2 rounded-md transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple dark:data-[state=active]:text-purple-400 data-[state=active]:shadow-sm"
                                     >
-                                          Connections {acceptedConnections?.data?.total ? `(${acceptedConnections.data.total})` : ""}
+                                          {t.connections.tabs.connections} {acceptedConnections?.data?.total ? `(${acceptedConnections.data.total})` : ""}
                                     </TabsTrigger>
                                     <TabsTrigger 
                                           value="received" 
                                           className="px-6 py-2 rounded-md transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple dark:data-[state=active]:text-purple-400 data-[state=active]:shadow-sm"
                                     >
-                                          Received {receivedRequests?.data?.total ? `(${receivedRequests.data.total})` : ""}
+                                          {t.connections.tabs.received} {receivedRequests?.data?.total ? `(${receivedRequests.data.total})` : ""}
                                     </TabsTrigger>
                                     <TabsTrigger 
                                           value="sent" 
                                           className="px-6 py-2 rounded-md transition-all data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple dark:data-[state=active]:text-purple-400 data-[state=active]:shadow-sm"
                                     >
-                                          Sent {sentRequests?.data?.total ? `(${sentRequests.data.total})` : ""}
+                                          {t.connections.tabs.sent} {sentRequests?.data?.total ? `(${sentRequests.data.total})` : ""}
                                     </TabsTrigger>
                               </TabsList>
 
@@ -238,7 +241,8 @@ export default function ConnectionsContent() {
                         description={confirmConfig.description}
                         onConfirm={confirmConfig.onConfirm}
                         isLoading={confirmConfig.type === "remove" ? removeMutation.isPending : rejectMutation.isPending}
-                        confirmText={confirmConfig.type === "remove" ? "Remove" : "Reject"}
+                        confirmText={confirmConfig.type === "remove" ? t.connections.actions.remove : t.connections.actions.reject}
+                        cancelText={t.connections.actions.cancel}
                   />
             </Container1080>
       );

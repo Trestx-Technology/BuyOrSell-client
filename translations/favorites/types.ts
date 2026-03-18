@@ -45,4 +45,12 @@ export type FavoritesTranslations = {
   // Dynamic text
   itemsCount: string; // "{count} items"
   createdAt: string; // "Created {date}"
+
+  // Deletion
+  deleteCollectionTitle: string;
+  deleteCollectionConfirm: string;
+
+  // Feedback
+  collectionDeleted: string;
+  failedToDeleteCollection: string;
 };

@@ -12,6 +12,7 @@ import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 import { toast } from "sonner";
 import { ConnectionStatus } from "@/interfaces/connection.types";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/hooks/useLocale";
 
 export type ConnectButtonRenderProps = {
       isConnected: boolean;
@@ -45,6 +46,8 @@ export const ConnectButton = ({
       children,
       ...props
 }: ConnectButtonProps & Omit<React.ComponentProps<typeof Button>, "children">) => {
+      const { t } = useLocale();
+
       const normalizeStatus = (status: any): ConnectionStatus => {
             if (status === "APPROVED" || status === "ACCEPTED") return "ACCEPTED";
             if (status === "PENDING") return "PENDING";
@@ -79,7 +82,7 @@ export const ConnectButton = ({
             e.stopPropagation();
 
             if (!userId) {
-                  toast.error("Please login to connect with professionals");
+                  toast.error(t.jobs.messages.loginToConnect);
                   return;
             }
 
@@ -87,13 +90,13 @@ export const ConnectButton = ({
             if (isLoading) return;
 
             if (connectionStatus === "ACCEPTED") {
-                  toast.info("You are already connected");
+                  toast.info(t.jobs.messages.alreadyConnected);
                   return;
             }
 
             if (connectionStatus === "PENDING") {
                   if (!requestId) {
-                        toast.error("Request ID not found. Please refresh.");
+                        toast.error(t.jobs.messages.requestIdNotFound);
                         return;
                   }
 
@@ -108,18 +111,18 @@ export const ConnectButton = ({
 
                   try {
                         await cancelRequest(requestId);
-                        toast.success("Connection request cancelled");
+                        toast.success(t.jobs.messages.requestCancelled);
                   } catch (error) {
                         // Revert on error
                         setConnectionStatus(prevStatus);
                         setIsConnected(prevIsConnected);
                         setRequestId(prevRequestId);
-                        toast.error("Failed to cancel request");
+                        toast.error(t.jobs.messages.failedToCancel);
                   }
             } else {
                   // If connecting as an individual (no organisationId), require jobseeker profile
                   if (!organisationId && !jobseekerData?.data && !isJobseekerLoading) {
-                        toast.warning("Please create your jobseeker profile to connect with other professionals");
+                        toast.warning(t.jobs.messages.createProfileToConnect);
                         router.push("/jobs/jobseeker/new");
                         return;
                   }
@@ -143,12 +146,12 @@ export const ConnectButton = ({
                               // Fallback for different API response formats if necessary
                               setRequestId((response as any).data._id);
                         }
-                        toast.success("Connection request sent");
+                        toast.success(t.jobs.messages.requestSent);
                   } catch (error) {
                         // Revert on error
                         setConnectionStatus(prevStatus);
                         setIsConnected(prevIsConnected);
-                        toast.error("Failed to send request");
+                        toast.error(t.jobs.messages.failedToSend);
                   }
             }
       };
@@ -168,7 +171,7 @@ export const ConnectButton = ({
                         width="full"
                         {...props}
                   >
-                        {children || "View Profile"}
+                        {children || t.jobs.actions.viewProfile}
                   </Button>
             );
       }
@@ -185,20 +188,20 @@ export const ConnectButton = ({
                   className={cn("w-full rounded-lg py-2.5 font-semibold transition-all z-20 relative", className)}
                   variant={
                         connectionStatus === "PENDING" || connectionStatus === "ACCEPTED"
-                              ? "outline"
-                              : "primary"
+                               ? "outline"
+                               : "primary"
                   }
                   width="full"
                   {...props}
             >
                   {children || (
                         connectionStatus === "ACCEPTED"
-                              ? "Connected"
-                              : connectionStatus === "PENDING"
-                                    ? "Cancel Request"
-                                    : connectionStatus === "REJECTED"
-                                          ? "Resend Request"
-                                          : "Connect"
+                               ? t.jobs.actions.connected
+                               : connectionStatus === "PENDING"
+                                     ? t.jobs.actions.cancelRequest
+                                     : connectionStatus === "REJECTED"
+                                           ? t.jobs.actions.resendRequest
+                                           : t.jobs.actions.connect
                   )}
             </Button>
       );
