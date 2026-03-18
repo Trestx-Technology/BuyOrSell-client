@@ -231,170 +231,56 @@ export function PrivacyPolicyContent() {
             </section>
 
             <section>
-              <SectionHeading id="who-we-are">1. Who We Are</SectionHeading>
-              <Paragraph>
-                Souq Labs Technologies LLC SPC ("BuyOrSell", "we", "us", "our")
-                operates the online classifieds platform at www.buyorsell.ae,
-                registered in Abu Dhabi, United Arab Emirates. We are the data
-                controller for personal data processed through the Platform.
-              </Paragraph>
-              <Paragraph>
-                This Privacy Policy explains how we collect, use, share, retain,
-                and protect your personal data when you access or use the
-                Platform, and describes your rights under the UAE Federal
-                Decree-Law No. 45/2021 on Personal Data Protection ("PDPL") and
-                other applicable privacy laws.
-              </Paragraph>
-              <Paragraph>
-                If you have any questions or concerns, please contact us:
-                contact@buyorsell.ae.
-              </Paragraph>
+              <SectionHeading id="who-we-are">{t.privacyPolicy.sections.whoWeAre.title}</SectionHeading>
+              {t.privacyPolicy.sections.whoWeAre.content.map((p: string, i: number) => (
+                <Paragraph key={i}>{p}</Paragraph>
+              ))}
             </section>
 
             <section>
               <SectionHeading id="scope">
-                2. Scope of This Policy
+                {t.privacyPolicy.sections.scope.title}
               </SectionHeading>
-              <Paragraph>This Policy applies to:</Paragraph>
+              <Paragraph>{t.privacyPolicy.sections.scope.intro}</Paragraph>
               <List>
-                <li>
-                  All users of the Platform, including visitors, registered
-                  account holders, buyers, sellers, landlords, tenants,
-                  employers, job seekers, and business users.
-                </li>
-                <li>
-                  Personal data collected through the website at
-                  www.buyorsell.ae, our mobile applications, and any related
-                  services.
-                </li>
-                <li>
-                  Data collected via communications with us (email, phone,
-                  in-app messaging, support tickets).
-                </li>
+                {t.privacyPolicy.sections.scope.items.map((item: string, i: number) => (
+                  <li key={i}>{item}</li>
+                ))}
               </List>
               <Paragraph>
-                This Policy does not apply to third-party websites,
-                applications, or services linked from the Platform. We encourage
-                you to read the privacy policies of any third-party services you
-                use.
+                {t.privacyPolicy.sections.scope.outro}
               </Paragraph>
             </section>
 
             <section>
               <SectionHeading id="data-we-collect">
-                3. Personal Data We Collect
+                {t.privacyPolicy.sections.dataWeCollect.title}
               </SectionHeading>
               <Paragraph>
-                We collect personal data in three main ways: data you provide to
-                us directly, data collected automatically, and data received
-                from third parties.
+                {t.privacyPolicy.sections.dataWeCollect.intro}
               </Paragraph>
 
-              <SubHeading>3.1 Data You Provide Directly</SubHeading>
+              <SubHeading>{t.privacyPolicy.sections.dataWeCollect.direct.title}</SubHeading>
               <Table
-                headers={["Category", "Examples", "When Collected"]}
-                rows={[
-                  [
-                    "Account Information",
-                    "Full name, email address, mobile number, password (hashed), profile photo",
-                    "Registration and account updates",
-                  ],
-                  [
-                    "Identity & Verification",
-                    "Emirates ID number, trade licence number, RERA/real estate licence (for business users)",
-                    "Verification requests",
-                  ],
-                  [
-                    "Listing Content",
-                    "Item descriptions, photos, videos, pricing, category, location (emirate/area)",
-                    "Creating or editing a listing",
-                  ],
-                  [
-                    "Payment Information",
-                    "Credit/debit card details (tokenised via Stripe), billing address, transaction history",
-                    "Purchasing a subscription or paid feature",
-                  ],
-                  [
-                    "Communications",
-                    "Messages sent via in-platform messaging, email, or support tickets",
-                    "Contacting sellers/buyers or our support team",
-                  ],
-                  [
-                    "Reviews & Ratings",
-                    "Rating scores, written reviews of other users",
-                    "Submitting a review",
-                  ],
-                  [
-                    "Job Applications & CVs",
-                    "Work history, education, skills, references (if uploaded)",
-                    "Using the Jobs section",
-                  ],
-                  [
-                    "Business Profile",
-                    "Business name, logo, website URL, business description",
-                    "Verified Business Account setup",
-                  ],
-                  [
-                    "Preferences & Settings",
-                    "Language preference (Arabic/English), notification settings, saved searches",
-                    "Adjusting account settings",
-                  ],
-                ]}
+                headers={t.privacyPolicy.sections.dataWeCollect.direct.table.headers}
+                rows={t.privacyPolicy.sections.dataWeCollect.direct.table.rows}
               />
 
-              <SubHeading>3.2 Data Collected Automatically</SubHeading>
+              <SubHeading>{t.privacyPolicy.sections.dataWeCollect.automatic.title}</SubHeading>
               <Paragraph>
-                When you use the Platform, we automatically collect technical
-                and usage data, including:
+                {t.privacyPolicy.sections.dataWeCollect.automatic.intro}
               </Paragraph>
               <List>
-                <li>
-                  <strong>Device data:</strong> IP address, device type,
-                  operating system, browser type and version, screen resolution.
-                </li>
-                <li>
-                  <strong>Usage data:</strong> Pages visited, listings viewed,
-                  search queries, filters applied, time spent on pages, click
-                  patterns, and referral URLs.
-                </li>
-                <li>
-                  <strong>Location data:</strong> General location inferred from
-                  IP address (emirate level). We do not collect precise GPS
-                  location unless you explicitly grant permission for
-                  location-based features.
-                </li>
-                <li>
-                  <strong>Cookie and tracking data:</strong> Session
-                  identifiers, analytics identifiers, advertising identifiers.
-                  See Section 10 (Cookie Policy) for full details.
-                </li>
-                <li>
-                  <strong>Transaction logs:</strong> Subscription purchases,
-                  renewal dates, payment status, and refund requests.
-                </li>
+                {t.privacyPolicy.sections.dataWeCollect.automatic.items.map((item: string, i: number) => (
+                  <li key={i}>{item}</li>
+                ))}
               </List>
 
-              <SubHeading>3.3 Data Received from Third Parties</SubHeading>
+              <SubHeading>{t.privacyPolicy.sections.dataWeCollect.thirdParty.title}</SubHeading>
               <List>
-                <li>
-                  <strong>Social login providers:</strong> If you register or
-                  log in using Google or Apple, we receive your name, email
-                  address, and profile photo from those services.
-                </li>
-                <li>
-                  <strong>Payment processors:</strong> Stripe may share
-                  transaction confirmation, fraud risk scores, and card
-                  verification status.
-                </li>
-                <li>
-                  <strong>Advertising partners:</strong> Google Ads and Meta may
-                  share audience segment data for ad targeting and measurement.
-                </li>
-                <li>
-                  <strong>Verification services:</strong> Where we use
-                  third-party identity or licence verification services, we
-                  receive confirmation results.
-                </li>
+                {t.privacyPolicy.sections.dataWeCollect.thirdParty.items.map((item: string, i: number) => (
+                  <li key={i}>{item}</li>
+                ))}
               </List>
             </section>
 
@@ -488,538 +374,208 @@ export function PrivacyPolicyContent() {
 
             <section>
               <SectionHeading id="how-we-share">
-                5. How We Share Your Personal Data
+                {t.privacyPolicy.sections.howWeShare.title}
               </SectionHeading>
               <Paragraph>
-                We do not sell your personal data to third parties. We share
-                data only as described below.
+                {t.privacyPolicy.sections.howWeShare.intro}
               </Paragraph>
 
-              <SubHeading>5.1 Visible to Other Users</SubHeading>
+              <SubHeading>{t.privacyPolicy.sections.howWeShare.visible.title}</SubHeading>
               <Paragraph>
-                Certain data is inherently visible to other Platform users as
-                part of the classifieds service:
+                {t.privacyPolicy.sections.howWeShare.visible.intro}
               </Paragraph>
               <List>
-                <li>
-                  Your display name, profile photo (if set), general location
-                  (emirate), and listing content.
-                </li>
-                <li>
-                  Your review submissions (attributed to your display name).
-                </li>
-                <li>
-                  Business users: Business name, logo, website, and verified
-                  status badge.
-                </li>
+                {t.privacyPolicy.sections.howWeShare.visible.items.map((item: string, i: number) => (
+                  <li key={i}>{item}</li>
+                ))}
               </List>
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700/50 p-4 rounded-xl mb-6">
                 <p className="text-sm text-yellow-800 dark:text-yellow-200 px-2 flex gap-4">
                   <span>
-                    <strong>⚠️ Caution:</strong> Do not include sensitive
-                    personal information (e.g., full address, bank details,
-                    Emirates ID number) in listing descriptions, photos, or
-                    messages. We cannot protect data you share publicly.
+                    <strong>⚠️ Caution:</strong> {t.privacyPolicy.sections.howWeShare.visible.caution}
                   </span>
                 </p>
               </div>
 
-              <SubHeading>5.2 Service Providers</SubHeading>
+              <SubHeading>{t.privacyPolicy.sections.howWeShare.serviceProviders.title}</SubHeading>
               <Paragraph>
-                We share data with trusted third-party service providers who
-                process data on our behalf, under strict data processing
-                agreements:
+                {t.privacyPolicy.sections.howWeShare.serviceProviders.intro}
               </Paragraph>
               <Table
-                headers={["Provider", "Category", "Data Shared"]}
-                rows={[
-                  [
-                    "Stripe",
-                    "Payment Processing",
-                    "Billing details, transaction amounts, fraud signals",
-                  ],
-                  [
-                    "Google Cloud / AWS",
-                    "Cloud Hosting & Storage",
-                    "All Platform data (encrypted at rest and in transit)",
-                  ],
-                  [
-                    "Google Analytics",
-                    "Analytics",
-                    "Anonymised usage data, IP (truncated), device info",
-                  ],
-                  [
-                    "Google Ads",
-                    "Advertising",
-                    "Hashed email (for matching), ad interactions",
-                  ],
-                  [
-                    "Meta (Facebook)",
-                    "Advertising",
-                    "Pixel data, hashed email (for Custom Audiences)",
-                  ],
-                  [
-                    "Microsoft Bing Ads",
-                    "Advertising",
-                    "UET tag data for conversion tracking",
-                  ],
-                  [
-                    "SendGrid / Twilio",
-                    "Email & SMS",
-                    "Email address, phone number for transactional messages",
-                  ],
-                  [
-                    "Firebase (Google)",
-                    "Push Notifications",
-                    "Device token, notification content",
-                  ],
-                  [
-                    "Sentry / Datadog",
-                    "Error Monitoring",
-                    "Anonymised error logs, device/OS data",
-                  ],
-                  [
-                    "Google My Business",
-                    "Social Media",
-                    "Business profile data, reviews, user interactions",
-                  ],
-                  [
-                    "Threads",
-                    "Social Media",
-                    "Profile data, post interactions, engagement metrics",
-                  ],
-                  [
-                    "YouTube",
-                    "Social Media / Video",
-                    "Video interaction data, hashed email, ad performance data",
-                  ],
-                  [
-                    "Facebook",
-                    "Social Media",
-                    "Pixel data, hashed email, social interactions, ad targeting data",
-                  ],
-                  [
-                    "Instagram",
-                    "Social Media",
-                    "Pixel data, hashed email, photo/video interactions, ad metrics",
-                  ],
-                  [
-                    "X (Twitter)",
-                    "Social Media",
-                    "Hashed email, tweet interactions, ad conversion data",
-                  ],
-                  [
-                    "Snapchat",
-                    "Social Media",
-                    "Snap Pixel data, hashed email, ad engagement metrics",
-                  ],
-                  [
-                    "TikTok",
-                    "Social Media / Video",
-                    "TikTok Pixel data, hashed email, video engagement data",
-                  ],
-                  [
-                    "Telegram",
-                    "Messaging / Social",
-                    "Username, notification opt-in status, channel interaction data",
-                  ],
-                  [
-                    "WhatsApp",
-                    "Messaging",
-                    "Phone number, message delivery status, opt-in consent data",
-                  ],
-                  [
-                    "LinkedIn",
-                    "Social Media / Professional",
-                    "Hashed email, LinkedIn Insight Tag data, ad conversion metrics",
-                  ],
-                ]}
+                headers={t.privacyPolicy.sections.howWeShare.serviceProviders.table.headers}
+                rows={t.privacyPolicy.sections.howWeShare.serviceProviders.table.rows}
               />
 
-              <SubHeading>5.3 Legal Disclosures</SubHeading>
+              <SubHeading>{t.privacyPolicy.sections.howWeShare.legal.title}</SubHeading>
               <Paragraph>
-                We may disclose your personal data to government authorities,
-                regulators, law enforcement agencies, or courts where we are
-                required or permitted to do so by applicable UAE law, including:
+                {t.privacyPolicy.sections.howWeShare.legal.intro}
               </Paragraph>
               <List>
-                <li>
-                  To comply with a legal obligation, court order, or regulatory
-                  requirement.
-                </li>
-                <li>
-                  To protect the rights, property, or safety of BuyOrSell, our
-                  users, or the public.
-                </li>
-                <li>
-                  To investigate or prevent fraud, illegal activity, or
-                  violations of our Terms.
-                </li>
+                {t.privacyPolicy.sections.howWeShare.legal.items.map((item: string, i: number) => (
+                  <li key={i}>{item}</li>
+                ))}
               </List>
 
-              <SubHeading>5.4 Business Transfers</SubHeading>
+              <SubHeading>{t.privacyPolicy.sections.howWeShare.business.title}</SubHeading>
               <Paragraph>
-                If we are involved in a merger, acquisition, restructuring, or
-                sale of assets, your personal data may be transferred as part of
-                that transaction. We will notify you via email or prominent
-                notice on the Platform before your data is transferred and
-                becomes subject to a different privacy policy.
+                {t.privacyPolicy.sections.howWeShare.business.content}
               </Paragraph>
             </section>
 
             <section>
               <SectionHeading id="international-transfers">
-                6. International Data Transfers
+                {t.privacyPolicy.sections.transfers.title}
               </SectionHeading>
-              <Paragraph>
-                The Platform is operated from the UAE, and your data is
-                primarily stored on UAE-based servers. Some of our service
-                providers (including Google, Meta, Stripe, and Twilio) may
-                process your data in data centres located outside the UAE,
-                including in the European Union, United States, and other
-                countries.
-              </Paragraph>
-              <Paragraph>
-                When we transfer personal data internationally, we ensure
-                appropriate safeguards are in place, including:
-              </Paragraph>
+              {t.privacyPolicy.sections.transfers.content.map((p: string, i: number) => (
+                <Paragraph key={i}>{p}</Paragraph>
+              ))}
               <List>
-                <li>
-                  Standard Contractual Clauses (SCCs) approved by relevant data
-                  protection authorities.
-                </li>
-                <li>
-                  Adequacy decisions where the destination country offers
-                  equivalent protection.
-                </li>
-                <li>
-                  Binding corporate rules where applicable for intra-group
-                  transfers.
-                </li>
+                {t.privacyPolicy.sections.transfers.items.map((item: string, i: number) => (
+                  <li key={i}>{item}</li>
+                ))}
               </List>
               <Paragraph>
-                You may request information about the safeguards we use for
-                international transfers by contacting us at the details in
-                Section 14.
+                {t.privacyPolicy.sections.transfers.outro}
               </Paragraph>
             </section>
 
             <section>
               <SectionHeading id="data-retention">
-                7. Data Retention
+                {t.privacyPolicy.sections.retention.title}
               </SectionHeading>
               <Paragraph>
-                We retain your personal data only for as long as necessary to
-                fulfil the purposes described in this Policy, or as required by
-                applicable law. The table below summarises our key retention
-                periods.
+                {t.privacyPolicy.sections.retention.intro}
               </Paragraph>
               <Table
-                headers={["Data Category", "Retention Period", "Reason"]}
-                rows={[
-                  [
-                    "Active account data",
-                    "Duration of account + 1 year",
-                    "Service delivery and legal compliance",
-                  ],
-                  [
-                    "Listing content",
-                    "Duration of listing + 6 months",
-                    "Dispute resolution and audit",
-                  ],
-                  [
-                    "Payment and transaction records",
-                    "7 years",
-                    "UAE tax and financial law requirements",
-                  ],
-                  [
-                    "Communication logs (support)",
-                    "3 years",
-                    "Dispute resolution",
-                  ],
-                  [
-                    "In-platform messages between users",
-                    "2 years from last activity",
-                    "Fraud investigation",
-                  ],
-                  [
-                    "Identity/licence verification docs",
-                    "5 years",
-                    "UAE regulatory requirements",
-                  ],
-                  [
-                    "Analytics data (aggregated)",
-                    "Up to 26 months (Google Analytics default)",
-                    "Platform improvement",
-                  ],
-                  [
-                    "Marketing consent records",
-                    "5 years from consent",
-                    "Proof of consent",
-                  ],
-                  [
-                    "Deleted account data",
-                    "90 days (then permanently deleted)",
-                    "Account recovery window",
-                  ],
-                ]}
+                headers={t.privacyPolicy.sections.retention.table.headers}
+                rows={t.privacyPolicy.sections.retention.table.rows}
               />
               <Paragraph>
-                After the applicable retention period, we will securely delete
-                or anonymise your personal data. Where anonymisation is not
-                possible, we will restrict processing until deletion is
-                feasible.
+                {t.privacyPolicy.sections.retention.outro}
               </Paragraph>
             </section>
 
             <section>
               <SectionHeading id="how-we-protect">
-                8. How We Protect Your Data
+                {t.privacyPolicy.sections.security.title}
               </SectionHeading>
               <Paragraph>
-                We implement appropriate technical and organisational security
-                measures to protect your personal data against unauthorised
-                access, alteration, disclosure, destruction, or accidental loss.
-                Our security measures include:
+                {t.privacyPolicy.sections.security.intro}
               </Paragraph>
               <List>
-                <li>
-                  <strong>Encryption in transit:</strong> All data transmitted
-                  between your device and our servers is protected using TLS
-                  1.2+ (HTTPS).
-                </li>
-                <li>
-                  <strong>Encryption at rest:</strong> Sensitive data, including
-                  payment information and identity documents, is encrypted at
-                  rest using AES-256 encryption.
-                </li>
-                <li>
-                  <strong>Password security:</strong> User passwords are hashed
-                  using industry-standard one-way algorithms (bcrypt). We do not
-                  store plain-text passwords.
-                </li>
-                <li>
-                  <strong>Access controls:</strong> Access to personal data is
-                  restricted to authorised employees and contractors who need it
-                  to perform their duties, subject to confidentiality
-                  obligations.
-                </li>
-                <li>
-                  <strong>Two-factor authentication (2FA):</strong> Available
-                  for all accounts and strongly recommended.
-                </li>
-                <li>
-                  <strong>Regular security testing:</strong> We conduct regular
-                  vulnerability assessments, penetration testing, and security
-                  audits.
-                </li>
-                <li>
-                  <strong>Incident response:</strong> We maintain a data breach
-                  response plan and will notify affected users and the relevant
-                  UAE authority within the timeframes required by the PDPL in
-                  the event of a significant breach.
-                </li>
+                {t.privacyPolicy.sections.security.items.map((item: string, i: number) => (
+                  <li key={i}>{item}</li>
+                ))}
               </List>
-              <Paragraph>
-                <strong>Your responsibility:</strong> We cannot guarantee
-                absolute security. You are responsible for keeping your account
-                credentials confidential, using a strong unique password, and
-                notifying us immediately at support@buyorsell.ae if you suspect
-                any unauthorised access to your account.
-              </Paragraph>
             </section>
 
             <section>
               <SectionHeading id="your-rights">
-                9. Your Data Protection Rights
+                {t.privacyPolicy.sections.yourRights.title}
               </SectionHeading>
               <Paragraph>
-                Under UAE Federal Decree-Law No. 45/2021 (PDPL) and applicable
-                law, you have the following rights in relation to your personal
-                data:
+                {t.privacyPolicy.sections.yourRights.intro}
               </Paragraph>
               <Table
-                headers={["Right", "What It Means"]}
-                rows={[
-                  [
-                    "Right of Access",
-                    "Request a copy of the personal data we hold about you, and information about how it is processed.",
-                  ],
-                  [
-                    "Right to Rectification",
-                    "Request correction of inaccurate or incomplete personal data. You can also update most data directly in Account Settings.",
-                  ],
-                  [
-                    "Right to Erasure",
-                    "Request deletion of your personal data where it is no longer necessary, where consent is withdrawn, or where processing is unlawful. Note: some data must be retained by law.",
-                  ],
-                  [
-                    "Right to Restriction",
-                    "Request that we limit processing of your data in certain circumstances (e.g., while accuracy is disputed).",
-                  ],
-                  [
-                    "Right to Object",
-                    "Object to processing based on legitimate interests (including direct marketing). We will stop unless we demonstrate compelling legitimate grounds.",
-                  ],
-                  [
-                    "Right to Withdraw Consent",
-                    "Withdraw consent at any time for consent-based processing (e.g., marketing). Withdrawal does not affect lawfulness of prior processing.",
-                  ],
-                ]}
+                headers={t.privacyPolicy.sections.yourRights.table.headers}
+                rows={t.privacyPolicy.sections.yourRights.table.rows}
               />
               <Paragraph>
-                <strong>How to exercise your rights:</strong> Submit a request
-                by emailing contact@buyorsell.ae with the subject line "Data
-                Subject Request". We will respond within 7-15 business days of
-                receipt. We may need to verify your identity before processing
-                your request. Some requests may be subject to exemptions under
-                applicable law.
+                <strong>{t.privacyPolicy.sections.yourRights.outro.split(":")[0]}:</strong>
+                {t.privacyPolicy.sections.yourRights.outro.split(":")[1]}
               </Paragraph>
               <Paragraph>
-                <strong>Account self-service:</strong> Many rights can be
-                exercised directly within the Platform via Account Settings
-                &rarr; Privacy. You can download your data, delete your account,
-                or update your preferences at any time.
+                <strong>{t.privacyPolicy.sections.yourRights.accountSelfService.split(":")[0]}:</strong>
+                {t.privacyPolicy.sections.yourRights.accountSelfService.split(":")[1]}
               </Paragraph>
             </section>
 
             <section>
               <SectionHeading id="cookies">
-                10. Cookies and Tracking Technologies
+                {t.privacyPolicy.sections.cookies.title}
               </SectionHeading>
               <Paragraph>
-                We use cookies and similar tracking technologies to operate and
-                improve the Platform. For full details, including the types of
-                cookies used, how to manage your preferences, and third-party
-                providers, please refer to our Cookie Policy in Section 14 of
-                our Terms and Conditions, available at www.buyorsell.ae.
+                {t.privacyPolicy.sections.cookies.intro}
               </Paragraph>
               <Paragraph>
-                <strong>Cookie consent:</strong> On your first visit, we display
-                a consent banner allowing you to accept all cookies, reject
-                non-essential cookies, or manage granular preferences. Essential
-                cookies cannot be disabled as they are required for the Platform
-                to function. You may update your cookie preferences at any time
-                via Account Settings &rarr; Privacy &rarr; Cookie Preferences.
+                {t.privacyPolicy.sections.cookies.outro}
               </Paragraph>
             </section>
 
             <section>
               <SectionHeading id="children">
-                11. Children's Privacy
+                {t.privacyPolicy.sections.children.title}
               </SectionHeading>
               <Paragraph>
-                The Platform is intended for users aged 18 and above. We do not
-                knowingly collect personal data from children under the age of
-                18.
+                {t.privacyPolicy.sections.children.intro}
               </Paragraph>
               <Paragraph>
-                If we become aware that we have collected personal data from a
-                child under 18 without appropriate parental or guardian consent,
-                we will take immediate steps to delete that data from our
-                systems.
+                {t.privacyPolicy.sections.children.middle}
               </Paragraph>
               <Paragraph>
-                If you are a parent or guardian and believe your child has
-                provided personal data to us without your consent, please
-                contact us at support@buyorsell.ae so we can take appropriate
-                action.
+                {t.privacyPolicy.sections.children.outro}
               </Paragraph>
               <Paragraph>
-                We comply with the UAE Child Digital Safety Law and do not serve
-                behavioural advertising to users identified as being under 18.
+                {t.privacyPolicy.sections.children.compliance}
               </Paragraph>
             </section>
 
             <section>
               <SectionHeading id="third-party">
-                12. Third-Party Websites and Services
+                {t.privacyPolicy.sections.thirdParty.title}
               </SectionHeading>
               <Paragraph>
-                The Platform may contain links to third-party websites, social
-                media platforms, or services not operated by us (for example,
-                external payment pages, social login providers, or advertiser
-                websites).
+                {t.privacyPolicy.sections.thirdParty.intro}
               </Paragraph>
               <Paragraph>
-                This Privacy Policy does not apply to those third-party
-                services. We are not responsible for the privacy practices or
-                content of any third-party sites. We encourage you to read the
-                privacy policy of each third-party website or service you visit.
+                {t.privacyPolicy.sections.thirdParty.middle}
               </Paragraph>
               <Paragraph>
-                Where you use social login (Google or Apple), the relevant
-                platform's privacy policy also applies to the data they share
-                with us.
+                {t.privacyPolicy.sections.thirdParty.outro}
               </Paragraph>
             </section>
 
             <section>
               <SectionHeading id="changes">
-                13. Changes to This Privacy Policy
+                {t.privacyPolicy.sections.changes.title}
               </SectionHeading>
               <Paragraph>
-                We may update this Privacy Policy from time to time to reflect
-                changes in our data practices, technology, or applicable law. We
-                will notify you of material changes by:
+                {t.privacyPolicy.sections.changes.intro}
               </Paragraph>
               <List>
-                <li>
-                  Posting the updated Policy on the Platform with a revised
-                  "Last Updated" date; and
-                </li>
-                <li>
-                  Sending an email notification to your registered email address
-                  (for significant changes affecting your rights).
-                </li>
+                {t.privacyPolicy.sections.changes.items.map((item: string, i: number) => (
+                  <li key={i}>{item}</li>
+                ))}
               </List>
               <Paragraph>
-                Your continued use of the Platform after the effective date of
-                any changes constitutes your acceptance of the updated Policy.
-                We encourage you to review this Policy periodically.
+                {t.privacyPolicy.sections.changes.outro}
               </Paragraph>
             </section>
 
             <section>
-              <SectionHeading id="contact">14. Contact Us</SectionHeading>
+              <SectionHeading id="contact"> {t.privacyPolicy.sections.contact.title}</SectionHeading>
               <Paragraph>
-                If you have any questions, concerns, or requests regarding this
-                Privacy Policy or how we handle your personal data, please
-                contact us:
+                {t.privacyPolicy.sections.contact.intro}
               </Paragraph>
               <div className="bg-gray-50 dark:bg-gray-800/80 p-6 rounded-2xl border border-gray-100 dark:border-gray-800">
                 <p className="font-bold mb-2">
-                  Data Protection Officer - BuyOrSell.ae
+                  {t.privacyPolicy.sections.contact.dpo}
                 </p>
                 <p className="text-sm">
-                  Company: Souq Labs Technologies LLC SPC
+                  {t.privacyPolicy.sections.contact.company}
                 </p>
                 <p className="text-sm flex items-center gap-2 mt-2">
-                  <MapPin className="w-4 h-4 text-purple" /> Registered Address:
-                  Abu Dhabi, United Arab Emirates
+                  <MapPin className="w-4 h-4 text-purple" /> {t.privacyPolicy.sections.contact.address}
                 </p>
                 <p className="text-sm flex items-center gap-2 mt-2">
-                  <Mail className="w-4 h-4 text-purple" /> Contact Email:{" "}
-                  <a
-                    href="mailto:contact@buyorsell.ae"
-                    className="text-purple hover:underline"
-                  >
-                    contact@buyorsell.ae
-                  </a>
+                  <Mail className="w-4 h-4 text-purple" /> {t.privacyPolicy.sections.contact.email}
                 </p>
                 <p className="text-sm mt-2">
-                  General Support:{" "}
-                  <a
-                    href="mailto:support@buyorsell.ae"
-                    className="text-purple hover:underline"
-                  >
-                    support@buyorsell.ae
-                  </a>
+                  {t.privacyPolicy.sections.contact.support}
                 </p>
-                <p className="text-sm mt-2">Phone: +971 2 675 6766</p>
+                <p className="text-sm mt-2">{t.privacyPolicy.sections.contact.phone}</p>
                 <p className="text-sm italic text-gray-500 mt-4">
-                  Response Time: We will respond to all privacy requests within
-                  7-15 business days.
+                  {t.privacyPolicy.sections.contact.responseTime}
                 </p>
               </div>
             </section>
