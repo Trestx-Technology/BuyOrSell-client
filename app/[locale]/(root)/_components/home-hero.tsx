@@ -10,10 +10,10 @@ import { Container1280 } from "@/components/layouts/container-1280";
 import { Container1080 } from "@/components/layouts/container-1080";
 
 const BANNERS = [
-  {
-    id: "figma-slide",
-    type: "custom",
-  },
+  // {
+  //   id: "figma-slide",
+  //   type: "custom",
+  // },
   {
     id: "banner-1",
     type: "image",
@@ -63,180 +63,28 @@ export function HomeHero() {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             className="absolute inset-0 w-full h-[200px] sm:h-full flex items-center"
           >
-            {BANNERS[currentSlide].type === "custom" ? (
-              <div className="relative bg-pink-300/10 w-full h-full flex items-center p-4 md:p-10">
-                <div className="z-10 w-full sm:max-w-1/2 space-y-2 sm:space-y-5">
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-[#1D2939] dark:text-white leading-[1.25] tracking-tight">
-                    The Smarter Way to{" "}
-                    <span className="text-[#8B31E1]">Buy</span>{" "}
-                    <span className="text-[#00DDAA]">or</span>{" "}
-                    <span className="text-[#8B31E1]">Sell</span> in the UAE
-                  </h1>
-                  <p className="text-[#667085] dark:text-gray-400 text-sm md:text-base leading-relaxed font-medium max-w-[400px]">
-                    Connect with trusted buyers and sellers in your local
-                    community. Discover real opportunities and close deals with
-                    confidence.
-                  </p>
-                  <AppStoreButtons />
-                </div>
-
-                {/* Decorative Floating Circles */}
-                <div className="absolute right-0 top-0 bottom-0 w-1/2 hidden md:block select-none pointer-events-none">
-                  {/* Villa - Large Top Left */}
-                  <motion.div
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{
-                      duration: 6,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    className="absolute top-[12%] left-[10%] z-20"
-                  >
-                    <div className="relative w-[115px] h-[115px] rounded-full border-[6px] border-white shadow-[0_15px_35px_rgba(0,0,0,0.12)] overflow-hidden">
-                      <Image
-                        src="/images/hero/villa.png"
-                        fill
-                        className="object-cover"
-                        alt="Villa"
-                      />
-                    </div>
-                  </motion.div>
-
-                  {/* Document - Small Top Center */}
-                  <motion.div
-                    animate={{ y: [0, 8, 0] }}
-                    transition={{
-                      duration: 5,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    className="absolute top-[5%] left-[46%] z-30"
-                  >
-                    <div className="p-1 rounded-full border border-dashed border-[#1D2939]/10">
-                      <div className="relative w-[65px] h-[65px] rounded-full border-[4px] border-white shadow-lg overflow-hidden flex items-center justify-center bg-[#2D2926]">
-                        <Image
-                          src="/images/hero/document.png"
-                          fill
-                          className="object-cover p-3 opacity-90"
-                          alt="Document"
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  {/* Car - Medium/Large Right */}
-                  <motion.div
-                    animate={{ x: [0, 10, 0] }}
-                    transition={{
-                      duration: 7,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    className="absolute top-[15%] right-[2%] z-10"
-                  >
-                    <div className="p-1.5 rounded-full border border-dashed border-[#00DDAA]/20">
-                      <div className="relative w-[115px] h-[115px] rounded-full border-[6px] border-white shadow-[0_15px_35px_rgba(0,0,0,0.12)] overflow-hidden">
-                        <Image
-                          src="/images/hero/car.png"
-                          fill
-                          className="object-cover"
-                          alt="Car"
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  {/* Living Room - Medium Bottom Left */}
-                  <motion.div
-                    animate={{ y: [0, -12, 0] }}
-                    transition={{
-                      duration: 8,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    className="absolute bottom-[18%] left-[10%] z-20"
-                  >
-                    <div className="p-1.5 rounded-full border border-dashed border-[#8B31E1]/15">
-                      <div className="relative w-[115px] h-[115px] rounded-full border-[6px] border-white shadow-[0_15px_35px_rgba(0,0,0,0.1)] overflow-hidden">
-                        <Image
-                          src="/images/hero/livingroom.png"
-                          fill
-                          className="object-cover"
-                          alt="Living Room"
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  {/* Kitchen - Small Center */}
-                  <motion.div
-                    animate={{ scale: [1, 1.05, 1] }}
-                    transition={{
-                      duration: 9,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    className="absolute bottom-[35%] left-[42%] z-10"
-                  >
-                    <div className="p-1 rounded-full border border-dashed border-[#1D2939]/10">
-                      <div className="relative w-[95px] h-[95px] rounded-full border-[6px] border-white shadow-[0_15px_35px_rgba(0,0,0,0.08)] overflow-hidden">
-                        <Image
-                          src="/images/hero/kitchen.png"
-                          fill
-                          className="object-cover"
-                          alt="Kitchen"
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  {/* Phone - Medium/Large Bottom Right */}
-                  <motion.div
-                    animate={{ rotate: [0, 3, 0] }}
-                    transition={{
-                      duration: 10,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    className="absolute bottom-[8%] right-[10%] z-30"
-                  >
-                    <div className="p-1.5 rounded-full border border-dashed border-[#00DDAA]/20">
-                      <div className="relative w-[115px] h-[115px] rounded-full border-[6px] border-white shadow-[0_20px_45px_rgba(0,0,0,0.15)] overflow-hidden bg-black">
-                        <Image
-                          src="/images/hero/phone.png"
-                          fill
-                          className="object-cover"
-                          alt="Phone"
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
+            <div className="relative w-full h-[200px] sm:h-full">
+              {/* Desktop Banner */}
+              <div className="hidden sm:block absolute inset-0">
+                <Image
+                  src={BANNERS[currentSlide].desktop!}
+                  fill
+                  className="object-cover"
+                  alt={`Banner ${currentSlide}`}
+                  priority
+                />
               </div>
-            ) : (
-              <div className="relative w-full h-[200px] sm:h-full">
-                {/* Desktop Banner */}
-                <div className="hidden sm:block absolute inset-0">
-                  <Image
-                    src={BANNERS[currentSlide].desktop!}
-                    fill
-                    className="object-cover"
-                    alt={`Banner ${currentSlide}`}
-                    priority
-                  />
-                </div>
-                {/* Mobile Banner */}
-                <div className="sm:hidden absolute inset-0">
-                  <Image
-                    src={BANNERS[currentSlide].mobile!}
-                    fill
-                    className="object-cover"
-                    alt={`Banner ${currentSlide}`}
-                    priority
-                  />
-                </div>
+              {/* Mobile Banner */}
+              <div className="sm:hidden absolute inset-0">
+                <Image
+                  src={BANNERS[currentSlide].mobile!}
+                  fill
+                  className="object-cover"
+                  alt={`Banner ${currentSlide}`}
+                  priority
+                />
               </div>
-            )}
+            </div>
           </motion.div>
         </AnimatePresence>
 
