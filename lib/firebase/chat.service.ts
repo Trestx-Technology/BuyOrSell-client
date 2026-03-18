@@ -86,50 +86,14 @@ export class ChatService {
     return userSnap.data();
   }
 
-  /**
-   * Generate a prefixed chat ID based on chat type, typeId and participants
-   */
-  static generateChatId(
-    type: ChatType,
-    typeId: string,
-    participants: string[],
-  ): string {
-    const sortedParticipants = [...participants].sort();
-    
-    // Safety check: Avoid double prefixing (e.g., "ad_ad_...")
-    // If typeId already starts with the type prefix, we remove it
-    let cleanTypeId = typeId;
-    if (typeId.startsWith(`${type}_`)) {
-      cleanTypeId = typeId.substring(type.length + 1);
-    }
-    
-    return `${type}_${cleanTypeId}_${sortedParticipants[0]}_${sortedParticipants[1]}`;
-  }
 
-  /**
-   * Find an existing chat by participants and type/typeId
-   */
   static async findExistingChat(
     params: CreateChatParams,
   ): Promise<string | null> {
     try {
       const chatsRef = collection(this.db, COLLECTIONS.CHATS);
 
-      // 1. Try direct lookup using deterministic ID (fastest and most reliable for new logic)
-      const typeId = params.adId || params.organisationId || params.ticketId || "direct";
-
-      const chatId = this.generateChatId(
-        params.type,
-        typeId,
-        params.participants,
-      );
-      const chatDoc = await getDoc(doc(this.db, COLLECTIONS.CHATS, chatId));
-      if (chatDoc.exists()) {
-        return chatId;
-      }
-
-      // 2. Fallback: Search all user chats if deterministic ID didn't match
-      // This catches legacy chats or those created with slightly different parameters
+      // Search chats by participants and type
       const q = query(
         chatsRef,
         where("participants", "array-contains", params.participants[0]),
@@ -142,18 +106,13 @@ export class ChatService {
         // Check type
         if (data.type !== params.type) return false;
 
-        // Normalize IDs for reliable comparison
-        const paramsAdId = params.adId || null;
-        const dataAdId = data.adId || null;
-        if (paramsAdId !== dataAdId) return false;
-
-        const paramsOrgId = params.organisationId || null;
-        const dataOrgId = data.organisationId || null;
-        if (paramsOrgId !== dataOrgId) return false;
-
-        const paramsTicketId = params.ticketId || null;
-        const dataTicketId = data.ticketId || null;
-        if (paramsTicketId !== dataTicketId) return false;
+        // Check context for specific IDs (adId, organisationId, etc.) 
+        // if they were provided in the params.context
+        if (params.context) {
+          for (const key in params.context) {
+            if (data.context?.[key] !== params.context[key]) return false;
+          }
+        }
 
         // Check if participants match exactly
         const docParticipants = (data.participants as string[]) || [];
@@ -169,40 +128,40 @@ export class ChatService {
     }
   }
 
-  /**
-   * Create a new chat
-   */
   static async createChat(params: CreateChatParams): Promise<string> {
-    // 1. Check if a chat already exists using participants and typeId
-    // This catches old random IDs as well as new deterministic ones
+    // 1. Check if a chat already exists using participants and type
     const existingId = await this.findExistingChat(params);
     if (existingId) {
       return existingId;
     }
 
-    // Determine the typeId for the chatId generation
-    const typeId = params.adId || params.organisationId || params.ticketId || "direct";
-
-    // Generate deterministic chat ID
-    const chatId = this.generateChatId(
-      params.type,
-      typeId,
-      params.participants,
-    );
-    const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
+    // Use auto-generated ID
+    const chatsRef = collection(this.db, COLLECTIONS.CHATS);
+    const chatDocRef = doc(chatsRef);
+    const chatId = chatDocRef.id;
 
     // Initialize unread counts, typing status, and online status
     const unreadCount: UnreadCount = {};
     const typing: TypingStatus = {};
     const onlineStatus: OnlineStatus = {};
     const lastSeen: any = {};
+    const jobProfiles: Record<string, string> = {};
 
+    // Use participants (userIds) only
     params.participants.forEach((userId) => {
       unreadCount[userId] = 0;
       typing[userId] = false;
       onlineStatus[userId] = false;
       lastSeen[userId] = serverTimestamp();
     });
+
+    // Populate jobProfiles for the initiator if provided
+    const initiatorId = params.participants[0]; // Assuming first participant is initiator for now, or use a better logic
+    // In reality, we should pass the initiator's UID explicitly or rely on auth.
+    // For now, if jobProfileId is passed, map it to the first participant or match by type
+    if (params.jobProfileId) {
+       jobProfiles[initiatorId] = params.jobProfileId;
+    }
 
     // Build base chat data object
     const chatData: Omit<Chat, "id"> = {
@@ -212,6 +171,7 @@ export class ChatService {
       image: params.image,
       participants: params.participants,
       participantDetails: params.participantDetails,
+      jobProfiles,
       lastMessage: {
         id: "",
         text: "",
@@ -225,16 +185,11 @@ export class ChatService {
       lastSeen,
       createdAt: serverTimestamp() as Timestamp,
       updatedAt: serverTimestamp() as Timestamp,
-      ...(params.adId && { adId: params.adId }),
-      ...(params.organisationId && { organisationId: params.organisationId }),
-      ...(params.ticketId && { ticketId: params.ticketId }),
-      ...(params.initiatorId && { initiatorId: params.initiatorId }),
+      ...(params.context && { context: params.context }),
+      ...(params.roles && { roles: params.roles }),
     };
 
-    await setDoc(chatRef, chatData);
-
-    // Index entries no longer strictly required as we query the main collection directly
-    // This simplifies the logic and makes it more reliable.
+    await setDoc(chatDocRef, chatData);
 
     return chatId;
   }
@@ -494,14 +449,59 @@ export class ChatService {
     try {
       const chatRef = doc(this.db, COLLECTIONS.CHATS, chatId);
 
-      // Use direct dot notation with updateDoc for most reliable map field update
-      // This will only work if the document already exists, preventing partial docs.
+      // 1. Reset unread count on the chat document
       await updateDoc(chatRef, {
         [`unreadCount.${userId}`]: 0,
         updatedAt: serverTimestamp(),
       });
+
+      // 2. Mark individual messages inside the chat as read
+      await this.markMessagesAsRead(chatId, userId);
     } catch (error) {
       console.error("Error marking chat as read:", error);
+    }
+  }
+
+  /**
+   * Mark individual messages as read inside a chat subcollection.
+   */
+  static async markMessagesAsRead(chatId: string, userId: string): Promise<void> {
+    try {
+      const messagesRef = collection(this.db, COLLECTIONS.CHATS, chatId, COLLECTIONS.MESSAGES);
+      
+      // Query for messages from others that are not yet marked as read
+      // NOTE: Using "!=" might require a composite index if combined with other fields.
+      // We'll use a safer approach: get latest messages and filter in-memory if few,
+      // or just query for unread.
+      const q = query(
+        messagesRef,
+        where("isRead", "==", false),
+        limit(50) // Mark up to 50 at a time
+      );
+
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) return;
+
+      const batch = writeBatch(this.db);
+      let updatedCount = 0;
+
+      snapshot.docs.forEach((d) => {
+        const data = d.data();
+        // Only mark if I'm NOT the sender and haven't read it yet
+        if (data.senderId !== userId && (!data.readBy || !data.readBy.includes(userId))) {
+          batch.update(d.ref, {
+             isRead: true,
+             readBy: arrayUnion(userId)
+          });
+          updatedCount++;
+        }
+      });
+
+      if (updatedCount > 0) {
+        await batch.commit();
+      }
+    } catch (error) {
+      console.error("Error in markMessagesAsRead:", error);
     }
   }
 
@@ -519,6 +519,9 @@ export class ChatService {
         [`unreadCount.${userId}`]: 0,
         [`lastSeen.${userId}`]: serverTimestamp(),
       });
+
+      // Also mark individual messages as read when visiting the chat
+      await this.markMessagesAsRead(chatId, userId);
     } catch (error) {
       console.error("Error visiting chat:", error);
     }
