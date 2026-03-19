@@ -121,7 +121,7 @@ export function AIFeaturesPopover({
                 variant="2xs-regular"
                 className="font-semibold text-gray-900"
               >
-                AI Assistant
+                Nora
               </Typography>
             </div>
 

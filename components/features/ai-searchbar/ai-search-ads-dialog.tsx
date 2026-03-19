@@ -82,15 +82,15 @@ export function AISearchAdsDialog({
       if (results && results.length > 0) {
         setAiResults(results);
         toast.success(
-          `Found ${results.length} results using Semantic AI search`,
+          `Found ${results.length} results using Semantic Nora search`,
         );
       } else {
-        toast.info("No matching ads found with Semantic AI search.");
+        toast.info("No matching ads found with Semantic Nora search.");
         setAiResults([]);
       }
     } catch (error) {
       console.error("AI search error:", error);
-      toast.error("AI Search failed. Please try again.");
+      toast.error("Nora Search failed. Please try again.");
     } finally {
       setIsSearching(false);
     }
@@ -160,7 +160,7 @@ export function AISearchAdsDialog({
             <div className="mt-3 flex flex-col items-center justify-center p-8 rounded-lg rounded-t-none">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-400 mb-3"></div>
               <span className="text-sm text-gray-300">
-                Analyzer thinking...
+                Nora is thinking...
               </span>
             </div>
           ) : aiResults.length > 0 ? (

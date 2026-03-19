@@ -31,7 +31,7 @@ export const chatTranslations: ChatTranslationNamespace = {
     online: "Online",
     lastSeen: "Last seen {time}",
     lastSeenRecently: "Last seen recently",
-    aiAssistant: "AI Assistant",
+    aiAssistant: "Nora",
     aiFeatures: {
       proofread: { name: "Proofread", description: "Improve grammar and make message more professional" },
       inquiry: { name: "Generate Inquiry", description: "Create a professional inquiry message" },
@@ -86,7 +86,7 @@ export const chatTranslations: ChatTranslationNamespace = {
     online: "Online",
     lastSeen: "Laatst gezien {time}",
     lastSeenRecently: "Onlangs voor het laatst gezien",
-    aiAssistant: "AI-assistent",
+    aiAssistant: "Nora",
     aiFeatures: {
       proofread: { name: "Controleren", description: "Grammatica verbeteren en bericht professioneler maken" },
       inquiry: { name: "Aanvraag Genereren", description: "Maak een professioneel aanvraagbericht" },
@@ -141,7 +141,7 @@ export const chatTranslations: ChatTranslationNamespace = {
     online: "Online",
     lastSeen: "Laatst gezien {time}",
     lastSeenRecently: "Onlangs voor het laatst gezien",
-    aiAssistant: "AI-assistent",
+    aiAssistant: "Nora",
     aiFeatures: {
       proofread: { name: "Controleren", description: "Grammatica verbeteren en bericht professioneler maken" },
       inquiry: { name: "Aanvraag Genereren", description: "Maak een professioneel aanvraagbericht" },
@@ -196,7 +196,7 @@ export const chatTranslations: ChatTranslationNamespace = {
     online: "متصل",
     lastSeen: "آخر ظهور {time}",
     lastSeenRecently: "آخر ظهور منذ وقت قريب",
-    aiAssistant: "مساعد الذكاء الاصطناعي",
+    aiAssistant: "نورا",
     aiFeatures: {
       proofread: { name: "تدقيق لغوي", description: "تحسين القواعد وجعل الرسالة أكثر احترافية" },
       inquiry: { name: "إنشاء استفسار", description: "إنشاء رسالة استفسار احترافية" },

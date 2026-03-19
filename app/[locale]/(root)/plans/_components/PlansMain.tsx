@@ -95,7 +95,11 @@ function PlansContent() {
   const getCategoryIcon = (type: string) => {
     const t = type.toLowerCase();
     if (t.includes("motor") || t.includes("car")) return Car;
-    if (t.includes("property") || t.includes("real estate") || t.includes("home"))
+    if (
+      t.includes("property") ||
+      t.includes("real estate") ||
+      t.includes("home")
+    )
       return Home;
     if (t.includes("job")) return Briefcase;
     if (t.includes("electronic") || t.includes("phone")) return Laptop;
@@ -142,10 +146,12 @@ function PlansContent() {
     if (planTypes.length === 0) return;
 
     const queryType = searchParams.get("type");
-    
+
     // 1. If there's a type in the URL, try to match it
     if (queryType) {
-      const matched = planTypes.find(t => t.toLowerCase() === queryType.toLowerCase());
+      const matched = planTypes.find(
+        (t) => t.toLowerCase() === queryType.toLowerCase(),
+      );
       if (matched) {
         if (matched !== selectedType) {
           setSelectedType(matched);
@@ -168,7 +174,9 @@ function PlansContent() {
     if (currentUrlType?.toLowerCase() !== selectedType.toLowerCase()) {
       const params = new URLSearchParams(searchParams.toString());
       params.set("type", selectedType);
-      router.replace(`/${locale}/plans?${params.toString()}`, { scroll: false });
+      router.replace(`/${locale}/plans?${params.toString()}`, {
+        scroll: false,
+      });
     }
   }, [selectedType, locale, router]); // Only watch selectedType for manual changes
 
@@ -226,7 +234,10 @@ function PlansContent() {
             {t.plans.badge}
           </div>
 
-          <Typography variant="5xl-semibold" className="text-black dark:text-white mb-4">
+          <Typography
+            variant="5xl-semibold"
+            className="text-black dark:text-white mb-4"
+          >
             {t.plans.title}
           </Typography>
           <Typography
@@ -265,7 +276,7 @@ function PlansContent() {
 
           {/* Plan Types Tabs */}
           {!isLoading && planTypes.length > 0 && (
-            <div className="w-full relative flex items-center group max-w-4xl mx-auto mb-12">
+            <div className="w-full relative flex items-center justify-center group max-w-4xl mx-auto mb-12">
               <AnimatePresence>
                 {canScrollLeft && (
                   <motion.button
@@ -284,7 +295,7 @@ function PlansContent() {
                 ref={tabsRef}
                 onScroll={checkScroll}
                 className={cn(
-                  "relative flex items-center bg-gray-50/80 dark:bg-gray-900/50 backdrop-blur-xl p-1.5 rounded-[2.5rem] border border-gray-200/50 dark:border-gray-800 shadow-xl w-full overflow-x-auto scrollbar-hide scroll-smooth mx-4 md:mx-0",
+                  "relative flex items-center bg-gray-50/80 dark:bg-gray-900/50 backdrop-blur-xl p-1.5 rounded-[2.5rem] border border-gray-200/50 dark:border-gray-800 shadow-xl w-fit mx-auto overflow-x-auto scrollbar-hide scroll-smooth mx-4 md:mx-0",
                 )}
               >
                 <div className="flex items-center gap-1.5">
@@ -296,7 +307,7 @@ function PlansContent() {
                         key={type}
                         onClick={() => setSelectedType(type)}
                         className={cn(
-                          "relative px-6 py-3 rounded-full text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2.5 z-10",
+                          "relative px-6 py-3 capitalize rounded-full text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2.5 z-10",
                           isActive
                             ? "text-purple"
                             : "text-gray-500 hover:text-gray-800 dark:hover:text-gray-200",
@@ -436,7 +447,10 @@ function PlansContent() {
               </Typography>
 
               <div className="text-left mb-4">
-                <Typography variant="2xl-bold" className="text-black dark:text-white">
+                <Typography
+                  variant="2xl-bold"
+                  className="text-black dark:text-white"
+                >
                   Custom Pricing
                 </Typography>
               </div>
@@ -460,7 +474,10 @@ function PlansContent() {
                 ].map((feature, featureIndex) => (
                   <div key={featureIndex} className="flex items-start gap-3">
                     <CheckCircle2 className="size-6 mt-0.5 flex-shrink-0 text-purple fill-white dark:fill-gray-900" />
-                    <Typography variant="sm-regular" className="text-gray-600 dark:text-gray-400">
+                    <Typography
+                      variant="sm-regular"
+                      className="text-gray-600 dark:text-gray-400"
+                    >
                       {feature}
                     </Typography>
                   </div>

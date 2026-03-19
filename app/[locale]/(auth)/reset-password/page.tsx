@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "nextjs-toploader/app";
 import { useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { resetPassword as ResetPasswordAPI } from '@/app/api/auth/auth.services';
+import { resetPassword as ResetPasswordAPI } from "@/app/api/auth/auth.services";
 import { AxiosError } from "axios";
 import { useLocale } from "@/hooks/useLocale";
 import Image from "next/image";
@@ -19,7 +19,7 @@ const ResetPasswordContent = () => {
   const searchParams = useSearchParams();
   const { localePath, t } = useLocale();
   const resetToken = searchParams.get("token") || "";
-  
+
   const [passwordData, setPasswordData] = useState({
     newPassword: "",
     confirmPassword: "",
@@ -39,7 +39,6 @@ const ResetPasswordContent = () => {
       setPasswordReset(true);
       toast.success("Password reset successfully!");
     },
-    
   });
 
   const handleSubmit = () => {
@@ -172,7 +171,7 @@ const ResetPasswordContent = () => {
         {t.auth.resetPassword.title}
       </Typography>
       <Typography variant="h3" className="text-sm text-gray-600 pb-6">
-        {t.auth.resetPassword.subtitle} 
+        {t.auth.resetPassword.subtitle}
       </Typography>
       <div className="space-y-2">
         <Input
@@ -278,12 +277,12 @@ const ResetPasswordContent = () => {
       >
         {t.auth.resetPassword.resetPassword}
       </Button>
-      <Typography
-        variant="h3"
-        className="text-center text-sm mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit"
-      >
+      <Typography variant="h3" className="text-center text-sm mx-auto w-fit">
         {t.auth.resetPassword.rememberPassword}{" "}
-        <Link href={localePath("/login")} className="text-purple m-custom-8 hover:underline">
+        <Link
+          href={localePath("/login")}
+          className="text-purple m-custom-8 hover:underline"
+        >
           {t.auth.resetPassword.logIn}
         </Link>
       </Typography>
@@ -306,4 +305,3 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
-

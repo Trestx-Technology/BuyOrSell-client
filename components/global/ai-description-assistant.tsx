@@ -77,7 +77,7 @@ export function AIDescriptionAssistant({
             <ResponsiveDialogDrawer
                   open={isOpen}
                   onOpenChange={(open) => !open && onClose()}
-                  title="AI Description Assistant"
+                  title="Nora Description Assistant"
                   hideHeader={true}
                   dialogContentClassName="sm:max-w-[640px] bg-white dark:bg-gray-900 rounded-xl overflow-hidden p-0 gap-0"
                   drawerContentClassName="bg-white dark:bg-gray-900 rounded-t-2xl p-0"
@@ -87,7 +87,7 @@ export function AIDescriptionAssistant({
                         <div className="bg-purple/5 p-6 border-b border-[#F5EBFF] dark:border-purple/20 shrink-0">
                               <div className="flex items-center gap-2 text-purple font-bold text-lg mb-1">
                                     <Sparkles className="size-5" />
-                                    AI Description Assistant
+                                    Nora Description Assistant
                               </div>
                               <Typography variant="h5" className="text-gray-500 dark:text-gray-400 font-normal">
                                     Enhance your listing for <span className="text-purple font-medium">{categoryPath}</span>
@@ -98,7 +98,7 @@ export function AIDescriptionAssistant({
                         <div className="p-6 space-y-6 overflow-y-auto flex-1">
                               <div className="space-y-3">
                                     <label className="text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center justify-between">
-                                          What should the AI focus on?
+                                          What should Nora focus on?
                                           <span className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500 font-bold bg-gray-50 dark:bg-gray-800 px-2 py-0.5 rounded">Optional</span>
                                     </label>
                                     <div className="relative group">
@@ -134,7 +134,7 @@ export function AIDescriptionAssistant({
 
                               {(generatedResult || isGenerating) && (
                                     <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
-                                          <label className="text-sm font-semibold text-gray-700 dark:text-gray-200">AI Suggestion</label>
+                                          <label className="text-sm font-semibold text-gray-700 dark:text-gray-200">Nora's Suggestion</label>
                                           <div className="relative">
                                                 <div className={`p-5 rounded-xl border-2 transition-all duration-300 min-h-[200px] max-h-[400px] overflow-y-auto text-sm leading-relaxed ${isGenerating ? 'border-dashed border-purple/20 bg-purple/5 opacity-60' : 'border-[#F5EBFF] dark:border-gray-700 bg-white dark:bg-gray-900 text-slate-700 dark:text-gray-100 whitespace-pre-wrap'}`}>
                                                       {isGenerating ? (

@@ -27,7 +27,7 @@ export const homeTranslations = createTranslationNamespace<HomeTranslations>({
       viewAll: "View all",
     },
     navbar: {
-      placeAd: "Place Ad Free with",
+      placeAd: "Place Ad Free with Nora",
       placeAdShort: "Place Ad",
       logIn: "Log In / Sign Up",
       myProfile: "My Profile",
@@ -104,7 +104,7 @@ export const homeTranslations = createTranslationNamespace<HomeTranslations>({
       viewAll: "Alles bekijken",
     },
     navbar: {
-      placeAd: "Advertentie plaatsen gratis met",
+      placeAd: "Gratis advertentie plaatsen met Nora",
       placeAdShort: "Advertentie plaatsen",
       logIn: "Inloggen / Registreren",
       myProfile: "Mijn Profiel",
@@ -181,7 +181,7 @@ export const homeTranslations = createTranslationNamespace<HomeTranslations>({
       viewAll: "Alles bekijken",
     },
     navbar: {
-      placeAd: "Advertentie plaatsen gratis met",
+      placeAd: "Gratis advertentie plaatsen met Nora",
       placeAdShort: "Advertentie plaatsen",
       logIn: "Inloggen / Registreren",
       myProfile: "Mijn Profiel",
@@ -257,7 +257,7 @@ export const homeTranslations = createTranslationNamespace<HomeTranslations>({
       viewAll: "عرض الكل",
     },
     navbar: {
-      placeAd: "ضع إعلان مجاناً مع",
+      placeAd: "ضع إعلان مجاناً مع نورا",
       placeAdShort: "ضع إعلان",
       logIn: "تسجيل الدخول / إنشاء حساب",
       myProfile: "ملفي الشخصي",
