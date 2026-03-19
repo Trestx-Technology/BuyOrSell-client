@@ -41,7 +41,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 
 function PlansContent() {
-  const { t, locale } = useLocale();
+  const { t, locale, localePath } = useLocale();
   const searchParams = useSearchParams();
   const tabsRef = React.useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -264,7 +264,7 @@ function PlansContent() {
                 <span>
                   Become an Emirati for an additional 10% discount!{" "}
                   <button
-                    onClick={() => router.push(`/${locale}/profile`)}
+                    onClick={() => router.push(localePath("/user/emarati-status"))}
                     className="underline font-bold ml-1 hover:text-purple-900 decoration-2 underline-offset-2"
                   >
                     Verify Now
