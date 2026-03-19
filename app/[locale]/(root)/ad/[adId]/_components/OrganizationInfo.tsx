@@ -54,7 +54,7 @@ export const OrganizationInfo: React.FC<OrganizationInfoProps> = ({ ad }) => {
         <div className="flex-1 min-w-0">
           <Typography
             variant="sm-medium"
-            className="font-bold text-dark-blue dark:text-gray-100 truncate"
+            className="font-bold text-dark-blue dark:text-gray-100 line-clamp-2"
           >
             {displayName}
           </Typography>

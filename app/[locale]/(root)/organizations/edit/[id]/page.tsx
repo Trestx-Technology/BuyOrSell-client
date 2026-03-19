@@ -306,7 +306,7 @@ const EditOrganizationPage = () => {
                     <div className="flex-1 min-w-0">
                       <Typography
                         variant="xs-semibold-inter"
-                        className="text-xs font-semibold text-[#1D2939] dark:text-gray-100 truncate"
+                        className="text-xs font-semibold text-[#1D2939] dark:text-gray-100 line-clamp-2"
                       >
                         {org.tradeName || org.legalName}
                       </Typography>
