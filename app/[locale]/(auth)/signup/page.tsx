@@ -178,14 +178,14 @@ const Signup = () => {
   };
 
   return (
-    <section className="w-full mx-auto lg:w-1/2 max-w-[530px] h-full flex flex-col justify-start lg:justify-center relative pt-8 lg:pt-0">
+    <section className="w-full mx-auto lg:w-1/2 max-w-[530px] min-h-full flex flex-col justify-start lg:justify-center relative py-8 lg:py-4 w-full">
       <Link
         href={localePath("/methods")}
-        className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
+        className="-ml-1 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
       >
         <ChevronLeft className="size-5" /> {t.auth.signup.back}
       </Link>
-      <H2 className="py-4 text-left font-extrabold text-black dark:text-white">
+      <H2 className="text-left my-4 font-extrabold text-black dark:text-white">
         {t.auth.signup.title}
       </H2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
@@ -201,9 +201,6 @@ const Signup = () => {
             className="w-full text-sm pl-12 dark:bg-gray-800 dark:text-white dark:border-gray-700"
             error={errors.fullName?.message}
           />
-          {errors.fullName && (
-            <p className="text-error text-xs mt-1">{errors.fullName.message}</p>
-          )}
         </div>
 
         <div>
@@ -227,9 +224,6 @@ const Signup = () => {
             className="w-full text-sm pl-12 dark:bg-gray-800 dark:text-white dark:border-gray-700"
             error={errors.email?.message}
           />
-          {errors.email && (
-            <p className="text-error text-xs mt-1">{errors.email.message}</p>
-          )}
         </div>
 
         {/* Phone Number with Country Code */}
@@ -266,12 +260,6 @@ const Signup = () => {
             />
           </div>
         </div>
-        {errors.phoneNumber && (
-          <p className="text-error text-xs mt-1">
-            {errors.phoneNumber.message}
-          </p>
-        )}
-
         <div>
           <Input
             {...register("password")}
@@ -305,9 +293,6 @@ const Signup = () => {
             className="w-full text-sm pl-12 dark:bg-gray-800 dark:text-white dark:border-gray-700"
             error={errors.password?.message}
           />
-          {errors.password && (
-            <p className="text-error text-xs mt-1">{errors.password.message}</p>
-          )}
 
           {/* Password Strength Indicator with Progress Bar */}
           <div className="space-y-2 mt-2">
@@ -368,11 +353,11 @@ const Signup = () => {
         className="space-y-3"
       />
 
-      <H5 className="text-center mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit text-gray-600 dark:text-gray-400">
+      <H5 className="mt-4 text-center mx-auto w-fit text-gray-600 capitalize dark:text-gray-400">
         {t.auth.signup.alreadyHaveAccount}{" "}
         <Link
           href={localePath("/login")}
-          className="text-purple m-custom-8 hover:underline"
+          className="text-purple m-custom-8  hover:underline"
         >
           {t.auth.signup.logIn}
         </Link>

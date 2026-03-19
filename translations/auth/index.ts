@@ -33,8 +33,8 @@ export const authTranslations = createTranslationNamespace<AuthTranslations>({
       back: "Back",
     },
     methods: {
-      title: "Buy & Sell",
-      subtitle: "anything you want on single place",
+      title: "Buy Smart, Sell Fast",
+      subtitle: "anything you want in a single place",
       continueWithGoogle: "Continue with Google",
       continueWithEmail: "Continue with Email and Password",
       continueWithApple: "Continue with Apple",

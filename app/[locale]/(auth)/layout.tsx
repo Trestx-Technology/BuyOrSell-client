@@ -18,18 +18,13 @@ interface AuthRootLayoutProps {
 
 const AuthRootLayout = async ({ children, params }: AuthRootLayoutProps) => {
   const { locale } = await params;
-  
+
   return (
     <AuthGuard>
       <div className="bg-white dark:bg-gray-950">
-        <div className="px-[12px] lg:px-[100px] min-h-[750px] h-screen w-screen max-w-[1280px] mx-auto flex flex-col">
-          <Link href={`/${locale}`} className=" pt-8">
-            <Image
-              src={ICONS.logo.main}
-              width={156}
-              height={49}
-              alt="logo"
-            />
+        <div className="px-[12px] lg:px-[100px] min-h-[750px] w-screen max-w-[1280px] mx-auto flex flex-col">
+          <Link href={`/${locale}`} className="mt-8">
+            <Image src={ICONS.logo.main} width={156} height={49} alt="logo" />
           </Link>
           <main className="flex justify-center items-center relative gap-10 flex-1">
             {children}
@@ -50,4 +45,3 @@ const AuthRootLayout = async ({ children, params }: AuthRootLayoutProps) => {
 };
 
 export default AuthRootLayout;
-
