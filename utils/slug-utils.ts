@@ -23,7 +23,6 @@ export function toSlug(text: string): string {
 
   return text
     .trim()
-    .toLowerCase()
     .replace(/\//g, "~") // Replace forward slash with tilde (RFC 3986 unreserved)
     .replace(/&/g, "-&-") // Explicitly handle ampersand
     .replace(/\s+/g, "-")
