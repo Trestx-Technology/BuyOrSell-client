@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "nextjs-toploader/app";
 import { useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
-import { login as LoginAPI } from '@/app/api/auth/auth.services';
+import { login as LoginAPI } from "@/app/api/auth/auth.services";
 import type { loginResponse } from "@/interfaces/auth.types";
 import { useAuthStore } from "@/stores/authStore";
 import { AxiosError } from "axios";
@@ -33,23 +33,31 @@ const LoginContent = () => {
     password: "",
   });
 
-  const loginMutation = useMutation<loginResponse, Error, { email: string; password: string; deviceKey: string | null }>({
-    mutationFn: ({ email, password, deviceKey }) => LoginAPI(email, password, deviceKey),
+  const loginMutation = useMutation<
+    loginResponse,
+    Error,
+    { email: string; password: string; deviceKey: string | null }
+  >({
+    mutationFn: ({ email, password, deviceKey }) =>
+      LoginAPI(email, password, deviceKey),
     onSuccess: async (data) => {
       // Store session in Zustand store (handles localStorage and cookies)
       await setSession(
         data.data.accessToken,
         data.data.refreshToken,
-        data.data.user as unknown as Parameters<typeof setSession>[2]
+        data.data.user as unknown as Parameters<typeof setSession>[2],
       );
-      
+
       toast.success("Login successful!");
-      
+
       // Redirect to the original destination or home page
       // Note: redirectTo might already include locale, so check first
       if (redirectTo) {
         // If redirectTo starts with a locale, use it as-is, otherwise add locale
-        const hasLocale = locales.some(loc => redirectTo.startsWith(`/${loc}/`) || redirectTo === `/${loc}`);
+        const hasLocale = locales.some(
+          (loc) =>
+            redirectTo.startsWith(`/${loc}/`) || redirectTo === `/${loc}`,
+        );
         if (hasLocale) {
           router.push(redirectTo);
         } else {
@@ -62,7 +70,9 @@ const LoginContent = () => {
     onError: (error) => {
       const axiosError = error as AxiosError<{ message?: string }>;
       const errorMessage =
-        axiosError?.response?.data?.message || axiosError?.message || "Login failed. Please try again.";
+        axiosError?.response?.data?.message ||
+        axiosError?.message ||
+        "Login failed. Please try again.";
       toast.error(errorMessage);
     },
   });
@@ -91,7 +101,7 @@ const LoginContent = () => {
     <section className="w-full mx-auto lg:w-1/2 max-w-[530px] h-full flex flex-col justify-start lg:justify-center relative">
       <Link
         href={localePath("/methods")}
-        className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
+        className="-ml-1 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
       >
         <ChevronLeft className="size-5" /> {t.auth.login.back}
       </Link>
@@ -138,13 +148,13 @@ const LoginContent = () => {
           type={showPassword ? "text" : "password"}
           onRightIconClick={() => setShowPassword(!showPassword)}
           rightIcon={
-            !showPassword ? (
+            showPassword ? (
               <EyeIcon
                 className={`w-4 h-4 ${showPassword ? "text-purple" : "text-gray-500 dark:text-gray-400"}`}
               />
             ) : (
               <EyeOffIcon
-                  className={`w-4 h-4 ${showPassword ? "text-purple" : "text-gray-500 dark:text-gray-400"}`}
+                className={`w-4 h-4 ${showPassword ? "text-purple" : "text-gray-500 dark:text-gray-400"}`}
               />
             )
           }
@@ -167,7 +177,12 @@ const LoginContent = () => {
         size={"lg"}
         variant={"filled"}
         onClick={handleLogin}
-        disabled={!loginData.email || !loginData.password || loginMutation.isPending || isGeneratingDeviceKey}
+        disabled={
+          !loginData.email ||
+          !loginData.password ||
+          loginMutation.isPending ||
+          isGeneratingDeviceKey
+        }
         isLoading={loginMutation.isPending || isGeneratingDeviceKey}
       >
         {t.auth.login.loginButton}
@@ -181,7 +196,10 @@ const LoginContent = () => {
           // Success is handled by the buttons internally (session set via hook)
           // Just need to redirect
           if (redirectTo) {
-            const hasLocale = locales.some(loc => redirectTo.startsWith(`/${loc}/`) || redirectTo === `/${loc}`);
+            const hasLocale = locales.some(
+              (loc) =>
+                redirectTo.startsWith(`/${loc}/`) || redirectTo === `/${loc}`,
+            );
             if (hasLocale) {
               router.push(redirectTo);
             } else {
@@ -193,11 +211,12 @@ const LoginContent = () => {
         }}
         onError={(error) => toast.error(error)}
       />
-      <H5
-        className="text-center mx-auto  absolute left-1/2 -translate-x-1/2  bottom-20 lg:bottom-16 w-fit text-gray-600 dark:text-gray-400"
-      >
+      <H5 className="text-center mx-auto my-4  w-fit text-gray-600 dark:text-gray-400">
         {t.auth.login.dontHaveAccount}{" "}
-        <Link href={localePath("/signup")} className="text-purple m-custom-8 hover:underline">
+        <Link
+          href={localePath("/signup")}
+          className="text-purple m-custom-8 hover:underline"
+        >
           {t.auth.login.signUp}
         </Link>
       </H5>
@@ -207,7 +226,13 @@ const LoginContent = () => {
 
 const Login = () => {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <LoginContent />
     </Suspense>
   );

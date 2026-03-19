@@ -59,14 +59,15 @@ export function FirebaseGoogleLoginButton({
                         throw new Error("Failed to get tokens from Google");
                   }
 
-                  const nameParts = result.user.displayName?.split(" ") || ["", ""];
+                  const nameParts = result.user.displayName?.trim().split(/\s+/) || ["User"];
                   const firstName = nameParts[0] || "User";
-                  const lastName = nameParts.slice(1).join(" ") || firstName;
+                  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
 
                   const response = await socialLoginMutation.mutateAsync({
                         socialType: "google",
                         firstName,
                         lastName,
+                        name: result.user.displayName || `${firstName} ${lastName}`.trim(),
                         email: result.user.email || "",
                         verifyEmail: result.user.emailVerified,
                         image: result.user.photoURL || undefined,

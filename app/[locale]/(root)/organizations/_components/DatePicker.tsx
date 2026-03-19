@@ -17,6 +17,7 @@ interface DatePickerProps {
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
+  allowFutureDates?: boolean;
   placeholder?: string;
 }
 
@@ -25,6 +26,7 @@ export const DatePicker = ({
   onChange,
   placeholder = "Select date",
   disabled = false,
+  allowFutureDates = false,
   className,
 }: DatePickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -86,6 +88,7 @@ export const DatePicker = ({
           selected={date}
           onSelect={handleDateSelect}
           defaultMonth={date}
+          allowFutureDates={allowFutureDates}
           disabled={(date) => date < new Date("1900-01-01")}
           initialFocus
         />

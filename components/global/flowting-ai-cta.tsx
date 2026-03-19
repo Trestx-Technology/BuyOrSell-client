@@ -23,7 +23,7 @@ export default function FloatingChatCTA() {
     {
       role: "assistant",
       content:
-        "Hi! I’m your App Navigation Assistant. I can help you find platform features and answer questions about how to use BuyOrSell. Note: I cannot search for specific ads here. Please use the main Search Bar at the top of the page for finding items.",
+        "Hi! I’m Nora, your App Navigation Assistant. I can help you find platform features and answer questions about how to use BuyOrSell. Note: I cannot search for specific ads here. Please use the main Search Bar at the top of the page for finding items.",
     },
   ]);
   const [input, setInput] = React.useState("");
@@ -64,7 +64,7 @@ export default function FloatingChatCTA() {
     ) {
       return {
         content:
-          "I am an app navigation assistant and cannot search for specific ads from here. To search for ads (including using AI search), please close this chat and use the 'Search anything' bar at the top of the page or use our new keyboard shortcut (coming soon!).",
+          "I am Nora, your app navigation assistant and cannot search for specific ads from here. To search for ads (including using AI search), please close this chat and use the 'Search anything' bar at the top of the page or use our new keyboard shortcut (coming soon!).",
       };
     }
 
@@ -203,10 +203,10 @@ export default function FloatingChatCTA() {
               )}
               role="dialog"
               aria-modal="true"
-              aria-label="AI Assistant chat"
+              aria-label="Nora chat"
             >
               <div className="flex items-center justify-between gap-2 border-b px-3 py-2 text-sm font-medium dark:border-gray-800">
-                <span>AI Assistant</span>
+                <span>Nora</span>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}

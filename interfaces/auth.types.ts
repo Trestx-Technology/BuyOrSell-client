@@ -34,6 +34,7 @@ export interface AppleSignInPayload {
 export interface SocialLoginPayload {
   firstName: string;
   lastName: string;
+  name?: string;
   phoneNo?: string;
   email: string;
   age?: number;

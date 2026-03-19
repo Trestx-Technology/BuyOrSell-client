@@ -19,7 +19,7 @@ export const APP_RESOLUTIONS: AppResolution[] = [
     id: "search_general",
     keywords: ["find", "search", "looking for", "buy", "purchase", "browse"],
     response:
-      "I am an App Navigation Assistant and cannot search for specific ads directly from this chat. To search for ads, please use the main search bar with the AI Option at the top of the page, or simply use our new keyboard shortcut (coming soon!).",
+      "I am Nora, your App Navigation Assistant and cannot search for specific ads directly from this chat. To search for ads, please use the main search bar with the AI Option at the top of the page, or simply use our new keyboard shortcut (coming soon!).",
   },
   {
     id: "categories_browse",
@@ -81,7 +81,7 @@ export const APP_RESOLUTIONS: AppResolution[] = [
     id: "sell_item",
     keywords: ["sell", "post", "listing", "upload", "create ad"],
     response:
-      "Ready to reach thousands of buyers? You can post your ad in just a few minutes. Don't forget to use our AI Assistant to write a great description!",
+      "Ready to reach thousands of buyers? You can post your ad in just a few minutes. Don't forget to use Nora to write a great description!",
     action: { label: "Post an Ad", url: "/post-ad" },
   },
   {
@@ -152,11 +152,11 @@ export const APP_RESOLUTIONS: AppResolution[] = [
 
   // --- 7. AI FEATURES & TOKENS ---
   {
-    id: "ai_assistant",
-    keywords: ["ai assistant", "help desk", "what is this", "bot", "assistant"],
+    id: "nora_assistant",
+    keywords: ["nora", "ai assistant", "help desk", "what is this", "bot", "assistant"],
     response:
-      "I'm your AI guide! I can help you find products, write ad descriptions, and navigate the platform faster using AI tokens.",
-    action: { label: "How AI Works", url: "/ai-tokens" },
+      "I'm Nora, your AI guide! I can help you find products, write ad descriptions, and navigate the platform faster using AI tokens.",
+    action: { label: "How Nora Works", url: "/ai-tokens" },
   },
   {
     id: "ai_tokens",
@@ -242,7 +242,7 @@ export const APP_RESOLUTIONS: AppResolution[] = [
       "good evening",
     ],
     response:
-      "Hello! I'm your BuyOrSell AI assistant. How can I help you today? You can ask about finding products, posting ads, or navigating the platform.",
+      "Hello! I'm Nora, your BuyOrSell AI assistant. How can I help you today? You can ask about finding products, posting ads, or navigating the platform.",
   },
   {
     id: "thanks",

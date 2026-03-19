@@ -80,7 +80,7 @@ export const TextareaInput = forwardRef<
                   }
                   iconPosition="center"
                 >
-                  Ask AI Assistant
+                  Ask Nora
                 </Button>
               )}
             </div>

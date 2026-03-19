@@ -3,7 +3,7 @@
 import type React from "react";
 import { useState, useCallback } from "react";
 import Image from "next/image";
-import { X, Upload, Loader2 } from "lucide-react";
+import { X, Upload, Loader2, FileText, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { uploadFile } from '@/app/api/media/media.services';
@@ -192,6 +192,19 @@ export function SingleImageUpload({
                   <p className="text-red-600 text-sm">{image.uploadError}</p>
                 </div>
               </div>
+            ) : (image.name?.toLowerCase().endsWith(".pdf") || (image.presignedUrl || image.url).toLowerCase().includes(".pdf")) ? (
+              <div className="flex flex-col items-center justify-center h-full p-4 gap-2 bg-purple/5">
+                <div className="p-3 bg-white dark:bg-gray-700 rounded-xl shadow-sm border border-purple/10">
+                  <FileText className="w-10 h-10 text-purple" />
+                </div>
+                <p className="text-[10px] font-bold text-gray-700 dark:text-gray-300 text-center line-clamp-2 px-2">
+                  {image.name || "document.pdf"}
+                </p>
+                <div className="flex items-center gap-1 bg-green-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">
+                  <CheckCircle2 className="size-3" />
+                  Uploaded
+                </div>
+              </div>
             ) : (
               <Image
                 src={image.presignedUrl || image.url}
@@ -237,12 +250,13 @@ export function SingleImageUpload({
 
             <div className="space-y-1.5 flex flex-col flex-1">
               <p className="text-left text-sm font-medium text-gray-900 dark:text-gray-100">
-                Drag & drop image or browse
+                Drag & drop {acceptedFileTypes.every(t => t.startsWith('image/')) ? 'image' : acceptedFileTypes.length === 1 && acceptedFileTypes[0] === 'application/pdf' ? 'document' : 'file'} or browse
               </p>
               <p className="text-left text-xs text-muted-foreground">
                 Support {acceptedFileTypes.map((type) => type.split("/")[1].toUpperCase()).join(", ")} max {maxFileSize}MB
               </p>
               <Button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   openFileDialog();

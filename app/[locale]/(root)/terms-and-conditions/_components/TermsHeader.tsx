@@ -10,7 +10,7 @@ export const TermsHeader = () => {
       {/* Decorative background elements */}
       <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
         <div className="absolute -top-12 -left-12 w-64 h-64 bg-white rounded-full blur-[80px]"></div>
-        <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-purple-400 rounded-full blur-[80px]"></div>
+        <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-purple-400 rounded-full blur-[80px]"></div>  
       </div>
 
       <div className="relative z-10">

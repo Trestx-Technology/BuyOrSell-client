@@ -27,7 +27,7 @@ export function ExploreDealsBanner() {
   if (!banners || banners.length === 0) {
     // Fallback if no banners are returned from API
     return (
-      <div className="relative rounded-[32px] overflow-hidden max-w-[338px] h-[380px] group border border-white/10 shadow-xl">
+      <div className="relative rounded-[32px] overflow-hidden max-w-[338px] h-[380px] bg-black group border border-white/10 shadow-xl">
         <Image
           src="/images/hero/dubai-skyline.png"
           fill
@@ -66,7 +66,7 @@ export function ExploreDealsBanner() {
       {banners.map((banner: any, index: number) => (
         <div
           key={index}
-          className="relative min-w-full h-full rounded-[32px] overflow-hidden group border border-white/10 shadow-xl"
+          className="relative min-w-full h-full rounded-[32px] overflow-hidden group border border-white/10 bg-black shadow-xl"
         >
           <Image
             src={banner.image || banner.imageUrl || "/images/placeholder.png"}

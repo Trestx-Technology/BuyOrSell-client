@@ -40,7 +40,29 @@ export function toSlug(text: string): string {
  */
 export function unSlugify(slug: string): string {
   if (!slug) return "";
-  return slug.replace(/~/g, "/").replace(/-/g, " ");
+  const humanReadable = slug.replace(/~/g, "/").replace(/-/g, " ");
+  return smartCapitalize(humanReadable);
+}
+
+/**
+ * Capitalizes the first letter of each word and handles specific acronyms like IT
+ *
+ * @param text - The string to capitalize
+ * @returns A capitalized string
+ */
+export function smartCapitalize(text: string): string {
+  if (!text) return "";
+  return text
+    .split(/(\s|\/)/) // Split by space or slash to preserve delimiters
+    .map((part) => {
+      const lower = part.toLowerCase();
+      if (lower === "it") return "IT";
+      if (/^[a-z]/.test(lower)) {
+        return part.charAt(0).toUpperCase() + part.slice(1);
+      }
+      return part;
+    })
+    .join("");
 }
 
 /**

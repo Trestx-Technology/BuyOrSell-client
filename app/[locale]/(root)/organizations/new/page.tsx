@@ -232,7 +232,7 @@ const NewOrganizationPage = () => {
                     <div className="flex-1 min-w-0">
                       <Typography
                         variant="xs-semibold-inter"
-                        className="text-xs font-semibold text-[#1D2939] truncate"
+                        className="text-xs font-semibold text-[#1D2939] line-clamp-2"
                       >
                         {org.tradeName || org.legalName}
                       </Typography>

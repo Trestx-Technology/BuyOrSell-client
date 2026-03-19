@@ -21,20 +21,23 @@ function Calendar({
   formatters,
   components,
   disabled,
+  allowFutureDates = false,
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
+  allowFutureDates?: boolean;
 }) {
   const defaultClassNames = getDefaultClassNames();
 
   const combinedDisabled = React.useMemo(() => {
+    if (allowFutureDates) return disabled;
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
     const futureDateMatcher = { after: todayEnd };
     if (!disabled) return futureDateMatcher;
     if (Array.isArray(disabled)) return [...disabled, futureDateMatcher];
     return [disabled, futureDateMatcher];
-  }, [disabled]);
+  }, [disabled, allowFutureDates]);
 
   return (
     <DayPicker

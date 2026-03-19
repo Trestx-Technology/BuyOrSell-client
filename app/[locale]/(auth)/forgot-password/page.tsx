@@ -8,7 +8,7 @@ import { ChevronLeft, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "nextjs-toploader/app";
 import { useMutation } from "@tanstack/react-query";
-import { sendResetPasswordEmail as SendResetPasswordEmailAPI } from '@/app/api/auth/auth.services';
+import { sendResetPasswordEmail as SendResetPasswordEmailAPI } from "@/app/api/auth/auth.services";
 import { useLocale } from "@/hooks/useLocale";
 import Image from "next/image";
 
@@ -28,7 +28,6 @@ const ForgotPasswordContent = () => {
       setEmailSent(true);
       toast.success("Reset password link has been sent to your email");
     },
-    
   });
 
   const handleSubmit = () => {
@@ -56,9 +55,7 @@ const ForgotPasswordContent = () => {
         >
           <ChevronLeft className="size-5" /> {t.auth.forgotPassword.back}
         </Link>
-        <H4
-          className="py-4 text-left font-extrabold"
-        >
+        <H4 className="py-4 text-left font-extrabold">
           {t.auth.forgotPassword.checkEmail}
         </H4>
         <div className="space-y-4">
@@ -67,19 +64,16 @@ const ForgotPasswordContent = () => {
               <Mail className="size-10 text-purple" />
             </div>
           </div>
-          <H5
-            className="text-center text-sm">
+          <H5 className="text-center text-sm">
             {t.auth.forgotPassword.emailSent}
           </H5>
-          <H5 className="text-center text-sm font-semibold">
-            {email}
-          </H5>
+          <H5 className="text-center text-sm font-semibold">{email}</H5>
           <Typography
             variant="h3"
             className="text-center text-xs text-gray-600 pt-4"
           >
-            Please check your email and click on the link to reset your password.
-            If you don&apos;t see the email, check your spam folder.
+            Please check your email and click on the link to reset your
+            password. If you don&apos;t see the email, check your spam folder.
           </Typography>
         </div>
         <div className="mt-8 space-y-3">
@@ -111,18 +105,14 @@ const ForgotPasswordContent = () => {
     <section className="w-full mx-auto lg:w-1/2 max-w-[530px] h-full flex flex-col justify-start lg:justify-center relative">
       <Link
         href={"/login"}
-        className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
+        className="-ml-1  text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
       >
         <ChevronLeft className="size-5" /> {t.auth.forgotPassword.back}
       </Link>
-      <H2
-        className="py-4 text-left font-extrabold"
-      >
+      <H2 className="py-4 text-left font-extrabold">
         {t.auth.forgotPassword.title}
       </H2>
-      <H5
-        className="text-sm text-gray-600 pb-6"
-      >
+      <H5 className="text-sm text-gray-600 pb-6">
         {t.auth.forgotPassword.subtitle}
       </H5>
       <div className="space-y-2">
@@ -159,13 +149,14 @@ const ForgotPasswordContent = () => {
         disabled={!email || forgotPasswordMutation.isPending}
         isLoading={forgotPasswordMutation.isPending}
       >
-{t.auth.forgotPassword.sendResetLink}
+        {t.auth.forgotPassword.sendResetLink}
       </Button>
-      <H5
-        className="text-center mx-auto absolute left-1/2 -translate-x-1/2 bottom-20 lg:bottom-16 w-fit"
-      >
+      <H5 className="text-center mx-auto my-4  w-fit text-gray-600 dark:text-gray-400">
         {t.auth.forgotPassword.rememberPassword}{" "}
-        <Link href={localePath("/login")} className="text-purple m-custom-8 hover:underline">
+        <Link
+          href={localePath("/login")}
+          className="text-purple m-custom-8 hover:underline"
+        >
           {t.auth.forgotPassword.logIn}
         </Link>
       </H5>

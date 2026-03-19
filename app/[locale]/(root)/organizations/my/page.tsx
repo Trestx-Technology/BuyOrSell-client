@@ -160,7 +160,7 @@ const OrganizationsListPage = () => {
                   <div className="flex-1 min-w-0">
                     <Typography
                       variant="sm-semibold-inter"
-                      className="text-sm font-semibold text-[#1D2939] dark:text-white truncate"
+                      className="text-sm font-semibold text-[#1D2939] dark:text-white line-clamp-2"
                     >
                       {org.tradeName || org.legalName}
                     </Typography>

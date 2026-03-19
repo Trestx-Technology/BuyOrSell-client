@@ -152,22 +152,29 @@ export const OrganizationForm = ({
 
   // Update logoUrl when image is uploaded
   useEffect(() => {
-    if (logoImage?.presignedUrl) setValue("logoUrl", logoImage.presignedUrl);
+    if (logoImage?.presignedUrl)
+      setValue("logoUrl", logoImage.presignedUrl, { shouldValidate: true });
   }, [logoImage, setValue]);
 
   useEffect(() => {
     if (tradeLicenseImage?.presignedUrl)
-      setValue("tradeLicenseUrl", tradeLicenseImage.presignedUrl);
+      setValue("tradeLicenseUrl", tradeLicenseImage.presignedUrl, {
+        shouldValidate: true,
+      });
   }, [tradeLicenseImage, setValue]);
 
   useEffect(() => {
     if (ownerDocImage?.presignedUrl)
-      setValue("ownerDocUrl", ownerDocImage.presignedUrl);
+      setValue("ownerDocUrl", ownerDocImage.presignedUrl, {
+        shouldValidate: true,
+      });
   }, [ownerDocImage, setValue]);
 
   useEffect(() => {
-    if (poaImage?.presignedUrl) setValue("poaUrl", poaImage.presignedUrl);
-    else if (poaImage === null) setValue("poaUrl", "");
+    if (poaImage?.presignedUrl)
+      setValue("poaUrl", poaImage.presignedUrl, { shouldValidate: true });
+    else if (poaImage === null)
+      setValue("poaUrl", "", { shouldValidate: true });
   }, [poaImage, setValue]);
 
   // Populate form when initialData changes
@@ -515,6 +522,7 @@ export const OrganizationForm = ({
                     value={field.value}
                     onChange={field.onChange}
                     placeholder={t.organizations.form.selectExpiryDate}
+                    allowFutureDates={true}
                   />
                 )}
               />
@@ -774,7 +782,7 @@ export const OrganizationForm = ({
               image={tradeLicenseImage}
               onImageChange={setTradeLicenseImage}
               maxFileSize={10}
-              acceptedFileTypes={["image/jpeg", "image/png", "application/pdf"]}
+              acceptedFileTypes={["image/jpeg", "image/png"]}
               label="Upload Trade License"
             />
           </FormField>
@@ -789,7 +797,7 @@ export const OrganizationForm = ({
               image={ownerDocImage}
               onImageChange={setOwnerDocImage}
               maxFileSize={10}
-              acceptedFileTypes={["image/jpeg", "image/png", "application/pdf"]}
+              acceptedFileTypes={["application/pdf"]}
               label="Upload Owner Docs"
             />
           </FormField>
