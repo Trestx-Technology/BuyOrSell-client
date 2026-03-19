@@ -17,40 +17,37 @@ export async function generateMetadata({
     const seo = seoResponse.data;
 
     return {
+      metadataBase: new URL("https://buyorsell.ae"),
+
       title: seo.title,
       description: seo.description,
       keywords: seo.keywords,
+
       openGraph: {
         title: seo.ogTitle || seo.title,
         description: seo.ogDescription || seo.description,
-        images: seo.ogImage ? [{ url: seo.ogImage }] : [],
+        url: "https://buyorsell.ae",
+        siteName: "BuyOrSell",
+        images: [
+          {
+            url: seo.ogImage!,
+            width: 1200,
+            height: 630,
+          },
+        ],
         type: "website",
       },
+
       twitter: {
-        card: "summary_large_image",
+        card: "summary_large_image", // ← FIX THIS
         title: seo.twitterTitle || seo.title,
         description: seo.twitterDescription || seo.description,
-        images: seo.twitterImage ? [seo.twitterImage] : [],
+        images: [seo.ogImage!],
       },
+
       alternates: {
-        canonical: seo.canonicalUrl || "/",
+        canonical: "https://buyorsell.ae",
       },
-      robots: {
-        index: seo.robots?.includes("noindex") ? false : true,
-        follow: seo.robots?.includes("nofollow") ? false : true,
-        googleBot: {
-          index: seo.robots?.includes("noindex") ? false : true,
-          follow: seo.robots?.includes("nofollow") ? false : true,
-          noimageindex: false,
-          "max-video-preview": -1,
-          "max-image-preview": "large",
-          "max-snippet": -1,
-        },
-      },
-      verification: {
-        google: "your-google-site-verification-code",
-      },
-      category: "marketplace",
     };
   } catch (error) {
     // Return default metadata if API fails or route not found
