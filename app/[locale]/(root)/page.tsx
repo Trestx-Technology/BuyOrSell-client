@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { HomeContent } from "./_components/home-content";
 import { getSeoByRoute } from "@/app/api/seo/seo.services";
+import { constructMetadata } from "@/utils/metadata-utils";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -16,39 +17,11 @@ export async function generateMetadata({
     const seoResponse = await getSeoByRoute(route);
     const seo = seoResponse.data;
 
-    return {
-      metadataBase: new URL("https://buyorsell.ae"),
-
-      title: seo.title,
-      description: seo.description,
-      keywords: seo.keywords,
-
-      openGraph: {
-        title: seo.ogTitle || seo.title,
-        description: seo.ogDescription || seo.description,
-        url: "https://buyorsell.ae",
-        siteName: "BuyOrSell",
-        images: [
-          {
-            url: seo.ogImage!,
-            width: 1200,
-            height: 630,
-          },
-        ],
-        type: "website",
-      },
-
-      twitter: {
-        card: "summary_large_image", // ← FIX THIS
-        title: seo.twitterTitle || seo.title,
-        description: seo.twitterDescription || seo.description,
-        images: [seo.ogImage!],
-      },
-
-      alternates: {
-        canonical: "https://buyorsell.ae",
-      },
-    };
+    return constructMetadata(seo, {
+      title: "BuyOrSell - Buy, Sell & Exchange Everything Online",
+      description: "Discover amazing deals on cars, properties, furniture, electronics, jobs, and more. Buy, sell, and exchange items with verified sellers across the UAE.",
+      url: "/"
+    });
   } catch (error) {
     // Return default metadata if API fails or route not found
     return {
@@ -75,15 +48,15 @@ export async function generateMetadata({
         address: false,
         telephone: false,
       },
-      metadataBase: new URL("https://dev-buyorsell.com"),
+      metadataBase: new URL("https://buyorsell.ae"),
       alternates: {
-        canonical: "/",
+        canonical: "https://buyorsell.ae/",
       },
       openGraph: {
         title: "BuyOrSell - Buy, Sell & Exchange Everything Online",
         description:
           "Discover amazing deals on cars, properties, furniture, electronics, jobs, and more. Buy, sell, and exchange items with verified sellers across the UAE.",
-        url: "/",
+        url: "https://buyorsell.ae/",
         siteName: "BuyOrSell",
         images: [
           {

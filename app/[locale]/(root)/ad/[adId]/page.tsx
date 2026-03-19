@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import AdDetailContent from "./_components/AdDetailContent";
 import { getSeoByRoute } from "@/app/api/seo/seo.services";
 import { getAdById } from "@/app/api/ad/ad.services";
+import { constructMetadata } from '@/utils/metadata-utils';
 
 type Props = {
   params: Promise<{ locale: string; adId: string }>;
@@ -15,69 +16,51 @@ export async function generateMetadata(
   const route = `/ad/${adId}`;
 
   try {
-    // Try to get explicit SEO for this ad route
     const seoResponse = await getSeoByRoute(route);
     const seo = seoResponse.data;
 
-    return {
-      title: seo.title,
-      description: seo.description,
-      keywords: seo.keywords,
-      openGraph: {
-        title: seo.ogTitle || seo.title,
-        description: seo.ogDescription || seo.description,
-        images: seo.ogImage ? [{ url: seo.ogImage }] : [],
-      },
-      twitter: {
-        title: seo.twitterTitle || seo.title,
-        description: seo.twitterDescription || seo.description,
-        images: seo.twitterImage ? [seo.twitterImage] : [],
-      },
-      alternates: {
-        canonical: seo.canonicalUrl,
-      },
-      robots: {
-        index: seo.robots?.includes("noindex") ? false : true,
-        follow: seo.robots?.includes("nofollow") ? false : true,
-      },
-    };
+    if (seo && seo.title) {
+        return constructMetadata(seo, {
+            title: "BuyOrSell",
+            description: "Check out this ad on BuyOrSell",
+            url: route
+        });
+    }
   } catch (seoError) {
-    // Fallback: Fetch ad details and generate metadata
-    try {
-      const adResponse = await getAdById(adId);
-      const ad = adResponse.data;
+    console.warn(`SEO data not found for route: ${route}`);
+  }
 
-      if (!ad) {
-        return {
-          title: "Ad Not Found | BuyOrSell",
-          description: "The requested ad could not be found.",
-        };
-      }
+  // Fallback: Fetch ad details and generate metadata
+  try {
+    const adResponse = await getAdById(adId);
+    const ad = adResponse.data;
 
-      const title = `${ad.title} | BuyOrSell`;
-      const description = ad.description ? ad.description.substring(0, 160) : `Check out this ad on BuyOrSell: ${ad.title}`;
-      const images = ad.images && ad.images.length > 0 ? ad.images : [];
-
+    if (!ad) {
       return {
-        title: title,
-        description: description,
-        openGraph: {
-          title: title,
-          description: description,
-          images: images.map(img => ({ url: img })),
-        },
-        twitter: {
-          title: title,
-          description: description,
-          images: images,
-        },
-      };
-    } catch (adError) {
-      return {
-        title: "BuyOrSell",
-        description: "Buy, Sell & Exchange Everything Online",
+        title: "Ad Not Found | BuyOrSell",
+        description: "The requested ad could not be found.",
       };
     }
+
+    const title = `${ad.title} | BuyOrSell`;
+    const description = ad.description ? ad.description.substring(0, 160) : `Check out this ad on BuyOrSell: ${ad.title}`;
+    const ogImage = ad.images && ad.images.length > 0 ? ad.images[0] : "";
+
+    return constructMetadata({
+        title,
+        description,
+        ogImage,
+        canonicalUrl: route,
+    }, {
+        title,
+        description,
+        url: route
+    });
+  } catch (adError) {
+    return {
+      title: "BuyOrSell",
+      description: "Buy, Sell & Exchange Everything Online",
+    };
   }
 }
 

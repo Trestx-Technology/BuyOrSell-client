@@ -3,6 +3,7 @@ import CategoryListingContent from "./_components/CategoryListingContent";
 import { getSeoByRoute } from "@/app/api/seo/seo.services";
 import { validateCategoryPathWithSeo } from "@/app/api/categories/categories.services";
 import { unSlugify, slugify } from "@/utils/slug-utils";
+import { constructMetadata } from "@/utils/metadata-utils";
 
 type Props = {
   params: Promise<{ locale: string; slug: string[] }>;
@@ -21,7 +22,6 @@ export async function generateMetadata({
   let seo = null;
 
   try {
-    // 1. Try to get SEO from category validation API first
     const validateResponse = await validateCategoryPathWithSeo(categoryPath);
     if (validateResponse?.data?.seo && validateResponse.data.seo.title) {
       seo = validateResponse.data.seo;
@@ -32,7 +32,6 @@ export async function generateMetadata({
 
   if (!seo || !seo.title) {
     try {
-      // 2. Fallback to general SEO by route API
       const seoResponse = await getSeoByRoute(route);
       if (seoResponse?.data && seoResponse.data.title) {
         seo = seoResponse.data;
@@ -42,44 +41,18 @@ export async function generateMetadata({
     }
   }
 
-  if (seo && seo.title) {
-    return {
-      metadataBase: new URL("https://buyorsell.ae"),
-      title: seo.title,
-      description: seo.description,
-      keywords: seo.keywords,
-      openGraph: {
-        title: seo.ogTitle || seo.title,
-        description: seo.ogDescription || seo.description,
-        url: `https://buyorsell.ae/${categoryPath}`,
-        siteName: "BuyOrSell",
-        images: seo.ogImage
-          ? [
-              {
-                url: seo.ogImage,
-                width: 1200,
-                height: 630,
-              },
-            ]
-          : [],
-        type: "website",
-      },
-      twitter: {
-        card: "summary_large_image",
-        title: seo.twitterTitle || seo.title,
-        description: seo.twitterDescription || seo.description,
-        images: seo.ogImage ? [seo.ogImage] : [],
-      },
-      alternates: {
-        canonical: seo.canonicalUrl || `https://buyorsell.ae/${categoryPath}`,
-      },
-    };
-  }
-
-  // Fallback metadata if both API calls fail or return no data
   const categoryName = unSlugify(
     decodeURIComponent(currentCategorySlug || "Category"),
   );
+
+  if (seo && seo.title) {
+    return constructMetadata(seo, {
+      title: `${categoryName} | BuyOrSell`,
+      description: `Browse the best deals in ${categoryName} on BuyOrSell.`,
+      url: route
+    });
+  }
+
   return {
     title: `${categoryName} | BuyOrSell`,
     description: `Browse the best deals in ${categoryName} on BuyOrSell.`,
