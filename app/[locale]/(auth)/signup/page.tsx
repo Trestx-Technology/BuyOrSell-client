@@ -106,28 +106,28 @@ const Signup = () => {
     const fullPhoneNumber = `${selectedCountryCode}${cleanedPhoneNumber}`;
 
     try {
-      // Verify OTP
+      // Verify OTP - mutateAsync will throw if verification fails
       await verifyPhoneOtpMutation.mutateAsync({
         phoneNo: fullPhoneNumber,
         otp: otp,
       });
 
-      if (verifyPhoneOtpMutation.isSuccess) {
-        setShowOtpDialog(false);
-      }
-      toast.success("Phone number verified successfully!");
-
-      setIsGeneratingDeviceKey(true);
-      // Now proceed with signup
+      // OTP verified, now proceed with signup
       const nameParts = formData.fullName.trim().split(/\s+/);
       const firstName = nameParts[0] || "";
-      const lastName = nameParts.slice(1).join(" ") || nameParts[0] || "";
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
 
+      // Close the dialog before starting signup or after success
+      // Closing it now gives better UX as the user sees the progress on the main button
+      setShowOtpDialog(false);
+
+      setIsGeneratingDeviceKey(true);
       const deviceToken = await firebase.getFCMToken();
 
       const response = await signUpMutation.mutateAsync({
         firstName: firstName,
         lastName: lastName,
+        name: formData.fullName,
         email: formData.email,
         password: formData.password,
         countryCode: selectedCountryCode,
@@ -145,7 +145,6 @@ const Signup = () => {
         }
 
         toast.success(response.message || "Account created successfully!");
-        setShowOtpDialog(false);
         router.push(localePath("/"));
       } else {
         toast.error(
@@ -158,7 +157,7 @@ const Signup = () => {
         (error as { response?: { data?: { message?: string } } })?.response
           ?.data?.message ||
         "Failed to verify OTP or create account. Please try again.";
-      // toast.error(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsVerifyingOtp(false);
       setIsGeneratingDeviceKey(false);
@@ -181,7 +180,7 @@ const Signup = () => {
     <section className="w-full mx-auto lg:w-1/2 max-w-[530px] min-h-full flex flex-col justify-start lg:justify-center relative py-8 lg:py-4 w-full">
       <Link
         href={localePath("/methods")}
-        className="-ml-1 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
+        className="-ml-1 mb-4 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
       >
         <ChevronLeft className="size-5" /> {t.auth.signup.back}
       </Link>
@@ -357,7 +356,7 @@ const Signup = () => {
         {t.auth.signup.alreadyHaveAccount}{" "}
         <Link
           href={localePath("/login")}
-          className="text-purple m-custom-8  hover:underline"
+          className="text-purple ml-1 hover:underline"
         >
           {t.auth.signup.logIn}
         </Link>

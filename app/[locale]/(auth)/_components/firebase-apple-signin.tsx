@@ -56,15 +56,16 @@ export function FirebaseAppleLoginButton({
                         throw new Error("Failed to get idToken from Apple");
                   }
 
-                  const nameParts = result.user.displayName?.split(" ") || ["", ""];
+                  const nameParts = result.user.displayName?.trim().split(/\s+/) || ["User"];
                   const firstName = nameParts[0] || "User";
-                  const lastName = nameParts.slice(1).join(" ") || firstName;
+                  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
 
                   const response = await socialLoginMutation.mutateAsync({
                         socialType: "apple",
                         appleDeviceId: "cms_web",
                         firstName,
                         lastName,
+                        name: result.user.displayName || `${firstName} ${lastName}`.trim(),
                         email: result.user.email || "",
                         verifyEmail: result.user.emailVerified,
                         image: result.user.photoURL || undefined,

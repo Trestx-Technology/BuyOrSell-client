@@ -39,7 +39,7 @@ const Login = () => {
       </div>
       <H5 className="text-center text-sm w-full text-gray-600 dark:text-gray-400">
         {t.auth.methods.dontHaveAccount}{" "}
-        <Link href={localePath("/signup")} className="text-purple m-custom-16">
+        <Link href={localePath("/signup")} className="text-purple  ">
           {t.auth.methods.signUp}
         </Link>
       </H5>

@@ -105,7 +105,7 @@ const ForgotPasswordContent = () => {
     <section className="w-full mx-auto lg:w-1/2 max-w-[530px] h-full flex flex-col justify-start lg:justify-center relative">
       <Link
         href={"/login"}
-        className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
+        className="-ml-1  text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
       >
         <ChevronLeft className="size-5" /> {t.auth.forgotPassword.back}
       </Link>
@@ -151,7 +151,7 @@ const ForgotPasswordContent = () => {
       >
         {t.auth.forgotPassword.sendResetLink}
       </Button>
-      <H5 className="text-center mx-auto w-fit">
+      <H5 className="text-center mx-auto my-4  w-fit text-gray-600 dark:text-gray-400">
         {t.auth.forgotPassword.rememberPassword}{" "}
         <Link
           href={localePath("/login")}

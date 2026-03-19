@@ -16,6 +16,7 @@ import { LocalStorageService } from "@/services/local-storage";
 export interface SignUpPayload {
   firstName: string;
   lastName: string;
+  name?: string;
   email: string;
   password: string;
   countryCode: string;
@@ -57,6 +58,7 @@ export const signUp = async (data: SignUpPayload): Promise<SignUpResponse> => {
     {
       firstName: data.firstName,
       lastName: data.lastName,
+      name: data.name,
       email: data.email,
       password: data.password,
       countryCode: data.countryCode,
