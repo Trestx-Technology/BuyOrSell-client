@@ -65,7 +65,7 @@ const EditOrganizationPage = () => {
         tradeLicenseNumber: data.tradeLicenseNumber,
         tradeLicenseExpiry: data.tradeLicenseExpiry,
         tradeLicenseUrl: data.tradeLicenseUrl,
-        ownerDocsUrl: data.ownerDocsUrl,
+        ownerDocUrl: data.ownerDocUrl,
         poaUrl: data.poaUrl || undefined,
         trn: data.trn || undefined,
         legalName: data.legalName,
