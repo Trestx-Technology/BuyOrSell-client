@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { ContactUsContent } from "./_components/ContactUsContent";
 import { getSeoByRoute } from "@/app/api/seo/seo.services";
+import { constructMetadata } from "@/utils/metadata-utils";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -16,30 +17,12 @@ export async function generateMetadata(
     const seoResponse = await getSeoByRoute(route);
     const seo = seoResponse.data;
 
-    return {
-      title: seo.title,
-      description: seo.description,
-      keywords: seo.keywords,
-      openGraph: {
-        title: seo.ogTitle || seo.title,
-        description: seo.ogDescription || seo.description,
-        images: seo.ogImage ? [{ url: seo.ogImage }] : [],
-      },
-      twitter: {
-        title: seo.twitterTitle || seo.title,
-        description: seo.twitterDescription || seo.description,
-        images: seo.twitterImage ? [seo.twitterImage] : [],
-      },
-      alternates: {
-        canonical: seo.canonicalUrl,
-      },
-      robots: {
-        index: seo.robots?.includes("noindex") ? false : true,
-        follow: seo.robots?.includes("nofollow") ? false : true,
-      },
-    };
+    return constructMetadata(seo, {
+      title: "Contact Us | BuyOrSell",
+      description: "Get in touch with the BuyOrSell team for any queries or support.",
+      url: route
+    });
   } catch (error) {
-    // Fallback metadata
     return {
       title: "Contact Us | BuyOrSell",
       description: "Get in touch with the BuyOrSell team for any queries or support.",
