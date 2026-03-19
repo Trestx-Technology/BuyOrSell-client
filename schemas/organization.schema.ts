@@ -30,7 +30,7 @@ export const organizationSchema = z.object({
   tradeLicenseNumber: z.string().min(1, "Trade license number is required"),
   tradeLicenseExpiry: z.string().min(1, "Trade license expiry is required"),
   tradeLicenseUrl: z.string().min(1, "Trade license image is required"),
-  ownerDocsUrl: z.string().min(1, "Owner documents are required"),
+  ownerDocUrl: z.string().min(1, "Owner documents are required"),
   poaUrl: z.string().optional(),
   trn: z
     .string()

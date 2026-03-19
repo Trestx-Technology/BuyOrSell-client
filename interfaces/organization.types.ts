@@ -21,7 +21,7 @@ export interface Organization {
   legalNameAr?: string;
   tradeNameAr?: string;
   tradeLicenseUrl?: string; // Newly added
-  ownerDocsUrl?: string; // Newly added
+  ownerDocUrl?: string; // Newly added
   poaUrl?: string; // Newly added
   reraNumber?: string;
   addressLine1: string;
@@ -131,7 +131,7 @@ export interface CreateOrganizationPayload {
   city: string;
   poBox?: string;
   tradeLicenseUrl: string;
-  ownerDocsUrl: string;
+  ownerDocUrl: string;
   poaUrl?: string;
   contactName: string;
   contactEmail: string;

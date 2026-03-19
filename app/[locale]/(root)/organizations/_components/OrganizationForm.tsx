@@ -61,7 +61,7 @@ export const OrganizationForm = ({
   const [logoImage, setLogoImage] = useState<SingleImageItem | null>(null);
   const [tradeLicenseImage, setTradeLicenseImage] =
     useState<SingleImageItem | null>(null);
-  const [ownerDocsImage, setOwnerDocsImage] = useState<SingleImageItem | null>(
+  const [ownerDocImage, setOwnerDocImage] = useState<SingleImageItem | null>(
     null,
   );
   const [poaImage, setPoaImage] = useState<SingleImageItem | null>(null);
@@ -128,7 +128,7 @@ export const OrganizationForm = ({
       tradeLicenseNumber: "",
       tradeLicenseExpiry: "",
       tradeLicenseUrl: "",
-      ownerDocsUrl: "",
+      ownerDocUrl: "",
       poaUrl: "",
       trn: "",
       legalName: "",
@@ -161,9 +161,9 @@ export const OrganizationForm = ({
   }, [tradeLicenseImage, setValue]);
 
   useEffect(() => {
-    if (ownerDocsImage?.presignedUrl)
-      setValue("ownerDocsUrl", ownerDocsImage.presignedUrl);
-  }, [ownerDocsImage, setValue]);
+    if (ownerDocImage?.presignedUrl)
+      setValue("ownerDocUrl", ownerDocImage.presignedUrl);
+  }, [ownerDocImage, setValue]);
 
   useEffect(() => {
     if (poaImage?.presignedUrl) setValue("poaUrl", poaImage.presignedUrl);
@@ -190,11 +190,11 @@ export const OrganizationForm = ({
         });
       }
 
-      if (initialData.ownerDocsUrl) {
-        setOwnerDocsImage({
+      if (initialData.ownerDocUrl) {
+        setOwnerDocImage({
           id: "owner-docs",
-          url: initialData.ownerDocsUrl,
-          presignedUrl: initialData.ownerDocsUrl,
+          url: initialData.ownerDocUrl,
+          presignedUrl: initialData.ownerDocUrl,
         });
       }
 
@@ -254,7 +254,7 @@ export const OrganizationForm = ({
         tradeLicenseNumber: initialData.tradeLicenseNumber || "",
         tradeLicenseExpiry: initialData.tradeLicenseExpiry || "",
         tradeLicenseUrl: initialData.tradeLicenseUrl || "",
-        ownerDocsUrl: initialData.ownerDocsUrl || "",
+        ownerDocUrl: initialData.ownerDocUrl || "",
         poaUrl: initialData.poaUrl || "",
         trn: initialData.trn || "",
         legalName: initialData.legalName || "",
@@ -781,13 +781,13 @@ export const OrganizationForm = ({
 
           <FormField
             label="Owner Documents"
-            htmlFor="ownerDocsUrl"
+            htmlFor="ownerDocUrl"
             required
-            error={errors.ownerDocsUrl?.message}
+            error={errors.ownerDocUrl?.message}
           >
             <SingleImageUpload
-              image={ownerDocsImage}
-              onImageChange={setOwnerDocsImage}
+              image={ownerDocImage}
+              onImageChange={setOwnerDocImage}
               maxFileSize={10}
               acceptedFileTypes={["image/jpeg", "image/png", "application/pdf"]}
               label="Upload Owner Docs"
