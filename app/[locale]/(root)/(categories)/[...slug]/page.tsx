@@ -44,25 +44,34 @@ export async function generateMetadata({
 
   if (seo && seo.title) {
     return {
+      metadataBase: new URL("https://buyorsell.ae"),
       title: seo.title,
       description: seo.description,
       keywords: seo.keywords,
       openGraph: {
         title: seo.ogTitle || seo.title,
         description: seo.ogDescription || seo.description,
-        images: seo.ogImage ? [{ url: seo.ogImage }] : [],
+        url: `https://buyorsell.ae/${categoryPath}`,
+        siteName: "BuyOrSell",
+        images: seo.ogImage
+          ? [
+              {
+                url: seo.ogImage,
+                width: 1200,
+                height: 630,
+              },
+            ]
+          : [],
+        type: "website",
       },
       twitter: {
+        card: "summary_large_image",
         title: seo.twitterTitle || seo.title,
         description: seo.twitterDescription || seo.description,
-        images: seo.twitterImage ? [seo.twitterImage] : [],
+        images: seo.ogImage ? [seo.ogImage] : [],
       },
       alternates: {
-        canonical: seo.canonicalUrl,
-      },
-      robots: {
-        index: seo.robots?.includes("noindex") ? false : true,
-        follow: seo.robots?.includes("nofollow") ? false : true,
+        canonical: seo.canonicalUrl || `https://buyorsell.ae/${categoryPath}`,
       },
     };
   }
