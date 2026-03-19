@@ -86,7 +86,7 @@ export const chatTranslations: ChatTranslationNamespace = {
     online: "Online",
     lastSeen: "Laatst gezien {time}",
     lastSeenRecently: "Onlangs voor het laatst gezien",
-    aiAssistant: "AI Assistent",
+    aiAssistant: "AI-assistent",
     aiFeatures: {
       proofread: { name: "Controleren", description: "Grammatica verbeteren en bericht professioneler maken" },
       inquiry: { name: "Aanvraag Genereren", description: "Maak een professioneel aanvraagbericht" },
@@ -141,7 +141,7 @@ export const chatTranslations: ChatTranslationNamespace = {
     online: "Online",
     lastSeen: "Laatst gezien {time}",
     lastSeenRecently: "Onlangs voor het laatst gezien",
-    aiAssistant: "AI Assistent",
+    aiAssistant: "AI-assistent",
     aiFeatures: {
       proofread: { name: "Controleren", description: "Grammatica verbeteren en bericht professioneler maken" },
       inquiry: { name: "Aanvraag Genereren", description: "Maak een professioneel aanvraagbericht" },
