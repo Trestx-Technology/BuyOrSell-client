@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -508,6 +508,11 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   const { t, locale, localePath } = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const {
     data: categoriesData,
@@ -581,7 +586,8 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <nav
       className={cn(
-        "animate-fade-in flex gap-2 w-full items-center justify-between py-1",
+        "flex gap-2 w-full items-center justify-between py-1",
+        mounted && "animate-fade-in",
         className,
       )}
     >
@@ -647,14 +653,14 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
           <div className="max-[1000px]:hidden flex gap-3 items-center">
             <TooltipProvider delayDuration={200}>
               <div
-                className="animate-fade-in"
+                className={mounted ? "animate-fade-in" : ""}
                 style={{ animationDelay: "100ms" }}
               >
                 <SearchHistoryPopover />
               </div>
 
               <div
-                className="animate-fade-in"
+                className={mounted ? "animate-fade-in" : ""}
                 style={{ animationDelay: "150ms" }}
               >
                 <Tooltip>
@@ -673,7 +679,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
               </div>
 
               <div
-                className="animate-fade-in"
+                className={mounted ? "animate-fade-in" : ""}
                 style={{ animationDelay: "200ms" }}
               >
                 <Tooltip>
@@ -692,7 +698,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
               </div>
 
               <div
-                className="animate-fade-in"
+                className={mounted ? "animate-fade-in" : ""}
                 style={{ animationDelay: "250ms" }}
               >
                 <Tooltip>
@@ -711,7 +717,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
               </div>
 
               <div
-                className="animate-fade-in"
+                className={mounted ? "animate-fade-in" : ""}
                 style={{ animationDelay: "300ms" }}
               >
                 <NotificationsPopover />
@@ -720,7 +726,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
           </div>
         )}
         <div
-          className="animate-fade-in shrink-0 ml-1 md:hidden"
+          className={cn("shrink-0 ml-1 md:hidden", mounted && "animate-fade-in")}
           style={{ animationDelay: "350ms" }}
         >
           <PostAdDialog>
@@ -747,7 +753,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
         </div>
 
         <div
-          className="animate-fade-in shrink-0 ml-1 hidden md:block"
+          className={cn("shrink-0 ml-1 hidden md:block", mounted && "animate-fade-in")}
           style={{ animationDelay: "350ms" }}
         >
           <Button
