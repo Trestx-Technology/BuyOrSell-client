@@ -67,6 +67,17 @@ export function AISuggestions({ isAI, onSuggestionClick }: AISuggestionsProps) {
               </motion.button>
             ))}
           </motion.div>
+          <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
+            <p className="text-[11px] text-gray-400">
+              Nora AI search helps you find exactly what you need.
+            </p>
+            <div className="flex items-center gap-1.5 opacity-60">
+              <span className="text-[10px] text-gray-500 font-medium">Shortcut:</span>
+              <kbd className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-[9px] text-gray-300 font-sans font-bold">Ctrl</kbd>
+              <span className="text-[9px] text-gray-500">+</span>
+              <kbd className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-[9px] text-gray-300 font-sans font-bold">J</kbd>
+            </div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

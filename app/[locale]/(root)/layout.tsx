@@ -6,7 +6,6 @@ const HomeLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <Suspense>
       <MainLayoutWrapper>{children}</MainLayoutWrapper>
-      <Footer />
     </Suspense>
   );
 };
