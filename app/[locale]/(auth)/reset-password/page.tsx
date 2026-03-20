@@ -1,10 +1,17 @@
 "use client";
-import { Typography } from "@/components/typography";
+import { H2, H3, H4, H5, Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { ChevronLeft, EyeIcon, EyeOffIcon, Key } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronLeft,
+  Circle,
+  EyeIcon,
+  EyeOffIcon,
+  Key,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "nextjs-toploader/app";
 import { useSearchParams } from "next/navigation";
@@ -13,6 +20,9 @@ import { resetPassword as ResetPasswordAPI } from "@/app/api/auth/auth.services"
 import { AxiosError } from "axios";
 import { useLocale } from "@/hooks/useLocale";
 import Image from "next/image";
+import { Progress } from "@/components/ui/progress";
+import { calculatePasswordStrength } from "@/utils/password-strength";
+import { useMemo } from "react";
 
 const ResetPasswordContent = () => {
   const router = useRouter();
@@ -27,6 +37,11 @@ const ResetPasswordContent = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordReset, setPasswordReset] = useState(false);
+
+  const passwordStrength = useMemo(
+    () => calculatePasswordStrength(passwordData.newPassword || ""),
+    [passwordData.newPassword],
+  );
 
   const resetPasswordMutation = useMutation<
     { message: string; statusCode: number; timeStamp: string },
@@ -90,15 +105,9 @@ const ResetPasswordContent = () => {
               <Key className="size-10 text-success-100" />
             </div>
           </div>
-          <Typography variant="h3" className="text-center text-sm">
+          <H4 className="text-center text-xs text-gray-600 pt-4">
             {t.auth.resetPassword.successMessage}
-          </Typography>
-          <Typography
-            variant="h3"
-            className="text-center text-xs text-gray-600 pt-4"
-          >
-            You can now log in with your new password.
-          </Typography>
+          </H4>
         </div>
         <div className="mt-8">
           <Button
@@ -130,9 +139,9 @@ const ResetPasswordContent = () => {
           {t.auth.resetPassword.invalidLink}
         </Typography>
         <div className="space-y-4">
-          <Typography variant="h3" className="text-sm text-gray-600">
+          <H5 className="text-sm text-gray-600">
             {t.auth.resetPassword.invalidLinkMessage}
-          </Typography>
+          </H5>
         </div>
         <div className="mt-8 space-y-3">
           <Button
@@ -170,9 +179,9 @@ const ResetPasswordContent = () => {
       >
         {t.auth.resetPassword.title}
       </Typography>
-      <Typography variant="h3" className="text-sm text-gray-600 pb-6">
+      <H5 className="text-sm text-gray-600 pb-6">
         {t.auth.resetPassword.subtitle}
-      </Typography>
+      </H5>
       <div className="space-y-2">
         <Input
           leftIcon={
@@ -189,7 +198,7 @@ const ResetPasswordContent = () => {
           type={showPassword ? "text" : "password"}
           onRightIconClick={() => setShowPassword(!showPassword)}
           rightIcon={
-            !showPassword ? (
+            showPassword ? (
               <EyeIcon
                 className={`w-4 h-4 ${
                   showPassword ? "text-purple" : "text-gray-500"
@@ -215,6 +224,59 @@ const ResetPasswordContent = () => {
             }
           }}
         />
+
+        {/* Password Strength Indicator with Progress Bar */}
+        <div className="space-y-2 mt-2">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            {t.auth.resetPassword.passwordStrength}
+          </div>
+          <Progress value={passwordStrength.progress} className="h-2" />
+        </div>
+
+        {/* Requirements Checklist */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 mt-4 mb-6">
+          {[
+            {
+              label: t.auth.resetPassword.requirements.length,
+              met: passwordData.newPassword.length >= 8,
+            },
+            {
+              label: t.auth.resetPassword.requirements.lowercase,
+              met: /[a-z]/.test(passwordData.newPassword),
+            },
+            {
+              label: t.auth.resetPassword.requirements.uppercase,
+              met: /[A-Z]/.test(passwordData.newPassword),
+            },
+            {
+              label: t.auth.resetPassword.requirements.number,
+              met: /[0-9]/.test(passwordData.newPassword),
+            },
+            {
+              label: t.auth.resetPassword.requirements.special,
+              met: /[^A-Za-z0-9]/.test(passwordData.newPassword),
+            },
+          ].map((req, idx) => (
+            <div
+              key={idx}
+              className={`flex items-start gap-2.5 text-[11px] leading-tight transition-colors duration-200 ${
+                req.met
+                  ? "text-success-100 font-medium"
+                  : "text-gray-500 dark:text-gray-400"
+              }`}
+            >
+              <div className="mt-0.5 flex-shrink-0">
+                {req.met ? (
+                  <CheckCircle2 className="size-3.5 text-success-100" />
+                ) : (
+                  <Circle className="size-3.5 opacity-40" />
+                )}
+              </div>
+              <span>{req.label}</span>
+            </div>
+          ))}
+        </div>
+
         <Input
           leftIcon={
             <Image
@@ -230,7 +292,7 @@ const ResetPasswordContent = () => {
           type={showConfirmPassword ? "text" : "password"}
           onRightIconClick={() => setShowConfirmPassword(!showConfirmPassword)}
           rightIcon={
-            !showConfirmPassword ? (
+            showConfirmPassword ? (
               <EyeIcon
                 className={`w-4 h-4 ${
                   showConfirmPassword ? "text-purple" : "text-gray-500"
@@ -260,24 +322,24 @@ const ResetPasswordContent = () => {
           }}
         />
       </div>
-      <Typography variant="h3" className="text-xs text-gray-500 pt-2 pb-4">
-        {t.auth.resetPassword.passwordHint}
-      </Typography>
+
       <Button
-        className="w-full text-sm"
+        className="w-full text-sm my-4"
         size={"lg"}
         variant={"filled"}
         onClick={handleSubmit}
         disabled={
           !passwordData.newPassword ||
           !passwordData.confirmPassword ||
+          passwordStrength.requirements.length > 0 ||
+          passwordData.newPassword !== passwordData.confirmPassword ||
           resetPasswordMutation.isPending
         }
         isLoading={resetPasswordMutation.isPending}
       >
         {t.auth.resetPassword.resetPassword}
       </Button>
-      <Typography variant="h3" className="text-center text-sm mx-auto w-fit">
+      <H5 className="text-center text-sm mx-auto my-4 w-fit">
         {t.auth.resetPassword.rememberPassword}{" "}
         <Link
           href={localePath("/login")}
@@ -285,7 +347,7 @@ const ResetPasswordContent = () => {
         >
           {t.auth.resetPassword.logIn}
         </Link>
-      </Typography>
+      </H5>
     </section>
   );
 };

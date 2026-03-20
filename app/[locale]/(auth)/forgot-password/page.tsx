@@ -51,7 +51,7 @@ const ForgotPasswordContent = () => {
       <section className="w-full mx-auto lg:w-1/2 max-w-[530px] h-full flex flex-col justify-start lg:justify-center relative">
         <Link
           href={localePath("/login")}
-          className="-ml-1 mt-8 lg:-mt-32 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
+          className="-ml-1 text-center text-xs font-semibold flex items-center gap-1 cursor-pointer text-purple w-fit"
         >
           <ChevronLeft className="size-5" /> {t.auth.forgotPassword.back}
         </Link>
@@ -68,13 +68,10 @@ const ForgotPasswordContent = () => {
             {t.auth.forgotPassword.emailSent}
           </H5>
           <H5 className="text-center text-sm font-semibold">{email}</H5>
-          <Typography
-            variant="h3"
-            className="text-center text-xs text-gray-600 pt-4"
-          >
+          <H5 className="text-center text-xs text-gray-600 pt-4">
             Please check your email and click on the link to reset your
             password. If you don&apos;t see the email, check your spam folder.
-          </Typography>
+          </H5>
         </div>
         <div className="mt-8 space-y-3">
           <Button

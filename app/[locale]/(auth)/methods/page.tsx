@@ -7,6 +7,7 @@ import { FirebaseAuthButtons } from "../_components/firebase-auth-buttons";
 import { useRouter } from "nextjs-toploader/app";
 import { useLocale } from "@/hooks/useLocale";
 import { MailIcon } from "lucide-react";
+import { toast } from "sonner";
 
 const Login = () => {
   const router = useRouter();
@@ -33,7 +34,7 @@ const Login = () => {
           onSuccess={async (data) => {
             router.push(localePath("/"));
           }}
-          onError={(error) => console.error(error)}
+          onError={(error) => toast.error(error)}
           btnClassName="border border-purple/10 dark:border-gray-700"
         />
       </div>
