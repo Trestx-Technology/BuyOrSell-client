@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -207,8 +207,11 @@ const buildCategoryUrl = (
 
 const CategoryLoader = () => (
   <div className="hidden md:flex gap-4 flex-1 items-center justify-between animate-pulse">
-    {[...Array(6)].map((_, i) => (
-      <div key={i} className="h-9 w-24 bg-white/20 rounded-sm" />
+    {[...Array(7)].map((_, i) => (
+      <div
+        key={i}
+        className="h-9 w-24 bg-gray-200 dark:bg-gray-700 rounded-sm"
+      />
     ))}
   </div>
 );
@@ -508,11 +511,6 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   const { t, locale, localePath } = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const {
     data: categoriesData,
@@ -586,8 +584,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
   return (
     <nav
       className={cn(
-        "flex gap-2 w-full items-center justify-between py-1",
-        mounted && "animate-fade-in",
+        "animate-fade-in flex gap-2 w-full items-center justify-between py-1",
         className,
       )}
     >
@@ -642,25 +639,25 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
           <div className="flex items-center justify-between gap-5 ml-2">
             {Array.from({ length: 5 }).map((_, index) => (
               <div key={index} className="animate-pulse">
-                <div className="size-8 bg-white/20 rounded-full"></div>
+                <div className="size-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
               </div>
             ))}
             <div className="animate-pulse">
-              <div className="h-10 w-20 bg-white/20 rounded-md"></div>
+              <div className="h-10 w-20 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
             </div>
           </div>
         ) : (
           <div className="max-[1000px]:hidden flex gap-3 items-center">
             <TooltipProvider delayDuration={200}>
               <div
-                className={mounted ? "animate-fade-in" : ""}
+                className="animate-fade-in"
                 style={{ animationDelay: "100ms" }}
               >
                 <SearchHistoryPopover />
               </div>
 
               <div
-                className={mounted ? "animate-fade-in" : ""}
+                className="animate-fade-in"
                 style={{ animationDelay: "150ms" }}
               >
                 <Tooltip>
@@ -679,7 +676,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
               </div>
 
               <div
-                className={mounted ? "animate-fade-in" : ""}
+                className="animate-fade-in"
                 style={{ animationDelay: "200ms" }}
               >
                 <Tooltip>
@@ -698,7 +695,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
               </div>
 
               <div
-                className={mounted ? "animate-fade-in" : ""}
+                className="animate-fade-in"
                 style={{ animationDelay: "250ms" }}
               >
                 <Tooltip>
@@ -717,7 +714,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
               </div>
 
               <div
-                className={mounted ? "animate-fade-in" : ""}
+                className="animate-fade-in"
                 style={{ animationDelay: "300ms" }}
               >
                 <NotificationsPopover />
@@ -726,7 +723,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
           </div>
         )}
         <div
-          className={cn("shrink-0 ml-1 md:hidden", mounted && "animate-fade-in")}
+          className="animate-fade-in shrink-0 ml-1 md:hidden"
           style={{ animationDelay: "350ms" }}
         >
           <PostAdDialog>
@@ -753,7 +750,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
         </div>
 
         <div
-          className={cn("shrink-0 ml-1 hidden md:block", mounted && "animate-fade-in")}
+          className="animate-fade-in shrink-0 ml-1 hidden md:block"
           style={{ animationDelay: "350ms" }}
         >
           <Button
