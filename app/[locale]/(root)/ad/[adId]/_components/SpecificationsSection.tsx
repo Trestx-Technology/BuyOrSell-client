@@ -80,7 +80,7 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
       "text-[10px] px-2 py-0 font-medium bg-gray-100 dark:bg-slate-800 text-dark-blue dark:text-gray-200 border-none hover:bg-purple/10 hover:text-purple transition-colors cursor-default";
 
     const valueContent = (
-      <div className="flex flex-wrap gap-1.5 justify-end max-w-[65%]">
+      <div className="flex flex-wrap gap-1.5 justify-end md:max-w-[65%] max-w-full">
         {isColorValue ? (
           <div
             className="size-5 border border-slate-200 rounded-full"
@@ -139,8 +139,8 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
       return (
         <Popover key={index}>
           <PopoverTrigger asChild>
-            <div className="flex justify-between items-start group border-gray-100 dark:border-slate-800 w-full p-2 rounded cursor-pointer hover:bg-purple/5 transition-colors">
-              <span className="text-sm text-grey-blue dark:text-gray-400 whitespace-nowrap mr-4">
+            <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-1 group border-gray-100 dark:border-slate-800 w-full p-2 rounded cursor-pointer hover:bg-purple/5 transition-colors">
+              <span className="text-sm text-grey-blue dark:text-gray-400 md:whitespace-nowrap md:mr-4 shrink-0">
                 {key}
               </span>
               {valueContent}
@@ -169,9 +169,9 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
     return (
       <div
         key={index}
-        className="flex justify-between items-start border-gray-100 dark:border-slate-800 w-full p-2 rounded"
+        className="flex flex-col md:flex-row md:justify-between md:items-start gap-1 border-gray-100 dark:border-slate-800 w-full p-2 rounded"
       >
-        <span className="text-sm text-grey-blue dark:text-gray-400 whitespace-nowrap mr-4">
+        <span className="text-sm text-grey-blue dark:text-gray-400 md:whitespace-nowrap md:mr-4 shrink-0">
           {key}
         </span>
         {valueContent}
