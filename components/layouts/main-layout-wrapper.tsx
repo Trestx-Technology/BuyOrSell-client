@@ -8,15 +8,15 @@ import CategoryNav from "@/app/[locale]/(root)/_components/CategoryNav";
 import { CommandMenu } from "@/components/global/command-menu";
 import { SearchAdsDialog } from "@/components/global/search-ads-dialog";
 import { useEmirateInvalidation } from "@/hooks/useEmirateInvalidation";
+import { Footer } from "@/components/global/footer";
 import {
   PAGES_WITH_NAV,
   PAGES_WITH_NAV_MOBILE,
   PAGES_WITHOUT_NAV,
+  PAGES_WITHOUT_FOOTER,
   shouldShowComponent,
 } from "@/constants/layout.constants";
 import { MobileAppStrip } from "@/components/global/MobileAppStrip";
-import { Container1280 } from "./container-1280";
-import { Container1080 } from "./container-1080";
 
 interface MainLayoutWrapperProps {
   children: React.ReactNode;
@@ -42,6 +42,10 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
   const shouldHideNavCompletely = useMemo(() => {
     return isMobileView || shouldShowComponent(pathname || "", PAGES_WITHOUT_NAV);
   }, [pathname, isMobileView]);
+
+  const shouldHideFooter = useMemo(() => {
+    return shouldHideNavCompletely || shouldShowComponent(pathname || "", PAGES_WITHOUT_FOOTER);
+  }, [pathname, shouldHideNavCompletely]);
 
   // Check if current path is root '/'
   const isRootPage = useMemo(() => {
@@ -110,6 +114,7 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
       <section className="w-full mx-auto flex-grow">{children}</section>
       <CommandMenu />
       <SearchAdsDialog />
+      {!shouldHideFooter && <Footer />}
     </main>
   );
 }

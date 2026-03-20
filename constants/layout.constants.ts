@@ -50,6 +50,11 @@ export const PAGES_WITHOUT_NAV: string[] = [
   "/account-halted",
 ];
 
+export const PAGES_WITHOUT_FOOTER: string[] = [
+  "/post-ad/details",
+  "/post-job/details",
+];
+
 /**
  * Check if a path matches any of the configured paths
  * @param pathname - The current pathname

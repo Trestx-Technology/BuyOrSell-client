@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { CategoryDropdown } from "./category-dropdown";
 import { slugify } from "@/utils/slug-utils";
 import { useSaveSearchTerm } from "@/hooks/useSearchHistory";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 
 interface SearchResult {
   adCount: number;
@@ -163,18 +164,36 @@ export function SimpleSearchInput({
           leftIcon={<SearchIcon className="size-5 text-gray-400 -ml-2" />}
           rightIcon={
             <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 text-[10px] text-gray-400 font-sans pointer-events-none">
-                <kbd className="font-sans">Ctrl</kbd>
-                <span className="text-[8px] opacity-60">+</span>
-                <kbd className="font-sans">J</kbd>
-              </div>
-              <Image
-                src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/ai-bg-white.svg"
-                width={20}
-                height={20}
-                alt="AI Logo"
-                className="cursor-pointer"
-              />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Image
+                      src="https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/ai-bg-white.svg"
+                      width={20}
+                      height={20}
+                      alt="AI Logo"
+                      className="cursor-pointer hover:scale-110 transition-transform"
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="bottom"
+                    className="flex items-center gap-2 bg-gray-900 border-gray-800 text-white p-2"
+                  >
+                    <span className="text-xs font-medium">
+                      Try Nora AI Search
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <kbd className="px-1.5 py-0.5 rounded border border-gray-700 bg-gray-800 text-[10px] text-gray-300 font-sans font-bold">
+                        Ctrl
+                      </kbd>
+                      <span className="text-xs text-gray-500">+</span>
+                      <kbd className="px-1.5 py-0.5 rounded border border-gray-700 bg-gray-800 text-[10px] text-gray-300 font-sans font-bold">
+                        J
+                      </kbd>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           }
           type="text"
