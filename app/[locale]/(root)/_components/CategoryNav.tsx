@@ -515,7 +515,7 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
     error: categoriesError,
   } = useGetMainCategories();
 
-  const VISIBLE_CATEGORIES_COUNT = 6;
+  const VISIBLE_CATEGORIES_COUNT = 7;
   const VISIBLE_JOBS_CATEGORIES_COUNT = 5;
 
   const isJobsPage = pathname?.includes("/jobs");
