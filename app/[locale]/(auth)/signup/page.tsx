@@ -7,7 +7,9 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { FirebaseAuthButtons } from "../_components/firebase-auth-buttons";
 import {
+  CheckCircle2,
   ChevronLeft,
+  Circle,
   CircleUserRound,
   EyeIcon,
   EyeOffIcon,
@@ -299,6 +301,35 @@ const Signup = () => {
               {t.auth.signup.passwordStrength}
             </div>
             <Progress value={passwordStrength.progress} className="h-2" />
+
+            {/* Requirements Checklist */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 mt-4 mb-6">
+              {[
+                { label: t.auth.signup.requirements.length, met: (password || "").length >= 8 },
+                { label: t.auth.signup.requirements.lowercase, met: /[a-z]/.test(password || "") },
+                { label: t.auth.signup.requirements.uppercase, met: /[A-Z]/.test(password || "") },
+                { label: t.auth.signup.requirements.number, met: /[0-9]/.test(password || "") },
+                { label: t.auth.signup.requirements.special, met: /[^A-Za-z0-9]/.test(password || "") },
+              ].map((req, idx) => (
+                <div
+                  key={idx}
+                  className={`flex items-start gap-2.5 text-[11px] leading-tight transition-colors duration-200 ${
+                    req.met
+                      ? "text-success-100 font-medium"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                >
+                  <div className="mt-0.5 flex-shrink-0">
+                    {req.met ? (
+                      <CheckCircle2 className="size-3.5 text-success-100" />
+                    ) : (
+                      <Circle className="size-3.5 opacity-40" />
+                    )}
+                  </div>
+                  <span>{req.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

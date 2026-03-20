@@ -65,7 +65,8 @@ export default function JobLeafCategoryContent() {
     coordinates: { lat: number; lng: number };
   } | null>(null);
   const [postStatus, setPostStatus] = useState<PostStatus>("idle");
-  const { checkAvailability, getCompatibleSubscriptions, dialogProps } = useAdAvailability();
+  const { checkAvailability, getCompatibleSubscriptions, dialogProps } =
+    useAdAvailability();
 
   // Fetch category by ID
   const {
@@ -742,7 +743,7 @@ export default function JobLeafCategoryContent() {
                   Cancel
                 </Button>
                 <Button
-                  className="flex-1 bg-[#7052FB] hover:bg-[#5b3fd4] text-white py-6 text-lg font-medium rounded-full shadow-lg shadow-[#7052FB]/20 transition-all duration-300 hover:scale-[1.02]"
+                  className="flex-1 text-white py-6 text-lg font-medium rounded-full shadow-lg shadow-[#7052FB]/20 transition-all duration-300 hover:scale-[1.02]"
                   onClick={handleSubmit(onSubmit)}
                   disabled={isSubmitting || !isValid}
                 >

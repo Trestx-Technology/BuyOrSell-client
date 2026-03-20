@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { addDays } from "date-fns";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "@/hooks/useLocale";
 import { useForm, Controller, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-
 import { useCategoryById } from "@/hooks/useCategories";
 import { useCreateAd } from "@/hooks/useAds";
 import { useMyOrganization } from "@/hooks/useOrganizations";
@@ -46,7 +46,7 @@ import { AD_SYSTEM_FIELDS } from "@/constants/ad.constants";
 import { removeUndefinedFields } from "@/utils/remove-undefined-fields";
 import PhoneNumberInput from "@/components/global/phone-number-input";
 import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
-import { CheckCircle2,  } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { FormSummaryItem } from "./FormSummaryItem";
 import PostStatusView, { PostStatus } from "./PostStatusView";
 import { useAdAvailability } from "@/hooks/useAdAvailability";
@@ -112,7 +112,8 @@ export default function LeafCategoryContent() {
     coordinates: { lat: number; lng: number };
   } | null>(null);
   const [postStatus, setPostStatus] = useState<PostStatus>("idle");
-  const { checkAvailability, getCompatibleSubscriptions, dialogProps } = useAdAvailability();
+  const { checkAvailability, getCompatibleSubscriptions, dialogProps } =
+    useAdAvailability();
 
   // Fetch category by ID
   const {
@@ -1124,6 +1125,10 @@ export default function LeafCategoryContent() {
                             handleInputChange("dealValidThru", val);
                           }}
                           placeholder="Select expiry date"
+                          calendarDisabled={[
+                            { before: new Date() },
+                            { after: addDays(new Date(), 30) },
+                          ]}
                         />
                       )}
                     />
@@ -1148,7 +1153,7 @@ export default function LeafCategoryContent() {
                   Cancel
                 </Button>
                 <Button
-                  className="flex-1 bg-[#7052FB] hover:bg-[#5b3fd4] text-white py-6 text-lg font-medium rounded-full shadow-lg shadow-[#7052FB]/20 transition-all duration-300 hover:scale-[1.02]"
+                  className="flex-1 text-white py-6 text-lg font-medium rounded-full shadow-lg shadow-[#7052FB]/20 transition-all duration-300 hover:scale-[1.02]"
                   onClick={handleSubmit(onSubmit, onFormError)}
                   disabled={createAdMutation.isPending}
                 >
@@ -1259,7 +1264,7 @@ export default function LeafCategoryContent() {
               Cancel
             </Button>
             <Button
-              className="flex-[2] bg-[#7052FB] hover:bg-[#5b3fd4] text-white py-6 rounded-full shadow-lg shadow-[#7052FB]/20"
+              className="flex-[2] py-6 rounded-full shadow-lg shadow-[#7052FB]/20"
               onClick={handleSubmit(onSubmit, onFormError)}
               disabled={createAdMutation.isPending}
             >

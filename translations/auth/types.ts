@@ -23,6 +23,13 @@ export type AuthTranslations = {
     phoneNumber: string;
     password: string;
     passwordStrength: string;
+    requirements: {
+      length: string;
+      lowercase: string;
+      uppercase: string;
+      number: string;
+      special: string;
+    };
     createAccount: string;
     orContinueWith: string;
     continueWithGoogle: string;
@@ -59,6 +66,14 @@ export type AuthTranslations = {
     subtitle: string;
     newPassword: string;
     confirmPassword: string;
+    passwordStrength: string;
+    requirements: {
+      length: string;
+      lowercase: string;
+      uppercase: string;
+      number: string;
+      special: string;
+    };
     passwordHint: string;
     resetPassword: string;
     rememberPassword: string;

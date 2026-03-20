@@ -19,6 +19,8 @@ interface DateTimeInputProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   placeholder?: string;
+  allowFutureDates?: boolean;
+  calendarDisabled?: any;
 }
 
 const DateTimeInput = ({
@@ -27,6 +29,8 @@ const DateTimeInput = ({
   placeholder = "Select date and time",
   disabled = false,
   className,
+  allowFutureDates = true,
+  calendarDisabled,
 }: DateTimeInputProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(() => {
@@ -140,6 +144,8 @@ const DateTimeInput = ({
                 onSelect={handleDateSelect}
                 defaultMonth={date}
                 showOutsideDays={false}
+                allowFutureDates={allowFutureDates}
+                disabled={calendarDisabled}
                 className="bg-transparent p-0 [--cell-size:--spacing(10)]"
                 formatters={{
                   formatWeekdayName: (date) => {

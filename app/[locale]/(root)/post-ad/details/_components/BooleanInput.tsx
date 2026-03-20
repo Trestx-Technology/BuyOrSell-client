@@ -2,6 +2,7 @@
 
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/hooks/useLocale";
 
 interface BooleanInputProps {
   className?: string;
@@ -19,11 +20,17 @@ export const BooleanInput = forwardRef<HTMLButtonElement, BooleanInputProps>(
       value,
       onChange,
       disabled = false,
-      trueLabel = "True",
-      falseLabel = "False",
+      trueLabel,
+      falseLabel,
     },
     ref,
   ) => {
+    const { t } = useLocale();
+    const defaultTrueLabel = t.categories.boolean.yes;
+    const defaultFalseLabel = t.categories.boolean.no;
+
+    const displayTrueLabel = trueLabel || defaultTrueLabel;
+    const displayFalseLabel = falseLabel || defaultFalseLabel;
     return (
       <div className={cn("flex items-center gap-3", className)}>
         <button
@@ -50,7 +57,7 @@ export const BooleanInput = forwardRef<HTMLButtonElement, BooleanInputProps>(
           />
         </button>
         <span className="text-xs font-medium text-[#8B31E1]">
-          {value ? trueLabel : falseLabel}
+          {value ? displayTrueLabel : displayFalseLabel}
         </span>
       </div>
     );
