@@ -32,6 +32,8 @@ import { slugify } from "@/utils/slug-utils";
 import { ICONS } from "@/constants/icons";
 import { PAGES_WITHOUT_NAV, shouldShowComponent } from "@/constants/layout.constants";
 import { useLocale } from "@/hooks/useLocale";
+import { useEmirateStore } from "@/stores/emirateStore";
+import { useUrlParams } from "@/hooks/useUrlParams";
 
 interface FooterProps {
   className?: string;
@@ -47,6 +49,8 @@ export function Footer({ className }: FooterProps) {
   const isMobileView = type === "mobile";
   const { t, locale, localePath } = useLocale();
   const isRTL = locale === "ar";
+  const setSelectedEmirate = useEmirateStore(state => state.setSelectedEmirate);
+  const { updateUrlParam } = useUrlParams();
 
   const shouldHideFooter = React.useMemo(() => {
     return isMobileView || shouldShowComponent(pathname || "", PAGES_WITHOUT_NAV);
@@ -163,10 +167,15 @@ export function Footer({ className }: FooterProps) {
                 : (emirates || [])
                     .slice(0, 8)
                     .map((emirateObj: Emirate, idx: number) => (
-                      <Link
-                        href={localePath(`/${slugify(categories?.[idx]?.name)}?location=${emirateObj.emirate}`)}
+                      <button
                         key={idx}
-                        className="block"
+                        type="button"
+                        className="block w-full text-start bg-transparent border-none p-0 cursor-pointer"
+                        onClick={() => {
+                          setSelectedEmirate(emirateObj.emirate);
+                          updateUrlParam("emirate", emirateObj.emirate);
+                        }}
+                        aria-label={`Select ${emirateObj.emirate}`}
                       >
                         <Typography
                           variant="body"
@@ -174,7 +183,7 @@ export function Footer({ className }: FooterProps) {
                         >
                           {isRTL ? emirateObj.emirateAr : emirateObj.emirate}
                         </Typography>
-                      </Link>
+                      </button>
                     ))}
             </div>
           </motion.div>
