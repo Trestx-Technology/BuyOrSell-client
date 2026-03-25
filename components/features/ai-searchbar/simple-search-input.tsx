@@ -202,7 +202,7 @@ export function SimpleSearchInput({
           value={localSearchQuery}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          className="pl-8 pr-20 flex-1 block w-full h-full bg-transparent text-xs placeholder-gray-500 focus:outline-none focus:ring-0 border-transparent shadow-none rounded-none"
+          className="pl-8 pr-20 flex-1 block w-full h-full bg-transparent dark:bg-transparent text-xs placeholder-gray-500 focus:outline-none focus:ring-0 focus-visible:ring-0 border-none shadow-none rounded-none"
         />
 
         {showDropdown && (

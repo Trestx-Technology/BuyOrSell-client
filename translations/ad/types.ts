@@ -33,4 +33,22 @@ export type AdTranslations = {
   similarAds: {
     title: string;
   };
+  report: {
+    button: string;
+    title: string;
+    reasonLabel: string;
+    detailsLabel: string;
+    detailsPlaceholder: string;
+    submit: string;
+    cancel: string;
+    successMessage: string;
+    errorMessage: string;
+    reasons: {
+      spam: string;
+      inappropriate: string;
+      scam: string;
+      incorrectInfo: string;
+      other: string;
+    };
+  };
 };

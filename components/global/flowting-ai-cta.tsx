@@ -6,6 +6,12 @@ import { X, Send } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { findResolution } from "@/constants/app-context";
 
 type Message = {
   role: "assistant" | "user";
@@ -13,17 +19,13 @@ type Message = {
   action?: { label: string; url: string };
 };
 
-import { findResolution } from "@/constants/app-context";
-import { itemVariants, tabsVariants } from "@/utils/animation-variants";
-import { buttonVariants } from "../ui/button";
-
 export default function FloatingChatCTA() {
   const [open, setOpen] = React.useState(false);
   const [messages, setMessages] = React.useState<Message[]>([
     {
       role: "assistant",
       content:
-        "Hi! I’m Nora, your App Navigation Assistant. I can help you find platform features and answer questions about how to use BuyOrSell. Note: I cannot search for specific ads here. Please use the main Search Bar at the top of the page for finding items.",
+        "Hi! I’m Nora, your App Navigation Assistant. I can answer queries regarding the platform and where to find any features, but I will not find products for you. Please use the main Search Bar at the top of the page for finding items.",
     },
   ]);
   const [input, setInput] = React.useState("");
@@ -46,7 +48,6 @@ export default function FloatingChatCTA() {
     const lower = text.toLowerCase();
 
     // 1. App Knowledge Base (Resolutions)
-    // This handles most platform intents: jobs, selling, account, support, etc.
     const resolution = findResolution(text);
     if (resolution) {
       return {
@@ -64,14 +65,14 @@ export default function FloatingChatCTA() {
     ) {
       return {
         content:
-          "I am Nora, your app navigation assistant and cannot search for specific ads from here. To search for ads (including using AI search), please close this chat and use the 'Search anything' bar at the top of the page or use our new keyboard shortcut (coming soon!).",
+          "I am Nora, your app navigation assistant. Please note that I will not find products for you. To search for ads (including using AI search), please close this chat and use the 'Search anything' bar at the top of the page.",
       };
     }
 
     // Final Fallback
     return {
       content:
-        "I'm not sure specifically, but you can explore our main sections.",
+        "I'm not sure about that. Please contact BuyOrSell team for more info.",
       action: { label: "Go Home", url: "/" },
     };
   };
@@ -85,10 +86,7 @@ export default function FloatingChatCTA() {
     setInput("");
     setIsTyping(true);
 
-    // Process asynchronously
-    // Use an IIFE or similar to handle the async promise without blocking the UI updates above
     (async () => {
-      // Minimum delay for realism
       const startTime = Date.now();
       const response = await processQuery(trimmed);
       const elapsedTime = Date.now() - startTime;
@@ -110,7 +108,6 @@ export default function FloatingChatCTA() {
   // Audio notification function
   const playNotificationSound = React.useCallback(() => {
     try {
-      // Create audio context if it doesn't exist
       if (!audioContextRef.current) {
         const AudioContextClass =
           window.AudioContext ||
@@ -123,21 +120,16 @@ export default function FloatingChatCTA() {
       }
 
       const audioContext = audioContextRef.current;
-
-      // Create oscillator for the notification tone
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
-      // Connect nodes
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
 
-      // Configure the notification tone (pleasant chime sound)
-      oscillator.frequency.setValueAtTime(800, audioContext.currentTime); // Base frequency
-      oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1); // Rise
-      oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.2); // Fall
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
+      oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.2);
 
-      // Configure gain for smooth fade in/out
       gainNode.gain.setValueAtTime(0, audioContext.currentTime);
       gainNode.gain.linearRampToValueAtTime(
         0.3,
@@ -148,7 +140,6 @@ export default function FloatingChatCTA() {
         audioContext.currentTime + 0.3,
       );
 
-      // Set oscillator type and start
       oscillator.type = "sine";
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.3);
@@ -157,9 +148,7 @@ export default function FloatingChatCTA() {
     }
   }, []);
 
-  // Play notification sound when component mounts
   React.useEffect(() => {
-    // Small delay to ensure smooth user experience
     const timer = setTimeout(() => {
       playNotificationSound();
     }, 500);
@@ -168,180 +157,186 @@ export default function FloatingChatCTA() {
   }, [playNotificationSound]);
 
   return (
-    <div className="sticky bottom-6 right-10 z-50">
-      {/* Chat panel */}
-
-      {/* Floating CTA */}
-      <div className="group relative flex items-end justify-end mb-2">
-        {/* Ask me pill */}
-        {!open && (
-          <motion.div
-            variants={tabsVariants}
-            initial="hidden"
-            animate="visible"
+    <div className="fixed bottom-6 right-10 z-50">
+      <Popover open={open} onOpenChange={setOpen}>
+        <div className="group relative flex items-end justify-end mb-2">
+          <PopoverContent
+            side="top"
+            align="end"
+            sideOffset={12}
             className={cn(
-              "mr-0 mb-6 select-none rounded-lg rounded-br-none bg-white px-3 py-2 text-sm font-medium text-gray-900 shadow",
-              "border border-gray-200",
-              "dark:bg-gray-900 dark:text-white dark:border-gray-800",
+              "z-50 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border bg-white p-0 text-gray-900 shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in fade-in slide-in-from-bottom-5 duration-300",
+              "dark:border-gray-800 dark:bg-gray-900 dark:text-white dark:shadow-none",
             )}
-            aria-hidden="true"
+            onOpenAutoFocus={(e) => e.preventDefault()}
           >
-            Ask me
-          </motion.div>
-        )}
-
-        <AnimatePresence>
-          {open && (
-            <motion.div
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className={cn(
-                "sticky bottom-6 right-10 z-50 mb-3 w-[min(22rem,calc(100vw-2rem))] rounded-xl border bg-white text-gray-900 shadow-xl",
-                "dark:border-gray-800 dark:bg-gray-900 dark:text-white",
-              )}
-              role="dialog"
-              aria-modal="true"
-              aria-label="Nora chat"
-            >
-              <div className="flex items-center justify-between gap-2 border-b px-3 py-2 text-sm font-medium dark:border-gray-800">
-                <span>Nora</span>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 dark:hover:bg-gray-800 dark:text-gray-300 dark:hover:text-white"
-                  aria-label="Close chat"
-                >
-                  <X className="h-4 w-4" />
-                </button>
+            <div className="flex items-center justify-between gap-3 border-b px-4 py-4 dark:border-gray-800 bg-purple/5">
+              <div className="flex items-center gap-3">
+                <div className="relative size-10 rounded-full bg-white p-1 border border-purple/20 shadow-sm">
+                  <Image
+                    src="/nora.svg"
+                    alt="Nora"
+                    width={32}
+                    height={32}
+                    className="object-contain"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-base font-bold text-purple-700 dark:text-purple-400 leading-none">
+                    Nora
+                  </span>
+                  <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium mt-1">
+                    AI Navigation Assistant
+                  </span>
+                </div>
               </div>
-
-              <div
-                ref={logRef}
-                className="max-h-64 overflow-y-auto px-3 py-3"
-                role="log"
-                aria-live="polite"
-                aria-relevant="additions"
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-white hover:text-gray-900 transition-colors dark:hover:bg-gray-800 dark:text-gray-500 shadow-sm"
+                aria-label="Close chat"
               >
-                <ul className="space-y-2">
-                  {/* Messages */}
-                  {messages.map((m, i) => (
-                    <li
-                      key={i}
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div
+              ref={logRef}
+              className="max-h-[20rem] min-h-[300px] overflow-y-auto px-4 py-5 scrollbar-thin scrollbar-thumb-purple/10"
+              role="log"
+              aria-live="polite"
+              aria-relevant="additions"
+            >
+              <ul className="space-y-5">
+                {messages.map((m, i) => (
+                  <li
+                    key={i}
+                    className={cn(
+                      "flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300",
+                      m.role === "user" ? "items-end" : "items-start",
+                    )}
+                  >
+                    <div
                       className={cn(
-                        "text-sm leading-relaxed",
-                        m.role === "user" ? "text-right" : "text-left",
+                        "max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
+                        m.role === "user"
+                          ? "bg-purple-600 text-white rounded-tr-none"
+                          : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100 rounded-tl-none border border-gray-200/50 dark:border-gray-700/50",
                       )}
                     >
-                      <div
-                        className={cn(
-                          "inline-block rounded-lg px-3 py-2",
-                          m.role === "user"
-                            ? "bg-purple-600 text-white"
-                            : "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white",
-                        )}
-                      >
-                        {m.content}
+                      {m.content}
+                    </div>
+
+                    {m.role === "assistant" && m.action && (
+                      <div className="mt-2 text-left">
+                        <Link
+                          href={m.action.url}
+                          className="inline-flex items-center gap-1.5 text-xs text-purple-600 hover:text-purple-700 font-bold bg-purple-50 px-3 py-1.5 rounded-full border border-purple-100 transition-all hover:scale-105 active:scale-95 shadow-sm"
+                        >
+                          {m.action.label}
+                          <Send className="size-3" />
+                        </Link>
                       </div>
+                    )}
+                  </li>
+                ))}
 
-                      {/* Action Link */}
-                      {m.role === "assistant" && m.action && (
-                        <div className="mt-1 text-left">
-                          <Link
-                            href={m.action.url}
-                            className="inline-flex items-center text-xs text-purple-600 hover:text-purple-700 font-medium bg-purple-50 px-2 py-1 rounded-full border border-purple-100 transition-colors"
-                          >
-                            {m.action.label} ↗
-                          </Link>
-                        </div>
-                      )}
-                    </li>
-                  ))}
-
-                  {/* Typing Indicator */}
-                  {isTyping && (
-                    <li className="text-left">
-                      <div className="inline-block rounded-lg px-3 py-2 bg-gray-100 dark:bg-gray-800">
-                        <div className="flex gap-1">
-                          <span
-                            className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
-                            style={{ animationDelay: "0ms" }}
-                          />
-                          <span
-                            className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
-                            style={{ animationDelay: "150ms" }}
-                          />
-                          <span
-                            className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
-                            style={{ animationDelay: "300ms" }}
-                          />
-                        </div>
+                {isTyping && (
+                  <li className="text-left animate-in fade-in duration-300">
+                    <div className="inline-block rounded-2xl px-4 py-3 bg-gray-100 dark:bg-gray-800 shadow-sm border border-gray-200/50 dark:border-gray-700/50">
+                      <div className="flex gap-1.5">
+                        <span
+                          className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "0ms" }}
+                        />
+                        <span
+                          className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "150ms" }}
+                        />
+                        <span
+                          className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "300ms" }}
+                        />
                       </div>
-                    </li>
-                  )}
-                </ul>
-              </div>
+                    </div>
+                  </li>
+                )}
+              </ul>
+            </div>
 
-              <form
-                onSubmit={handleSend}
-                className="flex items-center gap-2 border-t px-3 py-2 dark:border-gray-800"
-              >
-                <label htmlFor="ai-chat-input" className="sr-only">
-                  Type your message
-                </label>
+            <form
+              onSubmit={handleSend}
+              className="flex items-center gap-2 border-t px-4 py-4 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-950/50"
+            >
+              <label htmlFor="ai-chat-input" className="sr-only">
+                Type your message
+              </label>
+              <div className="relative flex-1 group">
                 <input
                   id="ai-chat-input"
                   value={input}
                   autoComplete="off"
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask anything..."
+                  placeholder="Ask Nora anything..."
                   className={cn(
-                    "flex-1 rounded-md border bg-white px-3 py-2 text-sm outline-none",
-                    "placeholder:text-gray-400",
-                    "focus-visible:ring-2 focus-visible:ring-purple-500",
-                    "dark:border-gray-800 dark:bg-gray-900",
+                    "w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition-all duration-300",
+                    "placeholder:text-gray-400 font-medium",
+                    "focus:ring-4 focus:ring-purple/5 focus:border-purple/30",
+                    "dark:border-gray-800 dark:bg-gray-950",
                   )}
                 />
-                <button
-                  type="submit"
-                  className={cn(
-                    "inline-flex items-center justify-center gap-1 rounded-md bg-purple-600 p-2 text-sm font-medium text-white",
-                    "hover:bg-purple-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500",
-                  )}
-                >
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-purple/40 pointer-events-none">
                   <Send className="h-4 w-4" />
-                </button>
-              </form>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        {/* Purple button */}
-        <motion.button
-          type="button"
-          aria-label={open ? "Close AI chat" : "Open AI chat"}
-          aria-expanded={open}
-          aria-controls="ai-chat-panel"
-          onClick={() => setOpen((v) => !v)}
-          initial="hidden"
-          animate="visible"
-          whileHover="hover"
-          className={cn(
-            "size-8 rounded-full relative inline-flex items-center justify-center shadow-lg",
-          )}
-        >
-          <Image
-            src={
-              "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/ai-bg-white.svg"
-            }
-            alt="AI Logo"
-            className="object-cover size-full"
-            width={32}
-            height={32}
-          />
-          <span className="sr-only">AI chat</span>
-        </motion.button>
-      </div>
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={!input.trim()}
+                className={cn(
+                  "inline-flex h-11 w-11 items-center justify-center rounded-xl bg-purple-600 text-white shadow-lg transition-all active:scale-90 disabled:opacity-50 disabled:scale-100",
+                  "hover:bg-purple-700 hover:shadow-purple/30",
+                )}
+              >
+                <Send className="h-5 w-5" />
+              </button>
+            </form>
+          </PopoverContent>
+
+          <PopoverTrigger asChild>
+            <motion.button
+              type="button"
+              aria-label={open ? "Close AI chat" : "Open AI chat"}
+              aria-expanded={open}
+              initial="hidden"
+              animate="visible"
+              whileHover={{ scale: 1.05, y: -4 }}
+              whileTap={{ scale: 0.95 }}
+              className={cn(
+                "flex items-center gap-3 px-6 py-4 rounded-full bg-white border-2 border-purple-600 shadow-[0_15px_40px_rgba(147,51,234,0.15)] transition-all duration-300",
+                "hover:shadow-[0_20px_50px_rgba(147,51,234,0.3)] hover:bg-purple-50/30",
+                "dark:bg-gray-900 dark:border-purple-500 dark:hover:bg-purple-950/20",
+                open &&
+                  "shadow-none hover:shadow-none border-purple-200 dark:border-purple-800",
+              )}
+            >
+              <div className="relative size-8 shrink-0">
+                <Image
+                  src="/nora.svg"
+                  alt="Ask Nora"
+                  className="object-contain size-full"
+                  width={32}
+                  height={32}
+                  priority
+                />
+              </div>
+              <span className="text-purple-600 dark:text-purple-400 font-bold text-lg tracking-tight whitespace-nowrap">
+                Ask Nora
+              </span>
+            </motion.button>
+          </PopoverTrigger>
+        </div>
+      </Popover>
     </div>
   );
 }
+

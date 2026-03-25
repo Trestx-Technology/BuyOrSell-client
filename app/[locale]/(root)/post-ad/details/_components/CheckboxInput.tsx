@@ -58,7 +58,7 @@ export const CheckboxInput = forwardRef<HTMLDivElement, CheckboxInputProps>(
                 }
                 disabled={disabled}
                 className={cn(
-                  "w-5 h-5 rounded-[4px] border-[#E2E2E2]",
+                  "w-5 h-5 rounded-[4px] border-[#E2E2E2] dark:border-gray-800",
                   isChecked && "bg-purple border-purple"
                 )}
               />
@@ -67,7 +67,7 @@ export const CheckboxInput = forwardRef<HTMLDivElement, CheckboxInputProps>(
                   "text-xs capitalize leading-[2em]",
                   isChecked
                     ? "text-purple font-semibold"
-                    : "text-[#8A8A8A] font-normal"
+                    : "text-[#8A8A8A] dark:text-gray-400 font-normal"
                 )}
               >
                 {option.label}

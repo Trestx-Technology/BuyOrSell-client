@@ -50,16 +50,16 @@ export default function PostAdDialog({ children }: PostAdDialogProps) {
     <>
       {triggerElement}
       <ResponsiveModal open={open} onOpenChange={handleDialogClose}>
-        <ResponsiveModalContent className="w-[95%] sm:max-w-[528px] p-0 bg-[#F9F9F9] rounded-xl border-0">
+        <ResponsiveModalContent className="w-[95%] sm:max-w-[528px] p-0 bg-[#F9F9F9] dark:bg-gray-900 rounded-xl border-0">
           {/* Close Button */}
           <div className="absolute top-4 right-4 z-10">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => handleDialogClose(false)}
-              className="w-6 h-6 bg-[#F2F4F7] rounded-full hover:bg-gray-200"
+              className="w-6 h-6 bg-[#F2F4F7] dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
             >
-              <X className="w-3 h-3" />
+              <X className="w-3 h-3 dark:text-gray-400" />
             </Button>
           </div>
 
@@ -67,20 +67,20 @@ export default function PostAdDialog({ children }: PostAdDialogProps) {
           <div className="relative p-8 text-center">
             {/* Main Title */}
             <ResponsiveModalHeader>
-              <ResponsiveModalTitle className="text-sm sm:text-lg font-semibold text-[#1D2939] mb-8">
+              <ResponsiveModalTitle className="text-sm sm:text-lg font-semibold text-[#1D2939] dark:text-gray-100 mb-8">
                 Placing an Ad now become more easy
               </ResponsiveModalTitle>
             </ResponsiveModalHeader>
 
             {/* Ad Posting Illustration */}
             <div className="flex justify-center mb-8">
-              <div className="w-[150px] h-[150px] bg-gray-100 rounded-lg flex items-center justify-center">
+              <div className="w-[150px] h-[150px] bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
                 <Image
                   src={
                     "https://dev-buyorsell.s3.me-central-1.amazonaws.com/assets/Ads+Posting.png"
                   }
                   alt="Ads Posting"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-lg"
                   width={150}
                   height={150}
                 />
@@ -107,7 +107,7 @@ export default function PostAdDialog({ children }: PostAdDialogProps) {
               </Button>
 
               {/* Or Divider */}
-              <span className="text-xs font-medium text-[#1D2939]">Or</span>
+              <span className="text-xs font-medium text-[#1D2939] dark:text-gray-400">Or</span>
 
               {/* Manual Create Option */}
               <Button

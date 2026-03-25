@@ -4,7 +4,8 @@ import type { FavoritesTranslations } from './types';
 export const favoritesTranslations = createTranslationNamespace<FavoritesTranslations>({
   'en': {
     // Page titles
-    myFavorites: 'My Favorites',
+    myFavorites: 'My Collections',
+    createNewCollection: 'Create new collection',
     collection: 'Collection',
 
     // Sort options
@@ -18,20 +19,20 @@ export const favoritesTranslations = createTranslationNamespace<FavoritesTransla
 
     // Sections
     list: 'List',
-    favorites: 'Favorites',
+    favorites: 'Saved',
     items: 'Items',
 
     // Loading states
     loadingCollections: 'Loading collections...',
-    loadingFavorites: 'Loading favorites...',
+    loadingFavorites: 'Loading saved items...',
     loadingCollection: 'Loading collection...',
 
     // Search placeholders
-    searchFavorites: 'Search favorites...',
+    searchFavorites: 'Search saved items...',
     searchItems: 'Search items...',
 
     // Empty states
-    noFavoritesYet: 'No favorites yet. Click on a collection to view its items.',
+    noFavoritesYet: 'No saved items yet. Click on a collection to view its items.',
     noItemsInCollection: 'No items in this collection',
     startAddingItems: 'Start adding items to your collection to see them here.',
 
@@ -40,7 +41,7 @@ export const favoritesTranslations = createTranslationNamespace<FavoritesTransla
     collectionNotFoundDescription: 'The collection you\'re looking for doesn\'t exist or has been removed.',
 
     // Actions
-    backToFavorites: 'Back to Favorites',
+    backToFavorites: 'Back to Saved',
     backToCollections: 'Back to Collections',
 
     // Dynamic text
@@ -53,7 +54,8 @@ export const favoritesTranslations = createTranslationNamespace<FavoritesTransla
   },
   'nl-NL': {
     // Page titles
-    myFavorites: 'Mijn Favorieten',
+    myFavorites: 'Mijn Collecties',
+    createNewCollection: 'Nieuwe collectie maken',
     collection: 'Collectie',
 
     // Sort options
@@ -102,7 +104,8 @@ export const favoritesTranslations = createTranslationNamespace<FavoritesTransla
   },
   'nl': {
     // Page titles
-    myFavorites: 'Mijn Favorieten',
+    myFavorites: 'Mijn Collecties',
+    createNewCollection: 'Nieuwe collectie maken',
     collection: 'Collectie',
 
     // Sort options
@@ -151,7 +154,8 @@ export const favoritesTranslations = createTranslationNamespace<FavoritesTransla
   },
   'ar': {
     // Page titles
-    myFavorites: 'المفضلة',
+    myFavorites: 'مجموعاتي',
+    createNewCollection: 'إنشاء مجموعة جديدة',
     collection: 'المجموعة',
 
     // Sort options
@@ -165,20 +169,20 @@ export const favoritesTranslations = createTranslationNamespace<FavoritesTransla
 
     // Sections
     list: 'القائمة',
-    favorites: 'المفضلة',
+    favorites: 'المحفوظات',
     items: 'العناصر',
 
     // Loading states
     loadingCollections: 'جاري تحميل المجموعات...',
-    loadingFavorites: 'جاري تحميل المفضلة...',
+    loadingFavorites: 'جاري تحميل المحفوظات...',
     loadingCollection: 'جاري تحميل المجموعة...',
 
     // Search placeholders
-    searchFavorites: 'البحث في المفضلة...',
+    searchFavorites: 'البحث في المحفوظات...',
     searchItems: 'البحث في العناصر...',
 
     // Empty states
-    noFavoritesYet: 'لا توجد مفضلة بعد. انقر على مجموعة لعرض عناصرها.',
+    noFavoritesYet: 'لا توجد محفوظات بعد. انقر على مجموعة لعرض عناصرها.',
     noItemsInCollection: 'لا توجد عناصر في هذه المجموعة',
     startAddingItems: 'ابدأ بإضافة عناصر إلى مجموعتك لرؤيتها هنا.',
 
@@ -187,7 +191,7 @@ export const favoritesTranslations = createTranslationNamespace<FavoritesTransla
     collectionNotFoundDescription: 'المجموعة التي تبحث عنها غير موجودة أو تم حذفها.',
 
     // Actions
-    backToFavorites: 'العودة إلى المفضلة',
+    backToFavorites: 'العودة إلى المحفوظات',
     backToCollections: 'العودة إلى المجموعات',
 
     // Dynamic text

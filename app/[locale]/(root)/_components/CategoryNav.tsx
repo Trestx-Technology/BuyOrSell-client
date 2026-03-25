@@ -233,7 +233,7 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
       <HoverCardTrigger asChild>
         <Link
           href={url}
-          className="h-9 px-2 flex items-center cursor-pointer text-[13px] font-semibold rounded-sm text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 hover:text-purple transition-colors  data-[state=open]:text-purple"
+          className="h-9 px-2 flex items-center cursor-pointer text-[13px] font-semibold rounded-sm text-gray-500 dark:text-white hover:bg-white dark:hover:bg-gray-800 hover:text-purple dark:hover:text-white transition-colors  data-[state=open]:text-purple"
           onClick={() => setOpen(false)}
         >
           {label}
@@ -280,7 +280,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                   <div className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 dark:border-gray-700">
                     <Typography
                       variant="xs-bold"
-                      className="text-gray-600 dark:text-gray-300"
+                      className="text-gray-600 dark:text-white"
                     >
                       {locale === "ar"
                         ? subcategory.nameAr || subcategory.name
@@ -321,7 +321,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                           <div key={child._id}>
                             <Link
                               href={buildCategoryUrl(child, allCategories)}
-                              className="text-sm text-grey-blue dark:text-gray-400 hover:text-purple hover:underline cursor-pointer transition-colors"
+                              className="text-sm text-grey-blue dark:text-white hover:text-purple hover:underline cursor-pointer transition-colors"
                               onClick={onClose}
                             >
                               {childName}
@@ -334,7 +334,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
               ) : (
                 <Link
                   href={buildCategoryUrl(subcategory, allCategories)}
-                  className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-purple/10 hover:text-purple transition-colors"
+                  className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 dark:border-gray-700 text-gray-600 dark:text-white hover:bg-purple/10 hover:text-purple transition-colors"
                   onClick={onClose}
                 >
                   <Typography variant="xs-bold">
@@ -388,7 +388,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                       ? `/jobs`
                       : buildCategoryUrl(category, allCategories)
                   }
-                  className="text-gray-600 dark:text-gray-300 group-hover:text-purple text-sm w-full"
+                  className="text-gray-600 dark:text-white group-hover:text-purple text-sm w-full"
                   onClick={onClose}
                 >
                   {displayName}
@@ -436,7 +436,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                     <Typography
                       variant="xs-regular-inter"
                       className={cn(
-                        "text-gray-600 dark:text-gray-300 group-hover:text-purple text-xs",
+                        "text-gray-600 dark:text-white group-hover:text-purple text-xs",
                         isActive && "text-purple font-semibold",
                       )}
                     >
@@ -465,7 +465,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                 <Typography
                   variant="xs-regular-inter"
                   className={cn(
-                    "text-gray-600 dark:text-gray-300 group-hover:text-purple text-xs",
+                    "text-gray-600 dark:text-white group-hover:text-purple text-xs",
                     isActive && "text-purple font-semibold",
                   )}
                 >

@@ -1,7 +1,14 @@
 "use client";
 
 import React from "react";
-import { Briefcase, Clock, MapPin, Share2, Heart, MessageSquareText } from "lucide-react";
+import {
+  Briefcase,
+  Clock,
+  MapPin,
+  Share2,
+  Heart,
+  MessageSquareText,
+} from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,9 +22,13 @@ import { AD } from "@/interfaces/ad";
 import { SaveJobButton } from "../../saved/_components/save-job-button";
 import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
 import { useApplyToJob } from "@/hooks/useJobApplications";
-import Link from "next/link";
-import Image from "next/image";
 import { ChatInit } from "@/components/global/chat-init";
+import { transformAdToJobCard } from "@/utils/transform-ad-to-job-card";
+import { formatCompactPrice } from "@/utils/price-formatter";
+import Image from "next/image";
+import Link from "next/link";
+import { useLocale } from "@/hooks/useLocale";
+import { useRouter } from "nextjs-toploader/app";
 
 export interface JobHeaderCardProps {
   job: AD;
@@ -39,17 +50,23 @@ export default function JobHeaderCard({
   const session = useAuthStore((state) => state.session);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const currentUserId = session.user?._id;
+  const router = useRouter();
+  const { locale, localePath } = useLocale();
+  const isArabic = locale === "ar";
 
   const isJobOwner =
     job.owner?._id === currentUserId ||
     job.organization?.owner === currentUserId;
 
-
   // Get jobseeker profile for apply logic
   const { data: jobseekerProfile } = useGetJobseekerProfile();
 
   // Apply mutation
-  const { mutate: apply, isPending: isApplyingToJob, isSuccess } = useApplyToJob();
+  const {
+    mutate: apply,
+    isPending: isApplyingToJob,
+    isSuccess,
+  } = useApplyToJob();
 
   // Extract extraFields
   const extraFields = Array.isArray(job.extraFields)
@@ -59,9 +76,11 @@ export default function JobHeaderCard({
         value,
       }));
 
+  const jobProps = transformAdToJobCard(job);
+
   const getFieldValue = (fieldName: string): string => {
     const field = extraFields.find((f) =>
-      f.name?.toLowerCase().includes(fieldName.toLowerCase())
+      f.name?.toLowerCase().includes(fieldName.toLowerCase()),
     );
     if (field) {
       if (Array.isArray(field.value)) {
@@ -72,33 +91,28 @@ export default function JobHeaderCard({
     return "";
   };
 
-  const getSalaryFromAd = (type: "min" | "max"): number | undefined => {
-    const salaryField = extraFields.find(
-      (field) =>
-        field.name?.toLowerCase().includes("salary") &&
-        (type === "min"
-          ? field.name?.toLowerCase().includes("min")
-          : field.name?.toLowerCase().includes("max"))
-    );
-    if (salaryField && typeof salaryField.value === "number") {
-      return salaryField.value;
-    }
-    return type === "min" ? job.price : job.price;
-  };
-
   const companyName =
-    job.organization?.tradeName || job.organization?.legalName || "Company";
+    isArabic && job.organization?.tradeNameAr
+      ? job.organization.tradeNameAr
+      : isArabic && job.organization?.legalNameAr
+        ? job.organization.legalNameAr
+        : jobProps.company;
   const companyLogo = logo || job.organization?.logoUrl;
-  const jobMode = job.jobMode || getFieldValue("jobMode") || getFieldValue("job mode") || "";
-  const jobType = getFieldValue("jobType") || getFieldValue("job type") || "";
-  const experience = getFieldValue("experience") || "";
-  const salaryMin = job.minSalary ?? getSalaryFromAd("min");
-  const salaryMax = job.maxSalary ?? getSalaryFromAd("max");
-  const jobShift = job.jobShift || getFieldValue("jobShift") || getFieldValue("job shift") || "";
+  const jobMode =
+    job.jobMode || getFieldValue("jobMode") || getFieldValue("job mode") || "";
+  const jobType = jobProps.jobType;
+  const experience = jobProps.experience;
+  const salaryMin = jobProps.salaryMin;
+  const salaryMax = jobProps.salaryMax;
+  const jobShift =
+    job.jobShift ||
+    getFieldValue("jobShift") ||
+    getFieldValue("job shift") ||
+    "";
   const location =
     typeof job.location === "string"
       ? job.location
-      : job.location?.city || job.address?.city || "";
+      : job.location?.city || job.address?.city || jobProps.location;
 
   // Build map redirect URL
   const getMapUrl = (): string | null => {
@@ -136,7 +150,7 @@ export default function JobHeaderCard({
       if (isIOS) {
         // Apple Maps URL using coordinates
         return `https://maps.apple.com/?ll=${lat},${lng}&q=${encodeURIComponent(
-          addressLabel
+          addressLabel,
         )}`;
       } else {
         // Google Maps URL using coordinates
@@ -164,14 +178,14 @@ export default function JobHeaderCard({
     } else {
       // Google Maps URL using address
       return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-        fullAddress
+        fullAddress,
       )}`;
     }
   };
 
   const mapUrl = React.useMemo(
     () => getMapUrl(),
-    [job.location, job.address, location]
+    [job.location, job.address, location],
   );
 
   const handleApply = () => {
@@ -184,6 +198,7 @@ export default function JobHeaderCard({
     const resumeUrl = jobseekerProfile?.data?.profile?.resumeFileUrl;
     if (!applicantProfileId) {
       toast.error("Please create a jobseeker profile first");
+      router.push(localePath("/jobs/jobseeker/new"));
       return;
     }
 
@@ -196,16 +211,15 @@ export default function JobHeaderCard({
         onSuccess: () => {
           toast.success("Application submitted successfully");
         },
-      }
+      },
     );
   };
-
 
   return (
     <div
       className={cn(
-        "bg-card rounded-2xl border border-border p-4 shadow-sm relative",
-        className
+        "bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-4 shadow-sm relative",
+        className,
       )}
     >
       {/* Share and Save Buttons - Top Right */}
@@ -251,7 +265,7 @@ export default function JobHeaderCard({
             <div className="max-w-sm">
               <Typography
                 variant="h1"
-                className="text-foreground font-semibold text-[28.56px] leading-tight line-clamp-2 mb-2"
+                className="text-foreground dark:text-white font-semibold text-[28.56px] leading-tight line-clamp-2 mb-2"
               >
                 {job.title}
               </Typography>
@@ -292,7 +306,7 @@ export default function JobHeaderCard({
               <Briefcase className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
               <Typography
                 variant="body-small"
-                className="text-foreground text-xs font-medium"
+                className="text-foreground dark:text-gray-300 text-xs font-medium"
               >
                 {experience || "Not specified"}
               </Typography>
@@ -301,7 +315,7 @@ export default function JobHeaderCard({
               <Clock className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
               <Typography
                 variant="body-small"
-                className="text-foreground text-xs font-medium"
+                className="text-foreground dark:text-gray-300 text-xs font-medium"
               >
                 {jobShift || "Not specified"}
               </Typography>
@@ -311,16 +325,20 @@ export default function JobHeaderCard({
               <div className="flex items-center gap-1">
                 <Typography
                   variant="body-small"
-                  className="text-dark-blue text-sm font-medium"
+                  className="text-dark-blue dark:text-gray-300 text-sm font-medium"
                 >
-                  {salaryMin?.toLocaleString() || "0"}-
+                  {salaryMin && salaryMin > 0
+                    ? `${formatCompactPrice(salaryMin)} - `
+                    : "Salary not specified"}
                 </Typography>
-                <Typography
-                  variant="body-small"
-                  className="text-dark-blue text-sm font-medium"
-                >
-                  {salaryMax?.toLocaleString() || "Not specified"}
-                </Typography>
+                {salaryMax && salaryMax > 0 && (
+                  <Typography
+                    variant="body-small"
+                    className="text-dark-blue dark:text-gray-300 text-sm font-medium"
+                  >
+                    {formatCompactPrice(salaryMax)}
+                  </Typography>
+                )}
               </div>
             </div>
             {location && mapUrl ? (
@@ -334,7 +352,7 @@ export default function JobHeaderCard({
                 <MapPin className="w-5 h-5 flex-shrink-0" />
                 <Typography
                   variant="body-small"
-                  className="text-xs font-medium"
+                  className="text-dark-blue dark:text-white text-sm font-medium"
                 >
                   {location}
                 </Typography>
@@ -344,7 +362,7 @@ export default function JobHeaderCard({
                 <MapPin className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
                 <Typography
                   variant="body-small"
-                    className="text-foreground text-xs font-medium"
+                  className="text-foreground dark:text-gray-400 text-xs font-medium"
                 >
                   {location || "Location not specified"}
                 </Typography>
@@ -358,26 +376,26 @@ export default function JobHeaderCard({
               <JobApplicantsModal jobId={job._id} />
             ) : (
               <>
-                  <ChatInit
-                    ad={job}
-                    variant="outline"
-                    size="small"
-                    showLabel
-                    label="Chat with Employer"
-                    className="px-4 py-2"
-                    icon={<MessageSquareText className="size-4" />}
-                  />
+                <ChatInit
+                  ad={job}
+                  variant="outline"
+                  size="small"
+                  showLabel
+                  label="Chat with Employer"
+                  className="px-4 py-2"
+                  icon={<MessageSquareText className="size-4" />}
+                />
                 <Button
-                    variant={isApplied || isSuccess ? "outline" : "filled"}
-                    size={"small"}
-                    onClick={handleApply}
-                    className="px-4 py-2"
-                    disabled={isApplying || isApplyingToJob || isApplied || isSuccess}
-                    isLoading={isApplying || isApplyingToJob}
+                  variant={isApplied || isSuccess ? "outline" : "filled"}
+                  size={"small"}
+                  onClick={handleApply}
+                  className="px-4 py-2"
+                  disabled={
+                    isApplying || isApplyingToJob || isApplied || isSuccess
+                  }
+                  isLoading={isApplying || isApplyingToJob}
                 >
-                    {isApplied || isSuccess
-                    ? "Applied"
-                    : "Apply Now"}
+                  {isApplied || isSuccess ? "Applied" : "Apply Now"}
                 </Button>
               </>
             )}

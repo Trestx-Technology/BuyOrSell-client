@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import ProgressBar from "../_components/ProgressBar";
 import { Breadcrumbs, type BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { useAdPostingStore } from "@/stores/adPostingStore";
@@ -17,8 +17,6 @@ export type AdPostingContextType = ReturnType<typeof useAdPostingStore>;
 // ============================================================================
 // PROVIDER COMPONENT (now just provides UI layout)
 // ============================================================================
-// ... (imports remain)
-// ... (imports remain)
 interface AdPostingProviderProps {
   children: ReactNode;
 }
@@ -27,6 +25,7 @@ export const AdPostingProvider: React.FC<AdPostingProviderProps> = ({
   children,
 }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const { localePath } = useLocale();
   const {
     categoryArray,
@@ -34,6 +33,9 @@ export const AdPostingProvider: React.FC<AdPostingProviderProps> = ({
     addToCategoryArray,
     setActiveCategory,
   } = useAdPostingStore((state) => state);
+
+  // Detect if current page is an edit page
+  const isEditPage = pathname.includes("/edit/");
 
   // Build breadcrumb items - collapse middle items if more than 3 categories
   const breadcrumbItems: BreadcrumbItem[] = useMemo(() => {
@@ -131,13 +133,15 @@ export const AdPostingProvider: React.FC<AdPostingProviderProps> = ({
 
   return (
     <Container1080 className="bg-white dark:bg-gray-950 min-h-[calc(100vh-200px)] flex flex-col sm:px-20 px-4 relative pt-10 space-y-8">
-      <div className="w-full sticky top-0 space-y-4">
-        <ProgressBar totalSteps={4} />
-        <Breadcrumbs
-          items={breadcrumbItems}
-          onItemClick={handleBreadcrumbClick}
-        />
-      </div>
+      {!isEditPage && (
+        <div className="w-full sticky top-0 bg-white dark:bg-gray-950 z-20 space-y-4 py-4 border-b border-gray-100 dark:border-gray-900">
+          <ProgressBar totalSteps={4} />
+          <Breadcrumbs
+            items={breadcrumbItems}
+            onItemClick={handleBreadcrumbClick}
+          />
+        </div>
+      )}
 
       <section className="flex-grow">{children}</section>
     </Container1080>

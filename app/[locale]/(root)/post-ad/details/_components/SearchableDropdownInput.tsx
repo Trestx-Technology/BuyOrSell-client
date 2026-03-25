@@ -22,7 +22,10 @@ interface SearchableDropdownInputProps {
   icon?: React.ReactNode;
 }
 
-export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDropdownInputProps>(
+export const SearchableDropdownInput = forwardRef<
+  HTMLDivElement,
+  SearchableDropdownInputProps
+>(
   (
     {
       className,
@@ -35,7 +38,7 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
       isMulti = false,
       icon,
     },
-    ref
+    ref,
   ) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -43,7 +46,7 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
     const filteredOptions = useMemo(() => {
       if (!searchQuery) return options;
       return options.filter((option) =>
-        option.label.toLowerCase().includes(searchQuery.toLowerCase())
+        option.label.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }, [options, searchQuery]);
 
@@ -60,7 +63,7 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
       if (isMulti) {
         const currentValues = Array.isArray(value) ? value : [];
         if (currentValues.includes(optionValue)) {
-          onChange(currentValues.filter(v => v !== optionValue));
+          onChange(currentValues.filter((v) => v !== optionValue));
         } else {
           onChange([...currentValues, optionValue]);
         }
@@ -78,14 +81,17 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
             type="button"
             disabled={disabled}
             className={cn(
-              "w-full h-11 px-3 py-2.5 rounded-lg border bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100",
+              "w-full h-11 px-3 py-2.5 rounded-lg border bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 shadow-sm",
               "flex items-center justify-between text-xs font-medium",
               "focus:outline-none focus:ring-2 focus:ring-purple/20 transition-all duration-200",
               isOpen && "border-purple ring-2 ring-purple/20",
               error && "border-destructive focus:ring-destructive/20",
-              (selectedOption || (isMulti && Array.isArray(value) && value.length > 0)) && !error && "border-purple/50",
+              (selectedOption ||
+                (isMulti && Array.isArray(value) && value.length > 0)) &&
+                !error &&
+                "border-purple/50",
               disabled && "opacity-50 cursor-not-allowed",
-              className
+              className,
             )}
           >
             <div className="w-full flex items-center">
@@ -96,12 +102,16 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
               )}
               <div className="flex-1 text-left truncate">
                 {isOpen ? (
-                  <span className="text-muted-foreground">{searchQuery || placeholder}</span>
+                  <span className="text-muted-foreground">
+                    {searchQuery || placeholder}
+                  </span>
+                ) : isMulti && Array.isArray(value) && value.length > 0 ? (
+                  <span className="text-purple font-semibold">
+                    {value.length} selected
+                  </span>
                 ) : (
-                  (isMulti && Array.isArray(value) && value.length > 0) ? (
-                    <span className="text-purple font-semibold">{value.length} selected</span>
-                  ) : (
-                    selectedOption?.label || <span className="text-muted-foreground">{placeholder}</span>
+                  selectedOption?.label || (
+                    <span className="text-muted-foreground">{placeholder}</span>
                   )
                 )}
               </div>
@@ -109,13 +119,13 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
             <ChevronDown
               className={cn(
                 "w-4 h-4 text-purple transition-transform ml-2 shrink-0",
-                isOpen && "rotate-180"
+                isOpen && "rotate-180",
               )}
             />
           </button>
         </PopoverTrigger>
         <PopoverContent
-          className="p-0 w-[var(--radix-popover-trigger-width)] bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 overflow-hidden shadow-xl"
+          className="p-0 w-[var(--radix-popover-trigger-width)] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 overflow-hidden shadow-xl"
           align="start"
           sideOffset={4}
         >
@@ -128,7 +138,7 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
                 placeholder="Search options..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-8 pl-8 text-xs bg-gray-50 dark:bg-zinc-800 border-none focus-visible:ring-1 focus-visible:ring-purple/30"
+                className="h-8 pl-8 text-xs bg-gray-50 dark:bg-gray-800 border-none focus-visible:ring-1 focus-visible:ring-purple/30"
               />
             </div>
           </div>
@@ -142,35 +152,40 @@ export const SearchableDropdownInput = forwardRef<HTMLDivElement, SearchableDrop
                   type="button"
                   onClick={() => handleSelect(option.value)}
                   className={cn(
-                          "w-full text-left p-3 cursor-pointer text-xs font-normal border-b border-gray-50 dark:border-zinc-800 last:border-0",
-                          "flex items-center gap-3 transition-colors",
-                          "hover:bg-purple/5 dark:hover:bg-zinc-800 text-gray-700 dark:text-zinc-200",
-                          isSelected(option.value) && "bg-purple/10 text-purple font-medium"
-                        )}
-                  >
-                    {isMulti && (
-                      <div className={cn(
+                    "w-full text-left p-3 cursor-pointer text-xs font-normal border-b border-gray-50 dark:border-zinc-800 last:border-0",
+                    "flex items-center gap-3 transition-colors",
+                    "hover:bg-purple/5 dark:hover:bg-zinc-800 text-gray-700 dark:text-zinc-200",
+                    isSelected(option.value) &&
+                      "bg-purple/10 text-purple font-medium",
+                  )}
+                >
+                  {isMulti && (
+                    <div
+                      className={cn(
                         "w-4 h-4 rounded border flex items-center justify-center transition-colors",
-                              isSelected(option.value) ? "bg-purple border-purple" : "border-gray-300 dark:border-zinc-600"
-                            )}>
-                        {isSelected(option.value) && (
-                          <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                        )}
-                      </div>
-                    )}
-                    {option.label}
-                  </button>
-                ))
+                        isSelected(option.value)
+                          ? "bg-purple border-purple"
+                          : "border-gray-300 dark:border-zinc-600",
+                      )}
+                    >
+                      {isSelected(option.value) && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                      )}
+                    </div>
+                  )}
+                  {option.label}
+                </button>
+              ))
             ) : (
               <div className="text-xs text-muted-foreground px-4 py-8 italic text-center">
                 No options found
-                </div>
+              </div>
             )}
           </div>
         </PopoverContent>
       </Popover>
     );
-  }
+  },
 );
 
 SearchableDropdownInput.displayName = "SearchableDropdownInput";

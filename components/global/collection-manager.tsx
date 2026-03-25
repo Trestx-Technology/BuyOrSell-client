@@ -342,7 +342,7 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
             variant="body-small"
             className="font-medium text-dark-blue group-hover:text-purple"
           >
-            {t.favorites ? t.favorites.myFavorites : "Create new list"}
+            {t.favorites ? t.favorites.createNewCollection : "Create new collection"}
           </Typography>
         </div>
       </CreateCollectionDialog>
@@ -438,7 +438,7 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
         open={isLoginDialogOpen}
         onOpenChange={setIsLoginDialogOpen}
         redirectUrl={redirectUrl}
-        message="You need to be logged in to save items to collections. Would you like to login?"
+        message="You need to be logged in to save items. Would you like to login?"
       />
     </>
   );

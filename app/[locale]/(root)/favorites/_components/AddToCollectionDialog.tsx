@@ -11,6 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/typography";
 
+import { useLocale } from "@/hooks/useLocale";
+
 interface Collection {
   id: string;
   name: string;
@@ -34,6 +36,7 @@ export function AddToCollectionDialog({
   const [selectedCollection, setSelectedCollection] = useState<string | null>(
     null
   );
+  const { t } = useLocale();
 
   const handleAddToCollection = () => {
     if (selectedCollection) {
@@ -58,7 +61,7 @@ export function AddToCollectionDialog({
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-lg font-semibold text-gray-900">
-              Favorites
+              {t.favorites.myFavorites}
             </DialogTitle>
             <Button
               variant="ghost"
@@ -102,7 +105,7 @@ export function AddToCollectionDialog({
                       {collection.name}
                     </Typography>
                     <Typography variant="xs-regular" className="text-gray-500">
-                      {collection.count} Favorites
+                      {collection.count} {t.favorites.favorites}
                     </Typography>
                   </div>
                 </div>
@@ -134,7 +137,7 @@ export function AddToCollectionDialog({
               variant="sm-regular"
               className="font-medium text-purple-600"
             >
-              Create new list
+              {t.favorites.createNewCollection}
             </Typography>
           </div>
 

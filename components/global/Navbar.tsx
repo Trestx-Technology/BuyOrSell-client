@@ -112,7 +112,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
         {/*---------- Location Selector for desktop devices---------- */}
         <EmirateSelector />
 
-        <div className="hidden md:flex flex-1 relative group">
+        <div className="hidden md:flex flex-1 relative group border border-gray-200 dark:border-gray-800 rounded-lg">
           <SearchAnimated />
         </div>
       </div>

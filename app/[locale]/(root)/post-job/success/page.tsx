@@ -141,9 +141,9 @@ export default function PostJobSuccessPage() {
             {!isApproved && (
               <Button
                 className="w-full sm:w-auto h-12 px-6 rounded-full bg-purple hover:bg-purple/90 text-white font-medium"
-                onClick={() => router.push(localePath(`/my-ads`))}
+                onClick={() => router.push(localePath(`/jobs/listing/my`))}
               >
-                Go to My Ads <ChevronRight className="w-4 h-4 ml-1" />
+                Go to My Jobs <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             )}
           </div>

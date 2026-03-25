@@ -28,6 +28,7 @@ export const useAdAvailability = () => {
     categoryType?: string;
     categoryName?: string;
     currentPlanName?: string;
+    isFreePlan?: boolean;
   }>({
     isOpen: false,
     mode: "selection",
@@ -167,12 +168,20 @@ export const useAdAvailability = () => {
     }
 
     if (!isFeatured && !availability.canPost) {
+      // Check if any matching plan for this category is a free/basic plan
+      const matchingFreePlan = activeSubscriptions.find(
+        (sub) =>
+          isSubscriptionValidForType(sub, type || "Ads") &&
+          (sub.plan?.price === 0 || sub.plan?.type?.toLowerCase() === "basic" || sub.plan?.isDefault)
+      );
+
       setDialogState({
         isOpen: true,
         mode: "insufficient",
         type: "normal",
         categoryType: type,
         categoryName: category,
+        isFreePlan: !!matchingFreePlan,
       });
       return false;
     }
@@ -194,6 +203,7 @@ export const useAdAvailability = () => {
       categoryType: dialogState.categoryType,
       categoryName: dialogState.categoryName,
       currentPlanName: dialogState.currentPlanName,
+      isFreePlan: dialogState.isFreePlan,
       onClose: () => setDialogState((prev) => ({ ...prev, isOpen: false })),
     },
   };

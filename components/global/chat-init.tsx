@@ -118,7 +118,6 @@ export const ChatInit: React.FC<ChatInitProps> = ({
             let finalType = type;
             let finalOrganisationId = organisationId;
             if (ad?.organization) {
-                  finalType = "organisation";
                   finalOrganisationId = ad.organization._id;
             }
 

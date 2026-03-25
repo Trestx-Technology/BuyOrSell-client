@@ -142,7 +142,7 @@ export const MySubscriptionsContent = () => {
           {/* New Plan CTA */}
           <Link href="/plans">
             <Button
-              className="h-12 px-8 rounded-2xl bg-white border-2 border-purple dark:bg-white text-purple hover:text-white dark:text-black font-bold shadow-xl"
+              className="h-12 px-8 rounded-2xl bg-white dark:bg-purple border-2 border-purple text-purple dark:text-white hover:bg-purple hover:text-white transition-all font-bold shadow-xl"
               icon={<Sparkles className={cn("size-4")} />}
               iconPosition={isArabic ? "right" : "left"}
               onClick={() => router.push(localePath("/plans"))}
@@ -330,11 +330,11 @@ export const MySubscriptionsContent = () => {
         {!isLoading && subscriptions.length > 0 && (
           <div
             className={cn(
-              "p-8 rounded-[2rem] bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/10 dark:to-blue-900/10 border border-purple-100 dark:border-purple-800/20 flex flex-col md:flex-row items-center gap-8",
+              "p-8 rounded-[2rem] bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-900 border border-purple-100 dark:border-gray-800 flex flex-col md:flex-row items-center gap-8 shadow-sm",
               isArabic && "md:flex-row-reverse",
             )}
           >
-            <div className="size-20 rounded-3xl bg-white dark:bg-gray-900 flex items-center justify-center shadow-xl shadow-purple/10">
+            <div className="size-20 rounded-3xl bg-white dark:bg-gray-800 flex items-center justify-center shadow-xl shadow-purple/10 border border-transparent dark:border-gray-700">
               <Sparkles className="size-10 text-purple" />
             </div>
             <div
@@ -355,7 +355,7 @@ export const MySubscriptionsContent = () => {
               </p>
             </div>
             <Link href="/plans">
-              <Button className="h-14 px-10 rounded-2xl bg-purple text-white font-black text-lg shadow-xl shadow-purple/20">
+              <Button className="h-14 px-10 rounded-2xl bg-purple text-white hover:bg-purple-600 transition-all font-black text-lg shadow-xl shadow-purple/20">
                 {t.mySubscriptions.upgradeNow}
               </Button>
             </Link>

@@ -356,6 +356,7 @@ export interface PostAdPayload {
   category: string;
   deal: boolean;
   discountedPrice?: number;
+  discountedPercent?: number;
   dealValidThru?: string; // ISO 8601 date string
   isExchangable?: boolean;
   exchangeWith?: {
@@ -379,6 +380,7 @@ export interface PostAdPayload {
   adType: "AD" | "JOB";
   isFeatured?: boolean;
   subscriptionId?: string;
+  device?: "web" | "app";
 }
 
 export interface PostAdResponse {

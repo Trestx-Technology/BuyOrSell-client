@@ -114,41 +114,6 @@ export function Footer({ className }: FooterProps) {
 
         {/* Footer Links Grid */}
         <div className="w-full md:grid md:grid-cols-4 lg:flex items-start justify-between mb-8">
-          {/* Company Section */}
-          <motion.div
-            className="space-y-6 hidden md:block"
-            variants={fastItemVariants}
-          >
-            <Typography variant="h6" className="font-medium text-sm text-white text-start">
-              {t.home.navbar.company}
-            </Typography>
-            <div className="space-y-3 text-start">
-              <Typography
-                variant="body"
-                className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
-              >
-                {t.home.navbar.aboutUs}
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
-              >
-                {t.home.navbar.advertising}
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
-              >
-                {t.home.navbar.careers}
-              </Typography>
-              <Typography
-                variant="body"
-                className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
-              >
-                {t.home.navbar.legalHelp}
-              </Typography>
-            </div>
-          </motion.div>
 
           {/* UAE Section */}
           <motion.div
@@ -284,14 +249,6 @@ export function Footer({ className }: FooterProps) {
                   {t.home.navbar.contactUs}
                 </Typography>
               </Link>
-              <Link href={localePath("/contact-us")} className="block">
-                <Typography
-                  variant="body"
-                  className="text-sm opacity-80 hover:opacity-100 hover:text-white dark:text-gray-400 dark:hover:text-white cursor-pointer transition-all duration-200"
-                >
-                  {t.home.navbar.callUs}
-                </Typography>
-              </Link>
               <Link href={localePath("/rate-us")} className="block">
                 <Typography
                   variant="body"
@@ -365,7 +322,7 @@ export function Footer({ className }: FooterProps) {
               </Typography>
             </Link>
             <Typography variant="body" className={cn("text-sm opacity-60", isRTL ? "mr-4" : "ml-4")}>
-              © 2024 BuyOrSell | {t.home.navbar.allRightsReserved}
+              © 2024 buyOrsell | {t.home.navbar.allRightsReserved}
             </Typography>
           </div>
 

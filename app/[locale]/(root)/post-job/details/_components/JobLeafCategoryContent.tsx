@@ -487,7 +487,7 @@ export default function JobLeafCategoryContent() {
                       }}
                       placeholder="Enter job description"
                       rows={6}
-                      maxLength={2000}
+                      maxLength={5000}
                       error={errors.description?.message as string}
                       showAI={true}
                       categoryPath={
@@ -610,6 +610,190 @@ export default function JobLeafCategoryContent() {
                     )}
                   />
                 </FormField>
+              </div>
+
+              {/* Additional Job Details */}
+              <div className="space-y-3">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  Additional Job Details
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    label="Notice Period"
+                    htmlFor="noticePeriod"
+                    error={errors.noticePeriod?.message as string}
+                  >
+                    <Controller
+                      name="noticePeriod"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectInput
+                          value={field.value as string}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            handleInputChange("noticePeriod", value);
+                          }}
+                          options={[
+                            { value: "Immediately", label: "Immediately" },
+                            { value: "1 week", label: "1 week" },
+                            { value: "2 weeks", label: "2 weeks" },
+                            { value: "1 month", label: "1 month" },
+                            { value: "2 months", label: "2 months" },
+                            { value: "3 months", label: "3 months" },
+                          ]}
+                          placeholder="Select notice period"
+                          error={errors.noticePeriod?.message as string}
+                        />
+                      )}
+                    />
+                  </FormField>
+                  <FormField
+                    label="Career Level"
+                    htmlFor="careerLevel"
+                    error={errors.careerLevel?.message as string}
+                  >
+                    <Controller
+                      name="careerLevel"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectInput
+                          value={field.value as string}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            handleInputChange("careerLevel", value);
+                          }}
+                          options={[
+                            { value: "Entry", label: "Entry" },
+                            { value: "Mid", label: "Mid" },
+                            { value: "Senior", label: "Senior" },
+                            { value: "Executive", label: "Executive" },
+                            { value: "Director", label: "Director" },
+                          ]}
+                          placeholder="Select career level"
+                          error={errors.careerLevel?.message as string}
+                        />
+                      )}
+                    />
+                  </FormField>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    label="Experience"
+                    htmlFor="experience"
+                    error={errors.experience?.message as string}
+                  >
+                    <Controller
+                      name="experience"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectInput
+                          value={field.value as string}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            handleInputChange("experience", value);
+                          }}
+                          options={[
+                            { value: "0-1 year", label: "0-1 year" },
+                            { value: "1-2 years", label: "1-2 years" },
+                            { value: "2-5 years", label: "2-5 years" },
+                            { value: "5-10 years", label: "5-10 years" },
+                            { value: "10+ years", label: "10+ years" },
+                          ]}
+                          placeholder="Select experience"
+                          error={errors.experience?.message as string}
+                        />
+                      )}
+                    />
+                  </FormField>
+                  <FormField
+                    label="Qualification"
+                    htmlFor="qualification"
+                    error={errors.qualification?.message as string}
+                  >
+                    <Controller
+                      name="qualification"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectInput
+                          value={field.value as string}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            handleInputChange("qualification", value);
+                          }}
+                          options={[
+                            { value: "Bachelor's degree", label: "Bachelor's degree" },
+                            { value: "Master's degree", label: "Master's degree" },
+                            { value: "PhD", label: "PhD" },
+                            { value: "Diploma", label: "Diploma" },
+                            { value: "High School", label: "High School" },
+                            { value: "Certification", label: "Certification" },
+                          ]}
+                          placeholder="Select qualification"
+                          error={errors.qualification?.message as string}
+                        />
+                      )}
+                    />
+                  </FormField>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    label="Gender"
+                    htmlFor="gender"
+                    error={errors.gender?.message as string}
+                  >
+                    <Controller
+                      name="gender"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectInput
+                          value={field.value as string}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            handleInputChange("gender", value);
+                          }}
+                          options={[
+                            { value: "male", label: "Male" },
+                            { value: "female", label: "Female" },
+                            { value: "other", label: "Other" },
+                            { value: "any", label: "Any" },
+                          ]}
+                          placeholder="Select Gender"
+                          error={errors.gender?.message as string}
+                        />
+                      )}
+                    />
+                  </FormField>
+                  <FormField
+                    label="Nationality"
+                    htmlFor="nationality"
+                    error={errors.nationality?.message as string}
+                  >
+                    <Controller
+                      name="nationality"
+                      control={control}
+                      render={({ field }) => (
+                        <SelectInput
+                          value={field.value as string}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            handleInputChange("nationality", value);
+                          }}
+                          options={[
+                            { value: "Any", label: "Any" },
+                            { value: "UAE", label: "UAE (Emirati)" },
+                            { value: "Indian", label: "Indian" },
+                            { value: "Pakistani", label: "Pakistani" },
+                            { value: "Filipino", label: "Filipino" },
+                            { value: "Egyptian", label: "Egyptian" },
+                            { value: "Other", label: "Other" },
+                          ]}
+                          placeholder="Select nationality"
+                          error={errors.nationality?.message as string}
+                        />
+                      )}
+                    />
+                  </FormField>
+                </div>
               </div>
 
               {/* Phone Number */}
@@ -813,6 +997,36 @@ export default function JobLeafCategoryContent() {
                     label="Job Shift"
                     value={(formValues as any).jobShift}
                     error={!!errors.jobShift}
+                  />
+                  <FormSummaryItem
+                    label="Notice Period"
+                    value={(formValues as any).noticePeriod}
+                    error={!!errors.noticePeriod}
+                  />
+                  <FormSummaryItem
+                    label="Career Level"
+                    value={(formValues as any).careerLevel}
+                    error={!!errors.careerLevel}
+                  />
+                  <FormSummaryItem
+                    label="Experience"
+                    value={(formValues as any).experience}
+                    error={!!errors.experience}
+                  />
+                  <FormSummaryItem
+                    label="Qualification"
+                    value={(formValues as any).qualification}
+                    error={!!errors.qualification}
+                  />
+                  <FormSummaryItem
+                    label="Gender"
+                    value={(formValues as any).gender}
+                    error={!!errors.gender}
+                  />
+                  <FormSummaryItem
+                    label="Nationality"
+                    value={(formValues as any).nationality}
+                    error={!!errors.nationality}
                   />
                   <FormSummaryItem
                     label="Location"

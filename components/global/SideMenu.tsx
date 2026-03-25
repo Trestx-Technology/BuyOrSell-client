@@ -23,6 +23,7 @@ import {
 } from "@/constants/navigation.constants";
 import { useRouter } from "nextjs-toploader/app";
 import { ICONS } from "@/constants/icons";
+import { ProfilePlaceholder } from "./profile-placeholder";
 
 interface SideMenuProps {
   trigger: React.ReactNode;
@@ -294,9 +295,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gray-300 flex items-center justify-center text-white text-sm font-medium">
-                        {user.name.charAt(0).toUpperCase()}
-                      </div>
+                      <ProfilePlaceholder size={24} />
                     )}
                   </div>
                   <div className="flex flex-col min-w-0 flex-1">

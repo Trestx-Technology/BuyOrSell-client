@@ -12,21 +12,38 @@ import { SelectableTabsInput } from "./SelectableTabsInput";
 import { SearchableDropdownInput } from "./SearchableDropdownInput";
 import { BooleanInput } from "./BooleanInput";
 import { ColorPickerInput } from "./ColorPickerInput";
-import { MultipleImageInput, ImageItem as MultipleImageItem } from "./MultipleImageInput";
+import {
+  MultipleImageInput,
+  ImageItem as MultipleImageItem,
+} from "./MultipleImageInput";
 import { MapComponent } from "./MapComponent";
 import { ImageItem } from "./image-upload";
-import { useAdPostingStore, type CategoryBreadcrumbItem } from "@/stores/adPostingStore";
+import {
+  useAdPostingStore,
+  type CategoryBreadcrumbItem,
+} from "@/stores/adPostingStore";
 
-export type FormValues = Record<string, string | number | boolean | string[] | MultipleImageItem[] | ImageItem[] | {
-  state?: string;
-  country?: string;
-  zipCode?: string;
-  city?: string;
-  street?: string;
-  address?: string;
-  coordinates?: number[];
-  type?: string;
-} | undefined | null>;
+export type FormValues = Record<
+  string,
+  | string
+  | number
+  | boolean
+  | string[]
+  | MultipleImageItem[]
+  | ImageItem[]
+  | {
+      state?: string;
+      country?: string;
+      zipCode?: string;
+      city?: string;
+      street?: string;
+      address?: string;
+      coordinates?: number[];
+      type?: string;
+    }
+  | undefined
+  | null
+>;
 
 interface DynamicFieldRendererProps {
   field: Field;
@@ -34,16 +51,25 @@ interface DynamicFieldRendererProps {
   errors: FieldErrors<FormValues>;
   options: { value: string; label: string }[];
   formValues: FormValues;
-  onInputChange: (field: string, value: string | number | boolean | string[] | MultipleImageItem[] | {
-    state?: string;
-    country?: string;
-    zipCode?: string;
-    city?: string;
-    street?: string;
-    address?: string;
-    coordinates?: number[];
-    type?: string;
-  }) => void;
+  onInputChange: (
+    field: string,
+    value:
+      | string
+      | number
+      | boolean
+      | string[]
+      | MultipleImageItem[]
+      | {
+          state?: string;
+          country?: string;
+          zipCode?: string;
+          city?: string;
+          street?: string;
+          address?: string;
+          coordinates?: number[];
+          type?: string;
+        },
+  ) => void;
   selectedLocation: {
     address: string;
     coordinates: { lat: number; lng: number };
@@ -85,7 +111,10 @@ export const DynamicFieldRenderer = ({
             name={field.name}
             control={control}
             rules={{
-              required: (field.required || field.requires) ? `${field.name} is required` : false,
+              required:
+                field.required || field.requires
+                  ? `${field.name} is required`
+                  : false,
             }}
             render={({ field: formField }) => (
               <TextInput
@@ -94,7 +123,9 @@ export const DynamicFieldRenderer = ({
                   formField.onChange(val);
                   onInputChange(field.name, val);
                 }}
-                placeholder={field.value || field.default || `Enter ${field.name}`}
+                placeholder={
+                  field.value || field.default || `Enter ${field.name}`
+                }
                 error={fieldError}
               />
             )}
@@ -104,9 +135,13 @@ export const DynamicFieldRenderer = ({
 
     case "textArea":
     case "testArea":
-      const isDescriptionField = field.name.toLowerCase().includes("description");
+      const isDescriptionField = field.name
+        .toLowerCase()
+        .includes("description");
       const categoryArray = useAdPostingStore.getState().categoryArray;
-      const breadcrumbPath = categoryArray.map((item: CategoryBreadcrumbItem) => item.name).join(" > ");
+      const breadcrumbPath = categoryArray
+        .map((item: CategoryBreadcrumbItem) => item.name)
+        .join(" > ");
 
       return (
         <FormField
@@ -121,7 +156,10 @@ export const DynamicFieldRenderer = ({
             name={field.name}
             control={control}
             rules={{
-              required: (field.required || field.requires) ? `${field.name} is required` : false,
+              required:
+                field.required || field.requires
+                  ? `${field.name} is required`
+                  : false,
             }}
             render={({ field: formField }) => (
               <TextareaInput
@@ -130,7 +168,9 @@ export const DynamicFieldRenderer = ({
                   formField.onChange(val);
                   onInputChange(field.name, val);
                 }}
-                placeholder={field.value || field.default || `Enter ${field.name}`}
+                placeholder={
+                  field.value || field.default || `Enter ${field.name}`
+                }
                 rows={4}
                 maxLength={field.max}
                 error={fieldError}
@@ -156,9 +196,24 @@ export const DynamicFieldRenderer = ({
             name={field.name}
             control={control}
             rules={{
-              required: (field.required || field.requires) ? `${field.name} is required` : false,
-              min: field.min !== undefined ? { value: field.min, message: `Value must be at least ${field.min}` } : undefined,
-              max: field.max !== undefined ? { value: field.max, message: `Value must be at most ${field.max}` } : undefined,
+              required:
+                field.required || field.requires
+                  ? `${field.name} is required`
+                  : false,
+              min:
+                field.min !== undefined
+                  ? {
+                      value: field.min,
+                      message: `Value must be at least ${field.min}`,
+                    }
+                  : undefined,
+              max:
+                field.max !== undefined
+                  ? {
+                      value: field.max,
+                      message: `Value must be at most ${field.max}`,
+                    }
+                  : undefined,
             }}
             render={({ field: formField }) => (
               <NumberInput
@@ -191,7 +246,10 @@ export const DynamicFieldRenderer = ({
             name={field.name}
             control={control}
             rules={{
-              required: (field.required || field.requires) ? `${field.name} is required` : false,
+              required:
+                field.required || field.requires
+                  ? `${field.name} is required`
+                  : false,
             }}
             render={({ field: formField }) => (
               <SelectInput
@@ -201,7 +259,9 @@ export const DynamicFieldRenderer = ({
                   onInputChange(field.name, val);
                 }}
                 options={options}
-                placeholder={field.value || field.default || `Select ${field.name}`}
+                placeholder={
+                  field.value || field.default || `Select ${field.name}`
+                }
                 error={fieldError}
               />
             )}
@@ -222,7 +282,10 @@ export const DynamicFieldRenderer = ({
             name={field.name}
             control={control}
             rules={{
-              required: (field.required || field.requires) ? `${field.name} is required` : false,
+              required:
+                field.required || field.requires
+                  ? `${field.name} is required`
+                  : false,
             }}
             render={({ field: formField }) => (
               <SearchableDropdownInput
@@ -232,7 +295,9 @@ export const DynamicFieldRenderer = ({
                   onInputChange(field.name, val);
                 }}
                 options={options}
-                placeholder={field.value || field.default || `Select ${field.name}`}
+                placeholder={
+                  field.value || field.default || `Select ${field.name}`
+                }
                 error={fieldError}
               />
             )}
@@ -254,11 +319,16 @@ export const DynamicFieldRenderer = ({
             name={field.name}
             control={control}
             rules={{
-              required: (field.required || field.requires) ? `${field.name} is required` : false,
+              required:
+                field.required || field.requires
+                  ? `${field.name} is required`
+                  : false,
             }}
             render={({ field: formField }) => (
               <SelectableTabsInput
-                value={typeof formField.value === "string" ? formField.value : ""}
+                value={
+                  typeof formField.value === "string" ? formField.value : ""
+                }
                 onChange={(val) => {
                   formField.onChange(val);
                   onInputChange(field.name, val);
@@ -284,11 +354,18 @@ export const DynamicFieldRenderer = ({
             name={field.name}
             control={control}
             rules={{
-              required: (field.required || field.requires) ? `${field.name} is required` : false,
+              required:
+                field.required || field.requires
+                  ? `${field.name} is required`
+                  : false,
             }}
             render={({ field: formField }) => (
               <CheckboxInput
-                value={Array.isArray(formField.value) ? (formField.value as string[]) : []}
+                value={
+                  Array.isArray(formField.value)
+                    ? (formField.value as string[])
+                    : []
+                }
                 onChange={(val) => {
                   formField.onChange(val);
                   onInputChange(field.name, val);
@@ -314,11 +391,18 @@ export const DynamicFieldRenderer = ({
             name={field.name}
             control={control}
             rules={{
-              required: (field.required || field.requires) ? `${field.name} is required` : false,
+              required:
+                field.required || field.requires
+                  ? `${field.name} is required`
+                  : false,
             }}
             render={({ field: formField }) => (
               <BooleanInput
-                value={formField.value === true || formField.value === "true" || formField.value === "True"}
+                value={
+                  formField.value === true ||
+                  formField.value === "true" ||
+                  formField.value === "True"
+                }
                 onChange={(val) => {
                   formField.onChange(val);
                   onInputChange(field.name, val);
@@ -342,7 +426,10 @@ export const DynamicFieldRenderer = ({
             name={field.name}
             control={control}
             rules={{
-              required: (field.required || field.requires) ? `${field.name} is required` : false,
+              required:
+                field.required || field.requires
+                  ? `${field.name} is required`
+                  : false,
             }}
             render={({ field: formField }) => (
               <ColorPickerInput
@@ -371,7 +458,10 @@ export const DynamicFieldRenderer = ({
             name={field.name}
             control={control}
             rules={{
-              required: (field.required || field.requires) ? `${field.name} is required` : false,
+              required:
+                field.required || field.requires
+                  ? `${field.name} is required`
+                  : false,
             }}
             render={({ field: formField }) => (
               <MultipleImageInput
@@ -401,7 +491,10 @@ export const DynamicFieldRenderer = ({
             name={field.name}
             control={control}
             rules={{
-              required: (field.required || field.requires) ? `${field.name} is required` : false,
+              required:
+                field.required || field.requires
+                  ? `${field.name} is required`
+                  : false,
             }}
             render={() => (
               <>
@@ -417,8 +510,8 @@ export const DynamicFieldRenderer = ({
                       <strong>Selected:</strong> {selectedLocation.address}
                     </p>
                     <p className="text-xs text-blue-600 mt-1">
-                      Coordinates: {selectedLocation.coordinates.lat.toFixed(6)},{" "}
-                      {selectedLocation.coordinates.lng.toFixed(6)}
+                      Coordinates: {selectedLocation.coordinates.lat.toFixed(6)}
+                      , {selectedLocation.coordinates.lng.toFixed(6)}
                     </p>
                   </div>
                 )}
@@ -436,4 +529,3 @@ export const DynamicFieldRenderer = ({
       return null;
   }
 };
-

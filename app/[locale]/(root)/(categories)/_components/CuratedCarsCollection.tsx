@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { Typography } from "@/components/typography";
+import { Car } from "lucide-react";
 
 interface CuratedCard {
   id: string;
@@ -92,21 +93,8 @@ const CuratedCarsCollection: React.FC = () => {
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                      <div className="w-6 h-6 bg-gray-300 rounded flex items-center justify-center">
-                        <svg
-                          width="17"
-                          height="17"
-                          viewBox="0 0 17 17"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M8.5 0L10.8 6.2L17 6.2L11.6 10L13.9 16.2L8.5 12.4L3.1 16.2L5.4 10L0 6.2L6.2 6.2L8.5 0Z"
-                            fill="#8A8A8A"
-                          />
-                        </svg>
-                      </div>
+                    <div className="w-full h-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
+                      <Car className="w-8 h-8 text-gray-300 dark:text-gray-600" />
                     </div>
                   )}
                 </div>

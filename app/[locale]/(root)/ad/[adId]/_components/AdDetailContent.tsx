@@ -23,16 +23,26 @@ import { useLocale } from "@/hooks/useLocale";
 import AdCard from "../../../(categories)/_components/AdCard";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { GoogleMapsProvider } from "@/components/providers/google-maps-provider";
-
+import ReportDialog from "./ReportDialog";
+import { Flag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function AdDetailContent() {
   const { adId } = useParams();
   const [activeTab, setActiveTab] = useState<TabType>("description");
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const { t } = useLocale();
+
+  const user = useAuthStore((state) => state.session.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   // Fetch ad data by ID
   const { data: adResponse, isLoading, error } = useAdById(adId as string);
   const ad = adResponse?.data;
+
+  const isOwner = user?._id === ad?.owner?._id;
+  const showReportButton = isAuthenticated && !isOwner;
 
   // Memoize sections for reordering - must be called before early returns
   const sections = useMemo(() => {
@@ -157,6 +167,24 @@ export default function AdDetailContent() {
               {/* <ContactActions ad={ad} /> */}
 
               <AdCard className="min-h-[550px]" />
+
+              {showReportButton && (
+                <div className="pt-4 mt-2 border-t border-gray-100 dark:border-gray-800">
+                  <Button
+                    variant="ghost"
+                    className="w-full flex items-center justify-center gap-3 text-gray-400 hover:text-red-500 hover:bg-red-50/50 dark:text-gray-500 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition-all duration-300 rounded-2xl py-7 border border-gray-100/50 dark:border-gray-800/50 hover:border-red-200 dark:hover:border-red-900/30 group shadow-sm hover:shadow-md"
+                    onClick={() => setIsReportDialogOpen(true)}
+                    icon={
+                      <Flag className="h-4 w-4 transition-transform group-hover:scale-110 -mr-2" />
+                    }
+                    iconPosition="center"
+                  >
+                    <span className="font-semibold text-sm tracking-wide uppercase">
+                      {t.ad.report.button}
+                    </span>
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -198,12 +226,36 @@ export default function AdDetailContent() {
 
               {/* Contact Actions */}
               <ContactActions ad={ad} />
+
+              {showReportButton && (
+                <div className="pb-10 px-4">
+                  <Button
+                    variant="ghost"
+                    className="w-full flex items-center justify-center gap-3 text-gray-400 hover:text-red-500 hover:bg-red-50/50 dark:text-gray-500 dark:hover:bg-red-950/20 dark:hover:text-red-400 transition-all duration-300 rounded-2xl py-7 border border-gray-100 dark:border-gray-800 hover:border-red-200 dark:hover:border-red-900/30 group shadow-sm hover:shadow-md"
+                    onClick={() => setIsReportDialogOpen(true)}
+                  >
+                    <div className="h-8 w-8 rounded-full bg-gray-50 dark:bg-gray-900/50 flex items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition-colors">
+                      <Flag className="h-4 w-4 transition-transform group-hover:scale-110" />
+                    </div>
+                    <span className="font-semibold text-sm tracking-wide uppercase">
+                      {t.ad.report.button}
+                    </span>
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Similar Ads */}
           <SimilarAds adId={adId as string} />
         </div>
+
+        <ReportDialog
+          open={isReportDialogOpen}
+          onOpenChange={setIsReportDialogOpen}
+          reportedId={adId as string}
+          reportedType="ad"
+        />
       </Container1080>
     </GoogleMapsProvider>
   );

@@ -30,6 +30,7 @@
 
 .claude
 
+/bug_images
 
 # production
 /build
@@ -61,3 +62,11 @@ next-env.d.ts
 .kiro/steering/byterover-rules.md
 .qoder/rules/byterover-rules.md
 .augment/rules/byterover-rules.md
+
+# Python scripts generated for bug image downloading
+fetch_attachments.py
+fetch_images.py
+download_images.py
+ticket_images.json
+bug_images/
+fetch_images.log

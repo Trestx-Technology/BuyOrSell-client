@@ -465,15 +465,15 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
           </Typography>
 
           {/* Location */}
-          <div className="flex px-1 gap-1 items-center">
+          <div className="flex px-1 gap-1 items-center min-w-0">
             <MapPin
               size={22}
               stroke="white"
-              className="w-fit min-w-6 fill-dark-blue text-dark-blue dark:fill-gray-100 dark:text-gray-100"
+              className="w-fit min-w-6 fill-dark-blue text-dark-blue dark:fill-gray-100 dark:text-gray-100 flex-shrink-0"
             />
             <Typography
               variant="body-small"
-              className="text-xs text-[#667085] dark:text-gray-400 truncate"
+              className="text-xs text-[#667085] dark:text-gray-400 truncate flex-1"
             >
               {displayLocation}
             </Typography>

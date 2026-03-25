@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import Image from "next/image";
 import {
   LogOut,
@@ -36,6 +37,7 @@ export function UnifiedProfileMenu({
   const { t, locale, localePath } = useLocale();
   const { session } = useAuthStore((state: any) => state);
   const pathname = usePathname();
+  const router = useRouter();
 
   const menuGroups = [
     {
@@ -64,6 +66,12 @@ export function UnifiedProfileMenu({
           href: "/favorites",
           icon: ICONS.navigation.favorites,
           label: t.home.navbar.favourites,
+        },
+        {
+          id: "create-collection",
+          href: "/favorites", // Or a specific create URL if it exists, otherwise same page
+          icon: ICONS.jobNavigation.postJob, // Use an appropriate icon
+          label: "Create New Collection",
         },
         {
           id: "my-searches",
@@ -105,12 +113,6 @@ export function UnifiedProfileMenu({
           href: "/post-job/select",
           icon: ICONS.jobNavigation.postJob,
           label: t.home.navbar.postJob,
-        },
-        {
-          id: "job-listings",
-          href: "/jobs/listing",
-          icon: ICONS.navigation.search,
-          label: "Job Listings",
         },
         {
           id: "my-job-listings",
@@ -240,14 +242,20 @@ export function UnifiedProfileMenu({
     },
   ];
 
-  const renderItemContent = (icon: any, label: string, isActive: boolean = false) => (
+  const renderItemContent = (
+    icon: any,
+    label: string,
+    isActive: boolean = false,
+  ) => (
     <>
-      <div className={cn(
-        "flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-colors",
-        isActive 
-          ? "bg-purple text-white dark:bg-purple/80" 
-          : "bg-gray-50 dark:bg-gray-800 group-hover:bg-purple-50"
-      )}>
+      <div
+        className={cn(
+          "flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-colors",
+          isActive
+            ? "bg-purple text-white dark:bg-purple/80"
+            : "bg-gray-50 dark:bg-gray-800 group-hover:bg-purple-50",
+        )}
+      >
         {typeof icon === "string" ? (
           <SafeImage
             src={icon}
@@ -260,23 +268,29 @@ export function UnifiedProfileMenu({
           React.createElement(icon, {
             className: cn(
               "w-6 h-6",
-              isActive ? "text-white" : "text-gray-500 group-hover:text-purple"
-            )
+              isActive ? "text-white" : "text-gray-500 group-hover:text-purple",
+            ),
           })
         )}
       </div>
-      <span className={cn(
-        "flex-grow font-medium text-sm transition-colors",
-        isActive 
-          ? "text-purple dark:text-purple-400 font-bold" 
-          : "text-gray-700 dark:text-gray-200 group-hover:text-purple"
-      )}>
+      <span
+        className={cn(
+          "flex-grow font-medium text-sm transition-colors",
+          isActive
+            ? "text-purple dark:text-purple-400 font-bold"
+            : "text-gray-700 dark:text-gray-200 group-hover:text-purple",
+        )}
+      >
         {label}
       </span>
-      <ChevronRight className={cn(
-        "w-4 h-4 transition-all opacity-0 group-hover:opacity-100",
-        isActive ? "text-purple" : "text-gray-400 group-hover:text-purple group-hover:translate-x-0.5"
-      )} />
+      <ChevronRight
+        className={cn(
+          "w-4 h-4 transition-all opacity-0 group-hover:opacity-100",
+          isActive
+            ? "text-purple"
+            : "text-gray-400 group-hover:text-purple group-hover:translate-x-0.5",
+        )}
+      />
     </>
   );
 
@@ -310,7 +324,7 @@ export function UnifiedProfileMenu({
         </div>
       )}
 
-      <ScrollArea className="h-[calc(100vh-220px)] sm:h-[400px] w-full">
+      <ScrollArea className="h-[40vh] w-full">
         <div className="p-2 space-y-4">
           {menuGroups.map((group, gIdx) => (
             <div key={group.label} className="space-y-1">
@@ -320,13 +334,17 @@ export function UnifiedProfileMenu({
               {group.items.map((item: any) => {
                 const itemHref = item.href ? localePath(item.href) : "";
                 const isActive = pathname === itemHref;
-                
-                const content = renderItemContent(item.icon, item.label, isActive);
+
+                const content = renderItemContent(
+                  item.icon,
+                  item.label,
+                  isActive,
+                );
                 const className = cn(
                   "group flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 w-full text-left",
-                  isActive 
-                    ? "bg-purple-50/50 dark:bg-purple-900/40" 
-                    : "hover:bg-purple-50/50 dark:hover:bg-purple-900/20"
+                  isActive
+                    ? "bg-purple-50/50 dark:bg-purple-900/40"
+                    : "hover:bg-purple-50/50 dark:hover:bg-purple-900/20",
                 );
 
                 if (item.onClick) {
@@ -345,14 +363,16 @@ export function UnifiedProfileMenu({
                 }
 
                 return (
-                  <Link
+                  <button
                     key={item.id}
-                    href={itemHref}
-                    onClick={onClose}
+                    onClick={() => {
+                      router.push(itemHref);
+                      onClose?.();
+                    }}
                     className={className}
                   >
                     {content}
-                  </Link>
+                  </button>
                 );
               })}
             </div>

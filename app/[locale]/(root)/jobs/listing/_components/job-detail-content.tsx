@@ -119,16 +119,16 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
     "";
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-6 space-y-6 w-full">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 space-y-6 w-full">
       {/* Job Description */}
       {description && (
         <div className="space-y-4">
-          <Typography variant="h3" className="text-foreground font-semibold text-xl">
+          <Typography variant="h3" className="text-foreground dark:text-white font-semibold text-xl">
             Job Description
           </Typography>
           <Typography
             variant="sm-regular-inter"
-            className="text-muted-foreground text-sm leading-[1.75] whitespace-pre-line"
+            className="text-muted-foreground dark:text-gray-400 text-sm leading-[1.75] whitespace-pre-line"
           >
             {description}
           </Typography>
@@ -150,7 +150,7 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
                 />
                 <Typography
                   variant="body-small"
-                  className="text-muted-foreground text-sm leading-[1.5]"
+                  className="text-muted-foreground dark:text-gray-400 text-sm leading-[1.5]"
                 >
                   {responsibility}
                 </Typography>

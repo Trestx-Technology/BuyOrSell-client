@@ -40,7 +40,7 @@ const NotificationSettingsPage = () => {
   const [notifications, setNotifications] = useState({
     push: true,
     marketing: false,
-    sms: true,
+    sms: false,
   });
 
   // Notification items configuration
@@ -180,7 +180,7 @@ const NotificationSettingsPage = () => {
                   </div>
                   <button
                     onClick={() => handleToggle(item.key)}
-                    disabled={item.enabled}
+                    disabled={!item.enabled}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                       notifications[item.key]
                         ? "bg-purple-600"

@@ -21,6 +21,7 @@ interface InsufficientAdsDialogProps {
   categoryType?: string;
   categoryName?: string;
   onPay?: () => void;
+  isFreePlan?: boolean;
 }
 
 export const InsufficientAdsDialog: React.FC<InsufficientAdsDialogProps> = ({
@@ -30,6 +31,7 @@ export const InsufficientAdsDialog: React.FC<InsufficientAdsDialogProps> = ({
   categoryType,
   categoryName,
   onPay,
+  isFreePlan,
 }) => {
   const router = useRouter();
   const { locale } = useLocale();
@@ -38,6 +40,9 @@ export const InsufficientAdsDialog: React.FC<InsufficientAdsDialogProps> = ({
   const getDescription = () => {
     if (type === "featured") {
       return `You have used all your available featured ads for ${categoryName || "this category"}. Upgrade your plan or purchase more credits to continue highlighting your listings.`;
+    }
+    if (isFreePlan) {
+      return "Your free plan has exhausted all the ads. Now you need to buy a premium one to continue posting ads.";
     }
     return `You have an active plan for ${categoryName || "this category"}, but you have reached your posting limit. Please upgrade or renew your plan to continue listing.`;
   };

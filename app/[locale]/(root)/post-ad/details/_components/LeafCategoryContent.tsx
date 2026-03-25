@@ -349,6 +349,7 @@ export default function LeafCategoryContent() {
     // Calculate discountedPrice if deal is active
     const price = (data.price as number) || 0;
     const discountedPrice = (data.discountedPrice as number) || 0;
+    const discountPercentage = price > 0 ? Math.round(((price - discountedPrice) / price) * 100) : 0;
     const dealValidThru = (data.dealValidThru as string) || undefined;
 
     // Extract exchange data
@@ -409,6 +410,15 @@ export default function LeafCategoryContent() {
       });
     }
 
+    // Add discountedPercent to extraFields if deal is active
+    if (data.deal && discountedPrice > 0) {
+      extraFields.push({
+        name: "discountedPercent",
+        type: "number",
+        value: discountPercentage.toString(),
+      });
+    }
+
     // Get organization selection
     const organizationValue = (data.organization as string) || "";
     const isIndividual = organizationValue === "individual";
@@ -434,8 +444,7 @@ export default function LeafCategoryContent() {
         | ("chat" | "call" | "whatsapp")[]
         | undefined,
       deal: data.deal === true || data.deal === "true",
-      discountedPrice:
-        data.deal && discountedPrice > 0 ? discountedPrice : undefined,
+      discountedPercent: data.deal && discountedPrice > 0 ? discountPercentage : undefined,
       dealValidThru: data.deal && dealValidThru ? dealValidThru : undefined,
       isExchangable: isExchange,
       exchangeWith:
@@ -470,6 +479,7 @@ export default function LeafCategoryContent() {
         subscriptionId || searchParams.get("subscriptionId") || undefined,
       // Only include organizationId if not posting as individual
       ...(isIndividual ? {} : { organizationId: organizationValue }),
+      device: "web",
     };
 
     // Remove undefined fields
@@ -667,7 +677,7 @@ export default function LeafCategoryContent() {
                       }}
                       placeholder="Enter ad description"
                       rows={4}
-                      maxLength={2000}
+                      maxLength={5000}
                       error={errors.description?.message as string}
                       showAI={true}
                       categoryPath={

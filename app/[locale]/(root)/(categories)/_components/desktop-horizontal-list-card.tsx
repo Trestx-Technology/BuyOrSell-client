@@ -184,7 +184,7 @@ const HorizontalListingCard: React.FC<HorizontalListingCardProps> = ({
       className={`overflow-hidden rounded-2xl border border-purple-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-lg transition-all duration-300 cursor-pointer group ${className}`}
       onClick={handleCardClick}
     >
-      <div className="flex h-[157px]">
+      <div className="flex h-[180px]">
         {/* Image Section - Left Side */}
         <div className="relative w-full max-w-[226px] h-full flex-shrink-0">
           {images.length > 0 ? (

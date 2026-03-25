@@ -52,12 +52,12 @@ const getStatusBadgeClassName = (status: string) => {
   switch (status?.toLowerCase()) {
     case "accepted":
     case "shortlisted":
-      return "bg-success-100 text-success-800 border-success-200";
+      return "bg-success-100 text-success-800 border-success-200 dark:bg-success-900/30 dark:text-success-200 dark:border-success-800";
     case "pending":
     case "applied":
-      return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      return "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-800";
     case "reviewed":
-      return "bg-blue-100 text-blue-800 border-blue-200";
+      return "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-200 dark:border-blue-800";
     default:
       return "";
   }
@@ -209,7 +209,7 @@ export const createColumns = (
 
         return (
           <div className="flex items-center gap-3">
-            <div className="relative size-10 rounded-full overflow-hidden bg-purple/10 flex items-center justify-center flex-shrink-0">
+            <div className="relative size-10 rounded-full overflow-hidden bg-purple/10 dark:bg-purple/20 flex items-center justify-center flex-shrink-0">
               {photoUrl ? (
                 <Image
                   src={photoUrl}
@@ -227,14 +227,14 @@ export const createColumns = (
             <div className="flex flex-col min-w-0">
               <Typography
                 variant="sm-semibold"
-                className="text-dark-blue truncate max-w-[200px]"
+                className="text-dark-blue dark:text-white truncate max-w-[200px]"
               >
                 {name}
               </Typography>
               {headline && (
                 <Typography
                   variant="xs-regular"
-                  className="text-grey-blue truncate"
+                  className="text-grey-blue dark:text-gray-400 truncate"
                 >
                   {headline}
                 </Typography>
@@ -271,14 +271,14 @@ export const createColumns = (
 
         if (experienceYears) {
           return (
-            <Typography variant="sm-regular" className="text-dark-blue">
+            <Typography variant="sm-regular" className="text-dark-blue dark:text-white">
               {experienceYears} {experienceYears === 1 ? "year" : "years"}
             </Typography>
           );
         }
 
         return (
-          <Typography variant="sm-regular" className="text-grey-blue">
+          <Typography variant="sm-regular" className="text-grey-blue dark:text-gray-400">
             Not specified
           </Typography>
         );
@@ -326,7 +326,7 @@ export const createColumns = (
                   <div className="space-y-2">
                     <Typography
                       variant="h3"
-                      className="text-sm font-semibold text-dark-blue mb-3"
+                      className="text-sm font-semibold text-dark-blue dark:text-white mb-3"
                     >
                       All Skills
                     </Typography>
@@ -356,13 +356,13 @@ export const createColumns = (
         const appliedAt = row.original.appliedAt || row.original.createdAt;
         if (!appliedAt) {
           return (
-            <Typography variant="sm-regular" className="text-grey-blue">
+            <Typography variant="sm-regular" className="text-grey-blue dark:text-gray-400">
               Unknown
             </Typography>
           );
         }
         return (
-          <Typography variant="sm-regular" className="text-dark-blue">
+          <Typography variant="sm-regular" className="text-dark-blue dark:text-white">
             {formatDistanceToNow(new Date(appliedAt), { addSuffix: true })}
           </Typography>
         );

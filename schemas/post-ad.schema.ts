@@ -45,7 +45,7 @@ export const createPostAdSchema = (category?: SubCategory) => {
     ),
     description: z.preprocess(
       (val) => (val === undefined || val === null ? "" : val),
-      z.string().min(1, "Description is required"),
+      z.string().min(1, "Description is required").max(5000, "Description is too long"),
     ),
     price: z.preprocess(
       (val) => {
@@ -306,7 +306,7 @@ export const createPostJobSchema = (category?: SubCategory) => {
     ),
     description: z.preprocess(
       (val) => (val === undefined || val === null ? "" : val),
-      z.string().min(1, "Job description is required"),
+      z.string().min(1, "Job description is required").max(5000, "Description is too long"),
     ),
     // Salary fields
     minSalary: z.preprocess(
@@ -340,6 +340,30 @@ export const createPostJobSchema = (category?: SubCategory) => {
       (val) => (val === undefined || val === null ? "" : val),
       z.string().min(1, "Job shift is required"),
     ),
+    noticePeriod: z.preprocess(
+      (val) => (val === undefined || val === null ? "" : val),
+      z.string().optional(),
+    ),
+    careerLevel: z.preprocess(
+      (val) => (val === undefined || val === null ? "" : val),
+      z.string().optional(),
+    ),
+    experience: z.preprocess(
+      (val) => (val === undefined || val === null ? "" : val),
+      z.string().optional(),
+    ),
+    qualification: z.preprocess(
+      (val) => (val === undefined || val === null ? "" : val),
+      z.string().optional(),
+    ),
+    gender: z.preprocess(
+      (val) => (val === undefined || val === null ? "" : val),
+      z.string().optional(),
+    ),
+    nationality: z.preprocess(
+      (val) => (val === undefined || val === null ? "" : val),
+      z.string().optional(),
+    ),
     phoneNumber: z.preprocess(
       (val) => (val === undefined || val === null ? "" : val),
       z.string().min(1, "Phone number is required"),
@@ -357,8 +381,9 @@ export const createPostJobSchema = (category?: SubCategory) => {
         if (typeof val === "string" && val !== "") return [val];
         return [];
       },
-      z.array(z.string()).min(1, "At least one connection type is required"),
+      z.array(z.string()).min(1, "At least one contact method is required"),
     ),
+
   });
 
   // Add dynamic fields from category (similar to ads, jobs might have specific custom fields)
@@ -373,7 +398,7 @@ export const createPostJobSchema = (category?: SubCategory) => {
         !AD_SYSTEM_FIELDS.includes(
           field.name as (typeof AD_SYSTEM_FIELDS)[number],
         ) &&
-        !["minSalary", "maxSalary", "jobMode", "jobShift"].includes(field.name)
+        !["minSalary", "maxSalary", "jobMode", "jobShift", "phoneNumber", "address", "connectionTypes", "noticePeriod", "careerLevel", "experience", "qualification", "gender", "nationality"].includes(field.name)
       ) {
         // Create schema based on field type
         let fieldSchema: z.ZodTypeAny;
@@ -447,4 +472,3 @@ export const createPostJobSchema = (category?: SubCategory) => {
     },
   );
 };
-

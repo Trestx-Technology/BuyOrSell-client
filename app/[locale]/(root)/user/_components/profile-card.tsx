@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { EditIcon, StarIcon } from "lucide-react";
 import Image from "next/image";
 import { useLocale } from "@/hooks/useLocale";
+import { ProfilePlaceholder } from "@/components/global/profile-placeholder";
 
 interface ProfileCardProps {
   name: string;
@@ -18,7 +19,7 @@ export default function ProfileCard({
   rating,
   totalRatings = 5,
   joinDate,
-  avatarUrl = "/images/ai-prompt/add-image.png",
+  avatarUrl,
   isVerified = true,
   onEdit,
 }: ProfileCardProps) {
@@ -43,13 +44,17 @@ export default function ProfileCard({
         {/* Avatar */}
         <div className="relative">
           <div className="w-28 h-28 rounded-full border-4 border-purple-100 overflow-hidden">
-            <Image
-              src={avatarUrl}
-              alt={`${name}'s profile picture`}
-              width={120}
-              height={120}
-              className="w-full h-full object-cover"
-            />
+            {avatarUrl ? (
+              <Image
+                src={avatarUrl}
+                alt={`${name}'s profile picture`}
+                width={120}
+                height={120}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <ProfilePlaceholder size={80} />
+            )}
           </div>
         </div>
 

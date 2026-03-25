@@ -29,7 +29,7 @@ export function CategoryDropdown({
           variant="ghost"
           icon={<ChevronDown className="-ml-3" />}
           iconPosition="right"
-          className="px-2 text-xs text-gray-600 hover:text-purple transition-colors h-full  border-[#929292] rounded-none hover:bg-transparent data-[state=open]:text-purple lg:flex hidden"
+          className="px-2 text-xs text-gray-600 hover:text-purple transition-colors h-full rounded-none hover:bg-transparent data-[state=open]:text-purple lg:flex hidden"
         >
           {selectedCategory || "All Categories"}
         </Button>

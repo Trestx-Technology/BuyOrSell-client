@@ -25,7 +25,7 @@ export const SubscriptionHero = ({
       const isArabic = locale === "ar";
 
       return (
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1a1a1a] via-[#2d2d2d] to-[#1a1a1a] p-6 sm:p-10 text-white shadow-2xl">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 p-6 sm:p-10 text-white shadow-2xl border border-gray-800">
                   {/* Background decoration */}
                   <div className="absolute inset-0 overflow-hidden pointer-events-none">
                         <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple/10 rounded-full blur-3xl opacity-50" />
