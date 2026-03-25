@@ -7,6 +7,7 @@ import { useOutsideClick } from "@/hooks/useOutsideClick";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { Input } from "@/components/ui/input";
 import { useLocale } from "@/hooks/useLocale";
+import { cn } from "@/lib/utils";
 
 interface LocationAutocompleteProps {
   value: string;
@@ -190,11 +191,11 @@ export function LocationAutocomplete({
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         onBlur={handleInputBlur}
-        className={className || "pl-10 bg-gray-100 border-0 flex-1"}
+        className={cn("pl-10 bg-gray-100 dark:bg-gray-800 border-0 flex-1 dark:text-white dark:placeholder:text-gray-400", className)}
       />
 
       {shouldShowDropdown && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto z-50">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-950 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 max-h-96 overflow-y-auto z-50">
           {isLoadingEmirates ? (
             <div className="px-4 py-8 text-center">
               <p className="text-sm text-gray-500">Loading locations...</p>
@@ -220,7 +221,7 @@ export function LocationAutocomplete({
                   >
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
                         {displayName}
                       </p>
                     </div>

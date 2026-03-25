@@ -72,7 +72,7 @@ export default function JobsFilter({
 
   const activeFilters = Object.entries(filters).filter(
     ([_, value]) =>
-      value && value !== "" && (Array.isArray(value) ? value.length > 0 : true)
+      value && value !== "" && (Array.isArray(value) ? value.length > 0 : true),
   );
 
   const renderFilterControl = (filterConfig: FilterConfig) => {
@@ -99,7 +99,7 @@ export default function JobsFilter({
               value={value || ""}
               onValueChange={(newValue) => onFilterChange(key, newValue)}
             >
-              <SelectTrigger className="w-full bg-gray-100 border-none text-black font-semibold hover:bg-gray-200 cursor-pointer">
+              <SelectTrigger className="w-full bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm text-black dark:text-white font-semibold hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer">
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
               <SelectContent>
@@ -124,7 +124,7 @@ export default function JobsFilter({
               placeholder={placeholder}
               value={value || ""}
               onChange={(e) => onFilterChange(key, e.target.value)}
-              className="w-full bg-gray-100 border-none"
+              className="w-full bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm dark:text-white"
             />
           </FormField>
         );
@@ -137,8 +137,8 @@ export default function JobsFilter({
   return (
     <Card
       className={cn(
-        "mx-4 lg:mx-0 shadow-none bg-transparent sm:bg-white sm:shadow-sm border border-none sm:border sm:border-[#F5EBFF] rounded-xl",
-        className
+        "shadow-none pl-4 sm:pl-0 bg-transparent sm:bg-white dark:sm:bg-gray-950 shadow-sm sm:shadow-xl border border-gray-200 dark:border-gray-700 sm:border-gray-200 dark:sm:border-gray-700 rounded-xl",
+        className,
       )}
     >
       <CardContent className="p-0">
@@ -150,14 +150,20 @@ export default function JobsFilter({
               placeholder={searchPlaceholder}
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-10 bg-gray-100 border-0 flex-1"
+              className={cn(
+                "pl-10 border-gray-200 dark:border-gray-700 h-11 flex-1 shadow-sm",
+                "bg-white dark:bg-gray-900 text-foreground placeholder:text-muted-foreground focus-visible:ring-purple/20",
+              )}
             />
             <Input
               leftIcon={<MapPin className="h-4 w-4" />}
               placeholder={locationPlaceholder}
               value={locationQuery}
               onChange={(e) => onLocationChange(e.target.value)}
-              className="pl-10 bg-gray-100 border-0 flex-1"
+              className={cn(
+                "pl-10 border-gray-200 dark:border-gray-700 h-11 flex-1 shadow-sm",
+                "bg-white dark:bg-gray-900 text-foreground placeholder:text-muted-foreground focus-visible:ring-purple/20",
+              )}
             />
           </div>
         </div>
@@ -228,7 +234,7 @@ export default function JobsFilter({
                       onClick={() =>
                         onFilterChange(
                           key,
-                          filterConfig?.type === "multiselect" ? [] : ""
+                          filterConfig?.type === "multiselect" ? [] : "",
                         )
                       }
                       className="ml-2 hover:text-purple-900"

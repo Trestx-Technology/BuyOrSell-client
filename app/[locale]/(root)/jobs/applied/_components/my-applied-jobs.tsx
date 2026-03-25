@@ -62,55 +62,68 @@ export default function MyAppliedJobs() {
       return (
             <Container1080>
                   <MobileStickyHeader title="My Applied Jobs" />
-                  <div className="px-6 space-y-6 my-6">
+                  <div className="px-4 sm:px-6 space-y-8 my-6">
+                        
+                        <div className="flex flex-col gap-4">
+                              <Breadcrumbs
+                                    items={[
+                                          { id: "1", label: "Home", href: "/" },
+                                          { id: "2", label: "Jobs", href: "/jobs" },
+                                          { id: "3", label: "My Applied Jobs", href: "/jobs/applied" },
+                                    ]}
+                              />
 
-                        <Breadcrumbs
-                              items={[
-                                    { id: "2", label: "Jobs", href: "/jobs" },
-                                    { id: "3", label: "My Applied Jobs", href: "/jobs/applied" },
-                              ]}
-                        />
-
-                        <div className="lg:block hidden">
-                              <Typography variant="h2" className="text-dark-blue font-bold mb-2">
-                                    My Applied Jobs
-                              </Typography>
-                              <div className="flex items-center gap-2 mb-4">
-                                {tabs.map((tab) => (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => handleTabChange(tab.id)}
-                                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                                            currentType === tab.id
-                                                ? "bg-purple text-white"
-                                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                                        }`}
-                                    >
-                                        {tab.label}
-                                    </button>
-                                ))}
+                              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                                    <div>
+                                          <Typography variant="h2" className="text-dark-blue dark:text-gray-100 font-bold mb-1">
+                                                My Applied Jobs
+                                          </Typography>
+                                          <Typography variant="body-small" className="text-grey-blue dark:text-gray-400">
+                                                Track and manage your job applications in one place.
+                                          </Typography>
+                                    </div>
+                                    <div className="bg-gray-100/50 dark:bg-gray-800/50 p-1 rounded-xl inline-flex gap-1 border border-gray-200 dark:border-gray-700">
+                                          {tabs.map((tab) => (
+                                                <button
+                                                      key={tab.id}
+                                                      onClick={() => handleTabChange(tab.id)}
+                                                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                                                            currentType === tab.id
+                                                                  ? "bg-white dark:bg-gray-700 text-purple shadow-sm ring-1 ring-black/5"
+                                                                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                                      }`}
+                                                >
+                                                      {tab.label}
+                                                </button>
+                                          ))}
+                                    </div>
                               </div>
-                              <Typography variant="body-small" className="text-grey-blue">
-                                    You have {applications.length} {currentType} applications.
+                        </div>
+
+                        <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                              <Typography variant="body-small" className="text-grey-blue dark:text-gray-400 font-medium">
+                                    Showing {applications.length} {currentType} applications
                               </Typography>
                         </div>
 
                         {isLoading ? (
-                              <div className="flex flex-wrap gap-6">
-                                    {[...Array(8)].map((_, i) => (
-                                          <Skeleton key={i} className="h-[300px] w-full rounded-2xl" />
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {[...Array(6)].map((_, i) => (
+                                          <Skeleton key={i} className="h-[280px] w-full rounded-2xl" />
                                     ))}
                               </div>
                         ) : applications.length > 0 ? (
-                              <div className="flex items-center flex-wrap gap-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {applications.map((app) => (
                                           <AppliedJobCard key={app._id} application={app} />
                                     ))}
                               </div>
-
                         ) : (
-                              <div className="flex flex-col items-center justify-center py-20 text-center">
-                                    <NoDataCard title={`No ${currentType} Jobs`} description={`You have no ${currentType} job applications.`} />
+                              <div className="flex flex-col items-center justify-center py-20 text-center bg-gray-50 dark:bg-zinc-900/50 rounded-3xl border border-dashed border-gray-200 dark:border-gray-800">
+                                    <NoDataCard 
+                                          title={`No ${currentType} Jobs Found`} 
+                                          description={`You don't have any job applications with status "${currentType}" at the moment.`} 
+                                    />
                               </div>
                         )}
                   </div>

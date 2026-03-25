@@ -43,14 +43,14 @@ export default function ProgressBar({
   return (
     <div className="flex flex-col gap-8 md:gap-4">
       {/* Title */}
-      <h2 className="text-xs font-semibold text-[#1D2939] text-left">
+      <h2 className="text-xs font-semibold text-[#1D2939] dark:text-white text-left">
         {title}
       </h2>
 
       {/* Progress Bar Container */}
       <div className="w-full relative">
         {/* Background Line */}
-        <div className="w-full h-1 bg-[#EDEEF5] rounded-full"></div>
+        <div className="w-full h-1 bg-[#EDEEF5] dark:bg-gray-800 rounded-full"></div>
 
         {/* Progress Line */}
         <div

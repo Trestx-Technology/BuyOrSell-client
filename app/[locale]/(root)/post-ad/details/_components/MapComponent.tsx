@@ -633,6 +633,11 @@ export const MapComponent = ({
             }
           });
         }
+        
+        // Populate the search query with the initial location address
+        if (initialLocation.address) {
+          setSearchQuery(initialLocation.address);
+        }
       }
 
       // Add click listener for new markers

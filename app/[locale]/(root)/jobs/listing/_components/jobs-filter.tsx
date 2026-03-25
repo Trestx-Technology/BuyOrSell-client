@@ -78,7 +78,7 @@ export default function JobsFilter({
   const [localSearchQuery, setLocalSearchQuery] = useDebouncedValue(
     searchQuery,
     (value) => onSearchChange(value),
-    500
+    500,
   );
 
   // Sync local state with props when they change externally
@@ -91,7 +91,7 @@ export default function JobsFilter({
       value &&
       value !== "" &&
       !(value instanceof Date && isNaN(value.getTime())) &&
-      (Array.isArray(value) ? value.length > 0 : true)
+      (Array.isArray(value) ? value.length > 0 : true),
   );
 
   const renderFilterControl = (filterConfig: FilterConfig) => {
@@ -118,7 +118,7 @@ export default function JobsFilter({
               value={value || ""}
               onValueChange={(newValue) => onFilterChange(key, newValue)}
             >
-              <SelectTrigger className="w-full bg-gray-100 border-none text-black font-semibold hover:bg-gray-200 cursor-pointer">
+              <SelectTrigger className="w-full bg-gray-100 dark:bg-gray-900 border-none text-black dark:text-white font-semibold hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer">
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
               <SelectContent>
@@ -136,8 +136,8 @@ export default function JobsFilter({
         return (
           <FormField label={filterConfig.label} required={false}>
             <div className="w-40">
-              <div className="px-3 py-2 border border-gray-200 rounded-md bg-white">
-                <div className="text-sm text-gray-600 mb-2">
+              <div className="px-3 py-2 border border-gray-200 dark:border-gray-800 rounded-md bg-white dark:bg-gray-900">
+                <div className="text-sm text-gray-600 dark:text-gray-300 mb-2">
                   {value ? `${value[0]} - ${value[1]}` : `${min} - ${max}`}
                 </div>
                 <Slider
@@ -189,7 +189,7 @@ export default function JobsFilter({
                       <button
                         onClick={() => {
                           const newValues = value.filter(
-                            (v) => v !== selectedValue
+                            (v) => v !== selectedValue,
                           );
                           onFilterChange(key, newValues);
                         }}
@@ -237,8 +237,8 @@ export default function JobsFilter({
                     ? typeof filters.fromDate === "string"
                       ? new Date(filters.fromDate)
                       : filters.fromDate instanceof Date
-                      ? filters.fromDate
-                      : undefined
+                        ? filters.fromDate
+                        : undefined
                     : undefined
                 }
               />
@@ -254,8 +254,8 @@ export default function JobsFilter({
   return (
     <Card
       className={cn(
-        "shadow-none bg-transparent sm:bg-white sm:shadow-sm border border-none sm:border sm:border-[#F5EBFF] rounded-xl",
-        className
+        "shadow-none bg-transparent sm:bg-white sm:dark:bg-gray-950 shadow-sm sm:shadow-xl border border-gray-200 dark:border-gray-700 sm:border-[#F5EBFF] sm:dark:border-gray-700 rounded-xl",
+        className,
       )}
     >
       <CardContent className="p-0">
@@ -266,13 +266,13 @@ export default function JobsFilter({
             placeholder={searchPlaceholder}
             value={localSearchQuery}
             onChange={(e) => setLocalSearchQuery(e.target.value)}
-            className="pl-10 bg-gray-100 border-0 flex-1"
+            className="pl-10 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm flex-1 dark:text-white dark:placeholder:text-gray-400"
           />
           <LocationAutocomplete
             value={locationQuery}
             onChange={onLocationChange}
             placeholder={locationPlaceholder}
-            className="pl-10 bg-gray-100 border-0 flex-1"
+            className="pl-10 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm flex-1 dark:text-white dark:placeholder:text-gray-400"
           />
         </div>
 
@@ -327,8 +327,8 @@ export default function JobsFilter({
                 const displayValue = Array.isArray(value)
                   ? value.join(", ")
                   : value instanceof Date
-                  ? formatDateLocale(value)
-                  : value;
+                    ? formatDateLocale(value)
+                    : value;
 
                 return (
                   <Badge
@@ -344,8 +344,8 @@ export default function JobsFilter({
                           filterConfig?.type === "multiselect"
                             ? []
                             : filterConfig?.type === "calendar"
-                            ? undefined
-                            : ""
+                              ? undefined
+                              : "",
                         )
                       }
                       className="ml-2 hover:text-purple-900"

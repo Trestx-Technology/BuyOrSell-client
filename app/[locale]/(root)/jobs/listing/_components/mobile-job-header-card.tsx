@@ -28,9 +28,11 @@ import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-
 import Image from "next/image";
 import { useApplyToJob } from "@/hooks/useJobApplications";
 import { useGetJobseekerProfile } from "@/hooks/useJobseeker";
-import { useLocale } from "@/hooks/useLocale";
-import Link from "next/link";
 import { ChatInit } from "@/components/global/chat-init";
+import { transformAdToJobCard } from "@/utils/transform-ad-to-job-card";
+import { formatCompactPrice } from "@/utils/price-formatter";
+import Link from "next/link";
+import { useLocale } from "@/hooks/useLocale";
 
 export interface MobileJobHeaderCardProps {
   job: AD;
@@ -81,6 +83,8 @@ export default function MobileJobHeaderCard({
         value,
       }));
 
+  const jobProps = transformAdToJobCard(job);
+
   const getFieldValue = (fieldName: string): string => {
     const field = extraFields.find((f) =>
       f.name?.toLowerCase().includes(fieldName.toLowerCase())
@@ -94,38 +98,24 @@ export default function MobileJobHeaderCard({
     return "";
   };
 
-  const getSalaryFromAd = (type: "min" | "max"): number | undefined => {
-    const salaryField = extraFields.find(
-      (field) =>
-        field.name?.toLowerCase().includes("salary") &&
-        (type === "min"
-          ? field.name?.toLowerCase().includes("min")
-          : field.name?.toLowerCase().includes("max"))
-    );
-    if (salaryField && typeof salaryField.value === "number") {
-      return salaryField.value;
-    }
-    return type === "min" ? job.price : job.price;
-  };
-
   const companyName =
     isArabic && job.organization?.tradeNameAr ? job.organization.tradeNameAr :
       (isArabic && job.organization?.legalNameAr ? job.organization.legalNameAr :
-        (job.organization?.tradeName || job.organization?.legalName || "Company"));
+        (job.organization?.tradeName || job.organization?.legalName || jobProps.company));
   const companyLogo = logo || job.organization?.logoUrl;
   const jobMode = isArabic && job.jobModeAr ? job.jobModeAr : (job.jobMode || getFieldValue("jobMode") || getFieldValue("job mode") || "");
   const jobShift = isArabic && job.jobShiftAr ? job.jobShiftAr : (job.jobShift || getFieldValue("jobShift") || getFieldValue("job shift") || "");
-  const jobType = getFieldValue("jobType") || getFieldValue("job type") || "";
-  const experience = getFieldValue("experience") || "";
-  const salaryMin = job.minSalary ?? getSalaryFromAd("min");
-  const salaryMax = job.maxSalary ?? getSalaryFromAd("max");
+  const jobType = jobProps.jobType;
+  const experience = jobProps.experience;
+  const salaryMin = jobProps.salaryMin;
+  const salaryMax = jobProps.salaryMax;
   const jobTitle = isArabic && job.titleAr ? job.titleAr : job.title;
   const location =
     typeof job.location === "string"
       ? job.location
       : (isArabic && job.location?.cityAr ? job.location.cityAr :
         (isArabic && job.address?.cityAr ? job.address.cityAr :
-          (job.location?.city || job.address?.city || "")));
+          (job.location?.city || job.address?.city || jobProps.location)));
 
   // Build map redirect URL
   const getMapUrl = (): string | null => {
@@ -402,8 +392,8 @@ export default function MobileJobHeaderCard({
               variant="body-small"
               className="text-foreground text-sm font-medium"
             >
-              {salaryMin?.toLocaleString() || "0"} -{" "}
-              {salaryMax?.toLocaleString() || "Not specified"}
+              {salaryMin && salaryMin > 0 ? `${formatCompactPrice(salaryMin)} - ` : "Salary not specified"}
+              {salaryMax && salaryMax > 0 && formatCompactPrice(salaryMax)}
             </Typography>
           </div>
 
