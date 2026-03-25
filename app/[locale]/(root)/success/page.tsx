@@ -434,7 +434,7 @@ export default function SuccessPage() {
                   </button>
                 ) : (
                   <button
-                    onClick={() => router.push(localePath(`/my-ads`))}
+                    onClick={() => router.push(localePath(`/user/my-ads`))}
                     className="text-[#5645EE] hover:underline flex items-center text-sm font-semibold"
                   >
                     {isJob ? t.success.myJobs : t.success.myAds}{" "}

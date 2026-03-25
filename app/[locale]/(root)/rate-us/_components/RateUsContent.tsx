@@ -208,7 +208,7 @@ export const RateUsContent = () => {
               <Button
                 onClick={handleSubmit}
                 disabled={submitRatingMutation.isPending}
-                className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 text-base font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-purple hover:bg-purple/90 text-white py-3 text-base font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitRatingMutation.isPending
                   ? "Submitting..."

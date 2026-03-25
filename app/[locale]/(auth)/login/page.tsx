@@ -177,12 +177,7 @@ const LoginContent = () => {
         size={"lg"}
         variant={"filled"}
         onClick={handleLogin}
-        disabled={
-          !loginData.email ||
-          !loginData.password ||
-          loginMutation.isPending ||
-          isGeneratingDeviceKey
-        }
+        disabled={loginMutation.isPending || isGeneratingDeviceKey}
         isLoading={loginMutation.isPending || isGeneratingDeviceKey}
       >
         {t.auth.login.loginButton}

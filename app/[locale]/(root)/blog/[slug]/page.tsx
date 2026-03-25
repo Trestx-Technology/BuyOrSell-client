@@ -39,6 +39,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 }
 
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { Container1080 } from "@/components/layouts/container-1080";
+
 export default async function BlogPostPage({ params }: Props) {
   const { slug, locale } = await params;
   const blog = (blogsData as Blog[]).find((b) => b.slug === slug);
@@ -47,8 +50,20 @@ export default async function BlogPostPage({ params }: Props) {
     return notFound();
   }
 
+  const isRTL = locale === "ar";
+  const displayTitle = isRTL ? blog.title_ar || blog.title : blog.title;
+
   return (
     <article className="min-h-screen pt-4 pb-20">
+      <Container1080 className="mb-6">
+        <Breadcrumbs
+          items={[
+            { id: "1", label: "Home", href: "/" },
+            { id: "2", label: "Blog", href: "/blog" },
+            { id: "3", label: displayTitle, href: `/blog/${slug}` },
+          ]}
+        />
+      </Container1080>
       <BlogContent blog={blog} locale={locale} />
     </article>
   );

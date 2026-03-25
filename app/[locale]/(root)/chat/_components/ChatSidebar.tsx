@@ -216,6 +216,12 @@ export function ChatSidebar({
 }: ChatSidebarProps) {
   const { t, locale } = useLocale();
   const isArabic = locale === "ar";
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredChats = chats.filter((chat) =>
+    chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   
   return (
     <div className={cn("w-full md:max-w-sm flex flex-col h-full bg-white dark:bg-black border-r border-gray-100 dark:border-gray-800", className)}>
@@ -226,6 +232,8 @@ export function ChatSidebar({
           <div className="relative w-full">
             <Input
               placeholder={t.chat.searchPlaceholder}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-white/10 dark:bg-white/10 border-white/20 text-white placeholder:text-white/60 pl-9 focus:bg-white focus:text-gray-900 dark:focus:text-gray-900 focus:placeholder:text-gray-400 transition-all duration-300"
             />
             <svg className={cn("absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none", isArabic ? "right-3" : "left-3")} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -237,7 +245,7 @@ export function ChatSidebar({
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-scroll custom-scrollbar dark:bg-black">
-        {chats.length === 0 ? (
+        {filteredChats.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-gray-50/30 dark:bg-gray-900/10">
             <div className="w-20 h-20 bg-purple-50 dark:bg-purple/10 rounded-full flex items-center justify-center mb-6">
               <svg
@@ -263,7 +271,7 @@ export function ChatSidebar({
           </div>
         ) : (
           <AnimatePresence initial={false}>
-            {chats.map((chat) => (
+            {filteredChats.map((chat) => (
               <ChatListItem
                 key={chat.id}
                 chat={chat}

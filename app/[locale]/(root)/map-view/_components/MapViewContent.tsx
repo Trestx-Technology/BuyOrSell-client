@@ -11,6 +11,7 @@ import { normalizeExtraFieldsToArray } from "@/utils/normalize-extra-fields";
 import { AdFilterPayload, ProductExtraFields } from "@/interfaces/ad";
 import { useLocale } from "@/hooks/useLocale";
 import { Container1080 } from "@/components/layouts/container-1080";
+import { Typography } from "@/components/typography";
 import {
   useAds,
   useFilterAds,
@@ -561,9 +562,16 @@ export const MapViewContent = () => {
           hasMore={!!hasNextPage}
           isLoading={isFetchingNextPage}
         >
-          <Container1080 className="flex items-start justify-between gap-4 relative p-2 pt-6 h-auto min-h-full !overflow-visible">
-            <ProductsGrid
-              ads={ads}
+          <Container1080 className="flex flex-col items-start gap-4 relative p-4 pt-6 h-auto min-h-full">
+            <div className="w-full flex items-center justify-between">
+              <Typography variant="body-small" className="text-gray-500 font-semibold bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+                {ads.length} {ads.length === 1 ? "ad" : "ads"} found
+              </Typography>
+            </div>
+            
+            <div className="w-full flex items-start justify-between gap-4 h-full">
+              <ProductsGrid
+                ads={ads}
               isLoading={isLoading}
               title={t.mapView.title}
               showReturnButton={true}
@@ -592,6 +600,7 @@ export const MapViewContent = () => {
                 {/* </div> */}
               </div>
             )}
+          </div>
 
             <HorizontalCarouselSlider
               items={ads.slice(0, 10).map((ad) => {

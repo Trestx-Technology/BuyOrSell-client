@@ -94,12 +94,6 @@ export default function ProductsGrid({
         </div>
       )}
 
-      {/* Empty State */}
-      {!isLoading && ads.length === 0 && (
-        <motion.div variants={itemVariants} className="text-center py-12">
-          <p className="text-gray-500 font-inter">No products found</p>
-        </motion.div>
-      )}
     </motion.div>
   );
 }
