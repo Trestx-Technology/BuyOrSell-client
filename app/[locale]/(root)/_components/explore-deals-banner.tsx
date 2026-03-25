@@ -27,14 +27,14 @@ export function ExploreDealsBanner() {
   if (!banners || banners.length === 0) {
     // Fallback if no banners are returned from API
     return (
-      <div className="relative rounded-[32px] overflow-hidden max-w-[338px] h-[380px] bg-black group border border-white/10 shadow-xl">
+      <div className="relative rounded-[32px] overflow-hidden max-w-[338px] h-[380px] bg-slate-900 group border border-white/10 shadow-xl">
         <Image
           src="/images/hero/dubai-skyline.png"
           fill
           className="object-cover transition-transform duration-1000 group-hover:scale-110 grayscale brightness-75"
           alt="Dubai Skyline"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent flex flex-col justify-end p-8 pb-10">
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/40 to-transparent flex flex-col justify-end p-8 pb-10">
           <h2 className="text-2xl font-bold text-white mb-2 leading-tight">
             Post an Ad for Free
           </h2>
@@ -43,7 +43,7 @@ export function ExploreDealsBanner() {
           </p>
           <Link href="/ad/create">
             <Button
-              className="w-fit bg-white text-black hover:bg-gray-100 dark:bg-white dark:text-black rounded-2xl h-[48px] px-6 text-sm font-bold group transition-all"
+              className="w-fit bg-purple text-white hover:bg-purple/90 dark:bg-purple dark:text-white rounded-2xl h-[48px] px-6 text-sm font-bold group transition-all"
               icon={
                 <ChevronRight className="-ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
               }
@@ -61,12 +61,11 @@ export function ExploreDealsBanner() {
     <CarouselWrapper
       className="h-[380px] max-w-[338px]"
       containerClassName="h-full"
-      shadowColorClassName="from-black/50 to-transparent"
     >
       {banners.map((banner: any, index: number) => (
         <div
           key={index}
-          className="relative min-w-full h-full rounded-[32px] overflow-hidden group border border-white/10 bg-black shadow-xl"
+          className="relative min-w-full h-full rounded-[32px] overflow-hidden group border border-white/10"
         >
           <Image
             src={banner.image || banner.imageUrl || "/images/placeholder.png"}
@@ -74,7 +73,7 @@ export function ExploreDealsBanner() {
             className="object-cover transition-transform duration-1000 group-hover:scale-110 grayscale brightness-[0.6]"
             alt={banner.title || "Explore Deals"}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent flex flex-col justify-end p-8 pb-10">
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent flex flex-col justify-end p-8 pb-10">
             <h2 className="text-2xl font-bold text-white mb-2 leading-tight">
               {banner.title || "Post an Ad for Free"}
             </h2>
@@ -84,7 +83,7 @@ export function ExploreDealsBanner() {
                 "Explore our exclusive collection of premium properties in UAE."}
             </p>
             <Button
-              className="w-fit bg-white text-black hover:bg-gray-100 dark:bg-white dark:text-black rounded-2xl h-[48px] px-6 text-sm font-bold group transition-all"
+              className="w-fit bg-purple text-white hover:bg-purple/90 dark:bg-purple dark:text-white rounded-2xl h-[48px] px-6 text-sm font-bold group transition-all"
               asChild
               icon={
                 <ChevronRight className="-ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />

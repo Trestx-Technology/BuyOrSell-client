@@ -5,7 +5,7 @@ import Image from "next/image";
 import { ICONS } from "@/constants/icons";
 import { AD } from "@/interfaces/ad";
 import { getDiscountInfo, DiscountInfo } from "@/utils/get-discount-info";
-import { H4, H5 } from "../typography";
+import { H4, H5, Typography } from "../typography";
 import { cn } from "@/lib/utils";
 import { formatPrice, formatCompactPrice } from "@/utils/price-formatter";
 
@@ -107,7 +107,11 @@ export function PriceDisplay({
   const hasDiscount = !!(discountOriginalPrice && discountPercentage);
 
   if (!currentPrice) {
-    return null;
+    return (
+      <Typography variant="body-small" className={cn("text-grey-blue dark:text-gray-500 font-medium italic", currentPriceClassName)}>
+        Price not specified
+      </Typography>
+    );
   }
 
   return (

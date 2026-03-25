@@ -128,7 +128,7 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
             <div
                   role="button"
                   className={cn(
-                        "hidden md:flex overflow-hidden rounded-2xl border border-purple-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-lg transition-all duration-300 cursor-pointer group relative",
+                        "hidden md:flex h-[180px] overflow-hidden rounded-2xl border border-purple-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-lg transition-all duration-300 cursor-pointer group relative",
                         className
                   )}
                   onClick={handleCardClick}
@@ -393,15 +393,6 @@ const DesktopCardLayout: React.FC<InternalCardProps> = ({
                                                 variant="ghost"
                                                 onClick={handleWhatsapp}
                                                 icon={<FaWhatsapp className="h-4 w-4" />}
-                                                iconPosition="center"
-                                          />
-                                    )}
-                                    {showCall && (
-                                          <Button
-                                                size={"icon-sm"}
-                                                variant="ghost"
-                                                onClick={handleCall}
-                                                icon={<Phone className="h-4 w-4" />}
                                                 iconPosition="center"
                                           />
                                     )}
@@ -705,16 +696,6 @@ const MobileCardLayout: React.FC<InternalCardProps> = ({
                         </div>
 
                         <div className="flex items-center">
-                              {showCall && (
-                                    <Button
-                                          variant="ghost"
-                                          size="icon"
-                                          className="h-8 w-8 hover:bg-purple/10"
-                                          onClick={handleCall}
-                                    >
-                                          <Phone className="text-purple size-5" />
-                                    </Button>
-                              )}
                               {showChat && (
                                     <ChatInit
                                           adId={id}

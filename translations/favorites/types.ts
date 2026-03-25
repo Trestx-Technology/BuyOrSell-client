@@ -4,6 +4,7 @@
 export type FavoritesTranslations = {
   // Page titles
   myFavorites: string;
+  createNewCollection: string;
   collection: string;
 
   // Sort options

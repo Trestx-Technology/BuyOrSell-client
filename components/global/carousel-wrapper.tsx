@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback, ReactNode } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -71,11 +77,11 @@ export const CarouselWrapper = ({
       {/* Left Scroll Button and Gradient */}
       {canScrollLeft && (
         <>
-          <div 
+          <div
             className={cn(
-                "absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r to-transparent z-10 pointer-events-none transition-opacity duration-300",
-                shadowColorClassName
-            )} 
+              "absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r to-transparent z-10 pointer-events-none transition-opacity duration-300",
+              shadowColorClassName,
+            )}
           />
           <Button
             variant="outline"
@@ -94,7 +100,7 @@ export const CarouselWrapper = ({
         className={cn(
           "flex flex-1 items-center gap-3 overflow-x-auto relative scroll-smooth",
           hideScrollbar && "scrollbar-hide",
-          containerClassName
+          containerClassName,
         )}
       >
         {children}
@@ -103,11 +109,11 @@ export const CarouselWrapper = ({
       {/* Right Scroll Button and Gradient */}
       {canScrollRight && (
         <>
-          <div 
+          <div
             className={cn(
-                "absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l to-transparent z-10 pointer-events-none transition-opacity duration-300",
-                shadowColorClassName
-            )} 
+              "absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l to-transparent z-10 pointer-events-none transition-opacity duration-300",
+              shadowColorClassName,
+            )}
           />
           <Button
             variant="outline"

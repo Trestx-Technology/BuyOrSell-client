@@ -73,9 +73,7 @@ export function VideoViewer() {
       const isArabic = locale === 'ar';
       const containerRef = useRef<HTMLDivElement>(null);
       const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-
-      const adId = searchParams.get("adId");
-      const [initialAdId] = useState(() => searchParams.get("adId"));
+      const [initialAdId, setInitialAdId] = useState(() => searchParams.get("adId"));
       const isInitialSeekDone = useRef(false);
       const [selectedCategory, setSelectedCategory] = useState<string>(
             () => searchParams.get("category") || "all"
@@ -89,6 +87,7 @@ export function VideoViewer() {
       useEffect(() => {
             if (categoryFromUrl !== selectedCategory) {
                   setSelectedCategory(categoryFromUrl);
+                  setInitialAdId(null);
                   setCurrentIndex(0);
                   isInitialSeekDone.current = true;
             }
@@ -96,6 +95,7 @@ export function VideoViewer() {
 
       const handleCategoryChange = (val: string) => {
             setSelectedCategory(val);
+            setInitialAdId(null);
             const params = new URLSearchParams(window.location.search);
             if (val === "all") {
                   params.delete("category");
@@ -178,6 +178,17 @@ export function VideoViewer() {
       const [isMuted, setIsMuted] = useState(true);
       const [isPlaying, setIsPlaying] = useState(true);
       const [isTransitioning, setIsTransitioning] = useState(false);
+
+      // Handle category selection without adId
+      useEffect(() => {
+            const currentCategory = selectedCategory;
+            if (currentCategory && currentCategory !== "all" && !initialAdId && videos.length > 0 && !isLoading) {
+                  const firstAdId = videos[0].id;
+                  if (firstAdId) {
+                        router.replace(`/${locale}/watch?category=${currentCategory}&adId=${firstAdId}`, { scroll: false });
+                  }
+            }
+      }, [selectedCategory, initialAdId, videos, isLoading, router, locale]);
       const [durations, setDurations] = useState<Record<string, string>>({});
       const [progress, setProgress] = useState(0);
       const [currentTimes, setCurrentTimes] = useState<Record<string, string>>({});

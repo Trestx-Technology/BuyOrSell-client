@@ -56,7 +56,7 @@ export const useSendNotification = () => {
     mutationFn: sendNotification,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: notificationsQueries.getNotifications().Key,
+        queryKey: ["notifications"],
       });
     },
   });
@@ -72,7 +72,7 @@ export const useDeleteNotification = () => {
     mutationFn: deleteNotification,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: notificationsQueries.getNotifications().Key,
+        queryKey: ["notifications"],
       });
     },
   });
@@ -88,7 +88,7 @@ export const useMarkNotificationRead = () => {
     mutationFn: markNotificationRead,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: notificationsQueries.getNotifications().Key,
+        queryKey: ["notifications"],
       });
     },
   });
@@ -104,7 +104,7 @@ export const useMarkAllNotificationsRead = () => {
     mutationFn: markAllNotificationsRead,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: notificationsQueries.getNotifications().Key,
+        queryKey: ["notifications"],
       });
     },
   });
@@ -120,7 +120,7 @@ export const useMarkSelectedNotificationsRead = () => {
     mutationFn: markSelectedNotificationsRead,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: notificationsQueries.getNotifications().Key,
+        queryKey: ["notifications"],
       });
     },
   });

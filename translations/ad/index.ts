@@ -34,6 +34,24 @@ export const adTranslations = createTranslationNamespace<AdTranslations>({
     similarAds: {
       title: 'Similar Ads',
     },
+    report: {
+      button: 'Report this ad',
+      title: 'Report this ad',
+      reasonLabel: 'Reason for reporting',
+      detailsLabel: 'Additional details (optional)',
+      detailsPlaceholder: 'Tell us more about the issue...',
+      submit: 'Submit Report',
+      cancel: 'Cancel',
+      successMessage: 'Thank you for your report. We will investigate this ad.',
+      errorMessage: 'Failed to submit report. Please try again.',
+      reasons: {
+        spam: 'Spam or misleading',
+        inappropriate: 'Inappropriate content',
+        scam: 'Scam or fraud',
+        incorrectInfo: 'Incorrect information',
+        other: 'Other',
+      },
+    },
   },
   'nl-NL': {
     header: {
@@ -66,6 +84,24 @@ export const adTranslations = createTranslationNamespace<AdTranslations>({
     },
     similarAds: {
       title: 'Vergelijkbare advertenties',
+    },
+    report: {
+      button: 'Meld deze advertentie',
+      title: 'Meld deze advertentie',
+      reasonLabel: 'Reden voor melding',
+      detailsLabel: 'Extra details (optioneel)',
+      detailsPlaceholder: 'Vertel ons meer over het probleem...',
+      submit: 'Melding indienen',
+      cancel: 'Annuleren',
+      successMessage: 'Bedankt voor je melding. We zullen deze advertentie onderzoeken.',
+      errorMessage: 'Melding indienen mislukt. Probeer het opnieuw.',
+      reasons: {
+        spam: 'Spam of misleidend',
+        inappropriate: 'Ongepaste inhoud',
+        scam: 'Oplichting of fraude',
+        incorrectInfo: 'Onjuiste informatie',
+        other: 'Anders',
+      },
     },
   },
   'nl': {
@@ -100,6 +136,24 @@ export const adTranslations = createTranslationNamespace<AdTranslations>({
     similarAds: {
       title: 'Vergelijkbare advertenties',
     },
+    report: {
+      button: 'Meld deze advertentie',
+      title: 'Meld deze advertentie',
+      reasonLabel: 'Reden voor melding',
+      detailsLabel: 'Extra details (optioneel)',
+      detailsPlaceholder: 'Vertel ons meer over het probleem...',
+      submit: 'Melding indienen',
+      cancel: 'Annuleren',
+      successMessage: 'Bedankt voor je melding. We zullen deze advertentie onderzoeken.',
+      errorMessage: 'Melding indienen mislukt. Probeer het opnieuw.',
+      reasons: {
+        spam: 'Spam of misleidend',
+        inappropriate: 'Ongepaste inhoud',
+        scam: 'Oplichting of fraude',
+        incorrectInfo: 'Onjuiste informatie',
+        other: 'Anders',
+      },
+    },
   },
   'ar': {
     header: {
@@ -132,6 +186,24 @@ export const adTranslations = createTranslationNamespace<AdTranslations>({
     },
     similarAds: {
       title: 'إعلانات مشابهة',
+    },
+    report: {
+      button: 'الإبلاغ عن هذا الإعلان',
+      title: 'الإبلاغ عن هذا الإعلان',
+      reasonLabel: 'سبب الإبلاغ',
+      detailsLabel: 'تفاصيل إضافية (اختياري)',
+      detailsPlaceholder: 'أخبرنا المزيد عن المشكلة...',
+      submit: 'إرسال البلاغ',
+      cancel: 'إلغاء',
+      successMessage: 'شكراً لبلاغك. سنقوم بالتحقيق في هذا الإعلان.',
+      errorMessage: 'فشل إرسال البلاغ. يرجى المحاولة مرة أخرى.',
+      reasons: {
+        spam: 'رسائل غير مرغوب فيها أو مضللة',
+        inappropriate: 'محتوى غير لائق',
+        scam: 'احتيال أو خداع',
+        incorrectInfo: 'معلومات غير صحيحة',
+        other: 'آخر',
+      },
     },
   },
 });

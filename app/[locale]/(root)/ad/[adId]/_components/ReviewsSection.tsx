@@ -267,54 +267,33 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ ad }) => {
             <div className="space-y-4">
               {reviewData.reviews.length > 0 ? (
                 reviewData.reviews.map((review: any) => (
-                  <div key={review.id} className="flex items-start gap-4">
-                    {/* User Avatar */}
-                    <div className="w-10 h-10 bg-[#9FB7E4] rounded-full flex items-center justify-center flex-shrink-0">
-                      <Typography
-                        variant="body-small"
-                        className="text-white font-semibold text-sm"
-                      >
-                        {review.avatar}
-                      </Typography>
-                    </div>
-
-                    {/* Review Content */}
-                    <div className="flex-1">
-                      {/* User Name */}
-                      <div className="mb-2 space-y-1">
-                        <Typography
-                          variant="body-small"
-                          className="text-dark-blue dark:text-gray-100 font-semibold text-sm"
-                        >
-                          {review.userName}
-                        </Typography>
-                        <div className="flex items-center gap-1">
-                          {renderStars(review.rating, "small")}
-                          <Typography
-                            variant="body-small"
-                            className="text-dark-blue dark:text-gray-100 font-semibold text-xs"
-                          >
-                            {review.rating}
-                          </Typography>
-                        </div>
+                  <div
+                    key={review.id}
+                    className="flex flex-col gap-2 p-3 bg-gray-50/50 dark:bg-slate-800/30 rounded-xl border border-gray-100 dark:border-slate-800/50 transition-all hover:border-purple/20"
+                  >
+                    {/* Rating Section */}
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        {renderStars(review.rating, "small")}
                       </div>
-
-                      {/* Review Comment */}
                       <Typography
                         variant="body-small"
-                        className="text-dark-blue dark:text-gray-100 font-semibold text-md"
+                        className="text-dark-blue dark:text-gray-200 font-bold text-xs bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded border border-gray-200 dark:border-slate-800"
                       >
-                        {review.comment}
+                        {review.rating.toFixed(1)}
                       </Typography>
-
-                      {/* Full Comment */}
-                      <Typography
-                        variant="body-small"
-                        className="text-black dark:text-gray-300 text-sm leading-relaxed mb-4"
-                      >
-                        {review.fullComment}
-                      </Typography>
+                      <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium ml-auto">
+                        {review.timeAgo}
+                      </span>
                     </div>
+
+                    {/* Review Comment */}
+                    <Typography
+                      variant="body-small"
+                      className="text-black dark:text-gray-300 text-sm leading-relaxed px-1"
+                    >
+                      {review.comment}
+                    </Typography>
                   </div>
                 ))
               ) : (

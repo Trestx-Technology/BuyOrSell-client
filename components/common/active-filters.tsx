@@ -176,8 +176,8 @@ export const ActiveFilters = ({
                               key={`${filter.isDynamic ? "dyn" : "static"}-${filter.key}`}
                               variant="secondary"
                               className={cn(
-                                    "flex items-center gap-1 px-3 py-1",
-                                    "bg-muted text-foreground border-border"
+                                    "flex items-center gap-1 px-3 py-1 transition-colors",
+                                    "bg-muted dark:bg-gray-900 text-foreground dark:text-white border-border dark:border-gray-800"
                               )}
                         >
                               {filter.label}

@@ -295,23 +295,24 @@ export default function EmaratiStatusPage() {
                                                                         </div>
                                                                   ) : (
                                                                               <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer relative">
-                                                                              <input
-                                                                                    type="file"
-                                                                                    accept="image/*"
-                                                                                    className="absolute inset-0 opacity-0 cursor-pointer"
-                                                                                    onChange={(e) => {
-                                                                                          const file = e.target.files?.[0];
-                                                                                          if (file) handleFileUpload(file, field.onChange, uploadFront);
-                                                                                    }}
-                                                                                    disabled={isUploadingFront}
-                                                                              />
+                                                                               <input
+                                                                                     type="file"
+                                                                                     accept="image/*"
+                                                                                     capture="environment"
+                                                                                     className="absolute inset-0 opacity-0 cursor-pointer"
+                                                                                     onChange={(e) => {
+                                                                                           const file = e.target.files?.[0];
+                                                                                           if (file) handleFileUpload(file, field.onChange, uploadFront);
+                                                                                     }}
+                                                                                     disabled={isUploadingFront}
+                                                                               />
                                                                               {isUploadingFront ? (
                                                                                     <Loader2 className="w-8 h-8 animate-spin text-purple" />
                                                                               ) : (
                                                                                     <>
                                                                                           <Upload className="w-8 h-8 text-gray-400 mb-2" />
                                                                                           <span className="text-sm text-gray-500">
-                                                                                                Click to upload Front Side
+                                                                                                Take a live picture of Front Side
                                                                                           </span>
                                                                                     </>
                                                                               )}
@@ -350,23 +351,24 @@ export default function EmaratiStatusPage() {
                                                                         </div>
                                                                   ) : (
                                                                               <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer relative">
-                                                                              <input
-                                                                                    type="file"
-                                                                                    accept="image/*"
-                                                                                    className="absolute inset-0 opacity-0 cursor-pointer"
-                                                                                    onChange={(e) => {
-                                                                                          const file = e.target.files?.[0];
-                                                                                          if (file) handleFileUpload(file, field.onChange, uploadBack);
-                                                                                    }}
-                                                                                    disabled={isUploadingBack}
-                                                                              />
+                                                                               <input
+                                                                                     type="file"
+                                                                                     accept="image/*"
+                                                                                     capture="environment"
+                                                                                     className="absolute inset-0 opacity-0 cursor-pointer"
+                                                                                     onChange={(e) => {
+                                                                                           const file = e.target.files?.[0];
+                                                                                           if (file) handleFileUpload(file, field.onChange, uploadBack);
+                                                                                     }}
+                                                                                     disabled={isUploadingBack}
+                                                                               />
                                                                               {isUploadingBack ? (
                                                                                     <Loader2 className="w-8 h-8 animate-spin text-purple" />
                                                                               ) : (
                                                                                     <>
                                                                                           <Upload className="w-8 h-8 text-gray-400 mb-2" />
                                                                                           <span className="text-sm text-gray-500">
-                                                                                                Click to upload Back Side
+                                                                                                Take a live picture of Back Side
                                                                                           </span>
                                                                                     </>
                                                                               )}

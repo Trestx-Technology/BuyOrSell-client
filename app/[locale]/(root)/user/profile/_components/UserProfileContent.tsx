@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ListingCardSkeleton from "@/components/global/listing-card-skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useMemo } from "react";
+import { ProfilePlaceholder } from "@/components/global/profile-placeholder";
 
 // Transform AD to MyAdCard props
 const transformAdToMyAdCard = (ad: AD, locale?: string): MyAdCardProps => {
@@ -246,7 +247,7 @@ const UserProfileContent = () => {
                   0
             }
             joinDate={formatJoinDate(user.createdAt)}
-            avatarUrl={user.image || "/images/ai-prompt/add-image.png"}
+            avatarUrl={user.image && user.image !== "/images/ai-prompt/add-image.png" ? user.image : undefined}
             isVerified={
               user.isVerified ||
               user.emailVerified ||

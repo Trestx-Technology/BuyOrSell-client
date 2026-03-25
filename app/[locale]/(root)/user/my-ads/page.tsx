@@ -219,7 +219,7 @@ const MyAdsPage = () => {
                                                       {t.common.error}
                                                 </Typography>
                                           </div>
-                                    ) : transformedAds.length === 0 ? (
+                                    ) : filteredAds.length === 0 ? (
                                           <div className="col-span-full w-full flex flex-col items-center justify-center py-24 gap-6 text-center">
                                                 <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-full">
                                                       <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,24 +228,22 @@ const MyAdsPage = () => {
                                                 </div>
                                                 <div className="max-w-xs">
                                                       <Typography variant="h6" className="font-bold text-gray-900 dark:text-white mb-2">
-                                                            {t.user.profile.noAds}
+                                                            {activeTab === "all" ? t.user.profile.noAds : "No ads found"}
                                                       </Typography>
                                                       <Typography variant="body-small" className="text-gray-500 mb-6">
-                                                            You haven&apos;t posted any ads yet. Start selling today!
+                                                            {activeTab === "all" 
+                                                              ? "You haven't posted any ads yet. Start selling today!" 
+                                                              : `There are no ads with "${activeTab}" status.`}
                                                       </Typography>
                                                 </div>
-                                                <Link
-                                                      href={localePath("/post-ad")}
-                                                      className="bg-purple text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-purple/20 hover:bg-purple/90 transition-all hover:scale-105"
-                                                >
-                                                      Post an Ad
-                                                </Link>
-                                          </div>
-                                    ) : filteredAds.length === 0 ? (
-                                          <div className="col-span-full w-full flex flex-col items-center justify-center py-24 text-center">
-                                                <Typography variant="body-small" className="text-gray-500 italic">
-                                                      No ads found for the &quot;{activeTab}&quot; status.
-                                                </Typography>
+                                                {activeTab === "all" && (
+                                                      <Link
+                                                            href={localePath("/post-ad")}
+                                                            className="bg-purple text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-purple/20 hover:bg-purple/90 transition-all hover:scale-105"
+                                                      >
+                                                            Post an Ad
+                                                      </Link>
+                                                )}
                                           </div>
                                     ) : (
                                           filteredAds.map((ad) => (

@@ -43,7 +43,7 @@ export function SearchAnimated() {
   return (
     <div
       className={cn(
-        "relative flex items-center shadow rounded-lg flex-col flex-1 z-50 h-[40px]",
+        "relative flex items-center rounded-lg flex-col flex-1 z-50 h-[40px] border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm",
       )}
     >
       <div className="h-fit absolute top-1/2 -translate-y-1/2 h-full left-0 right-0 w-full">
@@ -53,7 +53,6 @@ export function SearchAnimated() {
           className={cn("w-full bg-transparent rounded-lg h-full relative")}
           animate={{
             backgroundColor: "transparent",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
           }}
           transition={{ type: "spring" as const, stiffness: 140, damping: 18 }}
         >

@@ -299,35 +299,33 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
           )}
 
           {/* Actions Footer */}
-          <div className="mt-auto border-t border-gray-100 dark:border-gray-800 p-3.5 flex items-center gap-2.5 z-20 relative bg-white dark:bg-gray-900 rounded-b-2xl">
+          <div className="mt-auto border-t border-gray-100 dark:border-gray-800 p-3 flex items-center gap-2 z-20 relative bg-white dark:bg-gray-900 rounded-b-2xl">
             <Button
               variant="secondary"
               size="sm"
-              className="flex-1 h-9 rounded-xl font-semibold text-xs border-none"
+              className="flex-1 min-w-0 h-9 rounded-xl font-semibold text-[11px] border-none px-2"
               onClick={handleEditClick}
-              icon={<Pencil className="w-4 h-4" />}
-              iconPosition="left"
+              icon={<Pencil className="w-3.5 h-3.5" />}
             >
-              {t.user.profileEdit.editAd}
+              <span className="truncate">{t.user.profileEdit.editAd}</span>
             </Button>
 
             {isExpired ? (
               <Button
                 variant="success"
                 size="sm"
-                className="flex-1 h-9 rounded-xl font-bold text-xs shadow-sm hover:shadow-md transition-all"
+                className="flex-1 min-w-0 h-9 rounded-xl font-bold text-[11px] shadow-sm hover:shadow-md transition-all px-2"
                 onClick={handleRenewClick}
-                icon={<RefreshCw className="w-4 h-4" />}
-                iconPosition="left"
+                icon={<RefreshCw className="w-3.5 h-3.5" />}
               >
-                Renew
+                <span className="truncate">Renew</span>
               </Button>
             ) : (
               <Button
                 variant={isPremium ? "warning" : "warningOutlined"}
                 size="sm"
                 className={cn(
-                  "flex-1 h-9 rounded-xl font-semibold text-xs transition-all",
+                  "flex-1 min-w-0 h-9 rounded-xl font-semibold text-[11px] transition-all px-2",
                   !isPremium &&
                     "border-warning-100 text-warning-100 dark:border-warning-100",
                 )}
@@ -335,12 +333,11 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
                 disabled={featureAdMutation.isPending || isPremium}
                 icon={
                   <Star
-                    className={cn("w-4 h-4", isPremium && "fill-current")}
+                    className={cn("w-3.5 h-3.5", isPremium && "fill-current")}
                   />
                 }
-                iconPosition="left"
               >
-                {isPremium ? "Featured" : "Feature"}
+                <span className="truncate">{isPremium ? "Featured" : "Feature"}</span>
               </Button>
             )}
 
@@ -351,7 +348,7 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
                   size="icon"
                   className="h-9 w-9 shrink-0 text-gray-400 hover:text-dark-blue dark:hover:text-white rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <MoreVertical className="w-5 h-5" />
+                  <MoreVertical className="w-4.5 h-4.5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent

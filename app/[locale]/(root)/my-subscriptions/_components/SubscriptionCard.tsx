@@ -128,7 +128,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
         "group relative flex flex-col rounded-[2.5rem] p-7 transition-all duration-500 border-2 overflow-hidden w-full sm:max-w-xs",
         isPremium
           ? "bg-gray-950 border-purple-500/20 shadow-2xl shadow-purple-500/10 text-white"
-          : "bg-white border-gray-100 hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/5",
+          : "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:border-purple-500/30 dark:hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/5",
         !subscription.isActive &&
           "grayscale opacity-70 border-gray-200 dark:border-gray-800",
       )}
@@ -145,7 +145,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
             "size-14 rounded-2xl flex items-center justify-center transition-transform duration-500 group-hover:scale-110 shadow-lg",
             isPremium
               ? "bg-purple-600 text-white shadow-purple-900/40"
-              : "bg-purple-50 text-purple-600 shadow-purple-100",
+              : "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 shadow-purple-100 dark:shadow-none",
           )}
         >
           <IconComponent className="size-7" />
@@ -158,10 +158,10 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               subscription.isActive
                 ? isPremium
                   ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
-                  : "bg-emerald-50 border-emerald-100 text-emerald-600"
+                  : "bg-emerald-50 dark:bg-emerald-500/20 border-emerald-100 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
                 : isPremium
                   ? "bg-red-500/20 border-red-500/30 text-red-400"
-                  : "bg-red-50 border-red-100 text-red-600",
+                  : "bg-red-50 dark:bg-red-500/20 border-red-100 dark:border-red-500/30 text-red-600 dark:text-red-400",
             )}
           >
             {subscription.isActive ? "Active" : "Inactive"}
@@ -172,7 +172,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
                 "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
                 isPremium
                   ? "bg-amber-500/20 border-amber-500/30 text-amber-400"
-                  : "bg-amber-50 border-amber-100 text-amber-600",
+                  : "bg-amber-50 dark:bg-amber-500/20 border-amber-100 dark:border-amber-500/30 text-amber-600 dark:text-amber-400",
               )}
             >
               Ending Soon
@@ -188,7 +188,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
             variant="xl-semibold"
             className={cn(
               "text-left font-black tracking-tight",
-              isPremium ? "text-white" : "text-gray-900",
+              isPremium ? "text-white" : "text-gray-900 dark:text-white",
             )}
           >
             {planName}
@@ -219,7 +219,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
             <span
               className={cn(
                 "text-sm font-black",
-                isPremium ? "text-white" : "text-gray-900",
+                isPremium ? "text-white" : "text-gray-900 dark:text-white",
               )}
             >
               {adsRemaining}{" "}
@@ -252,7 +252,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               <span
                 className={cn(
                   "text-sm font-black",
-                  isPremium ? "text-amber-400" : "text-amber-600",
+                  isPremium ? "text-amber-400" : "text-amber-600 dark:text-amber-400",
                 )}
               >
                 {featuredAdsRemaining}{" "}
@@ -294,13 +294,13 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
           "mb-8 p-4 rounded-3xl flex items-center gap-4 border",
           isPremium
             ? "bg-white/5 border-white/5"
-            : "bg-gray-50 border-gray-100",
+            : "bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/5",
         )}
       >
         <div
           className={cn(
             "size-10 rounded-2xl flex items-center justify-center",
-            isPremium ? "bg-purple-500/20" : "bg-purple-100",
+            isPremium ? "bg-purple-500/20" : "bg-purple-100 dark:bg-purple-500/20",
           )}
         >
           <Clock className="size-5 text-purple" />
@@ -312,7 +312,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
           <span
             className={cn(
               "text-sm font-bold",
-              isPremium ? "text-white" : "text-gray-900",
+              isPremium ? "text-white" : "text-gray-900 dark:text-white",
             )}
           >
             {new Date(subscription.endDate).toLocaleDateString(locale, {

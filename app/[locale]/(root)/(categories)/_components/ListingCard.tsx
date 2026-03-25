@@ -353,15 +353,15 @@ const ListingCard: React.FC<ListingCardProps> = ({
           </Typography>
 
           {/* Location */}
-          <div className="flex items-center gap-1 px-2.5">
+          <div className="flex items-center gap-1 px-2.5 min-w-0">
             <MapPin
               size={22}
               stroke="white"
-              className="-ml-1 fill-dark-blue text-[#667085]"
+              className="-ml-1 fill-dark-blue text-[#667085] flex-shrink-0"
             />
             <Typography
               variant="body-small"
-              className="text-xs text-[#667085] truncate"
+              className="text-xs text-[#667085] truncate flex-1"
             >
               {location}
             </Typography>

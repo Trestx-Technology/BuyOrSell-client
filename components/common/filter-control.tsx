@@ -158,8 +158,8 @@ export const FilterControl = ({
             <div
               className={cn(
                 "p-3 rounded-xl border transition-all duration-200",
-                "bg-gray-50 dark:bg-zinc-900 border-gray-100 dark:border-zinc-800 shadow-none",
-                variant === "dark" && "bg-zinc-900 border-zinc-700"
+                 "bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800 shadow-none",
+                 variant === "dark" && "bg-gray-900 border-gray-700"
               )}
             >
               <div
@@ -196,7 +196,7 @@ export const FilterControl = ({
               <p>Please select <span className="font-bold text-foreground uppercase tracking-tight">{dependsOn}</span> to view available options</p>
             </div>
           ) : (
-            <div className="w-full space-y-2">
+            <div className="w-full space-y-2 flex flex-col items-start">
               <SearchableDropdownInput
                 value={Array.isArray(value) ? value : ((value as string) || "")}
                 isMulti={true}
@@ -206,32 +206,6 @@ export const FilterControl = ({
                   options={dynamicOptions}
                   placeholder={placeholder || `Select ${filterConfig.label}`}
                 />
-
-                {/* Show selected badges if it's an array */}
-                {Array.isArray(value) && value.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {value.map((v) => (
-                      <Badge
-                        key={v}
-                        variant="secondary"
-                        className="text-[10px] py-0 h-6 transition-colors"
-                      >
-                        {v}
-                        <button
-                          onClick={() =>
-                            onChange(
-                              key,
-                              value.filter((item: string) => item !== v)
-                            )
-                          }
-                          className="ml-1.5 hover:text-destructive transition-colors text-xs"
-                        >
-                          ×
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-              )}
             </div>
           )}
         </FormField>
@@ -245,8 +219,8 @@ export const FilterControl = ({
             value={value || ""}
             onChange={(e) => onChange(key, e.target.value)}
             className={cn(
-              "w-full border-none",
-              "bg-muted text-foreground placeholder:text-muted-foreground"
+              "w-full border border-gray-200 dark:border-gray-800",
+              "bg-muted dark:bg-gray-900 text-foreground placeholder:text-muted-foreground"
             )}
           />
         </FormField>

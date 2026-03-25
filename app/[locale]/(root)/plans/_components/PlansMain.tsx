@@ -212,13 +212,6 @@ function PlansContent() {
   const subscribedPlanIds = useMemo(() => {
     return Array.isArray(mySubscription?.data)
       ? mySubscription.data
-          .filter(
-            (sub) =>
-              sub.isActive ||
-              sub.status === "active" ||
-              sub.status === "confirmed" ||
-              sub.status === "created",
-          )
           .map((sub) => sub.plan?._id)
           .filter(Boolean)
       : [];
@@ -410,7 +403,9 @@ function PlansContent() {
                 description: description,
                 features: features,
                 buttonText: isCurrentPlan
-                  ? "Current Plan"
+                  ? plan.isDefault
+                    ? "Subscribed Free Trial"
+                    : "Current Plan"
                   : plan.isDefault
                     ? "Start Free Plan"
                     : "Subscribe",

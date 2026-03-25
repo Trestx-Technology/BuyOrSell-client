@@ -15,6 +15,7 @@ import { Organization } from "@/interfaces/organization.types";
 import { User } from "@/interfaces/user.types";
 import { format } from "date-fns";
 import { formatDate } from "@/utils/format-date";
+import { ProfilePlaceholder } from "@/components/global/profile-placeholder";
 
 interface SellerHeaderProps {
   sellerId: string;
@@ -138,13 +139,17 @@ const SellerHeader: React.FC<SellerHeaderProps> = ({ organization, user }) => {
             {/* Avatar */}
             <div className="relative">
               <div className="w-30 h-30 rounded-full bg-gray-200 overflow-hidden">
-                <Image
-                  src={avatar}
-                  alt={sellerName}
-                  width={120}
-                  height={120}
-                  className="w-full h-full object-cover"
-                />
+                {avatar && !avatar.includes("volkswagen.png") ? (
+                  <Image
+                    src={avatar}
+                    alt={sellerName}
+                    width={120}
+                    height={120}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <ProfilePlaceholder size={80} />
+                )}
               </div>
             </div>
 

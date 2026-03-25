@@ -330,15 +330,17 @@ export async function generateDescription(
   categoryPath: string,
   userPrompt?: string,
   existingDescription?: string,
-): Promise<string> {
+): Promise<{ success: boolean; data?: string; error?: string }> {
   try {
+    console.log(`[AI] Generating description for: ${categoryPath}`);
     const openai = getOpenAIClient();
+    
     if (!openai) {
-      console.log("[AI] No OpenAI API key found, using fallback");
-      return (
-        existingDescription ||
-        `Excellent ${categoryPath} for sale. Please contact for details.`
-      );
+      console.warn("[AI] Failure: OPENAI_API_KEY is not configured in the environment.");
+      return {
+        success: false,
+        error: "Nora is temporarily resting and cannot help right now. Please try again later.",
+      };
     }
 
     const response = await openai.chat.completions.create({
@@ -351,7 +353,7 @@ Write a high-quality, professional description for a listing.
 
 GUIDELINES:
 1. SAFETY: Do NOT generate offensive or harmful content.
-2. LENGTH: Max 2000 characters.
+2. LENGTH: Max 5000 characters.
 3. CONTEXT: Category is "${categoryPath}".
 4. TONE: Professional and appealing.
 5. FORMAT: Use clear paragraphs with double newlines (\n\n) between them. Use bullet points for lists to ensure great readability.
@@ -370,21 +372,33 @@ ${existingDescription ? `Original: "${existingDescription}"` : "Create a new des
     let content = response.choices[0]?.message?.content || "";
 
     if (!content && response.choices[0]?.finish_reason === "content_filter") {
-      return "I'm sorry, but I couldn't generate a description for this request. Please try a different or more specific prompt.";
+      return {
+        success: false,
+        error: "The request was flagged by content filters. Please try a more specific or different prompt.",
+      };
     }
 
-    // Safety check on the output (redundant but good practice)
-    if (content.length > 2000) {
-      content = content.substring(0, 1997) + "...";
+    // Safety check on the output
+    if (content.length > 5000) {
+      content = content.substring(0, 4997) + "...";
     }
 
-    return content;
+    return { success: true, data: content };
   } catch (error: any) {
-    console.error("Error generating description:", error);
-    throw new Error(
-      error.message ||
-        "Failed to generate description. Please try again with different details.",
-    );
+    console.error("[AI] Error generating description:", error);
+    
+    // Check for specific OpenAI errors
+    if (error?.status === 401) {
+      return { success: false, error: "We're having trouble connecting to Nora. Our team has been notified." };
+    }
+    if (error?.status === 429) {
+      return { success: false, error: "Nora is a bit busy right now. Please wait a moment before trying again." };
+    }
+    
+    return {
+      success: false,
+      error: "Something went wrong while generating the description. Please try again with simple instructions.",
+    };
   }
 }
 
