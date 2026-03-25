@@ -1,7 +1,8 @@
 "use client";
 import React, { useMemo } from "react";
 
-import { Briefcase, Clock, MapPin, Share2 } from "lucide-react";
+import { Briefcase, Clock, MapPin, Share2, Pencil } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Typography } from "@/components/typography";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -41,7 +42,8 @@ export default function JobListingCard({
   transformAdToJobCardProps,
 }: JobListingCardProps) {
   const session = useAuthStore((state) => state.session);
-  const { locale } = useLocale();
+  const router = useRouter();
+  const { locale, localePath } = useLocale();
   const isArabic = locale === "ar";
   const currentUserId = session.user?._id;
   const isJobOwner =
@@ -113,9 +115,8 @@ export default function JobListingCard({
       onClick={onClick}
       role="button"
       className={cn(
-        "bg-card w-full rounded-2xl cursor-pointer transition-all relative p-4",
-        "border shadow-sm hover:shadow-md",
-        isSelected ? "border-purple ring-1 ring-purple" : "border-border"
+        "group h-full flex flex-col bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden",
+        isSelected && "ring-2 ring-purple border-transparent"
       )}
     >
       {/* Main content container - matches Figma layout */}
@@ -138,14 +139,29 @@ export default function JobListingCard({
             <ShareJobDialog
               job={job}
               trigger={
-                <button>
-                  <Share2 className="size-5 text-grey-blue" />{" "}
+                <button
+                  onClick={(e) => e.stopPropagation()}
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                >
+                  <Share2 className="size-5 text-grey-blue" />
                   <span className="sr-only">Share</span>
                 </button>
               }
             />
 
-            {!isJobOwner && (
+            {isJobOwner ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(localePath(`/post-job/edit/${job._id}`));
+                }}
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                title="Edit Job"
+              >
+                <Pencil className="size-5 text-grey-blue" />
+                <span className="sr-only">Edit</span>
+              </button>
+            ) : (
               <SaveJobButton
                 jobId={job._id}
                 isSaved={isSaved}
@@ -176,11 +192,11 @@ export default function JobListingCard({
           {/* Text container - width 171px with 16px gap */}
           <div className="space-y-1">
             <Typography
-              variant="h3"
-              className="text-foreground font-semibold text-[18px] leading-[1.21] line-clamp-1"
-            >
-              {jobTitle}
-            </Typography>
+            variant="body"
+            className="text-foreground dark:text-white font-bold text-base leading-[1.2] line-clamp-2"
+          >
+            {jobProps.title}
+          </Typography>
             <Typography
               variant="body-small"
               className="text-muted-foreground text-sm font-normal leading-[1.21]"
@@ -196,10 +212,10 @@ export default function JobListingCard({
       {/* Experience - y: 128 */}
       <div className="flex flex-col gap-2 mt-5">
         <div className="flex items-center gap-1.5">
-          <Briefcase className="w-5 h-5 text-[#8A8A8A]" />
+          <Briefcase className="w-5 h-5 text-[#8A8A8A] dark:text-gray-400" />
           <Typography
             variant="body-small"
-            className="text-foreground text-xs font-medium leading-[1.21]"
+            className="text-foreground dark:text-white text-xs font-medium leading-[1.21]"
           >
             {jobProps.experience || "Not specified"}
           </Typography>
@@ -207,24 +223,24 @@ export default function JobListingCard({
 
         {/* Salary - y: 158.06 */}
         <div className="flex items-center gap-1.5">
-          <Image src={ICONS.currency.aed} alt="" width={16} height={16} />
+          <Image src={ICONS.currency.aed} alt="" width={16} height={16} className="dark:brightness-200" />
           <div className="flex items-center gap-1">
             <Typography
               variant="body-small"
-              className="text-foreground text-xs font-medium leading-[1.21]"
+              className="text-foreground dark:text-gray-300 text-xs font-medium leading-[1.21]"
             >
-              {formatCompactPrice(jobProps.salaryMin)} -
-              {jobProps.salaryMax ? formatCompactPrice(jobProps.salaryMax) : "Not specified"}
+              {jobProps.salaryMin > 0 ? formatCompactPrice(jobProps.salaryMin) : "Not specified"} 
+              {jobProps.salaryMax > 0 ? ` - ${formatCompactPrice(jobProps.salaryMax)}` : ""}
             </Typography>
           </div>
         </div>
 
         {/* Job Shift/Type - y: 188.12 */}
         <div className="flex items-center gap-1.5">
-          <Clock className="w-5 h-5 text-[#8A8A8A]" />
+          <Clock className="w-5 h-5 text-[#8A8A8A] dark:text-gray-400" />
           <Typography
             variant="body-small"
-            className="text-foreground text-xs font-medium leading-[1.21]"
+            className="text-foreground dark:text-white text-xs font-medium leading-[1.21]"
           >
             {jobShift || jobProps.jobType || "Not specified"}
           </Typography>
@@ -232,10 +248,10 @@ export default function JobListingCard({
 
         {/* Location - y: 218.18 */}
         <div className="flex items-center gap-1.5">
-          <MapPin className="w-5 h-5 text-[#8A8A8A]" />
+          <MapPin className="w-5 h-5 text-[#8A8A8A] dark:text-gray-400" />
           <Typography
             variant="body-small"
-            className="text-foreground text-xs font-medium leading-[1.21] truncate"
+            className="text-foreground dark:text-white text-xs font-medium leading-[1.21] truncate"
           >
             {locationDisplay}
           </Typography>

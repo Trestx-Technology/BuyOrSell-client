@@ -18,6 +18,13 @@ export const transformAdToJobCard = (ad: AD) => {
   };
 
   const getSalaryFromAd = (type: "min" | "max"): number | undefined => {
+    // 1. Check if direct properties exist (minSalary, maxSalary)
+    const directValue = type === "min" ? ad.minSalary : ad.maxSalary;
+    if (directValue !== undefined && directValue !== null && directValue > 0) {
+      return directValue;
+    }
+
+    // 2. Fallback to extraFields
     if (Array.isArray(ad.extraFields)) {
       const salaryField = ad.extraFields.find(
         (field) =>
@@ -26,12 +33,20 @@ export const transformAdToJobCard = (ad: AD) => {
             ? field.name?.toLowerCase().includes("min")
             : field.name?.toLowerCase().includes("max")),
       );
-      return salaryField && typeof salaryField.value === "number"
-        ? salaryField.value
-        : undefined;
+      
+      if (salaryField && salaryField.value !== undefined && salaryField.value !== null) {
+        if (typeof salaryField.value === "number") return salaryField.value;
+        if (typeof salaryField.value === "string") {
+          const parsed = parseInt(salaryField.value.replace(/[^0-9]/g, ""));
+          return isNaN(parsed) ? undefined : parsed;
+        }
+      }
     }
     return undefined;
   };
+
+  const salaryMin = getSalaryFromAd("min") ?? ad.price ?? 0;
+  const salaryMax = getSalaryFromAd("max") ?? 0;
 
   return {
     id: ad._id,
@@ -48,8 +63,8 @@ export const transformAdToJobCard = (ad: AD) => {
       addSuffix: true,
     }),
     logo: ad.organization?.logoUrl,
-    salaryMin: ad.minSalary ?? getSalaryFromAd("min") ?? ad.price ?? 0,
-    salaryMax: ad.maxSalary ?? getSalaryFromAd("max") ?? ad.price ?? 0,
+    salaryMin,
+    salaryMax,
     isFavorite: false,
     onFavorite: () => {},
     onShare: () => {},

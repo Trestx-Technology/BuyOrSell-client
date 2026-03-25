@@ -20,6 +20,7 @@ import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 import router from "next/router";
 import { useRouter } from "nextjs-toploader/app";
 import { NoDataCard } from "@/components/global/fallback-cards";
+import { transformAdToJobCard } from "@/utils/transform-ad-to-job-card";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -60,99 +61,7 @@ export default function MyJobsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Helper function to extract salary from AD extraFields
-  const getSalaryFromAd = useCallback(
-    (ad: AD, type: "min" | "max"): number | null => {
-      if (!ad.extraFields) return null;
-
-      const extraFields = Array.isArray(ad.extraFields)
-        ? ad.extraFields
-        : Object.entries(ad.extraFields).map(([name, value]) => ({
-            name,
-            value,
-          }));
-
-      const salaryField = extraFields.find(
-        (field) =>
-          field.name?.toLowerCase().includes("salary") &&
-          (type === "min"
-            ? field.name?.toLowerCase().includes("min")
-            : field.name?.toLowerCase().includes("max"))
-      );
-
-      if (salaryField && typeof salaryField.value === "number") {
-        return salaryField.value;
-      }
-
-      return null;
-    },
-    []
-  );
-
-  // Transform AD to JobCard props (kept for backward compatibility with other components)
-  const transformAdToJobCardProps = (ad: AD) => {
-    const postedTime = formatDistanceToNow(new Date(ad.createdAt), {
-      addSuffix: true,
-    });
-
-    // Extract job fields from extraFields
-    const extraFields = Array.isArray(ad.extraFields)
-      ? ad.extraFields
-      : Object.entries(ad.extraFields || {}).map(([name, value]) => ({
-          name,
-          value,
-        }));
-
-    const getFieldValue = (fieldName: string): string => {
-      const field = extraFields.find((f) =>
-        f.name?.toLowerCase().includes(fieldName.toLowerCase())
-      );
-      if (field) {
-        if (Array.isArray(field.value)) {
-          return field.value.join(", ");
-        }
-        return String(field.value || "");
-      }
-      return "";
-    };
-
-    const jobType =
-      getFieldValue("jobType") || getFieldValue("job type") || "Not specified";
-    const experience = getFieldValue("experience") || "Not specified";
-
-    // Extract salary from extraFields or use price
-    const salaryMin = getSalaryFromAd(ad, "min") || ad.price || 0;
-    const salaryMax = getSalaryFromAd(ad, "max") || ad.price || 0;
-
-    // Get location
-    const location =
-      typeof ad.location === "string"
-        ? ad.location
-        : ad.location?.city || ad.address?.city || "Location not specified";
-
-    // Get company name
-    const company =
-      ad.organization?.tradeName ||
-      ad.organization?.legalName ||
-      (ad.owner?.firstName && ad.owner?.lastName
-        ? `${ad.owner.firstName} ${ad.owner.lastName}`
-        : "Company");
-
-    return {
-      id: ad._id,
-      title: ad.title || "",
-      company,
-      experience,
-      salaryMin,
-      salaryMax,
-      location,
-      jobType,
-      postedTime,
-      logo: ad.organization?.logoUrl,
-      isFavorite: false,
-      onFavorite: (id: string) => console.log("Favorited:", id),
-    };
-  };
+  // No local transformation needed, using centralized utility
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { id: "jobs", label: "Jobs", href: "/jobs" },
@@ -216,7 +125,7 @@ export default function MyJobsPage() {
                   onClick={() => {
                     router.push(`/jobs/listing/${job._id}/applicants`);
                   }}
-                  transformAdToJobCardProps={transformAdToJobCardProps}
+                  transformAdToJobCardProps={(ad) => transformAdToJobCard(ad)}
                 />
               ))}
 
