@@ -100,19 +100,19 @@ export const BrowseByCategory: React.FC<BrowseByCategoryProps> = ({
         <button
           onClick={() => onCategoryChange("")}
           className={cn(
-            "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-200 whitespace-nowrap",
+            "flex items-center gap-3 px-5 py-2.5 rounded-xl border transition-all duration-300 whitespace-nowrap group",
             !selectedCategory
-              ? "bg-purple border-purple text-white"
-              : "bg-transparent border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700 hover:text-zinc-900 dark:hover:text-white"
+              ? "bg-purple border-purple text-white shadow-lg shadow-purple/20 scale-[1.02]"
+              : "bg-white dark:bg-zinc-900 border-gray-100 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-purple/30 dark:hover:border-purple/30 shadow-sm hover:shadow-md hover:text-purple dark:hover:text-purple-400"
           )}
         >
-          <span className="text-sm font-semibold">{getLabel()}</span>
+          <span className="text-sm font-bold tracking-tight">{getLabel()}</span>
           <span
             className={cn(
-              "text-[10px] px-1.5 py-0.5 rounded-md font-bold",
+              "text-[11px] px-2 py-0.5 rounded-full font-bold transition-colors",
               !selectedCategory
-                ? "bg-white text-purple"
-                : "bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+                ? "bg-white/20 text-white"
+                : "bg-purple/10 text-purple dark:bg-purple/20 dark:text-purple-300"
             )}
           >
             {totalAds}
@@ -126,23 +126,34 @@ export const BrowseByCategory: React.FC<BrowseByCategoryProps> = ({
           const displayName =
             locale === "ar" ? category.nameAr || category.name : category.name;
           const count = getCountForCategory(category._id);
+          const icon = category.icon || category.image;
 
           return (
             <button
               key={category._id}
               onClick={() => onCategoryChange(categoryName)}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg border transition-all duration-200 whitespace-nowrap",
+                "flex items-center gap-3 px-5 py-2.5 rounded-xl border transition-all duration-300 whitespace-nowrap group",
                 isActive
-                  ? "bg-purple border-purple text-white"
-                  : "bg-transparent border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700 hover:text-zinc-900 dark:hover:text-white"
+                  ? "bg-purple border-purple text-white shadow-lg shadow-purple/20 scale-[1.02]"
+                  : "bg-white dark:bg-zinc-900 border-gray-100 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-purple/30 dark:hover:border-purple/30 shadow-sm hover:shadow-md hover:text-purple dark:hover:text-purple-400"
               )}
             >
-              <span className="text-sm font-semibold">{displayName}</span>
+              {icon && (
+                <div className={cn(
+                  "w-5 h-5 flex items-center justify-center transition-all duration-300",
+                  isActive ? "brightness-0 invert" : "group-hover:scale-110"
+                )}>
+                  <img src={icon} alt="" className="w-full h-full object-contain" />
+                </div>
+              )}
+              <span className="text-sm font-bold tracking-tight">{displayName}</span>
               <span
                 className={cn(
-                  "text-[10px] px-1.5 py-0.5 rounded-md font-bold",
-                  isActive ? "bg-white text-purple" : "bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+                  "text-[11px] px-2 py-0.5 rounded-full font-bold transition-colors",
+                  isActive 
+                    ? "bg-white/20 text-white" 
+                    : "bg-purple/10 text-purple dark:bg-purple/20 dark:text-purple-300"
                 )}
               >
                 {count}
