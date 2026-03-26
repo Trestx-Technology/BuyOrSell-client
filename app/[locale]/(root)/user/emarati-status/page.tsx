@@ -258,8 +258,9 @@ export default function EmaratiStatusPage() {
                                                                         mode="single"
                                                                         selected={field.value}
                                                                         onSelect={field.onChange}
+                                                                        allowFutureDates={true}
                                                                         disabled={(date) =>
-                                                                              date < new Date()
+                                                                              date < new Date(new Date().setHours(0, 0, 0, 0))
                                                                         }
                                                                   />
                                                             </PopoverContent>
