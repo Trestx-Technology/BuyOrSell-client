@@ -116,11 +116,13 @@ export default function EmaratiStatusPage() {
 
       // Pre-fill form if data exists
       useEffect(() => {
-            if (emaratiStatusData?.data?.emaratiDetails) {
+            const user = emaratiStatusData?.data?.user;
+            if (user?.emaratiDetails) {
                   try {
-                        const details = typeof emaratiStatusData.data.emaratiDetails === 'string'
-                              ? JSON.parse(emaratiStatusData.data.emaratiDetails)
-                              : emaratiStatusData.data.emaratiDetails;
+                        const details = typeof user.emaratiDetails === 'string'
+                              ? JSON.parse(user.emaratiDetails)
+                              : user.emaratiDetails;
+
 
                         if (details.eidNumber) setValue("eidNumber", details.eidNumber);
                         if (details.eidExpiry) setValue("eidExpiry", new Date(details.eidExpiry));
@@ -198,7 +200,7 @@ export default function EmaratiStatusPage() {
                                     <h1 className="text-2xl font-bold text-dark-blue dark:text-white">
                                           Emarati Status Verification
                                     </h1>
-                                    {getStatusBadge(emaratiStatusData?.data?.emaratiStatus)}
+                                    {getStatusBadge(emaratiStatusData?.data?.user?.emaratiStatus)}
                               </div>
 
                               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -387,7 +389,7 @@ export default function EmaratiStatusPage() {
                                                 disabled={isPending || isUploadingFront || isUploadingBack}
                                                 isLoading={isPending}
                                           >
-                                                {emaratiStatusData?.data?.emaratiStatus === "PENDING" ? "Resubmit for Verification" : "Submit for Verification"}
+                                                {emaratiStatusData?.data?.user?.emaratiStatus === "PENDING" ? "Resubmit for Verification" : "Submit for Verification"}
                                           </Button>
                                     </div>
                               </form>
