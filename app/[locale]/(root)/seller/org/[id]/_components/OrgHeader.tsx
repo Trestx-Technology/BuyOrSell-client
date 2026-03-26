@@ -116,21 +116,21 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
         {/* Org type badge on banner */}
         <div className="absolute bottom-4 left-4">
-          <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white text-xs font-semibold rounded-full border border-white/30">
+          <span className="px-3 py-1 bg-white/20 dark:bg-black/20 backdrop-blur-md text-white text-xs font-semibold rounded-full border border-white/30 dark:border-white/10">
             {orgTypeLabel}
           </span>
         </div>
       </div>
 
       {/* Main Content Card */}
-      <div className="relative bg-white/80 backdrop-blur-lg border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] p-8 rounded-b-3xl -mt-2">
+      <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-white/20 dark:border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 rounded-b-3xl -mt-2">
         <div className="flex flex-col lg:flex-row items-start lg:items-start justify-between gap-8">
           {/* Left: Logo + Details */}
           <div className="flex items-start gap-6">
             {/* Logo */}
             <div className="relative flex-shrink-0">
               <div className="absolute inset-0 bg-purple/20 blur-2xl rounded-full" />
-              <div className="relative w-28 h-28 rounded-2xl ring-4 ring-white shadow-xl bg-gray-100 overflow-hidden transition-transform hover:scale-105">
+              <div className="relative w-28 h-28 rounded-2xl ring-4 ring-white dark:ring-slate-900 shadow-xl bg-gray-100 dark:bg-slate-800 overflow-hidden transition-transform hover:scale-105">
                 {avatar ? (
                   <Image
                     src={avatar}
@@ -151,7 +151,7 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
               <div className="flex flex-wrap items-center gap-2 mb-1">
                 <Typography
                   variant="h2"
-                  className="text-xl font-bold text-dark-blue"
+                  className="text-xl font-bold text-dark-blue dark:text-white"
                 >
                   {sellerName}
                 </Typography>
@@ -176,7 +176,7 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
                 organization.legalName !== sellerName && (
                   <Typography
                     variant="body"
-                    className="text-xs text-grey-blue mb-2"
+                    className="text-xs text-grey-blue dark:text-slate-400 mb-2"
                   >
                     {organization.legalName}
                   </Typography>
@@ -192,10 +192,10 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
                     </div>
                     <Typography
                       variant="body"
-                      className="text-sm text-dark-blue font-medium"
+                      className="text-sm text-dark-blue dark:text-white font-medium"
                     >
                       {rating.toFixed(1)}{" "}
-                      <span className="text-grey-blue font-normal">
+                      <span className="text-grey-blue dark:text-slate-400 font-normal">
                         ({reviewCount} {t.seller.header.reviews})
                       </span>
                     </Typography>
@@ -205,10 +205,10 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
                 {/* Location */}
                 {location && (
                   <div className="flex items-center gap-1">
-                    <FaMapMarkerAlt className="w-3.5 h-3.5 text-grey-blue" />
+                    <FaMapMarkerAlt className="w-3.5 h-3.5 text-grey-blue dark:text-slate-400" />
                     <Typography
                       variant="body"
-                      className="text-sm text-dark-blue"
+                      className="text-sm text-dark-blue dark:text-white"
                     >
                       {location}
                     </Typography>
@@ -217,8 +217,8 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
 
                 {/* Member since */}
                 <div className="flex items-center gap-1">
-                  <FaCalendarAlt className="w-3.5 h-3.5 text-grey-blue" />
-                  <Typography variant="body" className="text-sm text-dark-blue">
+                  <FaCalendarAlt className="w-3.5 h-3.5 text-grey-blue dark:text-slate-400" />
+                  <Typography variant="body" className="text-sm text-dark-blue dark:text-white">
                     {t.seller.header.memberSince}{" "}
                     {formatDate(organization.createdAt)}
                   </Typography>
@@ -227,10 +227,10 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
                 {/* Followers */}
                 {(organization.followersCount ?? 0) > 0 && (
                   <div className="flex items-center gap-1">
-                    <Users className="w-3.5 h-3.5 text-grey-blue" />
+                    <Users className="w-3.5 h-3.5 text-grey-blue dark:text-slate-400" />
                     <Typography
                       variant="body"
-                      className="text-sm text-dark-blue"
+                      className="text-sm text-dark-blue dark:text-white"
                     >
                       {organization.followersCount} followers
                     </Typography>
@@ -240,12 +240,12 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
                 {/* Website */}
                 {organization.website && (
                   <div className="flex items-center gap-1">
-                    <Globe className="w-3.5 h-3.5 text-grey-blue" />
+                    <Globe className="w-3.5 h-3.5 text-grey-blue dark:text-slate-400" />
                     <a
                       href={organization.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline"
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                     >
                       {organization.website.replace(/^https?:\/\//, "")}
                     </a>
@@ -279,14 +279,14 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
                   disabled={!hasPhone}
                   icon={
                     <Phone
-                      className={`h-4 w-4 ${hasPhone ? "text-dark-blue" : "text-gray-300"}`}
+                      className={`h-4 w-4 ${hasPhone ? "text-dark-blue dark:text-white" : "text-gray-300 dark:text-slate-600"}`}
                     />
                   }
                   iconPosition="left"
-                  className={`w-full border-gray-200 h-11 font-semibold rounded-xl transition-all ${
+                  className={`w-full border-gray-200 dark:border-slate-800 h-11 font-semibold rounded-xl transition-all ${
                     hasPhone
-                      ? "bg-white/50 backdrop-blur hover:bg-gray-50 text-dark-blue"
-                      : "bg-gray-50 text-gray-300 cursor-not-allowed opacity-50"
+                      ? "bg-white/50 dark:bg-slate-800/50 backdrop-blur hover:bg-gray-50 dark:hover:bg-slate-800 text-dark-blue dark:text-white"
+                      : "bg-gray-50 dark:bg-slate-900/50 text-gray-300 dark:text-slate-600 cursor-not-allowed opacity-50"
                   }`}
                 >
                   {t.seller.header.callSeller}
@@ -300,14 +300,14 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
                   disabled={!hasPhone}
                   icon={
                     <FaWhatsapp
-                      className={`h-5 w-5 ${hasPhone ? "text-green-500" : "text-gray-300"}`}
+                      className={`h-5 w-5 ${hasPhone ? "text-green-500" : "text-gray-300 dark:text-slate-600"}`}
                     />
                   }
                   iconPosition="left"
-                  className={`w-full border-gray-200 h-11 font-semibold rounded-xl transition-all ${
+                  className={`w-full border-gray-200 dark:border-slate-800 h-11 font-semibold rounded-xl transition-all ${
                     hasPhone
-                      ? "bg-white/50 backdrop-blur hover:bg-green-50 text-dark-blue"
-                      : "bg-gray-50 text-gray-300 cursor-not-allowed opacity-50"
+                      ? "bg-white/50 dark:bg-slate-800/50 backdrop-blur hover:bg-green-50 dark:hover:bg-green-900/20 text-dark-blue dark:text-white"
+                      : "bg-gray-50 dark:bg-slate-900/50 text-gray-300 dark:text-slate-600 cursor-not-allowed opacity-50"
                   }`}
                 >
                   {t.seller.header.whatsapp}

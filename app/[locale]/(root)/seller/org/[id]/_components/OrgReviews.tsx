@@ -153,11 +153,11 @@ const OrgReviews: React.FC<OrgReviewsProps> = ({ organizationId, organization })
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
         <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-1/3" />
-          <div className="h-20 bg-gray-200 rounded" />
-          <div className="h-32 bg-gray-200 rounded" />
+          <div className="h-6 bg-gray-200 dark:bg-slate-800 rounded w-1/3" />
+          <div className="h-20 bg-gray-200 dark:bg-slate-800 rounded" />
+          <div className="h-32 bg-gray-200 dark:bg-slate-800 rounded" />
         </div>
       </div>
     );
@@ -165,8 +165,8 @@ const OrgReviews: React.FC<OrgReviewsProps> = ({ organizationId, organization })
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-        <Typography variant="body" className="text-red-500">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
+        <Typography variant="body" className="text-red-500 dark:text-red-400">
           Failed to load reviews. Please try again later.
         </Typography>
       </div>
@@ -174,7 +174,7 @@ const OrgReviews: React.FC<OrgReviewsProps> = ({ organizationId, organization })
   }
 
   return (
-    <div className="relative bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+    <div className="relative bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6 transition-all">
       {/* Write Review Button */}
       {!isOwner && (
         <Button
@@ -182,29 +182,29 @@ const OrgReviews: React.FC<OrgReviewsProps> = ({ organizationId, organization })
           variant="outline"
           icon={<Edit className="h-4 w-4 -mr-2" />}
           iconPosition="center"
-          className="absolute top-4 right-4 flex items-center gap-2 border-purple text-purple hover:bg-purple/10"
+          className="absolute top-4 right-4 flex items-center gap-2 border-purple text-purple hover:bg-purple/10 dark:hover:bg-purple-900/20"
         >
           {t.seller.reviews.writeReview}
         </Button>
       )}
 
-      <Typography variant="h3" className="text-base font-semibold text-dark-blue mb-6">
+      <Typography variant="h3" className="text-base font-semibold text-dark-blue dark:text-white mb-6">
         {t.seller.reviews.title}
       </Typography>
 
       {reviewData.totalReviews > 0 && (
-        <div className="flex items-start gap-2 mb-6">
+        <div className="flex items-start gap-2 mb-6 p-4 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-800">
           <Star className="size-6 text-yellow-500" fill="#FFB319" />
-          <Typography variant="h2" className="text-2xl font-semibold text-dark-blue">
+          <Typography variant="h2" className="text-2xl font-semibold text-dark-blue dark:text-white">
             {reviewData.overallRating.toFixed(1)}
           </Typography>
           <div>
-            <Typography variant="sm-regular" className="text-grey-blue">
+            <Typography variant="sm-regular" className="text-grey-blue dark:text-slate-400">
               {t.seller.reviews.overallRating}
             </Typography>
-            <Typography variant="sm-regular" className="text-grey-blue">
+            <Typography variant="sm-regular" className="text-grey-blue dark:text-slate-400">
               {t.seller.reviews.basedOn}{" "}
-              <span className="font-bold">
+              <span className="font-bold text-dark-blue dark:text-white">
                 {reviewData.totalReviews} {t.seller.reviews.reviews}
               </span>
             </Typography>
@@ -214,14 +214,14 @@ const OrgReviews: React.FC<OrgReviewsProps> = ({ organizationId, organization })
 
       {reviewData.totalReviews > 0 && (
         <div className="flex items-center justify-between mb-6">
-          <Typography variant="md-semibold" className="text-dark-blue">
+          <Typography variant="md-semibold" className="text-dark-blue dark:text-white">
             {reviewData.totalReviews} {t.seller.reviews.ratingAndReviews}
           </Typography>
           <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
-            <SelectTrigger className="w-fit h-8 border-purple/20 rounded-lg">
+            <SelectTrigger className="w-fit h-8 border-purple/20 dark:border-purple-800/30 rounded-lg dark:bg-slate-800">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="dark:bg-slate-900 dark:border-slate-800">
               <SelectItem value="latest">{t.seller.reviews.sortBy.latest}</SelectItem>
               <SelectItem value="oldest">{t.seller.reviews.sortBy.oldest}</SelectItem>
               <SelectItem value="highest">{t.seller.reviews.sortBy.highest}</SelectItem>
@@ -234,29 +234,29 @@ const OrgReviews: React.FC<OrgReviewsProps> = ({ organizationId, organization })
       {displayReviews.length > 0 ? (
         <div className="space-y-4">
           {displayReviews.map((review) => (
-            <div key={review.id} className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-[#9FB7E4] rounded-full flex items-center justify-center flex-shrink-0">
-                <Typography variant="body-small" className="text-white font-semibold text-sm">
+            <div key={review.id} className="flex items-start gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-slate-800/30 border border-gray-100 dark:border-slate-800/50 transition-all">
+              <div className="w-10 h-10 bg-purple/10 dark:bg-purple/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <Typography variant="body-small" className="text-purple dark:text-purple-300 font-semibold text-sm">
                   {review.avatar}
                 </Typography>
               </div>
               <div className="flex-1">
-                <div className="mb-1">
-                  <Typography variant="body-small" className="text-dark-blue font-semibold text-sm">
+                <div className="mb-2">
+                  <Typography variant="body-small" className="text-dark-blue dark:text-white font-semibold text-sm">
                     {review.userName}
                   </Typography>
                   <div className="flex items-center gap-1 mt-0.5">
                     {renderStars(review.rating, "small")}
-                    <Typography variant="body-small" className="text-dark-blue font-semibold text-xs">
+                    <Typography variant="body-small" className="text-dark-blue dark:text-white font-bold text-xs ml-1">
                       {review.rating}
                     </Typography>
-                    <Typography variant="body-small" className="text-grey-blue text-xs ml-1">
+                    <Typography variant="body-small" className="text-grey-blue dark:text-slate-400 text-xs ml-1">
                       · {review.timeAgo}
                     </Typography>
                   </div>
                 </div>
                 {review.comment && (
-                  <Typography variant="body-small" className="text-dark-blue text-sm leading-relaxed">
+                  <Typography variant="body-small" className="text-dark-blue dark:text-slate-300 text-sm leading-relaxed">
                     {review.comment}
                   </Typography>
                 )}
@@ -265,8 +265,8 @@ const OrgReviews: React.FC<OrgReviewsProps> = ({ organizationId, organization })
           ))}
         </div>
       ) : (
-        <div className="text-center py-8">
-          <Typography variant="body" className="text-grey-blue">
+        <div className="text-center py-10">
+          <Typography variant="body" className="text-grey-blue dark:text-slate-400">
             No reviews yet. Be the first to review this organization!
           </Typography>
         </div>
@@ -291,13 +291,13 @@ const OrgReviews: React.FC<OrgReviewsProps> = ({ organizationId, organization })
       )}
 
       <Dialog open={isWriteReviewOpen} onOpenChange={handleCloseDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md dark:bg-slate-900 dark:border-slate-800">
           <DialogHeader>
-            <DialogTitle>{t.seller.reviews.writeReviewDialog.title}</DialogTitle>
+            <DialogTitle className="dark:text-white">{t.seller.reviews.writeReviewDialog.title}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-dark-blue mb-2 block">
+              <label className="text-sm font-medium text-dark-blue dark:text-slate-200 mb-2 block">
                 {t.seller.reviews.writeReviewDialog.rating}
               </label>
               <div className="flex items-center gap-1">
@@ -318,11 +318,11 @@ const OrgReviews: React.FC<OrgReviewsProps> = ({ organizationId, organization })
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-dark-blue mb-2 block">
+              <label className="text-sm font-medium text-dark-blue dark:text-slate-200 mb-2 block">
                 {t.seller.reviews.writeReviewDialog.yourReview}
               </label>
               <textarea
-                className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+                className="w-full p-4 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500"
                 rows={4}
                 placeholder={t.seller.reviews.writeReviewDialog.placeholder}
                 value={reviewText}
@@ -330,7 +330,12 @@ const OrgReviews: React.FC<OrgReviewsProps> = ({ organizationId, organization })
               />
             </div>
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={handleCloseDialog} disabled={isPending}>
+              <Button
+                variant="outline"
+                onClick={handleCloseDialog}
+                disabled={isPending}
+                className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
                 {t.seller.reviews.writeReviewDialog.cancel}
               </Button>
               <Button

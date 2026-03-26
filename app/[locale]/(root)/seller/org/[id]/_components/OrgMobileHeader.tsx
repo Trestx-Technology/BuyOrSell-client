@@ -48,11 +48,11 @@ export default function OrgMobileHeader({
   };
 
   return (
-    <div className="w-full bg-white rounded-t-xl border border-gray-200 shadow-sm -mt-5 relative z-20">
+    <div className="w-full bg-white dark:bg-slate-900 rounded-t-xl border border-gray-200 dark:border-slate-800 shadow-sm -mt-5 relative z-20 transition-all">
       <div className="flex items-start p-4 gap-4">
         {/* Logo */}
         <div className="relative flex-shrink-0">
-          <div className="w-[74px] h-[74px] rounded-xl overflow-hidden bg-gray-100">
+          <div className="w-[74px] h-[74px] rounded-xl overflow-hidden bg-gray-100 dark:bg-slate-800">
             {avatar ? (
               <Image
                 src={avatar}
@@ -66,8 +66,8 @@ export default function OrgMobileHeader({
             )}
           </div>
           {verified && (
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-              <div className="w-4 h-4 bg-purple rounded-full flex items-center justify-center">
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+              <div className="w-4 h-4 bg-purple rounded-full flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
                 <div className="w-2 h-2 bg-white rounded-full" />
               </div>
             </div>
@@ -80,12 +80,12 @@ export default function OrgMobileHeader({
             <div className="flex items-center gap-2">
               <Typography
                 variant="sm-black-inter"
-                className="font-semibold text-black truncate"
+                className="font-semibold text-black dark:text-white truncate"
               >
                 {sellerName}
               </Typography>
               {verified && (
-                <div className="flex items-center gap-1 px-2 py-0.5 bg-green-100 rounded flex-shrink-0">
+                <div className="flex items-center gap-1 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 rounded flex-shrink-0">
                   <div className="w-3 h-3 bg-purple rounded-full flex items-center justify-center">
                     <div className="w-1.5 h-1.5 bg-white rounded-full" />
                   </div>
@@ -96,12 +96,12 @@ export default function OrgMobileHeader({
             {rating > 0 && (
               <div className="flex items-center gap-1">
                 <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                <Typography variant="xs-black-inter" className="text-dark-blue">
+                <Typography variant="xs-black-inter" className="text-dark-blue dark:text-white font-medium">
                   {rating.toFixed(1)}/5
                 </Typography>
                 <Typography
                   variant="xs-black-inter"
-                  className="text-purple ml-1"
+                  className="text-purple dark:text-purple-400 ml-1 font-semibold"
                 >
                   ({totalReviews} {t.seller.reviews.title})
                 </Typography>
@@ -111,18 +111,18 @@ export default function OrgMobileHeader({
             <div className="flex flex-col gap-0.5">
               {location && (
                 <div className="flex items-center gap-1.5">
-                  <MapPin className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                  <MapPin className="w-3 h-3 text-gray-500 dark:text-slate-400 flex-shrink-0" />
                   <Typography
                     variant="xs-black-inter"
-                    className="text-dark-blue"
+                    className="text-dark-blue dark:text-slate-300 font-medium"
                   >
                     {location}
                   </Typography>
                 </div>
               )}
               <div className="flex items-center gap-1.5">
-                <Calendar className="w-3 h-3 text-gray-500 flex-shrink-0" />
-                <Typography variant="xs-black-inter" className="text-dark-blue">
+                <Calendar className="w-3 h-3 text-gray-500 dark:text-slate-400 flex-shrink-0" />
+                <Typography variant="xs-black-inter" className="text-dark-blue dark:text-slate-300 font-medium">
                   {t.seller.header.memberSince} {memberSince}
                 </Typography>
               </div>
@@ -131,11 +131,11 @@ export default function OrgMobileHeader({
         </div>
 
         {isTopRated && (
-          <div className="flex items-center gap-1 px-2 py-1 bg-purple/10 rounded-lg flex-shrink-0">
-            <Bookmark className="w-3 h-3 text-purple" />
+          <div className="flex items-center gap-1 px-2 py-1 bg-purple/10 dark:bg-purple-900/30 rounded-lg flex-shrink-0">
+            <Bookmark className="w-3 h-3 text-purple dark:text-purple-400" />
             <Typography
               variant="xs-black-inter"
-              className="text-purple font-medium text-xs"
+              className="text-purple dark:text-purple-400 font-semibold text-xs"
             >
               {t.seller.header.topRated}
             </Typography>
@@ -163,14 +163,14 @@ export default function OrgMobileHeader({
             disabled={!hasPhone}
             icon={
               <Phone
-                className={`h-4 w-4 ${hasPhone ? "text-dark-blue" : "text-gray-300"}`}
+                className={`h-4 w-4 ${hasPhone ? "text-dark-blue dark:text-white" : "text-gray-300 dark:text-slate-600"}`}
               />
             }
             iconPosition="left"
             className={`flex-1 h-9 text-sm rounded-lg ${
               hasPhone
-                ? "text-dark-blue border-gray-200"
-                : "opacity-40 cursor-not-allowed"
+                ? "text-dark-blue dark:text-white border-gray-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/50"
+                : "opacity-40 cursor-not-allowed bg-gray-50 dark:bg-slate-900 border-gray-100 dark:border-slate-800"
             }`}
           >
             {t.seller.header.callSeller}
@@ -181,14 +181,14 @@ export default function OrgMobileHeader({
             disabled={!hasPhone}
             icon={
               <FaWhatsapp
-                className={`h-4 w-4 ${hasPhone ? "text-green-500" : "text-gray-300"}`}
+                className={`h-4 w-4 ${hasPhone ? "text-green-500" : "text-gray-300 dark:text-slate-600"}`}
               />
             }
             iconPosition="left"
             className={`flex-1 h-9 text-sm rounded-lg ${
               hasPhone
-                ? "text-dark-blue border-gray-200"
-                : "opacity-40 cursor-not-allowed"
+                ? "text-dark-blue dark:text-white border-gray-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/50"
+                : "opacity-40 cursor-not-allowed bg-gray-50 dark:bg-slate-900 border-gray-100 dark:border-slate-800"
             }`}
           >
             {t.seller.header.whatsapp}
