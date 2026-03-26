@@ -90,7 +90,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
   const renderStars = (rating: number, size: "small" | "large" = "small") => {
     const cls = size === "large" ? "h-7 w-7" : "h-4 w-4";
     return Array.from({ length: 5 }, (_, i) => (
-      <Star key={i} className={`${cls} ${i < Math.floor(rating) ? "text-yellow-500 fill-current" : "text-gray-300"}`} />
+      <Star key={i} className={`${cls} ${i < Math.floor(rating) ? "text-yellow-500 fill-current" : "text-gray-300 dark:text-slate-700"}`} />
     ));
   };
 
@@ -124,11 +124,11 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4">
         <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-1/3" />
-          <div className="h-20 bg-gray-200 rounded" />
-          <div className="h-32 bg-gray-200 rounded" />
+          <div className="h-6 bg-gray-200 dark:bg-slate-800 rounded w-1/3" />
+          <div className="h-20 bg-gray-200 dark:bg-slate-800 rounded" />
+          <div className="h-32 bg-gray-200 dark:bg-slate-800 rounded" />
         </div>
       </div>
     );
@@ -136,7 +136,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4 text-center">
         <Typography variant="body" className="text-red-500">
           Failed to load reviews.
         </Typography>
@@ -145,7 +145,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
   }
 
   return (
-    <div className="relative bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+    <div className="relative bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-6 transition-all">
       {!isOwner && (
         <Button
           onClick={() => {
@@ -161,23 +161,23 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
         </Button>
       )}
 
-      <Typography variant="h3" className="text-base font-semibold text-dark-blue mb-6">
+      <Typography variant="h3" className="text-base font-semibold text-dark-blue dark:text-white mb-6">
         {t.seller.reviews.title}
       </Typography>
 
       {reviewData.totalReviews > 0 && (
         <div className="flex items-start gap-2 mb-6">
           <Star className="size-6 text-yellow-500" fill="#FFB319" />
-          <Typography variant="h2" className="text-2xl font-semibold text-dark-blue">
+          <Typography variant="h2" className="text-2xl font-semibold text-dark-blue dark:text-white">
             {reviewData.overallRating.toFixed(1)}
           </Typography>
           <div>
-            <Typography variant="sm-regular" className="text-grey-blue">
+            <Typography variant="sm-regular" className="text-grey-blue dark:text-slate-400">
               {t.seller.reviews.overallRating}
             </Typography>
-            <Typography variant="sm-regular" className="text-grey-blue">
+            <Typography variant="sm-regular" className="text-grey-blue dark:text-slate-400">
               {t.seller.reviews.basedOn}{" "}
-              <span className="font-bold">{reviewData.totalReviews} {t.seller.reviews.reviews}</span>
+              <span className="font-bold text-dark-blue dark:text-slate-300">{reviewData.totalReviews} {t.seller.reviews.reviews}</span>
             </Typography>
           </div>
         </div>
@@ -185,11 +185,11 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
 
       {reviewData.totalReviews > 0 && (
         <div className="flex items-center justify-between mb-6">
-          <Typography variant="md-semibold" className="text-dark-blue">
+          <Typography variant="md-semibold" className="text-dark-blue dark:text-white">
             {reviewData.totalReviews} {t.seller.reviews.ratingAndReviews}
           </Typography>
           <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
-            <SelectTrigger className="w-fit h-8 border-purple/20 rounded-lg">
+            <SelectTrigger className="w-fit h-8 border-purple/20 dark:border-slate-800 dark:bg-slate-800 rounded-lg">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -206,23 +206,23 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
         <div className="space-y-4">
           {displayReviews.map((review) => (
             <div key={review.id} className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-[#9FB7E4] rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-[#9FB7E4] dark:bg-slate-800 rounded-full flex items-center justify-center flex-shrink-0">
                 <Typography variant="body-small" className="text-white font-semibold text-sm">
                   {review.avatar}
                 </Typography>
               </div>
               <div className="flex-1">
-                <Typography variant="body-small" className="text-dark-blue font-semibold text-sm">
+                <Typography variant="body-small" className="text-dark-blue dark:text-white font-semibold text-sm">
                   {review.userName}
                 </Typography>
                 <div className="flex items-center gap-1 mt-0.5">
                   {renderStars(review.rating)}
-                  <Typography variant="body-small" className="text-xs text-grey-blue ml-1">
+                  <Typography variant="body-small" className="text-xs text-grey-blue dark:text-slate-400 ml-1">
                     · {review.timeAgo}
                   </Typography>
                 </div>
                 {review.comment && (
-                  <Typography variant="body-small" className="text-dark-blue text-sm leading-relaxed mt-1">
+                  <Typography variant="body-small" className="text-dark-blue dark:text-slate-300 text-sm leading-relaxed mt-1">
                     {review.comment}
                   </Typography>
                 )}
@@ -232,7 +232,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
         </div>
       ) : (
         <div className="text-center py-8">
-          <Typography variant="body" className="text-grey-blue">
+          <Typography variant="body" className="text-grey-blue dark:text-slate-400">
             No reviews yet. Be the first to review!
           </Typography>
         </div>
@@ -259,7 +259,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-dark-blue mb-2 block">
+              <label className="text-sm font-medium text-dark-blue dark:text-white mb-2 block">
                 {t.seller.reviews.writeReviewDialog.rating}
               </label>
               <div className="flex items-center gap-1">
@@ -267,7 +267,7 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
                   <Star
                     key={star}
                     className={`h-6 w-6 cursor-pointer transition-colors ${
-                      star <= (hoverRating || userRating) ? "text-yellow-500 fill-current" : "text-gray-300"
+                      star <= (hoverRating || userRating) ? "text-yellow-500 fill-current" : "text-gray-300 dark:text-slate-700"
                     }`}
                     onClick={() => handleStarClick(star)}
                     onMouseEnter={() => handleStarHover(star)}
@@ -277,11 +277,11 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-dark-blue mb-2 block">
+              <label className="text-sm font-medium text-dark-blue dark:text-white mb-2 block">
                 {t.seller.reviews.writeReviewDialog.yourReview}
               </label>
               <textarea
-                className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent"
+                className="w-full p-3 border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-dark-blue dark:text-white rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple focus:border-transparent placeholder:text-gray-400 dark:placeholder:text-slate-500"
                 rows={4}
                 placeholder={t.seller.reviews.writeReviewDialog.placeholder}
                 value={reviewText}

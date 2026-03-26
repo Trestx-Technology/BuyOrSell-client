@@ -48,28 +48,28 @@ function mapAdToCard(ad: AD) {
 
 function ListingsSkeleton() {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-5">
       {/* Header skeleton */}
       <div className="flex items-center justify-between mb-5">
         <div className="space-y-2">
-          <div className="h-5 w-24 bg-gray-200 rounded-md animate-pulse" />
-          <div className="h-3.5 w-36 bg-gray-100 rounded-md animate-pulse" />
+          <div className="h-5 w-24 bg-gray-200 dark:bg-slate-800 rounded-md animate-pulse" />
+          <div className="h-3.5 w-36 bg-gray-100 dark:bg-slate-900/50 rounded-md animate-pulse" />
         </div>
         <div className="flex gap-2">
-          <div className="h-8 w-28 bg-gray-100 rounded-lg animate-pulse" />
-          <div className="h-8 w-8 bg-gray-100 rounded-lg animate-pulse" />
-          <div className="h-8 w-8 bg-gray-100 rounded-lg animate-pulse" />
+          <div className="h-8 w-28 bg-gray-100 dark:bg-slate-800 rounded-lg animate-pulse" />
+          <div className="h-8 w-8 bg-gray-100 dark:bg-slate-800 rounded-lg animate-pulse" />
+          <div className="h-8 w-8 bg-gray-100 dark:bg-slate-800 rounded-lg animate-pulse" />
         </div>
       </div>
       {/* Card grid skeleton */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 animate-pulse">
-            <div className="h-40 bg-gray-200" />
+          <div key={i} className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-slate-800/50 border border-gray-100 dark:border-slate-800 animate-pulse">
+            <div className="h-40 bg-gray-200 dark:bg-slate-800" />
             <div className="p-3 space-y-2">
-              <div className="h-4 bg-gray-200 rounded w-3/4" />
-              <div className="h-3.5 bg-gray-100 rounded w-1/2" />
-              <div className="h-4 bg-gray-200 rounded w-2/5 mt-1" />
+              <div className="h-4 bg-gray-200 dark:bg-slate-800 rounded w-3/4" />
+              <div className="h-3.5 bg-gray-100 dark:bg-slate-900/50 rounded w-1/2" />
+              <div className="h-4 bg-gray-200 dark:bg-slate-800 rounded w-2/5 mt-1" />
             </div>
           </div>
         ))}
@@ -113,15 +113,15 @@ export default function UserListings({ userId }: UserListingsProps) {
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-10 flex flex-col items-center justify-center gap-4 text-center">
-        <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-10 flex flex-col items-center justify-center gap-4 text-center">
+        <div className="w-14 h-14 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
           <AlertCircle className="w-7 h-7 text-red-400" />
         </div>
         <div>
-          <Typography variant="h3" className="text-base font-semibold text-dark-blue mb-1">
+          <Typography variant="h3" className="text-base font-semibold text-dark-blue dark:text-white mb-1">
             Failed to load listings
           </Typography>
-          <Typography variant="body" className="text-sm text-grey-blue max-w-xs">
+          <Typography variant="body" className="text-sm text-grey-blue dark:text-slate-400 max-w-xs">
             Something went wrong while fetching the listings. Please try again.
           </Typography>
         </div>
@@ -130,7 +130,7 @@ export default function UserListings({ userId }: UserListingsProps) {
           onClick={() => refetch()}
           icon={<RefreshCw className="w-4 h-4" />}
           iconPosition="left"
-          className="border-gray-200 text-dark-blue hover:bg-gray-50"
+          className="border-gray-200 dark:border-slate-800 text-dark-blue dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800"
         >
           Try again
         </Button>
@@ -139,13 +139,13 @@ export default function UserListings({ userId }: UserListingsProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+    <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-5 transition-all">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <Typography variant="h3" className="text-base font-semibold text-dark-blue">
+          <Typography variant="h3" className="text-base font-semibold text-dark-blue dark:text-white">
             Listings
           </Typography>
-          <Typography variant="body" className="text-sm text-grey-blue">
+          <Typography variant="body" className="text-sm text-grey-blue dark:text-slate-400">
             {sortedAds.length} active {sortedAds.length === 1 ? "listing" : "listings"}
           </Typography>
         </div>
@@ -172,14 +172,14 @@ export default function UserListings({ userId }: UserListingsProps) {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-          <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center">
-            <PackageSearch className="w-8 h-8 text-gray-300" />
+          <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-slate-800/50 flex items-center justify-center">
+            <PackageSearch className="w-8 h-8 text-gray-300 dark:text-slate-600" />
           </div>
           <div>
-            <Typography variant="h3" className="text-base font-semibold text-dark-blue mb-1">
+            <Typography variant="h3" className="text-base font-semibold text-dark-blue dark:text-white mb-1">
               No listings yet
             </Typography>
-            <Typography variant="body" className="text-sm text-grey-blue max-w-xs">
+            <Typography variant="body" className="text-sm text-grey-blue dark:text-slate-400 max-w-xs">
               This seller hasn&apos;t posted any listings yet. Check back later.
             </Typography>
           </div>

@@ -74,10 +74,10 @@ const OrgInfo: React.FC<OrgInfoProps> = ({ organization }) => {
     icon: React.ComponentType<{ className?: string }>;
     children: React.ReactNode;
   }) => (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm p-6 transition-all">
       <div className="flex items-center gap-2 mb-4">
         <Icon className="h-5 w-5 text-purple" />
-        <Typography variant="h3" className="text-base font-semibold text-dark-blue">
+        <Typography variant="h3" className="text-base font-semibold text-dark-blue dark:text-white">
           {title}
         </Typography>
       </div>
@@ -98,11 +98,11 @@ const OrgInfo: React.FC<OrgInfoProps> = ({ organization }) => {
     href?: string;
     className?: string;
   }) => (
-    <div className="flex items-start gap-3 py-2 border-b border-gray-50 last:border-0">
-      <Icon className="h-4 w-4 text-grey-blue mt-0.5 flex-shrink-0" />
+    <div className="flex items-start gap-3 py-2 border-b border-gray-50 dark:border-slate-800/50 last:border-0">
+      <Icon className="h-4 w-4 text-grey-blue dark:text-slate-400 mt-0.5 flex-shrink-0" />
       <div className="flex-1 min-w-0">
         {label && (
-          <Typography variant="body" className="text-xs text-grey-blue mb-0.5">
+          <Typography variant="body" className="text-xs text-grey-blue dark:text-slate-500 mb-0.5">
             {label}
           </Typography>
         )}
@@ -111,12 +111,12 @@ const OrgInfo: React.FC<OrgInfoProps> = ({ organization }) => {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className={`text-sm text-blue-600 hover:underline break-all ${className || ""}`}
+            className={`text-sm text-blue-600 dark:text-blue-400 hover:underline break-all ${className || ""}`}
           >
             {value}
           </a>
         ) : (
-          <Typography variant="body" className={`text-sm text-dark-blue break-words ${className || ""}`}>
+          <Typography variant="body" className={`text-sm text-dark-blue dark:text-white break-words ${className || ""}`}>
             {value}
           </Typography>
         )}
@@ -156,13 +156,13 @@ const OrgInfo: React.FC<OrgInfoProps> = ({ organization }) => {
         ].map(({ icon: Icon, value, label, color }) => (
           <div
             key={label}
-            className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex flex-col items-center gap-1"
+            className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm p-4 flex flex-col items-center gap-1 transition-all"
           >
             <Icon className={`h-8 w-8 ${color}`} />
-            <Typography variant="h2" className="text-xl font-bold text-dark-blue">
+            <Typography variant="h2" className="text-xl font-bold text-dark-blue dark:text-white">
               {value}
             </Typography>
-            <Typography variant="body" className="text-xs text-grey-blue text-center">
+            <Typography variant="body" className="text-xs text-grey-blue dark:text-slate-400 text-center">
               {label}
             </Typography>
           </div>
@@ -170,12 +170,12 @@ const OrgInfo: React.FC<OrgInfoProps> = ({ organization }) => {
       </div>
 
       {/* Description */}
-      {organization.description && (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-          <Typography variant="h3" className="text-base font-semibold text-dark-blue mb-3">
+       {organization.description && (
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm p-6 transition-all">
+          <Typography variant="h3" className="text-base font-semibold text-dark-blue dark:text-white mb-3">
             About
           </Typography>
-          <Typography variant="body" className="text-sm text-grey-blue leading-relaxed">
+          <Typography variant="body" className="text-sm text-grey-blue dark:text-slate-400 leading-relaxed">
             {organization.description}
           </Typography>
         </div>
@@ -197,8 +197,8 @@ const OrgInfo: React.FC<OrgInfoProps> = ({ organization }) => {
               />
             ) : (
               <div className="flex items-center gap-3 py-2 opacity-40">
-                <Phone className="h-4 w-4 text-grey-blue" />
-                <Typography variant="body" className="text-sm text-grey-blue italic">
+                <Phone className="h-4 w-4 text-grey-blue dark:text-slate-400" />
+                <Typography variant="body" className="text-sm text-grey-blue dark:text-slate-400 italic">
                   No phone number provided
                 </Typography>
               </div>
@@ -212,8 +212,8 @@ const OrgInfo: React.FC<OrgInfoProps> = ({ organization }) => {
               />
             ) : (
               <div className="flex items-center gap-3 py-2 opacity-40">
-                <Mail className="h-4 w-4 text-grey-blue" />
-                <Typography variant="body" className="text-sm text-grey-blue italic">
+                <Mail className="h-4 w-4 text-grey-blue dark:text-slate-400" />
+                <Typography variant="body" className="text-sm text-grey-blue dark:text-slate-400 italic">
                   No email provided
                 </Typography>
               </div>
@@ -285,13 +285,13 @@ const OrgInfo: React.FC<OrgInfoProps> = ({ organization }) => {
                 }
 
                 return (
-                  <div key={index} className="flex justify-between items-center py-1.5 border-b border-gray-50 last:border-0">
-                    <Typography variant="body" className="text-sm text-dark-blue font-medium w-28">
+                  <div key={index} className="flex justify-between items-center py-1.5 border-b border-gray-50 dark:border-slate-800/50 last:border-0">
+                    <Typography variant="body" className="text-sm text-dark-blue dark:text-white font-medium w-28">
                       {dayName}
                     </Typography>
                     <Typography
                       variant="body"
-                      className={`text-sm ${hoursText === "Closed" ? "text-red-400" : "text-grey-blue"}`}
+                      className={`text-sm ${hoursText === "Closed" ? "text-red-400 dark:text-red-500" : "text-grey-blue dark:text-slate-400"}`}
                     >
                       {hoursText || "—"}
                     </Typography>
@@ -310,18 +310,18 @@ const OrgInfo: React.FC<OrgInfoProps> = ({ organization }) => {
             {locations.map((loc, index) => (
               <div
                 key={loc._id || index}
-                className="p-4 bg-gray-50 rounded-xl border border-gray-100"
+                className="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-100 dark:border-slate-700 transition-all"
               >
                 {loc.name && (
-                  <Typography variant="body" className="text-sm font-semibold text-dark-blue mb-1">
+                  <Typography variant="body" className="text-sm font-semibold text-dark-blue dark:text-white mb-1">
                     {loc.name}
                   </Typography>
                 )}
-                <Typography variant="body" className="text-xs text-grey-blue">
+                <Typography variant="body" className="text-xs text-grey-blue dark:text-slate-400">
                   {[loc.address, loc.city, loc.emirate].filter(Boolean).join(", ")}
                 </Typography>
                 {loc.phone && (
-                  <a href={`tel:${loc.phone}`} className="text-xs text-blue-600 mt-1 block">
+                  <a href={`tel:${loc.phone}`} className="text-xs text-blue-600 dark:text-blue-400 mt-1 block hover:underline">
                     {loc.phone}
                   </a>
                 )}
@@ -338,21 +338,21 @@ const OrgInfo: React.FC<OrgInfoProps> = ({ organization }) => {
             {certifications.map((cert, index) => (
               <div
                 key={cert._id || index}
-                className="p-4 bg-purple/5 rounded-xl border border-purple/10"
+                className="p-4 bg-purple/5 dark:bg-purple-900/10 rounded-xl border border-purple/10 dark:border-purple-800/20 transition-all"
               >
                 <div className="flex items-start gap-2">
                   <Shield className="h-4 w-4 text-purple mt-0.5 flex-shrink-0" />
                   <div>
-                    <Typography variant="body" className="text-sm font-semibold text-dark-blue">
+                    <Typography variant="body" className="text-sm font-semibold text-dark-blue dark:text-white">
                       {cert.name}
                     </Typography>
                     {cert.issuer && (
-                      <Typography variant="body" className="text-xs text-grey-blue mt-0.5">
+                      <Typography variant="body" className="text-xs text-grey-blue dark:text-slate-400 mt-0.5">
                         Issued by {cert.issuer}
                       </Typography>
                     )}
                     {cert.issuedOn && (
-                      <Typography variant="body" className="text-xs text-grey-blue">
+                      <Typography variant="body" className="text-xs text-grey-blue dark:text-slate-400">
                         {format(new Date(cert.issuedOn), "MMM yyyy")}
                         {cert.expiresOn && ` – ${format(new Date(cert.expiresOn), "MMM yyyy")}`}
                       </Typography>
@@ -374,7 +374,7 @@ const OrgInfo: React.FC<OrgInfoProps> = ({ organization }) => {
                 {languages.map((lang) => (
                   <span
                     key={lang}
-                    className="px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-lg text-sm font-medium text-blue-700"
+                    className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 rounded-lg text-sm font-medium text-blue-700 dark:text-blue-300"
                   >
                     {lang}
                   </span>
@@ -389,9 +389,9 @@ const OrgInfo: React.FC<OrgInfoProps> = ({ organization }) => {
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-sm text-dark-blue"
+                    className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-lg text-sm text-dark-blue dark:text-white"
                   >
-                    <Tag className="h-3 w-3 text-grey-blue" />
+                    <Tag className="h-3 w-3 text-grey-blue dark:text-slate-400" />
                     {tag}
                   </span>
                 ))}

@@ -85,9 +85,9 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userId, user }) => {
             className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center gap-2">
-            <ImageOff className="w-8 h-8 text-gray-400" />
-            <Typography variant="body" className="text-sm text-gray-400">
+          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-slate-800 dark:to-slate-900 flex flex-col items-center justify-center gap-2">
+            <ImageOff className="w-8 h-8 text-gray-400 dark:text-slate-600" />
+            <Typography variant="body" className="text-sm text-gray-400 dark:text-slate-500">
               No banner uploaded
             </Typography>
           </div>
@@ -117,13 +117,13 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userId, user }) => {
       </div>
 
       {/* Glassmorphism card */}
-      <div className="relative bg-white/80 backdrop-blur-lg border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] p-8 rounded-b-3xl -mt-2">
+      <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border border-white/20 dark:border-slate-800 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] p-8 rounded-b-3xl -mt-2 transition-all">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
           {/* Avatar + Info */}
           <div className="flex items-center gap-6">
             <div className="relative">
               <div className="absolute inset-0 bg-purple/20 blur-2xl rounded-full" />
-              <div className="relative w-32 h-32 rounded-full ring-4 ring-white shadow-xl bg-gray-200 overflow-hidden transition-transform hover:scale-105">
+              <div className="relative w-32 h-32 rounded-full ring-4 ring-white dark:ring-slate-900 shadow-xl bg-gray-200 dark:bg-slate-800 overflow-hidden transition-transform hover:scale-105">
                 {avatar ? (
                   <Image
                     src={avatar}
@@ -141,7 +141,7 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userId, user }) => {
             <div className="flex-1 min-w-0">
               {/* Name + Verified */}
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <Typography variant="h2" className="text-xl font-bold text-dark-blue">
+                <Typography variant="h2" className="text-xl font-bold text-dark-blue dark:text-white">
                   {sellerName}
                 </Typography>
                 {isVerified && (
@@ -153,7 +153,7 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userId, user }) => {
                   />
                 )}
                 {isVerified && (
-                  <div className="flex items-center gap-1 h-7 px-3 text-purple bg-purple/10 rounded-lg text-xs font-semibold">
+                  <div className="flex items-center gap-1 h-7 px-3 text-purple dark:text-purple-400 bg-purple/10 dark:bg-purple-900/30 rounded-lg text-xs font-semibold">
                     <BookmarkCheck size={14} />
                     Verified
                   </div>
@@ -163,14 +163,14 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userId, user }) => {
               {/* Meta */}
               <div className="flex flex-col sm:flex-row flex-wrap gap-3">
                 <div className="flex items-center gap-1">
-                  <FaMapMarkerAlt className="w-3.5 h-3.5 text-grey-blue" />
-                  <Typography variant="body" className="text-sm text-dark-blue">
+                  <FaMapMarkerAlt className="w-3.5 h-3.5 text-grey-blue dark:text-slate-400" />
+                  <Typography variant="body" className="text-sm text-dark-blue dark:text-slate-300">
                     UAE
                   </Typography>
                 </div>
                 <div className="flex items-center gap-1">
-                  <FaCalendarAlt className="w-3.5 h-3.5 text-grey-blue" />
-                  <Typography variant="body" className="text-sm text-dark-blue">
+                  <FaCalendarAlt className="w-3.5 h-3.5 text-grey-blue dark:text-slate-400" />
+                  <Typography variant="body" className="text-sm text-dark-blue dark:text-slate-300">
                     {t.seller.header.memberSince} {formatDate(user.createdAt)}
                   </Typography>
                 </div>
@@ -205,10 +205,10 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userId, user }) => {
                     />
                   }
                   iconPosition="left"
-                  className={`w-full border-gray-200 h-11 font-semibold rounded-xl transition-all ${
+                  className={`w-full border-gray-200 dark:border-slate-800 h-11 font-semibold rounded-xl transition-all ${
                     hasPhone
-                      ? "bg-white/50 backdrop-blur hover:bg-gray-50 text-dark-blue"
-                      : "bg-gray-50 text-gray-300 cursor-not-allowed opacity-50"
+                      ? "bg-white/50 dark:bg-slate-800/50 backdrop-blur hover:bg-gray-50 dark:hover:bg-slate-700 text-dark-blue dark:text-white"
+                      : "bg-gray-50 dark:bg-slate-900 text-gray-300 dark:text-slate-600 cursor-not-allowed opacity-50"
                   }`}
                 >
                   {t.seller.header.callSeller}
@@ -226,10 +226,10 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userId, user }) => {
                     />
                   }
                   iconPosition="left"
-                  className={`w-full border-gray-200 h-11 font-semibold rounded-xl transition-all ${
+                  className={`w-full border-gray-200 dark:border-slate-800 h-11 font-semibold rounded-xl transition-all ${
                     hasPhone
-                      ? "bg-white/50 backdrop-blur hover:bg-green-50 text-dark-blue"
-                      : "bg-gray-50 text-gray-300 cursor-not-allowed opacity-50"
+                      ? "bg-white/50 dark:bg-slate-800/50 backdrop-blur hover:bg-green-50 dark:hover:bg-green-950/20 text-dark-blue dark:text-white"
+                      : "bg-gray-50 dark:bg-slate-900 text-gray-300 dark:text-slate-600 cursor-not-allowed opacity-50"
                   }`}
                 >
                   {t.seller.header.whatsapp}

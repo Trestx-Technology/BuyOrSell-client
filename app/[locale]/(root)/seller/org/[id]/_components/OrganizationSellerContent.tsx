@@ -27,13 +27,15 @@ const OrganizationSellerContent: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-[#F9FAFC] relative">
+      <div className="bg-[#F9FAFC] dark:bg-slate-950 relative min-h-screen">
         <div className="pb-6 md:py-6">
-          <div className="animate-pulse space-y-8">
-            <div className="bg-gray-200 h-40 rounded-2xl" />
-            <div className="bg-gray-200 h-64 rounded-xl" />
-            <div className="bg-gray-200 h-48 rounded-xl" />
-          </div>
+          <Container1080>
+            <div className="animate-pulse space-y-8">
+              <div className="bg-gray-200 dark:bg-slate-800 h-48 rounded-3xl" />
+              <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md h-64 rounded-3xl border border-white/20 dark:border-slate-800" />
+              <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md h-48 rounded-3xl border border-white/20 dark:border-slate-800" />
+            </div>
+          </Container1080>
         </div>
       </div>
     );
@@ -41,23 +43,26 @@ const OrganizationSellerContent: React.FC = () => {
 
   if (!organization) {
     return (
-      <div className="bg-[#F9FAFC] relative">
+      <div className="bg-[#F9FAFC] dark:bg-slate-950 relative min-h-screen">
         <div className="pb-6 md:py-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <Typography variant="h2" className="text-dark-blue mb-2">
-              Organization Not Found
-            </Typography>
-            <Typography variant="body" className="text-grey-blue">
-              The organization profile you&apos;re looking for doesn&apos;t exist.
-            </Typography>
-          </div>
+          <Container1080>
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-200 dark:border-slate-800 p-12 text-center shadow-xl">
+              <Typography variant="h2" className="text-dark-blue dark:text-white mb-2">
+                Organization Not Found
+              </Typography>
+              <Typography variant="body" className="text-grey-blue dark:text-slate-400">
+                The organization profile you&apos;re looking for doesn&apos;t exist.
+              </Typography>
+            </div>
+          </Container1080>
         </div>
       </div>
     );
   }
 
   return (
-    <Container1080 className="relative">
+    <div className="bg-[#F9FAFC] dark:bg-slate-950 min-h-screen">
+      <Container1080 className="relative pb-12">
       <div className="pb-6 md:py-6">
         {/* Desktop Header */}
         <div className="hidden sm:block">
@@ -96,7 +101,8 @@ const OrganizationSellerContent: React.FC = () => {
         </div>
       </div>
     </Container1080>
-  );
+  </div>
+);
 };
 
 export default OrganizationSellerContent;

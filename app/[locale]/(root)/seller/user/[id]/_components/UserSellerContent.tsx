@@ -49,12 +49,12 @@ const UserSellerContent: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Container1080 className="relative">
+      <Container1080 className="relative dark:bg-slate-950 transition-colors">
         <div className="pb-6 md:py-6">
           <div className="animate-pulse space-y-8">
-            <div className="bg-gray-200 h-40 rounded-2xl" />
-            <div className="bg-gray-200 h-64 rounded-xl" />
-            <div className="bg-gray-200 h-48 rounded-xl" />
+            <div className="bg-gray-200 dark:bg-slate-800 h-40 rounded-2xl" />
+            <div className="bg-gray-200 dark:bg-slate-800 h-64 rounded-xl" />
+            <div className="bg-gray-200 dark:bg-slate-800 h-48 rounded-xl" />
           </div>
         </div>
       </Container1080>
@@ -65,18 +65,18 @@ const UserSellerContent: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="bg-[#F9FAFC] relative">
+      <div className="bg-[#F9FAFC] dark:bg-slate-950 relative min-h-screen transition-colors">
         <div className="pb-6 md:py-6 text-center">
           <div className="max-w-md mx-auto py-20 px-4">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Typography variant="h2" className="text-gray-400">
+            <div className="w-20 h-20 bg-gray-100 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Typography variant="h2" className="text-gray-400 dark:text-slate-600">
                 ?
               </Typography>
             </div>
-            <Typography variant="h2" className="text-dark-blue mb-2">
+            <Typography variant="h2" className="text-dark-blue dark:text-white mb-2">
               User Not Found
             </Typography>
-            <Typography variant="body" className="text-grey-blue">
+            <Typography variant="body" className="text-grey-blue dark:text-slate-400">
               The user profile you&apos;re looking for doesn&apos;t exist or has been removed.
             </Typography>
           </div>
@@ -86,7 +86,7 @@ const UserSellerContent: React.FC = () => {
   }
 
   return (
-    <Container1080 className="relative bg-[#FDFDFF]">
+    <Container1080 className="relative bg-[#FDFDFF] dark:bg-slate-950 transition-colors">
       <div className="pb-6 md:py-6">
         {/* Desktop Header */}
         <div className="hidden sm:block">
@@ -104,9 +104,9 @@ const UserSellerContent: React.FC = () => {
                 className="w-full h-full object-cover object-center"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center gap-2">
-                <ImageOff className="w-7 h-7 text-gray-400" />
-                <Typography variant="body" className="text-xs text-gray-400">
+              <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-slate-800 dark:to-slate-900 flex flex-col items-center justify-center gap-2">
+                <ImageOff className="w-7 h-7 text-gray-400 dark:text-slate-600" />
+                <Typography variant="body" className="text-xs text-gray-400 dark:text-slate-500">
                   No banner uploaded
                 </Typography>
               </div>
