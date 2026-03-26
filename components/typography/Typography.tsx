@@ -247,6 +247,7 @@ interface TypographyProps {
   children: React.ReactNode;
   className?: string;
   color?: string;
+  title?: string;
 }
 
 export const Typography: React.FC<TypographyProps> = ({
@@ -255,6 +256,7 @@ export const Typography: React.FC<TypographyProps> = ({
   children,
   className = "",
   color,
+  title,
 }) => {
   // Extract the base variant to get default tag
   const baseVariant = variant.split("-")[0] as keyof typeof semanticVariants;
@@ -266,7 +268,7 @@ export const Typography: React.FC<TypographyProps> = ({
   // Build final className
   const finalClassName = cn(styleClass, color && `text-${color}`, className);
 
-  return <Component className={finalClassName}>{children}</Component>;
+  return <Component className={finalClassName} title={title}>{children}</Component>;
 };
 
 // Export individual components for convenience
