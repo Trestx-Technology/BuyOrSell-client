@@ -15,6 +15,7 @@ import {
 import {
   createAdReview,
   createOrganizationReview,
+  createUserReview,
 } from "@/app/api/review/create-review.services";
 import {
   ReviewsResponse,
@@ -48,6 +49,7 @@ export const useOrganizationReviews = (
     limit?: number;
     sortBy?: "latest" | "oldest" | "highest" | "lowest";
   },
+  enabled: boolean = true,
 ) => {
   return useQuery<ReviewsResponse, Error>({
     queryKey: [
@@ -55,7 +57,7 @@ export const useOrganizationReviews = (
       params,
     ],
     queryFn: () => getOrganizationReviews(organizationId, params),
-    enabled: !!organizationId,
+    enabled: enabled && !!organizationId,
   });
 };
 
@@ -224,6 +226,43 @@ export const useCreateOrganizationReview = () => {
         queryKey: reviewQueries.organizationAverageRating(
           variables.organizationId,
         ).Key,
+      });
+    },
+  });
+};
+
+// Create a review for a user
+export const useCreateUserReview = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    CreateReviewResponse,
+    Error,
+    {
+      userId: string;
+      rating: number;
+      review: string;
+      reviewerId: string;
+      language?: string;
+      tag?: string;
+    }
+  >({
+    mutationFn: ({ userId, rating, review, reviewerId, language, tag }) =>
+      createUserReview(userId, {
+        rating,
+        review,
+        reviewerId,
+        language,
+        tag,
+      }),
+    onSuccess: (_, variables) => {
+      // Invalidate and refetch reviews for this user
+      queryClient.invalidateQueries({
+        queryKey: reviewQueries.getReviews("User", variables.userId).Key,
+      });
+      // Invalidate average rating
+      queryClient.invalidateQueries({
+        queryKey: reviewQueries.getAverageRating("User", variables.userId).Key,
       });
     },
   });
