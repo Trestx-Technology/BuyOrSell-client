@@ -28,30 +28,26 @@ import { formatDistanceToNow } from "date-fns";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
 
-interface SellerReviewsProps {
-  sellerId: string;
-  organization?: Organization;
+interface OrgReviewsProps {
+  organizationId: string;
+  organization: Organization;
 }
 
-const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
+const OrgReviews: React.FC<OrgReviewsProps> = ({ organizationId, organization }) => {
   const { t, locale } = useLocale();
-  const [sortBy, setSortBy] = useState<
-    "latest" | "oldest" | "highest" | "lowest"
-  >("latest");
+  const [sortBy, setSortBy] = useState<"latest" | "oldest" | "highest" | "lowest">("latest");
   const [isWriteReviewOpen, setIsWriteReviewOpen] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [userRating, setUserRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [reviewText, setReviewText] = useState<string>("");
 
-  // Auth and review creation
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.session.user);
-  const createReviewMutation = useCreateOrganizationReview();
+  const createOrgReviewMutation = useCreateOrganizationReview();
 
-  // Check if current user is the owner of the organization
   const isOwner = useMemo(() => {
-    if (!user || !organization) return false;
+    if (!user) return false;
     const ownerId =
       typeof organization.owner === "string"
         ? organization.owner
@@ -59,50 +55,32 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
     return user._id === ownerId;
   }, [user, organization]);
 
-  // Fetch reviews for organization (only if organization exists)
-  const {
-    data: reviewsResponse,
-    isLoading,
-    error,
-  } = useOrganizationReviews(organization?._id || "", {
-    sortBy,
-    limit: 100, // Fetch all reviews, we'll handle pagination in UI
-  });
+  const { data: reviewsData, isLoading, error } = useOrganizationReviews(
+    organizationId,
+    { sortBy, limit: 100 },
+    true
+  );
 
-  // Extract reviews from response
   const reviews = useMemo(() => {
-    if (!reviewsResponse) return [];
-
-    // Handle structured response object where data might be nested
-    const responseData = reviewsResponse.data;
-    if (Array.isArray(responseData)) {
-      return responseData as Review[];
-    }
-    if (
-      responseData &&
-      typeof responseData === "object" &&
-      "data" in responseData
-    ) {
-      const nestedData = (responseData as { data: unknown }).data;
-      if (Array.isArray(nestedData)) {
-        return nestedData as Review[];
-      }
+    if (!reviewsData) return [];
+    const responseData = reviewsData.data;
+    if (Array.isArray(responseData)) return responseData as Review[];
+    if (responseData && typeof responseData === "object" && "data" in responseData) {
+      const nested = (responseData as { data: unknown }).data;
+      if (Array.isArray(nested)) return nested as Review[];
     }
     return [];
-  }, [reviewsResponse]);
+  }, [reviewsData]);
 
-  // Transform reviews and calculate review data
   const reviewData = useMemo(() => {
-    // Calculate overall rating from reviews
     const overallRating =
       reviews.length > 0
-        ? reviews.reduce((sum, review) => sum + review.rating, 0) /
-          reviews.length
-        : organization?.ratingAvg || 0;
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+        : organization.ratingAvg || 0;
 
     return {
       overallRating,
-      totalReviews: organization?.ratingCount || reviews.length,
+      totalReviews: organization.ratingCount || reviews.length,
       reviews: reviews.map((review: Review) => {
         const userName = review.reviewerName || "Anonymous";
         const initials = userName
@@ -111,19 +89,15 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
           .join("")
           .toUpperCase()
           .slice(0, 2);
-
         return {
           id: review._id,
           userName,
           rating: review.rating,
           comment: review.review || "",
           timeAgo: review.createdAt
-            ? formatDistanceToNow(new Date(review.createdAt), {
-                addSuffix: true,
-              })
+            ? formatDistanceToNow(new Date(review.createdAt), { addSuffix: true })
             : "",
           avatar: initials || "A",
-          fullComment: review.review || "",
         };
       }),
     };
@@ -134,92 +108,49 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
     : reviewData.reviews.slice(0, 3);
 
   const renderStars = (rating: number, size: "small" | "large" = "small") => {
-    const starSize = size === "large" ? "h-8 w-8" : "h-4 w-4";
-    return Array.from({ length: 5 }, (_, index) => (
+    const cls = size === "large" ? "h-7 w-7" : "h-4 w-4";
+    return Array.from({ length: 5 }, (_, i) => (
       <Star
-        key={index}
-        className={`${starSize} ${
-          index < Math.floor(rating)
-            ? "text-yellow-500 fill-current"
-            : "text-gray-300"
-        }`}
+        key={i}
+        className={`${cls} ${i < Math.floor(rating) ? "text-yellow-500 fill-current" : "text-gray-300"}`}
       />
     ));
   };
 
   const handleWriteReview = () => {
-    if (!isAuthenticated) {
-      toast.error("Please log in to write a review");
-      return;
-    }
-    if (!organization?._id) {
-      toast.error("Organization not found");
-      return;
-    }
-    if (isOwner) {
-      toast.error("You cannot review your own organization");
-      return;
-    }
+    if (!isAuthenticated) { toast.error("Please log in to write a review"); return; }
+    if (isOwner) { toast.error("You cannot review your own organization"); return; }
     setIsWriteReviewOpen(true);
   };
 
-  const handleStarClick = useCallback((rating: number) => {
-    setUserRating(rating);
-  }, []);
-
-  const handleStarHover = useCallback((rating: number) => {
-    setHoverRating(rating);
-  }, []);
-
-  const handleStarLeave = useCallback(() => {
-    setHoverRating(0);
-  }, []);
+  const handleStarClick = useCallback((r: number) => setUserRating(r), []);
+  const handleStarHover = useCallback((r: number) => setHoverRating(r), []);
+  const handleStarLeave = useCallback(() => setHoverRating(0), []);
 
   const handleSubmitReview = async () => {
-    if (!isAuthenticated || !user?._id) {
-      toast.error("Please log in to submit a review");
-      return;
-    }
-
-    if (!organization?._id) {
-      toast.error("Organization not found");
-      return;
-    }
-
-    if (userRating === 0) {
-      toast.error("Please select a rating before submitting");
-      return;
-    }
-
+    if (!isAuthenticated || !user?._id) { toast.error("Please log in"); return; }
+    if (userRating === 0) { toast.error("Please select a rating"); return; }
     try {
-      await createReviewMutation.mutateAsync({
-        organizationId: organization._id,
+      await createOrgReviewMutation.mutateAsync({
+        organizationId,
         rating: userRating,
         review: reviewText.trim() || "",
         reviewerId: user._id,
         language: locale,
       });
-
-      // Reset form
-      setUserRating(0);
-      setReviewText("");
-      setHoverRating(0);
-      setIsWriteReviewOpen(false);
+      setUserRating(0); setReviewText(""); setHoverRating(0); setIsWriteReviewOpen(false);
       toast.success("Thank you for your review!");
-    } catch (error) {
-      console.error("Error submitting review:", error);
+    } catch {
       toast.error("Failed to submit review. Please try again.");
     }
   };
 
   const handleCloseDialog = () => {
-    setUserRating(0);
-    setReviewText("");
-    setHoverRating(0);
-    setIsWriteReviewOpen(false);
+    setUserRating(0); setReviewText(""); setHoverRating(0); setIsWriteReviewOpen(false);
   };
 
-  // Show loading state
+  const isPending = createOrgReviewMutation.isPending;
+
   if (isLoading) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
@@ -232,7 +163,6 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
     );
   }
 
-  // Show error state
   if (error) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
@@ -244,8 +174,8 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
   }
 
   return (
-    <div className="relative bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-      {/* Write Review Button - Top Right (only show if user is not the owner) */}
+    <div className="relative bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      {/* Write Review Button */}
       {!isOwner && (
         <Button
           onClick={handleWriteReview}
@@ -258,24 +188,14 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
         </Button>
       )}
 
-      {/* Title */}
-      <Typography
-        variant="h3"
-        className="text-base font-semibold text-dark-blue mb-6"
-      >
+      <Typography variant="h3" className="text-base font-semibold text-dark-blue mb-6">
         {t.seller.reviews.title}
       </Typography>
 
-      {/* Overall Rating Section */}
       {reviewData.totalReviews > 0 && (
-        <div className="flex items-start justify-start gap-2 mb-6">
-          {/* Large Star Rating */}
+        <div className="flex items-start gap-2 mb-6">
           <Star className="size-6 text-yellow-500" fill="#FFB319" />
-          {/* Rating Details */}
-          <Typography
-            variant="h2"
-            className="text-2xl font-semibold text-dark-blue"
-          >
+          <Typography variant="h2" className="text-2xl font-semibold text-dark-blue">
             {reviewData.overallRating.toFixed(1)}
           </Typography>
           <div>
@@ -292,90 +212,54 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
         </div>
       )}
 
-      {/* Reviews Count with Sort Dropdown */}
       {reviewData.totalReviews > 0 && (
         <div className="flex items-center justify-between mb-6">
           <Typography variant="md-semibold" className="text-dark-blue">
             {reviewData.totalReviews} {t.seller.reviews.ratingAndReviews}
           </Typography>
-
-          {/* Sort Select */}
-          <Select
-            value={sortBy}
-            onValueChange={(value) => setSortBy(value as typeof sortBy)}
-          >
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
             <SelectTrigger className="w-fit h-8 border-purple/20 rounded-lg">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="latest">
-                {t.seller.reviews.sortBy.latest}
-              </SelectItem>
-              <SelectItem value="oldest">
-                {t.seller.reviews.sortBy.oldest}
-              </SelectItem>
-              <SelectItem value="highest">
-                {t.seller.reviews.sortBy.highest}
-              </SelectItem>
-              <SelectItem value="lowest">
-                {t.seller.reviews.sortBy.lowest}
-              </SelectItem>
+              <SelectItem value="latest">{t.seller.reviews.sortBy.latest}</SelectItem>
+              <SelectItem value="oldest">{t.seller.reviews.sortBy.oldest}</SelectItem>
+              <SelectItem value="highest">{t.seller.reviews.sortBy.highest}</SelectItem>
+              <SelectItem value="lowest">{t.seller.reviews.sortBy.lowest}</SelectItem>
             </SelectContent>
           </Select>
         </div>
       )}
 
-      {/* Individual Reviews */}
-      {reviewData.reviews.length > 0 ? (
+      {displayReviews.length > 0 ? (
         <div className="space-y-4">
           {displayReviews.map((review) => (
             <div key={review.id} className="flex items-start gap-3">
-              {/* User Avatar */}
               <div className="w-10 h-10 bg-[#9FB7E4] rounded-full flex items-center justify-center flex-shrink-0">
-                <Typography
-                  variant="body-small"
-                  className="text-white font-semibold text-sm"
-                >
+                <Typography variant="body-small" className="text-white font-semibold text-sm">
                   {review.avatar}
                 </Typography>
               </div>
-
-              {/* Review Content */}
               <div className="flex-1">
-                {/* User Name and Rating */}
-                <div className="mb-2">
-                  <Typography
-                    variant="body-small"
-                    className="text-dark-blue font-semibold text-sm"
-                  >
+                <div className="mb-1">
+                  <Typography variant="body-small" className="text-dark-blue font-semibold text-sm">
                     {review.userName}
                   </Typography>
-                  <div className="flex items-center gap-1 mt-1">
+                  <div className="flex items-center gap-1 mt-0.5">
                     {renderStars(review.rating, "small")}
-                    <Typography
-                      variant="body-small"
-                      className="text-dark-blue font-semibold text-xs"
-                    >
+                    <Typography variant="body-small" className="text-dark-blue font-semibold text-xs">
                       {review.rating}
+                    </Typography>
+                    <Typography variant="body-small" className="text-grey-blue text-xs ml-1">
+                      · {review.timeAgo}
                     </Typography>
                   </div>
                 </div>
-
-                {/* Review Comment */}
-                <Typography
-                  variant="body-small"
-                  className="text-dark-blue font-semibold text-sm mb-1"
-                >
-                  {review.comment}
-                </Typography>
-
-                {/* Full Comment */}
-                <Typography
-                  variant="body-small"
-                  className="text-black text-sm leading-relaxed"
-                >
-                  {review.fullComment}
-                </Typography>
+                {review.comment && (
+                  <Typography variant="body-small" className="text-dark-blue text-sm leading-relaxed">
+                    {review.comment}
+                  </Typography>
+                )}
               </div>
             </div>
           ))}
@@ -383,12 +267,11 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
       ) : (
         <div className="text-center py-8">
           <Typography variant="body" className="text-grey-blue">
-            No reviews yet. Be the first to review this seller!
+            No reviews yet. Be the first to review this organization!
           </Typography>
         </div>
       )}
 
-      {/* View All Button */}
       {reviewData.reviews.length > 3 && (
         <div className="flex justify-center mt-6">
           <Button
@@ -396,32 +279,23 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
             variant="ghost"
             icon={
               <ChevronDown
-                className={`h-4 w-4 transition-transform ${
-                  showAllReviews ? "rotate-180" : ""
-                }`}
+                className={`h-4 w-4 transition-transform ${showAllReviews ? "rotate-180" : ""}`}
               />
             }
             iconPosition="center"
             className="text-purple hover:text-purple/80 flex items-center gap-1"
           >
-            {showAllReviews
-              ? t.seller.reviews.showLess
-              : t.seller.reviews.viewAll}
+            {showAllReviews ? t.seller.reviews.showLess : t.seller.reviews.viewAll}
           </Button>
         </div>
       )}
 
-      {/* Write Review Dialog */}
       <Dialog open={isWriteReviewOpen} onOpenChange={handleCloseDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              {t.seller.reviews.writeReviewDialog.title}
-            </DialogTitle>
+            <DialogTitle>{t.seller.reviews.writeReviewDialog.title}</DialogTitle>
           </DialogHeader>
-
           <div className="space-y-4">
-            {/* Rating Input */}
             <div>
               <label className="text-sm font-medium text-dark-blue mb-2 block">
                 {t.seller.reviews.writeReviewDialog.rating}
@@ -433,9 +307,7 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
                     <Star
                       key={star}
                       className={`h-6 w-6 cursor-pointer transition-colors ${
-                        isFilled
-                          ? "text-yellow-500 fill-current"
-                          : "text-gray-300"
+                        isFilled ? "text-yellow-500 fill-current" : "text-gray-300"
                       }`}
                       onClick={() => handleStarClick(star)}
                       onMouseEnter={() => handleStarHover(star)}
@@ -444,17 +316,7 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
                   );
                 })}
               </div>
-              {userRating > 0 && (
-                <Typography
-                  variant="body-small"
-                  className="text-sm text-grey-blue mt-1"
-                >
-                  {userRating} {userRating === 1 ? "star" : "stars"}
-                </Typography>
-              )}
             </div>
-
-            {/* Comment Input */}
             <div>
               <label className="text-sm font-medium text-dark-blue mb-2 block">
                 {t.seller.reviews.writeReviewDialog.yourReview}
@@ -467,24 +329,16 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
                 onChange={(e) => setReviewText(e.target.value)}
               />
             </div>
-
-            {/* Submit Button */}
             <div className="flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={handleCloseDialog}
-                disabled={createReviewMutation.isPending}
-              >
+              <Button variant="outline" onClick={handleCloseDialog} disabled={isPending}>
                 {t.seller.reviews.writeReviewDialog.cancel}
               </Button>
               <Button
                 variant="primary"
                 onClick={handleSubmitReview}
-                disabled={createReviewMutation.isPending || userRating === 0}
+                disabled={isPending || userRating === 0}
               >
-                {createReviewMutation.isPending
-                  ? "Submitting..."
-                  : t.seller.reviews.writeReviewDialog.submitReview}
+                {isPending ? "Submitting..." : t.seller.reviews.writeReviewDialog.submitReview}
               </Button>
             </div>
           </div>
@@ -494,4 +348,4 @@ const SellerReviews: React.FC<SellerReviewsProps> = ({ organization }) => {
   );
 };
 
-export default SellerReviews;
+export default OrgReviews;
