@@ -132,7 +132,7 @@ export interface UserResponse {
   statusCode: number;
   timestamp: string;
   message?: string;
-  data: User;
+  data: ProfileResponseData;
 }
 
 export interface AdsCountWithCategory {

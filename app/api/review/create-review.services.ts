@@ -62,3 +62,25 @@ export const createOrganizationReview = async (
   });
 };
 
+// Create a review for a user
+export const createUserReview = async (
+  userId: string,
+  payload: {
+    rating: number;
+    review: string;
+    reviewerId: string;
+    language?: string;
+    tag?: string;
+  },
+): Promise<CreateReviewResponse> => {
+  return createReview({
+    reviewObject: "User",
+    reviewObjectId: userId,
+    rating: payload.rating,
+    reviewerId: payload.reviewerId,
+    review: payload.review,
+    language: payload.language,
+    tag: payload.tag,
+  });
+};
+

@@ -48,11 +48,14 @@ export const OrganizationInfo: React.FC<OrganizationInfoProps> = ({ ad }) => {
             >
               <Flag className="w-4 h-4" />
             </button>
-            <ExternalLink size={16} className="text-purple opacity-0 group-hover:opacity-100 transition-opacity" />
+            <ExternalLink
+              size={16}
+              className="text-purple opacity-0 group-hover:opacity-100 transition-opacity"
+            />
           </div>
         </div>
 
-        <Link href={localePath(`/organizations/${org._id}`)} className="block">
+        <Link href={localePath(`/seller/org/${org._id}`)} className="block">
           {/* Organization Profile */}
           <div className="flex items-center gap-3 mb-6">
             <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-slate-800 flex items-center justify-center">
@@ -74,7 +77,10 @@ export const OrganizationInfo: React.FC<OrganizationInfoProps> = ({ ad }) => {
               >
                 {displayName}
               </Typography>
-              <Typography variant="xs-regular" className="text-grey-blue dark:text-gray-400 capitalize">
+              <Typography
+                variant="xs-regular"
+                className="text-grey-blue dark:text-gray-400 capitalize"
+              >
                 {org.type}
               </Typography>
             </div>
@@ -90,7 +96,10 @@ export const OrganizationInfo: React.FC<OrganizationInfoProps> = ({ ad }) => {
                     {t.organizations.form.tradeLicenseNumber}
                   </Typography>
                 </div>
-                <Typography variant="xs-medium" className="text-dark-blue dark:text-gray-100">
+                <Typography
+                  variant="xs-medium"
+                  className="text-dark-blue dark:text-gray-100"
+                >
                   {org.tradeLicenseNumber}
                 </Typography>
               </div>
@@ -104,7 +113,10 @@ export const OrganizationInfo: React.FC<OrganizationInfoProps> = ({ ad }) => {
                     {t.organizations.form.trn}
                   </Typography>
                 </div>
-                <Typography variant="xs-medium" className="text-dark-blue dark:text-gray-100">
+                <Typography
+                  variant="xs-medium"
+                  className="text-dark-blue dark:text-gray-100"
+                >
                   {org.trn}
                 </Typography>
               </div>

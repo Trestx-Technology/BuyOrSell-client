@@ -45,7 +45,8 @@ export async function generateMetadata(
     // Fallback: Fetch user details and generate metadata
     try {
       const userResponse = await getUserById(id);
-      const user = userResponse.data;
+      const profileData = userResponse.data;
+      const user = profileData?.user;
 
       if (!user) {
         return {

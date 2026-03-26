@@ -642,9 +642,6 @@ const CategoryNav: React.FC<{ className?: string }> = ({ className }) => {
                 <div className="size-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
               </div>
             ))}
-            <div className="animate-pulse">
-              <div className="h-10 w-20 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
-            </div>
           </div>
         ) : (
           <div className="max-[1000px]:hidden flex gap-3 items-center">

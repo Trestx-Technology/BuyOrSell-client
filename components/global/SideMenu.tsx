@@ -41,6 +41,7 @@ interface MenuItemProps {
   label: string;
   href?: string;
   onClick?: () => void;
+  onItemClick?: () => void;
   hasArrow?: boolean;
   showBorder?: boolean;
 }
@@ -50,6 +51,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
   label,
   href,
   onClick,
+  onItemClick,
   hasArrow = true,
   showBorder = true,
 }) => {
@@ -82,14 +84,19 @@ const MenuItem: React.FC<MenuItemProps> = ({
 
   if (href) {
     return (
-      <Link href={href} className="block">
+      <Link href={href} className="block" onClick={onItemClick}>
         {content}
       </Link>
     );
   }
 
+  const handleClick = () => {
+    onClick?.();
+    onItemClick?.();
+  };
+
   return (
-    <button onClick={onClick} className="block w-full text-left">
+    <button onClick={handleClick} className="block w-full text-left">
       {content}
     </button>
   );
@@ -240,6 +247,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   const router = useRouter();
 
   const organizations = myOrganizationData?.data ?? [];
+  const closeMenu = () => setIsOpen(false);
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -363,6 +371,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                 label="Log In / Sign Up"
                 href="/login"
                 showBorder={false}
+                onItemClick={closeMenu}
               />
             ) : (
               <MenuItem
@@ -371,6 +380,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                 }
                 label="Profile"
                 href="/user/profile"
+                onItemClick={closeMenu}
               />
             )}
           </div>
@@ -400,7 +410,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                   organization={org}
                   onClick={() => {
                     router.push(`/jobs/organization/${org._id}`);
-                    // Navigate to organization details or dashboard
+                    closeMenu();
                   }}
                 />
               ))}
@@ -416,6 +426,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
               }
               label="Explore"
               href="/explore"
+              onItemClick={closeMenu}
             />
           </div>
 
@@ -429,6 +440,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                 label={item.label}
                 href={item.href}
                 onClick={item.onClick}
+                onItemClick={closeMenu}
               />
             ))}
           </div>
@@ -443,6 +455,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                 label={item.label}
                 href={item.href}
                 onClick={item.onClick}
+                onItemClick={closeMenu}
               />
             ))}
           </div>
