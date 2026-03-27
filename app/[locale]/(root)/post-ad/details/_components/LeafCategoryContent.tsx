@@ -302,8 +302,9 @@ export default function LeafCategoryContent() {
   };
 
   const onSubmit = async (data: FormValues) => {
-    // Determine adType and category details
-    const categoryName = categoryArray[0]?.name || "";
+    // Determine target category type for plan matching
+    // Priority: 1. Main category from breadcrumbs, 2. Current leaf category name
+    const categoryName = categoryArray[0]?.name || category?.name || "";
 
     // If we already have a subscription selected in the store, use it
     if (selectedSubscriptionId) {
@@ -311,28 +312,28 @@ export default function LeafCategoryContent() {
       return;
     }
 
-    // Fallback: If for some reason subscription was not selected (e.g. direct URL entry)
-    // Show the dialog here as a safety net
+    // Fallback: If for some reason subscription was not selected (e.g. direct URL entry or AI redirect)
     const compatibleSubs = getCompatibleSubscriptions(
       categoryName,
       leafCategoryId as string,
     );
 
     if (compatibleSubs.length > 0) {
-      // If only one sub is compatible, just use it
-      if (compatibleSubs.length === 1) {
-        await processAdSubmission(data, compatibleSubs[0]._id);
-        return;
-      }
+      // Sort to prefer paid plans over basic/default plans
+      const sortedSubs = [...compatibleSubs].sort((a, b) => {
+        const aIsBasic = a.plan?.type?.toLowerCase() === "basic" || a.plan?.isDefault;
+        const bIsBasic = b.plan?.type?.toLowerCase() === "basic" || b.plan?.isDefault;
+        if (aIsBasic && !bIsBasic) return 1;
+        if (!aIsBasic && bIsBasic) return -1;
+        return 0;
+      });
 
-      // Otherwise, we might need a dialog fallback, but the user said "rather than in the post ad button end"
-      // So I'll just pick the first one and warn or toast?
-      // Actually, picking the first one is safer than failing.
-      await processAdSubmission(data, compatibleSubs[0]._id);
+      // Pick the best available (first paid, or basic if only basic available)
+      await processAdSubmission(data, sortedSubs[0]._id);
       return;
     }
 
-    // Final fallback: proceed without sub (likely to fail but keeps flow moving)
+    // Final fallback: proceed without sub (backend will handle validation)
     await processAdSubmission(data);
   };
 
