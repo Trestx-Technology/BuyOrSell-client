@@ -87,10 +87,15 @@ export default function SelectCategoryContent() {
       const paidPlans = subs.filter(sub => !sub.plan?.isDefault && sub.plan?.type?.toLowerCase() !== 'basic');
       const basicPlans = subs.filter(sub => sub.plan?.isDefault || sub.plan?.type?.toLowerCase() === 'basic');
 
-      // Rule 1: Both basic and paid -> Auto-select 1st paid and proceed
+      // Rule 1: Both basic and paid -> Show dialog to give user a choice
       if (paidPlans.length > 0 && basicPlans.length > 0) {
-        setSubscriptionId(paidPlans[0]._id);
-        handleNavigation(selectedCategory._id, selectedCategory.name);
+        setCompatibleSubs(subs);
+        setPendingSelection({ 
+          categoryId: selectedCategory._id, 
+          categoryName: selectedCategory.name,
+          categoryType: typeToPass
+        });
+        setIsPlanSelectionDialogOpen(true);
         return;
       }
 
@@ -106,9 +111,9 @@ export default function SelectCategoryContent() {
         return;
       }
 
-      // Case 3: Only paid plans or multiple basic plans -> Show Dialog to be safe
-      if (subs.length > 1) {
-        setCompatibleSubs(subs);
+      // Case 3: Multiple paid plans -> Show Dialog
+      if (paidPlans.length > 1) {
+        setCompatibleSubs(paidPlans); // Show only paid plans or all? User says "give him the option to select"
         setPendingSelection({ 
           categoryId: selectedCategory._id, 
           categoryName: selectedCategory.name,
@@ -118,10 +123,24 @@ export default function SelectCategoryContent() {
         return;
       }
 
-      // Case 4: Only 1 plan total -> Auto-select
+      // Case 4: Only 1 plan total
       if (subs.length === 1) {
-        setSubscriptionId(subs[0]._id);
-        handleNavigation(selectedCategory._id, selectedCategory.name);
+        const isBasic = subs[0].plan?.type?.toLowerCase() === 'basic' || subs[0].plan?.isDefault;
+        
+        if (isBasic) {
+          // If only 1 basic plan, still show dialog to "recommend" paid plans (as per PlanSelectionDialog design)
+          setCompatibleSubs(subs);
+          setPendingSelection({ 
+            categoryId: selectedCategory._id, 
+            categoryName: selectedCategory.name,
+            categoryType: typeToPass
+          });
+          setIsPlanSelectionDialogOpen(true);
+        } else {
+          // If only 1 paid plan, auto-select is fine
+          setSubscriptionId(subs[0]._id);
+          handleNavigation(selectedCategory._id, selectedCategory.name);
+        }
         return;
       }
 

@@ -9,6 +9,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCompleteCheckoutSession } from "@/hooks/usePayments";
 import { useAITokenBalance } from "@/hooks/useAITokens";
 import { useSubscriptionStore } from "@/stores/subscriptionStore";
+import { useQueryClient } from "@tanstack/react-query";
+import { subscriptionQueries } from "@/app/api/subscription/index";
+import { AI_TOKENS_QUERY_KEYS } from "@/app/api/ai-tokens";
 
 function ResponseContent() {
   const searchParams = useSearchParams();
@@ -23,6 +26,7 @@ function ResponseContent() {
   const { data, isLoading, error } = useCompleteCheckoutSession(sessionId || "");
   const { data: balanceData } = useAITokenBalance();
   const fetchSubscriptions = useSubscriptionStore((state) => state.fetchSubscriptions);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (data?.data?.status) {
@@ -35,6 +39,23 @@ function ResponseContent() {
 
     if (data?.data?.status === "succeeded") {
       fetchSubscriptions();
+
+      // Invalidate all subscription-related queries to ensure UI is in sync
+      queryClient.invalidateQueries({
+        queryKey: subscriptionQueries.getMySubscription.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: subscriptionQueries.getMyActiveSubscription.Key,
+      });
+      queryClient.invalidateQueries({
+        queryKey: subscriptionQueries.getAllSubscriptions.Key,
+      });
+
+      // Also invalidate AI Tokens balance if this was an AI tokens purchase
+      queryClient.invalidateQueries({
+        queryKey: AI_TOKENS_QUERY_KEYS.balance,
+      });
+
       const timer = setTimeout(() => {
         if (isAITokens) {
           router.push(`/${locale}/ai-tokens?status=success`);
@@ -44,7 +65,7 @@ function ResponseContent() {
       }, 7000);
       return () => clearTimeout(timer);
     }
-  }, [data, router, pathname, searchParams, isAITokens, locale]);
+  }, [data, router, pathname, searchParams, isAITokens, locale, fetchSubscriptions, queryClient]);
 
   const wrapperVariants = {
     initial: { opacity: 0, scale: 0.95 },
