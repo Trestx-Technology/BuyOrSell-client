@@ -8,11 +8,12 @@ The platform uses a subscription-based model where users purchase plans that gra
 
 ## 1. Subscription Matching Logic (`utils/subscription-match.ts`)
 
-Centralized logic determines if a subscription covers a specific category type (e.g., "Electronics", "Motors").
+Centralized logic in `utils/subscription-match.ts` determines if a subscription covers a specific category by prioritizing unique IDs over string names.
 
-### Matching Rules:
-1.  **Wildcard Plans**: Plans with type `"basic"` or `"ads"`, or marked as `isDefault`, match **all** categories.
-2.  **Specific Plans**: If not a wildcard, the plan's `type` must strictly match the target category type (case-insensitive).
+### Matching Rules (In Priority Order):
+1.  **Rule #0: ID-Based Matching**: If the target category's `_id` exists in the plan's `categories` array, it is a **Guaranteed Match**. This handles complex categories like "Business & Industrial" without naming conflicts.
+2.  **Wildcard Plans**: Plans with type `"basic"` or `"ads"`, or marked as `isDefault`, match **all** categories.
+3.  **Legacy Text Matching**: If no ID match is found, the plan's `type` is compared against the target category name (case-insensitive).
 
 ---
 
@@ -22,7 +23,7 @@ Used during the `Post Ad` flow to verify the user can create a new listing.
 
 ### The `checkAvailability` Flow:
 1.  **System Check**: Checks if any paid plans exist in the system for this category. If none exist, posting is free (bypass) **provided the user has at least one active subscription**.
-2.  **Plan Match**: Filters active subscriptions that cover the target category.
+2.  **Plan Match**: Filters active subscriptions using both `categoryName` and `categoryId`. **ID matching is tried first**.
 3.  **Credit Check**: Sums available credits across matching plans.
 4.  **Mode Resolution**:
     *   `no_plans`: No valid plan exists.
@@ -78,3 +79,10 @@ The platform uses a unified set of dialogs to handle these states:
 - **Category Mapping**: During Renewal and Featuring, the system detects the "Plan Type" by looking at `ad.relatedCategories[0]`. If missing, it falls back to keyword detection in `ad.category.name`.
 - **isFeatured Auto-Tagging**: During initial posting, if a user selects a **Premium** plan that has featured credits available, the ad is automatically marked as `isFeatured: true`.
 - **Payloads**: Both Featuring and Renewing mutations now require a `subscriptionId` to ensure credits are deducted from the correct user plan.
+- **Unified Hook**: The `useAdSubscription` hook is the single entry point for all Posting and Renewal availability state management.
+
+---
+
+## Related Documentation
+
+- For the end-to-end ad posting workflow involving these checks, see: [Ad Posting Logic & Flow](../ad-posting/index.md)

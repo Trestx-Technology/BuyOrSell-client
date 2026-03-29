@@ -1,17 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import { useGetMainCategories } from "@/hooks/useCategories";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { useRouter } from "nextjs-toploader/app";
 import { Container1080 } from "@/components/layouts/container-1080";
-import { useAdAvailability } from "@/hooks/useAdAvailability";
+import { useAdSubscription } from "@/hooks/useAdSubscription";
 import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
 import { PageBannerCarousel } from "@/components/global/page-banner-carousel";
-import { PlanSelectionDialog } from "@/components/global/PlanSelectionDialog";
 import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
-import { ISubscription } from "@/interfaces/subscription.types";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
 
 export default function SelectCategoryContent() {
   const router = useRouter();
@@ -21,24 +20,16 @@ export default function SelectCategoryContent() {
     setStep,
     categoryArray,
     clearCategoryArray,
+    setSubscriptionId,
   } = useAdPostingStore((state) => state);
 
-  // Availability Hook
+  // Unified Subscription Hook
   const {
     checkAvailability,
-    getCompatibleSubscriptions,
+    resolve,
     dialogProps,
     isLoading: subscriptionsLoading,
-  } = useAdAvailability();
-
-  const setSubscriptionId = useAdPostingStore((state) => state.setSubscriptionId);
-  const [isPlanSelectionDialogOpen, setIsPlanSelectionDialogOpen] = useState(false);
-  const [compatibleSubs, setCompatibleSubs] = useState<ISubscription[]>([]);
-  const [pendingSelection, setPendingSelection] = useState<{
-    categoryId: string;
-    categoryName: string;
-    categoryType: string;
-  } | null>(null);
+  } = useAdSubscription();
 
   // Fetch categories using the hook
   const {
@@ -78,74 +69,28 @@ export default function SelectCategoryContent() {
         }
       }
 
-      // Check ad availability for the determined plan type and this category
-      if (!checkAvailability(typeToPass, selectedCategory.name, selectedCategory._id)) {
+      // 1. Check if user can post at all (shows NoActivePlansDialog or InsufficientAdsDialog if not)
+      if (!checkAvailability({
+        action: "post",
+        categoryType: typeToPass,
+        categoryName: selectedCategory.name,
+        categoryId: selectedCategory._id,
+      })) {
         return;
       }
 
-      const subs = getCompatibleSubscriptions(typeToPass, selectedCategory._id);
-      const paidPlans = subs.filter(sub => !sub.plan?.isDefault && sub.plan?.type?.toLowerCase() !== 'basic');
-      const basicPlans = subs.filter(sub => sub.plan?.isDefault || sub.plan?.type?.toLowerCase() === 'basic');
+      // 2. Resolve the best plan (Priority: Category > Default)
+      const resolved = resolve(typeToPass, selectedCategory._id);
 
-      // Rule 1: Both basic and paid -> Show dialog to give user a choice
-      if (paidPlans.length > 0 && basicPlans.length > 0) {
-        setCompatibleSubs(subs);
-        setPendingSelection({ 
-          categoryId: selectedCategory._id, 
-          categoryName: selectedCategory.name,
-          categoryType: typeToPass
-        });
-        setIsPlanSelectionDialogOpen(true);
-        return;
+      if (resolved.subscription) {
+        // Auto-select the best plan found and proceed
+        setSubscriptionId(resolved.subscription._id);
+        handleNavigation(selectedCategory._id, selectedCategory.name);
+      } else {
+        // This case is technically handled by checkAvailability above, 
+        // but as a fallback, we navigate without sub (backend will validate)
+        handleNavigation(selectedCategory._id, selectedCategory.name);
       }
-
-      // Rule 2: No paid but has basic -> Show dialog (per user request)
-      if (paidPlans.length === 0 && basicPlans.length > 0) {
-        setCompatibleSubs(subs);
-        setPendingSelection({ 
-          categoryId: selectedCategory._id, 
-          categoryName: selectedCategory.name,
-          categoryType: typeToPass
-        });
-        setIsPlanSelectionDialogOpen(true);
-        return;
-      }
-
-      // Case 3: Multiple paid plans -> Show Dialog
-      if (paidPlans.length > 1) {
-        setCompatibleSubs(paidPlans); // Show only paid plans or all? User says "give him the option to select"
-        setPendingSelection({ 
-          categoryId: selectedCategory._id, 
-          categoryName: selectedCategory.name,
-          categoryType: typeToPass
-        });
-        setIsPlanSelectionDialogOpen(true);
-        return;
-      }
-
-      // Case 4: Only 1 plan total
-      if (subs.length === 1) {
-        const isBasic = subs[0].plan?.type?.toLowerCase() === 'basic' || subs[0].plan?.isDefault;
-        
-        if (isBasic) {
-          // If only 1 basic plan, still show dialog to "recommend" paid plans (as per PlanSelectionDialog design)
-          setCompatibleSubs(subs);
-          setPendingSelection({ 
-            categoryId: selectedCategory._id, 
-            categoryName: selectedCategory.name,
-            categoryType: typeToPass
-          });
-          setIsPlanSelectionDialogOpen(true);
-        } else {
-          // If only 1 paid plan, auto-select is fine
-          setSubscriptionId(subs[0]._id);
-          handleNavigation(selectedCategory._id, selectedCategory.name);
-        }
-        return;
-      }
-
-      // Fallback
-      handleNavigation(selectedCategory._id, selectedCategory.name);
     }
   };
 
@@ -166,14 +111,6 @@ export default function SelectCategoryContent() {
     router.push(`/post-ad/${categoryId}`);
   };
 
-  const onPlanSelect = (subscriptionId: string) => {
-    setSubscriptionId(subscriptionId);
-    setIsPlanSelectionDialogOpen(false);
-    if (pendingSelection) {
-      handleNavigation(pendingSelection.categoryId, pendingSelection.categoryName);
-    }
-  };
-
   useEffect(() => {
     if (categoryArray.length > 0) {
       clearCategoryArray();
@@ -189,17 +126,6 @@ export default function SelectCategoryContent() {
       {dialogProps.mode === "insufficient" && (
         <InsufficientAdsDialog {...dialogProps} />
       )}
-
-      {/* Manual Selection Dialog */}
-      <PlanSelectionDialog
-        isOpen={isPlanSelectionDialogOpen}
-        onClose={() => setIsPlanSelectionDialogOpen(false)}
-        subscriptions={compatibleSubs}
-        onSelect={onPlanSelect}
-        categoryName={pendingSelection?.categoryName || "Category"}
-        categoryType={pendingSelection?.categoryType}
-        mode="selection"
-      />
 
       <div className=" w-full max-w-[888px] flex-1 mx-auto bg-transparent">
         {/* Main Container */}

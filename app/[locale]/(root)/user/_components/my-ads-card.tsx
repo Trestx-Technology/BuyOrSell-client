@@ -19,11 +19,9 @@ import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-
 import { RenewAdDialog } from "@/app/[locale]/(root)/user/my-ads/_components/RenewAdDialog";
 import { FeatureAdDialog } from "@/app/[locale]/(root)/user/my-ads/_components/FeatureAdDialog";
 import { FeatureConfirmDialog } from "@/app/[locale]/(root)/user/my-ads/_components/FeatureConfirmDialog";
-import { useFeatureAdAvailability } from "@/hooks/useFeatureAdAvailability";
-import { useRenewAdAvailability } from "@/hooks/useRenewAdAvailability";
+import { useAdSubscription } from "@/hooks/useAdSubscription";
 import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
 import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
-import { PlanSelectionDialog } from "@/components/global/PlanSelectionDialog";
 import { useRouter } from "nextjs-toploader/app";
 import { ProductExtraFields, AdLocation } from "@/interfaces/ad";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
@@ -88,14 +86,15 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
   const deleteAdMutation = useDeleteAd();
   const featureAdMutation = useFeatureAd();
   const { mutate: renewAd, isPending: isRenewing } = useRenewAd();
-  const { checkFeaturedAvailability, dialogState, closeDialog } =
-    useFeatureAdAvailability();
   const { 
-    checkRenewAvailability, 
-    dialogState: renewDialogState, 
-    closeDialog: closeRenewDialog,
-    setDialogState: setRenewDialogState 
-  } = useRenewAdAvailability();
+    checkAvailability: checkRenewAvailability, 
+    dialogProps: renewDialogProps, 
+  } = useAdSubscription();
+
+  const { 
+    checkAvailability: checkFeaturedAvailability, 
+    dialogProps: featureDialogProps, 
+  } = useAdSubscription();
   const router = useRouter();
 
   // Check Expiration
@@ -157,7 +156,12 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
     }
 
     const effectiveCategory = categoryName || effectiveType || "Ad";
-    checkRenewAvailability(effectiveType, effectiveCategory);
+    checkRenewAvailability({
+      action: "renew",
+      categoryType: effectiveType as string,
+      categoryName: effectiveCategory,
+      categoryId: categoryId,
+    });
   };
 
   const handleFeatureClick = (e: React.MouseEvent) => {
@@ -166,19 +170,24 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
     // Use relatedCategories[0] as the plan type; fall back to adType if not available
     const effectiveType = categoryType || adType || "Ads";
     const effectiveCategory = categoryName || effectiveType;
-    checkFeaturedAvailability(effectiveType, effectiveCategory);
+    checkFeaturedAvailability({
+      action: "feature",
+      categoryType: effectiveType,
+      categoryName: effectiveCategory,
+      categoryId: categoryId,
+    });
   };
 
   /** Called when the user confirms featuring using an existing plan credit */
   const handleConfirmFeature = () => {
-    const sub = dialogState.matchedSubscription;
+    const sub = featureDialogProps.matchedSubscription;
     if (!sub) return;
     featureAdMutation.mutate(
       { id },
       {
         onSuccess: () => {
           toast.success("Ad marked as featured successfully!");
-          closeDialog();
+          featureDialogProps.onClose();
         },
         onError: () => {
           toast.error("Failed to mark ad as featured.");
@@ -189,14 +198,14 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
 
   // Renew mutation handler
   const onRenewSubmit = () => {
-    const sub = renewDialogState.matchedSubscription;
+    const sub = renewDialogProps.matchedSubscription;
     if (!sub) return;
 
     renewAd(
       { id, days: Number(renewDays), subscriptionId: sub._id },
       {
         onSuccess: () => {
-          setRenewDialogState((prev) => ({ ...prev, isOpen: false }));
+          renewDialogProps.onClose();
         },
       },
     );
@@ -382,9 +391,9 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
       />
 
       <RenewAdDialog
-        open={renewDialogState.isOpen && renewDialogState.mode === "has_credits"}
+        open={renewDialogProps.isOpen && renewDialogProps.mode === "has_credits"}
         onOpenChange={(open) => {
-          if (!open) closeRenewDialog();
+          if (!open) renewDialogProps.onClose();
         }}
         renewDays={renewDays}
         onRenewDaysChange={setRenewDays}
@@ -394,59 +403,48 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
 
       {/* Renew Flow Dialogs */}
       <NoActivePlansDialog
-        isOpen={renewDialogState.isOpen && renewDialogState.mode === "no_plans"}
-        onClose={closeRenewDialog}
-        categoryName={renewDialogState.categoryName}
-        categoryType={renewDialogState.categoryType}
+        isOpen={renewDialogProps.isOpen && renewDialogProps.mode === "no_plans"}
+        onClose={renewDialogProps.onClose}
+        categoryName={renewDialogProps.categoryName}
+        categoryType={renewDialogProps.categoryType}
       />
 
       <InsufficientAdsDialog
-        isOpen={renewDialogState.isOpen && renewDialogState.mode === "insufficient"}
-        onClose={closeRenewDialog}
-        categoryName={renewDialogState.categoryName}
-        categoryType={renewDialogState.categoryType}
+        isOpen={renewDialogProps.isOpen && renewDialogProps.mode === "insufficient"}
+        onClose={renewDialogProps.onClose}
+        categoryName={renewDialogProps.categoryName}
+        categoryType={renewDialogProps.categoryType}
         type="normal"
-      />
-
-      <PlanSelectionDialog
-        isOpen={renewDialogState.isOpen && renewDialogState.mode === "select_plan"}
-        onClose={closeRenewDialog}
-        subscriptions={renewDialogState.compatibleSubscriptions || []}
-        onSelect={(subId) => {
-          const sub = renewDialogState.compatibleSubscriptions?.find(s => s._id === subId);
-          if (sub) {
-            setRenewDialogState({
-              isOpen: true,
-              mode: "has_credits",
-              matchedSubscription: sub,
-              categoryName: renewDialogState.categoryName,
-              categoryType: renewDialogState.categoryType,
-            });
-          }
-        }}
-        categoryType={renewDialogState.categoryType}
       />
 
       {/* ── Feature Ad Dialogs (2 states) ─────────────────────────────────── */}
 
       {/* State 2: matching plan exists but no featured credits → Stripe pay flow */}
       <FeatureAdDialog
-        open={dialogState.isOpen && dialogState.mode === "no_featured_credits"}
+        open={featureDialogProps.isOpen && featureDialogProps.mode === "insufficient"}
         onOpenChange={(open) => {
-          if (!open) closeDialog();
+          if (!open) featureDialogProps.onClose();
         }}
         adId={id}
       />
 
       {/* State 3: matching plan with featured credits → free confirmation */}
       <FeatureConfirmDialog
-        open={dialogState.isOpen && dialogState.mode === "has_credits"}
+        open={featureDialogProps.isOpen && featureDialogProps.mode === "has_credits"}
         onOpenChange={(open) => {
-          if (!open) closeDialog();
+          if (!open) featureDialogProps.onClose();
         }}
-        planName={dialogState.matchedSubscription?.plan?.plan}
+        planName={featureDialogProps.matchedSubscription?.plan?.plan}
         onConfirm={handleConfirmFeature}
         isLoading={featureAdMutation.isPending}
+      />
+
+      {/* State 1: No Plans at all for Featured */}
+      <NoActivePlansDialog
+        isOpen={featureDialogProps.isOpen && featureDialogProps.mode === "no_plans"}
+        onClose={featureDialogProps.onClose}
+        categoryName={featureDialogProps.categoryName}
+        categoryType={featureDialogProps.categoryType}
       />
     </>
   );

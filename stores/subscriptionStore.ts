@@ -5,7 +5,11 @@ import {
   getMySubscription,
   stopRecurringSubscription,
 } from "@/app/api/subscription/subscription.services";
-import { isSubscriptionValidForType } from "@/utils/subscription-match";
+import {
+  isSubscriptionExpired,
+  resolvePostingPlan,
+  type ResolvedPlan,
+} from "@/utils/subscription-match";
 import { toast } from "sonner";
 
 interface SubscriptionState {
@@ -20,9 +24,9 @@ interface SubscriptionState {
 
   // Helpers
   getActiveSubscriptions: () => ISubscription[];
-  getAvailableFeaturedAdsCount: (type: string, category: string) => number;
+  getSubscriptionForCategory: (categoryType: string, categoryId?: string) => ResolvedPlan;
 
-  // New Actions
+  // Actions
   cancelSubscription: (id: string) => Promise<void>;
 }
 
@@ -54,28 +58,20 @@ export const useSubscriptionStore = create<SubscriptionState>()(
         return get().subscriptions.filter(
           (sub) =>
             sub.isActive &&
+            !isSubscriptionExpired(sub) &&
             (sub.status === "active" ||
               sub.status === "confirmed" ||
               sub.status === "created"),
         );
       },
 
-      getAvailableFeaturedAdsCount: (type: string, category: string) => {
+      /**
+       * Resolves the best subscription for a given category type.
+       * Uses Category > Basic > None priority.
+       */
+      getSubscriptionForCategory: (categoryType: string, categoryId?: string): ResolvedPlan => {
         const activeSubs = get().getActiveSubscriptions();
-
-        let totalAvailable = 0;
-
-        activeSubs.forEach((sub) => {
-          if (isSubscriptionValidForType(sub, type || "Ads")) {
-            const available =
-              (sub.featuredAdsAvailable || 0) - (sub.featuredAdsUsed || 0);
-            if (available > 0) {
-              totalAvailable += available;
-            }
-          }
-        });
-
-        return totalAvailable;
+        return resolvePostingPlan(activeSubs, categoryType, categoryId);
       },
 
       cancelSubscription: async (id: string) => {
