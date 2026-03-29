@@ -349,8 +349,7 @@ export default function LeafCategoryContent() {
 
     // Calculate discountedPrice if deal is active
     const price = (data.price as number) || 0;
-    const discountedPrice = (data.discountedPrice as number) || 0;
-    const discountPercentage = price > 0 ? Math.round(((price - discountedPrice) / price) * 100) : 0;
+    const discountedPercent = (data.discountedPercent as number) || 0;
     const dealValidThru = (data.dealValidThru as string) || undefined;
 
     // Extract exchange data
@@ -412,11 +411,11 @@ export default function LeafCategoryContent() {
     }
 
     // Add discountedPercent to extraFields if deal is active
-    if (data.deal && discountedPrice > 0) {
+    if (data.deal && discountedPercent > 0) {
       extraFields.push({
         name: "discountedPercent",
         type: "number",
-        value: discountPercentage.toString(),
+        value: discountedPercent.toString(),
       });
     }
 
@@ -445,7 +444,7 @@ export default function LeafCategoryContent() {
         | ("chat" | "call" | "whatsapp")[]
         | undefined,
       deal: data.deal === true || data.deal === "true",
-      discountedPercent: data.deal && discountedPrice > 0 ? discountPercentage : undefined,
+      discountedPercent: data.deal && discountedPercent > 0 ? discountedPercent : undefined,
       dealValidThru: data.deal && dealValidThru ? dealValidThru : undefined,
       isExchangable: isExchange,
       exchangeWith:
@@ -1078,12 +1077,12 @@ export default function LeafCategoryContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
                   <FormField
                     label="Discount Percentage (%)"
-                    htmlFor="discountedPrice"
+                    htmlFor="discountedPercent"
                     required
-                    error={errors.discountedPrice?.message as string}
+                    error={errors.discountedPercent?.message as string}
                   >
                     <Controller
-                      name="discountedPrice"
+                      name="discountedPercent"
                       control={control}
                       rules={{
                         required: watch("deal")
@@ -1103,12 +1102,12 @@ export default function LeafCategoryContent() {
                           value={(field.value as number) || 0}
                           onChange={(val) => {
                             field.onChange(val);
-                            handleInputChange("discountedPrice", val);
+                            handleInputChange("discountedPercent", val);
                           }}
                           min={0}
                           max={100}
                           placeholder="e.g. 20"
-                          error={errors.discountedPrice?.message as string}
+                          error={errors.discountedPercent?.message as string}
                         />
                       )}
                     />
@@ -1220,10 +1219,9 @@ export default function LeafCategoryContent() {
                     error={!!errors.price}
                   />
                   <FormSummaryItem
-                    label="Discounted Price"
-                    value={formValues.discountedPrice}
-                    type="price"
-                    error={!!errors.discountedPrice}
+                    label="Discount Percentage"
+                    value={formValues.discountedPercent ? `${formValues.discountedPercent}%` : undefined}
+                    error={!!errors.discountedPercent}
                   />
                   <FormSummaryItem
                     label="Location"
