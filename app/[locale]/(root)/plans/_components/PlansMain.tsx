@@ -138,7 +138,17 @@ function PlansContent() {
     const types = new Set(allPlans.map((plan) => plan.type));
     return Array.from(types)
       .filter((type): type is string => !!type)
-      .sort();
+      .sort((a, b) => {
+        const isBasicA =
+          a.toLowerCase().includes("basic") || a.toLowerCase().includes("free");
+        const isBasicB =
+          b.toLowerCase().includes("basic") || b.toLowerCase().includes("free");
+
+        if (isBasicA && !isBasicB) return -1;
+        if (!isBasicA && isBasicB) return 1;
+
+        return a.localeCompare(b);
+      });
   }, [allPlans]);
 
   // Sync state from URL and handle initial default
@@ -205,9 +215,11 @@ function PlansContent() {
     }
   };
 
-  const displayPlans = allPlans.filter((plan) => {
-    return plan.type === selectedType;
-  });
+  const displayPlans = useMemo(() => {
+    return allPlans
+      .filter((plan) => plan.type === selectedType)
+      .sort((a, b) => (a.price || 0) - (b.price || 0));
+  }, [allPlans, selectedType]);
 
   const subscribedPlanIds = useMemo(() => {
     return Array.isArray(mySubscription?.data)
