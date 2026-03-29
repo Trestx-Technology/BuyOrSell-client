@@ -30,10 +30,12 @@ interface OTPVerificationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onVerify: (otp: string) => Promise<boolean>;
+  onResend?: () => Promise<void>;
   title?: string;
   description?: string;
   otpLength?: number;
-  phoneNumber?: string;
+  phoneNumber?: string; // Kept for backward compatibility
+  identifier?: string;   // Generic name for phone or email
 }
 
 type VerificationState = "idle" | "verifying" | "success" | "error";
@@ -42,22 +44,39 @@ const OTPVerificationModal = ({
   open,
   onOpenChange,
   onVerify,
+  onResend,
   title = "Verify Your Number",
   description = "Enter the 6-digit code sent to your phone",
   otpLength = 6,
   phoneNumber,
+  identifier,
 }: OTPVerificationModalProps) => {
   const [otp, setOtp] = useState("");
   const [verificationState, setVerificationState] =
     useState<VerificationState>("idle");
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const [isResending, setIsResending] = useState(false);
   const isMobile = useIsMobile();
+
+  const displayIdentifier = identifier || phoneNumber;
 
   useEffect(() => {
     if (!open) {
       setOtp("");
       setVerificationState("idle");
+    } else {
+      // Start countdown when opened
+      setResendCountdown(30);
     }
   }, [open]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (resendCountdown > 0) {
+      timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendCountdown]);
 
   const handleVerify = async () => {
     if (otp.length !== otpLength) return;
@@ -78,13 +97,27 @@ const OTPVerificationModal = ({
     }
   };
 
+  const handleResend = async () => {
+    if (resendCountdown > 0 || isResending || !onResend) return;
+
+    setIsResending(true);
+    try {
+      await onResend();
+      setResendCountdown(30);
+    } catch (error) {
+      console.error("Failed to resend OTP:", error);
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   const handleRetry = () => {
     setOtp("");
     setVerificationState("idle");
   };
 
-  const displayDescription = phoneNumber
-    ? `${description}: ${phoneNumber}`
+  const displayDescription = displayIdentifier
+    ? `${description}: ${displayIdentifier}`
     : description;
 
   const Content = (
@@ -149,12 +182,22 @@ const OTPVerificationModal = ({
             {verificationState === "verifying" ? <>Verifying...</> : "Verify"}
           </Button>
 
-          <p className="text-sm text-muted-foreground">
-            Didn't receive the code?{" "}
-            <button className="text-primary hover:underline font-medium">
-              Resend
-            </button>
-          </p>
+          {onResend && (
+            <p className="text-sm text-muted-foreground">
+              Didn't receive the code?{" "}
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resendCountdown > 0 || isResending}
+                className={cn(
+                  "text-primary font-medium transition-colors",
+                  resendCountdown > 0 || isResending ? "text-gray-400 cursor-not-allowed" : "hover:underline"
+                )}
+              >
+                {isResending ? "Sending..." : resendCountdown > 0 ? `Resend in ${resendCountdown}s` : "Resend"}
+              </button>
+            </p>
+          )}
         </>
       )}
     </div>

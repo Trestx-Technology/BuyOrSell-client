@@ -249,10 +249,7 @@ const UserProfileContent = () => {
             joinDate={formatJoinDate(user.createdAt)}
             avatarUrl={user.image && user.image !== "/images/ai-prompt/add-image.png" ? user.image : undefined}
             isVerified={
-              user.isVerified ||
-              user.emailVerified ||
-              user.phoneVerified ||
-              false
+              !!user.emailVerified && !!user.phoneVerified
             }
             onEdit={handleEdit}
           />
