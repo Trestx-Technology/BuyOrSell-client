@@ -10,7 +10,7 @@ import { useCreateAd } from "@/hooks/useAds";
 import { useMyOrganization } from "@/hooks/useOrganizations";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { useAuthStore } from "@/stores/authStore";
-import { useSubscriptionStore } from "@/stores/subscriptionStore";
+import { useAdSubscription } from "@/hooks/useAdSubscription";
 import { Button } from "@/components/ui/button";
 import { PostAdPayload } from "@/interfaces/ad";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
@@ -45,7 +45,6 @@ import { FormSummaryItem } from "@/app/[locale]/(root)/post-ad/details/_componen
 import PostStatusView, {
   PostStatus,
 } from "@/app/[locale]/(root)/post-ad/details/_components/PostStatusView";
-import { useAdAvailability } from "@/hooks/useAdAvailability";
 import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
 import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
 
@@ -54,9 +53,12 @@ export default function JobLeafCategoryContent() {
   const { leafCategoryId } = useParams<{ leafCategoryId: string }>();
   const router = useRouter();
   const { session } = useAuthStore((state) => state);
-  const { getAvailableFeaturedAdsCount } = useSubscriptionStore();
-  const { categoryArray, currentStep, setStep, selectedSubscriptionId } =
-    useAdPostingStore((state) => state);
+  const {
+    categoryArray,
+    currentStep,
+    setStep,
+    selectedSubscriptionId,
+  } = useAdPostingStore((state) => state);
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt");
   const createAdMutation = useCreateAd();
@@ -65,17 +67,36 @@ export default function JobLeafCategoryContent() {
     coordinates: { lat: number; lng: number };
   } | null>(null);
   const [postStatus, setPostStatus] = useState<PostStatus>("idle");
-  const { checkAvailability, getCompatibleSubscriptions, dialogProps } =
-    useAdAvailability();
 
   // Fetch category by ID
   const {
     data: categoryData,
-    isLoading,
+    isLoading: isCategoryLoading,
     error,
   } = useCategoryById(leafCategoryId as string);
 
   const category = categoryData?.data;
+
+  // Unified Subscription Hook
+  const {
+    checkAvailability,
+    resolve,
+    dialogProps: subscriptionDialogProps,
+    isLoading: subscriptionsLoading,
+    getRemainingCredits,
+  } = useAdSubscription();
+
+  const { subscription, planType, shouldFeature } = resolve(
+    categoryArray[0]?.name || category?.name || "Jobs", 
+    categoryArray[0]?.id || category?._id
+  );
+
+  const { remainingAds, remainingFeatured } = getRemainingCredits(
+    categoryArray[0]?.name || category?.name || "Jobs", 
+    categoryArray[0]?.id || category?._id
+  );
+
+  const isLoading = isCategoryLoading || subscriptionsLoading;
 
   // Fetch organizations
   const { data: organizationsData } = useMyOrganization();
@@ -86,10 +107,6 @@ export default function JobLeafCategoryContent() {
     return createPostJobSchema(category);
   }, [category]);
 
-  const availableFeaturedAds = useMemo(() => {
-    if (!category) return 0;
-    return getAvailableFeaturedAdsCount("JOB", category.name);
-  }, [category, getAvailableFeaturedAdsCount]);
 
   const {
     control,
@@ -190,26 +207,20 @@ export default function JobLeafCategoryContent() {
   };
 
   const onSubmit = async (data: FormValues) => {
-    // If we already have a subscription selected in the store, use it
-    if (selectedSubscriptionId) {
-      await processJobSubmission(data, selectedSubscriptionId);
-      return;
-    }
-
     const categoryType = categoryArray[0]?.name || "Jobs";
-    // Fallback: If for some reason subscription was not selected
-    const compatibleSubs = getCompatibleSubscriptions(
-      categoryType,
-      leafCategoryId as string,
-    );
-
-    if (compatibleSubs.length > 0) {
-      // Just pick the first one as fallback
-      await processJobSubmission(data, compatibleSubs[0]._id);
+    
+    // 1. Double check availability
+    if (!checkAvailability({
+      action: "post",
+      categoryType: categoryArray[0]?.name || category?.name || "Jobs",
+      categoryName: category?.name || "Jobs",
+      categoryId: categoryArray[0]?.id || category?._id,
+    })) {
       return;
     }
 
-    await processJobSubmission(data);
+    // 2. Use the auto-resolved subscription ID
+    await processJobSubmission(data, subscription?._id);
   };
 
   const processJobSubmission = async (
@@ -296,8 +307,8 @@ export default function JobLeafCategoryContent() {
           ? addressData.coordinates
           : null,
       },
-      relatedCategories: categoryArray.map((cat) => cat.name),
-      featuredStatus: "created", // Removed featured checkbox from UI, default to created
+      relatedCategories: categoryArray.map((cat: any) => cat.name),
+      featuredStatus: shouldFeature ? "live" : "created",
       status: "created",
       userType: "RERA_LANDLORD" as const,
       tags: [],
@@ -379,11 +390,11 @@ export default function JobLeafCategoryContent() {
   return (
     <GoogleMapsProvider>
       {/* Availability/Error Dialogs */}
-      {dialogProps.mode === "no_plans" && (
-        <NoActivePlansDialog {...dialogProps} />
+      {subscriptionDialogProps.mode === "no_plans" && (
+        <NoActivePlansDialog {...subscriptionDialogProps} />
       )}
-      {dialogProps.mode === "insufficient" && (
-        <InsufficientAdsDialog {...dialogProps} />
+      {subscriptionDialogProps.mode === "insufficient" && (
+        <InsufficientAdsDialog {...subscriptionDialogProps} />
       )}
 
       <section className="w-full max-w-[888px] mx-auto relative">

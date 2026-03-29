@@ -8,15 +8,14 @@ import { useRouter } from "nextjs-toploader/app";
 import { useMyOrganization } from "@/hooks/useOrganizations";
 import OrganizationRequiredDialog from "@/app/[locale]/(root)/post-ad/_components/OrganizationRequiredDialog";
 import { hasOrganization } from "@/validations/post-ad.validation";
+import { useAdSubscription } from "@/hooks/useAdSubscription";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { toast } from "sonner";
 import { H2 } from "@/components/typography";
-import { useAdAvailability } from "@/hooks/useAdAvailability";
-import { PlanSelectionDialog } from "@/components/global/PlanSelectionDialog";
 import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
 import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
 import { PageBannerCarousel } from "@/components/global/page-banner-carousel";
-import { ISubscription } from "@/interfaces/subscription.types";
 
 export default function SelectJobCategoryContent() {
   const router = useRouter();
@@ -29,17 +28,15 @@ export default function SelectJobCategoryContent() {
   } = useAdPostingStore((state) => state);
   const [showOrgDialog, setShowOrgDialog] = useState(false);
 
-  // Availability Hook
+  // Unified Subscription Hook
   const {
     checkAvailability,
-    getCompatibleSubscriptions,
+    resolve,
     dialogProps,
     isLoading: subscriptionsLoading,
-  } = useAdAvailability();
+  } = useAdSubscription();
 
   const setSubscriptionId = useAdPostingStore((state) => state.setSubscriptionId);
-  const [isPlanSelectionDialogOpen, setIsPlanSelectionDialogOpen] = useState(false);
-  const [compatibleSubs, setCompatibleSubs] = useState<ISubscription[]>([]);
   const [pendingSelection, setPendingSelection] = useState<{
     categoryId: string;
     categoryName: string;
@@ -79,48 +76,20 @@ export default function SelectJobCategoryContent() {
 
       // Check ad availability for "Jobs" plan type and this category
       const typeToPass = selectedCategory.relatedTo || "Jobs";
-      if (!checkAvailability(typeToPass, selectedCategory.name, selectedCategory._id)) {
+      if (!checkAvailability({
+        action: "post",
+        categoryType: typeToPass,
+        categoryName: selectedCategory.name,
+        categoryId: selectedCategory._id,
+      })) {
         return;
       }
 
-      const subs = getCompatibleSubscriptions(typeToPass, selectedCategory._id);
-      const paidPlans = subs.filter(sub => !sub.plan?.isDefault && sub.plan?.type?.toLowerCase() !== 'basic');
-      const basicPlans = subs.filter(sub => sub.plan?.isDefault || sub.plan?.type?.toLowerCase() === 'basic');
+      // Auto-resolve best plan using logic: Category-Specific > Default > None
+      const resolved = resolve(typeToPass, selectedCategory._id);
 
-      // Rule 1: Both basic and paid -> Auto-select 1st paid and proceed
-      if (paidPlans.length > 0 && basicPlans.length > 0) {
-        setSubscriptionId(paidPlans[0]._id);
-        handleNavigation(selectedCategory._id, selectedCategory.name);
-        return;
-      }
-
-      // Rule 2: No paid but has basic -> Show dialog (per user request)
-      if (paidPlans.length === 0 && basicPlans.length > 0) {
-        setCompatibleSubs(subs);
-        setPendingSelection({ 
-          categoryId: selectedCategory._id, 
-          categoryName: selectedCategory.name,
-          categoryType: typeToPass
-        });
-        setIsPlanSelectionDialogOpen(true);
-        return;
-      }
-
-      // Case 3: Only paid plans or multiple basic plans -> Show Dialog to be safe
-      if (subs.length > 1) {
-        setCompatibleSubs(subs);
-        setPendingSelection({ 
-          categoryId: selectedCategory._id, 
-          categoryName: selectedCategory.name,
-          categoryType: typeToPass
-        });
-        setIsPlanSelectionDialogOpen(true);
-        return;
-      }
-
-      // Case 4: Only 1 plan total -> Auto-select
-      if (subs.length === 1) {
-        setSubscriptionId(subs[0]._id);
+      if (resolved.subscription) {
+        setSubscriptionId(resolved.subscription._id);
         handleNavigation(selectedCategory._id, selectedCategory.name);
         return;
       }
@@ -141,13 +110,7 @@ export default function SelectJobCategoryContent() {
     router.push(`/post-job/${categoryId}`);
   };
 
-  const onPlanSelect = (subscriptionId: string) => {
-    setSubscriptionId(subscriptionId);
-    setIsPlanSelectionDialogOpen(false);
-    if (pendingSelection) {
-      handleNavigation(pendingSelection.categoryId, pendingSelection.categoryName);
-    }
-  };
+  // Removed onPlanSelect
 
   useEffect(() => {
     if (categoryArray.length > 0) {
@@ -173,16 +136,7 @@ export default function SelectJobCategoryContent() {
         <InsufficientAdsDialog {...dialogProps} />
       )}
 
-      {/* Manual Selection Dialog */}
-      <PlanSelectionDialog
-        isOpen={isPlanSelectionDialogOpen}
-        onClose={() => setIsPlanSelectionDialogOpen(false)}
-        subscriptions={compatibleSubs}
-        onSelect={onPlanSelect}
-        categoryName={pendingSelection?.categoryName || "Category"}
-        categoryType={pendingSelection?.categoryType}
-        mode="selection"
-      />
+      {/* Manual Selection Dialog - No longer needed as availability auto-selects */}
       <div className=" w-full max-w-[888px] flex-1 mx-auto bg-transparent">
         <div className="w-full mx-auto bg-transparent">
           <div className="pb-8">

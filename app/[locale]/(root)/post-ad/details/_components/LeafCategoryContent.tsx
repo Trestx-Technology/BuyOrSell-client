@@ -7,6 +7,7 @@ import { useLocale } from "@/hooks/useLocale";
 import { useForm, Controller, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useAdSubscription } from "@/hooks/useAdSubscription";
 import { useCategoryById } from "@/hooks/useCategories";
 import { useCreateAd } from "@/hooks/useAds";
 import { useMyOrganization } from "@/hooks/useOrganizations";
@@ -67,7 +68,6 @@ export default function LeafCategoryContent() {
     setStep,
     selectedSubscriptionId,
   } = useAdPostingStore((state) => state);
-  const { getAvailableFeaturedAdsCount } = useSubscriptionStore();
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt");
   const initialTitle = searchParams.get("title");
@@ -112,20 +112,37 @@ export default function LeafCategoryContent() {
     coordinates: { lat: number; lng: number };
   } | null>(null);
   const [postStatus, setPostStatus] = useState<PostStatus>("idle");
-  const { checkAvailability, getCompatibleSubscriptions, dialogProps } =
-    useAdAvailability();
 
   // Fetch category by ID
   const {
     data: categoryData,
-    isLoading,
+    isLoading: isCategoryLoading,
     error,
   } = useCategoryById(leafCategoryId as string);
 
   // Get the category from the response
-  // API returns CategoriesApiResponse with data as SubCategory[]
-  // For single category, we take the first item
   const category = categoryData?.data;
+
+  // Unified Subscription Hook
+  const {
+    checkAvailability,
+    resolve,
+    dialogProps: subscriptionDialogProps,
+    isLoading: subscriptionsLoading,
+    getRemainingCredits,
+  } = useAdSubscription();
+
+  const { subscription, planType, shouldFeature } = resolve(
+    categoryArray[0]?.name || category?.name || "", 
+    categoryArray[0]?.id || category?._id
+  );
+  
+  const { remainingAds, remainingFeatured } = getRemainingCredits(
+    categoryArray[0]?.name || category?.name || "", 
+    categoryArray[0]?.id || category?._id
+  );
+
+  const isLoading = isCategoryLoading || subscriptionsLoading;
 
   // Fetch organizations
   const { data: organizationsData } = useMyOrganization();
@@ -135,11 +152,6 @@ export default function LeafCategoryContent() {
   const formSchema = useMemo(() => {
     return createPostAdSchema(category);
   }, [category]);
-
-  const availableFeaturedAds = useMemo(() => {
-    if (!category) return 0;
-    return getAvailableFeaturedAdsCount("AD", category.name);
-  }, [category, getAvailableFeaturedAdsCount]);
 
   const {
     control,
@@ -155,7 +167,7 @@ export default function LeafCategoryContent() {
       images: [] as ImageItem[],
       deal: false,
       dealValidThru: "",
-      discountedPrice: 0,
+      discountedPercent: 0,
       connectionTypes: ["chat", "call", "whatsapp"],
     },
     mode: "onChange",
@@ -303,38 +315,21 @@ export default function LeafCategoryContent() {
 
   const onSubmit = async (data: FormValues) => {
     // Determine target category type for plan matching
-    // Priority: 1. Main category from breadcrumbs, 2. Current leaf category name
     const categoryName = categoryArray[0]?.name || category?.name || "";
 
-    // If we already have a subscription selected in the store, use it
-    if (selectedSubscriptionId) {
-      await processAdSubmission(data, selectedSubscriptionId);
+    // 1. Double check availability
+    if (!checkAvailability({
+      action: "post",
+      categoryType: categoryArray[0]?.name || category?.name || "",
+      categoryName: category?.name || "",
+      categoryId: categoryArray[0]?.id || category?._id,
+    })) {
+      setPostStatus("idle");
       return;
     }
 
-    // Fallback: If for some reason subscription was not selected (e.g. direct URL entry or AI redirect)
-    const compatibleSubs = getCompatibleSubscriptions(
-      categoryName,
-      leafCategoryId as string,
-    );
-
-    if (compatibleSubs.length > 0) {
-      // Sort to prefer paid plans over basic/default plans
-      const sortedSubs = [...compatibleSubs].sort((a, b) => {
-        const aIsBasic = a.plan?.type?.toLowerCase() === "basic" || a.plan?.isDefault;
-        const bIsBasic = b.plan?.type?.toLowerCase() === "basic" || b.plan?.isDefault;
-        if (aIsBasic && !bIsBasic) return 1;
-        if (!aIsBasic && bIsBasic) return -1;
-        return 0;
-      });
-
-      // Pick the best available (first paid, or basic if only basic available)
-      await processAdSubmission(data, sortedSubs[0]._id);
-      return;
-    }
-
-    // Final fallback: proceed without sub (backend will handle validation)
-    await processAdSubmission(data);
+    // 2. Use the auto-resolved subscription ID
+    await processAdSubmission(data, subscription?._id);
   };
 
   const processAdSubmission = async (
@@ -342,33 +337,28 @@ export default function LeafCategoryContent() {
     subscriptionId?: string,
   ) => {
     // Extract image URLs from ImageItem[]
-    const images = (data.images as ImageItem[]) || [];
-    const imageUrls = images
+    const imagesArray = (data.images as ImageItem[]) || [];
+    const imageUrls = imagesArray
       .map((img) => img.url || img.presignedUrl || "")
       .filter(Boolean);
 
-    // Calculate discountedPrice if deal is active
+    // Calculate prices
     const price = (data.price as number) || 0;
-    const discountedPrice = (data.discountedPrice as number) || 0;
-    const discountPercentage = price > 0 ? Math.round(((price - discountedPrice) / price) * 100) : 0;
+    const minPrice = (data.minPrice as number) || 0;
+    const maxPrice = (data.maxPrice as number) || 0;
+    const discountedPercent = (data.discountedPercent as number) || 0;
     const dealValidThru = (data.dealValidThru as string) || undefined;
 
     // Extract exchange data
     const isExchange = data.isExchange === true || data.isExchange === "true";
-    const exchangeImages = (data.exchangeImages as MultipleImageItem[]) || [];
-    // Use fileUrl (S3 URL) - this is only set after successful upload
-    // Filter out blob URLs and get the first valid S3 URL
-    const exchangeImageUrl = exchangeImages
-      .map((img) => {
-        // Prioritize fileUrl (set after upload), fallback to url if it's not a blob
-        const url =
-          img.fileUrl ||
-          (img.url && !img.url.startsWith("blob:") ? img.url : null);
-        return url;
-      })
-      .filter((url): url is string => !!url)[0]; // Get first valid non-blob URL
     const exchangeTitle = (data.exchangeTitle as string) || "";
     const exchangeDescription = (data.exchangeDescription as string) || "";
+    const exchangeImages = (data.exchangeImages as MultipleImageItem[]) || [];
+    
+    // Filter out blob URLs and get the first valid S3 URL
+    const exchangeImageUrl = exchangeImages
+      .map((img) => img.fileUrl || (img.url && !img.url.startsWith("blob:") ? img.url : null))
+      .filter((url): url is string => !!url)[0];
 
     // Prepare connectionTypes array
     const connectionTypes = Array.isArray(data.connectionTypes)
@@ -380,9 +370,9 @@ export default function LeafCategoryContent() {
     // Prepare address object
     const addressData = (data.address as AddressFormValue) || {};
 
-    // Extract dynamic category fields (exclude system fields)
-    // Format extraFields as array of field objects (matching API structure)
-    // Always process extraFields regardless of category type
+    const payloadImages: string[] = imageUrls;
+
+    // Extract dynamic category fields
     const extraFields: Array<{
       name: string;
       type: string;
@@ -411,32 +401,22 @@ export default function LeafCategoryContent() {
       });
     }
 
-    // Add discountedPercent to extraFields if deal is active
-    if (data.deal && discountedPrice > 0) {
-      extraFields.push({
-        name: "discountedPercent",
-        type: "number",
-        value: discountPercentage.toString(),
-      });
-    }
-
     // Get organization selection
     const organizationValue = (data.organization as string) || "";
     const isIndividual = organizationValue === "individual";
 
     // Determine adType based on category
-    const categoryName =
-      category?.name || categoryArray[categoryArray.length - 1]?.name || "";
+    const categoryName = category?.name || categoryArray[categoryArray.length - 1]?.name || "";
     const adType: "AD" | "JOB" = isJobCategory(categoryName) ? "JOB" : "AD";
 
     // Prepare payload according to the API structure
     const payload: PostAdPayload = {
       title: (data.title as string) || "",
       description: (data.description as string) || "",
-      price: price,
+      price,
       stockQuantity: (data.stockQuantity as number) || 1,
       availability: (data.availability as string) || "in-stock",
-      images: imageUrls,
+      images: payloadImages,
       videoUrl: (data.video as string) || undefined,
       category: leafCategoryId as string,
       owner: (session.user?._id as string) || "",
@@ -445,7 +425,7 @@ export default function LeafCategoryContent() {
         | ("chat" | "call" | "whatsapp")[]
         | undefined,
       deal: data.deal === true || data.deal === "true",
-      discountedPercent: data.deal && discountedPrice > 0 ? discountPercentage : undefined,
+      discountedPercent: data.deal && discountedPercent > 0 ? discountedPercent : undefined,
       dealValidThru: data.deal && dealValidThru ? dealValidThru : undefined,
       isExchangable: isExchange,
       exchangeWith:
@@ -467,18 +447,15 @@ export default function LeafCategoryContent() {
           : null,
       },
       relatedCategories: categoryArray.map((cat) => cat.name),
-      featuredStatus: data.isFeatured ? "live" : "created",
+      featuredStatus: shouldFeature ? "live" : "created",
       status: "created",
       userType: "RERA_LANDLORD" as const,
       tags: [],
       documents: [],
-      // Convert extraFields array to Record<string, unknown> format
       extraFields: extraFields,
       adType: adType,
-      // Pass subscription ID if selected from dialog, AI flow or previous selection
       subscriptionId:
         subscriptionId || searchParams.get("subscriptionId") || undefined,
-      // Only include organizationId if not posting as individual
       ...(isIndividual ? {} : { organizationId: organizationValue }),
       device: "web",
     };
@@ -556,11 +533,11 @@ export default function LeafCategoryContent() {
   return (
     <GoogleMapsProvider>
       {/* Availability/Error Dialogs */}
-      {dialogProps.mode === "no_plans" && (
-        <NoActivePlansDialog {...dialogProps} />
+      {subscriptionDialogProps.mode === "no_plans" && (
+        <NoActivePlansDialog {...subscriptionDialogProps} />
       )}
-      {dialogProps.mode === "insufficient" && (
-        <InsufficientAdsDialog {...dialogProps} />
+      {subscriptionDialogProps.mode === "insufficient" && (
+        <InsufficientAdsDialog {...subscriptionDialogProps} />
       )}
 
       <section className="w-full max-w-[888px] mx-auto relative">
@@ -1078,12 +1055,12 @@ export default function LeafCategoryContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
                   <FormField
                     label="Discount Percentage (%)"
-                    htmlFor="discountedPrice"
+                    htmlFor="discountedPercent"
                     required
-                    error={errors.discountedPrice?.message as string}
+                    error={errors.discountedPercent?.message as string}
                   >
                     <Controller
-                      name="discountedPrice"
+                      name="discountedPercent"
                       control={control}
                       rules={{
                         required: watch("deal")
@@ -1103,12 +1080,12 @@ export default function LeafCategoryContent() {
                           value={(field.value as number) || 0}
                           onChange={(val) => {
                             field.onChange(val);
-                            handleInputChange("discountedPrice", val);
+                            handleInputChange("discountedPercent", val);
                           }}
                           min={0}
                           max={100}
                           placeholder="e.g. 20"
-                          error={errors.discountedPrice?.message as string}
+                          error={errors.discountedPercent?.message as string}
                         />
                       )}
                     />
@@ -1220,10 +1197,9 @@ export default function LeafCategoryContent() {
                     error={!!errors.price}
                   />
                   <FormSummaryItem
-                    label="Discounted Price"
-                    value={formValues.discountedPrice}
-                    type="price"
-                    error={!!errors.discountedPrice}
+                    label="Discount Percentage"
+                    value={formValues.discountedPercent ? `${formValues.discountedPercent}%` : undefined}
+                    error={!!errors.discountedPercent}
                   />
                   <FormSummaryItem
                     label="Location"

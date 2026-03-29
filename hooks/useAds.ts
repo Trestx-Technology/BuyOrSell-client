@@ -44,6 +44,7 @@ import {
   SemanticAdSearchResponse,
 } from "@/interfaces/ad";
 import { adQueries } from "@/app/api/ad/index";
+import { subscriptionQueries } from "@/app/api/subscription/index";
 
 // ============================================================================
 // QUERY HOOKS
@@ -190,6 +191,10 @@ export const useCreateAd = () => {
       queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
       queryClient.invalidateQueries({ queryKey: adQueries.myAds.Key });
       queryClient.invalidateQueries({ queryKey: adQueries.liveAds.Key });
+      
+      // Invalidate subscriptions to update credit counts immediately
+      queryClient.invalidateQueries({ queryKey: subscriptionQueries.getMySubscription.Key });
+      queryClient.invalidateQueries({ queryKey: subscriptionQueries.getMyActiveSubscription.Key });
     },
   });
 };
@@ -272,6 +277,10 @@ export const useRenewAd = () => {
       });
       queryClient.invalidateQueries({ queryKey: adQueries.myAds.Key });
       queryClient.invalidateQueries({ queryKey: adQueries.liveAds.Key });
+      
+      // Invalidate subscriptions to update credit counts immediately
+      queryClient.invalidateQueries({ queryKey: subscriptionQueries.getMySubscription.Key });
+      queryClient.invalidateQueries({ queryKey: subscriptionQueries.getMyActiveSubscription.Key });
     },
   });
 };
@@ -290,6 +299,10 @@ export const useFeatureAd = () => {
       queryClient.invalidateQueries({ queryKey: adQueries.myAds.Key });
       queryClient.invalidateQueries({ queryKey: adQueries.liveAds.Key });
       queryClient.invalidateQueries({ queryKey: adQueries.featuredAds.Key });
+      
+      // Invalidate subscriptions to update credit counts immediately
+      queryClient.invalidateQueries({ queryKey: subscriptionQueries.getMySubscription.Key });
+      queryClient.invalidateQueries({ queryKey: subscriptionQueries.getMyActiveSubscription.Key });
     },
   });
 };

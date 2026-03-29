@@ -43,6 +43,8 @@ const Breadcrumbs = React.forwardRef<HTMLDivElement, BreadcrumbsProps>(
       showSelectCategoryLink = false,
       selectCategoryHref = "/post-ad/select",
       selectCategoryLabel = "Select Category",
+      maxItems,
+      showEllipsis,
       ...props
     },
     ref

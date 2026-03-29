@@ -51,11 +51,13 @@ The form is divided into several logical sections:
 
 Before submission, the system performs two final checks:
 
-1.  **Zod Validation**: Ensures all required client-side fields meet the schema (phone formats, price ranges, required selects).
-2.  **Ad Availability**: Uses the `useAdAvailability` hook to ensure the user has sufficient slots. This triggers one of several specialized dialogs if issues are found:
-    - **NoActivePlansDialog**: If the user has no plan for the category.
-    - **InsufficientAdsDialog**: If the user has reached their posting limit.
-    - **PlanSelectionDialog**: If the user needs to choose between multiple compatible plans.
+5.  **Ad Availability**: Uses the unified `useAdSubscription` hook to ensure the user has sufficient slots. 
+    - **Robust Matching**: The system passes both `categoryName` (string) and `categoryId` (unique identifier) to resolve the correct plan. 
+    - **Resolution**: ID matching is performed first to ensure plans for categories like "Business & Industrial" are always correctly detected, even if the user has multiple category-specific subscriptions.
+    - **Specialized Dialogs**: Triggers one of several dialogs if issues are found:
+        - **NoActivePlansDialog**: If the user has no plan for the category.
+        - **InsufficientAdsDialog**: If the user has reached their posting limit.
+        - **PlanSelectionDialog**: If the user needs to choose between multiple compatible plans.
 
 ### 5. Step 5: Submission & Success
 
@@ -78,3 +80,9 @@ Before submission, the system performs two final checks:
 - **`loading`**: Data being submitted to server.
 - **`success`**: Ad created, redirecting.
 - **`error`**: Submission failed (e.g., network error or validation failure on server).
+
+---
+
+## Related Documentation
+
+- For deep dives into the matching logic, credit tracking, and availability states, see: [Subscription & Ad Availability Logic](../ad-availability/index.md)

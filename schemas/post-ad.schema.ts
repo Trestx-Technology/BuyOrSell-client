@@ -114,14 +114,14 @@ export const createPostAdSchema = (category?: SubCategory) => {
       (val) => (val === undefined || val === null ? undefined : val),
       z.string().optional(),
     ),
-    discountedPrice: z.preprocess((val) => {
+    discountedPercent: z.preprocess((val) => {
       if (val === undefined || val === null) return undefined;
       if (typeof val === "string") {
         const parsed = parseFloat(val);
         return isNaN(parsed) ? undefined : parsed;
       }
       return typeof val === "number" ? val : undefined;
-    }, z.number().min(0, "Discounted price must be at least 0").optional()),
+    }, z.number().min(1, "Discount percentage must be at least 1%").max(99, "Discount percentage cannot exceed 99%").optional()),
     stockQuantity: z.preprocess((val) => {
       if (val === undefined || val === null) return undefined;
       if (typeof val === "string") {
@@ -247,12 +247,12 @@ export const createPostAdSchema = (category?: SubCategory) => {
     )
     .refine(
       (data) => {
-        // If deal is enabled, validate discountedPrice
+        // If deal is enabled, validate discountedPercent
         const isDeal = data.deal === true || data.deal === "true";
         if (isDeal) {
           if (
-            data.discountedPrice === undefined ||
-            (data.discountedPrice as number) < 0
+            data.discountedPercent === undefined ||
+            (data.discountedPercent as number) < 1
           ) {
             return false;
           }
@@ -260,32 +260,10 @@ export const createPostAdSchema = (category?: SubCategory) => {
         return true;
       },
       {
-        message: "Discounted price is required",
-        path: ["discountedPrice"],
+        message: "Discount percentage is required",
+        path: ["discountedPercent"],
       },
     )
-    .refine(
-      (data) => {
-        // Validate that discountedPrice is less than price when deal is enabled
-        const isDeal = data.deal === true || data.deal === "true";
-        if (
-          isDeal &&
-          data.discountedPrice !== undefined &&
-          data.price !== undefined
-        ) {
-          const discountedPrice = data.discountedPrice as number;
-          const price = data.price as number;
-          if (discountedPrice >= price) {
-            return false;
-          }
-        }
-        return true;
-      },
-      {
-        message: "Discounted price must be less than the original price",
-        path: ["discountedPrice"],
-      },
-    );
 };
 
 /**

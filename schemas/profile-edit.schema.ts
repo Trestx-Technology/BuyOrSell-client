@@ -6,7 +6,7 @@ export const profileEditSchema = z.object({
   email: z
     .email("Please enter a valid email address")
     .min(1, "Email is required"),
-  phoneNo: z.number().min(1, "Phone number is required"),
+  phoneNo: z.string().min(1, "Phone number is required").regex(/^\d+$/, "Phone number must contain only digits"),
   gender: z.enum(["MALE", "FEMALE", "OTHER"], {
     message: "Gender is required",
   }),

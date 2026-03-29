@@ -15,7 +15,7 @@ interface PhoneNumberWithVerificationProps {
   value?: string;
   countryCode?: string;
   onPhoneVerified: (phoneNumber: string) => void;
-  onPhoneChange?: (phoneNumber: string) => void;
+  onPhoneChange?: (fullPhoneNumber: string, phoneNumberOnly: string, countryCode: string) => void;
   onSendOTP?: (phoneNumber: string) => Promise<void>;
   onVerifyOTP?: (phoneNumber: string, otp: string) => Promise<boolean>;
   disabled?: boolean;
@@ -25,6 +25,7 @@ interface PhoneNumberWithVerificationProps {
   description?: string;
   required?: boolean;
   showEditButton?: boolean;
+  initialVerified?: boolean;
 }
 
 // Helper to parse phone number with country code
@@ -65,6 +66,7 @@ export default function PhoneNumberWithVerification({
   description,
   required = false,
   showEditButton = true,
+  initialVerified = false,
 }: PhoneNumberWithVerificationProps) {
   const parsed = parsePhoneNumber(value, countryCode);
   const [isEditing, setIsEditing] = useState(!value);
@@ -72,28 +74,32 @@ export default function PhoneNumberWithVerification({
   const [selectedCountryCode, setSelectedCountryCode] = useState(
     parsed.countryCode
   );
-  const [isVerified, setIsVerified] = useState(!!value);
+  const [isVerified, setIsVerified] = useState(initialVerified);
   const [showOTPModal, setShowOTPModal] = useState(false);
   const [pendingPhoneNumber, setPendingPhoneNumber] = useState("");
   const [pendingCountryCode, setPendingCountryCode] = useState("");
+  const verifiedLocallyRef = React.useRef(false);
 
   // Sync state with value prop when it changes
   useEffect(() => {
     const newParsed = parsePhoneNumber(value, countryCode);
     setPhoneNumber(newParsed.phoneNumber);
     setSelectedCountryCode(newParsed.countryCode);
-    setIsVerified(!!value);
+    // Don't override local verification — only sync from parent if not locally verified
+    if (!verifiedLocallyRef.current) {
+      setIsVerified(initialVerified);
+    }
     if (value) {
       setIsEditing(false);
     }
-  }, [value, countryCode]);
+  }, [value, countryCode, initialVerified]);
 
   const handlePhoneChange = useCallback(
     (newPhoneNumber: string, newCountryCode: string) => {
       setPhoneNumber(newPhoneNumber);
       setSelectedCountryCode(newCountryCode);
       if (onPhoneChange) {
-        onPhoneChange(`${newCountryCode}${newPhoneNumber}`);
+        onPhoneChange(`${newCountryCode}${newPhoneNumber}`, newPhoneNumber, newCountryCode);
       }
     },
     [onPhoneChange]
@@ -125,6 +131,7 @@ export default function PhoneNumberWithVerification({
         const fullPhoneNumber = `${pendingCountryCode}${pendingPhoneNumber}`;
         const isValid = await onVerifyOTP(fullPhoneNumber, otp);
         if (isValid) {
+          verifiedLocallyRef.current = true;
           setIsVerified(true);
           setIsEditing(false);
           onPhoneVerified(fullPhoneNumber);
@@ -182,7 +189,8 @@ export default function PhoneNumberWithVerification({
           open={showOTPModal}
           onOpenChange={setShowOTPModal}
           onVerify={handleOTPVerify}
-          phoneNumber={fullPhoneNumber}
+          onResend={onSendOTP ? () => onSendOTP(fullPhoneNumber) : undefined}
+          identifier={fullPhoneNumber}
         />
       </FormField>
     );
@@ -214,7 +222,8 @@ export default function PhoneNumberWithVerification({
         open={showOTPModal}
         onOpenChange={setShowOTPModal}
         onVerify={handleOTPVerify}
-        phoneNumber={fullPhoneNumber}
+        onResend={onSendOTP ? () => onSendOTP(fullPhoneNumber) : undefined}
+        identifier={fullPhoneNumber}
       />
     </FormField>
   );

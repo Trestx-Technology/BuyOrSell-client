@@ -233,6 +233,7 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({
       <HoverCardTrigger asChild>
         <Link
           href={url}
+          prefetch={false}
           className="h-9 px-2 flex items-center cursor-pointer text-[13px] font-semibold rounded-sm text-gray-500 dark:text-white hover:bg-white dark:hover:bg-gray-800 hover:text-purple dark:hover:text-white transition-colors  data-[state=open]:text-purple"
           onClick={() => setOpen(false)}
         >
@@ -289,6 +290,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                     <div className="ml-auto group-hover:block hidden">
                       <Link
                         href={buildCategoryUrl(subcategory, allCategories)}
+                        prefetch={false}
                         className="text-purple text-xs hover:text-purple/80 flex items-center gap-1"
                         onClick={onClose}
                       >
@@ -321,6 +323,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
                           <div key={child._id}>
                             <Link
                               href={buildCategoryUrl(child, allCategories)}
+                              prefetch={false}
                               className="text-sm text-grey-blue dark:text-white hover:text-purple hover:underline cursor-pointer transition-colors"
                               onClick={onClose}
                             >
@@ -334,6 +337,7 @@ const SubcategoryPanel: React.FC<SubcategoryPanelProps> = ({
               ) : (
                 <Link
                   href={buildCategoryUrl(subcategory, allCategories)}
+                  prefetch={false}
                   className="px-5 py-2.5 flex items-center gap-2 border-b border-gray-300 dark:border-gray-700 text-gray-600 dark:text-white hover:bg-purple/10 hover:text-purple transition-colors"
                   onClick={onClose}
                 >
@@ -388,6 +392,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                       ? `/jobs`
                       : buildCategoryUrl(category, allCategories)
                   }
+                  prefetch={false}
                   className="text-gray-600 dark:text-white group-hover:text-purple text-sm w-full"
                   onClick={onClose}
                 >
@@ -427,6 +432,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
                 >
                   <Link
                     href={buildCategoryUrl(category, allCategories)}
+                    prefetch={false}
                     className={cn(
                       "flex items-center text-xs justify-between p-3 hover:bg-purple/10 hover:text-purple cursor-pointer transition-colors group",
                       isActive && "bg-purple/10 text-purple",
@@ -453,6 +459,7 @@ const CategoryDropdownContent: React.FC<CategoryDropdownContentProps> = ({
               <Link
                 key={category._id}
                 href={buildCategoryUrl(category, allCategories)}
+                prefetch={false}
                 className={cn(
                   "flex items-center text-xs justify-between p-3 hover:bg-purple/10 hover:text-purple cursor-pointer transition-colors group",
                   isActive && "bg-purple/10 text-purple",

@@ -21,6 +21,10 @@ import { ResponsiveDialogDrawer } from "@/components/ui/responsive-dialog-drawer
 import { ISubscription } from "@/interfaces/subscription.types";
 import { useStopRecurring } from "@/hooks/useSubscriptions";
 import { useSubscriptionStore } from "@/stores/subscriptionStore";
+import { 
+  getSubscriptionRemainingAds, 
+  getSubscriptionRemainingFeatured 
+} from "@/utils/subscription-match";
 
 interface SubscriptionCardProps {
   subscription: ISubscription;
@@ -101,25 +105,28 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
     });
   };
 
-  const adsRemaining =
-    (subscription.addsAvailable || 0) - (subscription.adsUsed || 0);
+  const adsRemaining = getSubscriptionRemainingAds(subscription);
   const adsProgress = subscription.addsAvailable
-    ? (subscription.adsUsed / subscription.addsAvailable) * 100
+    ? Math.min(100, (subscription.adsUsed / subscription.addsAvailable) * 100)
     : 0;
 
-  const featuredAdsRemaining =
-    (subscription.featuredAdsAvailable || 0) -
-    (subscription.featuredAdsUsed || 0);
+  const featuredAdsRemaining = getSubscriptionRemainingFeatured(subscription);
   const featuredAdsProgress = subscription.featuredAdsAvailable
-    ? ((subscription.featuredAdsUsed || 0) /
-        subscription.featuredAdsAvailable) *
-      100
+    ? Math.min(
+        100,
+        ((subscription.featuredAdsUsed || 0) /
+          subscription.featuredAdsAvailable) *
+          100,
+      )
     : 0;
 
   const aiRemaining =
     (subscription.aiAvailable || 0) - (subscription.numberOfAiUsed || 0);
   const aiProgress = subscription.aiAvailable
-    ? (subscription.numberOfAiUsed / subscription.aiAvailable) * 100
+    ? Math.min(
+        100,
+        (subscription.numberOfAiUsed / subscription.aiAvailable) * 100,
+      )
     : 0;
 
   return (

@@ -2,7 +2,10 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { LocalStorageService } from "@/services/local-storage";
 import { CookieService } from "@/services/cookie-service";
-import { AUTH_TOKEN_NAMES } from "@/constants/auth.constants";
+import {
+  AUTH_TOKEN_NAMES,
+  AUTH_STORE_CONFIG,
+} from "@/constants/auth.constants";
 
 // ============================================================================
 // TYPES
@@ -16,6 +19,8 @@ export interface UserRole {
   createdAt: string;
   updatedAt: string;
 }
+
+const { STORE_NAME, USER_ID_COOKIE, SESSION_MAX_AGE } = AUTH_STORE_CONFIG;
 
 export interface SessionUser {
   _id: string;
@@ -120,14 +125,7 @@ export const useAuthStore = create<AuthStore>()(
           emailVerified:
             userData.emailVerified ?? userData.verifyEmail ?? false,
           phoneVerified: userData.phoneVerified ?? false,
-          role: userData.role || {
-            name: "USER",
-            description: "User role",
-            permissions: {},
-            _id: "",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
+          role: userData.role || {},
           socialType: userData.socialType || "",
           documents: userData.documents || [],
           blockedReason: userData.blockedReason || [],
@@ -152,25 +150,21 @@ export const useAuthStore = create<AuthStore>()(
           isAuthenticated: true,
         });
 
-        // Also store in localStorage for backward compatibility
-        LocalStorageService.set("user", sessionUser);
-
-        // Set cookie using client-side CookieService
-        const maxAge = 7 * 24 * 60 * 60; // 1 week
+        // Set cookies using client-side CookieService
         CookieService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken, {
-          maxAge,
+          maxAge: SESSION_MAX_AGE,
           path: "/",
           secure: true,
           sameSite: "lax",
         });
         CookieService.set(AUTH_TOKEN_NAMES.REFRESH_TOKEN, refreshToken, {
-          maxAge,
+          maxAge: SESSION_MAX_AGE,
           path: "/",
           secure: true,
           sameSite: "lax",
         });
-        CookieService.set("buyorsell_user_id", sessionUser._id, {
-          maxAge,
+        CookieService.set(USER_ID_COOKIE, sessionUser._id, {
+          maxAge: SESSION_MAX_AGE,
           path: "/",
           secure: true,
           sameSite: "lax",
@@ -190,13 +184,10 @@ export const useAuthStore = create<AuthStore>()(
           await import("@/stores/subscriptionStore");
         useSubscriptionStore.getState().clearSubscriptions();
 
-        // Clear localStorage
-        LocalStorageService.clear();
-
-        // Clear cookie using client-side CookieService
+        // Clear cookies using client-side CookieService
         CookieService.remove(AUTH_TOKEN_NAMES.ACCESS_TOKEN, { path: "/" });
         CookieService.remove(AUTH_TOKEN_NAMES.REFRESH_TOKEN, { path: "/" });
-        CookieService.remove("buyorsell_user_id", { path: "/" });
+        CookieService.remove(USER_ID_COOKIE, { path: "/" });
       },
 
       // Update User Data
@@ -212,28 +203,21 @@ export const useAuthStore = create<AuthStore>()(
               },
             },
           });
-
-          // Also update localStorage
-          LocalStorageService.set("user", {
-            ...currentSession.user,
-            ...updatedUser,
-          });
         }
       },
 
       // Refresh Tokens
       refreshTokens: async (accessToken, refreshToken) => {
         // Update cookie using client-side CookieService
-        const maxAge = 7 * 24 * 60 * 60; // 1 week
         CookieService.set(AUTH_TOKEN_NAMES.ACCESS_TOKEN, accessToken, {
-          maxAge,
+          maxAge: SESSION_MAX_AGE,
           path: "/",
           secure: true,
           sameSite: "lax",
         });
         if (refreshToken) {
           CookieService.set(AUTH_TOKEN_NAMES.REFRESH_TOKEN, refreshToken, {
-            maxAge,
+            maxAge: SESSION_MAX_AGE,
             path: "/",
             secure: true,
             sameSite: "lax",
@@ -242,15 +226,14 @@ export const useAuthStore = create<AuthStore>()(
       },
     }),
     {
-      name: "buyorsell-auth-store",
+      name: STORE_NAME,
       storage: createJSONStorage(() =>
-        typeof window !== "undefined" ? localStorage : ({} as Storage),
+        typeof window !== "undefined" ? localStorage : ({} as Storage)
       ),
       onRehydrateStorage: () => (state) => {
         if (state?.session?.user?._id) {
-          const maxAge = 7 * 24 * 60 * 60; // 1 week
-          CookieService.set("buyorsell_user_id", state.session.user._id, {
-            maxAge,
+          CookieService.set(USER_ID_COOKIE, state.session.user._id, {
+            maxAge: SESSION_MAX_AGE,
             path: "/",
             secure: true,
             sameSite: "lax",
