@@ -92,6 +92,14 @@ export default function EditJobPage() {
       minSalary: 0,
       maxSalary: 0,
       address: { address: "" },
+      
+      // Initialize 6 new job fields
+      noticePeriod: "",
+      careerLevel: "",
+      experience: "",
+      qualification: "",
+      gender: "",
+      nationality: "",
     },
     mode: "onChange",
   });
@@ -144,6 +152,13 @@ export default function EditJobPage() {
         maxSalary: existingJob.maxSalary || 0,
         jobMode: existingJob.jobMode,
         jobShift: existingJob.jobShift,
+        noticePeriod: existingJob.noticePeriod,
+        careerLevel: existingJob.careerLevel,
+        experience: existingJob.experience,
+        qualification: existingJob.qualification,
+        gender: existingJob.gender,
+        nationality: existingJob.nationality,
+        stockQuantity: 1,
         phoneNumber: existingJob.contactPhoneNumber || existingJob.owner?.phoneNo,
         organization: existingJob.organization?._id || "individual",
         connectionTypes: existingJob.connectionTypes || ["chat", "call", "whatsapp"],
@@ -171,11 +186,20 @@ export default function EditJobPage() {
             defaultValues[field.name] = field.value;
           });
         } else if (typeof existingJob.extraFields === "object") {
+          // If it's a key-value object (backward compatibility)
           Object.entries(existingJob.extraFields).forEach(([key, value]) => {
             defaultValues[key] = value;
           });
         }
       }
+
+      // Explicitly pick the 6 new fields from defaultValues to ensure they are set
+      const newFields = ["noticePeriod", "careerLevel", "experience", "qualification", "gender", "nationality"];
+      newFields.forEach(name => {
+        if (defaultValues[name]) {
+          setValue(name as any, defaultValues[name]);
+        }
+      });
 
       reset(defaultValues);
     }
@@ -272,6 +296,19 @@ export default function EditJobPage() {
   const onSubmit = async (data: FormValues) => {
     const addressData = (data.address as AddressFormValue) || {};
 
+    const minSalary = (data.minSalary as number) || 0;
+    const maxSalary = (data.maxSalary as number) || 0;
+    const jobMode = (data.jobMode as string) || "";
+    const jobShift = (data.jobShift as string) || "";
+
+    // 6 new fields
+    const noticePeriod = (data.noticePeriod as string) || "";
+    const careerLevel = (data.careerLevel as string) || "";
+    const experience = (data.experience as string) || "";
+    const qualification = (data.qualification as string) || "";
+    const gender = (data.gender as string) || "";
+    const nationality = (data.nationality as string) || "";
+
     const extraFields: Array<{
       name: string;
       type: string;
@@ -279,13 +316,33 @@ export default function EditJobPage() {
       optionalArray?: string[];
     }> = [];
 
+    // Add static job fields to extraFields
+    const jobSpecificFields = [
+      { name: "noticePeriod", value: noticePeriod, type: "dropdown" },
+      { name: "careerLevel", value: careerLevel, type: "dropdown" },
+      { name: "experience", value: experience, type: "dropdown" },
+      { name: "qualification", value: qualification, type: "dropdown" },
+      { name: "gender", value: gender, type: "dropdown" },
+      { name: "nationality", value: nationality, type: "dropdown" },
+    ];
+
+    jobSpecificFields.forEach(field => {
+      if (field.value) {
+        extraFields.push({
+          name: field.name,
+          type: field.type,
+          value: field.value,
+        });
+      }
+    });
+
     if (category?.fields) {
       category.fields.forEach((field: Field) => {
         if (
           !AD_SYSTEM_FIELDS.includes(
             field.name as (typeof AD_SYSTEM_FIELDS)[number],
           ) &&
-          !["minSalary", "maxSalary", "jobMode", "jobShift"].includes(field.name) &&
+          !["minSalary", "maxSalary", "jobMode", "jobShift", "noticePeriod", "careerLevel", "experience", "qualification", "gender", "nationality"].includes(field.name) &&
           data[field.name] !== undefined &&
           data[field.name] !== null &&
           data[field.name] !== ""
@@ -512,6 +569,160 @@ export default function EditJobPage() {
                   )}
                 />
               </FormField>
+            </div>
+
+            {/* Additional Job Details */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                Additional Job Details
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField label="Notice Period" htmlFor="noticePeriod" error={errors.noticePeriod?.message as string}>
+                  <Controller
+                    name="noticePeriod"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectInput
+                        value={field.value as string}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          handleInputChange("noticePeriod", value);
+                        }}
+                        options={[
+                          { value: "Immediately", label: "Immediately" },
+                          { value: "1 week", label: "1 week" },
+                          { value: "2 weeks", label: "2 weeks" },
+                          { value: "1 month", label: "1 month" },
+                          { value: "2 months", label: "2 months" },
+                          { value: "3 months", label: "3 months" },
+                        ]}
+                        placeholder="Select notice period"
+                      />
+                    )}
+                  />
+                </FormField>
+                <FormField label="Career Level" htmlFor="careerLevel" error={errors.careerLevel?.message as string}>
+                  <Controller
+                    name="careerLevel"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectInput
+                        value={field.value as string}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          handleInputChange("careerLevel", value);
+                        }}
+                        options={[
+                          { value: "Entry", label: "Entry" },
+                          { value: "Mid", label: "Mid" },
+                          { value: "Senior", label: "Senior" },
+                          { value: "Executive", label: "Executive" },
+                          { value: "Director", label: "Director" },
+                        ]}
+                        placeholder="Select career level"
+                      />
+                    )}
+                   />
+                </FormField>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField label="Experience" htmlFor="experience" error={errors.experience?.message as string}>
+                  <Controller
+                    name="experience"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectInput
+                        value={field.value as string}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          handleInputChange("experience", value);
+                        }}
+                        options={[
+                          { value: "0-1 year", label: "0-1 year" },
+                          { value: "1-2 years", label: "1-2 years" },
+                          { value: "2-5 years", label: "2-5 years" },
+                          { value: "5-10 years", label: "5-10 years" },
+                          { value: "10+ years", label: "10+ years" },
+                        ]}
+                        placeholder="Select experience"
+                      />
+                    )}
+                  />
+                </FormField>
+                <FormField label="Qualification" htmlFor="qualification" error={errors.qualification?.message as string}>
+                  <Controller
+                    name="qualification"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectInput
+                        value={field.value as string}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          handleInputChange("qualification", value);
+                        }}
+                        options={[
+                          { value: "Bachelor's degree", label: "Bachelor's degree" },
+                          { value: "Master's degree", label: "Master's degree" },
+                          { value: "PhD", label: "PhD" },
+                          { value: "Diploma", label: "Diploma" },
+                          { value: "High School", label: "High School" },
+                          { value: "Certification", label: "Certification" },
+                        ]}
+                        placeholder="Select qualification"
+                      />
+                    )}
+                  />
+                </FormField>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField label="Gender" htmlFor="gender" error={errors.gender?.message as string}>
+                  <Controller
+                    name="gender"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectInput
+                        value={field.value as string}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          handleInputChange("gender", value);
+                        }}
+                        options={[
+                          { value: "male", label: "Male" },
+                          { value: "female", label: "Female" },
+                          { value: "other", label: "Other" },
+                          { value: "any", label: "Any" },
+                        ]}
+                        placeholder="Select Gender"
+                      />
+                    )}
+                  />
+                </FormField>
+                <FormField label="Nationality" htmlFor="nationality" error={errors.nationality?.message as string}>
+                  <Controller
+                    name="nationality"
+                    control={control}
+                    render={({ field }) => (
+                      <SelectInput
+                        value={field.value as string}
+                        onChange={(value) => {
+                          field.onChange(value);
+                          handleInputChange("nationality", value);
+                        }}
+                        options={[
+                          { value: "Any", label: "Any" },
+                          { value: "UAE", label: "UAE (Emirati)" },
+                          { value: "Indian", label: "Indian" },
+                          { value: "Pakistani", label: "Pakistani" },
+                          { value: "Filipino", label: "Filipino" },
+                          { value: "Egyptian", label: "Egyptian" },
+                          { value: "Other", label: "Other" },
+                        ]}
+                        placeholder="Select nationality"
+                      />
+                    )}
+                  />
+                </FormField>
+              </div>
             </div>
 
             {/* Dynamic Fields */}

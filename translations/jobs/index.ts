@@ -34,6 +34,7 @@ export const jobsTranslations: JobsTranslationNamespace = {
       cancelRequest: "Cancel Request",
       resendRequest: "Resend Request",
       pending: "Pending",
+      createProfile: "Create Profile",
     },
     messages: {
       loginToConnect: "Please login to connect with professionals",
@@ -44,6 +45,8 @@ export const jobsTranslations: JobsTranslationNamespace = {
       failedToSend: "Failed to send request",
       failedToCancel: "Failed to cancel request",
       createProfileToConnect: "Please create your jobseeker profile to connect with other professionals",
+      createProfileTitle: "Jobseeker Profile Required",
+      createProfileDescription: "You need to create a jobseeker profile to connect with other jobseeker profiles.",
     },
     tabs: {
       latestJobs: "Latest Jobs",
@@ -133,6 +136,7 @@ export const jobsTranslations: JobsTranslationNamespace = {
       cancelRequest: "Verzoek annuleren",
       resendRequest: "Verzoek opnieuw verzenden",
       pending: "In behandeling",
+      createProfile: "Profiel aanmaken",
     },
     messages: {
       loginToConnect: "Log in om contact te maken met professionals",
@@ -143,6 +147,8 @@ export const jobsTranslations: JobsTranslationNamespace = {
       failedToSend: "Verzenden verzoek mislukt",
       failedToCancel: "Annuleren verzoek mislukt",
       createProfileToConnect: "Maak een werkzoekendenprofiel aan om contact te maken met andere professionals",
+      createProfileTitle: "Werkzoekendenprofiel vereist",
+      createProfileDescription: "U moet een werkzoekendenprofiel aanmaken om contact te maken met andere werkzoekenden.",
     },
     tabs: {
       latestJobs: "Nieuwste vacatures",
@@ -232,6 +238,7 @@ export const jobsTranslations: JobsTranslationNamespace = {
       cancelRequest: "Verzoek annuleren",
       resendRequest: "Verzoek opnieuw verzenden",
       pending: "In behandeling",
+      createProfile: "Profiel aanmaken",
     },
     messages: {
       loginToConnect: "Log in om contact te maken met professionals",
@@ -242,6 +249,8 @@ export const jobsTranslations: JobsTranslationNamespace = {
       failedToSend: "Verzenden verzoek mislukt",
       failedToCancel: "Annuleren verzoek mislukt",
       createProfileToConnect: "Maak een werkzoekendenprofiel aan om contact te maken met andere professionals",
+      createProfileTitle: "Werkzoekendenprofiel vereist",
+      createProfileDescription: "U moet een werkzoekendenprofiel aanmaken om contact te maken met andere werkzoekenden.",
     },
     tabs: {
       latestJobs: "Nieuwste vacatures",
@@ -331,6 +340,7 @@ export const jobsTranslations: JobsTranslationNamespace = {
       cancelRequest: "إلغاء الطلب",
       resendRequest: "إعادة إرسال الطلب",
       pending: "قيد الانتظار",
+      createProfile: "إنشاء ملف شخصي",
     },
     messages: {
       loginToConnect: "يرجى تسجيل الدخول للتواصل مع المحترفين",
@@ -341,6 +351,8 @@ export const jobsTranslations: JobsTranslationNamespace = {
       failedToSend: "فشل إرسال الطلب",
       failedToCancel: "فشل إلغاء الطلب",
       createProfileToConnect: "يرجى إنشاء ملفك الشخصي كباحث عن عمل للتواصل مع محترفين آخرين",
+      createProfileTitle: "مطلوب ملف شخصي لباحث عن عمل",
+      createProfileDescription: "يجب عليك إنشاء ملف تعريف لباحث عن عمل للتواصل مع ملفات تعريف الباحثين عن عمل الآخرين.",
     },
     tabs: {
       latestJobs: "أحدث الوظائف",

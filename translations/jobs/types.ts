@@ -34,6 +34,7 @@ export type JobsTranslations = {
     cancelRequest: string;
     resendRequest: string;
     pending: string;
+    createProfile: string;
   };
   messages: {
     loginToConnect: string;
@@ -44,6 +45,8 @@ export type JobsTranslations = {
     failedToSend: string;
     failedToCancel: string;
     createProfileToConnect: string;
+    createProfileTitle: string;
+    createProfileDescription: string;
   };
   tabs: {
     latestJobs: string;

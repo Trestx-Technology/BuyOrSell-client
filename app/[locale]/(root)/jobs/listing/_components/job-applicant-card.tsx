@@ -16,7 +16,6 @@ import {
 } from "@/hooks/useJobApplications";
 import { toast } from "sonner";
 import { useLocale } from "@/hooks/useLocale";
-import { ResumeViewer } from "../../jobseeker/[id]/_components/resume-viewer";
 
 const getStatusLabel = (status: JobApplicant["status"]) => {
   switch (status) {
@@ -301,21 +300,6 @@ export default function JobApplicantCard({
                 View Profile
               </Button>
             )}
-            {applicant.resumeUrl && (
-              <ResumeViewer
-                resumeUrl={applicant.resumeUrl}
-                candidateName={userName}
-                trigger={
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="min-w-[100px] border border-purple text-purple hover:bg-purple/10"
-                  >
-                    View Resume
-                  </Button>
-                }
-              />
-            )}
           </div>
         </div>
 
@@ -436,17 +420,6 @@ export default function JobApplicantCard({
                   >
                     View Profile
                   </Button>
-                )}
-                {applicant.resumeUrl && (
-                  <ResumeViewer
-                    resumeUrl={applicant.resumeUrl}
-                    candidateName={userName}
-                    trigger={
-                      <Button variant="outline" className="flex-1 border-purple text-purple hover:bg-purple/10">
-                        View Resume
-                      </Button>
-                    }
-                  />
                 )}
               </div>
             </div>

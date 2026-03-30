@@ -2,9 +2,8 @@ import React from "react";
 import { H2, Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { JobseekerProfile } from "@/interfaces/job.types";
-import { Download, Eye } from "lucide-react";
+import { Download } from "lucide-react";
 import { format } from "date-fns";
-import { ResumeViewer } from "./resume-viewer";
 
 interface CandidateResumeProps {
   jobseeker: JobseekerProfile;
@@ -42,20 +41,6 @@ export default function CandidateResume({ jobseeker, onDownload }: CandidateResu
           </Typography>
         </div>
         <div className="flex flex-wrap gap-3">
-          <ResumeViewer
-            resumeUrl={jobseeker.resumeFileUrl}
-            candidateName={jobseeker.name || "Candidate"}
-            trigger={
-              <Button
-                variant="outline"
-                icon={<Eye className="w-4 h-4" />}
-                iconPosition="left"
-                className="border-purple text-purple hover:bg-purple/10"
-              >
-                View Resume
-              </Button>
-            }
-          />
           <Button
             onClick={handleDownload}
             variant="primary"

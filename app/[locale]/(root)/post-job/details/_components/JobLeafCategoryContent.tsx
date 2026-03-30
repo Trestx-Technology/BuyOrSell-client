@@ -53,12 +53,8 @@ export default function JobLeafCategoryContent() {
   const { leafCategoryId } = useParams<{ leafCategoryId: string }>();
   const router = useRouter();
   const { session } = useAuthStore((state) => state);
-  const {
-    categoryArray,
-    currentStep,
-    setStep,
-    selectedSubscriptionId,
-  } = useAdPostingStore((state) => state);
+  const { categoryArray, currentStep, setStep, selectedSubscriptionId } =
+    useAdPostingStore((state) => state);
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt");
   const createAdMutation = useCreateAd();
@@ -87,13 +83,13 @@ export default function JobLeafCategoryContent() {
   } = useAdSubscription();
 
   const { subscription, planType, shouldFeature } = resolve(
-    categoryArray[0]?.name || category?.name || "Jobs", 
-    categoryArray[0]?.id || category?._id
+    categoryArray[0]?.name || category?.name || "Jobs",
+    categoryArray[0]?.id || category?._id,
   );
 
   const { remainingAds, remainingFeatured } = getRemainingCredits(
-    categoryArray[0]?.name || category?.name || "Jobs", 
-    categoryArray[0]?.id || category?._id
+    categoryArray[0]?.name || category?.name || "Jobs",
+    categoryArray[0]?.id || category?._id,
   );
 
   const isLoading = isCategoryLoading || subscriptionsLoading;
@@ -106,7 +102,6 @@ export default function JobLeafCategoryContent() {
   const formSchema = useMemo(() => {
     return createPostJobSchema(category);
   }, [category]);
-
 
   const {
     control,
@@ -123,6 +118,14 @@ export default function JobLeafCategoryContent() {
       phoneNumber: "",
       address: { address: "" },
       connectionTypes: ["chat", "call", "whatsapp"],
+
+      // Initialize 6 new job fields to avoid "missing" fields in payload
+      noticePeriod: "",
+      careerLevel: "",
+      experience: "",
+      qualification: "",
+      gender: "",
+      nationality: "",
     },
     mode: "onChange",
   });
@@ -208,14 +211,16 @@ export default function JobLeafCategoryContent() {
 
   const onSubmit = async (data: FormValues) => {
     const categoryType = categoryArray[0]?.name || "Jobs";
-    
+
     // 1. Double check availability
-    if (!checkAvailability({
-      action: "post",
-      categoryType: categoryArray[0]?.name || category?.name || "Jobs",
-      categoryName: category?.name || "Jobs",
-      categoryId: categoryArray[0]?.id || category?._id,
-    })) {
+    if (
+      !checkAvailability({
+        action: "post",
+        categoryType: categoryArray[0]?.name || category?.name || "Jobs",
+        categoryName: category?.name || "Jobs",
+        categoryId: categoryArray[0]?.id || category?._id,
+      })
+    ) {
       return;
     }
 
@@ -232,6 +237,14 @@ export default function JobLeafCategoryContent() {
     const jobMode = (data.jobMode as string) || "";
     const jobShift = (data.jobShift as string) || "";
 
+    // 6 new fields
+    const noticePeriod = (data.noticePeriod as string) || "";
+    const careerLevel = (data.careerLevel as string) || "";
+    const experience = (data.experience as string) || "";
+    const qualification = (data.qualification as string) || "";
+    const gender = (data.gender as string) || "";
+    const nationality = (data.nationality as string) || "";
+
     const connectionTypes = Array.isArray(data.connectionTypes)
       ? data.connectionTypes
       : data.connectionTypes
@@ -247,15 +260,44 @@ export default function JobLeafCategoryContent() {
       optionalArray?: string[];
     }> = [];
 
+    // Add static job fields to extraFields
+    const jobSpecificFields = [
+      { name: "noticePeriod", value: noticePeriod, type: "dropdown" },
+      { name: "careerLevel", value: careerLevel, type: "dropdown" },
+      { name: "experience", value: experience, type: "dropdown" },
+      { name: "qualification", value: qualification, type: "dropdown" },
+      { name: "gender", value: gender, type: "dropdown" },
+      { name: "nationality", value: nationality, type: "dropdown" },
+    ];
+
+    jobSpecificFields.forEach((field) => {
+      if (field.value) {
+        extraFields.push({
+          name: field.name,
+          type: field.type,
+          value: field.value,
+        });
+      }
+    });
+
     if (category?.fields) {
       category.fields.forEach((field: Field) => {
         if (
           !AD_SYSTEM_FIELDS.includes(
             field.name as (typeof AD_SYSTEM_FIELDS)[number],
           ) &&
-          !["minSalary", "maxSalary", "jobMode", "jobShift"].includes(
-            field.name,
-          ) &&
+          ![
+            "minSalary",
+            "maxSalary",
+            "jobMode",
+            "jobShift",
+            "noticePeriod",
+            "careerLevel",
+            "experience",
+            "qualification",
+            "gender",
+            "nationality",
+          ].includes(field.name) &&
           data[field.name] !== undefined &&
           data[field.name] !== null &&
           data[field.name] !== ""
@@ -286,6 +328,12 @@ export default function JobLeafCategoryContent() {
       maxSalary,
       jobMode,
       jobShift,
+      noticePeriod,
+      careerLevel,
+      experience,
+      qualification,
+      gender,
+      nationality,
       stockQuantity: 1,
       availability: "in-stock",
       images: [], // No images for jobs
@@ -307,10 +355,8 @@ export default function JobLeafCategoryContent() {
           ? addressData.coordinates
           : null,
       },
-      relatedCategories: categoryArray.map((cat: any) => cat.name),
+      relatedCategories: [],
       featuredStatus: shouldFeature ? "live" : "created",
-      status: "created",
-      userType: "RERA_LANDLORD" as const,
       tags: [],
       documents: [],
       extraFields: extraFields,
@@ -732,8 +778,14 @@ export default function JobLeafCategoryContent() {
                             handleInputChange("qualification", value);
                           }}
                           options={[
-                            { value: "Bachelor's degree", label: "Bachelor's degree" },
-                            { value: "Master's degree", label: "Master's degree" },
+                            {
+                              value: "Bachelor's degree",
+                              label: "Bachelor's degree",
+                            },
+                            {
+                              value: "Master's degree",
+                              label: "Master's degree",
+                            },
                             { value: "PhD", label: "PhD" },
                             { value: "Diploma", label: "Diploma" },
                             { value: "High School", label: "High School" },

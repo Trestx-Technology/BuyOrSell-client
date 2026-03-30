@@ -35,7 +35,7 @@ export default function JobApplicantsPage() {
 
   const columns = useMemo(
     () => createColumns(jobId, router, currentLocale),
-    [jobId, router, currentLocale]
+    [jobId, router, currentLocale],
   );
 
   return (
@@ -53,7 +53,7 @@ export default function JobApplicantsPage() {
             {
               id: "listing",
               label: "Job Listings",
-              href: `/${locale}/jobs/listing`,
+              href: `/${locale}/jobs/listing/jobs`,
             },
             {
               id: jobId,
@@ -66,10 +66,16 @@ export default function JobApplicantsPage() {
 
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 transition-colors duration-200">
           <div className="lg:block hidden p-5">
-            <Typography variant="h2" className="text-dark-blue dark:text-white font-bold mb-2">
+            <Typography
+              variant="h2"
+              className="text-dark-blue dark:text-white font-bold mb-2"
+            >
               Job Applicants
             </Typography>
-            <Typography variant="body-small" className="text-grey-blue dark:text-gray-400">
+            <Typography
+              variant="body-small"
+              className="text-grey-blue dark:text-gray-400"
+            >
               View and manage all applicants for this job posting ({totalCount}{" "}
               {totalCount === 1 ? "applicant" : "applicants"})
             </Typography>
@@ -93,7 +99,7 @@ export default function JobApplicantsPage() {
                   jobId: jobId,
                 });
                 router.push(
-                  `/${locale}/jobs/jobseeker/${profileId}?${params.toString()}`
+                  `/${locale}/jobs/jobseeker/${profileId}?${params.toString()}`,
                 );
               }
             }}
