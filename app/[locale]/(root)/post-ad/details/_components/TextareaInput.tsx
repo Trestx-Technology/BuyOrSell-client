@@ -18,6 +18,7 @@ interface TextareaInputProps {
   error?: string;
   showAI?: boolean;
   categoryPath?: string;
+  orgName?: string;
 }
 
 export const TextareaInput = forwardRef<
@@ -36,6 +37,7 @@ export const TextareaInput = forwardRef<
       error,
       showAI = false,
       categoryPath = "General",
+      orgName,
     },
     ref
   ) => {
@@ -109,6 +111,7 @@ export const TextareaInput = forwardRef<
             onApply={(desc) => onChange(desc)}
             categoryPath={categoryPath}
             currentValue={value}
+            orgName={orgName}
           />
         )}
       </div>

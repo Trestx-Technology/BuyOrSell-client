@@ -20,10 +20,20 @@ export const transformAdToListingCard = (
   // Extract address as AdLocation object - prefer ad.address, fall back to ad.location if it's an object
   const getAddress = (): AdLocation => {
     if (ad.address && typeof ad.address === "object") {
-      return ad.address as AdLocation;
+      const addr = ad.address as any;
+      return {
+        ...addr,
+        state: addr.state || addr.emirate,
+        stateAr: addr.stateAr || addr.emirateAr,
+      } as AdLocation;
     }
     if (ad.location && typeof ad.location === "object") {
-      return ad.location as AdLocation;
+      const loc = ad.location as any;
+      return {
+        ...loc,
+        state: loc.state || loc.emirate,
+        stateAr: loc.stateAr || loc.emirateAr,
+      } as AdLocation;
     }
     // If location is a string, put it in the address field
     if (typeof ad.location === "string") {

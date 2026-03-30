@@ -75,7 +75,7 @@ export function AISearchAdsDialog({
       });
 
       const responseData = (response as any).data || response;
-      const results = responseData.results || [];
+      const results = responseData.adds || responseData.results || response.adds || response.results || [];
 
       await consumeTokens({ tokens: 1, purpose: "ai_search" });
 

@@ -202,7 +202,7 @@ export default function CollectionDetailPage() {
         showHomeIcon={false}
       />
 
-      <div className="w-full px-4">
+      <div className="w-full px-4 pb-20">
         {/* Collection Header */}
         <div className="hidden md:flex px-4 py-8 bg-white md:bg-transparent border md:border-none rounded-xl p-4 md:p-0">
           <div className=" flex-1">

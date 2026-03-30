@@ -58,6 +58,13 @@ export default function CategoryListingContent() {
     : params.slug
       ? [params.slug]
       : [];
+
+  // Prevent catching /jobs sub-paths - these should be handled by the /jobs directory or 404
+  if (slugSegments[0] === "jobs") {
+    const { notFound } = require("next/navigation");
+    notFound();
+  }
+
   const currentCategory = slugSegments[slugSegments.length - 1] || "";
   const categoryName = currentCategory ? unSlugify(decodeURIComponent(currentCategory)) : "Category";
 

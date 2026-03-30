@@ -540,10 +540,23 @@ export interface SemanticAdResult {
 }
 
 export interface SemanticAdSearchResponse {
-  results: SemanticAdResult[];
-  total: number;
-  query: string;
-  filters: Record<string, unknown>;
+  statusCode?: number;
+  timestamp?: string;
+  data?: {
+    adds?: AD[];
+    results?: SemanticAdResult[];
+    total?: number;
+    query?: string;
+    page?: number;
+    filters?: Record<string, unknown>;
+  };
+  // Supporting both formats for flexibility
+  adds?: AD[];
+  results?: SemanticAdResult[];
+  total?: number;
+  query?: string;
+  page?: number;
+  filters?: Record<string, unknown>;
 }
 
 export interface SemanticAdSearchParams {

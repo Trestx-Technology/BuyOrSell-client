@@ -26,5 +26,6 @@ export type NotificationsTranslations = {
   dateTime: string;
   status: string;
   actions: string;
+  markAsRead: string;
 };
 

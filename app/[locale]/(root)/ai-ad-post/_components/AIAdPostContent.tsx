@@ -168,18 +168,21 @@ export const AIAdPostContent = () => {
         categoryPath,
       });
 
-      // Consume 3 tokens on success
-      await consumeTokens({
-        tokens: CATEGORIZATION_CREDITS,
-        purpose: "ad_categorization",
-      });
+      if (!redirectUrl) {
+        toast.error(
+          t.aiAdPost.couldNotIdentifyCategory,
+          { id: toastId, duration: 6000 },
+        );
+        setIsGenerating(false);
+        return;
+      }
 
-      // CHECK AD AVAILABILITY
+      // 1. CHECK AD AVAILABILITY
       if (categoryPath && categoryPath.length > 0) {
         const rootCategoryName = categoryPath[0]?.name || "Ads";
         const categoryId = categoryPath[categoryPath.length - 1]?.id;
 
-        // Check availability for identified category (using root name as type)
+        // Check availability
         if (!checkAvailability({
           action: "post",
           categoryType: rootCategoryName,
@@ -191,27 +194,30 @@ export const AIAdPostContent = () => {
           return;
         }
 
-        // Auto-resolve best plan using logic: Category-Specific > Default > None
+        // 2. Resolve plan
         const resolved = resolve(rootCategoryName, categoryId);
 
+        // Success Path with Resolved Plan
         if (resolved.subscription) {
+          // Token balance deduction - ONLY ON SUCCESS
+          await consumeTokens({
+            tokens: CATEGORIZATION_CREDITS,
+            purpose: "ad_categorization",
+          });
+
           toast.dismiss(toastId);
-          handleFinalRedirect(redirectUrl || "", resolved.subscription._id, categoryPath, suggestedTitle);
+          handleFinalRedirect(redirectUrl, resolved.subscription._id, categoryPath, suggestedTitle);
           setIsGenerating(false);
           return;
         }
       }
 
-      if (!redirectUrl) {
-        toast.error(
-          t.aiAdPost.couldNotIdentifyCategory,
-          { id: toastId, duration: 6000 },
-        );
-        setIsGenerating(false);
-        return;
-      }
+      // Success Path without specific plan (bypass/manual)
+      await consumeTokens({
+        tokens: CATEGORIZATION_CREDITS,
+        purpose: "ad_categorization",
+      });
 
-      // No compatible plans found (bypass case) or no plans needed
       handleFinalRedirect(redirectUrl, undefined, categoryPath, suggestedTitle);
     } catch (error: any) {
       console.error("Error generating with AI:", error);

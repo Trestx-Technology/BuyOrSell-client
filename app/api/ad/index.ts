@@ -33,7 +33,7 @@ export const adQueries = {
   }),
   adsByUser: (userId: string) => ({
     Key: ["ads", "user", userId],
-    endpoint: `/ad/user/${userId}`,
+    endpoint: `/ad/owner/${userId}`,
   }),
   adsByCategory: (categoryId: string) => ({
     Key: ["ads", "category", categoryId],

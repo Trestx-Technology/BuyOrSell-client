@@ -113,13 +113,27 @@ export default function NotificationsPage() {
 
       {/* Notifications Table */}
       <Table
-        data={notifications?.data || []}
+        data={
+          notifications?.data?.length && notifications.data.length > pagination.pageSize
+            ? notifications.data.slice(
+                pagination.pageIndex * pagination.pageSize,
+                (pagination.pageIndex + 1) * pagination.pageSize
+              )
+            : notifications?.data || []
+        }
         columns={columns}
         loading={isLoading}
         pagination={pagination}
         onPaginationChange={setPagination}
         showPagination={true}
-        rowCount={notifications?.total || 0}
+        rowCount={
+          notifications?.total ||
+          (notifications?.data && notifications.data.length > pagination.pageSize
+            ? notifications.data.length
+            : notifications?.data && notifications.data.length === pagination.pageSize
+            ? (pagination.pageIndex + 2) * pagination.pageSize
+            : pagination.pageIndex * pagination.pageSize + (notifications?.data?.length || 0))
+        }
       />
     </Container1080>
   );

@@ -29,9 +29,13 @@ export const SaveJobButton = ({
       className,
       iconOnly = false,
 }: SaveJobButtonProps) => {
+      const session = useAuthStore((state) => state.session);
       const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
       const { data: jobseekerProfile } = useGetJobseekerProfile();
-      const jobSeekerId = jobseekerProfile?.data?.profile?.userId;
+      
+      // Use profile userId if available, fallback to current session user id
+      // This allows normal users to save jobs without a seeker profile
+      const jobSeekerId = jobseekerProfile?.data?.profile?.userId || session?.user?._id;
 
       // Use Zustand store for global session-level state
       const addSavedJobId = useSavedJobsStore((state) => state.addSavedJobId);
@@ -54,7 +58,7 @@ export const SaveJobButton = ({
             }
 
             if (!jobSeekerId) {
-                  toast.error("Please create a jobseeker profile first");
+                  toast.error("User information not available");
                   return;
             }
 

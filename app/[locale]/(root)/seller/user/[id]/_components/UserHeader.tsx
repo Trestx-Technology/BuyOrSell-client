@@ -3,7 +3,7 @@
 import React, { useRef, useState } from "react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
-import { Phone, BookmarkCheck, Camera, ImageOff } from "lucide-react";
+import { Phone, BookmarkCheck, Camera, ImageOff, MoreVertical, Flag, UserX, AlertTriangle } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
 import Image from "next/image";
@@ -17,6 +17,15 @@ import { useAuthStore } from "@/stores/authStore";
 import { useUploadAdImages } from "@/hooks/useAds";
 import { updateUser } from "@/app/api/user/user.services";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import ReportDialog from "../../../../ad/[adId]/_components/ReportDialog";
+import { useBlockUser, useIsBlocked, useUnblockUser } from "@/hooks/useUserBlock";
+import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
 
 interface UserHeaderProps {
   userId: string;
@@ -31,6 +40,14 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userId, user }) => {
   const [localBanner, setLocalBanner] = useState<string | undefined>(undefined);
   const [isUploadingBanner, setIsUploadingBanner] = useState(false);
   const uploadImages = useUploadAdImages();
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
+
+  const { data: blockedData } = useIsBlocked(userId, !isOwner);
+  const isBlocked = blockedData?.data?.isBlocked ?? false;
+
+  const { mutateAsync: blockUser, isPending: isBlocking } = useBlockUser();
+  const { mutateAsync: unblockUser, isPending: isUnblocking } = useUnblockUser();
 
   const sellerName =
     `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
@@ -73,6 +90,22 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userId, user }) => {
     }
   };
 
+  const handleBlockUser = async () => {
+    try {
+      if (isBlocked) {
+        await unblockUser(userId);
+        toast.success(t.seller.actions.unblockSuccess);
+      } else {
+        await blockUser({ userId, reason: "Blocked from profile" });
+        toast.success(t.seller.actions.blockSuccess);
+      }
+    } catch {
+      toast.error(isBlocked ? t.seller.actions.unblockError : t.seller.actions.blockError);
+    } finally {
+      setIsBlockDialogOpen(false);
+    }
+  };
+
   return (
     <div className="relative">
       {/* Banner */}
@@ -107,12 +140,41 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userId, user }) => {
             <button
               onClick={() => bannerInputRef.current?.click()}
               disabled={isUploadingBanner}
-              className="absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-1.5 bg-black/50 hover:bg-black/70 text-white text-xs font-medium rounded-lg backdrop-blur-sm transition-all"
+              className="absolute bottom-4 left-4 flex items-center gap-1.5 px-3 py-1.5 bg-black/40 hover:bg-black/60 text-white text-xs font-medium rounded-lg backdrop-blur-md transition-all border border-white/10"
             >
               <Camera className="w-3.5 h-3.5" />
               {isUploadingBanner ? "Uploading…" : "Update Banner"}
             </button>
           </>
+        )}
+
+        {/* More button (Report/Block) - top right of banner */}
+        {!isOwner && (
+          <div className="absolute top-4 right-4 z-10 hidden lg:block">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 bg-black/20 hover:bg-black/40 text-white border border-white/10 backdrop-blur-md rounded-full transition-all">
+                  <MoreVertical className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-gray-100 dark:border-slate-800 shadow-2xl rounded-2xl p-1.5 animate-in fade-in zoom-in-95 duration-200">
+                <DropdownMenuItem 
+                  onClick={() => setIsReportDialogOpen(true)}
+                  className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors"
+                >
+                  <Flag className="w-4 h-4 text-orange-500" />
+                  {t.seller.actions.reportUser}
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setIsBlockDialogOpen(true)}
+                  className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl cursor-pointer transition-colors"
+                >
+                  <UserX className="w-4 h-4" />
+                  {isBlocked ? t.seller.actions.unblockUser : t.seller.actions.blockUser}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         )}
       </div>
 
@@ -239,6 +301,25 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userId, user }) => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <ReportDialog
+        open={isReportDialogOpen}
+        onOpenChange={setIsReportDialogOpen}
+        reportedId={userId}
+        reportedType="user"
+      />
+
+      <WarningConfirmationDialog
+        open={isBlockDialogOpen}
+        onOpenChange={setIsBlockDialogOpen}
+        onConfirm={handleBlockUser}
+        title={isBlocked ? t.seller.actions.unblockUser : t.seller.actions.blockUser}
+        description={isBlocked ? "Are you sure you want to unblock this user?" : t.seller.actions.confirmBlockDescription}
+        confirmText={isBlocked ? "Unblock" : "Block"}
+        cancelText="Cancel"
+        isLoading={isBlocking || isUnblocking}
+      />
     </div>
   );
 };

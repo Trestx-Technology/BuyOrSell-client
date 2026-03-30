@@ -234,7 +234,7 @@ export function UnifiedProfileMenu({
         },
         {
           id: "terms-conditions",
-          href: "/terms-conditions",
+          href: "/terms-and-conditions",
           icon: ICONS.navigation.termsConditions,
           label: t.home.navbar.termsConditions,
         },

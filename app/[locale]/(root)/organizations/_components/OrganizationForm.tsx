@@ -836,7 +836,8 @@ export const OrganizationForm = ({
                   }
                   rows={5}
                   showAI={true}
-                  categoryPath={`Organization > ${watch("type") || "About"}`}
+                  categoryPath={"About the Company"}
+                  orgName={watch("tradeName")}
                 />
               )}
             />

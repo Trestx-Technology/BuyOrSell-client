@@ -68,5 +68,17 @@ export type SellerTranslations = {
     adsPostedBy: string;
     noListingsFound: string;
   };
+  actions: {
+    reportUser: string;
+    reportOrganization: string;
+    blockUser: string;
+    unblockUser: string;
+    blockSuccess: string;
+    unblockSuccess: string;
+    blockError: string;
+    unblockError: string;
+    confirmBlock: string;
+    confirmBlockDescription: string;
+  };
 };
 

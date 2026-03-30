@@ -212,7 +212,7 @@ export default function JobListingCard({
       {/* Experience - y: 128 */}
       <div className="flex flex-col gap-2 mt-5">
         <div className="flex items-center gap-1.5">
-          <Briefcase className="w-5 h-5 text-[#8A8A8A] dark:text-gray-400" />
+          <Briefcase className="w-5 h-5 text-purple" />
           <Typography
             variant="body-small"
             className="text-foreground dark:text-white text-xs font-medium leading-[1.21]"
@@ -223,7 +223,7 @@ export default function JobListingCard({
 
         {/* Salary - y: 158.06 */}
         <div className="flex items-center gap-1.5">
-          <Image src={ICONS.currency.aed} alt="" width={16} height={16} className="dark:brightness-200" />
+          <Image src={ICONS.currency.aed} alt="AED" width={16} height={16} />
           <div className="flex items-center gap-1">
             <Typography
               variant="body-small"
@@ -237,7 +237,7 @@ export default function JobListingCard({
 
         {/* Job Shift/Type - y: 188.12 */}
         <div className="flex items-center gap-1.5">
-          <Clock className="w-5 h-5 text-[#8A8A8A] dark:text-gray-400" />
+          <Clock className="w-5 h-5 text-purple" />
           <Typography
             variant="body-small"
             className="text-foreground dark:text-white text-xs font-medium leading-[1.21]"
@@ -247,8 +247,8 @@ export default function JobListingCard({
         </div>
 
         {/* Location - y: 218.18 */}
-        <div className="flex items-center gap-1.5">
-          <MapPin className="w-5 h-5 text-[#8A8A8A] dark:text-gray-400" />
+        <div className="flex items-center gap-2">
+          <Image src={ICONS.ui.Map} alt="Location" width={18} height={18} />
           <Typography
             variant="body-small"
             className="text-foreground dark:text-white text-xs font-medium leading-[1.21] truncate"

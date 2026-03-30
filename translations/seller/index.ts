@@ -69,6 +69,18 @@ export const sellerTranslations = createTranslationNamespace<SellerTranslations>
       adsPostedBy: "Ads post by",
       noListingsFound: "No listings found for this seller.",
     },
+    actions: {
+      reportUser: "Report User",
+      reportOrganization: "Report Organization",
+      blockUser: "Block User",
+      unblockUser: "Unblock User",
+      blockSuccess: "User blocked successfully",
+      unblockSuccess: "User unblocked successfully",
+      blockError: "Failed to block user",
+      unblockError: "Failed to unblock user",
+      confirmBlock: "Block {name}?",
+      confirmBlockDescription: "Are you sure you want to block this user? You will no longer see their ads or receive messages from them.",
+    },
   },
   "nl-NL": {
     header: {
@@ -136,6 +148,18 @@ export const sellerTranslations = createTranslationNamespace<SellerTranslations>
     listings: {
       adsPostedBy: "Advertenties geplaatst door",
       noListingsFound: "Geen advertenties gevonden voor deze verkoper.",
+    },
+    actions: {
+      reportUser: "Verkoper melden",
+      reportOrganization: "Organisatie melden",
+      blockUser: "Verkoper blokkeren",
+      unblockUser: "Verkoper deblokkeren",
+      blockSuccess: "Verkoper succesvol geblokkeerd",
+      unblockSuccess: "Verkoper succesvol gedeblokkeerd",
+      blockError: "Blokkeren mislukt",
+      unblockError: "Deblokkeren mislukt",
+      confirmBlock: "Blokkeer {name}?",
+      confirmBlockDescription: "Weet u zeker dat u deze verkoper wilt blokkeren?",
     },
   },
   nl: {
@@ -205,6 +229,18 @@ export const sellerTranslations = createTranslationNamespace<SellerTranslations>
       adsPostedBy: "Advertenties geplaatst door",
       noListingsFound: "Geen advertenties gevonden voor deze verkoper.",
     },
+    actions: {
+      reportUser: "Verkoper melden",
+      reportOrganization: "Organisatie melden",
+      blockUser: "Verkoper blokkeren",
+      unblockUser: "Verkoper deblokkeren",
+      blockSuccess: "Verkoper succesvol geblokkeerd",
+      unblockSuccess: "Verkoper succesvol gedeblokkeerd",
+      blockError: "Blokkeren mislukt",
+      unblockError: "Deblokkeren mislukt",
+      confirmBlock: "Blokkeer {name}?",
+      confirmBlockDescription: "Weet u zeker dat u deze verkoper wilt blokkeren?",
+    },
   },
   ar: {
     header: {
@@ -273,6 +309,17 @@ export const sellerTranslations = createTranslationNamespace<SellerTranslations>
       adsPostedBy: "إعلانات منشورة بواسطة",
       noListingsFound: "لم يتم العثور على إعلانات لهذا البائع.",
     },
+    actions: {
+      reportUser: "الإبلاغ عن مستخدم",
+      reportOrganization: "الإبلاغ عن منظمة",
+      blockUser: "حظر المستخدم",
+      unblockUser: "إلغاء حظر المستخدم",
+      blockSuccess: "تم حظر المستخدم بنجاح",
+      unblockSuccess: "تم إلغاء حظر المستخدم بنجاح",
+      blockError: "فشل حظر المستخدم",
+      unblockError: "فشل إلغاء حظر المستخدم",
+      confirmBlock: "حظر {name}؟",
+      confirmBlockDescription: "هل أنت متأكد أنك تريد حظر هذا المستخدم؟ لن تتمكن من رؤية إعلاناتهم أو تلقي رسائل منهم.",
+    },
   },
 });
-
