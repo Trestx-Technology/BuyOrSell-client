@@ -70,17 +70,29 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
         : userAvgRating.data?.data || 0;
     return {
       overallRating,
-      totalReviews: reviews.length,
+      totalReviews:
+        (reviewsData as any)?.data?.total ??
+        (reviewsData as any)?.total ??
+        reviews.length,
       reviews: reviews.map((r: Review) => {
         const name = r.reviewerName || "Anonymous";
-        const initials = name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
+        const initials = name
+          .split(" ")
+          .map((n: string) => n[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2);
         return {
           id: r._id,
           userName: name,
           rating: r.rating,
+          tag: r.tag,
           comment: r.review || "",
-          timeAgo: r.createdAt ? formatDistanceToNow(new Date(r.createdAt), { addSuffix: true }) : "",
+          timeAgo: r.createdAt
+            ? formatDistanceToNow(new Date(r.createdAt), { addSuffix: true })
+            : "",
           avatar: initials || "A",
+          reviewerImage: r.reviewerImage,
         };
       }),
     };
@@ -205,24 +217,48 @@ const UserReviews: React.FC<UserReviewsProps> = ({ userId }) => {
       {displayReviews.length > 0 ? (
         <div className="space-y-4">
           {displayReviews.map((review) => (
-            <div key={review.id} className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-[#9FB7E4] dark:bg-slate-800 rounded-full flex items-center justify-center flex-shrink-0">
-                <Typography variant="body-small" className="text-white font-semibold text-sm">
-                  {review.avatar}
-                </Typography>
-              </div>
-              <div className="flex-1">
-                <Typography variant="body-small" className="text-dark-blue dark:text-white font-semibold text-sm">
-                  {review.userName}
-                </Typography>
-                <div className="flex items-center gap-1 mt-0.5">
-                  {renderStars(review.rating)}
-                  <Typography variant="body-small" className="text-xs text-grey-blue dark:text-slate-400 ml-1">
-                    · {review.timeAgo}
+            <div key={review.id} className="flex items-start gap-4 pb-4 border-b border-gray-50 dark:border-slate-800/50 last:border-0 last:pb-0">
+              {review.reviewerImage ? (
+                <div className="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden">
+                  <img
+                    src={review.reviewerImage}
+                    alt={review.userName}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-10 h-10 bg-[#9FB7E4] dark:bg-slate-800 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Typography variant="body-small" className="text-white font-semibold text-sm">
+                    {review.avatar}
                   </Typography>
                 </div>
+              )}
+
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-col mb-2">
+                  <Typography variant="body-small" className="text-dark-blue dark:text-white font-bold text-sm">
+                    {review.userName}
+                  </Typography>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className="flex items-center gap-0.5">
+                      {renderStars(review.rating)}
+                    </div>
+                    <Typography variant="body-small" className="text-gray-400 text-xs ml-auto">
+                      {review.timeAgo}
+                    </Typography>
+                  </div>
+                </div>
+
+                {review.tag && (
+                  <div className="mb-2">
+                    <span className="inline-block bg-purple/10 text-purple text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      {review.tag}
+                    </span>
+                  </div>
+                )}
+
                 {review.comment && (
-                  <Typography variant="body-small" className="text-dark-blue dark:text-slate-300 text-sm leading-relaxed mt-1">
+                  <Typography variant="body-small" className="text-dark-blue dark:text-slate-300 text-sm leading-relaxed">
                     {review.comment}
                   </Typography>
                 )}
