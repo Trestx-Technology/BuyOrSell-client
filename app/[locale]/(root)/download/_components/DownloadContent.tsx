@@ -4,15 +4,16 @@ import React, { useState, useEffect } from "react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Container1080 } from "@/components/layouts/container-1080";
-import { Smartphone, QrCode, Star, ShieldCheck, Zap } from "lucide-react";
+import { Smartphone, ShieldCheck, Zap, Star } from "lucide-react";
 import { useLocale } from "@/hooks/useLocale";
 import Image from "next/image";
 import { AppStoreButtons } from "@/components/global/app-store-buttons";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import QRCode from "react-qr-code";
+import { BannerBySlug } from "@/components/global/banner-by-slug";
 
 export function DownloadContent() {
   const { locale, t } = useLocale();
@@ -172,6 +173,17 @@ export function DownloadContent() {
         </div>
       </Container1080>
 
+      {/* Sponsored Banner for Download Page */}
+      <Container1080 className="mt-20">
+        <div className="rounded-[40px] overflow-hidden shadow-2xl border-8 border-white dark:border-gray-900">
+          <BannerBySlug 
+            slug="explore-deals" 
+            withOverlay 
+            aspectRatio="video"
+          />
+        </div>
+      </Container1080>
+
       <div className="py-20 text-center">
         <p className="text-gray-400 text-sm">
           © 2026 BuyOrSell UAE. All rights reserved.
@@ -203,21 +215,28 @@ function AppMockupCarousel() {
       <AnimatePresence mode="wait">
         <motion.div
            key={current}
-           initial={{ opacity: 0, x: 20 }}
-           animate={{ opacity: 1, x: 0 }}
-           exit={{ opacity: 0, x: -20 }}
-           transition={{ duration: 0.5 }}
+           initial={{ opacity: 0, scale: 1.05 }}
+           animate={{ opacity: 1, scale: 1 }}
+           exit={{ opacity: 0, scale: 0.95 }}
+           transition={{ duration: 0.6, ease: "easeInOut" }}
            className="absolute inset-0"
         >
-          <Image
-            src={screenshots[current]}
-            alt={`Feature ${current + 1}`}
-            fill
-            className="object-cover"
-            priority
-          />
+          {/* Use scale-110 and transform-origin to crop out the top notch and bottom nav indicator from the original screenshots */}
+          <div className="w-full h-full scale-[1.12] origin-center">
+            <Image
+              src={screenshots[current]}
+              alt={`Feature ${current + 1}`}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
         </motion.div>
       </AnimatePresence>
+      
+      {/* Optional: Add a white/dark overlay for the notch area to truly "hide" it if it's still slightly visible */}
+      <div className="absolute top-0 left-0 right-0 h-6 bg-white dark:bg-gray-800 z-20" />
+      <div className="absolute bottom-0 left-0 right-0 h-8 bg-white dark:bg-gray-800 z-20" />
     </div>
   );
 }

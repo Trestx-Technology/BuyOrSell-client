@@ -9,6 +9,7 @@ import EmiratisSupport from "./_components/emiratis-support";
 import TopEmployersSection from "./_components/top-employers-section";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { getSeoByRoute } from "@/app/api/seo/seo.services";
+import { BannerBySlug } from "@/components/global/banner-by-slug";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -81,6 +82,10 @@ export default async function JobsHomePage({ params }: PageProps) {
 
         {/* Companies to follow */}
         <CompaniesToFollow />
+
+        <Container1080 className="my-12">
+          <BannerBySlug slug="explore-deals" withOverlay />
+        </Container1080>
 
         {/* Jobs CTA Section */}
         <Container1080>

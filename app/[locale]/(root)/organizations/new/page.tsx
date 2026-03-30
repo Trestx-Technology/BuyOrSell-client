@@ -25,6 +25,7 @@ import { OrganizationForm } from "../_components/OrganizationForm";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 import { PageBannerCarousel } from "@/components/global/page-banner-carousel";
+import { BannerBySlug } from "@/components/global/banner-by-slug";
 
 const NewOrganizationPage = () => {
   const router = useRouter();
@@ -258,6 +259,13 @@ const NewOrganizationPage = () => {
                 )}
               </div>
             )}
+            <div className="mt-8 space-y-4">
+              <BannerBySlug 
+                slug="explore-deals" 
+                withOverlay 
+                className="h-[380px]" 
+              />
+            </div>
           </div>
         </div>
       </div>

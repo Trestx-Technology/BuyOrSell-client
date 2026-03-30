@@ -31,7 +31,7 @@ import { PageBannerCarousel } from "@/components/global/page-banner-carousel";
 import { useEmirateStore } from "@/stores/emirateStore";
 import { BrowseByCategory } from "../_components/browse-by-category";
 import { useBannersBySlug } from "@/hooks/useBanners";
-import { SponsoredCarousel } from "@/components/global/banner-carousel";
+import { BannerBySlug } from "@/components/global/banner-by-slug";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -40,9 +40,6 @@ export default function HotDealsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { clearUrlQueries } = useUrlParams();
-
-  const { data: sponsoredBannersData } = useBannersBySlug("explore-deals");
-  const sponsoredBanners = sponsoredBannersData?.data?.banners || [];
 
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -238,26 +235,24 @@ export default function HotDealsContent() {
                   };
 
                   const isGrid = view === "grid";
-                  const showSponsored =
-                    isGrid &&
-                    index > 0 &&
-                    index % 6 === 0 &&
-                    sponsoredBanners.length > 0;
+                    const showSponsored =
+                      isGrid &&
+                      index > 0 &&
+                      index % 6 === 0;
 
-                  return (
-                    <React.Fragment key={ad._id}>
-                      {showSponsored && (
-                        <div className="w-full h-full min-h-[350px] sm:min-h-[400px] relative rounded-xl overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-                          <SponsoredCarousel
-                            banners={sponsoredBanners}
-                            className="w-full h-full absolute inset-0 [&_.carousel-item]:h-full"
-                            height="100%"
-                          />
-                          <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/50 backdrop-blur-md rounded text-[10px] text-white font-medium z-10 pointer-events-none">
-                            Ad
+                    return (
+                      <React.Fragment key={ad._id}>
+                        {showSponsored && (
+                          <div className="w-full h-full min-h-[350px] sm:min-h-[400px] relative rounded-xl overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+                            <BannerBySlug 
+                              slug="explore-deals" 
+                              className="w-full h-full absolute inset-0" 
+                            />
+                            <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/50 backdrop-blur-md rounded text-[10px] text-white font-medium z-10 pointer-events-none">
+                              Ad
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                       {isGrid ? (
                         <HotDealsListingCard
                           className="w-full border-0 shadow-lg"

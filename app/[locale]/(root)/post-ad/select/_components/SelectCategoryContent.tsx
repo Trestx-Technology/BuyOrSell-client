@@ -11,6 +11,7 @@ import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog
 import { PageBannerCarousel } from "@/components/global/page-banner-carousel";
 import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
 import { useSubscriptionStore } from "@/stores/subscriptionStore";
+import { BannerBySlug } from "@/components/global/banner-by-slug";
 
 export default function SelectCategoryContent() {
   const router = useRouter();
@@ -189,10 +190,18 @@ export default function SelectCategoryContent() {
                   </button>
                 ))
               )}
+            {/* Sponsored Banner */}
+            <div className="mt-12 rounded-[32px] overflow-hidden shadow-2xl">
+              <BannerBySlug 
+                slug="explore-deals" 
+                withOverlay 
+                aspectRatio="video"
+              />
             </div>
           </div>
         </div>
       </div>
-    </Container1080>
-  );
+    </div>
+  </Container1080>
+);
 }

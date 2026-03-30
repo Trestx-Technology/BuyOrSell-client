@@ -11,6 +11,7 @@ import OrgMobileHeader from "./OrgMobileHeader";
 import OrgInfo from "./OrgInfo";
 import OrgReviews from "./OrgReviews";
 import OrgListings from "./OrgListings";
+import { BannerBySlug } from "@/components/global/banner-by-slug";
 
 const OrganizationSellerContent: React.FC = () => {
   const { id } = useParams();
@@ -92,8 +93,17 @@ const OrganizationSellerContent: React.FC = () => {
           <OrgReviews organizationId={organizationId} organization={organization} />
         </div>
 
+        {/* Sponsored Banner */}
+        <div className="mt-12 rounded-[32px] overflow-hidden shadow-xl border border-white/20 dark:border-slate-800">
+          <BannerBySlug 
+            slug="explore-deals" 
+            withOverlay 
+            aspectRatio="video"
+          />
+        </div>
+
         {/* Listings */}
-        <div className="mt-8">
+        <div className="mt-12">
           <OrgListings
             organizationId={organizationId}
             organization={organization}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useParams, useSearchParams, } from "next/navigation";
 import { Breadcrumbs, } from "@/components/ui/breadcrumbs";
 import { Typography } from "@/components/typography";
@@ -35,6 +35,7 @@ import { NoDataCard } from "@/components/global/fallback-cards";
 
 import { JobListingCardSkeleton, JobDetailContentSkeleton, JobHeaderCardSkeleton } from "../../_components/job-skeletons";
 import { useEmirateStore } from "@/stores/emirateStore";
+import { BannerBySlug } from "@/components/global/banner-by-slug";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -245,15 +246,36 @@ export default function JobsListingContent() {
                           : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                       )}
                     >
-                      {jobs.sort((a) => jobId === a._id ? -1 : 1).map((job) => (
-                        <JobListingCard
-                          key={job._id}
-                          job={job}
-                          isSelected={selectedJobId === job._id}
-                          onClick={() => setSelectedJobId(job._id)}
-                          transformAdToJobCardProps={transformAdToJobCard}
-                        />
-                      ))}
+                      {jobs
+                        .sort((a) => (jobId === a._id ? -1 : 1))
+                        .map((job, index) => {
+                          const showSponsored =
+                            !selectedJobId &&
+                            index > 0 &&
+                            index % 4 === 0;
+
+                          return (
+                            <React.Fragment key={job._id}>
+                              {showSponsored && (
+                                <div className="w-full h-full min-h-[350px] relative rounded-xl overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 group">
+                                  <BannerBySlug 
+                                    slug="explore-deals" 
+                                    className="w-full h-full absolute inset-0" 
+                                  />
+                                  <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/50 backdrop-blur-md rounded text-[10px] text-white font-medium z-10 pointer-events-none">
+                                    Ad
+                                  </div>
+                                </div>
+                              )}
+                              <JobListingCard
+                                job={job}
+                                isSelected={selectedJobId === job._id}
+                                onClick={() => setSelectedJobId(job._id)}
+                                transformAdToJobCardProps={transformAdToJobCard}
+                              />
+                            </React.Fragment>
+                          );
+                        })}
                     </div>
 
                     {/* Pagination */}

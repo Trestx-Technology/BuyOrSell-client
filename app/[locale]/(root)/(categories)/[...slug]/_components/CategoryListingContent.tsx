@@ -34,6 +34,7 @@ import { useEmirates } from "@/hooks/useLocations";
 import { useValidateCategoryPathWithSeo } from "@/hooks/useCategories";
 import { mapFieldsToFilterConfig } from "@/components/common/global-more-filters";
 import { useEmirateStore } from "@/stores/emirateStore";
+import { BannerBySlug } from "@/components/global/banner-by-slug";
 
 import { unSlugify, slugify } from "@/utils/slug-utils";
 
@@ -309,39 +310,39 @@ export default function CategoryListingContent() {
                 view === "list" && "flex flex-col"
               )}
             >
-              {ads.map((ad) => {
+              {ads.map((ad, index) => {
                 // Handle navigation to ad detail page
                 const handleCardClick = (id: string) => {
                   router.push(`/ad/${id}`);
                 };
 
-                // Use extraFields as-is from transformed ad (already in correct format)
-                // The transformAdToListingCard already converts it to a flat object
-                const extraFields = ad.extraFields || {};
-                // Prepare seller info for MobileHorizontalListViewCard
-                const sellerInfo = ad.seller
-                  ? {
-                    name: ad.seller.name || "Unknown",
-                    isVerified: ad.seller.isVerified || false,
-                    type: ad.seller.type || "Individual",
-                    id: ad.seller.id,
-                  }
-                  : undefined;
+                const isGrid = view === "grid";
+                const showSponsored =
+                  isGrid &&
+                  index > 0 &&
+                  index % 6 === 0;
 
                 return (
                   <React.Fragment key={ad.id}>
-                    {view === "grid" ? (
+                    {showSponsored && (
+                      <div className="w-full h-full min-h-[350px] sm:min-h-[400px] relative rounded-xl overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+                        <BannerBySlug 
+                          slug="explore-deals" 
+                          className="w-full h-full absolute inset-0" 
+                        />
+                        <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/50 backdrop-blur-md rounded text-[10px] text-white font-medium z-10 pointer-events-none">
+                          Ad
+                        </div>
+                      </div>
+                    )}
+                    {isGrid ? (
                       <ListingCard
                         className="flex-[0_0_auto] w-full"
                         {...ad}
-                        extraFields={extraFields}
                       />
                     ) : (
                       <HorizontalListingCard
                         {...ad}
-                        extraFields={extraFields}
-                        seller={sellerInfo}
-                        onShare={(id) => console.log("Shared:", id)}
                         onClick={handleCardClick}
                       />
                     )}

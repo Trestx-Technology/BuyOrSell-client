@@ -20,6 +20,7 @@ import { NoCreditsDialog } from "@/components/global/NoCreditsDialog";
 import { cn } from "@/lib/utils";
 import { useSaveSearchTerm } from "@/hooks/useSearchHistory";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { BannerBySlug } from "@/components/global/banner-by-slug";
 
 interface AISearchAdsDialogProps {
   open: boolean;
@@ -174,6 +175,16 @@ export function AISearchAdsDialog({
               onSuggestionClick={handleSuggestionClick}
             />
           )}
+
+          {/* Sponsored Banner for Nora Search */}
+          <div className="p-4 mt-2">
+            <BannerBySlug 
+              slug="explore-deals" 
+              withOverlay 
+              aspectRatio="video"
+              className="rounded-2xl"
+            />
+          </div>
 
           <BorderBeam
             colorTo="#36E8B8"
