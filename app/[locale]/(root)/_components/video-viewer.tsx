@@ -69,11 +69,12 @@ export function VideoViewer() {
       const router = useRouter();
       const searchParams = useSearchParams();
       const queryClient = useQueryClient();
-      const { t, locale } = useLocale();
+      const { t, locale, localePath } = useLocale();
       const isArabic = locale === 'ar';
       const containerRef = useRef<HTMLDivElement>(null);
       const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
       const [initialAdId, setInitialAdId] = useState(() => searchParams.get("adId"));
+      const [localSaveState, setLocalSaveState] = useState<Record<string, boolean>>({});
       const isInitialSeekDone = useRef(false);
       const [selectedCategory, setSelectedCategory] = useState<string>(
             () => searchParams.get("category") || "all"
@@ -163,16 +164,13 @@ export function VideoViewer() {
 
             const otherVideos = rawVideos.filter(v => v.id !== initialAdId);
 
-            // If we have the target OR if we have raw ads and need to reserve the first slot
-            if (firstVideo) {
-                  return [firstVideo, ...otherVideos];
-            } else if (rawVideos.length > 0) {
-                  // Reserve slot with a placeholder to prevent list shifting later
-                  return [{ id: initialAdId, videoUrl: "", isPlaceholder: true } as any, ...otherVideos];
-            }
+            const processedVideos = firstVideo ? [firstVideo, ...otherVideos] : otherVideos;
 
-            return rawVideos;
-      }, [adsData, targetAdData, initialAdId]);
+            return processedVideos.map(v => ({
+                  ...v,
+                  isSaved: localSaveState[v.id] ?? v.isSaved
+            }));
+      }, [adsData, targetAdData, initialAdId, localSaveState]);
 
       const [currentIndex, setCurrentIndex] = useState(0);
       const [isMuted, setIsMuted] = useState(true);
@@ -193,7 +191,6 @@ export function VideoViewer() {
       const [progress, setProgress] = useState(0);
       const [currentTimes, setCurrentTimes] = useState<Record<string, string>>({});
       const isAutoScrollingRef = useRef(false);
-      const lastScrolledIndex = useRef(0);
 
       const formatTime = (time: number) => {
             if (isNaN(time)) return "0:00";
@@ -406,6 +403,7 @@ export function VideoViewer() {
             window.addEventListener("keydown", handleKeyDown);
             return () => window.removeEventListener("keydown", handleKeyDown);
       }, [currentIndex, goToVideo, router, togglePlay]);
+
       const handleShare = (video: Video) => {
             if (navigator.share) {
                   navigator.share({
@@ -418,8 +416,6 @@ export function VideoViewer() {
                   toast.success(t.watch.linkCopied);
             }
       };
-
-
 
       return (
             <div className="fixed flex flex-col h-dvh inset-0 bg-black z-50 overflow-hidden hide-scrollbar">
@@ -473,178 +469,193 @@ export function VideoViewer() {
                         </div>
                   ) : videos.length > 0 ? (
                         <InfiniteScrollContainer
-                        ref={containerRef}
-                        onLoadMore={async () => {
-                               if (hasNextPage && !isFetchingNextPage) {
-                                     await fetchNextPage();
-                               }
-                        }}
-                        isLoading={isFetchingNextPage}
-                        hasMore={hasNextPage}
-                                     className="h-full w-full overflow-y-auto snap-y snap-mandatory hide-scrollbar overscroll-none"
-                                     style={{
-                                           scrollSnapType: "y mandatory",
-                                           WebkitOverflowScrolling: "touch",
-                                     }}
-                  >
-                        {videos.map((video, index) => (
-                              <div
-                                    key={`${video.id}-${index}`}
-                                    data-video-container
-                                    data-index={index}
-                                    className="h-full w-full snap-center snap-always relative flex-shrink-0 transform-gpu"
-                              >
-                                    {/* Mobile: Full screen cover | Desktop: Centered with aspect ratio */}
-                                    <div className="relative w-full h-full sm:h-[90%] sm:max-w-md sm:absolute sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4">
-                                          {/* Video Content Wrapper */}
-                                          <div
-                                                className="relative w-full h-full sm:aspect-[9/16] sm:rounded-2xl overflow-hidden sm:shadow-2xl bg-black cursor-pointer"
-                                                onClick={togglePlay}
-                                          >
-                                                <video
-                                                      ref={(el) => {
-                                                            videoRefs.current[index] = el;
-                                                      }}
-                                                      src={video.videoUrl}
-                                                      poster={video.thumbnail}
-                                                      loop
-                                                      playsInline
-                                                      muted={isMuted}
-                                                      preload={Math.abs(index - currentIndex) <= 1 ? "auto" : "none"}
-                                                      onLoadedMetadata={(e) => handleLoadedMetadata(video.id, e)}
-                                                      onTimeUpdate={(e) => handleTimeUpdate(video.id, e)}
-                                                      className={cn(
-                                                            "w-full h-full object-cover",
-                                                            !video.videoUrl && "opacity-0"
-                                                      )}
-                                                />
+                              ref={containerRef}
+                              onLoadMore={async () => {
+                                     if (hasNextPage && !isFetchingNextPage) {
+                                           await fetchNextPage();
+                                     }
+                              }}
+                              isLoading={isFetchingNextPage}
+                              hasMore={hasNextPage}
+                              className="h-full w-full overflow-y-auto snap-y snap-mandatory hide-scrollbar overscroll-none"
+                              style={{
+                                    scrollSnapType: "y mandatory",
+                                    WebkitOverflowScrolling: "touch",
+                              }}
+                        >
+                              {videos.map((video, index) => (
+                                    <div
+                                          key={`${video.id}-${index}`}
+                                          data-video-container
+                                          data-index={index}
+                                          className="h-full w-full snap-center snap-always relative flex-shrink-0 transform-gpu"
+                                    >
+                                          {/* Mobile: Full screen cover | Desktop: Centered with aspect ratio */}
+                                          <div className="relative w-full h-full sm:h-[90%] sm:max-w-md sm:absolute sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:px-4">
+                                                {/* Video Content Wrapper */}
+                                                <div
+                                                      className="relative w-full h-full sm:aspect-[9/16] sm:rounded-2xl overflow-hidden sm:shadow-2xl bg-black cursor-pointer"
+                                                      onClick={togglePlay}
+                                                >
+                                                      <video
+                                                            ref={(el) => {
+                                                                  videoRefs.current[index] = el;
+                                                            }}
+                                                            src={video.videoUrl}
+                                                            poster={video.thumbnail}
+                                                            loop
+                                                            playsInline
+                                                            muted={isMuted}
+                                                            preload={Math.abs(index - currentIndex) <= 1 ? "auto" : "none"}
+                                                            onLoadedMetadata={(e) => handleLoadedMetadata(video.id, e)}
+                                                            onTimeUpdate={(e) => handleTimeUpdate(video.id, e)}
+                                                            className={cn(
+                                                                  "w-full h-full object-cover",
+                                                                  !video.videoUrl && "opacity-0"
+                                                            )}
+                                                      />
 
-                                                {/* Play/Pause Indicator Overlay */}
-                                                {!isPlaying && index === currentIndex && (
-                                                      <div className="absolute inset-0 flex items-center justify-center bg-transparent pointer-events-none">
-                                                            <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center animate-in zoom-in duration-200">
-                                                                  <Play className="w-8 h-8 text-white fill-white" />
+                                                      {/* Play/Pause Indicator Overlay */}
+                                                      {!isPlaying && index === currentIndex && (
+                                                            <div className="absolute inset-0 flex items-center justify-center bg-transparent pointer-events-none">
+                                                                  <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center animate-in zoom-in duration-200">
+                                                                        <Play className="w-8 h-8 text-white fill-white" />
+                                                                  </div>
+                                                            </div>
+                                                      )}
+
+                                                      {/* Gradient Overlay */}
+                                                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none" />
+
+                                                      {/* Video Info (Left Bottom) */}
+                                                      <div className="absolute bottom-4 left-4 right-16 z-20 pointer-events-none">
+                                                            <h2 className="text-white font-bold text-lg leading-tight mb-1 drop-shadow-lg">
+                                                                  {video.title}
+                                                            </h2>
+                                                            <p className="text-white/80 text-sm line-clamp-2 drop-shadow-md">
+                                                                  {video.description}
+                                                            </p>
+                                                            <div className="flex items-center gap-2 mt-2">
+                                                                  <span className="text-xs text-white/60 bg-white/10 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                                                                        {t.watch.views.replace("{count}", video.views)}
+                                                                  </span>
+                                                                  {durations[video.id] && (
+                                                                        <span className="text-xs text-white/40">
+                                                                              {currentTimes[video.id] || "0:00"} / {durations[video.id]}
+                                                                        </span>
+                                                                  )}
                                                             </div>
                                                       </div>
-                                                )}
 
-                                                {/* Gradient Overlay */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none" />
-
-                                                {/* Video Info (Left Bottom) */}
-                                                <div className="absolute bottom-4 left-4 right-16 z-20 pointer-events-none">
-                                                      <h2 className="text-white font-bold text-lg leading-tight mb-1 drop-shadow-lg">
-                                                            {video.title}
-                                                      </h2>
-                                                      <p className="text-white/80 text-sm line-clamp-2 drop-shadow-md">
-                                                            {video.description}
-                                                      </p>
-                                                      <div className="flex items-center gap-2 mt-2">
-                                                            <span className="text-xs text-white/60 bg-white/10 px-2 py-0.5 rounded-full backdrop-blur-sm">
-                                                                  {t.watch.views.replace("{count}", video.views)}
-                                                            </span>
-                                                            {durations[video.id] && (
-                                                                  <span className="text-xs text-white/40">
-                                                                        {currentTimes[video.id] || "0:00"} / {durations[video.id]}
-                                                                  </span>
-                                                            )}
-                                                      </div>
-                                                </div>
-
-                                                {/* Progress Bar Container */}
-                                                <div
-                                                      className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 cursor-pointer z-30"
-                                                      onClick={(e) => handleSeek(index, e)}
-                                                >
+                                                      {/* Progress Bar Container */}
                                                       <div
-                                                            className="h-full bg-purple"
-                                                            style={{ width: `${index === currentIndex ? progress : 0}%` }}
-                                                      />
-                                                </div>
-                                          </div>
-
-                                          {/* Sidebar Toolbar (Right Side) */}
-                                          <div className="absolute right-2 bottom-20 flex flex-col items-center gap-5 z-40 sm:right-[-48px] sm:bottom-0">
-                                                {/* Profile Circle */}
-                                                <div className="flex flex-col items-center gap-1 group">
-                                                      <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden bg-zinc-800 flex items-center justify-center transition-transform active:scale-90">
-                                                            {video.owner?.image ? (
-                                                                  <img src={video.owner.image} alt="" className="w-full h-full object-cover" />
-                                                            ) : (
-                                                                  <User className="w-6 h-6 text-white/50" />
-                                                            )}
+                                                            className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 cursor-pointer z-30"
+                                                            onClick={(e) => handleSeek(index, e)}
+                                                      >
+                                                            <div
+                                                                  className="h-full bg-purple"
+                                                                  style={{ width: `${index === currentIndex ? progress : 0}%` }}
+                                                            />
                                                       </div>
                                                 </div>
 
-                                                {/* Like/Save */}
-                                                <div className="flex flex-col items-center gap-1">
-                                                      <CollectionManager
-                                                            itemId={video.id}
-                                                            itemTitle={video.title}
-                                                            itemImage={video.thumbnail}
-                                                            onSuccess={() => {
-                                                                  queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
+                                                {/* Sidebar Toolbar (Right Side) */}
+                                                <div className="absolute right-2 bottom-20 flex flex-col items-center gap-5 z-40 sm:right-[-48px] sm:bottom-0">
+                                                      {/* Profile Circle */}
+                                                      <div 
+                                                            className="flex flex-col items-center gap-1 group cursor-pointer"
+                                                            onClick={(e) => {
+                                                                  e.stopPropagation();
+                                                                  const sellerId = video.owner?._id || video.owner?.id;
+                                                                  if (!sellerId) return;
+                                                                  
+                                                                  // Determine if it's an organization or individual
+                                                                  const isOrg = !!video.owner?.orgName || !!video.owner?.organization || video.owner?.role === 'organization';
+                                                                  const path = isOrg ? `/seller/org/${sellerId}` : `/seller/user/${sellerId}`;
+                                                                  router.push(localePath(path));
                                                             }}
                                                       >
+                                                            <div className="w-12 h-12 rounded-full border-2 border-white overflow-hidden bg-zinc-800 flex items-center justify-center transition-transform active:scale-90 shadow-lg">
+                                                                  {video.owner?.image ? (
+                                                                        <img src={video.owner.image} alt="" className="w-full h-full object-cover" />
+                                                                  ) : (
+                                                                        <User className="w-6 h-6 text-white/50" />
+                                                                  )}
+                                                            </div>
+                                                      </div>
+
+                                                      {/* Like/Save */}
+                                                      <div className="flex flex-col items-center gap-1">
+                                                            <CollectionManager
+                                                                  itemId={video.id}
+                                                                  itemTitle={video.title}
+                                                                  itemImage={video.thumbnail}
+                                                                  onSuccess={(isAdded) => {
+                                                                        setLocalSaveState(prev => ({ ...prev, [video.id]: isAdded }));
+                                                                        queryClient.invalidateQueries({ queryKey: adQueries.ads.Key });
+                                                                  }}
+                                                                  initialIsSaved={localSaveState[video.id] ?? video.isSaved}
+                                                            >
+                                                                  <button
+                                                                        className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-95"
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                  >
+                                                                        <Heart className={cn("w-6 h-6", (localSaveState[video.id] ?? video.isSaved) && "fill-red-500 text-red-500")} />
+                                                                  </button>
+                                                            </CollectionManager>
+                                                            <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">{t.watch.save}</span>
+                                                      </div>
+
+                                                      {/* Play/Pause */}
+                                                      <div className="flex flex-col items-center gap-1">
                                                             <button
+                                                                  onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        togglePlay();
+                                                                  }}
                                                                   className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-95"
                                                             >
-                                                                  <Heart className={cn("w-6 h-6", video.isSaved && "fill-red-500 text-red-500")} />
+                                                                  {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 fill-current" />}
                                                             </button>
-                                                      </CollectionManager>
-                                                      <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">{t.watch.save}</span>
-                                                </div>
+                                                            <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">
+                                                                  {isPlaying ? t.watch.pause : t.watch.play}
+                                                            </span>
+                                                      </div>
 
-                                                {/* Play/Pause */}
-                                                <div className="flex flex-col items-center gap-1">
-                                                      <button
-                                                            onClick={(e) => {
-                                                                  e.stopPropagation();
-                                                                  togglePlay();
-                                                            }}
-                                                            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-95"
-                                                      >
-                                                            {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 fill-current" />}
-                                                      </button>
-                                                      <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">
-                                                            {isPlaying ? t.watch.pause : t.watch.play}
-                                                      </span>
-                                                </div>
+                                                      {/* Mute/Unmute */}
+                                                      <div className="flex flex-col items-center gap-1">
+                                                            <button
+                                                                  onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        setIsMuted(!isMuted);
+                                                                  }}
+                                                                  className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-95"
+                                                            >
+                                                                  {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+                                                            </button>
+                                                            <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">
+                                                                  {isMuted ? t.watch.mute : t.watch.unmute}
+                                                            </span>
+                                                      </div>
 
-                                                {/* Mute/Unmute */}
-                                                <div className="flex flex-col items-center gap-1">
-                                                      <button
-                                                            onClick={(e) => {
-                                                                  e.stopPropagation();
-                                                                  setIsMuted(!isMuted);
-                                                            }}
-                                                            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-95"
-                                                      >
-                                                            {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
-                                                      </button>
-                                                      <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">
-                                                            {isMuted ? t.watch.mute : t.watch.unmute}
-                                                      </span>
-                                                </div>
-
-                                                {/* Share */}
-                                                <div className="flex flex-col items-center gap-1">
-                                                      <button
-                                                            onClick={(e) => {
-                                                                  e.stopPropagation();
-                                                                  handleShare(video);
-                                                            }}
-                                                            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-95"
-                                                      >
-                                                            <Share2 className="w-6 h-6" />
-                                                      </button>
-                                                      <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">{t.watch.share}</span>
+                                                      {/* Share */}
+                                                      <div className="flex flex-col items-center gap-1">
+                                                            <button
+                                                                  onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleShare(video);
+                                                                  }}
+                                                                  className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/20 transition-all active:scale-95"
+                                                            >
+                                                                  <Share2 className="w-6 h-6" />
+                                                            </button>
+                                                            <span className="text-[10px] font-medium text-white drop-shadow-sm uppercase">{t.watch.share}</span>
+                                                      </div>
                                                 </div>
                                           </div>
                                     </div>
-                              </div>
-                        ))}
-                               </InfiniteScrollContainer>
+                              ))}
+                        </InfiniteScrollContainer>
                   ) : !isLoading && (
                         <div className="flex-1 flex items-center justify-center p-6 text-center">
                               <NoDataCard
@@ -652,7 +663,7 @@ export function VideoViewer() {
                                     description={t.watch.tryAnotherCategory.replace("{category}", selectedCategory === "all" ? t.watch.allCategories : `"${selectedCategory}"`)}
                                     className="text-white [&_h1]:text-white [&_p]:text-white/60"
                               />
-                        </div>
+                         </div>
                   )}
 
                   {/* Desktop Navigation Indicators */}

@@ -25,6 +25,16 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
   // create specifications object including all non-null fields
   const specifications: Record<string, string> = {};
   extraFields.forEach((field) => {
+    // Filter out discount, percentage, and deal-related fields as they are handled separately in the UI
+    const lowerName = field.name?.toLowerCase() || "";
+    if (
+      lowerName.includes("discount") ||
+      lowerName.includes("percent") ||
+      lowerName.includes("deal")
+    ) {
+      return;
+    }
+
     if (
       field.value !== null &&
       field.value !== undefined &&

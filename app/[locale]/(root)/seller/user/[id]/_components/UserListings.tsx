@@ -6,45 +6,21 @@ import SortAndViewControls, {
   ViewMode,
 } from "@/app/[locale]/(root)/post-ad/_components/SortAndViewControls";
 import ListingCard from "@/components/features/listing-card/listing-card";
+import HorizontalListingCard from "@/app/[locale]/(root)/(categories)/_components/horizontal-listing-card";
 import { useAdsByUser } from "@/hooks/useAds";
 import { User } from "@/interfaces/user.types";
 import { AD, AdLocation } from "@/interfaces/ad";
 import { AlertCircle, PackageSearch, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { transformAdToListingCard } from "@/utils/transform-ad-to-listing";
+import { useLocale } from "@/hooks/useLocale";
 
 interface UserListingsProps {
   userId: string;
   user: User;
 }
 
-function mapAdToCard(ad: AD) {
-  const owner = ad.owner;
-  const location: AdLocation | undefined =
-    typeof ad.location === "object" ? ad.location : undefined;
-  return {
-    id: ad._id,
-    title: ad.title || "",
-    price: ad.price || 0,
-    originalPrice: ad.discountedPrice,
-    discount: ad.dealPercentage,
-    location: location || {},
-    images: ad.images || [],
-    extraFields: ad.extraFields || {},
-    isExchange: ad.isExchangable || false,
-    postedTime: ad.createdAt || "",
-    views: ad.views,
-    isPremium: ad.isFeatured || false,
-    seller: owner
-      ? {
-          id: owner._id,
-          name: `${owner.firstName || ""} ${owner.lastName || ""}`.trim(),
-          isVerified: owner.isSeller,
-          image: owner.image,
-        }
-      : undefined,
-    isSaved: ad.isSaved || false,
-  };
-}
+// mapAdToCard is no longer needed as we use transformAdToListingCard utility
 
 function ListingsSkeleton() {
   return (
@@ -79,12 +55,13 @@ function ListingsSkeleton() {
 }
 
 export default function UserListings({ userId }: UserListingsProps) {
+  const { locale } = useLocale();
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortValue, setSortValue] = useState("newest");
 
   const { data: adsResponse, isLoading, error, refetch } = useAdsByUser(
     userId,
-    { limit: 100, page: 1 },
+    { limit: 100, page: 1, status: "live" },
     { enabled: !!userId }
   );
 
@@ -95,6 +72,7 @@ export default function UserListings({ userId }: UserListingsProps) {
     if (d?.items && Array.isArray(d.items)) return d.items as AD[];
     if (d?.data && Array.isArray(d.data)) return d.data as AD[];
     if (d?.adds && Array.isArray(d.adds)) return d.adds as AD[];
+    if (d?.ads && Array.isArray(d.ads)) return d.ads as AD[];
     return [];
   }, [adsResponse]);
 
@@ -168,7 +146,20 @@ export default function UserListings({ userId }: UserListingsProps) {
               : "flex flex-col gap-4"
           }
         >
-          {sortedAds.map((ad) => <ListingCard key={ad._id} {...mapAdToCard(ad)} />)}
+          {sortedAds.map((ad) => {
+            const cardProps = transformAdToListingCard(ad, locale as any);
+            return viewMode === "grid" ? (
+              <ListingCard 
+                key={ad._id} 
+                {...cardProps} 
+              />
+            ) : (
+              <HorizontalListingCard 
+                key={ad._id} 
+                {...cardProps} 
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">

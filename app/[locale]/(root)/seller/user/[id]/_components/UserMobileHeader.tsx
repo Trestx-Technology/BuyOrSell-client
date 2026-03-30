@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { Typography } from "@/components/typography";
-import { Star, MapPin, Calendar, Phone } from "lucide-react";
+import { Star, MapPin, Calendar, Phone, MoreHorizontal, Flag, UserX, AlertTriangle } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { useLocale } from "@/hooks/useLocale";
 import { User } from "@/interfaces/user.types";
@@ -12,6 +12,17 @@ import { Button } from "@/components/ui/button";
 import { ChatInit } from "@/components/global/chat-init";
 import { ProfilePlaceholder } from "@/components/global/profile-placeholder";
 import { useUserAverageRating } from "@/hooks/useReviews";
+import { useAuthStore } from "@/stores/authStore";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import ReportDialog from "../../../../ad/[adId]/_components/ReportDialog";
+import { useBlockUser, useIsBlocked, useUnblockUser } from "@/hooks/useUserBlock";
+import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
+import { toast } from "sonner";
 
 interface UserMobileHeaderProps {
   userId: string;
@@ -34,6 +45,34 @@ export default function UserMobileHeader({ userId, user }: UserMobileHeaderProps
   const userAvgRating = useUserAverageRating(userId, !!userId);
   const rating = userAvgRating.data?.data || 0;
 
+  const currentUser = useAuthStore((s) => s.session.user);
+  const isOwner = currentUser?._id === userId;
+
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
+
+  const { data: blockedData } = useIsBlocked(userId, !isOwner);
+  const isBlocked = blockedData?.data?.isBlocked ?? false;
+
+  const { mutateAsync: blockUser, isPending: isBlocking } = useBlockUser();
+  const { mutateAsync: unblockUser, isPending: isUnblocking } = useUnblockUser();
+
+  const handleBlockUser = async () => {
+    try {
+      if (isBlocked) {
+        await unblockUser(userId);
+        toast.success(t.seller.actions.unblockSuccess);
+      } else {
+        await blockUser({ userId, reason: "Blocked from profile" });
+        toast.success(t.seller.actions.blockSuccess);
+      }
+    } catch {
+      toast.error(isBlocked ? t.seller.actions.unblockError : t.seller.actions.blockError);
+    } finally {
+      setIsBlockDialogOpen(false);
+    }
+  };
+
   const hasPhone = !!user.phoneNo;
 
   const handleCall = () => {
@@ -52,7 +91,7 @@ export default function UserMobileHeader({ userId, user }: UserMobileHeaderProps
       <div className="flex items-start p-4 gap-4">
         {/* Avatar */}
         <div className="relative flex-shrink-0">
-          <div className="w-[74px] h-[74px] rounded-full overflow-hidden bg-gray-100 dark:bg-slate-800">
+          <div className="w-[74px] h-[74px] rounded-full overflow-hidden bg-gray-100 dark:bg-slate-800 ring-2 ring-white dark:ring-slate-900 shadow-sm">
             {avatar ? (
               <Image
                 src={avatar}
@@ -77,31 +116,47 @@ export default function UserMobileHeader({ userId, user }: UserMobileHeaderProps
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="space-y-1.5">
-            <Typography
-              variant="sm-black-inter"
-              className="font-semibold text-black dark:text-white truncate"
-            >
-              {sellerName}
-            </Typography>
+            <div className="flex items-center justify-between gap-2">
+              <Typography
+                variant="sm-black-inter"
+                className="font-semibold text-black dark:text-white truncate"
+              >
+                {sellerName}
+              </Typography>
 
-            {rating > 0 && (
-              <div className="flex items-center gap-1">
-                <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                <Typography variant="xs-black-inter" className="text-dark-blue dark:text-white font-medium">
-                  {rating.toFixed(1)}/5
-                </Typography>
-              </div>
-            )}
+              {!isOwner && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 -mr-1 text-grey-blue hover:text-dark-blue hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                      <MoreHorizontal className="w-5 h-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 shadow-xl rounded-xl p-1.5">
+                    <DropdownMenuItem 
+                      onClick={() => setIsReportDialogOpen(true)}
+                      className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors"
+                    >
+                      <Flag className="w-4 h-4 text-orange-500" />
+                      {t.seller.actions.reportUser}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => setIsBlockDialogOpen(true)}
+                      className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg cursor-pointer transition-colors"
+                    >
+                      <UserX className="w-4 h-4" />
+                      {isBlocked ? t.seller.actions.unblockUser : t.seller.actions.blockUser}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
 
-            <div className="flex flex-col gap-0.5">
-              {user.phoneNo && (
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="w-3 h-3 text-gray-500 dark:text-slate-400 flex-shrink-0" />
-                  <Typography
-                    variant="xs-black-inter"
-                    className="text-dark-blue dark:text-slate-300 font-medium"
-                  >
-                    UAE
+            <div className="flex items-center gap-3">
+              {rating > 0 && (
+                <div className="flex items-center gap-1">
+                  <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                  <Typography variant="xs-black-inter" className="text-dark-blue dark:text-white font-medium">
+                    {rating.toFixed(1)}/5
                   </Typography>
                 </div>
               )}
@@ -112,6 +167,18 @@ export default function UserMobileHeader({ userId, user }: UserMobileHeaderProps
                 </Typography>
               </div>
             </div>
+
+            {user.phoneNo && (
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-3 h-3 text-gray-500 dark:text-slate-400 flex-shrink-0" />
+                <Typography
+                  variant="xs-black-inter"
+                  className="text-dark-blue dark:text-slate-300 font-medium"
+                >
+                  UAE
+                </Typography>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -167,6 +234,25 @@ export default function UserMobileHeader({ userId, user }: UserMobileHeaderProps
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <ReportDialog
+        open={isReportDialogOpen}
+        onOpenChange={setIsReportDialogOpen}
+        reportedId={userId}
+        reportedType="user"
+      />
+
+      <WarningConfirmationDialog
+        open={isBlockDialogOpen}
+        onOpenChange={setIsBlockDialogOpen}
+        onConfirm={handleBlockUser}
+        title={isBlocked ? t.seller.actions.unblockUser : t.seller.actions.blockUser}
+        description={isBlocked ? "Are you sure you want to unblock this user?" : t.seller.actions.confirmBlockDescription}
+        confirmText={isBlocked ? "Unblock" : "Block"}
+        cancelText="Cancel"
+        isLoading={isBlocking || isUnblocking}
+      />
     </div>
   );
 }

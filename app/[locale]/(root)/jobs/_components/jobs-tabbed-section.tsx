@@ -21,20 +21,25 @@ export default function JobsTabbedSection({ title, titleClassName }: { title?: s
             adType: "job",
       });
 
+      // Filter categories to only show those that have jobs
+      const filteredCategories = useMemo(() => {
+            return jobSubcategories?.filter(cat => cat.adCount > 0) || [];
+      }, [jobSubcategories]);
+
       const [activeTabId, setActiveTabId] = useState<string | null>(null);
       const [adsMap, setAdsMap] = useState<Record<string, AD[]>>({});
 
       // Initialize active tab when categories are loaded
       useEffect(() => {
-            if (jobSubcategories && jobSubcategories.length > 0 && !activeTabId) {
-                  setActiveTabId(jobSubcategories[0]._id);
+            if (filteredCategories && filteredCategories.length > 0 && !activeTabId) {
+                  setActiveTabId(filteredCategories[0]._id);
             }
-      }, [jobSubcategories, activeTabId]);
+      }, [filteredCategories, activeTabId]);
 
       // Get active tab object
       const activeTab = useMemo(() => {
-            return jobSubcategories?.find((tab) => tab._id === activeTabId);
-      }, [jobSubcategories, activeTabId]);
+            return filteredCategories?.find((tab) => tab._id === activeTabId);
+      }, [filteredCategories, activeTabId]);
 
       // Fetch ads for the active tab
       const { data: adsData, isLoading: isAdsLoading } = useAds({
@@ -56,9 +61,9 @@ export default function JobsTabbedSection({ title, titleClassName }: { title?: s
 
       // Construct categoryData for JobsTabbedCarousel
       const categoryData = useMemo((): CategoryWithSubCategories | null => {
-            if (!jobSubcategories) return null;
+            if (!filteredCategories) return null;
 
-            const subCategories: HomeSubCategory[] = jobSubcategories.map((tab) => ({
+            const subCategories: HomeSubCategory[] = filteredCategories.map((tab) => ({
                   _id: tab._id,
                   name: tab.name,
                   nameAr: tab.nameAr,
@@ -76,9 +81,9 @@ export default function JobsTabbedSection({ title, titleClassName }: { title?: s
                   categoryAr: "وظائف",
                   subCategory: subCategories,
             };
-      }, [jobSubcategories, adsMap]);
+      }, [filteredCategories, adsMap]);
 
-      if (!categoryData || jobSubcategories?.length === 0) return null;
+      if (!categoryData || filteredCategories?.length === 0) return null;
 
       return (
             <Container1080>

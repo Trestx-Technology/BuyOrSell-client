@@ -93,7 +93,7 @@ export default function JobCard({
       {/* Job Details */}
       <div className="flex flex-col gap-3 mb-4 flex-1">
         <div className="flex items-center gap-1.5">
-          <Briefcase className="w-5 h-5 text-grey-blue dark:text-zinc-400" />
+          <Briefcase className="w-5 h-5 text-purple" />
           <Typography
             variant="body-small"
             className="text-dark-blue dark:text-zinc-300 text-xs font-medium"
@@ -105,10 +105,10 @@ export default function JobCard({
         <div className="flex items-center gap-1.5">
           <Image
             src={ICONS.currency.aed}
-            alt="dollar sign"
+            alt="AED"
             width={16}
             height={16}
-            className="dark:invert dark:opacity-70"
+            className="flex-shrink-0"
           />
           <div className="flex items-center gap-1">
             <Typography
@@ -120,23 +120,23 @@ export default function JobCard({
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <Clock className="w-5 h-5 text-grey-blue dark:text-zinc-400" />
-          <Typography
-            variant="body-small"
-            className="text-dark-blue dark:text-zinc-300 text-xs font-medium"
-          >
-            Not specified
+        <div className="flex items-center gap-2">
+          <Clock className="w-4 h-4 text-purple flex-shrink-0" />
+          <Typography variant="body-small" className="text-grey-blue dark:text-zinc-400">
+            {job.jobShift || "Day-shift"}
           </Typography>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <MapPin className="w-5 h-5 text-grey-blue dark:text-zinc-400" />
-          <Typography
-            variant="body-small"
-            className="text-dark-blue dark:text-zinc-300 text-xs font-medium"
-          >
-            {location || "Not specified"}
+        <div className="flex items-center gap-2 mb-4">
+          <Image 
+            src={ICONS.ui.Map} 
+            alt="location" 
+            width={16} 
+            height={16} 
+            className="flex-shrink-0" 
+          />
+          <Typography variant="body-small" className="text-grey-blue dark:text-zinc-400 truncate">
+            {job.address?.address || "Dubai, UAE"}
           </Typography>
         </div>
       </div>

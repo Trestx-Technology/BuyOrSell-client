@@ -148,7 +148,9 @@ export async function generateNegotiation(
   try {
     const openai = getOpenAIClient();
     if (!openai) {
-      console.log("[AI] No OpenAI API key found, returning fallback negotiation");
+      console.log(
+        "[AI] No OpenAI API key found, returning fallback negotiation",
+      );
       return `Hi! I'm interested in your item. Is the price negotiable? I'm looking to pay around ${originalPrice}.`;
     }
 
@@ -330,16 +332,22 @@ export async function generateDescription(
   categoryPath: string,
   userPrompt?: string,
   existingDescription?: string,
+  orgName?: string,
 ): Promise<{ success: boolean; data?: string; error?: string }> {
   try {
-    console.log(`[AI] Generating description for: ${categoryPath}`);
+    console.log(
+      `[AI] Generating description for: ${categoryPath}${orgName ? ` (Org: ${orgName})` : ""}`,
+    );
     const openai = getOpenAIClient();
-    
+
     if (!openai) {
-      console.warn("[AI] Failure: OPENAI_API_KEY is not configured in the environment.");
+      console.warn(
+        "[AI] Failure: OPENAI_API_KEY is not configured in the environment.",
+      );
       return {
         success: false,
-        error: "Nora is temporarily resting and cannot help right now. Please try again later.",
+        error:
+          "Nora is temporarily resting and cannot help right now. Please try again later.",
       };
     }
 
@@ -349,8 +357,8 @@ export async function generateDescription(
         {
           role: "system",
           content: `You are an expert copywriter for "BuyOrSell".
-Write a high-quality, professional description for a listing.
-
+Write a high-quality, professional description ${orgName ? `from the perspective of the organization "${orgName}"` : "for a listing"}.
+          
 GUIDELINES:
 1. SAFETY: Do NOT generate offensive or harmful content.
 2. LENGTH: Max 5000 characters.
@@ -358,13 +366,15 @@ GUIDELINES:
 4. TONE: Professional and appealing.
 5. FORMAT: Use clear paragraphs with double newlines (\n\n) between them. Use bullet points for lists to ensure great readability.
 6. NO LINKS: Do not include external links or contact info.
-7. SPECIFICITY: Mention specific details if provided in the notes (e.g., brand, model, condition).`,
+7. PERSPECTIVE: If an organization name is provided ("${orgName}"), the description MUST start with a strong introductory sentence about the company (e.g., "At ${orgName}, we are..."). Avoid mentioning the platform "BuyOrSell" unless the orgName is "BuyOrSell".
+8. SPECIFICITY: Mention specific details if provided in the notes (e.g., mission, values, specialized products/services).`,
         },
         {
           role: "user",
-          content: `Category: "${categoryPath}"
+          content: `Organization Name: "${orgName || "BuyOrSell"}"
+Category: "${categoryPath}"
 ${userPrompt ? `Notes: "${userPrompt}"` : ""}
-${existingDescription ? `Original: "${existingDescription}"` : "Create a new description."}`,
+${existingDescription ? `Original: "${existingDescription}"` : "Create a new description of the organization and its services."}`,
         },
       ],
     });
@@ -374,7 +384,8 @@ ${existingDescription ? `Original: "${existingDescription}"` : "Create a new des
     if (!content && response.choices[0]?.finish_reason === "content_filter") {
       return {
         success: false,
-        error: "The request was flagged by content filters. Please try a more specific or different prompt.",
+        error:
+          "The request was flagged by content filters. Please try a more specific or different prompt.",
       };
     }
 
@@ -386,18 +397,27 @@ ${existingDescription ? `Original: "${existingDescription}"` : "Create a new des
     return { success: true, data: content };
   } catch (error: any) {
     console.error("[AI] Error generating description:", error);
-    
+
     // Check for specific OpenAI errors
     if (error?.status === 401) {
-      return { success: false, error: "We're having trouble connecting to Nora. Our team has been notified." };
+      return {
+        success: false,
+        error:
+          "We're having trouble connecting to Nora. Our team has been notified.",
+      };
     }
     if (error?.status === 429) {
-      return { success: false, error: "Nora is a bit busy right now. Please wait a moment before trying again." };
+      return {
+        success: false,
+        error:
+          "Nora is a bit busy right now. Please wait a moment before trying again.",
+      };
     }
-    
+
     return {
       success: false,
-      error: "Something went wrong while generating the description. Please try again with simple instructions.",
+      error:
+        "Something went wrong while generating the description. Please try again with simple instructions.",
     };
   }
 }
@@ -408,8 +428,10 @@ export async function generatePromptFromImages(
   try {
     const openai = getOpenAIClient();
     if (!openai || imageUrls.length === 0) {
-      console.log("[AI] Skipping prompt generation: missing OpenAI key or no images");
-      return { description: "", adType: "Item/Classified" };
+      console.log(
+        "[AI] Skipping prompt generation: missing OpenAI key or no images",
+      );
+      return { description: "", adType: "AD" };
     }
 
     const content: any[] = [
@@ -417,12 +439,12 @@ export async function generatePromptFromImages(
         type: "text",
         text: `Analyze these images and identify:
 1. Brand, model, color, and condition.
-2. The ad category type (e.g., 'Vehicles', 'Electronics', 'Jewelry & Watches', 'Jobs', 'Real Estate').
+2. Determine if this is an AD for a product/service or a JOB posting.
 
 Return a JSON object:
 {
   "description": "bulleted description",
-  "adType": "Specific Category Group"
+  "adType": "AD" | "JOB"
 }`,
       },
     ];
@@ -456,11 +478,11 @@ Return a JSON object:
     const result = JSON.parse(response.choices[0]?.message?.content || "{}");
     return {
       description: result.description || "",
-      adType: result.adType || "Item/Classified",
+      adType: result.adType || "AD",
     };
   } catch (error) {
     console.error("Error generating prompt from images:", error);
-    return { description: "", adType: "Item/Classified" };
+    return { description: "", adType: "AD" };
   }
 }
 
@@ -554,11 +576,11 @@ OUTPUT (JSON only):
     const token = cookieStore.get(AUTH_TOKEN_NAMES.ACCESS_TOKEN)?.value;
 
     console.log(
-      `[AI] Fetching semantic results from: ${BACKEND_URL}/categories/search/semantic`,
+      `[AI] Fetching semantic results from: ${BACKEND_URL}/categories/search/semantic?query=${searchQuery}&adType=${intentAdType}`,
     );
 
     const semanticRes = await fetch(
-      `${BACKEND_URL}/categories/search/semantic?query=${encodeURIComponent(searchQuery)}&limit=1`,
+      `${BACKEND_URL}/categories/search/semantic?query=${encodeURIComponent(searchQuery)}&adType=${intentAdType}&limit=1`,
       {
         cache: "no-store",
         headers: {
@@ -576,6 +598,10 @@ OUTPUT (JSON only):
     }
 
     const semanticData = await semanticRes.json();
+    console.log(
+      "[AI] Semantic API full response:",
+      JSON.stringify(semanticData, null, 2),
+    );
     // API structure: { statusCode: 200, data: { results: [...] } }
     let bestMatch = semanticData.data?.results?.[0];
 

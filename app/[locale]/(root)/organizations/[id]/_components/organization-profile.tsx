@@ -47,18 +47,28 @@ export default function OrganizationProfile({
 
                                     {activeTab === "about" && (
                                           <div className="py-8 text-slate-700 dark:text-gray-300">
-                                                <Typography variant="h2" className="text-xl font-bold text-dark-blue dark:text-gray-100 mb-4">
-                                                      About {organization.tradeName}
-                                                </Typography>
-                                                <div className="space-y-6">
+                                                <div className="mb-8">
+                                                      <Typography variant="h2" className="text-xl font-bold text-dark-blue dark:text-gray-100 mb-4">
+                                                            About {organization.tradeName}
+                                                      </Typography>
+                                                      {organization.description ? (
+                                                            <p className="whitespace-pre-wrap leading-relaxed text-slate-600 dark:text-gray-400">
+                                                                  {organization.description}
+                                                            </p>
+                                                      ) : (
+                                                            <p className="text-slate-500 italic">No description provided by the organization.</p>
+                                                      )}
+                                                </div>
+
+                                                <div className="space-y-6 pt-6 border-t border-slate-100 dark:border-slate-800">
                                                       <div>
                                                             <Typography variant="sm-semibold" className="text-dark-blue dark:text-gray-100 block mb-2">
                                                                   Headquarters
                                                             </Typography>
                                                             <div className="flex items-center gap-2 text-slate-600 dark:text-gray-400">
-                                                                  <MapPin className="w-4 h-4" />
+                                                                  <MapPin className="w-4 h-4 shrink-0" />
                                                                   <Typography variant="body-small" className="dark:text-gray-300">
-                                                                        {organization.city}, {organization.emirate}, {organization.country}
+                                                                        {[organization.addressLine1, organization.addressLine2, organization.city, organization.emirate, organization.country].filter(Boolean).join(", ")}
                                                                   </Typography>
                                                             </div>
                                                       </div>

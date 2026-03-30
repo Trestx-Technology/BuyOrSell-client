@@ -49,7 +49,9 @@ export function FavoritesContent() {
   // otherwise use collection.images if available,
   // otherwise extract first image from each ad in collection.ads
   const collectionsWithImages = useMemo(() => {
-    return collections.map((collection) => {
+    return collections
+      .filter((collection) => collection.name !== "Favourites")
+      .map((collection) => {
       const collectionData = collection as unknown as Record<string, unknown>;
 
       // If collection has imageURL, use it
@@ -142,7 +144,7 @@ export function FavoritesContent() {
       {/* Header */}
       <MobileStickyHeader title={t.favorites.myFavorites} />
 
-      <div className="w-full">
+      <div className="w-full pb-20">
         {/* Collections Section */}
         <div className="px-4 py-8">
           <Typography

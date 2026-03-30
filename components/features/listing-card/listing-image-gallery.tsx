@@ -24,6 +24,7 @@ interface ListingImageGalleryProps {
   views?: number;
   handleShare: (e: React.MouseEvent) => void;
   isSaved?: boolean;
+  discount?: number;
 }
 
 const GalleryImage = ({
@@ -56,6 +57,7 @@ export const ListingImageGallery: React.FC<ListingImageGalleryProps> = ({
   views,
   handleShare,
   isSaved,
+  discount,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);

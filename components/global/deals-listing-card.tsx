@@ -35,6 +35,7 @@ import { CollectionManager } from "./collection-manager";
 import { ChatInit } from "@/components/global/chat-init";
 import { useLocale } from "@/hooks/useLocale";
 import { getLocationDisplay } from "@/utils/get-location-display";
+import { PriceDisplay } from "@/components/global/price-display";
 
 export interface DealsListingCardProps {
   id: string;
@@ -440,20 +441,17 @@ const DealsListingCard: React.FC<DealsListingCardProps> = ({
         <div className="pt-2 space-y-3">
           {/* Price Section - Highlighted for deals */}
           <div className="flex items-center gap-1 px-2.5">
-            <Image src={ICONS.currency.aed} alt="AED" width={16} height={16} />
-            <span className="text-md font-bold text-purple">
-              {formatPrice(price).replace("AED", "").trim()}
-            </span>
-            {originalPrice && (
-              <span className="text-md text-grey-blue line-through text-id text-sm">
-                {formatPrice(originalPrice).replace("AED", "").trim()}
-              </span>
-            )}
-            {discountPercentage > 0 && (
-              <span className="text-md text-teal text-sm font-semibold">
-                {discountPercentage}% OFF
-              </span>
-            )}
+            <PriceDisplay
+              price={price}
+              originalPrice={originalPrice}
+              discountPercentage={discount}
+              currencyIconWidth={16}
+              currencyIconHeight={16}
+              className="gap-1"
+              currentPriceClassName="text-sm font-bold text-purple"
+              originalPriceClassName="text-xs text-grey-blue line-through"
+              discountBadgeClassName="text-xs text-teal font-semibold"
+            />
           </div>
 
           {/* Title */}

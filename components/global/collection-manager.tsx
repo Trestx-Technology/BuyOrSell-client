@@ -136,7 +136,9 @@ export const CollectionManager: React.FC<CollectionManagerProps> = ({
         });
 
         // Invalidate to ensure consistency with server
-
+        queryClient.invalidateQueries({
+          queryKey: collectionsQueries.getMyCollections.Key,
+        });
         onSuccess?.(true);
         setOpen(false);
       } catch (error) {

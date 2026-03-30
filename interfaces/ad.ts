@@ -145,6 +145,7 @@ export type AD = {
   };
   exchanged?: boolean; // Whether item has been exchanged
   discountedPrice?: number; // Discounted price when deal is active
+  discountedPercent?: number; // Discount percentage
   dealValidThru?: string; // ISO 8601 date string for deal validity
   dealValidThrough?: string; // Alternative field name for deal validity
   dealPercentage?: number; // Discount percentage (calculated or provided)
@@ -539,10 +540,23 @@ export interface SemanticAdResult {
 }
 
 export interface SemanticAdSearchResponse {
-  results: SemanticAdResult[];
-  total: number;
-  query: string;
-  filters: Record<string, unknown>;
+  statusCode?: number;
+  timestamp?: string;
+  data?: {
+    adds?: AD[];
+    results?: SemanticAdResult[];
+    total?: number;
+    query?: string;
+    page?: number;
+    filters?: Record<string, unknown>;
+  };
+  // Supporting both formats for flexibility
+  adds?: AD[];
+  results?: SemanticAdResult[];
+  total?: number;
+  query?: string;
+  page?: number;
+  filters?: Record<string, unknown>;
 }
 
 export interface SemanticAdSearchParams {

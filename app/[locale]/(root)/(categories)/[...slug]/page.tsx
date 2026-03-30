@@ -15,6 +15,13 @@ export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
   const { slug } = await params;
+
+  // Prevent catching /jobs sub-paths - these should be handled by the /jobs directory or 404
+  if (slug && slug[0] === "jobs") {
+    const { notFound } = await import("next/navigation");
+    notFound();
+  }
+
   const currentCategorySlug = slugify(slug[slug.length - 1]);
   const categoryPath = slugify(...slug);
   const route = `/${categoryPath}`;

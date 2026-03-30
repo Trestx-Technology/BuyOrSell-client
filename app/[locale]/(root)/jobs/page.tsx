@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import JobsHero from "./_components/jobs-hero";
 import PopularIndustries from "./_components/popular-industries";
-import JobsTabbedSection from "./_components/jobs-tabbed-section";
+import LatestJobsCarousel from "./_components/latest-jobs-carousel";
 import ConnectProfessionals from "./_components/connect-professionals";
 import CompaniesToFollow from "./_components/companies-to-follow";
 import JobsCTASection from "./_components/jobs-cta-section";
@@ -87,8 +87,8 @@ export default async function JobsHomePage({ params }: PageProps) {
         <JobsCTASection />
         </Container1080>
 
-        {/* Tabbed Jobs Section */}
-        <JobsTabbedSection title={t.jobs.tabs.latestJobs} titleClassName="font-bold" />
+        {/* Latest Jobs Section */}
+        <LatestJobsCarousel title={t.jobs.tabs.latestJobs} titleClassName="font-bold" />
 
         {/* Emiratis Support Section */}
         <EmiratisSupport />

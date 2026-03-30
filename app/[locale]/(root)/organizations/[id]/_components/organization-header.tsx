@@ -29,18 +29,26 @@ export const OrganizationHeader = ({ organization }: OrganizationHeaderProps) =>
         )}
       </H2>
       <Typography variant="body-small" className="text-slate-600 dark:text-gray-400 mb-4">
-        {organization.type || "Dubai's Leading Classifieds Platform"}
+        {organization.type}
       </Typography>
 
       {/* Meta info */}
       <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-gray-400 mb-6 flex-wrap">
-        <span>{organization.industry || "Technology, Information And Internet"}</span>
-        <span>•</span>
+        {organization.industry && (
+          <>
+            <span>{organization.industry}</span>
+            <span>•</span>
+          </>
+        )}
         <button className="text-purple-600 dark:text-purple-400 hover:underline">
-          {organization.followersCount || "116K"} Followers
+          {organization.followersCount || 0} Followers
         </button>
-        <span>•</span>
-        <span>{organization.companySize || "501-1K Employees"}</span>
+        {organization.companySize && (
+          <>
+            <span>•</span>
+            <span>{organization.companySize}</span>
+          </>
+        )}
       </div>
 
       {/* Action Buttons */}

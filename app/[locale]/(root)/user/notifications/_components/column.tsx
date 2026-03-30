@@ -79,26 +79,26 @@ export function useNotificationsColumns({
       id: "actions",
       header: t.notifications.actions,
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {!row.original.read && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onMarkRead(row.original._id)}
-              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+              className="text-purple hover:text-purple/80 hover:bg-purple/5 px-2 h-8 whitespace-nowrap"
               disabled={isMarkingRead}
             >
-              <Check className="w-4 h-4" />
+              {t.notifications.markAsRead}
             </Button>
           )}
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onDelete(row.original._id)}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="text-red-500 hover:text-red-600 hover:bg-red-50 px-2 h-8 whitespace-nowrap"
             disabled={isDeleting}
           >
-            <X className="w-4 h-4" />
+            {t.common.delete}
           </Button>
         </div>
       ),

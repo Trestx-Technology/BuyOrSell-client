@@ -51,9 +51,30 @@ export function PriceDisplay({
       return getDiscountInfo(ad);
     }
     // Fallback to individual props
-    if (price !== undefined) {
-      // If we have originalPrice and discountPercentage, calculate currentPrice
-      if (originalPrice && propDiscountPercentage) {
+    if (price !== undefined && price !== null) {
+      // If we have both price and originalPrice, use them directly (most accurate)
+      if (originalPrice && originalPrice > price) {
+        const calculatedDiscount = Math.round(
+          ((originalPrice - price) / originalPrice) * 100
+        );
+        return {
+          currentPrice: price,
+          originalPrice: originalPrice,
+          discountPercentage: propDiscountPercentage || (calculatedDiscount > 0 ? calculatedDiscount : undefined),
+        };
+      }
+
+      // If we only have price and discountPercentage, calculate current price from percentage
+      if (propDiscountPercentage && !originalPrice) {
+        return {
+          currentPrice: Math.round(price * (1 - propDiscountPercentage / 100)),
+          originalPrice: price,
+          discountPercentage: propDiscountPercentage,
+        };
+      }
+
+      // If we have originalPrice and discountPercentage (but no current price prop effectively), calculate it
+      if (originalPrice && propDiscountPercentage && !price) {
         return {
           currentPrice: Math.round(
             originalPrice * (1 - propDiscountPercentage / 100)
@@ -62,29 +83,7 @@ export function PriceDisplay({
           discountPercentage: propDiscountPercentage,
         };
       }
-      // If we have price and discountPercentage, calculate originalPrice
-      if (propDiscountPercentage && !originalPrice) {
-        const calculatedOriginal = Math.round(
-          price / (1 - propDiscountPercentage / 100)
-        );
-        return {
-          currentPrice: price,
-          originalPrice: calculatedOriginal,
-          discountPercentage: propDiscountPercentage,
-        };
-      }
-      // If we have both price and originalPrice, use them directly
-      if (originalPrice && originalPrice > price) {
-        const calculatedDiscount = Math.round(
-          ((originalPrice - price) / originalPrice) * 100
-        );
-        return {
-          currentPrice: price,
-          originalPrice: originalPrice,
-          discountPercentage:
-            calculatedDiscount > 0 ? calculatedDiscount : undefined,
-        };
-      }
+
       // Just price, no discount
       return {
         currentPrice: price,
@@ -106,7 +105,8 @@ export function PriceDisplay({
   } = discountInfo;
   const hasDiscount = !!(discountOriginalPrice && discountPercentage);
 
-  if (!currentPrice) {
+  // Use a more robust check for price existence - 0 is a valid price
+  if (currentPrice === undefined || currentPrice === null || (currentPrice === 0 && !hasDiscount)) {
     return (
       <Typography variant="body-small" className={cn("text-grey-blue dark:text-gray-500 font-medium italic", currentPriceClassName)}>
         Price not specified

@@ -11,31 +11,23 @@ interface OrganizationOverviewProps {
 export const OrganizationOverview = ({ organization }: OrganizationOverviewProps) => {
   return (
     <div className="py-8 text-slate-700 dark:text-gray-300 space-y-6">
-      <p>
-        {organization.description ||
-          "BuyorSell Dubai Is A Leading Classifieds Platform, Boasting Over 100+ Million App Downloads Across Diverse Categories, Including Cars, Bikes, Real Estate, And Electronics. BuyOrSell Is The Online Classified Marketplace Helping Them Maximize The Value Of Their Belongings And Promoting Responsible Consumption, Contributing To A Greener, More Sustainable Future."}
-      </p>
-
-      {!organization.description && (
-        <p>
-          BuyorSell Is Now Part Of The CarTrade Tech Group, Which Is India's Largest Online Auto Platform. It Encompasses Brands Such As CarWale, CarTrade, Shriram Automobll, BikeWale, CarTrade Exchange, And Adroit Auto. Together, These Brands Offer A Comprehensive Suite Of Tools And Services Aimed At Enhancing The Car Selling And Buying Experience, Attracting An Average Of 70 Million Monthly Unique And A Staggering 1.4 Million Listings For Auction.
-        </p>
+      {organization.description ? (
+        <p className="whitespace-pre-wrap">{organization.description}</p>
+      ) : (
+        <p className="text-slate-500 italic">No description provided by the organization.</p>
       )}
-
-      <div>
-        <p className="font-semibold text-slate-900 dark:text-gray-100 mb-2">Download Our App Through The Link Below:</p>
-        <div className="space-y-2 text-slate-600 dark:text-gray-400">
-          <p>Android : Https://Play.Google.Com/Store/Search?Q=Olx&C=Apps&Hi=En-IN&Pl=1</p>
-          <p>IOS: Https://Apps.Apple.Com/In/App/BuyorSell-Buy-Sell-Near-You/Id913492792</p>
-        </div>
-      </div>
 
       {/* Info Boxes */}
       <div className="grid gap-8 mt-8 pt-8 border-t border-slate-200 dark:border-slate-800">
         <div>
           <h3 className="font-semibold text-slate-900 dark:text-gray-100 mb-2">Website</h3>
           {organization.website ? (
-            <a href={organization.website} target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">
+            <a 
+              href={organization.website.startsWith('http') ? organization.website : `https://${organization.website}`} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-purple-600 hover:underline break-all"
+            >
               {organization.website}
             </a>
           ) : (
@@ -43,17 +35,21 @@ export const OrganizationOverview = ({ organization }: OrganizationOverviewProps
           )}
         </div>
 
-        <div>
-          <h3 className="font-semibold text-slate-900 dark:text-gray-100 mb-2">Industry</h3>
-          <p>{organization.industry || "Technology, Information And Internet"}</p>
-        </div>
-
-        <div>
-          <h3 className="font-semibold text-slate-900 dark:text-gray-100 mb-2">Company Size</h3>
-          <div className="space-y-1">
-            <p>{organization.companySize || "501-1,000 Employees"}</p>
+        {organization.industry && (
+          <div>
+            <h3 className="font-semibold text-slate-900 dark:text-gray-100 mb-2">Industry</h3>
+            <p>{organization.industry}</p>
           </div>
-        </div>
+        )}
+
+        {organization.companySize && (
+          <div>
+            <h3 className="font-semibold text-slate-900 dark:text-gray-100 mb-2">Company Size</h3>
+            <div className="space-y-1">
+              <p>{organization.companySize}</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

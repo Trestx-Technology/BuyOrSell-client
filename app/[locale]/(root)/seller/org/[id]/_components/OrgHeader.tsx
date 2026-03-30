@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
-import { Phone, BookmarkCheck, Globe, Users } from "lucide-react";
+import { Phone, BookmarkCheck, Globe, Users, MoreVertical, Flag, UserX, AlertTriangle } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { FaMapMarkerAlt, FaCalendarAlt } from "react-icons/fa";
 import Image from "next/image";
@@ -13,6 +13,17 @@ import { Organization } from "@/interfaces/organization.types";
 import { formatDate } from "@/utils/format-date";
 import { ProfilePlaceholder } from "@/components/global/profile-placeholder";
 import { ChatInit } from "@/components/global/chat-init";
+import { useAuthStore } from "@/stores/authStore";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import ReportDialog from "../../../../ad/[adId]/_components/ReportDialog";
+import { useBlockUser, useIsBlocked, useUnblockUser } from "@/hooks/useUserBlock";
+import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
+import { toast } from "sonner";
 
 interface OrgHeaderProps {
   organizationId: string;
@@ -24,6 +35,37 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
   organization,
 }) => {
   const { t } = useLocale();
+  const currentUser = useAuthStore((s) => s.session.user);
+  
+  // Organization owner ID
+  const ownerId = organization.owner?._id || "";
+  const isOwner = currentUser?._id === ownerId;
+
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
+
+  const { data: blockedData } = useIsBlocked(ownerId, !isOwner && !!ownerId);
+  const isBlocked = blockedData?.data?.isBlocked ?? false;
+
+  const { mutateAsync: blockUser, isPending: isBlocking } = useBlockUser();
+  const { mutateAsync: unblockUser, isPending: isUnblocking } = useUnblockUser();
+
+  const handleBlockUser = async () => {
+    try {
+      if (!ownerId) return;
+      if (isBlocked) {
+        await unblockUser(ownerId);
+        toast.success(t.seller.actions.unblockSuccess);
+      } else {
+        await blockUser({ userId: ownerId, reason: "Blocked from org profile" });
+        toast.success(t.seller.actions.blockSuccess);
+      }
+    } catch {
+      toast.error(isBlocked ? t.seller.actions.unblockError : t.seller.actions.blockError);
+    } finally {
+      setIsBlockDialogOpen(false);
+    }
+  };
 
   const sellerName = organization.tradeName || organization.legalName;
   const avatar = organization.logoUrl;
@@ -43,7 +85,6 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
     "https://dev-buyorsell.s3.me-central-1.amazonaws.com/banners/seller-banner.png";
 
   const hasPhone = !!organization.contactPhone;
-  const hasEmail = !!organization.contactEmail;
 
   const handleCall = () => {
     if (hasPhone) {
@@ -54,9 +95,7 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
   const handleWhatsApp = () => {
     if (hasPhone) {
       const phone = organization.contactPhone!;
-      const cleanPhone = phone.startsWith("+")
-        ? phone.replace(/\D/g, "")
-        : phone.replace(/\D/g, "");
+      const cleanPhone = phone.replace(/\D/g, "");
       window.open(`https://wa.me/${cleanPhone}`, "_blank");
     }
   };
@@ -114,12 +153,42 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
           className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+        
         {/* Org type badge on banner */}
         <div className="absolute bottom-4 left-4">
           <span className="px-3 py-1 bg-white/20 dark:bg-black/20 backdrop-blur-md text-white text-xs font-semibold rounded-full border border-white/30 dark:border-white/10">
             {orgTypeLabel}
           </span>
         </div>
+
+        {/* More button (Report/Block) - top right of banner */}
+        {!isOwner && (
+          <div className="absolute top-4 right-4 z-10 hidden lg:block">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 bg-black/20 hover:bg-black/40 text-white border border-white/10 backdrop-blur-md rounded-full transition-all">
+                  <MoreVertical className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-gray-100 dark:border-slate-800 shadow-2xl rounded-2xl p-1.5 animate-in fade-in zoom-in-95 duration-200">
+                <DropdownMenuItem 
+                  onClick={() => setIsReportDialogOpen(true)}
+                  className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors"
+                >
+                  <Flag className="w-4 h-4 text-orange-500" />
+                  {t.seller.actions.reportOrganization}
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setIsBlockDialogOpen(true)}
+                  className="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl cursor-pointer transition-colors"
+                >
+                  <UserX className="w-4 h-4" />
+                  {isBlocked ? t.seller.actions.unblockUser : t.seller.actions.blockUser}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </div>
 
       {/* Main Content Card */}
@@ -317,6 +386,25 @@ const OrgHeader: React.FC<OrgHeaderProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <ReportDialog
+        open={isReportDialogOpen}
+        onOpenChange={setIsReportDialogOpen}
+        reportedId={organizationId}
+        reportedType="organization"
+      />
+
+      <WarningConfirmationDialog
+        open={isBlockDialogOpen}
+        onOpenChange={setIsBlockDialogOpen}
+        onConfirm={handleBlockUser}
+        title={isBlocked ? t.seller.actions.unblockUser : t.seller.actions.blockUser}
+        description={isBlocked ? "Are you sure you want to unblock this organization?" : t.seller.actions.confirmBlockDescription}
+        confirmText={isBlocked ? "Unblock" : "Block"}
+        cancelText="Cancel"
+        isLoading={isBlocking || isUnblocking}
+      />
     </div>
   );
 };

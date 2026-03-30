@@ -15,6 +15,8 @@ import {
   Zap,
   Fuel,
   ImageIcon,
+  Percent,
+  Repeat,
   CircleUser,
   Phone,
   MessageSquareText,
@@ -24,7 +26,7 @@ import { Typography } from "@/components/typography";
 import { FaWhatsapp } from "react-icons/fa";
 import Link from "next/link";
 import { ChatInit } from "@/components/global/chat-init";
-import { ProductExtraFields } from "@/interfaces/ad";
+import { ProductExtraFields, AdLocation } from "@/interfaces/ad";
 import { getSpecifications } from "@/utils/normalize-extra-fields";
 import {
   SpecificationsDisplay,
@@ -34,6 +36,9 @@ import { useMemo, useEffect } from "react";
 import { useShare } from "@/hooks/useShare";
 import { CollectionManager } from "@/components/global/collection-manager";
 import { cn } from "@/lib/utils";
+import { PriceDisplay } from "@/components/global/price-display";
+import { useLocale } from "@/hooks/useLocale";
+import { getLocationDisplay } from "@/utils/get-location-display";
 
 export interface ListingCardProps {
   id: string;
@@ -42,12 +47,16 @@ export interface ListingCardProps {
   originalPrice?: number;
   discount?: number;
   currency?: string;
-  location: string;
+  location: AdLocation;
   images: string[];
-  extraFields: ProductExtraFields;
-  postedTime: string;
-  views?: number;
+  extraFields?: ProductExtraFields;
+  specifications: Specification[];
   isPremium?: boolean;
+  isExchange?: boolean;
+  postedTime?: string;
+  views?: number;
+  sellerDisplayName?: string;
+  sellerImage?: string;
   onClick?: (id: string) => void;
   className?: string;
   showSeller?: boolean;
@@ -77,14 +86,22 @@ const ListingCard: React.FC<ListingCardProps> = ({
   postedTime,
   views = 0,
   isPremium = false,
+  isExchange = false,
   onClick,
   className,
-  showSeller,
-  showSocials,
+  showSeller = true,
+  showSocials = true,
   isSaved: initialIsSaved,
   seller,
 }) => {
   const { share } = useShare();
+  const { locale } = useLocale();
+
+  const displayLocation = useMemo(
+    () => getLocationDisplay(location, locale),
+    [location, locale]
+  );
+
   // Use isSaved flag directly from ad data instead of making per-card API calls
   const [isSaved, setIsSaved] = useState(initialIsSaved ?? false);
 
@@ -198,7 +215,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
 
           {/* Premium Badge */}
           {isPremium && (
-            <div className="absolute top-3 left-3">
+            <div className="absolute top-3 left-3 z-10">
               <Image
                 src={"/premium.svg"}
                 alt="Premium"
@@ -207,6 +224,17 @@ const ListingCard: React.FC<ListingCardProps> = ({
               />
             </div>
           )}
+
+          {/* Exchange Badge */}
+          {isExchange && (
+            <div className="absolute top-3 right-3 z-10">
+              <div className="bg-[#FE9800] text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded-lg shadow-sm flex items-center gap-1">
+                <Repeat size={14} />
+                <span>Exchange</span>
+              </div>
+            </div>
+          )}
+
 
           {/* Image Counter */}
           <div className="absolute bottom-3 left-3 w-fit">
@@ -328,20 +356,17 @@ const ListingCard: React.FC<ListingCardProps> = ({
         <div className="pt-2 space-y-3">
           {/* Price Section */}
           <div className="flex items-center gap-1 px-2.5">
-            <Image src={ICONS.currency.aed} alt="AED" width={16} height={16} />
-            <span className="text-md font-bold text-purple">
-              {formatPrice(price).replace("AED", "").trim()}
-            </span>
-            {originalPrice && (
-              <span className="text-md text-grey-blue line-through text-sm">
-                {formatPrice(originalPrice).replace("AED", "").trim()}
-              </span>
-            )}
-            {discount && (
-              <span className="text-md text-grey-blue text-sm text-teal font-semibold">
-                {discount}%
-              </span>
-            )}
+            <PriceDisplay
+              price={price}
+              originalPrice={originalPrice}
+              discountPercentage={discount}
+              currencyIconWidth={16}
+              currencyIconHeight={16}
+              className="gap-1"
+              currentPriceClassName="text-sm font-bold text-purple"
+              originalPriceClassName="text-xs text-grey-blue line-through"
+              discountBadgeClassName="text-xs text-teal font-semibold"
+            />
           </div>
 
           {/* Title */}
@@ -363,7 +388,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
               variant="body-small"
               className="text-xs text-[#667085] truncate flex-1"
             >
-              {location}
+              {displayLocation}
             </Typography>
           </div>
 

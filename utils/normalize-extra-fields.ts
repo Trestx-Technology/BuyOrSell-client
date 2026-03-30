@@ -84,6 +84,16 @@ export const getSpecifications = (
   const normalizedFields = normalizeExtraFieldsToArray(extraFields);
   return normalizedFields
     .filter((field) => {
+      // Filter out discount, percentage, and deal-related fields as they are handled separately in the UI
+      const lowerName = field.name?.toLowerCase() || "";
+      if (
+        lowerName.includes("discount") ||
+        lowerName.includes("percent") ||
+        lowerName.includes("deal")
+      ) {
+        return false;
+      }
+
       // Only include fields with single values (not arrays)
       if (Array.isArray(field.value)) {
         return false;

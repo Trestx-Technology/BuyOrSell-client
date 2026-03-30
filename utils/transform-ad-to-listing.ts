@@ -3,6 +3,7 @@ import { ListingCardProps } from "@/components/features/listing-card/listing-car
 import { HotDealsListingCardProps } from "@/components/features/hot-deals-listing-card/hot-deals-listing-card";
 import { LatestAd, DealAd } from "@/interfaces/home.types";
 import { formatDate } from "./format-date";
+import { getDiscountInfo } from "./get-discount-info";
 import { type Locale } from "@/lib/i18n/config";
 
 /**
@@ -19,10 +20,20 @@ export const transformAdToListingCard = (
   // Extract address as AdLocation object - prefer ad.address, fall back to ad.location if it's an object
   const getAddress = (): AdLocation => {
     if (ad.address && typeof ad.address === "object") {
-      return ad.address as AdLocation;
+      const addr = ad.address as any;
+      return {
+        ...addr,
+        state: addr.state || addr.emirate,
+        stateAr: addr.stateAr || addr.emirateAr,
+      } as AdLocation;
     }
     if (ad.location && typeof ad.location === "object") {
-      return ad.location as AdLocation;
+      const loc = ad.location as any;
+      return {
+        ...loc,
+        state: loc.state || loc.emirate,
+        stateAr: loc.stateAr || loc.emirateAr,
+      } as AdLocation;
     }
     // If location is a string, put it in the address field
     if (typeof ad.location === "string") {
@@ -32,18 +43,13 @@ export const transformAdToListingCard = (
   };
 
   // Convert extraFields array to flat object for ListingCard
-  // extraFields can be an array of {name, type, value, optionalArray} or already a flat object
-  // extraFields is optional and may not be present in all ads
   const normalizeExtraFields = (): Record<string, any> => {
     if (!ad.extraFields) return {};
 
-    // If it's already an object (Record), return it
     if (!Array.isArray(ad.extraFields)) {
       return ad.extraFields;
     }
 
-    // If it's an array, convert to flat object map where key is name and value is the full field object
-    // This preserves icon and other metadata which normalizeExtraFieldsToArray can now handle
     const flatFields: Record<string, any> = {};
     ad.extraFields.forEach((field) => {
       if (
@@ -58,44 +64,15 @@ export const transformAdToListingCard = (
     return flatFields;
   };
 
-  const extraFields = normalizeExtraFields();
+  const extraFieldsFlat = normalizeExtraFields();
 
-  // Calculate discount - prioritize discountedPrice, then discountedPercent from extraFields
-  let currentPrice = ad.price;
-  let originalPrice: number | undefined = undefined;
-  let discountPercentage: number | undefined = undefined;
+  // Pricing Logic - Use centralized getDiscountInfo
+  const { currentPrice, originalPrice, discountPercentage } = getDiscountInfo(ad);
 
-  if (
-    ad.discountedPrice !== null &&
-    ad.discountedPrice !== undefined &&
-    ad.discountedPrice < ad.price
-  ) {
-    // discountedPrice is available and is less than price
-    currentPrice = ad.discountedPrice;
-    originalPrice = ad.price;
-    // Calculate discount percentage
-    discountPercentage = Math.round(
-      ((ad.price - ad.discountedPrice) / ad.price) * 100,
-    );
-  } else {
-    // Try to get discount from extraFields
-    const discountedPercent =
-      ad.deal && extraFields.discountedPercent
-        ? Number(extraFields.discountedPercent)
-        : undefined;
-
-    if (discountedPercent && discountedPercent > 0 && ad.price) {
-      // Calculate original price from discount percentage
-      originalPrice = Math.round(ad.price / (1 - discountedPercent / 100));
-      currentPrice = ad.price; // price is already the discounted price
-      discountPercentage = Math.round(discountedPercent);
-    }
-  }
-
-  // Check for exchange availability - these are top-level fields, not in extraFields
+  // Check for exchange availability
   const isExchange = Boolean(
     ad.upForExchange ||
-    ad.isExchangable || // Note: API uses "isExchangable" (misspelling)
+    ad.isExchangable || 
     ad.exchanged,
   );
 
@@ -103,11 +80,9 @@ export const transformAdToListingCard = (
   const getSellerInfo = () => {
     if (!ad.owner) return undefined;
 
-    // If organization exists, it's an agent listing
     const isAgent = !!ad.organization;
     const sellerType: "Agent" | "Individual" = isAgent ? "Agent" : "Individual";
 
-    // Get seller name - prefer organization name if available, otherwise use owner name
     let sellerName: string | undefined;
     if (ad.organization?.tradeName) {
       sellerName = ad.organization.tradeName;
@@ -121,7 +96,6 @@ export const transformAdToListingCard = (
       }`.trim();
     }
 
-    // Determine if verified - check organization verified status or owner verification
     const isVerified =
       ad.organization?.verified ||
       ad.owner.emailVerified ||
@@ -155,10 +129,10 @@ export const transformAdToListingCard = (
     discount: discountPercentage,
     location: getAddress(),
     images: ad.images || [],
-    extraFields: extraFields as ProductExtraFields, // Cast to ProductExtraFields for compatibility
+    extraFields: extraFieldsFlat as ProductExtraFields,
     isExchange,
     postedTime: formatDate(ad.createdAt),
-    views: ad.views || 0, // Use views from AD if available
+    views: ad.views || 0,
     isPremium: ad.isFeatured || false,
     seller: getSellerInfo(),
     isSaved: ad.isSaved,
@@ -168,7 +142,6 @@ export const transformAdToListingCard = (
 
 /**
  * Transforms an AD object, LatestAd, or DealAd to HotDealsListingCardProps format
- * Includes deal validity and seller information
  * @param ad - The ad object to transform
  * @param locale - Optional locale to use Arabic fields when locale is 'ar'
  */
@@ -177,118 +150,45 @@ export const transformAdToHotDealsCard = (
   locale?: Locale,
 ): HotDealsListingCardProps => {
   const isArabic = locale === "ar";
-  // Check which type of ad it is
-  const isDealAd =
-    "address" in ad &&
-    ad.address &&
-    typeof ad.address === "object" &&
-    "state" in ad.address;
+  
+  // Use the appropriate transform function for base properties
+  let baseCard: ListingCardProps;
+  let dealValidThrough: string | null = null;
+  const isDealAd = "address" in ad && ad.address && typeof ad.address === "object" && "state" in ad.address;
   const isLatestAd = "dealValidThrough" in ad && !isDealAd;
 
-  // Get deal validity
-  let dealValidThrough: string | null = null;
-  if (isDealAd) {
-    dealValidThrough = (ad as DealAd).dealValidThrough;
-  } else if (isLatestAd) {
-    dealValidThrough = (ad as LatestAd).dealValidThrough;
-  } else {
-    const adObj = ad as AD;
-    // Check extraFields for deal validity
-    if (adObj.extraFields) {
-      const extraFields = Array.isArray(adObj.extraFields)
-        ? adObj.extraFields.reduce(
-            (acc, field) => {
-              if (
-                field &&
-                typeof field === "object" &&
-                "name" in field &&
-                "value" in field
-              ) {
-                acc[field.name] = field.value;
-              }
-              return acc;
-            },
-            {} as Record<string, string | number | boolean | string[] | null>,
-          )
-        : adObj.extraFields;
-
-      // Try different field names for deal validity
-      dealValidThrough =
-        extraFields.dealValidThrough ||
-        extraFields.dealValidThru ||
-        extraFields.validity ||
-        adObj.validity ||
-        null;
-    } else if (adObj.validity) {
-      dealValidThrough = adObj.validity;
-    }
-  }
-
-  // Get discount percentage
-  let discountPercentage: number | undefined;
-  if (isDealAd) {
-    discountPercentage = (ad as DealAd).dealPercentage || undefined;
-  } else if (isLatestAd) {
-    discountPercentage = (ad as LatestAd).dealPercentage || undefined;
-  } else {
-    const adObj = ad as AD;
-    if (adObj.extraFields) {
-      const extraFields = Array.isArray(adObj.extraFields)
-        ? adObj.extraFields.reduce(
-            (acc, field) => {
-              if (
-                field &&
-                typeof field === "object" &&
-                "name" in field &&
-                "value" in field
-              ) {
-                acc[field.name] = field.value;
-              }
-              return acc;
-            },
-            {} as Record<string, string | number | boolean | string[] | null>,
-          )
-        : adObj.extraFields;
-      discountPercentage = extraFields.discountedPercent
-        ? Number(extraFields.discountedPercent)
-        : undefined;
-    }
-  }
-
-  // Use the appropriate transform function
-  let baseCard: ListingCardProps;
   if (isDealAd) {
     baseCard = transformDealAdToCard(ad as DealAd, locale);
+    dealValidThrough = (ad as DealAd).dealValidThrough || null;
   } else if (isLatestAd) {
     baseCard = transformLatestAdToCard(ad as LatestAd, locale);
+    dealValidThrough = (ad as LatestAd).dealValidThrough || null;
   } else {
     baseCard = transformAdToListingCard(ad as AD, locale);
-  }
-
-  // For DealAd, prices are already set correctly in transformDealAdToCard
-  // For other types, calculate original price if needed
-  let finalOriginalPrice = baseCard.originalPrice;
-  if (!isDealAd && discountPercentage && baseCard.price) {
-    finalOriginalPrice = Math.round(
-      baseCard.price / (1 - discountPercentage / 100),
-    );
+    const adObj = ad as AD;
+    // Check various sources for dealValidThrough
+    dealValidThrough = adObj.validity || null;
+    if (!dealValidThrough && adObj.extraFields) {
+      const extraFields = Array.isArray(adObj.extraFields) ? adObj.extraFields : [];
+      const validityField = extraFields.find(f => 
+        f?.name?.toLowerCase().includes("validity") || 
+        f?.name?.toLowerCase().includes("dealvalidthrough")
+      );
+      if (validityField) dealValidThrough = String(validityField.value);
+    }
   }
 
   return {
     ...baseCard,
-    isAddedInCollection:
-      baseCard.isAddedInCollection || (ad as any).isAddedInCollection,
-    isSaved: baseCard.isSaved || (ad as any).isSaved,
-    originalPrice: finalOriginalPrice,
-    discount: discountPercentage,
     dealValidThrough,
-    discountText: discountPercentage
-      ? `FLAT ${Math.round(discountPercentage)}% OFF`
+    discountText: baseCard.discount
+      ? `FLAT ${Math.round(baseCard.discount)}% OFF`
       : undefined,
-    showDiscountBadge: !!discountPercentage,
+    showDiscountBadge: !!baseCard.discount,
     showTimer: !!dealValidThrough,
   };
 };
+
 
 /**
  * Helper function to transform LatestAd to base card format
@@ -358,8 +258,8 @@ const transformLatestAdToCard = (
   return {
     id: ad.id,
     title: isArabic && ad.titleAr ? ad.titleAr : ad.title,
-    price: ad.price,
-    originalPrice: ad.discountedPrice ? ad.price : undefined,
+    price: ad.dealPercentage ? Math.round(ad.price * (1 - ad.dealPercentage / 100)) : ad.price,
+    originalPrice: ad.dealPercentage ? ad.price : undefined,
     discount: ad.dealPercentage || undefined,
     location: getAddress(),
     images: ad.images || [],

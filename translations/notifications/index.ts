@@ -29,6 +29,7 @@ export const notificationsTranslations =
       dateTime: "Date & Time",
       status: "Status",
       actions: "Actions",
+      markAsRead: "Mark as Read",
     },
     "nl-NL": {
       // Popover
@@ -56,6 +57,7 @@ export const notificationsTranslations =
       dateTime: "Datum & Tijd",
       status: "Status",
       actions: "Acties",
+      markAsRead: "Als gelezen markeren",
     },
     nl: {
       // Popover
@@ -83,6 +85,7 @@ export const notificationsTranslations =
       dateTime: "Datum & Tijd",
       status: "Status",
       actions: "Acties",
+      markAsRead: "Als gelezen markeren",
     },
     ar: {
       // Popover
@@ -110,5 +113,6 @@ export const notificationsTranslations =
       dateTime: "التاريخ والوقت",
       status: "الحالة",
       actions: "الإجراءات",
+      markAsRead: "تمييز كمقروء",
     },
   });

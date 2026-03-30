@@ -21,6 +21,7 @@ interface DateTimeInputProps {
   placeholder?: string;
   allowFutureDates?: boolean;
   calendarDisabled?: any;
+  showTime?: boolean;
 }
 
 const DateTimeInput = ({
@@ -31,6 +32,7 @@ const DateTimeInput = ({
   className,
   allowFutureDates = true,
   calendarDisabled,
+  showTime = true,
 }: DateTimeInputProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(() => {
@@ -81,12 +83,14 @@ const DateTimeInput = ({
 
     setDate(selectedDate);
 
-    // Combine date with time if time is already selected
-    if (selectedTime) {
+    if (showTime && selectedTime) {
       const [hours, minutes] = selectedTime.split(":");
       selectedDate.setHours(parseInt(hours, 10));
       selectedDate.setMinutes(parseInt(minutes, 10));
       onChange(selectedDate.toISOString());
+    } else if (!showTime) {
+      onChange(selectedDate.toISOString());
+      setIsOpen(false);
     }
   };
 
@@ -103,7 +107,7 @@ const DateTimeInput = ({
   };
 
   const displayValue = date
-    ? `${format(date, "PPP")}${selectedTime ? ` ${selectedTime}` : ""}`
+    ? `${format(date, "PPP")}${showTime && selectedTime ? ` ${selectedTime}` : ""}`
     : placeholder;
 
   return (
@@ -156,22 +160,24 @@ const DateTimeInput = ({
             </div>
 
             {/* Time Slot Selection */}
-            <div className="flex flex-col border-t md:border-t-0 md:border-l border-[#E2E2E2] md:w-48 max-md:w-full">
-              <ScrollArea className="h-[300px] md:h-auto md:max-h-[400px]">
-                <div className="flex flex-col gap-2 p-6">
-                  {timeSlots.map((time) => (
-                    <Button
-                      key={time}
-                      variant={selectedTime === time ? "primary" : "outline"}
-                      onClick={() => handleTimeSelect(time)}
-                      className="w-full shadow-none text-xs"
-                    >
-                      {time}
-                    </Button>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
+            {showTime && (
+              <div className="flex flex-col border-t md:border-t-0 md:border-l border-[#E2E2E2] md:w-48 max-md:w-full">
+                <ScrollArea className="h-[300px] md:h-auto md:max-h-[400px]">
+                  <div className="flex flex-col gap-2 p-6">
+                    {timeSlots.map((time) => (
+                      <Button
+                        key={time}
+                        variant={selectedTime === time ? "primary" : "outline"}
+                        onClick={() => handleTimeSelect(time)}
+                        className="w-full shadow-none text-xs"
+                      >
+                        {time}
+                      </Button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            )}
           </div>
         </div>
       </PopoverContent>

@@ -50,7 +50,6 @@ import { GoogleMapsProvider } from "@/components/providers/google-maps-provider"
 import { CheckCircle2 } from "lucide-react";
 import { FormSummaryItem } from "./FormSummaryItem";
 import PostStatusView, { PostStatus } from "./PostStatusView";
-import { useAdAvailability } from "@/hooks/useAdAvailability";
 import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
 import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
 
@@ -159,6 +158,7 @@ export default function LeafCategoryContent() {
     setValue,
     watch,
     trigger,
+    clearErrors,
     formState: { errors },
   } = useForm<FormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -167,7 +167,7 @@ export default function LeafCategoryContent() {
       images: [] as ImageItem[],
       deal: false,
       dealValidThru: "",
-      discountedPercent: 0,
+      discountedPercent: undefined,
       connectionTypes: ["chat", "call", "whatsapp"],
     },
     mode: "onChange",
@@ -1045,6 +1045,11 @@ export default function LeafCategoryContent() {
                       onChange={(val) => {
                         field.onChange(val);
                         handleInputChange("deal", val);
+                        if (!val) {
+                          setValue("discountedPercent", undefined);
+                          setValue("dealValidThru", "");
+                          clearErrors(["discountedPercent", "dealValidThru"]);
+                        }
                       }}
                     />
                   )}
@@ -1062,19 +1067,7 @@ export default function LeafCategoryContent() {
                     <Controller
                       name="discountedPercent"
                       control={control}
-                      rules={{
-                        required: watch("deal")
-                          ? "Discount percentage is required"
-                          : false,
-                        min: { value: 1, message: "Minimum 1%" },
-                        max: { value: 99, message: "Maximum 99%" },
-                        validate: (value) => {
-                          if (!watch("deal")) return true;
-
-                          // Validate specific logic if needed
-                          return true;
-                        },
-                      }}
+                      rules={{ required: false }}
                       render={({ field }) => (
                         <NumberInput
                           value={(field.value as number) || 0}
@@ -1100,13 +1093,10 @@ export default function LeafCategoryContent() {
                     <Controller
                       name="dealValidThru"
                       control={control}
-                      rules={{
-                        required: watch("deal")
-                          ? "Validity date is required"
-                          : false,
-                      }}
+                      rules={{ required: false }}
                       render={({ field }) => (
                         <DateTimeInput
+                          showTime={false}
                           value={(field.value as string) || ""}
                           onChange={(val: string) => {
                             field.onChange(val);
