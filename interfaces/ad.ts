@@ -98,6 +98,12 @@ export type AD = {
   jobShiftAr?: string;
   views?: number; // Number of views
   adType?: "JOB" | "AD"; // Type of ad
+  noticePeriod?: string;
+  careerLevel?: string;
+  experience?: string;
+  qualification?: string;
+  gender?: string;
+  nationality?: string;
   stockQuantity: number;
   availability: string;
   availabilityAr?: string;
@@ -349,6 +355,12 @@ export interface PostAdPayload {
   maxSalary?: number;
   jobMode?: string;
   jobShift?: string;
+  noticePeriod?: string;
+  careerLevel?: string;
+  experience?: string;
+  qualification?: string;
+  gender?: string;
+  nationality?: string;
   videoUrl?: string;
   contactPhoneNumber?: string;
   extraFields: ProductExtraFields;
@@ -369,11 +381,9 @@ export interface PostAdPayload {
     _id?: string;
   };
   connectionTypes: ("chat" | "call" | "whatsapp")[] | undefined;
-  relatedCategories: string[];
+  relatedCategories: [];
   featuredStatus: "created" | "rejected" | "live";
   documents: Document[];
-  status: AdStatus;
-  userType: "RERA_LANDLORD" | "RERA_AGENT";
   tags: any[];
   stockQuantity: number;
   availability: string;

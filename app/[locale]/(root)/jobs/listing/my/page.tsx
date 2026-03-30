@@ -5,9 +5,7 @@ import { Breadcrumbs, BreadcrumbItem } from "@/components/ui/breadcrumbs";
 import { Typography } from "@/components/typography";
 import { useMyAds, useAdById } from "@/hooks/useAds";
 import { AD, AdFilters } from "@/interfaces/ad";
-import { JobData } from "@/interfaces/job.types";
-import { formatDistanceToNow } from "date-fns";
-import JobListingCard from "../_components/job-listing-card";
+import JobCard from "../../my-profile/_components/job-card";
 import JobHeaderCard from "../_components/job-header-card";
 import MobileJobHeaderCard from "../_components/mobile-job-header-card";
 import JobDetailContent from "../_components/job-detail-content";
@@ -17,10 +15,8 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { Container1080 } from "@/components/layouts/container-1080";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
-import router from "next/router";
 import { useRouter } from "nextjs-toploader/app";
 import { NoDataCard } from "@/components/global/fallback-cards";
-import { transformAdToJobCard } from "@/utils/transform-ad-to-job-card";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -42,7 +38,7 @@ export default function MyJobsPage() {
 
   const jobs = useMemo(
     () => (adsData?.data?.adds || []) as AD[],
-    [adsData?.data?.adds]
+    [adsData?.data?.adds],
   );
   const totalItems = adsData?.data?.total || jobs.length;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
@@ -64,8 +60,7 @@ export default function MyJobsPage() {
   // No local transformation needed, using centralized utility
 
   const breadcrumbItems: BreadcrumbItem[] = [
-    { id: "jobs", label: "Jobs", href: "/jobs" },
-    // { id: "listing", label: "Listing", href: "/jobs/listing" },
+    { id: "listing", label: "Listing", href: "/jobs/listing/jobs" },
     { id: "my", label: "My Jobs", href: "/jobs/listing/my", isActive: true },
   ];
 
@@ -108,39 +103,42 @@ export default function MyJobsPage() {
           </div>
         ) : jobs.length === 0 ? (
           <div className="text-center py-12">
-              <NoDataCard title="No Jobs Found" description="You have not created any jobs yet." />
+            <NoDataCard
+              title="No Jobs Found"
+              description="You have not created any jobs yet."
+            />
           </div>
         ) : (
-              <div className="flex flex-col items-center justify-center gap-5">
+          <div className="flex flex-col items-center justify-center gap-5">
             {/* Left Column - Job Listings Sidebar */}
             {/* On md: hide when job is selected, show when no selection. On lg+: always show */}
             <div
-                  className={`space-y-5 w-full  gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:min-w-[256px]`}
+              className={`space-y-5 w-full  gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:min-w-[256px]`}
             >
               {jobs.map((job) => (
-                <JobListingCard
+                <JobCard
                   key={job._id}
                   job={job}
-                  isSelected={selectedJobId === job._id}
-                  onClick={() => {
-                    router.push(`/jobs/listing/${job._id}/applicants`);
-                  }}
-                  transformAdToJobCardProps={(ad) => transformAdToJobCard(ad)}
+                  onClick={() =>
+                    router.push(`/jobs/listing/${job._id}/applicants`)
+                  }
+                  buttonHref={`/jobs/listing/${job._id}/applicants`}
+                  buttonLabel="Applicants"
                 />
               ))}
 
               {/* Pagination */}
-                </div>
-                {totalPages > 1 && (
-                  <div className="bg-white w-full flex justify-center items-center border border-gray-200 rounded-xl p-4">
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                    isLoading={false}
-                  />
-                </div>
-                )}
+            </div>
+            {totalPages > 1 && (
+              <div className="bg-white w-full flex justify-center items-center border border-gray-200 rounded-xl p-4">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  isLoading={false}
+                />
+              </div>
+            )}
 
             {/* Right Column - Job Detail View */}
             {/* On md: show when job is selected. On lg+: always show when selected */}
@@ -166,9 +164,8 @@ export default function MyJobsPage() {
                     <MobileJobHeaderCard
                       job={selectedJob}
                       logo={selectedJob.organization?.logoUrl}
-
-                              isSaved={selectedJob.isSaved ?? false}
-                              isApplied={selectedJob.isApplied ?? false}
+                      isSaved={selectedJob.isSaved ?? false}
+                      isApplied={selectedJob.isApplied ?? false}
                       onBack={() => setSelectedJobId(null)}
                       className="block sm:hidden"
                     />
@@ -177,8 +174,8 @@ export default function MyJobsPage() {
                       className="hidden sm:block"
                       job={selectedJob}
                       logo={selectedJob.organization?.logoUrl}
-                              isSaved={selectedJob.isSaved ?? false}
-                              isApplied={selectedJob.isApplied ?? false}
+                      isSaved={selectedJob.isSaved ?? false}
+                      isApplied={selectedJob.isApplied ?? false}
                     />
                     <JobDetailContent job={selectedJob} />
                     <Disclaimer />

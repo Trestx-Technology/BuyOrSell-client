@@ -119,6 +119,7 @@ export const ChatInit: React.FC<ChatInitProps> = ({
             let finalOrganisationId = organisationId;
             if (ad?.organization) {
                   finalOrganisationId = ad.organization._id;
+                  finalType = "organisation";
             }
 
             // Resolve Ad Data
@@ -138,8 +139,8 @@ export const ChatInit: React.FC<ChatInitProps> = ({
             const owner = ad?.owner && typeof ad.owner === 'object' ? ad.owner : null;
             const orgInfo = ad?.organization;
 
-            const finalSellerName = orgInfo?.tradeName || orgInfo?.legalName || (owner?.firstName
-                  ? `${owner.firstName} ${owner.lastName}`.trim()
+            const finalSellerName = orgInfo?.tradeName || orgInfo?.legalName || (owner 
+                  ? [owner.firstName, owner.lastName].filter(Boolean).join(" ").trim()
                   : (sellerName || "Seller"));
 
             const finalSellerNameAr = orgInfo?.tradeNameAr || orgInfo?.legalNameAr || (owner?.firstNameAr || sellerNameAr || finalSellerName);
@@ -157,6 +158,8 @@ export const ChatInit: React.FC<ChatInitProps> = ({
                   return;
             }
 
+            const currentUserName = [session.user.firstName, session.user.lastName].filter(Boolean).join(" ").trim() || "User";
+
             setIsLoading(true);
             try {
                   const chatParams: CreateChatParams = {
@@ -167,8 +170,8 @@ export const ChatInit: React.FC<ChatInitProps> = ({
                         participants: [session.user._id, finalSellerId as string],
                         participantDetails: {
                               [session.user._id]: {
-                                    name: `${session.user.firstName} ${session.user.lastName}`.trim(),
-                                    nameAr: `${session.user.firstName} ${session.user.lastName}`.trim(),
+                                    name: currentUserName,
+                                    nameAr: currentUserName,
                                     image: session.user.image || "",
                                     isVerified: session.user.emailVerified || false,
                               },

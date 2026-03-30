@@ -53,8 +53,8 @@ export default function UserReviewsPageContent() {
   const overallRating = averageRatingResponse?.data || 0;
   const totalReviews =
     reviewsData?.pages[0] && !Array.isArray(reviewsData.pages[0])
-      ? (reviewsData.pages[0] as any).total ||
-        (reviewsData.pages[0] as any).data?.total ||
+      ? (reviewsData.pages[0] as any).data?.total ??
+        (reviewsData.pages[0] as any).total ??
         reviews.length
       : reviews.length;
 
@@ -83,6 +83,7 @@ export default function UserReviewsPageContent() {
       id: review._id,
       userName: reviewerName,
       rating: review.rating || 0,
+      tag: review.tag,
       comment:
         reviewText.length > 50
           ? reviewText.substring(0, 50) + "..."
@@ -90,6 +91,7 @@ export default function UserReviewsPageContent() {
       timeAgo,
       avatar,
       fullComment: reviewText,
+      reviewerImage: review.reviewerImage,
     };
   };
 
@@ -234,20 +236,30 @@ export default function UserReviewsPageContent() {
                     key={review.id}
                     className="flex items-start gap-4 pb-6 border-b border-gray-100 dark:border-gray-800 last:border-0 last:pb-0"
                   >
-                    <div className="w-12 h-12 bg-[#9FB7E4] rounded-full flex items-center justify-center flex-shrink-0">
-                      <Typography
-                        variant="body"
-                        className="text-white font-semibold flex items-center justify-center pt-2"
-                      >
-                        {review.avatar}
-                      </Typography>
-                    </div>
+                    {review.reviewerImage ? (
+                      <div className="w-12 h-12 rounded-full flex-shrink-0 overflow-hidden">
+                        <img
+                          src={review.reviewerImage}
+                          alt={review.userName}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 bg-[#9FB7E4] rounded-full flex items-center justify-center flex-shrink-0">
+                        <Typography
+                          variant="body"
+                          className="text-white font-semibold flex items-center justify-center pt-2"
+                        >
+                          {review.avatar}
+                        </Typography>
+                      </div>
+                    )}
 
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start mb-1">
                         <Typography
                           variant="body"
-                          className="text-dark-blue dark:text-white font-semibold"
+                          className="text-dark-blue dark:text-white font-bold"
                         >
                           {review.userName}
                         </Typography>
@@ -259,22 +271,34 @@ export default function UserReviewsPageContent() {
                         </Typography>
                       </div>
 
-                      <div className="flex items-center gap-1 mb-3">
-                        {renderStars(review.rating || 0)}
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <div className="flex items-center gap-0.5">
+                          {renderStars(review.rating || 0)}
+                        </div>
                         <Typography
                           variant="body-small"
-                          className="text-dark-blue dark:text-white font-semibold text-xs ml-1"
+                          className="text-dark-blue dark:text-white font-bold text-xs ml-1"
                         >
                           {review.rating ? review.rating.toFixed(1) : "0.0"}
                         </Typography>
                       </div>
 
-                      <Typography
-                        variant="body-small"
-                        className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-line"
-                      >
-                        {review.fullComment}
-                      </Typography>
+                      {review.tag && (
+                        <div className="mb-3">
+                          <span className="inline-block bg-purple/10 text-purple text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                            {review.tag}
+                          </span>
+                        </div>
+                      )}
+
+                      {review.fullComment && (
+                        <Typography
+                          variant="body-small"
+                          className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-line"
+                        >
+                          {review.fullComment}
+                        </Typography>
+                      )}
                     </div>
                   </div>
                 ))}

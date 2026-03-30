@@ -45,22 +45,18 @@ interface StatsSectionProps {
   isLoading?: boolean;
   savedJobsCount?: number;
   appliedJobsCount?: number;
-  shortlistedJobsCount?: number;
-  rejectedJobsCount?: number;
 }
 
 export default function StatsSection({
   isLoading,
   savedJobsCount,
   appliedJobsCount,
-  shortlistedJobsCount,
-  rejectedJobsCount,
 }: StatsSectionProps) {
   if (isLoading) {
     return (
       <section className="w-full px-4 lg:px-[100px] pt-6 pb-10">
         <div className="grid grid-cols-2 lg:flex gap-[21.33px] max-w-[1080px] mx-auto w-full lg:flex-wrap">
-          {Array.from({ length: 4 }).map((_, i) => (
+          {Array.from({ length: 2 }).map((_, i) => (
             <div
               key={i}
               className="bg-white dark:bg-gray-900 rounded-[16.6px] p-[33.2px] w-full lg:w-[254px] lg:h-[232px] animate-pulse border dark:border-gray-800"
@@ -83,16 +79,6 @@ export default function StatsSection({
           count={appliedJobsCount || 0}
           label="Applied Jobs"
           href="/jobs/applied?type=applied"
-        />
-        <StatCard
-          count={shortlistedJobsCount || 0}
-          label="Shortlisted Jobs"
-          href="/jobs/applied?type=shortlisted"
-        />
-        <StatCard
-          count={rejectedJobsCount || 0}
-          label="Rejected Jobs"
-          href="/jobs/applied?type=rejected"
         />
       </div>
     </section>

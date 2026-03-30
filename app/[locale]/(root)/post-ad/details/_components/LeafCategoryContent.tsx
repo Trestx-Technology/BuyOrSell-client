@@ -65,7 +65,6 @@ export default function LeafCategoryContent() {
     setActiveCategory,
     currentStep,
     setStep,
-    selectedSubscriptionId,
   } = useAdPostingStore((state) => state);
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt");
@@ -132,13 +131,13 @@ export default function LeafCategoryContent() {
   } = useAdSubscription();
 
   const { subscription, planType, shouldFeature } = resolve(
-    categoryArray[0]?.name || category?.name || "", 
-    categoryArray[0]?.id || category?._id
+    categoryArray[0]?.name || category?.name || "",
+    categoryArray[0]?.id || category?._id,
   );
-  
+
   const { remainingAds, remainingFeatured } = getRemainingCredits(
-    categoryArray[0]?.name || category?.name || "", 
-    categoryArray[0]?.id || category?._id
+    categoryArray[0]?.name || category?.name || "",
+    categoryArray[0]?.id || category?._id,
   );
 
   const isLoading = isCategoryLoading || subscriptionsLoading;
@@ -318,12 +317,14 @@ export default function LeafCategoryContent() {
     const categoryName = categoryArray[0]?.name || category?.name || "";
 
     // 1. Double check availability
-    if (!checkAvailability({
-      action: "post",
-      categoryType: categoryArray[0]?.name || category?.name || "",
-      categoryName: category?.name || "",
-      categoryId: categoryArray[0]?.id || category?._id,
-    })) {
+    if (
+      !checkAvailability({
+        action: "post",
+        categoryType: categoryArray[0]?.name || category?.name || "",
+        categoryName: category?.name || "",
+        categoryId: categoryArray[0]?.id || category?._id,
+      })
+    ) {
       setPostStatus("idle");
       return;
     }
@@ -344,8 +345,6 @@ export default function LeafCategoryContent() {
 
     // Calculate prices
     const price = (data.price as number) || 0;
-    const minPrice = (data.minPrice as number) || 0;
-    const maxPrice = (data.maxPrice as number) || 0;
     const discountedPercent = (data.discountedPercent as number) || 0;
     const dealValidThru = (data.dealValidThru as string) || undefined;
 
@@ -354,10 +353,14 @@ export default function LeafCategoryContent() {
     const exchangeTitle = (data.exchangeTitle as string) || "";
     const exchangeDescription = (data.exchangeDescription as string) || "";
     const exchangeImages = (data.exchangeImages as MultipleImageItem[]) || [];
-    
+
     // Filter out blob URLs and get the first valid S3 URL
     const exchangeImageUrl = exchangeImages
-      .map((img) => img.fileUrl || (img.url && !img.url.startsWith("blob:") ? img.url : null))
+      .map(
+        (img) =>
+          img.fileUrl ||
+          (img.url && !img.url.startsWith("blob:") ? img.url : null),
+      )
       .filter((url): url is string => !!url)[0];
 
     // Prepare connectionTypes array
@@ -406,7 +409,8 @@ export default function LeafCategoryContent() {
     const isIndividual = organizationValue === "individual";
 
     // Determine adType based on category
-    const categoryName = category?.name || categoryArray[categoryArray.length - 1]?.name || "";
+    const categoryName =
+      category?.name || categoryArray[categoryArray.length - 1]?.name || "";
     const adType: "AD" | "JOB" = isJobCategory(categoryName) ? "JOB" : "AD";
 
     // Prepare payload according to the API structure
@@ -425,7 +429,8 @@ export default function LeafCategoryContent() {
         | ("chat" | "call" | "whatsapp")[]
         | undefined,
       deal: data.deal === true || data.deal === "true",
-      discountedPercent: data.deal && discountedPercent > 0 ? discountedPercent : undefined,
+      discountedPercent:
+        data.deal && discountedPercent > 0 ? discountedPercent : undefined,
       dealValidThru: data.deal && dealValidThru ? dealValidThru : undefined,
       isExchangable: isExchange,
       exchangeWith:
@@ -446,10 +451,8 @@ export default function LeafCategoryContent() {
           ? addressData.coordinates
           : null,
       },
-      relatedCategories: categoryArray.map((cat) => cat.name),
+      relatedCategories: [],
       featuredStatus: shouldFeature ? "live" : "created",
-      status: "created",
-      userType: "RERA_LANDLORD" as const,
       tags: [],
       documents: [],
       extraFields: extraFields,
@@ -1188,7 +1191,11 @@ export default function LeafCategoryContent() {
                   />
                   <FormSummaryItem
                     label="Discount Percentage"
-                    value={formValues.discountedPercent ? `${formValues.discountedPercent}%` : undefined}
+                    value={
+                      formValues.discountedPercent
+                        ? `${formValues.discountedPercent}%`
+                        : undefined
+                    }
                     error={!!errors.discountedPercent}
                   />
                   <FormSummaryItem

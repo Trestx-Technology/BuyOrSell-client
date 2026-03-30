@@ -53,7 +53,7 @@ export default function JobListingCard({
   const isSaved = job.isSaved ?? false;
 
   const jobProps = transformAdToJobCardProps(job);
-  const postedTime = formatDate(job.createdAt)
+  const postedTime = formatDate(job.createdAt);
 
   // Extract additional fields directly from job
   const extraFields = Array.isArray(job.extraFields)
@@ -65,7 +65,7 @@ export default function JobListingCard({
 
   const getFieldValue = (fieldName: string): string => {
     const field = extraFields.find((f) =>
-      f.name?.toLowerCase().includes(fieldName.toLowerCase())
+      f.name?.toLowerCase().includes(fieldName.toLowerCase()),
     );
     if (field) {
       if (Array.isArray(field.value)) {
@@ -76,14 +76,29 @@ export default function JobListingCard({
     return "";
   };
 
-  const jobTitle = isArabic && job.titleAr ? job.titleAr : job.title;
-  const companyName = isArabic && job.organization?.tradeNameAr ? job.organization.tradeNameAr :
-    (isArabic && job.organization?.legalNameAr ? job.organization.legalNameAr : jobProps.company);
+  const companyName =
+    isArabic && job.organization?.tradeNameAr
+      ? job.organization.tradeNameAr
+      : isArabic && job.organization?.legalNameAr
+        ? job.organization.legalNameAr
+        : jobProps.company;
 
-  const jobShift = isArabic && job.jobShiftAr ? job.jobShiftAr : (job.jobShift || getFieldValue("jobShift") || getFieldValue("job shift") || "");
+  const jobShift =
+    isArabic && job.jobShiftAr
+      ? job.jobShiftAr
+      : job.jobShift ||
+        getFieldValue("jobShift") ||
+        getFieldValue("job shift") ||
+        "";
   const locationDisplay = useMemo(() => {
     // Check both job.address and job.location structure
-    const locObj = (typeof job.address === "object" ? job.address : (typeof job.location === "object" ? job.location : null)) as any;
+    const locObj = (
+      typeof job.address === "object"
+        ? job.address
+        : typeof job.location === "object"
+          ? job.location
+          : null
+    ) as any;
 
     if (locObj) {
       if (isArabic) {
@@ -109,6 +124,7 @@ export default function JobListingCard({
     ? validityDate!.getTime() < Date.now()
     : false;
 
+  const experienceDisplay = job.experience || "N/A";
 
   return (
     <div
@@ -116,7 +132,7 @@ export default function JobListingCard({
       role="button"
       className={cn(
         "group h-full flex flex-col bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden",
-        isSelected && "ring-2 ring-purple border-transparent"
+        isSelected && "ring-2 ring-purple border-transparent",
       )}
     >
       {/* Main content container - matches Figma layout */}
@@ -192,11 +208,11 @@ export default function JobListingCard({
           {/* Text container - width 171px with 16px gap */}
           <div className="space-y-1">
             <Typography
-            variant="body"
-            className="text-foreground dark:text-white font-bold text-base leading-[1.2] line-clamp-2"
-          >
-            {jobProps.title}
-          </Typography>
+              variant="body"
+              className="text-foreground dark:text-white font-bold text-base leading-[1.2] line-clamp-2"
+            >
+              {jobProps.title}
+            </Typography>
             <Typography
               variant="body-small"
               className="text-muted-foreground text-sm font-normal leading-[1.21]"
@@ -217,7 +233,7 @@ export default function JobListingCard({
             variant="body-small"
             className="text-foreground dark:text-white text-xs font-medium leading-[1.21]"
           >
-            {jobProps.experience || "Not specified"}
+            {experienceDisplay}
           </Typography>
         </div>
 
@@ -229,8 +245,12 @@ export default function JobListingCard({
               variant="body-small"
               className="text-foreground dark:text-gray-300 text-xs font-medium leading-[1.21]"
             >
-              {jobProps.salaryMin > 0 ? formatCompactPrice(jobProps.salaryMin) : "Not specified"} 
-              {jobProps.salaryMax > 0 ? ` - ${formatCompactPrice(jobProps.salaryMax)}` : ""}
+              {jobProps.salaryMin > 0
+                ? formatCompactPrice(jobProps.salaryMin)
+                : "Not specified"}
+              {jobProps.salaryMax > 0
+                ? ` - ${formatCompactPrice(jobProps.salaryMax)}`
+                : ""}
             </Typography>
           </div>
         </div>

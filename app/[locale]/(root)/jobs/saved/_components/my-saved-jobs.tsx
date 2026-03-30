@@ -36,13 +36,13 @@ export default function MySavedJobs() {
                         </div>
 
                         {isLoading ? (
-                              <div className="flex flex-wrap gap-6">
+                              <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-3">
                                     {[...Array(8)].map((_, i) => (
                                           <Skeleton key={i} className="h-[300px] w-full rounded-2xl" />
                                     ))}
                               </div>
                         ) : savedJobs.length > 0 ? (
-                              <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
+                              <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-3">
                                     {savedJobs.map((job) => {
                                           const organization = job.job?.organization;
                                           const address = job.job?.address;

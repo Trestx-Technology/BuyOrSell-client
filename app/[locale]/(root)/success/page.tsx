@@ -374,7 +374,11 @@ export default function SuccessPage() {
         <div className="bg-[#F9FAFB] dark:bg-[#1F2937] rounded-xl p-4 sm:p-6 mb-8 border border-[#E5E7EB] dark:border-gray-800 flex flex-col sm:flex-row gap-8 items-start justify-between">
           <div className="flex-shrink-0 mx-auto sm:mx-0">
             {isJob ? (
-              <JobCard job={ad as AD} />
+              <JobCard 
+                job={ad as AD} 
+                showSaveButton={false} 
+                isButtonDisabled={true}
+              />
             ) : (
               <ListingCard
                 id={ad._id}
@@ -405,7 +409,11 @@ export default function SuccessPage() {
               <div className="flex justify-between items-center text-[#4B5563] dark:text-gray-400">
                 <span>{t.success.status}</span>
                 <span className="font-medium text-[#111827] dark:text-white">
-                  {isLive ? t.success.published : isRejected ? t.success.rejected : t.success.pending}
+                  {isLive
+                    ? t.success.published
+                    : isRejected
+                      ? t.success.rejected
+                      : t.success.pending}
                 </span>
               </div>
               <div className="flex justify-between items-center text-[#4B5563] dark:text-gray-400">
@@ -434,7 +442,11 @@ export default function SuccessPage() {
                   </button>
                 ) : (
                   <button
-                    onClick={() => router.push(localePath(`/user/my-ads`))}
+                    onClick={() =>
+                      router.push(
+                        localePath(isJob ? `/jobs/listing/my` : `/user/my-ads`),
+                      )
+                    }
                     className="text-[#5645EE] hover:underline flex items-center text-sm font-semibold"
                   >
                     {isJob ? t.success.myJobs : t.success.myAds}{" "}

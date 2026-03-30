@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { ConnectionStatus } from "@/interfaces/connection.types";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/hooks/useLocale";
+import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
 
 export type ConnectButtonRenderProps = {
       isConnected: boolean;
@@ -60,6 +61,7 @@ export const ConnectButton = ({
             normalizeStatus(initialConnectionStatus)
       );
       const [requestId, setRequestId] = useState<string | undefined>(initialRequestId);
+      const [showProfileDialog, setShowProfileDialog] = useState(false);
 
       // Keep internal state in sync with props if they change
       useEffect(() => {
@@ -122,8 +124,7 @@ export const ConnectButton = ({
             } else {
                   // If connecting as an individual (no organisationId), require jobseeker profile
                   if (!organisationId && !jobseekerData?.data && !isJobseekerLoading) {
-                        toast.warning(t.jobs.messages.createProfileToConnect);
-                        router.push("/jobs/jobseeker/new");
+                        setShowProfileDialog(true);
                         return;
                   }
 
@@ -156,53 +157,75 @@ export const ConnectButton = ({
             }
       };
 
-      if (isCurrentUser) {
+      const renderContent = () => {
+            if (isCurrentUser) {
+                  if (render) {
+                        return <>{render({ isConnected, connectionStatus, handleConnection, isLoading, requestId })}</>;
+                  }
+                  return (
+                        <Button
+                              onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.push(`/jobs/jobseeker/${professionalId}`);
+                              }}
+                              className={cn("w-full rounded-lg py-2.5 font-semibold transition-all z-20 relative", className)}
+                              variant="primary"
+                              width="full"
+                              {...props}
+                        >
+                              {children || t.jobs.actions.viewProfile}
+                        </Button>
+                  );
+            }
+
             if (render) {
                   return <>{render({ isConnected, connectionStatus, handleConnection, isLoading, requestId })}</>;
             }
+
             return (
                   <Button
-                        onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/jobs/jobseeker/${professionalId}`);
-                        }}
+                        isLoading={isLoading}
+                        disabled={isLoading}
+                        onClick={handleConnection}
                         className={cn("w-full rounded-lg py-2.5 font-semibold transition-all z-20 relative", className)}
-                        variant="primary"
+                        variant={
+                              connectionStatus === "PENDING" || connectionStatus === "ACCEPTED"
+                                    ? "outline"
+                                    : "primary"
+                        }
                         width="full"
                         {...props}
                   >
-                        {children || t.jobs.actions.viewProfile}
+                        {children || (
+                              connectionStatus === "ACCEPTED"
+                                    ? t.jobs.actions.connected
+                                    : connectionStatus === "PENDING"
+                                          ? t.jobs.actions.cancelRequest
+                                          : connectionStatus === "REJECTED"
+                                                ? t.jobs.actions.resendRequest
+                                                : t.jobs.actions.connect
+                        )}
                   </Button>
             );
-      }
-
-      if (render) {
-            return <>{render({ isConnected, connectionStatus, handleConnection, isLoading, requestId })}</>;
-      }
+      };
 
       return (
-            <Button
-                  isLoading={isLoading}
-                  disabled={isLoading}
-                  onClick={handleConnection}
-                  className={cn("w-full rounded-lg py-2.5 font-semibold transition-all z-20 relative", className)}
-                  variant={
-                        connectionStatus === "PENDING" || connectionStatus === "ACCEPTED"
-                               ? "outline"
-                               : "primary"
-                  }
-                  width="full"
-                  {...props}
-            >
-                  {children || (
-                        connectionStatus === "ACCEPTED"
-                               ? t.jobs.actions.connected
-                               : connectionStatus === "PENDING"
-                                     ? t.jobs.actions.cancelRequest
-                                     : connectionStatus === "REJECTED"
-                                           ? t.jobs.actions.resendRequest
-                                           : t.jobs.actions.connect
-                  )}
-            </Button>
+            <>
+                  {renderContent()}
+
+                  <WarningConfirmationDialog
+                        open={showProfileDialog}
+                        onOpenChange={setShowProfileDialog}
+                        title={t.jobs.messages.createProfileTitle || "Jobseeker Profile Required"}
+                        description={t.jobs.messages.createProfileDescription || "You need to create a jobseeker profile to connect with other jobseeker profiles."}
+                        confirmText={t.jobs.actions.createProfile || "Create Profile"}
+                        cancelText={t.common.cancel || "Cancel"}
+                        onConfirm={() => {
+                              setShowProfileDialog(false);
+                              router.push("/jobs/jobseeker/new");
+                        }}
+                        confirmVariant="primary"
+                  />
+            </>
       );
 };

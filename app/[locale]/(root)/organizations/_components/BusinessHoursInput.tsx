@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Plus, X, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { SelectInput } from "@/app/[locale]/(root)/post-ad/details/_components/SelectInput";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
 
@@ -73,10 +73,31 @@ export function BusinessHoursInput({
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateHour = (index: number, field: keyof BusinessHour, newValue: any) => {
+  const updateHour = (
+    index: number,
+    field: keyof BusinessHour,
+    newValue: any,
+  ) => {
     const updated = hours.map((hour, i) =>
-      i === index ? { ...hour, [field]: newValue } : hour
+      i === index ? { ...hour, [field]: newValue } : hour,
     );
+    updateHours(updated);
+  };
+
+  const handleStatusChange = (
+    index: number,
+    status: "open" | "closed" | "allDay",
+  ) => {
+    const updated = hours.map((hour, i) => {
+      if (i === index) {
+        return {
+          ...hour,
+          closed: status === "closed",
+          allDay: status === "allDay",
+        };
+      }
+      return hour;
+    });
     updateHours(updated);
   };
 
@@ -113,58 +134,62 @@ export function BusinessHoursInput({
                 onChange={(val) => updateHour(index, "day", parseInt(val))}
                 options={DAY_OPTIONS}
                 placeholder="Select day"
-                disabled={disabled}
+                disabled={disabled || hour.closed}
               />
             </FormField>
 
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <Checkbox
-                  checked={hour.closed}
-                  onCheckedChange={(checked) =>
-                    updateHour(index, "closed", checked === true)
-                  }
-                  disabled={disabled}
-                />
-                <span className="text-sm text-[#1D2939] dark:text-gray-100">Closed</span>
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <Checkbox
-                  checked={hour.allDay}
-                  onCheckedChange={(checked) =>
-                    updateHour(index, "allDay", checked === true)
-                  }
-                  disabled={disabled}
-                />
-                <span className="text-sm text-[#1D2939] dark:text-gray-100">All Day</span>
-              </label>
+            <div className="flex items-center pt-6">
+              <RadioGroup
+                value={hour.closed ? "closed" : hour.allDay ? "allDay" : "open"}
+                onValueChange={(val) =>
+                  handleStatusChange(index, val as "open" | "closed" | "allDay")
+                }
+                className="flex items-center gap-6"
+                disabled={disabled}
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="open" id={`open-${index}`} />
+                  <label
+                    htmlFor={`open-${index}`}
+                    className="text-sm cursor-pointer dark:text-gray-200"
+                  >
+                    Open
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="closed" id={`closed-${index}`} />
+                  <label
+                    htmlFor={`closed-${index}`}
+                    className="text-sm cursor-pointer dark:text-gray-200"
+                  >
+                    Closed
+                  </label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
 
-          {!hour.closed && !hour.allDay && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField label="Open Time" htmlFor={`open-${index}`} required>
-                <SelectInput
-                  value={hour.open}
-                  onChange={(val) => updateHour(index, "open", val)}
-                  options={TIME_OPTIONS}
-                  placeholder="Select open time"
-                  disabled={disabled}
-                />
-              </FormField>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField label="Open Time" htmlFor={`open-${index}`} required>
+              <SelectInput
+                value={hour.open}
+                onChange={(val) => updateHour(index, "open", val)}
+                options={TIME_OPTIONS}
+                placeholder="Select open time"
+                disabled={disabled || hour.closed || hour.allDay}
+              />
+            </FormField>
 
-              <FormField label="Close Time" htmlFor={`close-${index}`} required>
-                <SelectInput
-                  value={hour.close}
-                  onChange={(val) => updateHour(index, "close", val)}
-                  options={TIME_OPTIONS}
-                  placeholder="Select close time"
-                  disabled={disabled}
-                />
-              </FormField>
-            </div>
-          )}
+            <FormField label="Close Time" htmlFor={`close-${index}`} required>
+              <SelectInput
+                value={hour.close}
+                onChange={(val) => updateHour(index, "close", val)}
+                options={TIME_OPTIONS}
+                placeholder="Select close time"
+                disabled={disabled || hour.closed || hour.allDay}
+              />
+            </FormField>
+          </div>
         </div>
       ))}
 
@@ -174,10 +199,7 @@ export function BusinessHoursInput({
         size="sm"
         onClick={addHour}
         disabled={disabled}
-                    icon={
-        <Plus className="w-4 h-4" />
-              
-                    }
+        icon={<Plus className="w-4 h-4" />}
         iconPosition="center"
         className="w-full"
       >
@@ -186,4 +208,3 @@ export function BusinessHoursInput({
     </div>
   );
 }
-

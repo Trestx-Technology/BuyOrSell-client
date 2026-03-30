@@ -242,15 +242,18 @@ const UserProfileContent = () => {
             totalRatings={
               Array.isArray(reviewsResponse)
                 ? reviewsResponse.length
-                : (reviewsResponse as any)?.total ||
-                  (reviewsResponse as any)?.data?.length ||
+                : (reviewsResponse as any)?.data?.total ??
+                  (reviewsResponse as any)?.total ??
+                  (reviewsResponse as any)?.data?.length ??
                   0
             }
             joinDate={formatJoinDate(user.createdAt)}
-            avatarUrl={user.image && user.image !== "/images/ai-prompt/add-image.png" ? user.image : undefined}
-            isVerified={
-              !!user.emailVerified && !!user.phoneVerified
+            avatarUrl={
+              user.image && user.image !== "/images/ai-prompt/add-image.png"
+                ? user.image
+                : undefined
             }
+            isVerified={!!user.emailVerified && !!user.phoneVerified}
             onEdit={handleEdit}
           />
         ) : null}
@@ -270,7 +273,9 @@ const UserProfileContent = () => {
               Reviews (
               {Array.isArray(reviewsResponse)
                 ? reviewsResponse.length
-                : (reviewsResponse as any)?.total || 0}
+                : (reviewsResponse as any)?.data?.total ??
+                  (reviewsResponse as any)?.total ??
+                  0}
               )
             </TabsTrigger>
           </TabsList>
@@ -284,7 +289,10 @@ const UserProfileContent = () => {
                     variant="h3"
                     className="text-lg font-bold text-dark-blue dark:text-white"
                   >
-                    {t.user.profile.myAdvertisements.replace("{count}", filteredAds.length.toString())}
+                    {t.user.profile.myAdvertisements.replace(
+                      "{count}",
+                      filteredAds.length.toString(),
+                    )}
                   </Typography>
                   <Typography variant="body-small" className="text-gray-500">
                     {t.user.profile.manageAdsDescription}
@@ -373,7 +381,12 @@ const UserProfileContent = () => {
                         variant="body-small"
                         className="text-gray-500 italic"
                       >
-                        {t.user.profile.noAdsWithStatus.replace("{status}", t.user.profile[`status${adStatusTab.charAt(0).toUpperCase() + adStatusTab.slice(1)}` as keyof typeof t.user.profile] as string)}
+                        {t.user.profile.noAdsWithStatus.replace(
+                          "{status}",
+                          t.user.profile[
+                            `status${adStatusTab.charAt(0).toUpperCase() + adStatusTab.slice(1)}` as keyof typeof t.user.profile
+                          ] as string,
+                        )}
                       </Typography>
                     </div>
                   )}
