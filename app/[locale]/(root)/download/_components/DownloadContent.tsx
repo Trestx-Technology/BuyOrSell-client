@@ -177,7 +177,7 @@ export function DownloadContent() {
       <Container1080 className="mt-20">
         <div className="rounded-[40px] overflow-hidden shadow-2xl border-8 border-white dark:border-gray-900">
           <BannerBySlug 
-            slug="explore-deals" 
+            slug="app-downloads" 
             withOverlay 
             aspectRatio="video"
           />

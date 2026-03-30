@@ -177,12 +177,11 @@ export function AISearchAdsDialog({
           )}
 
           {/* Sponsored Banner for Nora Search */}
-          <div className="p-4 mt-2">
+          <div className="mt-6 rounded-2xl overflow-hidden border border-purple/10 shadow-lg">
             <BannerBySlug 
-              slug="explore-deals" 
+              slug="nora-search" 
               withOverlay 
               aspectRatio="video"
-              className="rounded-2xl"
             />
           </div>
 

@@ -96,7 +96,7 @@ const OrganizationSellerContent: React.FC = () => {
         {/* Sponsored Banner */}
         <div className="mt-12 rounded-[32px] overflow-hidden shadow-xl border border-white/20 dark:border-slate-800">
           <BannerBySlug 
-            slug="explore-deals" 
+            slug="org-profile" 
             withOverlay 
             aspectRatio="video"
           />

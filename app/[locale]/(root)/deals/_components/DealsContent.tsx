@@ -245,7 +245,7 @@ export default function HotDealsContent() {
                         {showSponsored && (
                           <div className="w-full h-full min-h-[350px] sm:min-h-[400px] relative rounded-xl overflow-hidden shadow-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                             <BannerBySlug 
-                              slug="explore-deals" 
+                              slug="deals-page" 
                               className="w-full h-full absolute inset-0" 
                             />
                             <div className="absolute top-2 right-2 px-2 py-0.5 bg-black/50 backdrop-blur-md rounded text-[10px] text-white font-medium z-10 pointer-events-none">

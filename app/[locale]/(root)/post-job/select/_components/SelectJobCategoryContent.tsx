@@ -213,9 +213,9 @@ export default function SelectJobCategoryContent() {
             </div>
 
             {/* Sponsored Banner */}
-            <div className="mt-12 rounded-[32px] overflow-hidden shadow-2xl">
+            <div className="mt-12 rounded-[40px] overflow-hidden shadow-2xl border-8 border-white dark:border-gray-950">
               <BannerBySlug 
-                slug="explore-deals" 
+                slug="post-job-select" 
                 withOverlay 
                 aspectRatio="video"
               />

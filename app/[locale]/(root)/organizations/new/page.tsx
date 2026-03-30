@@ -260,11 +260,13 @@ const NewOrganizationPage = () => {
               </div>
             )}
             <div className="mt-8 space-y-4">
-              <BannerBySlug 
-                slug="explore-deals" 
-                withOverlay 
-                className="h-[380px]" 
-              />
+              <div className="rounded-[30px] overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl">
+                <BannerBySlug 
+                  slug="org-onboarding" 
+                  withOverlay 
+                  aspectRatio="video"
+                />
+              </div>
             </div>
           </div>
         </div>

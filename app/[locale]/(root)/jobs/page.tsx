@@ -83,9 +83,15 @@ export default async function JobsHomePage({ params }: PageProps) {
         {/* Companies to follow */}
         <CompaniesToFollow />
 
-        <Container1080 className="my-12">
-          <BannerBySlug slug="explore-deals" withOverlay />
-        </Container1080>
+        <Container1080>
+         <div className="my-20 rounded-[48px] overflow-hidden shadow-2xl border-8 border-white dark:border-gray-950">
+           <BannerBySlug 
+             slug="jobs-home" 
+             withOverlay 
+             aspectRatio="video"
+           />
+         </div>
+       </Container1080>
 
         {/* Jobs CTA Section */}
         <Container1080>

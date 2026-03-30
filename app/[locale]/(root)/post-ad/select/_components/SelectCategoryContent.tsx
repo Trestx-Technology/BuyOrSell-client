@@ -193,7 +193,7 @@ export default function SelectCategoryContent() {
             {/* Sponsored Banner */}
             <div className="mt-12 rounded-[32px] overflow-hidden shadow-2xl">
               <BannerBySlug 
-                slug="explore-deals" 
+                slug="post-ad-select" 
                 withOverlay 
                 aspectRatio="video"
               />
