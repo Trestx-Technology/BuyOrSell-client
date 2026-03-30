@@ -107,13 +107,13 @@ export default function MyAppliedJobs() {
                         </div>
 
                         {isLoading ? (
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                     {[...Array(6)].map((_, i) => (
                                           <Skeleton key={i} className="h-[280px] w-full rounded-2xl" />
                                     ))}
                               </div>
                         ) : applications.length > 0 ? (
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                     {applications.map((app) => (
                                           <AppliedJobCard key={app._id} application={app} />
                                     ))}

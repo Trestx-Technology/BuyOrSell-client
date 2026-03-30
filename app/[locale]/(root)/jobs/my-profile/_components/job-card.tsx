@@ -48,7 +48,7 @@ export default function JobCard({
   return (
     <div 
       onClick={onClick}
-      className={`relative sm:w-[250px] bg-white dark:bg-zinc-900 border border-[#E2E2E2] dark:border-zinc-800 rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full flex flex-col h-full hover:shadow-lg transition-shadow duration-300 ${onClick ? "cursor-pointer" : ""}`}
+      className={`relative bg-white dark:bg-zinc-900 border border-[#E2E2E2] dark:border-zinc-800 rounded-2xl p-4 shadow-[0px_2.67px_7.11px_rgba(48,150,137,0.08)] w-full flex flex-col h-full hover:shadow-lg transition-shadow duration-300 ${onClick ? "cursor-pointer" : ""}`}
     >
       {/* Header with Badge and Actions */}
       <div className="space-y-2 flex-1 gap-[21.33px] mb-4" onClick={(e) => e.stopPropagation()}>
