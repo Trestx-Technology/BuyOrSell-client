@@ -53,12 +53,13 @@ export const transformAdToJobCard = (ad: AD) => {
     title: ad.title || "",
     company:
       ad.organization?.tradeName || ad.organization?.legalName || "Company",
-    experience: getFieldValue("experience") || "Not specified",
+    experience: ad.experience || getFieldValue("experience") || "Not specified",
     location:
       typeof ad.location === "string"
         ? ad.location
         : ad.location?.city || "Location not specified",
-    jobType: getFieldValue("jobType") || "Not specified",
+    jobType: ad.jobMode || getFieldValue("jobType") || getFieldValue("jobMode") || "Not specified",
+    jobShift: ad.jobShift || getFieldValue("jobShift") || "Not specified",
     postedTime: formatDistanceToNow(new Date(ad.createdAt), {
       addSuffix: true,
     }),
