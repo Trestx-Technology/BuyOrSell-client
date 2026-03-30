@@ -1,5 +1,4 @@
-import { AD, ProductExtraField } from "@/interfaces/ad";
-import { normalizeExtraFieldsToArray } from "./normalize-extra-fields";
+import { AD } from "@/interfaces/ad";
 
 export interface DiscountInfo {
   currentPrice: number;
@@ -11,72 +10,43 @@ export interface DiscountInfo {
  * Calculates discount information from an AD object
  * Priority order:
  * 1. discountedPrice (if discountedPrice < price) - checks even if deal is false
- * 2. dealPercentage (if deal is active or dealPercentage exists)
- * 3. discountedPercent in extraFields (if deal is active or field exists)
- * 4. No discount - returns regular price
+ * 2. dealPercentage or discountedPercent (if percentage > 0)
+ * 3. No discount - returns regular price
  *
  * @param ad - The AD object to calculate discount from
  * @returns DiscountInfo object with currentPrice, originalPrice (if discounted), and discountPercentage (if discounted)
  */
 export function getDiscountInfo(ad: AD): DiscountInfo {
-  // Priority 1: If discountedPrice is provided and is less than price, use it directly
-  // Check this even if deal is false, as discountedPrice might be set independently
-  if (ad.discountedPrice && ad.discountedPrice < ad.price && ad.price > 0) {
-    const discountPercentage = Math.round(
-      ((ad.price - ad.discountedPrice) / ad.price) * 100
-    );
+  const price = Number(ad.price) || 0;
+  const discountedPrice = ad.discountedPrice !== null && ad.discountedPrice !== undefined ? Number(ad.discountedPrice) : null;
+  
+  // 1. Priority: Handle ad.discountedPrice explicitly if it's less than regular price
+  if (discountedPrice !== null && discountedPrice < price && price > 0) {
+    const discountPercentage = Math.round(((price - discountedPrice) / price) * 100);
     return {
-      currentPrice: ad.discountedPrice,
-      originalPrice: ad.price,
+      currentPrice: discountedPrice,
+      originalPrice: price,
+      discountPercentage: discountPercentage > 0 ? discountPercentage : undefined,
+    };
+  }
+
+  // 2. Priority: Handle dealPercentage or discountedPercent if percentage > 0
+  const percentage = Number(ad.dealPercentage || ad.discountedPercent) || 0;
+
+  if (percentage > 0 && price > 0) {
+    const discountPercentage = Math.round(percentage);
+    const calculatedDiscountedPrice = Math.round(price * (1 - discountPercentage / 100));
+    
+    return {
+      currentPrice: calculatedDiscountedPrice,
+      originalPrice: price,
       discountPercentage: discountPercentage,
     };
   }
 
-  // Priority 2: Check for dealPercentage (check even if deal is false, as it might be set)
-  if (ad.dealPercentage && ad.dealPercentage > 0 && ad.price) {
-    const discountPercentage = Math.round(ad.dealPercentage);
-    const discountedPrice = Math.round(
-      ad.price * (1 - discountPercentage / 100)
-    );
-    // Only return discount if calculated price is less than original
-    if (discountedPrice < ad.price) {
-      return {
-        currentPrice: discountedPrice,
-        originalPrice: ad.price,
-        discountPercentage: discountPercentage,
-      };
-    }
-  }
-
-  // Priority 3: Check for discount in extraFields (discountedPercent field)
-  const extraFields = normalizeExtraFieldsToArray(ad.extraFields || []);
-  const discountPercentField = extraFields.find(
-    (f: ProductExtraField) =>
-      f.name?.toLowerCase().includes("discountedPercent") ||
-      f.name?.toLowerCase().includes("discountpercent")
-  );
-
-  // Check discountPercentField if deal is active OR if the field exists (more flexible)
-  if (discountPercentField && (ad.deal || discountPercentField.value)) {
-    const discountPercentage = Number(discountPercentField.value) || 0;
-    if (discountPercentage > 0 && ad.price) {
-      const discountedPrice = Math.round(
-        ad.price * (1 - discountPercentage / 100)
-      );
-      // Only return discount if calculated price is less than original
-      if (discountedPrice < ad.price) {
-        return {
-          currentPrice: discountedPrice,
-          originalPrice: ad.price,
-          discountPercentage: Math.round(discountPercentage),
-        };
-      }
-    }
-  }
-
-  // No discount - show regular price
+  // Default: show regular price
   return {
-    currentPrice: ad.price,
+    currentPrice: price,
     originalPrice: undefined,
     discountPercentage: undefined,
   };

@@ -121,7 +121,7 @@ export const createPostAdSchema = (category?: SubCategory) => {
         return isNaN(parsed) ? undefined : parsed;
       }
       return typeof val === "number" ? val : undefined;
-    }, z.number().min(1, "Discount percentage must be at least 1%").max(99, "Discount percentage cannot exceed 99%").optional()),
+    }, z.number().optional()),
     stockQuantity: z.preprocess((val) => {
       if (val === undefined || val === null) return undefined;
       if (typeof val === "string") {

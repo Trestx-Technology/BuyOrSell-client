@@ -145,6 +145,7 @@ export type AD = {
   };
   exchanged?: boolean; // Whether item has been exchanged
   discountedPrice?: number; // Discounted price when deal is active
+  discountedPercent?: number; // Discount percentage
   dealValidThru?: string; // ISO 8601 date string for deal validity
   dealValidThrough?: string; // Alternative field name for deal validity
   dealPercentage?: number; // Discount percentage (calculated or provided)

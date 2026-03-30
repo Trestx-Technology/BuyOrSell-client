@@ -111,6 +111,7 @@ const ListingCard: React.FC<ListingCardProps> = ({
           views={views}
           handleShare={handleShare}
           isSaved={isSaved}
+          discount={discount}
         />
 
         {/* Content Section */}
