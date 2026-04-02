@@ -14,251 +14,293 @@ export interface AppResolution {
 }
 
 export const APP_RESOLUTIONS: AppResolution[] = [
-  // --- 1. SEARCH & CATEGORIES ---
+  // --- 1. SEARCH & DISCOVERY ---
   {
     id: "search_general",
-    keywords: ["find", "search", "looking for", "buy", "purchase", "browse"],
+    keywords: ["find", "search", "looking for", "buy", "purchase", "browse", "item", "product", "ad"],
     response:
-      "I am Nora, your App Navigation Assistant and cannot search for specific ads directly from this chat. To search for ads, please use the main search bar with the AI Option at the top of the page, or simply use our new keyboard shortcut (coming soon!).",
+      "I am Nora, your Digital Guide. While I can't search for specific items directly in this chat, you can find anything using our powerful search bar. Try 'AI Search' for smart, context-aware results or use the 'AI Suggestions' that appear as you type!",
   },
   {
-    id: "categories_browse",
-    keywords: ["category", "categories", "sections", "types"],
+    id: "ai_searchbar",
+    keywords: ["smart search", "suggestions", "prediction", "advanced search", "ai search"],
     response:
-      "From Cars to Electronics and Jobs to Real Estate, we have it all categorized for you.",
-    action: { label: "Browse Categories", url: "/categories" },
+      "Our AI Search understands your intent! Look for the 'AI Search' toggle in the search bar. It provides smart suggestions and helps you find exactly what you need based on thousands of categories.",
   },
   {
-    id: "cars_search",
-    keywords: [
-      "car",
-      "vehicle",
-      "auto",
-      "toyota",
-      "nissan",
-      "mercedes",
-      "bmw",
-      "motors",
-    ],
+    id: "command_menu",
+    keywords: ["command", "quick search", "shortcuts", "cmd", "ctrl k", "navigation menu"],
     response:
-      "Looking for a new ride? Our Motors section has thousands of verified cars for sale across the UAE.",
-    action: { label: "Search Cars", url: "/search?category=motors" },
+      "For power users, our 'Command Menu' (Ctrl+K) allows you to jump to any page, category, or setting instantly. It's the fastest way to navigate BuyOrSell!",
+  },
+  {
+    id: "map_view",
+    keywords: ["map", "location", "near me", "nearby", "interactive map", "distance", "where", "view on map"],
+    response:
+      "Browse visually! Use our Interactive Map to find listings, jobs, and offices near your current location. You can filter by categories directly on the map.",
+    action: { label: "Explore Map", url: "/map-view" },
+  },
+  {
+    id: "emirate_selector",
+    keywords: ["emirate", "dubai", "abu dhabi", "sharjah", "ajman", "rak", "fujairah", "uaq", "location filter", "region"],
+    response:
+      "You can filter the entire platform by Emirate! Use the location selector in the header to see only ads and jobs in your preferred region.",
+  },
+
+  // --- 2. CORE CATEGORIES ---
+  {
+    id: "cars_motors",
+    keywords: ["car", "vehicle", "auto", "toyota", "nissan", "mercedes", "bmw", "motors", "suv", "truck", "bike", "motorcycle", "boats"],
+    response:
+      "Our Motors section is the largest in the UAE. From luxury SUVs and family cars to bikes and boats—all with detailed specifications and verified seller info.",
+    action: { label: "Search Motors", url: "/search?category=motors" },
   },
   {
     id: "real_estate",
-    keywords: [
-      "apartment",
-      "villa",
-      "rent",
-      "flat",
-      "property",
-      "real estate",
-      "house",
-    ],
+    keywords: ["apartment", "villa", "rent", "flat", "property", "real estate", "house", "studio", "office", "shop", "commercial", "residential"],
     response:
-      "Find your dream home or next office space in our Real Estate section. We have listings for both rent and sale.",
+      "Find properties for rent or sale. We cover residential (villas, flats) and commercial (offices, shops) listings across all major UAE projects.",
     action: { label: "Browse Properties", url: "/search?category=real-estate" },
   },
   {
-    id: "electronics",
-    keywords: [
-      "iphone",
-      "samsung",
-      "mobile",
-      "laptop",
-      "tv",
-      "computer",
-      "gadget",
-      "electronics",
-    ],
+    id: "electronics_gadgets",
+    keywords: ["iphone", "samsung", "mobile", "laptop", "tv", "computer", "gadget", "electronics", "phone", "tablet", "camera", "playstation"],
     response:
-      "Looking for the latest gadgets? Check out our Electronics section for great deals on mobiles, laptops, and more.",
+      "Get the best deals on electronics. Whether it's the latest iPhone, a gaming laptop, or home appliances, you'll find it here.",
     action: { label: "Shop Electronics", url: "/search?category=electronics" },
   },
 
-  // --- 2. SELLING & POSTING ---
+  // --- 3. SELLING & AD MANAGEMENT ---
   {
-    id: "sell_item",
-    keywords: ["sell", "post", "listing", "upload", "create ad"],
+    id: "post_ad_flow",
+    keywords: ["sell", "post", "listing", "upload", "create ad", "make ad", "place ad"],
     response:
-      "Ready to reach thousands of buyers? You can post your ad in just a few minutes. Don't forget to use Nora to write a great description!",
-    action: { label: "Post an Ad", url: "/post-ad" },
+      "Posting is easy! Choose your category, add details, and your ad will be live in minutes. Use our 'Dynamic Field Renderer' to see exactly what info bidders need.",
+    action: { label: "Start Posting", url: "/post-ad" },
   },
   {
-    id: "premium_ads",
-    keywords: ["premium", "boost", "standard", "featured", "top ad", "subscription", "plan", "package", "subscriptions"],
+    id: "ai_description",
+    keywords: ["write for me", "help with description", "ai writer", "description assistant", "auto write"],
     response:
-      "Want to reach more buyers? We offer flexible subscription plans and boost packages to get your ads noticed faster.",
-    action: { label: "View Subscription Plans", url: "/plans" },
+      "Stuck on what to write? Our 'AI Description Assistant' can generate a professional, SEO-friendly description for your ad automatically!",
   },
   {
-    id: "how_can_i",
-    keywords: ["how can i", "how do i", "how to"],
+    id: "ad_boost_renew",
+    keywords: ["boost", "feature", "renew", "repost", "mark as sold", "bump up", "top of list"],
     response:
-      "I can help you figure out how to use the platform! Whether you want to post an ad, find a job, or manage your organization, I can guide you. You can also check our Help Center format detailed tutorials.",
-    action: { label: "Visit Help Center", url: "/help-centre" },
+      "Get 10x more views! You can 'Feature' your ads to stay at the top or 'Renew' them to refresh the posting date. Once sold, just mark it as 'Sold' to stop inquiries.",
+    action: { label: "Manage My Ads", url: "/user/ads" },
+  },
+  {
+    id: "premium_plans",
+    keywords: ["subscription", "package", "pricing", "plans", "gold", "silver", "basic", "premium features"],
+    response:
+      "We offer flexible plans for everyone. From free basic posts to professional packages with unlimited featured ads and business tools.",
+    action: { label: "View All Plans", url: "/plans" },
   },
 
-  // --- 3. JOBS ---
+  // --- 4. JOBS & RECRUITMENT ---
   {
-    id: "find_job",
-    keywords: [
-      "job",
-      "work",
-      "hiring",
-      "career",
-      "vacancy",
-      "opening",
-      "employment",
-    ],
+    id: "job_search",
+    keywords: ["find job", "hiring", "career", "apply", "cv", "resume", "vacancy", "employment"],
     response:
-      "Looking for your next career move? Check out the latest job openings from top companies in the UAE.",
+      "Browse thousands of active vacancies. Filter by industry, salary, and location. Our 'Job Detail Content' gives you all the info you need before applying.",
     action: { label: "Search Jobs", url: "/jobs/listing" },
   },
   {
-    id: "post_job",
-    keywords: ["hire", "recruiting", "post job", "find staff", "employer"],
+    id: "emirati_talent",
+    keywords: ["emirati", "uae national", "nafis", "citizen jobs", "local talent"],
     response:
-      "Find the perfect candidate for your company. Start by posting a job vacancy today.",
-    action: { label: "Post a Job", url: "/post-job" },
+      "We are committed to Emiratization! We have a dedicated path for UAE Nationals to find positions in both government and private sectors.",
+    action: { label: "Emirati Jobs", url: "/jobs/listing/emirati-jobs" },
+  },
+  {
+    id: "jobseeker_profile",
+    keywords: ["my cv", "job profile", "candidate dashboard", "my career"],
+    response:
+      "Your 'Jobseeker Profile' is your digital CV. Keep it updated with your latest experience and skills to get noticed by top recruiters.",
+    action: { label: "My Job Profile", url: "/jobs/my-profile" },
+  },
+  {
+    id: "employer_tools",
+    keywords: ["post job", "recruiter", "find staff", "applicants", "tracking", "hiring dashboard"],
+    response:
+      "Hiring? Post jobs and track applicants in real-time. Our 'Applicant Manager' allows you to review CVs and manage interview stages easily.",
+    action: { label: "Employer Portal", url: "/post-job" },
   },
 
-  // --- 4. ORGANIZATIONS ---
+  // --- 5. BUSINESS & ORGANIZATIONS ---
   {
-    id: "create_org",
-    keywords: ["organization", "business", "company account", "org"],
+    id: "business_portal",
+    keywords: ["organization", "business profile", "company page", "trade name", "legal name", "corporate account"],
     response:
-      "Are you a business owner? Create an Organization profile to manage multiple ads, members, and showcase your brand.",
-    action: { label: "Manage Organizations", url: "/user/organizations" },
+      "Scale your business! Verified organizations get a custom 'Organization Profile' with their logo, trade licenses, and certificates displayed for trust.",
+    action: { label: "Business Hub", url: "/organizations/my" },
+  },
+  {
+    id: "org_management",
+    keywords: ["business hours", "team members", "certificates", "org settings", "company info"],
+    response:
+      "Complete your profile! Add your business hours, upload trade certificates, and manage your team from the Organization Settings.",
   },
 
-  // --- 5. EXCHANGES ---
+  // --- 6. USER ACCOUNT & SECURITY ---
   {
-    id: "exchange_item",
-    keywords: ["exchange", "swap", "trade", "barter"],
+    id: "account_settings",
+    keywords: ["my profile", "settings", "password", "security", "blocked users", "notifications"],
     response:
-      "BuyOrSell isn't just for cash deals. You can also find items available for exchange or swap!",
-    action: { label: "View Exchange Deals", url: "/exchange" },
+      "Manage your privacy and security. You can update your password, manage your 'Blocked Users' list, and customize app notifications in one place.",
+    action: { label: "Account Settings", url: "/user/profile/settings" },
+  },
+  {
+    id: "user_verification",
+    keywords: ["verify email", "verify phone", "otp", "identity", "blue tick", "verified seller"],
+    response:
+      "Trust is key. Verify your email and phone number via OTP to get a verified badge and increase your selling potential.",
+  },
+  {
+    id: "manage_addresses",
+    keywords: ["my address", "shipping address", "saved locations", "pickup point"],
+    response:
+      "Save multiple addresses to your profile for faster checkouts and easier location tagging on your ads.",
+    action: { label: "Manage Addresses", url: "/user/address" },
+  },
+  {
+    id: "search_history",
+    keywords: ["history", "past searches", "revisit", "recent activity"],
+    response:
+      "Forgot that ad you saw yesterday? Re-check your 'Search History' to find all your recent queries and viewed categories.",
+    action: { label: "Search History", url: "/user/search-history" },
   },
 
-  // --- 6. DEALS & OFFERS ---
+  // --- 7. COMMUNITY & SOCIAL ---
   {
-    id: "daily_deals",
-    keywords: ["deal", "discount", "offer", "sale", "cheap", "best price"],
+    id: "chat_messages",
+    keywords: ["chat", "inbox", "message", "talk to seller", "dm", "conversation"],
     response:
-      "Don't miss out on our daily deals! Browse the best offers currently available on the platform.",
-    action: { label: "View All Deals", url: "/deals" },
+      "Our 'Chat Center' is safe and fast. You can talk to buyers/sellers, share images, and even see if the other person is a 'Verified Organization'.",
+    action: { label: "Open Messages", url: "/chat" },
+  },
+  {
+    id: "collections_favs",
+    keywords: ["favorite", "saved", "collection", "wishlist", "folder", "save ad"],
+    response:
+      "Organize your finds! Use our 'Collection Manager' to create custom folders and save your favorite ads for later.",
+    action: { label: "My Collections", url: "/favorites" },
+  },
+  {
+    id: "social_connections",
+    keywords: ["follow", "followers", "following", "social network", "connections"],
+    response:
+      "Stay connected! Follow your favorite sellers or businesses to get notified when they post something new.",
+    action: { label: "My Network", url: "/connections" },
+  },
+  {
+    id: "reviews_ratings",
+    keywords: ["rate seller", "review", "feedback", "stars", "seller rating"],
+    response:
+      "Check seller credibility through our 'Reviews' system. You can read feedback from other buyers before making a purchase.",
   },
 
-  // --- 7. AI FEATURES & TOKENS ---
+  // --- 8. VIDEO & COMMUNITY CONTENT ---
   {
-    id: "nora_assistant",
-    keywords: ["nora", "ai assistant", "help desk", "what is this", "bot", "assistant"],
+    id: "watch_shorts",
+    keywords: ["watch", "videos", "shorts", "reels", "video ads", "stories", "clips"],
     response:
-      "I'm Nora, your AI guide! I can help you find products, write ad descriptions, and navigate the platform faster using AI tokens.",
-    action: { label: "How Nora Works", url: "/ai-tokens" },
+      "Experience ads in motion! The 'Watch' section features short video previews of products, cars, and home tours.",
+    action: { label: "Watch Now", url: "/watch" },
   },
+  {
+    id: "blog_insights",
+    keywords: ["blog", "article", "news", "tips", "market trends", "latest stories"],
+    response:
+      "Get expert advice on the UAE marketplace. Read our latest blog posts for buying guides, safety tips, and platform updates.",
+    action: { label: "Read Blog", url: "/blog" },
+  },
+
+  // --- 9. DEALS & EXCHANGES ---
+  {
+    id: "hot_deals",
+    keywords: ["discount", "deal", "offer", "hot deal", "sale", "special price", "best price"],
+    response:
+      "Looking for high-value savings? Our 'Hot Deals' section features limited-time discounts and specially promoted offers.",
+    action: { label: "View Deals", url: "/deals" },
+  },
+  {
+    id: "exchange_swap",
+    keywords: ["swap", "trade", "exchange", "no cash", "barter"],
+    response:
+      "Don't want to spend cash? Many sellers are open to a 'Swap' or 'Exchange'. Look for the exchange badge on listings!",
+    action: { label: "Exchange Portal", url: "/exchange" },
+  },
+
+  // --- 10. TOKENS & BILLING ---
   {
     id: "ai_tokens",
-    keywords: ["tokens", "token", "credits", "buy tokens"],
+    keywords: ["audit tokens", "credits", "token balance", "buy tokens", "wallet"],
     response:
-      "AI tokens power our smart features like the Description Assistant. You can purchase tokens to keep using these advanced tools.",
-    action: { label: "Get AI Tokens", url: "/ai-tokens" },
+      "AI tokens power your smart assistants. Check your 'AI Token Balance' in your profile or top up to keep using premium AI features.",
+    action: { label: "AI Tokens Hub", url: "/ai-tokens" },
+  },
+  {
+    id: "billing_subscriptions",
+    keywords: ["my plans", "active subscriptions", "billing history", "invoice", "manage plan"],
+    response:
+      "Manage your current subscriptions and see when they expire in our 'My Subscriptions' dashboard.",
+    action: { label: "My Subscriptions", url: "/my-subscriptions" },
   },
 
-  // --- 8. ACCOUNT & PROFILE ---
+  // --- 11. SUPPORT & FEEDBACK ---
   {
-    id: "user_profile",
-    keywords: ["profile", "my account", "settings", "password", "details"],
+    id: "help_support",
+    keywords: ["support", "help", "faq", "safety", "tutorial", "contact us"],
     response:
-      "You can update your personal information, manage your notifications, and see your activity in your profile.",
-    action: { label: "View Profile", url: "/user/profile" },
+      "We're here for you! Visit our 'Help Center' for tutorials or reach out to our dedicated support team via the 'Contact Us' form.",
+    action: { label: "Help Hub", url: "/help-centre" },
   },
   {
-    id: "saved_items",
-    keywords: ["saved", "favorites", "wishlist", "heart", "collection"],
+    id: "report_rate",
+    keywords: ["report bot", "bug", "issue", "rate app", "feedback", "suggestion"],
     response:
-      "Keep track of items you're interested in by saving them to your favorites collection.",
-    action: { label: "My Favorites", url: "/favorites" },
+      "Your voice matters. Report issues through the 'Report Issue' portal or tell us how we're doing via the 'Rate Us' page.",
+    action: { label: "Provide Feedback", url: "/rate-us" },
   },
   {
-    id: "my_ads",
-    keywords: ["my ads", "my listings", "manage ads", "edit ad"],
+    id: "privacy_legal",
+    keywords: ["terms", "privacy", "policy", "legal", "conditions", "safety tips"],
     response:
-      "View and manage all the ads you've posted in your personalized dashboard.",
-    action: { label: "My Ads", url: "/user/ads" },
-  },
-
-  // --- 9. MAP VIEW ---
-  {
-    id: "map_view",
-    keywords: ["map", "location", "near me", "nearby", "interactive map"],
-    response:
-      "Use our interactive map to find items, properties, and jobs exactly where you need them.",
-    action: { label: "Open Map View", url: "/map-view" },
+      "Your data is safe with us. Read our 'Privacy Policy' and 'Terms of Service' for all the legal details.",
+    action: { label: "Legal Center", url: "/privacy-policy" },
   },
 
-  // --- 10. SUPPORT & SAFETY ---
+  // --- 12. GREETINGS & PERSONALITY ---
   {
-    id: "help_center",
-    keywords: ["help", "support", "faq", "question", "how to"],
+    id: "nora_identity",
+    keywords: ["who are you", "what is nora", "how do you help", "purpose"],
     response:
-      "Got a question? Our Help Center has detailed guides on how to use BuyOrSell effectively and safely.",
-    action: { label: "Visit Help Center", url: "/help-centre" },
+      "I'm Nora, your Digital Guide to BuyOrSell. I know this platform inside and out—from how to start a business organization to finding the best car deal. Ask me anything about our features!",
   },
-  {
-    id: "contact_us",
-    keywords: ["contact", "email", "phone", "support team", "report"],
-    response:
-      "Need direct help? You can contact our support team through our contact form or official channels.",
-    action: { label: "Contact Support", url: "/contact-us" },
-  },
-  {
-    id: "safety_tips",
-    keywords: ["safety", "scam", "safe", "payment", "verification"],
-    response:
-      "Your safety is our priority. We recommend meeting in public places, inspecting items, and never sharing sensitive payment info online.",
-    action: { label: "Safety Guidelines", url: "/help-centre/safety" },
-  },
-
-  // --- 11. ABOUT ---
-  {
-    id: "about_us",
-    keywords: ["about", "company", "who are you", "what is buyorsell"],
-    response:
-      "BuyOrSell is the UAE's premier marketplace for buying, selling, and exchanging everything from cars and furniture to jobs and real estate.",
-    action: { label: "About BuyOrSell", url: "/about-us" },
-  },
-
-  // --- 12. GREETINGS ---
   {
     id: "greeting",
-    keywords: [
-      "hi",
-      "hello",
-      "hey",
-      "greetings",
-      "good morning",
-      "good evening",
-    ],
+    keywords: ["hi", "hello", "hey", "greetings", "good morning", "good evening", "howdy"],
     response:
-      "Hello! I'm Nora, your BuyOrSell AI assistant. How can I help you today? You can ask about finding products, posting ads, or navigating the platform.",
+      "Hello! Nora here. I have full context of all platform features. Looking for a job, selling a car, or moving house? I can guide you to the right place!",
   },
   {
     id: "thanks",
-    keywords: ["thank", "thanks", "appreciate", "good job"],
+    keywords: ["thank", "thanks", "appreciate", "good job", "nice", "helpful"],
     response:
-      "You're very welcome! I'm always here to help. Is there anything else you need?",
+      "Happy to help! Our team built me to make your marketplace experience smoother. Let me know if you need anything else!",
   },
 ];
 
 /**
  * Finds the most relevant resolution for a given user query.
+ * Enhanced to handle multi-keyword ranking.
  */
 export function findResolution(query: string): AppResolution | undefined {
   const lowerQuery = query.toLowerCase();
 
-  // Rank resolutions based on keyword matches
   const ranked = APP_RESOLUTIONS.map((res) => {
     const matches = res.keywords.filter((kw) => lowerQuery.includes(kw)).length;
     return { ...res, matchCount: matches };

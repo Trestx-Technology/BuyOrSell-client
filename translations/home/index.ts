@@ -77,6 +77,10 @@ export const homeTranslations = createTranslationNamespace<HomeTranslations>({
       company: "Company",
       allRightsReserved: "All Rights Reserved",
     },
+    noraAssistant: {
+      welcome: "Hi! I’m Nora, your Digital Guide to BuyOrSell. I have full context of all our features—from posting and finding ads to exploring jobs, real estate, motors, and our new video shorts. How can I help you navigate the platform today?",
+      placeholder: "Ask Nora anything...",
+    },
   },
   "nl-NL": {
     popularCategories: {
@@ -153,6 +157,10 @@ export const homeTranslations = createTranslationNamespace<HomeTranslations>({
       backToTop: "Terug naar boven",
       company: "Bedrijf",
       allRightsReserved: "Alle rechten voorbehouden",
+    },
+    noraAssistant: {
+      welcome: "Hoi! Ik ben Nora, je digitale gids voor BuyOrSell. Ik heb volledige context van al onze functies—van het plaatsen en vinden van advertenties tot het verkennen van banen, onroerend goed, motoren en onze nieuwe videoshorts. Hoe kan ik je vandaag helpen?",
+      placeholder: "Vraag Nora alles...",
     },
   },
   nl: {
@@ -231,6 +239,10 @@ export const homeTranslations = createTranslationNamespace<HomeTranslations>({
       company: "Bedrijf",
       allRightsReserved: "Alle rechten voorbehouden",
     },
+    noraAssistant: {
+      welcome: "Hoi! Ik ben Nora, je digitale gids voor BuyOrSell. Ik heb volledige context van al onze functies—van het plaatsen en vinden van advertenties tot het verkennen van banen, onroerend goed, motoren en onze nieuwe videoshorts. Hoe kan ik je vandaag helpen?",
+      placeholder: "Vraag Nora alles...",
+    },
   },
   ar: {
     popularCategories: {
@@ -306,6 +318,10 @@ export const homeTranslations = createTranslationNamespace<HomeTranslations>({
       backToTop: "العودة للأعلى",
       company: "الشركة",
       allRightsReserved: "جميع الحقوق محفوظة",
+    },
+    noraAssistant: {
+      welcome: "مرحباً! أنا نورا، دليلك الرقمي في BuyOrSell. لدي المعرفة الكاملة بجميع ميزاتنا - من نشر الإعلانات والبحث عنها إلى استكشاف الوظائف، العقارات، السيارات، ومقاطع الفيديو القصيرة الجديدة لدينا. كيف يمكنني مساعدتك في التنقل في المنصة اليوم؟",
+      placeholder: "اسأل نورا عن أي شيء...",
     },
   },
 });

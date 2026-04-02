@@ -12,6 +12,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { findResolution } from "@/constants/app-context";
+import { useLocale } from "@/hooks/useLocale";
 
 type Message = {
   role: "assistant" | "user";
@@ -20,12 +21,12 @@ type Message = {
 };
 
 export default function FloatingChatCTA() {
+  const { localePath, t } = useLocale();
   const [open, setOpen] = React.useState(false);
   const [messages, setMessages] = React.useState<Message[]>([
     {
       role: "assistant",
-      content:
-        "Hi! I’m Nora, your App Navigation Assistant. I can answer queries regarding the platform and where to find any features, but I will not find products for you. Please use the main Search Bar at the top of the page for finding items.",
+      content: t.home.noraAssistant.welcome,
     },
   ]);
   const [input, setInput] = React.useState("");
@@ -72,8 +73,8 @@ export default function FloatingChatCTA() {
     // Final Fallback
     return {
       content:
-        "I'm not sure about that. Please contact BuyOrSell team for more info.",
-      action: { label: "Go Home", url: "/" },
+        "I’m still learning about all the amazing things here! If I can't answer your question, our Help Center might have exactly what you need.",
+      action: { label: "Explore Help Center", url: "/help-centre" },
     };
   };
 
@@ -230,7 +231,7 @@ export default function FloatingChatCTA() {
                     {m.role === "assistant" && m.action && (
                       <div className="mt-2 text-left">
                         <Link
-                          href={m.action.url}
+                          href={localePath(m.action.url)}
                           className="inline-flex items-center gap-1.5 text-xs text-purple-600 hover:text-purple-700 font-bold bg-purple-50 px-3 py-1.5 rounded-full border border-purple-100 transition-all hover:scale-105 active:scale-95 shadow-sm"
                         >
                           {m.action.label}
@@ -277,7 +278,7 @@ export default function FloatingChatCTA() {
                   value={input}
                   autoComplete="off"
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask Nora anything..."
+                  placeholder={t.home.noraAssistant.placeholder}
                   className={cn(
                     "w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition-all duration-300",
                     "placeholder:text-gray-400 font-medium",

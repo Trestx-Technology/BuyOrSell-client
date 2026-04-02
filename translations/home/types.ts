@@ -76,4 +76,8 @@ export type HomeTranslations = {
     company: string;
     allRightsReserved: string;
   };
+  noraAssistant: {
+    welcome: string;
+    placeholder: string;
+  };
 };
