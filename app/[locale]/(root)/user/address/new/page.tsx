@@ -10,6 +10,7 @@ import { useGetProfile } from "@/hooks/useUsers";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { CreateAddressPayload } from "@/interfaces/address.types";
+import { AddressFormData } from "@/schemas/address.schema";
 import { MobileStickyHeader } from "@/components/global/mobile-sticky-header";
 
 const page = () => {
@@ -18,15 +19,7 @@ const page = () => {
   const createAddressMutation = useCreateAddress();
   const { data: profileData } = useGetProfile();
 
-  const handleSubmit = async (formData: {
-    emirate: string;
-    city: string;
-    area: string;
-    pincode: string;
-    street: string;
-    addressType: "home" | "office" | "other";
-    isPrimary: boolean;
-  }) => {
+  const handleSubmit = async (formData: AddressFormData) => {
     const userId = profileData?.data?.user?._id;
     if (!userId) {
       toast.error("Unable to get user information");
