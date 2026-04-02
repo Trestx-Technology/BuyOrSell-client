@@ -178,10 +178,7 @@ export default function JobsTabbedCarousel({
     const salaryMax = getSalaryFromAd(ad, "max") || ad.price || 0;
 
     // Get location
-    const location =
-      typeof ad.location === "string"
-        ? ad.location
-        : ad.location?.city || ad.address?.city || "Location not specified";
+    const location = ad.address?.city || "Location not specified";
 
     // Get company name
     const company =
