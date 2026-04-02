@@ -98,23 +98,25 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
             <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
               {t.searchHistory.mySearches}
             </h3>
-            {searchHistory?.data?.items && searchHistory.data.items.length > 0 && (
-              <button
-                onClick={handleClearAll}
-                disabled={deleteAllMutation.isPending}
-                className="text-xs text-purple-600 hover:text-purple-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {deleteAllMutation.isPending
-                  ? t.searchHistory.clearing
-                  : t.searchHistory.clearAll}
-              </button>
-            )}
+            {searchHistory?.data?.items &&
+              searchHistory.data.items.length > 0 && (
+                <button
+                  onClick={handleClearAll}
+                  disabled={deleteAllMutation.isPending}
+                  className="text-xs text-purple-600 hover:text-purple-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {deleteAllMutation.isPending
+                    ? t.searchHistory.clearing
+                    : t.searchHistory.clearAll}
+                </button>
+              )}
           </div>
 
           {/* Search Items */}
           <ScrollArea className="h-[250px] w-full pr-3">
             <div className="space-y-2">
-              {searchHistory?.data?.items && searchHistory.data.items.length > 0 ? (
+              {searchHistory?.data?.items &&
+              searchHistory.data.items.length > 0 ? (
                 searchHistory.data.items.map((item) => (
                   <div
                     className="flex items-center justify-between p-2 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
@@ -143,8 +145,8 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
                   </div>
                 ))
               ) : (
-                <div className="text-center py-6">
-                  <Clock className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                <div className="text-center py-2 min-h-[250px] flex flex-col items-center justify-center">
+                  <Clock className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto" />
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     {t.searchHistory.noRecentSearches}
                   </p>
@@ -153,7 +155,7 @@ const SearchHistoryPopover: React.FC<SearchHistoryPopoverProps> = ({
             </div>
           </ScrollArea>
 
-          {searchHistory?.data?.total && searchHistory.data.total > 5 && (
+          {!!searchHistory?.data?.total && searchHistory.data.total > 5 && (
             <div className="flex justify-center">
               <Link
                 href={localePath("/user/search-history")}

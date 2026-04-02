@@ -90,7 +90,7 @@ export const useDeleteUserSearchHistory = () => {
     onSuccess: () => {
       // Optimistically clear the cache so the UI updates instantly
       queryClient.setQueriesData(
-        { queryKey: searchHistoryQueries.getSearchHistory().Key },
+        { queryKey: ["search-history"] },
         (oldData: any) => {
           if (!oldData) return oldData;
           return {
@@ -104,9 +104,9 @@ export const useDeleteUserSearchHistory = () => {
           };
         }
       );
-      // Invalidate search history queries to refresh the list
+      // Invalidate all search history queries
       queryClient.invalidateQueries({
-        queryKey: searchHistoryQueries.getSearchHistory().Key,
+        queryKey: ["search-history"],
       });
     },
   });
