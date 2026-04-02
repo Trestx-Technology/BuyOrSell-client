@@ -64,13 +64,13 @@ export function FirebaseAuthButtons({
         />
 
         {/* Firebase Apple Sign-In */}
-        <FirebaseAppleLoginButton
+        {/* <FirebaseAppleLoginButton
           onSuccess={(data) => handleSuccess(data, "apple")}
           onError={(error) => handleError(error)}
           onLoadingStart={() => updateLoading(true)}
           disabled={disabled || isLoading}
           className={btnClassName}
-        />
+        /> */}
 
         {/* Firebase Twitter Sign-In */}
         {/* <FirebaseTwitterLoginButton

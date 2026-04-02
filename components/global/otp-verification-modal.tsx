@@ -35,7 +35,7 @@ interface OTPVerificationModalProps {
   description?: string;
   otpLength?: number;
   phoneNumber?: string; // Kept for backward compatibility
-  identifier?: string;   // Generic name for phone or email
+  identifier?: string; // Generic name for phone or email
 }
 
 type VerificationState = "idle" | "verifying" | "success" | "error";
@@ -176,7 +176,7 @@ const OTPVerificationModal = ({
             }
             className={cn(
               "w-full max-w-xs transition-all duration-200",
-              otp.length === otpLength && "shadow-glow"
+              otp.length === otpLength && "shadow-glow",
             )}
           >
             {verificationState === "verifying" ? <>Verifying...</> : "Verify"}
@@ -191,10 +191,16 @@ const OTPVerificationModal = ({
                 disabled={resendCountdown > 0 || isResending}
                 className={cn(
                   "text-primary font-medium transition-colors",
-                  resendCountdown > 0 || isResending ? "text-gray-400 cursor-not-allowed" : "hover:underline"
+                  resendCountdown > 0 || isResending
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "hover:underline",
                 )}
               >
-                {isResending ? "Sending..." : resendCountdown > 0 ? `Resend in ${resendCountdown}s` : "Resend"}
+                {isResending
+                  ? "Sending..."
+                  : resendCountdown > 0
+                    ? `Resend in ${resendCountdown}s`
+                    : "Resend"}
               </button>
             </p>
           )}

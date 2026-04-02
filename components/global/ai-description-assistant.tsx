@@ -114,10 +114,10 @@ export function AIDescriptionAssistant({
       onOpenChange={(open) => !open && onClose()}
       title="Nora Description Assistant"
       hideHeader={true}
-      dialogContentClassName="sm:max-w-[640px] bg-white dark:bg-gray-900 rounded-xl overflow-hidden p-0 gap-0"
-      drawerContentClassName="bg-white dark:bg-gray-900 rounded-t-2xl p-0"
+      dialogContentClassName="sm:max-w-[640px] max-h-[80vh] bg-white dark:bg-gray-900 rounded-xl overflow-hidden p-0 gap-0 flex flex-col"
+      drawerContentClassName="bg-white dark:bg-gray-900 rounded-t-2xl p-0 max-h-[80vh] flex flex-col"
     >
-      <div className="flex flex-col relative h-full overflow-y-auto">
+      <div className="flex flex-col relative h-full overflow-hidden">
         {/* Header */}
         <div className="bg-purple/5 p-6 border-b border-[#F5EBFF] dark:border-purple/20 shrink-0">
           <div className="flex items-center gap-2 text-purple font-bold text-lg mb-1">

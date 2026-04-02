@@ -15,7 +15,11 @@ interface PhoneNumberWithVerificationProps {
   value?: string;
   countryCode?: string;
   onPhoneVerified: (phoneNumber: string) => void;
-  onPhoneChange?: (fullPhoneNumber: string, phoneNumberOnly: string, countryCode: string) => void;
+  onPhoneChange?: (
+    fullPhoneNumber: string,
+    phoneNumberOnly: string,
+    countryCode: string,
+  ) => void;
   onSendOTP?: (phoneNumber: string) => Promise<void>;
   onVerifyOTP?: (phoneNumber: string, otp: string) => Promise<boolean>;
   disabled?: boolean;
@@ -72,7 +76,7 @@ export default function PhoneNumberWithVerification({
   const [isEditing, setIsEditing] = useState(!value);
   const [phoneNumber, setPhoneNumber] = useState(parsed.phoneNumber);
   const [selectedCountryCode, setSelectedCountryCode] = useState(
-    parsed.countryCode
+    parsed.countryCode,
   );
   const [isVerified, setIsVerified] = useState(initialVerified);
   const [showOTPModal, setShowOTPModal] = useState(false);
@@ -99,10 +103,14 @@ export default function PhoneNumberWithVerification({
       setPhoneNumber(newPhoneNumber);
       setSelectedCountryCode(newCountryCode);
       if (onPhoneChange) {
-        onPhoneChange(`${newCountryCode}${newPhoneNumber}`, newPhoneNumber, newCountryCode);
+        onPhoneChange(
+          `${newCountryCode}${newPhoneNumber}`,
+          newPhoneNumber,
+          newCountryCode,
+        );
       }
     },
-    [onPhoneChange]
+    [onPhoneChange],
   );
 
   const handleVerifyClick = useCallback(async () => {
@@ -142,7 +150,7 @@ export default function PhoneNumberWithVerification({
         return false;
       }
     },
-    [onVerifyOTP, pendingPhoneNumber, pendingCountryCode, onPhoneVerified]
+    [onVerifyOTP, pendingPhoneNumber, pendingCountryCode, onPhoneVerified],
   );
 
   const handleEdit = useCallback(() => {

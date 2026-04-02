@@ -391,7 +391,7 @@ export function VideoViewer() {
                   } else if (e.key === "ArrowUp" || e.key === "k") {
                         goToVideo(currentIndex - 1);
                   } else if (e.key === "Escape") {
-                        router.back();
+                        router.push(localePath("/"));
                   } else if (e.key === "m") {
                         setIsMuted((prev) => !prev);
                   } else if (e.key === " ") {
@@ -422,7 +422,7 @@ export function VideoViewer() {
                   {/* Header Controls */}
                   <div className="absolute top-0 left-0 right-0 z-40 p-4 flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent">
                         <button
-                              onClick={() => router.back()}
+                              onClick={() => router.push(localePath("/"))}
                               className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
                         >
                                <ArrowLeft className="w-6 h-6" />
