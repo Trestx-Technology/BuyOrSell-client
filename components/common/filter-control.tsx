@@ -14,7 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { FormField } from "@/app/[locale]/(root)/post-ad/details/_components/FormField";
-import { NaturalLanguageCalendar } from "@/components/ui/natural-language-calendar";
+import { DatePicker } from "@/app/[locale]/(root)/organizations/_components/DatePicker";
 import { SelectableTabsInput } from "@/app/[locale]/(root)/post-ad/details/_components/SelectableTabsInput";
 import { CheckboxInput } from "@/app/[locale]/(root)/post-ad/details/_components/CheckboxInput";
 import { BooleanInput } from "@/app/[locale]/(root)/post-ad/details/_components/BooleanInput";
@@ -230,10 +230,11 @@ export const FilterControl = ({
       return (
         <FormField label={labelWithClear} required={false}>
           <div className="w-full">
-            <NaturalLanguageCalendar
+            <DatePicker
               value={value || ""}
               onChange={(newValue) => onChange(key, newValue)}
-              placeholder={placeholder || "Tomorrow"}
+              placeholder={placeholder || "Select date"}
+              allowFutureDates={true}
             />
           </div>
         </FormField>

@@ -28,94 +28,108 @@ export const BlogContent = ({ blog, locale }: BlogContentProps) => {
         {t.common.back}
       </Link>
 
-      <motion.header
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-10 text-center"
-      >
-        <div className="mb-4 flex items-center justify-center space-x-4 text-sm font-medium text-gray-500 dark:text-gray-400">
-          <span className={cn("inline-flex items-center rounded-full bg-purple/10 px-3 py-1 text-purple", isRTL ? "space-x-reverse" : "")}>
-            <Tag className={cn("h-3.5 w-3.5", isRTL ? "ml-1.5" : "mr-1.5")} />
-            {blog.category}
-          </span>
-          <span className="flex items-center">
-            <Calendar className={cn("h-3.5 w-3.5", isRTL ? "ml-1.5" : "mr-1.5")} />
-            {blog.date}
-          </span>
-        </div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl">
-          {displayTitle}
-        </h1>
-      </motion.header>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.5 }}
-        className="relative mb-12 aspect-[21/9] overflow-hidden rounded-3xl bg-gray-100 dark:bg-gray-800 shadow-2xl"
-      >
-        {blog.image ? (
-          <img
-            src={blog.image}
-            alt={displayTitle}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple/20 via-indigo-500/10 to-transparent">
-            <span className="text-purple/50 font-semibold text-2xl">
-              Visual Asset Reserved
+      {!blog.isHtml && (
+        <motion.header
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-10 text-center"
+        >
+          <div className="mb-4 flex items-center justify-center space-x-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+            <span className={cn("inline-flex items-center rounded-full bg-purple/10 px-3 py-1 text-purple", isRTL ? "space-x-reverse" : "")}>
+              <Tag className={cn("h-3.5 w-3.5", isRTL ? "ml-1.5" : "mr-1.5")} />
+              {blog.category}
+            </span>
+            <span className="flex items-center">
+              <Calendar className={cn("h-3.5 w-3.5", isRTL ? "ml-1.5" : "mr-1.5")} />
+              {blog.date}
             </span>
           </div>
-        )}
-      </motion.div>
+          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl">
+            {displayTitle}
+          </h1>
+        </motion.header>
+      )}
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.5 }}
-        className="prose prose-lg prose-purple dark:prose-invert max-w-none text-start"
-      >
-        {/* Simplified rendering of content */}
-        <div className="whitespace-pre-wrap leading-relaxed">
-          {displayContent.split("\n").map((para, index) => {
-            if (para.startsWith("## ")) {
-              return (
-                <h2 key={index} className="text-3xl font-bold mt-10 mb-4">
-                  {para.replace("## ", "")}
-                </h2>
-              );
-            }
-            if (para.startsWith("### ")) {
-              return (
-                <h3 key={index} className="text-2xl font-bold mt-8 mb-3">
-                  {para.replace("### ", "")}
-                </h3>
-              );
-            }
+      {!blog.isHtml && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="relative mb-12 aspect-[21/9] overflow-hidden rounded-3xl bg-gray-100 dark:bg-gray-800 shadow-2xl"
+        >
+          {blog.image ? (
+            <img
+              src={blog.image}
+              alt={displayTitle}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-purple/20 via-indigo-500/10 to-transparent">
+              <span className="text-purple/50 font-semibold text-2xl">
+                Visual Asset Reserved
+              </span>
+            </div>
+          )}
+        </motion.div>
+      )}
 
-            if (para.startsWith("**")) {
-              return (
-                <strong key={index} className="text-gray-900 dark:text-white">
-                  {para.replace("**", "")}
-                </strong>
-              );
-            }
-            if (para.startsWith("* ")) {
-              return (
-                <li key={index} className={cn("list-disc mb-2", isRTL ? "mr-6" : "ml-6")}>
-                  {para.replace("* ", "")}
-                </li>
-              );
-            }
-            return para.trim() ? (
-              <p key={index} className="mb-6">
-                {para}
-              </p>
-            ) : null;
-          })}
-        </div>
-      </motion.div>
+      {blog.isHtml ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+          className="max-w-none text-start"
+          dangerouslySetInnerHTML={{ __html: displayContent }}
+        />
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+          className="prose prose-lg prose-purple dark:prose-invert max-w-none text-start"
+        >
+          {/* Simplified rendering of content */}
+          <div className="whitespace-pre-wrap leading-relaxed">
+            {displayContent.split("\n").map((para, index) => {
+              if (para.startsWith("## ")) {
+                return (
+                  <h2 key={index} className="text-3xl font-bold mt-10 mb-4">
+                    {para.replace("## ", "")}
+                  </h2>
+                );
+              }
+              if (para.startsWith("### ")) {
+                return (
+                  <h3 key={index} className="text-2xl font-bold mt-8 mb-3">
+                    {para.replace("### ", "")}
+                  </h3>
+                );
+              }
+
+              if (para.startsWith("**")) {
+                return (
+                  <strong key={index} className="text-gray-900 dark:text-white">
+                    {para.replace("**", "")}
+                  </strong>
+                );
+              }
+              if (para.startsWith("* ")) {
+                return (
+                  <li key={index} className={cn("list-disc mb-2", isRTL ? "mr-6" : "ml-6")}>
+                    {para.replace("* ", "")}
+                  </li>
+                );
+              }
+              return para.trim() ? (
+                <p key={index} className="mb-6">
+                  {para}
+                </p>
+              ) : null;
+            })}
+          </div>
+        </motion.div>
+      )}
 
       <footer className="mt-16 border-t border-gray-200 dark:border-gray-800 pt-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">

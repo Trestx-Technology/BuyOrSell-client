@@ -10,4 +10,5 @@ export interface Blog {
   excerpt_ar?: string;
   content: string;
   content_ar?: string;
+  isHtml?: boolean;
 }
