@@ -478,7 +478,6 @@ export default function EditAdPage() {
       // relatedCategories: ... // derived from category
       // featuredStatus: data.isFeatured ? "live" : "created", // Removed isFeatured from edit
       // status: "created", // Don't reset status on edit usually?
-      userType: "RERA_LANDLORD" as const,
       tags: [],
       documents: [],
       // Convert extraFields array to Record<string, unknown> format
@@ -803,7 +802,9 @@ export default function EditAdPage() {
                     <>
                       <MapComponent
                         onLocationSelect={handleLocationSelect}
-                        initialLocation={selectedLocation || initialAdLocation || undefined}
+                        initialLocation={
+                          selectedLocation || initialAdLocation || undefined
+                        }
                         height="300px"
                         className="rounded-lg"
                       />
@@ -815,8 +816,13 @@ export default function EditAdPage() {
                           </p>
                           <p className="text-xs text-blue-600 mt-1">
                             Coordinates:{" "}
-                            {(selectedLocation || initialAdLocation)?.coordinates.lat.toFixed(6)},{" "}
-                            {(selectedLocation || initialAdLocation)?.coordinates.lng.toFixed(6)}
+                            {(
+                              selectedLocation || initialAdLocation
+                            )?.coordinates.lat.toFixed(6)}
+                            ,{" "}
+                            {(
+                              selectedLocation || initialAdLocation
+                            )?.coordinates.lng.toFixed(6)}
                           </p>
                         </div>
                       )}
