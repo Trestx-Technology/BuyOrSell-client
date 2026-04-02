@@ -162,6 +162,7 @@ export function CertificatesInput({
                   updateCertificate(index, "expiresOn", val || undefined)
                 }
                 placeholder="Select expiry date (optional)"
+                allowFutureDates={true}
                 disabled={disabled}
               />
             </FormField>
