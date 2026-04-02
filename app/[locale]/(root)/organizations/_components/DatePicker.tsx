@@ -16,9 +16,11 @@ interface DatePickerProps {
   className?: string;
   value: string;
   onChange: (value: string) => void;
-  disabled?: boolean;
+  disabled?: boolean | ((date: Date) => boolean);
   allowFutureDates?: boolean;
   placeholder?: string;
+  minDate?: Date;
+  maxDate?: Date;
 }
 
 export const DatePicker = ({
@@ -28,6 +30,8 @@ export const DatePicker = ({
   disabled = false,
   allowFutureDates = false,
   className,
+  minDate,
+  maxDate,
 }: DatePickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(() => {
@@ -63,13 +67,13 @@ export const DatePicker = ({
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover open={isOpen} onOpenChange={setIsOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           icon={<CalendarIcon className="text-purple" />}
           iconPosition="left"
-          disabled={disabled}
+          disabled={typeof disabled === "boolean" ? disabled : false}
           className={cn(
             "w-full h-11 px-3 py-2.5 border border-[#F5EBFF] dark:border-gray-700 rounded-lg text-xs font-medium text-[#8B31E1] dark:text-purple bg-white dark:bg-gray-800 justify-start text-left hover:bg-white dark:hover:bg-gray-800 focus-visible:border-[#F5EBFF] dark:focus-visible:border-gray-700 focus-visible:ring-2 focus-visible:ring-[#8B31E1]/20",
             !date && "text-muted-foreground",
@@ -80,7 +84,7 @@ export const DatePicker = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-auto p-0 shadow-lg border border-[#E2E2E2] dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg"
+        className="w-auto p-0 shadow-lg border border-[#E2E2E2] dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg z-[9999]"
         align="start"
       >
         <CalendarComponent
@@ -89,7 +93,13 @@ export const DatePicker = ({
           onSelect={handleDateSelect}
           defaultMonth={date}
           allowFutureDates={allowFutureDates}
-          disabled={(date) => date < new Date("1900-01-01")}
+          disabled={(d) => {
+            if (typeof disabled === "function") return disabled(d);
+            if (disabled === true) return true;
+            if (minDate && d < minDate) return true;
+            if (maxDate && d > maxDate) return true;
+            return d < new Date("1900-01-01");
+          }}
           captionLayout="dropdown"
           fromYear={1900}
           toYear={2100}

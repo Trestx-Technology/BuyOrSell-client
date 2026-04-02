@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, RefreshCw, Star, MoreVertical } from "lucide-react";
+import { Pencil, Trash2, RefreshCw, Star, MoreVertical, Tag } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -19,6 +19,7 @@ import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-
 import { RenewAdDialog } from "@/app/[locale]/(root)/user/my-ads/_components/RenewAdDialog";
 import { FeatureAdDialog } from "@/app/[locale]/(root)/user/my-ads/_components/FeatureAdDialog";
 import { FeatureConfirmDialog } from "@/app/[locale]/(root)/user/my-ads/_components/FeatureConfirmDialog";
+import { UpdateDealDialog } from "@/app/[locale]/(root)/user/my-ads/_components/UpdateDealDialog";
 import { useAdSubscription } from "@/hooks/useAdSubscription";
 import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
 import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
@@ -57,6 +58,9 @@ export interface MyAdCardProps {
   /** Top-level category name — first entry of ad.relatedCategories — used as plan type */
   categoryType?: string;
   adType?: "AD" | "JOB";
+  isDeal?: boolean;
+  discountedPrice?: number;
+  dealValidThru?: string;
 }
 
 const MyAdCard: React.FC<MyAdCardProps> = ({
@@ -78,9 +82,14 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
   categoryName,
   categoryType,
   adType,
+  isDeal,
+  discountedPrice,
+  dealValidThru,
+  currency,
 }) => {
   const { t } = useLocale();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showUpdateDeal, setShowUpdateDeal] = useState(false);
   const [renewDays, setRenewDays] = useState(30);
 
   const deleteAdMutation = useDeleteAd();
@@ -371,6 +380,16 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
                   <Trash2 className="w-4 h-4" />
                   {t.user.profileEdit.deleteAd}
                 </DropdownMenuItem>
+
+                {isDeal && (
+                  <DropdownMenuItem
+                    onClick={() => setShowUpdateDeal(true)}
+                    className="focus:bg-purple/10 focus:text-purple cursor-pointer font-semibold rounded-lg p-2.5 flex items-center gap-2 transition-colors"
+                  >
+                    <Tag className="w-4 h-4" />
+                    Manage Deal
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -445,6 +464,17 @@ const MyAdCard: React.FC<MyAdCardProps> = ({
         onClose={featureDialogProps.onClose}
         categoryName={featureDialogProps.categoryName}
         categoryType={featureDialogProps.categoryType}
+      />
+
+      <UpdateDealDialog
+        open={showUpdateDeal}
+        onOpenChange={setShowUpdateDeal}
+        adId={id}
+        adPrice={price}
+        initialDeal={isDeal}
+        initialDiscountedPercent={discount}
+        initialDealValidThru={dealValidThru}
+        currency={currency}
       />
     </>
   );
