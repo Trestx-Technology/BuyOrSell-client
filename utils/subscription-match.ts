@@ -81,8 +81,14 @@ export function isCategoryPlan(
   }
 
   // 2. Match by Type string (Fallback)
-  const subType = sub.plan?.type?.toLowerCase();
-  const targetLower = targetType.toLowerCase();
+  const subType = sub.plan?.type?.toLowerCase().trim();
+  const targetLower = targetType.toLowerCase().trim();
+
+  // Special handling for Jobs/Job pluralization
+  const isJobType = (t: string) => t === "job" || t === "jobs";
+  if (isJobType(subType) && isJobType(targetLower)) {
+    return true;
+  }
 
   return subType === targetLower;
 }

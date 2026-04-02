@@ -25,6 +25,7 @@ export default function SelectJobCategoryContent() {
     setStep,
     categoryArray,
     clearCategoryArray,
+    currentStep,
   } = useAdPostingStore((state) => state);
   const [showOrgDialog, setShowOrgDialog] = useState(false);
 
@@ -37,11 +38,17 @@ export default function SelectJobCategoryContent() {
   } = useAdSubscription();
 
   const setSubscriptionId = useAdPostingStore((state) => state.setSubscriptionId);
+  const fetchSubscriptions = useSubscriptionStore((state) => state.fetchSubscriptions);
   const [pendingSelection, setPendingSelection] = useState<{
     categoryId: string;
     categoryName: string;
     categoryType: string;
   } | null>(null);
+
+  // Fetch subscriptions on mount to ensure fresh state
+  useEffect(() => {
+    fetchSubscriptions();
+  }, [fetchSubscriptions]);
 
   // Fetch categories using the hook
   const {
@@ -110,13 +117,12 @@ export default function SelectJobCategoryContent() {
     router.push(`/post-job/${categoryId}`);
   };
 
-  // Removed onPlanSelect
-
+  // Ensure breadcrumbs and state are clear for a new selection
   useEffect(() => {
-    if (categoryArray.length > 0) {
+    if (categoryArray.length > 0 && currentStep === 1) {
       clearCategoryArray();
     }
-  }, [categoryArray, clearCategoryArray]);
+  }, [categoryArray, clearCategoryArray, currentStep]);
 
   return (
     <Container1080>
