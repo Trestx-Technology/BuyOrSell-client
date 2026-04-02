@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "@/hooks/useLocale";
 import { useForm, Controller } from "react-hook-form";
@@ -10,6 +10,7 @@ import { useCreateAd } from "@/hooks/useAds";
 import { useMyOrganization } from "@/hooks/useOrganizations";
 import { useAdPostingStore } from "@/stores/adPostingStore";
 import { useAuthStore } from "@/stores/authStore";
+import { useSubscriptionStore } from "@/stores/subscriptionStore";
 import { useAdSubscription } from "@/hooks/useAdSubscription";
 import { Button } from "@/components/ui/button";
 import { PostAdPayload } from "@/interfaces/ad";
@@ -47,6 +48,7 @@ import PostStatusView, {
 } from "@/app/[locale]/(root)/post-ad/details/_components/PostStatusView";
 import { NoActivePlansDialog } from "@/components/global/NoActivePlansDialog";
 import { InsufficientAdsDialog } from "@/components/global/InsufficientAdsDialog";
+import { toast } from "sonner";
 
 export default function JobLeafCategoryContent() {
   const { localePath, locale } = useLocale();
@@ -57,6 +59,38 @@ export default function JobLeafCategoryContent() {
     useAdPostingStore((state) => state);
   const searchParams = useSearchParams();
   const initialPrompt = searchParams.get("prompt");
+  const initialTitle = searchParams.get("title");
+  const categoryPathParam = searchParams.get("categoryPath");
+
+  // Hydrate store from URL params if available (handling AI redirection)
+  useMemo(() => {
+    if (categoryPathParam) {
+      try {
+        const hierarchy = JSON.parse(decodeURIComponent(categoryPathParam));
+        // Check if we need to update the store (avoid infinite loops if already matches)
+        const currentIds = categoryArray.map((c) => c.id).join(",");
+        const newIds = hierarchy.map((c: any) => c.id).join(",");
+
+        if (currentIds !== newIds) {
+          // Clear and rebuild the category array
+          const { clearCategoryArray, addToCategoryArray, setActiveCategory } = useAdPostingStore.getState();
+          clearCategoryArray();
+          hierarchy.forEach((cat: any) => {
+            addToCategoryArray({
+              id: cat.id,
+              name: cat.name,
+            });
+          });
+          if (hierarchy.length > 0) {
+            setActiveCategory(hierarchy[hierarchy.length - 1].id);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to parse category hierarchy from URL", error);
+      }
+    }
+  }, [categoryPathParam, categoryArray]);
+
   const createAdMutation = useCreateAd();
   const [selectedLocation, setSelectedLocation] = useState<{
     address: string;
@@ -82,14 +116,21 @@ export default function JobLeafCategoryContent() {
     getRemainingCredits,
   } = useAdSubscription();
 
+  const fetchSubscriptions = useSubscriptionStore((state) => state.fetchSubscriptions);
+
+  // Refresh subscriptions on mount
+  useEffect(() => {
+    fetchSubscriptions();
+  }, [fetchSubscriptions]);
+
   const { subscription, planType, shouldFeature } = resolve(
-    categoryArray[0]?.name || category?.name || "Jobs",
-    categoryArray[0]?.id || category?._id,
+    category?.relatedTo || "Jobs",
+    category?._id,
   );
 
   const { remainingAds, remainingFeatured } = getRemainingCredits(
-    categoryArray[0]?.name || category?.name || "Jobs",
-    categoryArray[0]?.id || category?._id,
+    category?.relatedTo || "Jobs",
+    category?._id,
   );
 
   const isLoading = isCategoryLoading || subscriptionsLoading;
@@ -108,7 +149,8 @@ export default function JobLeafCategoryContent() {
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isValid, isSubmitting },
+    trigger,
+    formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: category ? zodResolver(formSchema as any) : undefined,
@@ -130,12 +172,15 @@ export default function JobLeafCategoryContent() {
     mode: "onChange",
   });
 
-  // Pre-fill description from AI prompt if available
+  // Pre-fill fields from AI prompt/title if available
   useMemo(() => {
     if (initialPrompt && category) {
       setValue("description", initialPrompt);
     }
-  }, [initialPrompt, category, setValue]);
+    if (initialTitle && category) {
+      setValue("title", initialTitle);
+    }
+  }, [initialPrompt, initialTitle, category, setValue]);
 
   // Handle input change (wrapper for setValue)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -143,6 +188,11 @@ export default function JobLeafCategoryContent() {
     setValue(field as keyof FormValues, value as FormValues[keyof FormValues], {
       shouldValidate: true,
     });
+
+    // Handle salary range cross-validation
+    if (field === "minSalary") {
+      trigger("maxSalary");
+    }
 
     if (category?.fields) {
       category.fields.forEach((f: Field) => {
@@ -209,18 +259,42 @@ export default function JobLeafCategoryContent() {
     );
   };
 
-  const onSubmit = async (data: FormValues) => {
-    const categoryType = categoryArray[0]?.name || "Jobs";
+  const onFormError = (errors: any) => {
+    const errorFields = Object.keys(errors);
+    if (errorFields.length > 0) {
+      const firstFieldName = errorFields[0];
+      const error = errors[firstFieldName];
 
+      let message = "";
+      if (error && error.message) {
+        message = error.message;
+      } else if (error && typeof error === "object") {
+        const subErrors = Object.values(error);
+        if (subErrors.length > 0) {
+          const subError = subErrors[0] as any;
+          if (subError?.message) {
+            message = subError.message;
+          }
+        }
+      }
+
+      if (message) {
+        toast.error(message);
+      }
+    }
+  };
+
+  const onSubmit = async (data: FormValues) => {
     // 1. Double check availability
     if (
       !checkAvailability({
         action: "post",
-        categoryType: categoryArray[0]?.name || category?.name || "Jobs",
+        categoryType: category?.relatedTo || "Jobs",
         categoryName: category?.name || "Jobs",
-        categoryId: categoryArray[0]?.id || category?._id,
+        categoryId: category?._id,
       })
     ) {
+      setPostStatus("idle");
       return;
     }
 
@@ -991,10 +1065,10 @@ export default function JobLeafCategoryContent() {
                 </Button>
                 <Button
                   className="flex-1 text-white py-6 text-lg font-medium rounded-full shadow-lg shadow-[#7052FB]/20 transition-all duration-300 hover:scale-[1.02]"
-                  onClick={handleSubmit(onSubmit)}
-                  disabled={isSubmitting || !isValid}
+                  onClick={handleSubmit(onSubmit, onFormError)}
+                  disabled={createAdMutation.isPending}
                 >
-                  {isSubmitting ? (
+                  {createAdMutation.isPending ? (
                     <>
                       <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
                       Posting Job...

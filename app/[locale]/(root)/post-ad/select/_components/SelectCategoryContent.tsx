@@ -23,6 +23,13 @@ export default function SelectCategoryContent() {
     setSubscriptionId,
   } = useAdPostingStore((state) => state);
 
+  const fetchSubscriptions = useSubscriptionStore((state) => state.fetchSubscriptions);
+
+  // Fetch subscriptions on mount to ensure fresh state
+  useEffect(() => {
+    fetchSubscriptions();
+  }, [fetchSubscriptions]);
+
   // Unified Subscription Hook
   const {
     checkAvailability,
