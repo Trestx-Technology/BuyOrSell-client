@@ -269,14 +269,13 @@ export default function AddAddressForm({
           />
         </FormField>
 
-        <FormField label="Pincode" error={errors.pincode?.message}>
+        <FormField label="Pincode (Optional)" error={errors.pincode?.message}>
           <Controller
             name="pincode"
             control={control}
             render={({ field }) => (
               <Input
                 {...field}
-                error={errors.pincode?.message}
                 placeholder="00000"
                 className="bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
                 maxLength={6}

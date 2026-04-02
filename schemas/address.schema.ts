@@ -6,8 +6,11 @@ export const addressSchema = z.object({
   area: z.string().min(1, "Area is required"),
   pincode: z
     .string()
-    .min(1, "Pincode is required")
-    .regex(/^\d{5,6}$/, "Please enter a valid 5-6 digit pincode"),
+    .optional()
+    .or(z.literal(""))
+    .refine((val) => !val || /^\d{5,6}$/.test(val), {
+      message: "Please enter a valid 5-6 digit pincode",
+    }),
   street: z.string().min(1, "Street is required"),
   addressType: z.enum(["home", "office", "other"], {
     message: "Address type is required",

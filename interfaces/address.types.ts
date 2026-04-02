@@ -3,7 +3,7 @@ export interface CreateAddressPayload {
   emirate: string;
   street: string;
   country: string;
-  zipCode: string;
+  zipCode?: string;
   city: string;
   address: string;
   addressType: "primary" | "secondary";
@@ -30,7 +30,7 @@ export interface Address {
   emirateAr?: string;
   country: string;
   countryAr?: string;
-  zipCode: string;
+  zipCode?: string;
   city: string;
   cityAr?: string;
   street: string;
