@@ -120,3 +120,25 @@ export function formatSpecValue(key: string, value: string | number): string {
   // Default: capitalize first letter and return
   return stringValue.charAt(0).toUpperCase() + stringValue.slice(1);
 }
+
+/**
+ * Formats a camelCase or snake_case string into a regular label (e.g. "noticePeriod" -> "Notice Period")
+ * @param text - The text to format
+ * @returns The formatted label
+ */
+export function formatLabel(text: string): string {
+  if (!text) return "";
+
+  // Handle camelCase: insert space before uppercase letters
+  const withSpaces = text.replace(/([A-Z])/g, " $1");
+
+  // Replace underscores or hyphens with spaces
+  const normalized = withSpaces.replace(/[_-]/g, " ");
+
+  // Capitalize first letter of each word and trim
+  return normalized
+    .trim()
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}

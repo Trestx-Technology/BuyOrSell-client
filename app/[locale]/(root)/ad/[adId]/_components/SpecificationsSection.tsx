@@ -45,9 +45,7 @@ const SpecificationsSection: React.FC<SpecificationsSectionProps> = ({
         return;
       }
 
-      const fieldName =
-        field.name.charAt(0).toUpperCase() +
-        field.name.slice(1).replace(/([A-Z])/g, " $1");
+      const fieldName = field.name;
 
       if (Array.isArray(field.value)) {
         specifications[fieldName] = field.value.join(", ");

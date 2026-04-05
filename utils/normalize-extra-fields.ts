@@ -1,4 +1,5 @@
 import { ProductExtraField, ProductExtraFields } from "@/interfaces/ad";
+import { formatLabel } from "./utils";
 
 /**
  * Normalizes extraFields to a consistent array format
@@ -18,13 +19,18 @@ export const normalizeExtraFieldsToArray = (
 
   // If it's already an array, return it as is (preserves all metadata)
   if (Array.isArray(extraFields)) {
-    return extraFields.filter(
-      (field): field is ProductExtraField =>
-        field !== null &&
-        field !== undefined &&
-        typeof field === "object" &&
-        "name" in field,
-    );
+    return extraFields
+      .filter(
+        (field): field is ProductExtraField =>
+          field !== null &&
+          field !== undefined &&
+          typeof field === "object" &&
+          "name" in field,
+      )
+      .map((field) => ({
+        ...field,
+        name: formatLabel(field.name),
+      }));
   }
 
   // If it's an object/Record, convert to array format
@@ -32,6 +38,7 @@ export const normalizeExtraFieldsToArray = (
     return Object.entries(extraFields).map(([name, rawValue]) => {
       let value = rawValue;
       let icon: string | undefined = undefined;
+      let displayName = name;
 
       // Check if rawValue is an object with 'value' property (and isn't an array)
       // This handles cases where the field data is stored as { value: "...", icon: "..." }
@@ -43,7 +50,7 @@ export const normalizeExtraFieldsToArray = (
       ) {
         value = (rawValue as any).value;
         icon = (rawValue as any).icon;
-        name = (rawValue as any).name;
+        displayName = (rawValue as any).name || name;
       }
 
       // Determine type from value
@@ -57,7 +64,7 @@ export const normalizeExtraFieldsToArray = (
       }
 
       return {
-        name,
+        name: formatLabel(displayName),
         type: fieldType,
         value,
         icon,

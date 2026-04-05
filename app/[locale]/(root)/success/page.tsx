@@ -346,7 +346,7 @@ export default function SuccessPage() {
               {normalizedFields.map((field, index) => (
                 <FormSummaryItem
                   key={index}
-                  label={field.name}
+                  label={field.name || ""}
                   value={field.value}
                   className="border-gray-100 dark:border-gray-800/50 py-3"
                 />
