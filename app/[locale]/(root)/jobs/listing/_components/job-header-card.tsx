@@ -8,6 +8,10 @@ import {
   Share2,
   Heart,
   MessageSquareText,
+  GraduationCap,
+  TrendingUp,
+  User,
+  Globe,
 } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
@@ -327,7 +331,7 @@ export default function JobHeaderCard({
             )}
             {job.careerLevel && (
               <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
+                <TrendingUp className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
                 <Typography
                   variant="body-small"
                   className="text-foreground dark:text-gray-300 text-xs font-medium"
@@ -338,7 +342,7 @@ export default function JobHeaderCard({
             )}
             {job.qualification && (
               <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
+                <GraduationCap className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
                 <Typography
                   variant="body-small"
                   className="text-foreground dark:text-gray-300 text-xs font-medium"
@@ -349,7 +353,7 @@ export default function JobHeaderCard({
             )}
             {job.gender && (
               <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
+                <User className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
                 <Typography
                   variant="body-small"
                   className="text-foreground dark:text-gray-300 text-xs font-medium"
@@ -360,7 +364,7 @@ export default function JobHeaderCard({
             )}
             {job.nationality && (
               <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
+                <Globe className="w-5 h-5 text-[#8A8A8A] flex-shrink-0" />
                 <Typography
                   variant="body-small"
                   className="text-foreground dark:text-gray-300 text-xs font-medium"

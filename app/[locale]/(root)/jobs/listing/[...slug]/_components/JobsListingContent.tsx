@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useParams, useSearchParams, } from "next/navigation";
 import { Breadcrumbs, } from "@/components/ui/breadcrumbs";
 import { Typography } from "@/components/typography";
@@ -34,16 +34,16 @@ import { unSlugify } from "@/utils/slug-utils";
 import { NoDataCard } from "@/components/global/fallback-cards";
 
 import { JobListingCardSkeleton, JobDetailContentSkeleton, JobHeaderCardSkeleton } from "../../_components/job-skeletons";
+import { useEmirates } from "@/hooks/useLocations";
 import { useEmirateStore } from "@/stores/emirateStore";
 
 const ITEMS_PER_PAGE = 8;
 
 export default function JobsListingContent() {
   const params = useParams();
-  const searchParams = useSearchParams();
+  const { updateUrlParam, updateUrlParams, clearUrlQueries, searchParams } = useUrlParams();
   const jobId = searchParams.get("jobId");
-  const { clearUrlQueries } = useUrlParams();
-  const { extraFields, hasDynamicFilters } = useUrlFilters();
+  const { query: urlFilters, extraFields, hasDynamicFilters, location: urlLocation, search: urlSearch } = useUrlFilters();
 
   // Get category from URL params - use the last slug segment
   const slugSegments = Array.isArray(params.slug)
@@ -56,15 +56,39 @@ export default function JobsListingContent() {
     ? unSlugify(currentCategory)
     : "Jobs";
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [locationQuery, setLocationQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
+  const [locationQuery, setLocationQuery] = useState(urlLocation);
   const [filters, setFilters] = useState<
     Record<string, string | string[] | number | number[] | undefined>
-    >({});
+    >(urlFilters || {});
 
   const { selectedEmirate } = useEmirateStore();
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(jobId || null);
+
+  const { data: emiratesData } = useEmirates();
+
+  // Sync state when URL params change
+  useEffect(() => {
+    if (urlSearch !== searchQuery) setSearchQuery(urlSearch);
+    if (urlLocation !== locationQuery) setLocationQuery(urlLocation);
+    
+    // Sync filters - very important!
+    if (JSON.stringify(urlFilters) !== JSON.stringify(filters)) {
+      setFilters(urlFilters);
+    }
+
+    const newPage = Number(searchParams.get("page")) || 1;
+    if (newPage !== currentPage) setCurrentPage(newPage);
+  }, [searchParams, urlSearch, urlLocation, urlFilters]);
+
+  const displayLocation = useMemo(() => {
+    if (!locationQuery && !selectedEmirate) return "UAE";
+    if (!locationQuery) return selectedEmirate;
+    
+    const emo = emiratesData?.find(e => e.emirate.toLowerCase() === locationQuery.toLowerCase());
+    return emo ? emo.emirate : locationQuery;
+  }, [locationQuery, selectedEmirate, emiratesData]);
 
   // Define static filters config based on defaultJobFilters
   const staticFilterConfig: FilterConfig[] = useMemo(() => {
@@ -72,7 +96,7 @@ export default function JobsListingContent() {
       ...filter,
       isStatic: true,
       // Ensure type compatibility with FilterConfig
-      type: filter.type as "select" | "multiselect" | "range" | "calendar",
+      type: filter.type as any,
     }));
   }, []);
 
@@ -81,12 +105,15 @@ export default function JobsListingContent() {
   // Handle filter changes
   const handleFilterChange = (key: string, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
+    updateUrlParam(key, value);
     setCurrentPage(1);
   };
 
   const handleLocationChange = (value: string) => {
-    setLocationQuery(value);
-    setFilters((prev) => ({ ...prev, location: value }));
+    const lowerValue = value.toLowerCase();
+    setLocationQuery(lowerValue);
+    updateUrlParam("location", lowerValue);
+    setFilters((prev) => ({ ...prev, location: lowerValue }));
     setCurrentPage(1);
   };
 
@@ -177,7 +204,7 @@ export default function JobsListingContent() {
         {/* Page Header */}
         <div className="hidden lg:flex items-center justify-between md:mb-6">
           <Typography variant="md-black-inter" className="font-semibold">
-            {categoryName} in {selectedEmirate || "UAE"} ({totalItems})
+            {categoryName} in {displayLocation} ({totalItems})
           </Typography>
         </div>
 

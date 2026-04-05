@@ -9,7 +9,11 @@ import {
   ChevronLeft,
   Edit,
   Trash2,
-  MessageSquareText
+  MessageSquareText,
+  GraduationCap,
+  TrendingUp,
+  User,
+  Globe,
 } from "lucide-react";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/ui/button";
@@ -393,7 +397,7 @@ export default function MobileJobHeaderCard({
 
           {job.careerLevel && (
             <div className="flex items-center gap-2 w-fit">
-              <Briefcase className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
+              <TrendingUp className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
               <Typography
                 variant="body-small"
                 className="text-foreground text-sm font-medium"
@@ -405,7 +409,7 @@ export default function MobileJobHeaderCard({
 
           {job.qualification && (
             <div className="flex items-center gap-2 w-fit">
-              <Briefcase className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
+              <GraduationCap className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
               <Typography
                 variant="body-small"
                 className="text-foreground text-sm font-medium"
@@ -417,7 +421,7 @@ export default function MobileJobHeaderCard({
 
           {job.gender && (
             <div className="flex items-center gap-2 w-fit">
-              <Briefcase className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
+              <User className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
               <Typography
                 variant="body-small"
                 className="text-foreground text-sm font-medium"
@@ -429,7 +433,7 @@ export default function MobileJobHeaderCard({
 
           {job.nationality && (
             <div className="flex items-center gap-2 w-fit">
-              <Briefcase className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
+              <Globe className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
               <Typography
                 variant="body-small"
                 className="text-foreground text-sm font-medium"

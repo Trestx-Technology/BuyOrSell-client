@@ -52,7 +52,7 @@ export default function JobseekersPage() {
   const { updateUrlParam, updateUrlParams, clearUrlQueries } = useUrlParams();
   const urlQuery =
     searchParams.get("query") || searchParams.get("search") || "";
-  const urlLocation = searchParams.get("location") || "";
+  const urlLocation = (searchParams.get("location") || searchParams.get("emirate") || "").toLowerCase();
 
   const [locationQuery, setLocationQuery] = useState(urlLocation);
 
@@ -87,7 +87,7 @@ export default function JobseekersPage() {
       setLocalSearchQuery(newQuery);
     }
 
-    const newLocation = searchParams.get("location") || "";
+    const newLocation = searchParams.get("location") || searchParams.get("emirate") || "";
     if (newLocation !== locationQuery) {
       setLocationQuery(newLocation);
     }
