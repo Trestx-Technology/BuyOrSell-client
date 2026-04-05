@@ -11,6 +11,7 @@ import {
   Twitter,
   Linkedin,
   Youtube,
+  AtSign,
   ArrowUp,
 } from "lucide-react";
 import Image from "next/image";
@@ -329,29 +330,45 @@ export function Footer({ className }: FooterProps) {
           {/* Right Side - Social Media */}
           <div className="flex items-center gap-5">
             {/* Instagram */}
-            <div className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110">
+            <Link
+              href="https://www.instagram.com/buyorsell.official/?igsh=MWRqbDJsdmE0bHNlbg%3D%3D&utm_source=qr"
+              target="_blank"
+              className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110"
+            >
               <Instagram className="w-6 h-6 text-purple dark:text-white" />
-            </div>
+            </Link>
 
             {/* Facebook */}
-            <div className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110">
+            <Link
+              href="https://www.facebook.com/share/1BCKaPabad/?mibextid=wwXIfr"
+              target="_blank"
+              className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110"
+            >
               <Facebook className="w-6 h-6 text-purple dark:text-white" />
-            </div>
+            </Link>
 
-            {/* YouTube */}
-            <div className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110">
+            {/* YouTube - Commented out as requested */}
+            {/* <div className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110">
               <Youtube className="w-6 h-6 text-purple dark:text-white" />
-            </div>
+            </div> */}
 
-            {/* Twitter */}
-            <div className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110">
-              <Twitter className="w-4 h-4 text-purple dark:text-white" />
-            </div>
+            {/* Threads (Replacing Twitter) */}
+            <Link
+              href="https://www.threads.com/@buyorsell.official?invite=0"
+              target="_blank"
+              className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110"
+            >
+              <AtSign className="w-4 h-4 text-purple dark:text-white" />
+            </Link>
 
             {/* LinkedIn */}
-            <div className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110">
+            <Link
+              href="https://www.linkedin.com/company/buyorsellofficial/"
+              target="_blank"
+              className="w-[38px] h-[38px] bg-white dark:bg-gray-800 rounded-full border border-white dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:scale-110"
+            >
               <Linkedin className="w-6 h-6 text-purple dark:text-white" />
-            </div>
+            </Link>
           </div>
         </motion.div>
         <div className="w-full h-px bg-white mt-8 md:hidden"></div>
