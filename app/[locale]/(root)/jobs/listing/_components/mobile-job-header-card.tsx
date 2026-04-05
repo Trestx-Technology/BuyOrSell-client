@@ -349,23 +349,16 @@ export default function MobileJobHeaderCard({
         </div>
 
         {/* Badges */}
-        {(jobType || job.isFeatured) && (
-          <div className="flex items-center gap-2 flex-wrap">
-            {jobType && (
-              <Badge className="bg-purple/20 text-purple px-3 py-1.5 rounded-full text-xs font-semibold">
-                {jobType}
-              </Badge>
-            )}
-            {job.isFeatured && (
-              <Badge className="bg-[#FDF3E5] text-[#FB9002] px-3 py-1.5 rounded-full text-xs font-semibold">
-                Featured
-              </Badge>
-            )}
+        {job.isFeatured && (
+          <div className="flex items-center gap-2 flex-wrap mb-2">
+            <Badge className="bg-[#FDF3E5] text-[#FB9002] px-3 py-1.5 rounded-full text-xs font-semibold">
+              Featured
+            </Badge>
           </div>
         )}
 
         {/* Job Metadata - Vertical Stack */}
-        <div className="pt-2 grid grid-cols-2 gap-3">
+        <div className="pt-2 grid grid-cols-2 gap-x-4 gap-y-3">
           <div className="flex items-center gap-2 w-fit">
             <Briefcase className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
             <Typography
@@ -382,9 +375,69 @@ export default function MobileJobHeaderCard({
               variant="body-small"
               className="text-foreground text-sm font-medium"
             >
-              {jobShift || jobType || "Not specified"}
+              {jobShift || "Not specified"}
             </Typography>
           </div>
+
+          {job.noticePeriod && (
+            <div className="flex items-center gap-2 w-fit">
+              <Clock className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
+              <Typography
+                variant="body-small"
+                className="text-foreground text-sm font-medium"
+              >
+                {job.noticePeriod}
+              </Typography>
+            </div>
+          )}
+
+          {job.careerLevel && (
+            <div className="flex items-center gap-2 w-fit">
+              <Briefcase className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
+              <Typography
+                variant="body-small"
+                className="text-foreground text-sm font-medium"
+              >
+                {job.careerLevel}
+              </Typography>
+            </div>
+          )}
+
+          {job.qualification && (
+            <div className="flex items-center gap-2 w-fit">
+              <Briefcase className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
+              <Typography
+                variant="body-small"
+                className="text-foreground text-sm font-medium"
+              >
+                {job.qualification}
+              </Typography>
+            </div>
+          )}
+
+          {job.gender && (
+            <div className="flex items-center gap-2 w-fit">
+              <Briefcase className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
+              <Typography
+                variant="body-small"
+                className="text-foreground text-sm font-medium"
+              >
+                {job.gender.charAt(0).toUpperCase() + job.gender.slice(1)}
+              </Typography>
+            </div>
+          )}
+
+          {job.nationality && (
+            <div className="flex items-center gap-2 w-fit">
+              <Briefcase className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />
+              <Typography
+                variant="body-small"
+                className="text-foreground text-sm font-medium"
+              >
+                {job.nationality}
+              </Typography>
+            </div>
+          )}
 
           <div className="flex items-center gap-2 w-fit">
             <FaMoneyBillWave className="w-4 h-4 text-[#8A8A8A] flex-shrink-0" />

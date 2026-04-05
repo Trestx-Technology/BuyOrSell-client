@@ -118,8 +118,101 @@ export default function JobDetailContent({ job }: JobDetailContentProps) {
     getFieldValue("notes") ||
     "";
 
+  const hasOverview = job.noticePeriod || job.careerLevel || job.experience || job.qualification || job.gender || job.nationality || job.jobMode || job.jobShift;
+
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 space-y-6 w-full">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 space-y-6 w-full shadow-sm">
+      {/* Job Overview */}
+      {hasOverview && (
+        <div className="space-y-4">
+          <Typography variant="h3" className="text-foreground dark:text-white font-semibold text-xl">
+            Job Overview
+          </Typography>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 bg-gray-50 dark:bg-gray-800/50 p-5 rounded-xl border border-gray-100 dark:border-gray-800">
+            {job.experience && (
+              <div className="flex flex-col gap-1">
+                <Typography variant="body-small" className="text-[#8A8A8A] text-xs uppercase font-bold tracking-wider">
+                  Experience
+                </Typography>
+                <Typography variant="body-small" className="text-foreground dark:text-gray-300 text-sm font-medium">
+                  {job.experience}
+                </Typography>
+              </div>
+            )}
+            {job.careerLevel && (
+              <div className="flex flex-col gap-1">
+                <Typography variant="body-small" className="text-[#8A8A8A] text-xs uppercase font-bold tracking-wider">
+                  Career Level
+                </Typography>
+                <Typography variant="body-small" className="text-foreground dark:text-gray-300 text-sm font-medium">
+                  {job.careerLevel}
+                </Typography>
+              </div>
+            )}
+            {job.qualification && (
+              <div className="flex flex-col gap-1">
+                <Typography variant="body-small" className="text-[#8A8A8A] text-xs uppercase font-bold tracking-wider">
+                  Qualification
+                </Typography>
+                <Typography variant="body-small" className="text-foreground dark:text-gray-300 text-sm font-medium">
+                  {job.qualification}
+                </Typography>
+              </div>
+            )}
+            {job.noticePeriod && (
+              <div className="flex flex-col gap-1">
+                <Typography variant="body-small" className="text-[#8A8A8A] text-xs uppercase font-bold tracking-wider">
+                  Notice Period
+                </Typography>
+                <Typography variant="body-small" className="text-foreground dark:text-gray-300 text-sm font-medium">
+                  {job.noticePeriod}
+                </Typography>
+              </div>
+            )}
+            {job.gender && (
+              <div className="flex flex-col gap-1">
+                <Typography variant="body-small" className="text-[#8A8A8A] text-xs uppercase font-bold tracking-wider">
+                  Gender
+                </Typography>
+                <Typography variant="body-small" className="text-foreground dark:text-gray-300 text-sm font-medium">
+                  {job.gender.charAt(0).toUpperCase() + job.gender.slice(1)}
+                </Typography>
+              </div>
+            )}
+            {job.nationality && (
+              <div className="flex flex-col gap-1">
+                <Typography variant="body-small" className="text-[#8A8A8A] text-xs uppercase font-bold tracking-wider">
+                  Nationality
+                </Typography>
+                <Typography variant="body-small" className="text-foreground dark:text-gray-300 text-sm font-medium">
+                  {job.nationality}
+                </Typography>
+              </div>
+            )}
+            {job.jobMode && (
+              <div className="flex flex-col gap-1">
+                <Typography variant="body-small" className="text-[#8A8A8A] text-xs uppercase font-bold tracking-wider">
+                  Job Mode
+                </Typography>
+                <Typography variant="body-small" className="text-foreground dark:text-gray-300 text-sm font-medium">
+                  {job.jobMode}
+                </Typography>
+              </div>
+            )}
+            {job.jobShift && (
+              <div className="flex flex-col gap-1">
+                <Typography variant="body-small" className="text-[#8A8A8A] text-xs uppercase font-bold tracking-wider">
+                  Job Shift
+                </Typography>
+                <Typography variant="body-small" className="text-foreground dark:text-gray-300 text-sm font-medium">
+                  {job.jobShift}
+                </Typography>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Job Description */}
       {description && (
         <div className="space-y-4">
