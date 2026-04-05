@@ -244,19 +244,20 @@ export default function Employment({ profile, isLoadingProfile }: EmploymentProp
   return (
     <form onSubmit={handleSubmit(onSubmit, onError)}>
       <div className="bg-white dark:bg-gray-900 border border-[#E2E2E2] dark:border-gray-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <Typography
             variant="h2"
             className="text-dark-blue dark:text-white font-bold text-2xl"
           >
             Employment
           </Typography>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <Button
               type="button"
               variant="primary"
               icon={<Plus className="w-4 h-4" />}
               iconPosition="left"
+              className="flex-1 sm:flex-initial rounded-xl"
               onClick={() =>
                 append({
                   company: "",
@@ -276,7 +277,11 @@ export default function Employment({ profile, isLoadingProfile }: EmploymentProp
             >
               Add Employment
             </Button>
-            <Button type="submit" disabled={isSubmitting || isLoadingProfile}>
+            <Button 
+              type="submit" 
+              className="flex-1 sm:flex-initial rounded-xl"
+              disabled={isSubmitting || isLoadingProfile}
+            >
               {isSubmitting ? "Saving..." : "Save"}
             </Button>
           </div>

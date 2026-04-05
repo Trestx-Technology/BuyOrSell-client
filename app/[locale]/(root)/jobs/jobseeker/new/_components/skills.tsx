@@ -92,16 +92,22 @@ export default function Skills({ profile, isLoadingProfile }: SkillsProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="bg-white dark:bg-gray-900 border border-[#E2E2E2] dark:border-gray-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <Typography
             variant="h2"
             className="text-dark-blue dark:text-white font-bold text-2xl"
           >
             Skills
           </Typography>
-          <Button type="submit" disabled={isSubmitting || isLoadingProfile}>
-            {isSubmitting ? "Saving..." : "Save"}
-          </Button>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <Button 
+              type="submit" 
+              className="flex-1 sm:flex-initial rounded-xl h-11"
+              disabled={isSubmitting || isLoadingProfile}
+            >
+              {isSubmitting ? "Saving..." : "Save"}
+            </Button>
+          </div>
         </div>
 
         <FormField
