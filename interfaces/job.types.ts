@@ -183,6 +183,9 @@ export interface JobseekerProfile {
   awards: JobseekerAward[];
   publications: JobseekerPublication[];
   photoUrl?: string;
+  gender?: string;
+  nationality?: string;
+  currentDesignation?: string;
   resumeFileUrl?: string;
   resumeText?: string;
   linkedinUrl?: string;
@@ -598,9 +601,23 @@ export interface JobseekerProfilesListResponse {
 // ============================================================================
 
 export interface UpdateJobseekerProfilePayload {
+  headline?: string;
   professionalTitle?: string;
+  currentDesignation?: string;
   currentCompany?: string;
   bio?: string;
+  summary?: string;
+  photoUrl?: string;
+  resumeFileUrl?: string;
+  gender?: string;
+  nationality?: string;
+  expectedCtc?: number;
+  currentCtc?: number;
+  ctcCurrency?: string;
+  location?: string;
+  availability?: string;
+  noticePeriodDays?: number;
+  isPhoneVerified?: boolean;
 }
 
 export interface CreateWorkExperiencePayload {

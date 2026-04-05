@@ -168,6 +168,9 @@ export const jobseekerProfileSchema = z
     industryId: z.string().optional(),
     summary: z.string().optional(),
     photoUrl: z.string().url("Invalid URL").optional().nullable(),
+    gender: z.string().optional(),
+    nationality: z.string().optional(),
+    currentDesignation: z.string().optional(),
     githubUrl: z.string().url("Invalid URL").optional().nullable(),
     twitterUrl: z.string().url("Invalid URL").optional().nullable(),
     portfolioUrl: z.string().url("Invalid URL").optional().nullable(),
@@ -343,7 +346,10 @@ export const basicDetailsSchema = z.object({
     .int()
     .min(0, "Invalid experience"),
   currentCtc: z
-    .number({ message: "Salary is required" })
+    .number({ message: "Current salary is required" })
+    .nonnegative("Invalid salary"),
+  expectedCtc: z
+    .number({ message: "Expected salary is required" })
     .nonnegative("Invalid salary"),
   location: z
     .string({ message: "Location is required" })
@@ -355,6 +361,11 @@ export const basicDetailsSchema = z.object({
       z.literal("serving"),
     ])
     .optional(),
+  headline: z.string().optional(),
+  gender: z.string().optional(),
+  nationality: z.string().optional(),
+  currentDesignation: z.string().optional(),
+  photoUrl: z.string().url("Invalid URL").optional().nullable(),
 });
 
 export type BasicDetailsSchemaType = z.infer<typeof basicDetailsSchema>;

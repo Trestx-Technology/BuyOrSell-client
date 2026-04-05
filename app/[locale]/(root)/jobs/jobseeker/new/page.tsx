@@ -75,7 +75,7 @@ export default function NewJobseekerProfilePage() {
   ];
 
   return (
-    <Container1080 className="py-6 space-y-6">
+    <Container1080 className="py-6 space-y-6 px-4 sm:px-6 lg:px-0">
       {/* Header */}
       <Breadcrumbs
         className="hidden sm:flex"
@@ -83,11 +83,35 @@ export default function NewJobseekerProfilePage() {
         items={breadcrumbItems}
         showSelectCategoryLink={false}
       />
+
+      {/* Mobile Section Toggle */}
+      <div className="lg:hidden w-full overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-2 min-w-max">
+          {formSections.map((section) => {
+            const isActive = activeSection === section.id;
+            return (
+              <Button
+                key={section.id}
+                variant={isActive ? "primary" : "outline"}
+                size="sm"
+                className={cn(
+                  "rounded-full px-4 h-9 text-xs font-semibold whitespace-nowrap",
+                  isActive ? "bg-purple text-white" : "border-gray-200 text-grey-blue"
+                )}
+                onClick={() => setActiveSection(section.id)}
+              >
+                {section.label}
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Main Content */}
       <div className="w-full">
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar Navigation */}
-          <aside className="lg:w-[254px] bg-white dark:bg-gray-900 border border-transparent dark:border-gray-800 h-fit rounded-lg px-6 py-2 shadow-sm flex-shrink-0 sticky top-30">
+          {/* Sidebar Navigation - Hidden on mobile to prevent overlap */}
+          <aside className="hidden lg:block lg:w-[254px] bg-white dark:bg-gray-900 border border-transparent dark:border-gray-800 h-fit rounded-lg px-6 py-2 shadow-sm flex-shrink-0 sticky top-30">
             {formSections.map((section) => {
               const isActive = activeSection === section.id;
               return (
