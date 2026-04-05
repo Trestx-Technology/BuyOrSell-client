@@ -43,12 +43,17 @@ export default function CategoryListingContent() {
   const { t, locale } = useLocale();
   const params = useParams();
   const router = useRouter();
-  const { clearUrlQueries } = useUrlParams();
-  const { extraFields, hasDynamicFilters } = useUrlFilters();
-  const [searchQuery, setSearchQuery] = useState("");
+  const { updateUrlParam, clearUrlQueries, searchParams } = useUrlParams();
+  const { query: urlFilters, extraFields, hasDynamicFilters } = useUrlFilters();
+  
+  const initialSearch = searchParams.get("search") || searchParams.get("query") || "";
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [inputValue, setInputValue] = useDebouncedValue(
     searchQuery,
-    setSearchQuery,
+    (val) => {
+      setSearchQuery(val);
+      updateUrlParam("search", val);
+    },
     500
   );
 
@@ -69,7 +74,6 @@ export default function CategoryListingContent() {
   const categoryName = currentCategory ? unSlugify(decodeURIComponent(currentCategory)) : "Category";
 
   const { data: emirates } = useEmirates();
-  const searchParams = useSearchParams();
   const { selectedEmirate } = useEmirateStore();
 
   const emirateDisplayName = useMemo(() => {
@@ -79,15 +83,36 @@ export default function CategoryListingContent() {
     return emirate ? (locale === "ar" ? emirate.emirateAr : emirate.emirate) : selectedEmirate;
   }, [selectedEmirate, emirates, locale]);
 
-  // Initialize filters
+  // Initialize filters from URL
   const [filters, setFilters] = useState<
     Record<string, string | number | string[] | number[] | undefined>
-  >({});
+  >(urlFilters || {});
 
 
   const [view, setView] = useState<ViewMode>("grid");
-  const [sortBy, setSortBy] = useState("default");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "default");
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
+
+  // Sync with URL params
+  useEffect(() => {
+    // Sync filters
+    setFilters(urlFilters);
+    
+    // Sync search
+    const currentSearch = searchParams.get("search") || searchParams.get("query") || "";
+    if (currentSearch !== searchQuery) {
+      setSearchQuery(currentSearch);
+      setInputValue(currentSearch);
+    }
+
+    // Sync page
+    const page = Number(searchParams.get("page")) || 1;
+    if (page !== currentPage) setCurrentPage(page);
+
+    // Sync sort
+    const sort = searchParams.get("sort") || "default";
+    if (sort !== sortBy) setSortBy(sort);
+  }, [searchParams, urlFilters]);
 
   // Fetch category data to map its specific dynamic fields
   const categoryPath = slugify(...slugSegments);
@@ -168,6 +193,7 @@ export default function CategoryListingContent() {
   ) => {
     // Static filters: update immediately
     setFilters((prev) => ({ ...prev, [key]: value }));
+    updateUrlParam(key, value);
     setCurrentPage(1);
   };
 
