@@ -416,12 +416,7 @@ export default function SuccessPage() {
                       : t.success.pending}
                 </span>
               </div>
-              <div className="flex justify-between items-center text-[#4B5563] dark:text-gray-400">
-                <span>{t.success.listingFee}</span>
-                <span className="font-medium text-[#10B981] dark:text-[#34D399]">
-                  {t.success.free}
-                </span>
-              </div>
+
 
               <div className="w-full h-px bg-[#E5E7EB] dark:bg-gray-700/50 my-2"></div>
 

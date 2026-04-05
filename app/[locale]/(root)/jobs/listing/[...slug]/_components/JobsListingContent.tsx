@@ -36,7 +36,7 @@ import { NoDataCard } from "@/components/global/fallback-cards";
 import { JobListingCardSkeleton, JobDetailContentSkeleton, JobHeaderCardSkeleton } from "../../_components/job-skeletons";
 import { useEmirateStore } from "@/stores/emirateStore";
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 8;
 
 export default function JobsListingContent() {
   const params = useParams();
