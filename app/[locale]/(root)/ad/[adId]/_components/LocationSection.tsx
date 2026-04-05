@@ -264,12 +264,6 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
             </div>
           </div>
         </div>
-
-        {/* Location Details */}
-        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-          <MapPin className="h-4 w-4 text-purple-600" />
-          <span className="text-sm">{locationData.address}</span>
-        </div>
       </div>
     );
   }
@@ -309,12 +303,6 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
             </div>
           </div>
         </div>
-
-        {/* Location Details */}
-        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-          <MapPin className="h-4 w-4 text-purple-600" />
-          <span className="text-sm">{locationData.address}</span>
-        </div>
       </div>
     );
   }
@@ -335,12 +323,6 @@ const LocationSection: React.FC<LocationSectionProps> = ({ ad }) => {
           className="w-full h-[390px] rounded-lg"
           style={{ minHeight: "390px" }}
         />
-      </div>
-
-      {/* Location Details */}
-      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mt-4">
-        <MapPin className="h-4 w-4 text-purple-600" />
-        <span className="text-sm">{locationData.address}</span>
       </div>
     </div>
   );

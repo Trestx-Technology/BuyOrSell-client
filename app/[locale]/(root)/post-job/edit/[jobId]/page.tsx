@@ -390,7 +390,7 @@ export default function EditJobPage() {
     try {
       await updateAdMutation.mutateAsync({ id: jobId, payload });
       toast.success("Job updated successfully!");
-      router.push(localePath(`/jobs/listing/${jobId}`));
+      router.push(localePath("/jobs/listing/my"));
     } catch (error: unknown) {
       console.error("Error updating job", error);
     }
