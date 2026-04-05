@@ -90,7 +90,7 @@ const NavbarContent = ({ className }: { className?: string }) => {
         {/*-------------- Logo and Brand Name---------- */}
         <Link href="/" className="flex items-center">
           <Image
-            src={ICONS.logo.main}
+            src={ICONS.logo.full}
             alt="BuyOrSell Logo"
             width={150}
             height={49}

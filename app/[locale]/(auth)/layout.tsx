@@ -37,7 +37,7 @@ const AuthRootLayout = async ({ children, params }: AuthRootLayoutProps) => {
       <div className="bg-white dark:bg-gray-950">
         <div className="px-[12px] lg:px-[100px] min-h-[750px] w-screen max-w-[1280px] mx-auto flex flex-col">
           <Link href={`/${locale}`} className="mt-8">
-            <Image src={ICONS.logo.main} width={156} height={49} alt="logo" />
+            <Image src={ICONS.logo.full} width={156} height={49} alt="logo" />
           </Link>
           <main className="flex justify-center items-center relative gap-10 flex-1">
             {children}
@@ -55,7 +55,7 @@ const AuthRootLayout = async ({ children, params }: AuthRootLayoutProps) => {
                   className="w-full h-full min-h-[603px] bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center justify-center"
                 >
                   <div className="bg-white/50 dark:bg-gray-800/50 p-6 rounded-full grayscale opacity-20">
-                    <Image src={ICONS.logo.main} width={120} height={40} alt="Logo Placeholder" />
+                    <Image src={ICONS.logo.full} width={120} height={40} alt="Logo Placeholder" />
                   </div>
                 </div>
               )}

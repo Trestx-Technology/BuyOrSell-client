@@ -10,6 +10,7 @@ const S3_BASE_URL = "https://dev-buyorsell.s3.me-central-1.amazonaws.com";
 // ============================================================================
 export const LOGO_ICONS = {
   main: `/logo.svg`,
+  full: `${S3_BASE_URL}/assets/logo.svg`,
   adsPosting: `${S3_BASE_URL}/assets/Ads+Posting.png`,
   authBanner: `${S3_BASE_URL}/assets/auth-banner.jpg`,
 } as const;

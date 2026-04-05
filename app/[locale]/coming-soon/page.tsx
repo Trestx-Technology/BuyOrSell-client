@@ -43,7 +43,7 @@ export default function ComingSoonPage() {
               <div className="absolute top-0 left-0 w-full p-6 md:p-10 flex items-center justify-between z-20">
                     <Link href="/">
                           <Image
-                                src={ICONS.logo.main}
+                                src={ICONS.logo.full}
                                 alt="BuyOrSell Logo"
                                 width={180}
                                 height={60}

@@ -263,9 +263,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                 {/* Logo */}
                 <div className="flex items-center gap-2">
                   <Image
-                    src={
-                      "https://dev-buyorsell.s3.me-central-1.amazonaws.com/assets/logo.svg"
-                    }
+                    src={ICONS.logo.full}
                     alt="BuyOrSell Logo"
                     width={125}
                     height={36}
@@ -366,7 +364,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
             {!isLoggedIn ? (
               <MenuItem
                 icon={
-                  "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/user-login.svg"
+                  ICONS.auth.userLogin
                 }
                 label="Log In / Sign Up"
                 href="/login"
@@ -376,7 +374,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
             ) : (
               <MenuItem
                 icon={
-                  "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/profile.svg"
+                  ICONS.navigation.profile
                 }
                 label="Profile"
                 href="/user/profile"
@@ -422,7 +420,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
             <SectionHeader title="Explore" />
             <MenuItem
               icon={
-                "https://dev-buyorsell.s3.me-central-1.amazonaws.com/icons/explore.svg"
+                ICONS.navigation.explore
               }
               label="Explore"
               href="/explore"

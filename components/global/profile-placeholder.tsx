@@ -20,7 +20,7 @@ export const ProfilePlaceholder = ({ className, size = 40 }: ProfilePlaceholderP
     >
       <div className="relative" style={{ width: size, height: size }}>
         <Image 
-          src={ICONS.logo.main} 
+          src={ICONS.logo.full} 
           alt="Logo Placeholder" 
           fill
           className="object-contain"

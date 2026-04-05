@@ -103,7 +103,7 @@ export function Footer({ className }: FooterProps) {
         >
           <Link href={localePath("/")}>
             <Image
-              src={ICONS.logo.main}
+              src={ICONS.logo.full}
               alt="logo"
               width={150}
               height={50}
