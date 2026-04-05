@@ -19,9 +19,9 @@ interface LatestJobsCarouselProps {
   titleClassName?: string;
 }
 
-export default function LatestJobsCarousel({ 
-  title, 
-  titleClassName 
+export default function LatestJobsCarousel({
+  title,
+  titleClassName,
 }: LatestJobsCarouselProps) {
   const router = useRouter();
   const { locale, localePath } = useLocale();
@@ -31,7 +31,7 @@ export default function LatestJobsCarousel({
     adType: "JOB",
     limit: 12,
     sortBy: "createdAt",
-    sortOrder: "desc"
+    sortOrder: "desc",
   });
 
   const jobs = useMemo(() => {
@@ -39,7 +39,8 @@ export default function LatestJobsCarousel({
     // and useAds returns response.data (the body)
     // If the body itself has a 'data' key, we access that.
     const raw = adsData as any;
-    const items = raw?.data?.adds || raw?.adds || raw?.data?.ads || raw?.ads || [];
+    const items =
+      raw?.data?.adds || raw?.adds || raw?.data?.ads || raw?.ads || [];
     return (Array.isArray(items) ? items : []) as AD[];
   }, [adsData]);
 
@@ -57,28 +58,54 @@ export default function LatestJobsCarousel({
             variant="ghost"
             className="text-purple font-semibold hover:underline bg-transparent"
             size={"sm"}
-            onClick={() => router.push(localePath("/jobs/listing"))}
+            onClick={() => router.push(localePath("/jobs/listing/Jobs"))}
           >
             {locale === "ar" ? "عرض الكل" : "View all"}
           </Button>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="flex gap-6 overflow-hidden pt-4 px-4 sm:px-0">
             {Array.from({ length: 4 }).map((_, i) => (
-              <ListingCardSkeleton key={i} />
+              <div key={i} className="flex-[0_0_280px] sm:flex-[0_0_260px] min-w-0">
+                <ListingCardSkeleton />
+              </div>
             ))}
           </div>
         ) : jobs.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {jobs.map((job) => (
-              <JobCard key={job._id} job={job} />
-            ))}
-          </div>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            <CardsCarousel
+              showNavigation={true}
+              breakpoints={{
+                mobile: 1,
+                tablet: 2,
+                desktop: 3,
+                wide: 4,
+              }}
+              className="lg:px-0"
+            >
+              {jobs.map((job) => (
+                <motion.div
+                  key={job._id}
+                  variants={itemVariants}
+                  className="flex-[0_0_280px] sm:flex-[0_0_260px] min-w-0 py-2"
+                >
+                  <JobCard job={job} />
+                </motion.div>
+              ))}
+            </CardsCarousel>
+          </motion.div>
         ) : (
           <div className="text-center py-20 bg-gray-50 dark:bg-zinc-900/50 rounded-2xl border border-dashed border-gray-200 dark:border-zinc-800">
             <Typography className="text-gray-500">
-              {locale === "ar" ? "لا توجد وظائف متاحة حالياً" : "No jobs available at the moment."}
+              {locale === "ar"
+                ? "لا توجد وظائف متاحة حالياً"
+                : "No jobs available at the moment."}
             </Typography>
           </div>
         )}
