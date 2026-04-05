@@ -28,7 +28,7 @@ export interface FilterOption {
 export interface FilterConfig {
   key: string;
   label: string;
-  type: "select" | "range" | "multiselect" | "search" | "checkboxes" | "bool" | "selectableTabs";
+  type: "select" | "range" | "multiselect" | "search" | "checkboxes" | "bool" | "selectableTabs" | "calendar";
   options?: FilterOption[];
   optionalMapOfArray?: Record<string, string[]>;
   placeholder?: string;
