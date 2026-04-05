@@ -90,12 +90,12 @@ export function MessageInput({
   return (
     <div className="border-t border-gray-200 dark:border-gray-800 bg-purple/10 dark:bg-purple-900/10 p-4">
       <div className="flex items-center gap-3">
-        <AIFeaturesPopover
+        {/* <AIFeaturesPopover
           onMessageGenerated={onAIMessageGenerated ? onAIMessageGenerated : () => { }}
           currentMessage={value}
           itemTitle={itemTitle}
           itemPrice={itemPrice}
-        />
+        /> */}
 
         <div className="flex-1 relative">
           <AutosizeTextarea

@@ -58,6 +58,14 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
     return pathWithoutLocale.startsWith("/blog");
   }, [pathname]);
 
+  const isChatOrHelpCenter = useMemo(() => {
+    const pathWithoutLocale = pathname?.replace(/^\/[^/]+/, "") || "/";
+    return (
+      pathWithoutLocale.startsWith("/chat") ||
+      pathWithoutLocale.startsWith("/help-centre")
+    );
+  }, [pathname]);
+
   // Determine navbar className
   const navbarClassName = useMemo(() => {
     // Hide on blog pages or specific without-nav pages
@@ -98,7 +106,12 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
   ]);
 
   return (
-    <main className="min-h-[600px] relative flex flex-col bg-white dark:bg-gray-950">
+    <main
+      className={cn(
+        "min-h-[600px] relative flex flex-col bg-white dark:bg-gray-950",
+        isChatOrHelpCenter && "h-screen overflow-hidden",
+      )}
+    >
       <div className="sticky w-full bg-white dark:bg-gray-900 top-0 z-50 flex flex-col items-center">
         {!shouldHideNavCompletely && <MobileAppStrip />}
         <div
@@ -111,7 +124,14 @@ export function MainLayoutWrapper({ children }: MainLayoutWrapperProps) {
           <CategoryNav className={categoryNavClassName} />
         </div>
       </div>
-      <section className="w-full mx-auto flex-grow">{children}</section>
+      <section
+        className={cn(
+          "w-full mx-auto flex-grow",
+          isChatOrHelpCenter && "h-full overflow-hidden flex flex-col",
+        )}
+      >
+        {children}
+      </section>
       <CommandMenu />
       <SearchAdsDialog />
       {!shouldHideFooter && <Footer />}

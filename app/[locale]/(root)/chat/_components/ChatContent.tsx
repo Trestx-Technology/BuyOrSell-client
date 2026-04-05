@@ -91,7 +91,7 @@ export default function ChatContent() {
   }
 
   return (
-    <Container1080 className="flex relative h-screen min-h-[500px] border border-gray-100 dark:border-gray-800">
+    <Container1080 className="flex relative h-full min-h-[500px] border border-gray-100 dark:border-gray-800">
       {/* Sidebar - Always visible on desktop, full width on mobile when no chat selected */}
 
       <ChatSidebar

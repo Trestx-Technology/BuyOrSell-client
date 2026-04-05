@@ -53,6 +53,8 @@ export const PAGES_WITHOUT_NAV: string[] = [
 export const PAGES_WITHOUT_FOOTER: string[] = [
   "/post-ad/details",
   "/post-job/details",
+  "/chat",
+  "/help-centre",
 ];
 
 /**
