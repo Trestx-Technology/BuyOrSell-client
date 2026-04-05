@@ -48,7 +48,6 @@ export const CommonFilters = ({
 
   // Wrapper for static filter changes
   const handleStaticChange = (key: string, value: any) => {
-    updateUrlParam(key, value);
     onStaticFilterChange(key, value);
   };
 
@@ -63,48 +62,10 @@ export const CommonFilters = ({
     );
   }, [emiratesData]);
 
-  // Initialize from URL on mount
-  useEffect(() => {
-    // Sync static filters
-    staticFilters.forEach((config) => {
-      const urlValue = searchParams.get(config.key);
-      if (urlValue && filters[config.key] !== urlValue) {
-        // specialized parsing for array types could go here if needed
-        // for now treating as string which works for most 'select' types
-        // For ranges/multiselect, 'urlValue' string "a,b" needs splitting
-        if (config.type === "multiselect" || config.type === "range") {
-          const arr = urlValue.split(",");
-          // converting numbers for range?
-          if (config.type === "range") {
-            const nums = arr.map(Number);
-            onStaticFilterChange(config.key, nums);
-          } else {
-            onStaticFilterChange(config.key, arr);
-          }
-        } else {
-          onStaticFilterChange(config.key, urlValue);
-        }
-      }
-    });
-
-    // Sync Search
-    const urlSearch = searchParams.get("search");
-    if (urlSearch && urlSearch !== searchQuery && onSearchChange) {
-      onSearchChange(urlSearch);
-    }
-
-    // Sync Location
-    const urlLocation = searchParams.get("location");
-    if (urlLocation && urlLocation !== locationQuery && onLocationChange) {
-      onLocationChange(urlLocation);
-    }
-  }, []);
-
   // Use debounced value hook for search input
   const [localSearchQuery, setLocalSearchQuery] = useDebouncedValue(
     searchQuery,
     (value) => {
-      updateUrlParam("search", value);
       if (onSearchChange) {
         onSearchChange(value);
       }
@@ -123,7 +84,6 @@ export const CommonFilters = ({
   const [localLocationQuery, setLocalLocationQuery] = useDebouncedValue(
     locationQuery || "",
     (value) => {
-      updateUrlParam("location", value);
       if (onLocationChange) {
         onLocationChange(value);
       }

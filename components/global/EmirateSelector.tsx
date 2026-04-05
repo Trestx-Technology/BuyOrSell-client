@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { useUrlParams } from "@/hooks/useUrlParams";
 import { useQueryParam } from "@/hooks/useQueryParam";
 import { useEmirateStore } from "@/stores/emirateStore";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface EmirateSelectorProps {
   onEmirateChange?: (emirate: string) => void;
@@ -30,18 +31,10 @@ const EmirateSelector = ({
   const { updateUrlParam, searchParams } = useUrlParams();
   const { data: emirates, isLoading: isLoadingEmirates } = useEmirates();
   const { locale } = useLocale();
+  const queryClient = useQueryClient();
 
   const selectedEmirate = useEmirateStore(state => state.selectedEmirate);
   const setSelectedEmirate = useEmirateStore(state => state.setSelectedEmirate);
-
-  // Sync state when URL parameter changes
-  const handleQueryParamSync = useCallback((val: string) => {
-    if (val !== useEmirateStore.getState().selectedEmirate) {
-      useEmirateStore.getState().setSelectedEmirate(val);
-    }
-  }, []);
-
-  useQueryParam(searchParams, "emirate", handleQueryParamSync);
 
   // Handle city change using the optimized useUrlParams hook
   const handleCityChange = useCallback((value: string) => {
@@ -51,11 +44,14 @@ const EmirateSelector = ({
     // Update URL parameter
     updateUrlParam("emirate", value);
 
+    // Invalidate entire query cache to refetch with new location context
+    queryClient.invalidateQueries();
+
     // Trigger external callback if provided
     if (onEmirateChange) {
       onEmirateChange(value);
     }
-  }, [setSelectedEmirate, updateUrlParam, onEmirateChange]);
+  }, [setSelectedEmirate, updateUrlParam, onEmirateChange, queryClient]);
 
   const currentEmirateDisplay = useMemo(() => {
     if (!selectedEmirate) return locale === "ar" ? "كل المدن" : "UAE";
