@@ -36,6 +36,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "buyorsell-assets.s3.me-central-1.amazonaws.com",
       },
+      {
+        protocol: "https",
+        hostname: "*.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.google.com",
+      },
     ],
   },
   async redirects() {

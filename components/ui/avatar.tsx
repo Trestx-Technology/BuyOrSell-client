@@ -42,8 +42,11 @@ interface AvatarImageProps
   className?: string;
 }
 
+import { SafeImage } from "./safe-image";
+import { Typography } from "../typography";
+
 const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImageProps>(
-  ({ src, alt, className, ...props }, ref) => {
+  ({ src, alt, className, height: _h, width: _w, ...props }, ref) => {
     const { imageError, setImageError } = React.useContext(AvatarContext);
 
     React.useEffect(() => {
@@ -57,8 +60,7 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImageProps>(
     if (!src || imageError) return null;
 
     return (
-      <img
-        ref={ref}
+      <SafeImage
         src={src}
         alt={alt || "Avatar"}
         className={cn(
@@ -66,6 +68,7 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImageProps>(
           className
         )}
         onError={() => setImageError(true)}
+        fill
         {...props}
       />
     );

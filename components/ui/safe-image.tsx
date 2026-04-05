@@ -4,7 +4,7 @@ import { ImageOff } from "lucide-react";
 import { BASE64 } from "@/constants/base64";
 import { cn } from "@/lib/utils";
 
-interface SafeImageProps extends Omit<ImageProps, "onError"> {
+interface SafeImageProps extends ImageProps {
   fallbackClassName?: string;
   iconClassName?: string;
 }
@@ -20,6 +20,10 @@ export const SafeImage = ({
   ...props
 }: SafeImageProps) => {
   const [hasError, setHasError] = useState(false);
+
+  React.useEffect(() => {
+    setHasError(false);
+  }, [src]);
 
   if (hasError || !src) {
     return (
@@ -41,7 +45,10 @@ export const SafeImage = ({
       className={className}
       placeholder={placeholder}
       blurDataURL={blurDataURL}
-      onError={() => setHasError(true)}
+      onError={(e) => {
+        setHasError(true);
+        if (props.onError) props.onError(e);
+      }}
       {...props}
     />
   );

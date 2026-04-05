@@ -40,6 +40,7 @@ import { useAdById } from "@/hooks/useAds";
 import { OrganisationSelectionDialog } from "./organisation-selection-dialog";
 import { Organization } from "@/interfaces/organization.types";
 import { useMyOrganization } from "@/hooks/useOrganizations";
+import { SafeImage } from "../ui/safe-image";
 
 export interface JobseekerProfileHeaderMobileProps {
   jobseeker: JobseekerProfile;
@@ -422,7 +423,7 @@ export default function JobseekerProfileHeaderMobile({
               </svg>
                 <div className="absolute inset-[2px] rounded-full border-[3px] border-[#F5EBFF] dark:border-gray-800 flex items-center justify-center bg-gradient-to-br from-purple/10 to-purple/5 dark:from-purple/20 dark:to-purple/10 overflow-hidden">
                 {jobseeker.photoUrl ? (
-                  <Image
+                  <SafeImage
                     src={jobseeker.photoUrl}
                     alt={profileName}
                     width={80}
@@ -451,7 +452,7 @@ export default function JobseekerProfileHeaderMobile({
             <div className="absolute inset-0 rounded-full border-[2px] border-[#37E7B6] p-1.5">
                 <div className="w-full h-full rounded-full border-[3px] border-[#F5EBFF] dark:border-gray-800 flex items-center justify-center bg-gradient-to-br from-purple/10 to-purple/5 dark:from-purple/20 dark:to-purple/10 overflow-hidden">
                 {jobseeker.photoUrl ? (
-                  <Image
+                  <SafeImage
                     src={jobseeker.photoUrl}
                     alt={profileName}
                     width={80}

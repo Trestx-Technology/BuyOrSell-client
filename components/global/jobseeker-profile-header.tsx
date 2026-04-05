@@ -36,6 +36,7 @@ import { useAdById } from "@/hooks/useAds";
 import { OrganisationSelectionDialog } from "./organisation-selection-dialog";
 import { Organization } from "@/interfaces/organization.types";
 import { useMyOrganization } from "@/hooks/useOrganizations";
+import { SafeImage } from "../ui/safe-image";
 
 export interface JobseekerProfileHeaderActionButtons {
   onChat?: () => void;
@@ -454,7 +455,7 @@ export default function JobseekerProfileHeader({
               </svg>
                 <div className="absolute inset-[3px] rounded-full border-[5px] border-[#F5EBFF] dark:border-gray-800 flex items-center justify-center bg-gradient-to-br from-purple/10 to-purple/5 dark:from-purple/20 dark:to-purple/10 overflow-hidden">
                 {jobseeker.photoUrl ? (
-                  <Image
+                  <SafeImage
                     src={jobseeker.photoUrl}
                     alt={profileName}
                     width={170}
@@ -483,7 +484,7 @@ export default function JobseekerProfileHeader({
             <div className="absolute inset-0 rounded-full border-[3px] border-[#37E7B6] p-2">
                 <div className="w-full h-full rounded-full border-[5px] border-[#F5EBFF] dark:border-gray-800 flex items-center justify-center bg-gradient-to-br from-purple/10 to-purple/5 dark:from-purple/20 dark:to-purple/10 overflow-hidden">
                 {jobseeker.photoUrl ? (
-                  <Image
+                  <SafeImage
                     src={jobseeker.photoUrl}
                     alt={profileName}
                     width={170}

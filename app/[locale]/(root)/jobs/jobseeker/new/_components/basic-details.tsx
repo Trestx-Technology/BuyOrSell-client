@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { ICONS } from "@/constants/icons";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { SafeImage } from "@/components/ui/safe-image";
 import { useUploadFile } from "@/hooks/useUploadFile";
 import { cn } from "@/lib/utils";
 import ResumeUploader from "./resume-uploader";
@@ -75,7 +75,9 @@ interface BasicDetailsProps {
 }
 
 // Helper to split phone number into code and number
-const splitPhoneNumber = (fullNumber: string | undefined | null): { countryCode: string, number: string } | undefined => {
+const splitPhoneNumber = (
+  fullNumber: string | undefined | null,
+): { countryCode: string; number: string } | undefined => {
   if (!fullNumber) return undefined;
   // This is a simple heuristic, ideally we should use the countryCodes array to match
   // For now, assuming standard format +<code><number>
@@ -87,7 +89,10 @@ const splitPhoneNumber = (fullNumber: string | undefined | null): { countryCode:
   return undefined;
 };
 
-export default function BasicDetails({ profile, isLoadingProfile }: BasicDetailsProps) {
+export default function BasicDetails({
+  profile,
+  isLoadingProfile,
+}: BasicDetailsProps) {
   const router = useRouter();
   const session = useAuthStore((state) => state.session);
   const user = session?.user;
@@ -119,7 +124,9 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
         : "",
       contactEmail: user?.email || "",
       // Prefill contact phone from profile if available, otherwise from session if verified
-      contactPhone: profile?.contactPhone || (user?.phoneVerified ? user?.phoneNo : undefined),
+      contactPhone:
+        profile?.contactPhone ||
+        (user?.phoneVerified ? user?.phoneNo : undefined),
       resumeFileUrl: undefined,
       workStatus: undefined, // Removed default value as requested
       experienceYears: profile?.experienceYears,
@@ -150,10 +157,13 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
       form.reset({
         name: profile.name || "",
         contactEmail: profile.contactEmail || user?.email || "",
-        contactPhone: profile.contactPhone || (user?.phoneVerified ? user?.phoneNo : undefined),
+        contactPhone:
+          profile.contactPhone ||
+          (user?.phoneVerified ? user?.phoneNo : undefined),
         resumeFileUrl: profile.resumeFileUrl || undefined,
         workStatus:
-          (profile.workStatus as (typeof workStatusSchema.options)[number]) || undefined,
+          (profile.workStatus as (typeof workStatusSchema.options)[number]) ||
+          undefined,
         experienceYears: profile.experienceYears,
         currentCtc: profile.currentCtc,
         expectedCtc: profile.expectedCtc,
@@ -179,16 +189,19 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
 
   const handleResumeUploadComplete = useCallback(
     (fileUrl: string, fileName: string) => {
-      setValue("resumeFileUrl", fileUrl, { shouldDirty: true, shouldValidate: true });
+      setValue("resumeFileUrl", fileUrl, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
     },
-    [setValue]
+    [setValue],
   );
 
   const handleSendOTP = useCallback(
     async (phoneNumber: string) => {
       await sendPhoneOtpMutation.mutateAsync({ phoneNo: phoneNumber });
     },
-    [sendPhoneOtpMutation]
+    [sendPhoneOtpMutation],
   );
 
   const handleVerifyOTP = useCallback(
@@ -201,14 +214,14 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
         return false;
       }
     },
-    [verifyPhoneOtpMutation]
+    [verifyPhoneOtpMutation],
   );
 
   const handlePhoneVerified = useCallback(
     (phoneNumber: string) => {
       setValue("contactPhone", phoneNumber, { shouldDirty: true });
     },
-    [setValue]
+    [setValue],
   );
 
   const onSubmit = (data: BasicDetailsSchemaType) => {
@@ -242,7 +255,7 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
         toast.success(
           profile?._id
             ? "Basic details updated successfully"
-            : "Jobseeker profile created successfully"
+            : "Jobseeker profile created successfully",
         );
         router.push("/jobs/listing/my");
       },
@@ -286,15 +299,40 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
     <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-8">
       {/* Profile Header Card */}
       <div className="bg-gradient-to-r from-purple/5 to-transparent border border-purple/10 rounded-2xl p-8 flex flex-col md:flex-row gap-8 items-center md:items-start shadow-sm">
-        <div className="relative group">
-          <Avatar className="w-32 h-32 border-4 border-white dark:border-gray-800 shadow-2xl transition-transform hover:scale-105 duration-300">
-            <AvatarImage src={watch("photoUrl") || undefined} className="object-cover" />
-            <AvatarFallback className="bg-purple text-white text-4xl font-bold">
-              {watch("name")?.charAt(0) || "U"}
-            </AvatarFallback>
-          </Avatar>
-          <label className="absolute bottom-1 right-1 bg-white dark:bg-gray-800 p-2.5 rounded-full shadow-lg cursor-pointer hover:bg-purple hover:text-white transition-all duration-300 border border-gray-100 dark:border-gray-700 group-hover:scale-110">
-            <Camera className="w-5 h-5" />
+        <div className="relative group inline-block">
+          {/* Profile Image Container */}
+          <div className="w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 shadow-2xl relative overflow-hidden transition-transform hover:scale-105 duration-300 bg-purple/10">
+            {watch("photoUrl") || user?.image ? (
+              <SafeImage
+                src={watch("photoUrl") || user?.image || ""}
+                alt="Profile photo"
+                fill
+                className="object-cover"
+                onError={() => {
+                  /* Fallback to initials happens via the condition below if we had a way to trigger rerender */
+                }}
+              />
+            ) : (
+              <div className="w-full h-full bg-purple flex items-center justify-center">
+                <span className="text-white font-bold text-4xl">
+                  {watch("name")?.charAt(0) || user?.firstName?.charAt(0) || "U"}
+                </span>
+              </div>
+            )}
+          </div>
+          
+          {watch("photoUrl") === user?.image && user?.image && (
+            <div className="absolute -top-2 -right-2 bg-[#37E7B6] text-black text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg border border-white dark:border-gray-800 z-30">
+              DEFAULT PHOTO
+            </div>
+          )}
+
+          <label className="absolute -bottom-1 -right-1 z-30 bg-white dark:bg-gray-800 p-2.5 rounded-full shadow-lg cursor-pointer hover:bg-purple hover:text-white transition-all duration-300 border border-gray-100 dark:border-gray-700 group-hover:scale-110 shadow-purple/10">
+            {isUploadingPhoto ? (
+              <div className="w-5 h-5 border-2 border-purple border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Camera className="w-5 h-5" />
+            )}
             <input
               type="file"
               className="hidden"
@@ -303,19 +341,20 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
               disabled={isUploadingPhoto}
             />
           </label>
-          {isUploadingPhoto && (
-            <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-[2px]">
-              <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
-            </div>
-          )}
         </div>
 
         <div className="flex-1 space-y-6 w-full text-center md:text-left">
           <div className="space-y-1">
-            <Typography variant="h2" className="text-dark-blue dark:text-white font-bold text-2xl tracking-tight">
+            <Typography
+              variant="h2"
+              className="text-dark-blue dark:text-white font-bold text-2xl tracking-tight"
+            >
               Profile Details
             </Typography>
-            <Typography variant="body-small" className="text-grey-blue dark:text-gray-400">
+            <Typography
+              variant="body-small"
+              className="text-grey-blue dark:text-gray-400"
+            >
               Control your professional identity and basic contact information.
             </Typography>
           </div>
@@ -332,7 +371,9 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
                 className="bg-white/50 dark:bg-gray-900 border-gray-200 dark:border-gray-800 rounded-xl focus:ring-purple/20 transition-all h-12"
               />
               {errors.headline && (
-                <p className="text-xs text-red-500 mt-1">{errors.headline.message}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.headline.message}
+                </p>
               )}
             </div>
           </div>
@@ -349,7 +390,10 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
             <div className="p-2 bg-purple/10 rounded-lg">
               <User className="w-5 h-5 text-purple" />
             </div>
-            <Typography variant="h3" className="text-lg font-bold text-dark-blue dark:text-white">
+            <Typography
+              variant="h3"
+              className="text-lg font-bold text-dark-blue dark:text-white"
+            >
               Personal Information
             </Typography>
           </div>
@@ -372,7 +416,7 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
               error={errors.contactEmail?.message}
               className="rounded-xl h-12"
             />
-            
+
             <FormField
               label="Gender"
               htmlFor="gender"
@@ -392,7 +436,9 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
                     <SelectContent>
                       <SelectItem value="male">Male</SelectItem>
                       <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+                      <SelectItem value="prefer-not-to-say">
+                        Prefer not to say
+                      </SelectItem>
                       <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
@@ -416,7 +462,10 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
             <div className="p-2 bg-purple/10 rounded-lg">
               <Briefcase className="w-5 h-5 text-purple" />
             </div>
-            <Typography variant="h3" className="text-lg font-bold text-dark-blue dark:text-white">
+            <Typography
+              variant="h3"
+              className="text-lg font-bold text-dark-blue dark:text-white"
+            >
               Work Status & Experience
             </Typography>
           </div>
@@ -437,8 +486,15 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
                   className="flex flex-wrap gap-x-8 gap-y-4 pt-2"
                 >
                   {WORK_STATUS_OPTIONS.map((option) => (
-                    <div key={option.value} className="flex items-center gap-3 group">
-                      <RadioGroupItem value={option.value} id={option.value} className="text-purple border-purple/30" />
+                    <div
+                      key={option.value}
+                      className="flex items-center gap-3 group"
+                    >
+                      <RadioGroupItem
+                        value={option.value}
+                        id={option.value}
+                        className="text-purple border-purple/30"
+                      />
                       <label
                         htmlFor={option.value}
                         className="text-sm font-medium text-grey-blue group-hover:text-purple transition-colors cursor-pointer"
@@ -509,7 +565,10 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
             <div className="p-2 bg-purple/10 rounded-lg">
               <CircleDollarSign className="w-5 h-5 text-purple" />
             </div>
-            <Typography variant="h3" className="text-lg font-bold text-dark-blue dark:text-white">
+            <Typography
+              variant="h3"
+              className="text-lg font-bold text-dark-blue dark:text-white"
+            >
               Compensation & Location
             </Typography>
           </div>
@@ -601,8 +660,15 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
                     className="flex gap-8 pt-2"
                   >
                     {LOCATION_OPTIONS.map((option) => (
-                      <div key={option.value} className="flex items-center gap-3 group">
-                        <RadioGroupItem value={option.value} id={`loc-${option.value}`} className="text-purple border-purple/30" />
+                      <div
+                        key={option.value}
+                        className="flex items-center gap-3 group"
+                      >
+                        <RadioGroupItem
+                          value={option.value}
+                          id={`loc-${option.value}`}
+                          className="text-purple border-purple/30"
+                        />
                         <label
                           htmlFor={`loc-${option.value}`}
                           className="text-sm font-medium text-grey-blue group-hover:text-purple transition-colors cursor-pointer"
@@ -624,7 +690,10 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
             <div className="p-2 bg-purple/10 rounded-lg">
               <Phone className="w-5 h-5 text-purple" />
             </div>
-            <Typography variant="h3" className="text-lg font-bold text-dark-blue dark:text-white">
+            <Typography
+              variant="h3"
+              className="text-lg font-bold text-dark-blue dark:text-white"
+            >
               Contact & Availability
             </Typography>
           </div>
@@ -634,8 +703,12 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
               {!user?.phoneVerified && !profile?.contactPhone && (
                 <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30 rounded-xl flex items-center gap-3">
                   <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
-                  <Typography variant="caption" className="text-yellow-700 dark:text-yellow-500 font-medium">
-                    Phone verification is required to build trust with recruiters.
+                  <Typography
+                    variant="caption"
+                    className="text-yellow-700 dark:text-yellow-500 font-medium"
+                  >
+                    Phone verification is required to build trust with
+                    recruiters.
                   </Typography>
                 </div>
               )}
@@ -657,32 +730,48 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
               required={true}
               error={errors.noticePeriodDays?.message}
             >
-              <Typography variant="caption" className="text-grey-blue dark:text-gray-400 mb-4 block">
+              <Typography
+                variant="caption"
+                className="text-grey-blue dark:text-gray-400 mb-4 block"
+              >
                 Let recruiters know when you can start your next role.
               </Typography>
               <Controller
                 name="noticePeriodDays"
                 control={control}
                 render={({ field }) => {
-                  const getDaysFromOption = (option: string): number | string | undefined => {
+                  const getDaysFromOption = (
+                    option: string,
+                  ): number | string | undefined => {
                     switch (option) {
-                      case "15-days": return 15;
-                      case "1-month": return 30;
-                      case "2-months": return 60;
-                      case "3-months": return 90;
-                      case "serving": return "serving";
-                      case "immediately": return 0;
-                      default: return undefined;
+                      case "15-days":
+                        return 15;
+                      case "1-month":
+                        return 30;
+                      case "2-months":
+                        return 60;
+                      case "3-months":
+                        return 90;
+                      case "serving":
+                        return "serving";
+                      case "immediately":
+                        return 0;
+                      default:
+                        return undefined;
                     }
                   };
 
                   const getOptionFromDays = (days?: number | string) => {
                     if (days === "serving") return "serving";
                     if (days === 0) return "immediately";
-                    if (typeof days === "number" && days <= 15) return "15-days";
-                    if (typeof days === "number" && days <= 30) return "1-month";
-                    if (typeof days === "number" && days <= 60) return "2-months";
-                    if (typeof days === "number" && days <= 90) return "3-months";
+                    if (typeof days === "number" && days <= 15)
+                      return "15-days";
+                    if (typeof days === "number" && days <= 30)
+                      return "1-month";
+                    if (typeof days === "number" && days <= 60)
+                      return "2-months";
+                    if (typeof days === "number" && days <= 90)
+                      return "3-months";
                     return undefined;
                   };
 
@@ -692,15 +781,21 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
                     <div className="flex flex-wrap gap-3">
                       {NOTICE_PERIOD_OPTIONS.map((option) => (
                         <Button
-                          variant={currentValue === option.value ? "primary" : "outline"}
+                          variant={
+                            currentValue === option.value
+                              ? "primary"
+                              : "outline"
+                          }
                           key={option.value}
                           type="button"
-                          onClick={() => field.onChange(getDaysFromOption(option.value))}
+                          onClick={() =>
+                            field.onChange(getDaysFromOption(option.value))
+                          }
                           className={cn(
                             "px-6 py-2 rounded-full text-xs font-semibold transition-all duration-300",
-                            currentValue === option.value 
-                              ? "bg-purple text-white shadow-lg shadow-purple/20 scale-105" 
-                              : "hover:border-purple hover:text-purple border-gray-200 dark:border-gray-800"
+                            currentValue === option.value
+                              ? "bg-purple text-white shadow-lg shadow-purple/20 scale-105"
+                              : "hover:border-purple hover:text-purple border-gray-200 dark:border-gray-800",
                           )}
                         >
                           {option.label}
@@ -714,39 +809,42 @@ export default function BasicDetails({ profile, isLoadingProfile }: BasicDetails
           </div>
         </section>
 
-          {/* Section: Resume */}
-          <section className="space-y-6 pt-4">
-            <div className="flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 pb-4">
-              <div className="p-2 bg-purple/10 rounded-lg">
-                <Type className="w-5 h-5 text-purple" />
-              </div>
-              <Typography variant="h3" className="text-lg font-bold text-dark-blue dark:text-white">
-                Professional Resume
-              </Typography>
+        {/* Section: Resume */}
+        <section className="space-y-6 pt-4">
+          <div className="flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 pb-4">
+            <div className="p-2 bg-purple/10 rounded-lg">
+              <Type className="w-5 h-5 text-purple" />
             </div>
+            <Typography
+              variant="h3"
+              className="text-lg font-bold text-dark-blue dark:text-white"
+            >
+              Professional Resume
+            </Typography>
+          </div>
 
-            <div className="group">
-              <ResumeUploader
-                isRequired
-                onUploadComplete={handleResumeUploadComplete}
-                initialFileName={resumeFileUrl ? "Resume uploaded" : undefined}
-                error={errors.resumeFileUrl?.message}
-              />
-            </div>
-          </section>
+          <div className="group">
+            <ResumeUploader
+              isRequired
+              onUploadComplete={handleResumeUploadComplete}
+              initialFileName={resumeFileUrl ? "Resume uploaded" : undefined}
+              error={errors.resumeFileUrl?.message}
+            />
+          </div>
+        </section>
       </div>
 
       <div className="flex flex-col sm:flex-row justify-end gap-4 p-2 mt-6">
-        <Button 
-          type="button" 
-          variant="ghost" 
+        <Button
+          type="button"
+          variant="ghost"
           className="w-full sm:w-auto order-2 sm:order-1 px-8 rounded-xl text-grey-blue hover:text-dark-blue h-12"
           onClick={() => window.history.back()}
         >
           Cancel
         </Button>
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={isSubmitting || isLoadingProfile || isUploadingPhoto}
           className="w-full sm:w-auto order-1 sm:order-2 bg-purple text-white px-12 h-12 rounded-xl hover:bg-purple/90 shadow-xl shadow-purple/20 transition-all active:scale-95"
         >
