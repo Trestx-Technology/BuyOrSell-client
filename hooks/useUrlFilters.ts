@@ -27,13 +27,26 @@ export const useUrlFilters = () => {
       }
     }
 
-    const hasDynamicFilters = Object.keys(extraFields).length > 0;
+    // Standard GET API parameters
+    const standardKeys = [
+      "search", "query", "location", "emirate", "page", "limit", 
+      "category", "status", "userId", "organizationName", "sort", 
+      "deal", "topChoice", "isFeatured", "hasVideo", "upForExchange", 
+      "isExchangable", "adType", "currentDate", "fromDate", "toDate",
+      "jobId", "adId" // standard identifiers
+    ];
+
+    const hasTopLevelDynamicFilters = Object.keys(filters).some(
+      key => !standardKeys.includes(key) && filters[key] !== ""
+    );
+
+    const hasDynamicFilters = Object.keys(extraFields).length > 0 || hasTopLevelDynamicFilters;
 
     return {
       query: filters,
       extraFields,
-      search: searchParams.get("search") || "",
-      location: searchParams.get("location") || "",
+      search: searchParams.get("search") || searchParams.get("query") || "",
+      location: searchParams.get("location") || searchParams.get("emirate") || "",
       hasDynamicFilters,
       updateUrlParam,
       updateUrlParams,

@@ -832,6 +832,9 @@ export interface JobFilters {
   status?: string;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
+  postedOn?: string;
+  posted_on?: string;
+  posted_at?: string;
 }
 
 export interface JobSearchParams {

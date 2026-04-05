@@ -53,16 +53,17 @@ export const defaultJobFilters = [
     placeholder: "Any Experience",
   },
   {
-    key: "fromDate",
-    label: "From Date",
-    type: "calendar" as const,
-    placeholder: "Select start date",
-  },
-  {
-    key: "toDate",
-    label: "To Date",
-    type: "calendar" as const,
-    placeholder: "Select end date",
+    key: "postedOn",
+    label: "Posted On",
+    type: "select" as const,
+    options: [
+      { value: "", label: "Any Time" },
+      { value: "24h", label: "Last 24 hours" },
+      { value: "7d", label: "Last 7 days" },
+      { value: "30d", label: "Last 30 days" },
+      { value: "90d", label: "Last 3 months" },
+    ],
+    placeholder: "Any Time",
   },
 ];
 

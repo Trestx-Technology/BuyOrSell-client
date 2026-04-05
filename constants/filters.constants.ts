@@ -24,17 +24,17 @@ export const getStaticFilterConfig = (t: any): FilterConfig[] => [
     isStatic: true,
   },
   {
-    key: "fromDate",
-    label: t.categories.filters.fromDate,
-    type: "calendar",
-    placeholder: t.categories.placeholders.selectStartDate,
-    isStatic: true,
-  },
-  {
-    key: "toDate",
-    label: t.categories.filters.toDate,
-    type: "calendar",
-    placeholder: t.categories.placeholders.selectEndDate,
+    key: "postedOn",
+    label: "Posted On",
+    type: "select",
+    options: [
+      { value: "", label: "Any Time" },
+      { value: "24h", label: "Last 24 hours" },
+      { value: "7d", label: "Last 7 days" },
+      { value: "30d", label: "Last 30 days" },
+      { value: "90d", label: "Last 3 months" },
+    ],
+    placeholder: "Any Time",
     isStatic: true,
   },
   {

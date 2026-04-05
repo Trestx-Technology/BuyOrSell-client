@@ -90,6 +90,29 @@ export const buildAdFilterPayload = ({
     payload.toDate = new Date(filters.toDate).toISOString();
   }
 
+  // Handle Posted On (Dropdown)
+  const postedOn = filters.postedOn as string;
+  if (postedOn) {
+    const date = new Date();
+    if (postedOn === "24h") {
+      date.setDate(date.getDate() - 1);
+    } else if (postedOn === "7d") {
+      date.setDate(date.getDate() - 7);
+    } else if (postedOn === "30d") {
+      date.setDate(date.getDate() - 30);
+    } else if (postedOn === "90d") {
+      date.setDate(date.getDate() - 90);
+    }
+
+    if (postedOn !== "") {
+      const isoDate = date.toISOString();
+      payload.fromDate = isoDate;
+      // Also include posted_on/posted_at just in case the backend expects it
+      payload.posted_on = postedOn;
+      payload.posted_at = isoDate;
+    }
+  }
+
   // Extra Fields
   const extraFieldsFilters: Record<string, any> = {};
 
@@ -105,6 +128,7 @@ export const buildAdFilterPayload = ({
     "toDate",
     "search",
     "location",
+    "postedOn",
   ];
 
   // Map any remaining filter keys into extraFields automatically
